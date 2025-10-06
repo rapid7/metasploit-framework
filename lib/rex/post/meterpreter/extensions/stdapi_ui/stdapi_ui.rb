@@ -37,13 +37,6 @@ module Rex
           end
           include Rex::Post::Meterpreter::Extensions::Stdapi
 
-          ###
-          #
-          # Standard ruby interface to remote entities for meterpreter.  It provides
-          # basic access to files, network, system, and other properties of the remote
-          # machine that are fairly universal.
-          #
-          ###
           class Stdapi_Ui < Extension
 
             def self.extension_id
@@ -51,7 +44,7 @@ module Rex
             end
 
             #
-            # Initializes an instance of the standard API extension.
+            # Initializes an instance of the Standard API (Ui Namespace) extension.
             #
             def initialize(client)
               super(client, 'stdapi_ui')
