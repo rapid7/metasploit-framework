@@ -1202,16 +1202,22 @@ class Console::CommandDispatcher::Core
         next
       end
 
-      if extensions.select { |e| e.starts_with?('stdapi_')}.any? && md == 'stdapi'
+      loaded_stdapi_namespaces = extensions.select { |e| e.starts_with?('stdapi_')}
+
+      if loaded_stdapi_namespaces.length > 0 && md == 'stdapi'
         print_error("Partial extension of stdapi has already been loaded.")
         next
       end
+
+      client_load = (md == 'stdapi_audio' && loaded_stdapi_namespaces.select {|e| ['stdapi_webcam', 'stdapi_ui'].include?(e)}.any?)
+                    (md == 'stdapi_sys'   && loaded_stdapi_namespaces.select {|e| ['stdapi_webcam', 'stdapi_ui'].include?(e)}.any?)
+                    (md == 'stdapi_webcam' && loaded_stdapi_namespaces.select {|e| ['stdapi_ui'].include?(e)}.any?)
 
       print("Loading extension #{md}...")
 
       begin
         # Use the remote side, then load the client-side
-        if (client.core.use(modulenameprovided) == true)
+        if (client_load || client.core.use(modulenameprovided) == true)
           add_extension_client(md)
 
           if md == 'stdapi' && (client.exploit_datastore && !client.exploit_datastore['AutoLoadStdapi'] && client.exploit_datastore['AutoSystemInfo'])
