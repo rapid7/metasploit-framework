@@ -35,7 +35,7 @@ module Rex
             end
 
             #
-            # Initializes an instance of the standard API extension.
+            # Initializes an instance of the standard Audio API extension.
             #
             def initialize(client)
               super(client, 'stdapi_audio')
