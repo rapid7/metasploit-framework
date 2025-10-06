@@ -8,7 +8,7 @@ module Rex
       module Ui
         ###
         #
-        # Standard API extension.
+        # Standard Ui API extension.
         #
         ###
         class Console::CommandDispatcher::Stdapi_Ui

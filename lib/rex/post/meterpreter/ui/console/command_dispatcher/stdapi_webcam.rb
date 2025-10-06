@@ -8,7 +8,7 @@ module Rex
       module Ui
         ###
         #
-        # Standard API extension.
+        # Standard Webcam API extension.
         #
         ###
         class Console::CommandDispatcher::Stdapi_Webcam
