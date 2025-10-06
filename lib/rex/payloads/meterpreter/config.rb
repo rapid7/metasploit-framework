@@ -173,6 +173,7 @@ private
     file_extension = 'x86.dll'
     file_extension = 'x64.dll' unless is_x86?
 
+    @opts[:extensions] = [] if @opts[:extensions].blank?
     prev_length = @opts[:extensions].length
     @opts[:extensions] = @opts[:extensions].select {|ext_name| ext_name.index('stdapi_') != 0}
     if prev_length != @opts[:extensions].length
