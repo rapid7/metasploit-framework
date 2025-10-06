@@ -357,7 +357,7 @@ class ClientCore < Extension
     # - we are running windows meterpreter with one of the stdapi namespace loaded (stdapi_net, stdapi_fs.... etc). 
     #   partial loading of the other namespace is still possible, we can load stdapi_net and stdapi_fs later.
     
-    skip_loading = commands.length > 0 && mod.downcase.index('stdapi_') != 0
+    skip_loading = commands.length > 0 && !mod.downcase.start_with?('stdapi_')
     unless skip_loading
       image = nil
       path = nil
