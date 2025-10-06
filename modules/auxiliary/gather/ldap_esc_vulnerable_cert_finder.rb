@@ -509,6 +509,7 @@ class MetasploitModule < Msf::Auxiliary
       if @registry_values[:strong_certificate_binding_enforcement].present?
         note += " Registry value: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}."
       end
+      @certificate_details[certificate_symbol][:target_users] = users
       @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
       @certificate_details[certificate_symbol][:techniques] << 'ESC9'
       @certificate_details[certificate_symbol][:notes] << note
@@ -549,6 +550,7 @@ class MetasploitModule < Msf::Auxiliary
       if @registry_values[:strong_certificate_binding_enforcement].present? && @registry_values[:certificate_mapping_methods].present?
         note += " Registry values: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{@registry_values[:certificate_mapping_methods]}."
       end
+      @certificate_details[certificate_symbol][:target_users] = users
       @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
       @certificate_details[certificate_symbol][:techniques] << 'ESC10'
       @certificate_details[certificate_symbol][:notes] << note
@@ -723,9 +725,24 @@ class MetasploitModule < Msf::Auxiliary
         next if (@registry_values[ca_name][:disable_extension_list] && !@registry_values[ca_name][:disable_extension_list].include?('1.3.6.1.4.1.311.25.2'))
 
         if @registry_values[:strong_certificate_binding_enforcement] && (@registry_values[:strong_certificate_binding_enforcement] == 0 || @registry_values[:strong_certificate_binding_enforcement] == 1)
+          enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
+          users = find_users_with_write_and_enroll_rights(enroll_sids)
+          next if users.empty?
+
+          user_plural = users.size > 1 ? 'accounts' : 'account'
+          has_plural = users.size > 1 ? 'have' : 'has'
+
+          current_user = adds_get_current_user(@ldap)[:samaccountname].first
+
+          note = "ESC16: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
+          note += " Registry values: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{@registry_values[:certificate_mapping_methods]}."
+          note += " The Certificate Authority: #{ca_name} has 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
+
           # Scenario 1 - StrongCertificateBindingEnforcement = 1 or 0 then it's the same as ESC9 - mark them all as vulnerable
+          @certificate_details[certificate_symbol][:target_users] = users
+          @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
           @certificate_details[certificate_symbol][:techniques] << 'ESC16'
-          @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due StrongCertificateBindingEnforcement = #{@registry_values[:strong_certificate_binding_enforcement]} and the Certificate Authority: #{ca_name} having 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
+          @certificate_details[certificate_symbol][:notes] << note
         elsif @registry_values[ca_name][:edit_flags] & EDITF_ATTRIBUTESUBJECTALTNAME2 != 0
           # Scenario 2 - StrongCertificateBindingEnforcement = 2 but the edit_flags contain EDITF_ATTRIBUTESUBJECTALTNAME2 which re-enables the ability to exploit the certificate in the same way as ESC6
           @certificate_details[certificate_symbol][:techniques] << 'ESC16'
@@ -1057,7 +1074,7 @@ class MetasploitModule < Msf::Auxiliary
 
       registry_values = enum_registry_values if datastore['RUN_REGISTRY_CHECKS']
 
-      if registry_values.any?
+      if registry_values.present?
         registry_values.each do |key, value|
           vprint_good("#{key}: #{value.inspect}")
         end
