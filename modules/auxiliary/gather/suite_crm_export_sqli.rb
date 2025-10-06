@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
+          ['CVE', '2023-5350'],
           ['URL', 'https://blog.exodusintel.com/2022/06/09/salesagility-suitecrm-export-request-sql-injection-vulnerability/'],
           ['URL', 'https://docs.suitecrm.com/admin/releases/7.12.x/#_7_12_6']
         ],
