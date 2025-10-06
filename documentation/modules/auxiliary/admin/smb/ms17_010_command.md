@@ -65,7 +65,7 @@ This can be either the plain text version or the Windows hash.
 
 **Automatic Target**
 
-There are multiple targets available for exploit/windows/smb/psexec. The Automatic target is the default target. If the  Automatic target detects Powershell on the remote machine, it will try Powershell, otherwise it uses the natvie upload. Each target is explained below.
+There are multiple targets available for exploit/windows/smb/psexec. The Automatic target is the default target. If the  Automatic target detects Powershell on the remote machine, it will try Powershell, otherwise it uses the native upload. Each target is explained below.
 
 **Powershell Target**
 
