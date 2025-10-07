@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           get the logins, then just login to the site.
         },
         'References' => [
-          ['CVE', '2025‑6095'],
+          ['CVE', '2025-6095'],
           ['URL', 'https://github.com/chebuya/CVE-2024-30851-jasmin-ransomware-path-traversal-poc'],
           ['URL', 'https://github.com/codesiddhant/Jasmin-Ransomware']
         ],
