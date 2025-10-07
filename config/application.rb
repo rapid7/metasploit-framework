@@ -7,7 +7,7 @@ require File.expand_path('../boot', __FILE__)
 require 'action_view'
 # Monkey patch https://github.com/rails/rails/blob/v7.2.2.1/actionview/lib/action_view/helpers/tag_helper.rb#L51
 # Might be fixed by 8.x https://github.com/rails/rails/blob/v8.0.2/actionview/lib/action_view/helpers/tag_helper.rb#L51C1-L52C1
-raise unless ActionView::VERSION::STRING == '7.2.2.1' # A developer will need to ensure this is still required when bumping rails
+raise unless ActionView::VERSION::STRING == '7.2.2.2' # A developer will need to ensure this is still required when bumping rails
 module ActionView::Helpers::TagHelper
   class TagBuilder
     def self.define_element(name, code_generator:, method_name: name.to_s.underscore)
