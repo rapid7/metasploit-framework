@@ -1640,13 +1640,14 @@ class Console::CommandDispatcher::Core
     if status.nil?
       # Check to see if we can find this command in another extension. This relies on the core extension being the last
       # in the dispatcher stack which it should be since it's the first loaded.
-      Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.each do |ext_name|
+      Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.select{ | ext_name | !ext_name.starts_with?('stdapi_')}.each do |ext_name|
         next if extensions.include?(ext_name)
         ext_klass = get_extension_client_class(ext_name)
         next if ext_klass.nil?
 
         if ext_klass.has_command?(cmd)
-          print_error("The \"#{cmd}\" command requires the \"#{ext_name}\" extension to be loaded (run: `load #{ext_name}`)")
+          print_error("The \"#{cmd}\" command requires the \"#{ext_name}\" extension to be loaded (run: `load #{ext_name}`)") if ext_name != "stdapi"
+          print_error("The \"#{cmd}\" command requires the stdapi extension to be loaded or the relative subcomponent (run: `load stdapi` or `load stdapi_audio/_fs/_net/_sys/_railgun/_ui/_webcam`)") if ext_name == "stdapi"
           return :handled
         end
       end
