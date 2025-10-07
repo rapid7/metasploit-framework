@@ -16,6 +16,7 @@ class MetasploitModule < Msf::Auxiliary
           SteelHead VCX (VCX255U) version 9.6.0a was confirmed as vulnerable.
       },
       'References' => [
+        ['CVE', '2025-34098'],
         ['EDB', '42101']
       ],
       'Author' => [

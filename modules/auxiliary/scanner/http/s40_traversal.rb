@@ -18,6 +18,7 @@ class MetasploitModule < Msf::Auxiliary
           which allows a malicious user to load an arbitrary file path.
         },
         'References' => [
+          [ 'CVE', '2011-10009' ],
           [ 'OSVDB', '82469'],
           [ 'EDB', '17129' ]
         ],

@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'Author' => 'xistence <xistence[at]0x90.nl>', # Discovery, Metasploit module
         'References' => [
+          ['CVE', '2011-2757'],
           ['URL', 'https://www.manageengine.com/products/service-desk/readme-9.1.html'],
         ],
         'DisclosureDate' => '2015-10-03',

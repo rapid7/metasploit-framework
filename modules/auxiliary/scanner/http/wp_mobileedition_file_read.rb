@@ -19,6 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           web server privileges.
         },
         'References' => [
+          ['CVE', '2015-9406'],
           ['EDB', '36733'],
           ['WPVDB', '7898']
         ],

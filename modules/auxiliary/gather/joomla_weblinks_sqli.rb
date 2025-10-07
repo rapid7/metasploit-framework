@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Auxiliary
           'Brandon Perry <bperry.volatile[at]gmail.com>', # metasploit module
         ],
         'References' => [
+          ['CVE', '2014-7981'],
           ['EDB', '31459'],
           ['URL', 'http://web.archive.org/web/20221129082328/https://developer.joomla.org/security/578-20140301-core-sql-injection.html']
         ],

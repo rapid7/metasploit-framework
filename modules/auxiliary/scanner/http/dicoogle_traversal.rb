@@ -21,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
           successful against Windows targets.
         },
         'References' => [
+          ['CVE', '2018-25113'],
           ['EDB', '45007']
         ],
         'Author' => [
