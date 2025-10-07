@@ -14,7 +14,8 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => 'Enable and set root account to a chosen password on unpatched macOS High Sierra hosts with either Screen Sharing or Remote Management enabled.',
       'References' => [
         ['CVE', '2017-13872'],
-        ['URL', 'https://support.apple.com/en-us/HT208315']
+        ['URL', 'https://support.apple.com/en-us/HT208315'],
+        ['ATT&CK', Mitre::Attack::Technique::T1021_005_VNC]
       ],
       'Author' => 'jgor',
       'License' => MSF_LICENSE

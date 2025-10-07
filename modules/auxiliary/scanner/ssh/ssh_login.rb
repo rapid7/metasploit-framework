@@ -28,7 +28,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => ['todb'],
       'References' => [
-        [ 'CVE', '1999-0502'] # Weak password
+        [ 'CVE', '1999-0502'], # Weak password
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_004_SSH ]
       ],
       'License' => MSF_LICENSE,
       'DefaultOptions' => { 'VERBOSE' => false } # Disable annoying connect errors

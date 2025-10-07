@@ -24,7 +24,8 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter', 'shell' ],
         'References'	=> [
           ['URL', 'https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_overview'],
-          ['URL', 'https://github.com/PowerShell/openssh-portable']
+          ['URL', 'https://github.com/PowerShell/openssh-portable'],
+          ['ATT&CK', Mitre::Attack::Technique::T1021_004_SSH]
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
