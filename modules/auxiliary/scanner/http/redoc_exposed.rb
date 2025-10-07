@@ -1,9 +1,11 @@
-require 'msf/core'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
-  include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
     super(
@@ -11,64 +13,72 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'ReDoc API Docs UI Exposed',
         'Description' => %q{
-          Detects publicly exposed ReDoc API documentation pages which may reveal API surface,
-          endpoints, request/response models, and other implementation details useful to attackers.
+          Detects publicly exposed ReDoc API documentation pages.
+          The module performs safe, read-only GET requests and reports likely
+          ReDoc instances based on HTML markers.
         },
         'Author' => [
-          'Hamza Sahin <hmzshn61@gmail.com>'
+          'Hamza Sahin (@hamzasahin61)'
         ],
-        'License' => MSF_LICENSE,
-        'References' => [
-          [ 'URL', 'https://redocly.com/docs/redoc/' ]
-        ],
-        'Actions' => [ [ 'Scan', { 'Description' => 'Scan for exposed ReDoc UI' } ] ],
-        'DefaultAction' => 'Scan'
+        'License' => MSF_LICENSE
       )
     )
 
-    register_advanced_options([
-      OptString.new('REDOC_PATHS', [ true, 'Comma-separated paths to probe', '/redoc,/docs,/api/docs,/openapi,/redoc/' ])
-    ])
+    register_options(
+      [
+        Opt::RPORT(80),
+        OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', false]),
+        OptString.new('REDOC_PATHS', [
+          false,
+          'Comma-separated list of paths to probe (overrides defaults)',
+          nil
+        ])
+      ]
+    )
   end
 
-  # Returns :yes if the path looks like a ReDoc page, else :no
+  # returns true if the response looks like a ReDoc page
+  def redoc_like?(res)
+    return false unless res && res.code.between?(200, 403)
+
+    # Prefer DOM checks
+    doc = res.get_html_document
+    if doc
+      return true if doc.at_css('redoc, redoc-, #redoc')
+      return true if doc.css('script[src*="redoc"]').any?
+      return true if doc.css('script[src*="redoc.standalone"]').any?
+    end
+
+    # Fallback to body/title heuristics
+    title = res.get_html_title.to_s
+    body  = res.body.to_s
+
+    return true if title =~ /redoc/i
+    return true if body =~ /<redoc-?/i
+    return true if body =~ /redoc(\.standalone)?\.js/i
+
+    false
+  end
+
   def check_path(path)
-    res = send_request_cgi({ 'method' => 'GET', 'uri' => normalize_uri(path) }, 10)
-    return :no if res.nil?
-
-    code_ok = res.code && res.code.between?(200, 403)
-    body = res.body.to_s
-
-    title_hit = body =~ /<\s*title[^>]*>[^<]*redoc[^<]*<\/\s*title\s*>/i
-    redoc_hit = body =~ /(redoc(?:\.standalone)?\.js|<\s*redoc-?)/i
-
-    return :yes if code_ok && (title_hit || redoc_hit)
-    :no
+    res = send_request_cgi({ 'method' => 'GET', 'uri' => normalize_uri(path) })
+    redoc_like?(res)
   end
 
   def run_host(ip)
     vprint_status("#{ip} - scanning for ReDoc")
 
-    paths = (datastore['REDOC_PATHS'] || '').split(',').map(&:strip)
-    paths = ['/redoc', '/docs', '/api/docs', '/openapi', '/redoc/'] if paths.empty?
+    paths =
+      if (ds = datastore['REDOC_PATHS']) && !ds.empty?
+        ds.split(',').map(&:strip)
+      else
+        ['/redoc', '/redoc/', '/docs', '/api/docs', '/openapi']
+      end
 
-    hit = paths.find { |p| check_path(p) == :yes }
-
+    hit = paths.find { |p| check_path(p) }
     if hit
       print_good("#{ip} - ReDoc likely exposed at #{hit}")
-      report_service(
-        host: ip,
-        port: rport,
-        proto: 'tcp',
-        name: (ssl ? 'https' : 'http')
-      )
-      report_note(
-        host: ip,
-        port: rport,
-        proto: 'tcp',
-        type: 'http.redoc.exposed',
-        data: { path: hit }
-      )
+      report_service(host: ip, port: rport, proto: 'tcp', name: 'http')
     else
       vprint_status("#{ip} - no ReDoc found")
     end
