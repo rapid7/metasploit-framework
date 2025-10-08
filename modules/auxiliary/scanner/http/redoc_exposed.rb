@@ -25,14 +25,17 @@ class MetasploitModule < Msf::Auxiliary
           'Stability' => [CRASH_SAFE],  # GET requests only; should not crash or disrupt the target service
           'Reliability' => [],          # Does not establish sessions; leaving this empty is acceptable
           'SideEffects' => []           # Add IOC_IN_LOGS if server logs may record these requests
+        },
+        'DefaultOptions' => {
+          'RPORT' => 80
+          # SSL is registered by default; set here only if you want a non-default value
+          # 'SSL' => false
         }
       )
     )
 
     register_options(
       [
-        Opt::RPORT(80),
-        OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', false]),
         OptString.new('REDOC_PATHS', [
           false,
           'Comma-separated list of paths to probe (overrides defaults)',
@@ -48,36 +51,32 @@ class MetasploitModule < Msf::Auxiliary
 
     # Prefer DOM checks
     doc = res.get_html_document
-    if doc
-      return true if doc.at_css('redoc, redoc-, #redoc')
-      return true if doc.css('script[src*="redoc"]').any?
-      return true if doc.css('script[src*="redoc.standalone"]').any?
+    if doc && (doc.at_css('redoc, redoc-, #redoc') ||
+                     doc.css('script[src*="redoc"]').any? ||
+                     doc.css('script[src*="redoc.standalone"]').any?)
+      return true
     end
 
     # Fallback to body/title heuristics
     title = res.get_html_title.to_s
     body = res.body.to_s
-
-    return true if title =~ /redoc/i
-    return true if body =~ /<redoc-?/i
-    return true if body =~ /redoc(\.standalone)?\.js/i
+    return true if title =~ /redoc/i || body =~ /<redoc-?/i || body =~ /redoc(\.standalone)?\.js/i
 
     false
   end
 
   def check_path(path)
-    res = send_request_cgi({ 'method' => 'GET', 'uri' => normalize_uri(path) })
-    redoc_like?(res)
+    redoc_like?(send_request_cgi({ 'method' => 'GET', 'uri' => normalize_uri(path) }))
   end
 
   def run_host(ip)
     vprint_status("#{ip} - scanning for ReDoc")
 
     paths =
-      if (ds = datastore['REDOC_PATHS']) && !ds.empty?
-        ds.split(',').map(&:strip)
-      else
+      if datastore['REDOC_PATHS'].to_s.empty?
         ['/redoc', '/redoc/', '/docs', '/api/docs', '/openapi']
+      else
+        datastore['REDOC_PATHS'].split(',').map(&:strip)
       end
 
     hit = paths.find { |p| check_path(p) }
