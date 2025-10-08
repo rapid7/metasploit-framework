@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [
           'Hamza Sahin (@hamzasahin61)'
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],  # GET requests only; should not crash or disrupt the target service
+          'Reliability' => [],          # Does not establish sessions; leaving this empty is acceptable
+          'SideEffects' => []           # Add IOC_IN_LOGS if server logs may record these requests
+        }
       )
     )
 
@@ -51,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Fallback to body/title heuristics
     title = res.get_html_title.to_s
-    body  = res.body.to_s
+    body = res.body.to_s
 
     return true if title =~ /redoc/i
     return true if body =~ /<redoc-?/i
