@@ -348,7 +348,7 @@ GEM
       drb
       mutex_m
       railties (~> 7.0)
-    metasploit-payloads (2.0.232)
+    metasploit-payloads (2.0.234)
     metasploit_data_models (6.0.9)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
