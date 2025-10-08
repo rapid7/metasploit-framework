@@ -1,91 +1,39 @@
-##
-# This module requires Metasploit: https://metasploit.com/download
-# Current source: https://github.com/rapid7/metasploit-framework
-##
+## Summary
+This module detects publicly exposed **ReDoc** API documentation pages.  
+It performs safe, read-only HTTP GET requests and reports likely ReDoc instances based on common HTML markers.
 
-class MetasploitModule < Msf::Auxiliary
-  include Msf::Auxiliary::Scanner
-  include Msf::Exploit::Remote::HttpClient
+## Module name
+`auxiliary/scanner/http/redoc_exposed`
 
-  def initialize(info = {})
-    super(
-      update_info(
-        info,
-        'Name' => 'ReDoc API Docs UI Exposed',
-        'Description' => %q{
-          Detects publicly exposed ReDoc API documentation pages.
-          The module performs safe, read-only GET requests and reports likely
-          ReDoc instances based on HTML markers.
-        },
-        'Author' => [
-          'Hamza Sahin (@hamzasahin61)'
-        ],
-        'License' => MSF_LICENSE,
-        'Notes' => {
-          'Stability' => [CRASH_SAFE],  # GET requests only; should not crash or disrupt the target service
-          'Reliability' => [],          # Does not establish sessions; leaving this empty is acceptable
-          'SideEffects' => []           # Add IOC_IN_LOGS if server logs may record these requests
-        }
-      )
-    )
+## Options
+* **RPORT** – Target TCP port (default: 80)  
+* **SSL** – Enable TLS (default: false)  
+* **REDOC_PATHS** – Optional comma-separated list of paths to probe. When unset, the module probes: `/redoc, /redoc/, /docs, /api/docs, /openapi`.
 
-    register_options(
-      [
-        Opt::RPORT(80),
-        OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', false]),
-        OptString.new('REDOC_PATHS', [
-          false,
-          'Comma-separated list of paths to probe (overrides defaults)',
-          nil
-        ])
-      ]
-    )
-  end
+## Verification steps
+1. Start `msfconsole`  
+2. `use auxiliary/scanner/http/redoc_exposed`  
+3. `set RHOSTS <target or file:/path/to/targets.txt>`  
+4. (Optional) `set REDOC_PATHS /redoc,/docs`  
+5. (Optional) `set RPORT <port>` and/or `set SSL true`  
+6. `run`
 
-  # returns true if the response looks like a ReDoc page
-  def redoc_like?(res)
-    return false unless res && res.code.between?(200, 403)
+### Expected
 
-    # Prefer DOM checks
-    doc = res.get_html_document
-    if doc
-      return true if doc.at_css('redoc, redoc-, #redoc')
-      return true if doc.css('script[src*="redoc"]').any?
-      return true if doc.css('script[src*="redoc.standalone"]').any?
-    end
+`[+] <ip> - ReDoc likely exposed at <path>`
 
-    # Fallback to body/title heuristics
-    title = res.get_html_title.to_s
-    body = res.body.to_s
+### Scanning notes
+- DOM-driven checks via `get_html_document`:
+  - `<redoc>` / `redoc-` custom elements
+  - `#redoc` container
+  - `<script src="...redoc(.standalone).js">`
+- Falls back to body/title heuristics if DOM parsing is unavailable.
+- No intrusive actions; **read-only** HTTP GET requests only.
 
-    return true if title =~ /redoc/i
-    return true if body =~ /<redoc-?/i
-    return true if body =~ /redoc(\.standalone)?\.js/i
+### Example session
 
-    false
-  end
-
-  def check_path(path)
-    res = send_request_cgi({ 'method' => 'GET', 'uri' => normalize_uri(path) })
-    redoc_like?(res)
-  end
-
-  def run_host(ip)
-    vprint_status("#{ip} - scanning for ReDoc")
-
-    paths =
-      if (ds = datastore['REDOC_PATHS']) && !ds.empty?
-        ds.split(',').map(&:strip)
-      else
-        ['/redoc', '/redoc/', '/docs', '/api/docs', '/openapi']
-      end
-
-    hit = paths.find { |p| check_path(p) }
-    if hit
-      print_good("#{ip} - ReDoc likely exposed at #{hit}")
-      report_service(host: ip, port: rport, proto: 'tcp', name: 'http')
-    else
-      vprint_status("#{ip} - no ReDoc found")
-    end
-  end
-end
+use auxiliary/scanner/http/redoc_exposed
+set RHOSTS 127.0.0.1
+set RPORT 8001
+set SSL false
+run
