@@ -24,22 +24,21 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [CRASH_SAFE],  # GET requests only; should not crash or disrupt the target service
           'Reliability' => [],          # Does not establish sessions; leaving this empty is acceptable
-          'SideEffects' => []           # Add IOC_IN_LOGS if server logs may record these requests
+          'SideEffects' => [IOC_IN_LOGS] # Requests may be logged by the target web server
         },
         'DefaultOptions' => {
           'RPORT' => 80
-          # SSL is registered by default; set here only if you want a non-default value
-          # 'SSL' => false
         }
       )
     )
 
     register_options(
       [
+        # Mark as required and surface the built-in defaults here
         OptString.new('REDOC_PATHS', [
-          false,
-          'Comma-separated list of paths to probe (overrides defaults)',
-          nil
+          true,
+          'Comma-separated list of paths to probe',
+          '/redoc,/redoc/,/docs,/api/docs,/openapi'
         ])
       ]
     )
@@ -47,13 +46,14 @@ class MetasploitModule < Msf::Auxiliary
 
   # returns true if the response looks like a ReDoc page
   def redoc_like?(res)
-    return false unless res && res.code.between?(200, 403)
+    # Accept only 2xx or 403 (exclude redirects; many 3xx lack HTML to analyze)
+    return false unless res && (res.code.between?(200, 299) || res.code == 403)
 
     # Prefer DOM checks
     doc = res.get_html_document
     if doc && (doc.at_css('redoc, redoc-, #redoc') ||
-                     doc.css('script[src*="redoc"]').any? ||
-                     doc.css('script[src*="redoc.standalone"]').any?)
+               doc.css('script[src*="redoc"]').any? ||
+               doc.css('script[src*="redoc.standalone"]').any?)
       return true
     end
 
@@ -72,12 +72,8 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     vprint_status("#{ip} - scanning for ReDoc")
 
-    paths =
-      if datastore['REDOC_PATHS'].to_s.empty?
-        ['/redoc', '/redoc/', '/docs', '/api/docs', '/openapi']
-      else
-        datastore['REDOC_PATHS'].split(',').map(&:strip)
-      end
+    # REDOC_PATHS is required and has defaults; always use it directly
+    paths = datastore['REDOC_PATHS'].split(',').map(&:strip)
 
     hit = paths.find { |p| check_path(p) }
     if hit
