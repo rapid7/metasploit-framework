@@ -740,7 +740,7 @@ class MetasploitModule < Msf::Auxiliary
 
           # Scenario 1 - StrongCertificateBindingEnforcement = 1 or 0 then it's the same as ESC9 - mark them all as vulnerable
           @certificate_details[certificate_symbol][:target_users] = users
-          @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
+          @certificate_details[certificate_symbol][:certificate_name_flags] = entry['mspki-certificate-name-flag']
           @certificate_details[certificate_symbol][:techniques] << 'ESC16'
           @certificate_details[certificate_symbol][:notes] << note
         elsif @registry_values[ca_name][:edit_flags] & EDITF_ATTRIBUTESUBJECTALTNAME2 != 0
