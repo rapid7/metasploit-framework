@@ -28,7 +28,7 @@ PATH
       em-http-request
       eventmachine
       faker
-      faraday (= 2.7.11)
+      faraday
       faraday-retry
       faye-websocket
       ffi (< 1.17.0)
