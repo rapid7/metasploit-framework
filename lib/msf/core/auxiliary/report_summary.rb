@@ -120,7 +120,7 @@ module Msf
       # @param [Msf::Sessions::<SESSION_CLASS>] sess
       # @return [Msf::Sessions::<SESSION_CLASS>]
       def start_session(obj, info, ds_merge, crlf = false, sock = nil, sess = nil)
-        return super unless framework.features.enabled?(Msf::FeatureManager::SHOW_SUCCESSFUL_LOGINS) && datastore['ShowSuccessfulLogins']
+        return super unless framework.features.enabled?(Msf::FeatureManager::SHOW_SUCCESSFUL_LOGINS) && datastore['ShowSuccessfulLogins'] && @report
 
         result = super
         @report[rhost] ||= {}
