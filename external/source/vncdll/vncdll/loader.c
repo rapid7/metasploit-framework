@@ -9,6 +9,7 @@
 #define VNCFLAG_DISABLECOURTESYSHELL		1
 #define VNCFLAG_DISABLESESSIONTRACKING		2
 
+#define REFLECTIVEDLLINJECTION_CUSTOM_DLLMAIN
 #include "../../ReflectiveDLLInjection/dll/src/ReflectiveLoader.c"
 
 /*
@@ -427,3 +428,26 @@ DWORD Init( SOCKET s )
 
 	return dwResult;
 }
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
+{
+	BOOL bReturnValue = TRUE;
+
+	switch (dwReason)
+	{
+	case DLL_QUERY_HMODULE:
+		if (lpReserved != NULL)
+			*(HMODULE*)lpReserved = hAppInstance;
+		break;
+	case DLL_PROCESS_ATTACH:
+		hAppInstance = hinstDLL;
+		break;
+	case DLL_PROCESS_DETACH:
+	case DLL_THREAD_ATTACH:
+	case DLL_THREAD_DETACH:
+		break;
+	case DLL_METASPLOIT_ATTACH:
+		Init((SOCKET)lpReserved);
+	}
+	return bReturnValue;
+}

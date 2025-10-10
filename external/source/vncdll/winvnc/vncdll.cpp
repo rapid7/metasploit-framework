@@ -254,12 +254,12 @@ DWORD vncdll_run( AGENT_CTX * lpAgentContext )
 
 /*
  * Grab a DWORD value out of the command line.
- * e.g. vncdll_command_dword( "/FOO:0x41414141 /BAR:0xCAFEF00D", "/FOO:" ) == 0x41414141
+ * e.g. vncdll_command_ulong( "/FOO:0x41414141 /BAR:0xCAFEF00D", "/FOO:" ) == 0x41414141
  */
-DWORD vncdll_command_dword( char * cpCommandLine, char * cpCommand )
+ULONG_PTR vncdll_command_ulong( char * cpCommandLine, char * cpCommand )
 {
 	char * cpString = NULL;
-	DWORD dwResult  = 0;
+	ULONG_PTR ulResult  = 0;
 
 	do
 	{
@@ -272,11 +272,11 @@ DWORD vncdll_command_dword( char * cpCommandLine, char * cpCommand )
 
 		cpString += strlen( cpCommand );
 
-		dwResult = strtoul( cpString, NULL, 0 );
+		ulResult = strtoull( cpString, NULL, 0 );
 
 	} while( 0 );
 
-	return dwResult;
+	return ulResult;
 }
 
 /*
@@ -304,7 +304,7 @@ VOID vncdll_main( char * cpCommandLine )
 			{
 				AGENT_CTX * lpAgentContext = NULL;
 
-				lpAgentContext = (AGENT_CTX *)vncdll_command_dword( cpCommandLine, "/c:" );
+				lpAgentContext = (AGENT_CTX *)vncdll_command_ulong( cpCommandLine, "/c:" );
 
 				dwResult = vncdll_run( lpAgentContext );
 
