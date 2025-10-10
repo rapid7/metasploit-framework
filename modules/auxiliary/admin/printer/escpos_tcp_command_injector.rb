@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     # Check if a message was provided by the user
-    should_print_message = !datastore['MESSAGE'].to_s.empty?
+    should_print_message = !datastore['MESSAGE'].blank?
 
     # Retrieve other options
     trigger_drawer = datastore['TRIGGER_DRAWER']
