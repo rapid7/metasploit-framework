@@ -19,9 +19,9 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://github.com/futileskills/Security-Advisory']
         ],
         'Notes' => {
-          'Stability' => [Msf::Module::Stability::CRASH_SAFE],
-          'Reliability' => [Msf::Module::Reliability::REPEATABLE_SESSION],
-          'SideEffects' => [Msf::Module::SideEffects::IOC_IN_LOGS, Msf::Module::SideEffects::PHYSICAL_EFFECTS]
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS, PHYSICAL_EFFECTS]
         }
       )
     )
