@@ -44,7 +44,7 @@ module Msf
       end
     end
 
-    def valid?(value, check_empty: nil)
+    def valid?(value, check_empty: nil, datastore: nil)
       return false unless super
       return false unless value && File.file?(File.expand_path(value)) # no memory: locations
 
