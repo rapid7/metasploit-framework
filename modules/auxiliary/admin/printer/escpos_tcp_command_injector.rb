@@ -45,24 +45,21 @@ class MetasploitModule < Msf::Auxiliary
   CUT_COMMAND = "\x1d\x56\x42\x00".freeze
 
   def run
-    begin
-      connect
-      print_status("Connected to printer at #{rhost}")
+    connect
+    print_status("Connected to printer at #{rhost}")
 
-      case datastore['ACTION']
-      when 'PRINT'
-        handle_print
-      when 'DRAWER'
-        handle_drawer
-      when 'CUT'
-        handle_cut
-      end
-
-    rescue ::Rex::ConnectionError
-      print_error("Failed to connect to #{rhost}")
-    ensure
-      disconnect
+    case datastore['ACTION']
+    when 'PRINT'
+      handle_print
+    when 'DRAWER'
+      handle_drawer
+    when 'CUT'
+      handle_cut
     end
+  rescue ::Rex::ConnectionError
+    print_error("Failed to connect to #{rhost}")
+  ensure
+    disconnect
   end
 
   private
