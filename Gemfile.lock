@@ -71,7 +71,7 @@ PATH
       pdf-reader
       pg
       puma
-      rack
+      rack (~> 2.2)
       railties
       rasn1 (= 0.14.0)
       rb-readline
@@ -102,13 +102,13 @@ PATH
       ruby_smb (~> 3.3.15)
       rubyntlm
       rubyzip
-      sinatra
+      sinatra (~> 3.2)
       sqlite3 (= 1.7.3)
       sshkey
       stringio (= 3.1.1)
       swagger-blocks
       syslog
-      thin
+      thin (~> 1.x)
       tzinfo
       tzinfo-data
       unix-crypt
