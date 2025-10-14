@@ -29,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
       'References' => [
         ['CVE', '2010-0926'],
         ['OSVDB', '62145'],
-        ['URL', 'http://www.samba.org/samba/news/symlink_attack.html']
+        ['URL', 'http://www.samba.org/samba/news/symlink_attack.html'],
+        ['ATT&CK', Mitre::Attack::Technique::T1021_002_SMB_WINDOWS_ADMIN_SHARES]
       ],
       'License' => MSF_LICENSE,
       'Notes' => {

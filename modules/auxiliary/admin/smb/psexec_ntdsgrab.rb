@@ -35,7 +35,8 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           [ 'URL', 'http://sourceforge.net/projects/smbexec' ],
           [ 'URL', 'https://www.optiv.com/blog/owning-computers-without-shell-access' ],
-          [ 'ATT&CK', Mitre::Attack::Technique::T1003_003_NTDS ]
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_003_NTDS ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1021_002_SMB_WINDOWS_ADMIN_SHARES ]
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
