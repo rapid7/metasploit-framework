@@ -33,12 +33,7 @@ class MetasploitModule < Msf::Post
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [],
           'Reliability' => []
-        },
-        'References' => [
-          [ 'ATT&CK', Mitre::Attack::Technique::T1021_001_REMOTE_DESKTOP_PROTOCOL ],
-          [ 'ATT&CK', Mitre::Attack::Technique::T1021_005_VNC ],
-          [ 'ATT&CK', Mitre::Attack::Technique::T1021_004_SSH ]
-        ]
+        }
       )
     )
   end

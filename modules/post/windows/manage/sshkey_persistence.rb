@@ -38,10 +38,7 @@ class MetasploitModule < Msf::Post
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [ARTIFACTS_ON_DISK],
           'Reliability' => []
-        },
-        'References' => [
-          [ 'ATT&CK', Mitre::Attack::Technique::T1021_004_SSH ]
-        ]
+        }
       )
     )
 
