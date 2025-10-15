@@ -14,16 +14,16 @@ allow permission for the prompt to be displayed.  See Scenarios for additional d
 
 ## Options
 
-   **BUNDLEPATH**
+### BUNDLEPATH
    Path to bundle containing icon.  Default is `/System/Library/CoreServices/CoreTypes.bundle`.
 
-   **ICONFILE**
+### ICONFILE
    Icon filename relative to bundle.  Default is `UserUnknownIcon.icns`
 
-   **TEXTCREDS**
+### TEXTCREDS
    Text displayed when asking for a password. Default is `Type your password to allow System Preferences to make changes`.
 
-   **TIMEOUT**
+### TIMEOUT
    Timeout for user to enter credentails.  Default is `60`.  Newer versions of OSX may require additional time due to user interaction.
 
 ## Scenarios
