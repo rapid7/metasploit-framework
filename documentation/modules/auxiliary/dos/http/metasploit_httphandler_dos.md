@@ -12,7 +12,7 @@
 
 ## Options
 
- **DOSTYPE**
+### DOSTYPE
 
 	GENTLE: *Current sessions will continue to work, but not future ones*
 	  A lack of input sanitation permits an attacker to submit a request that will be added to the resources and will be used as regex rule it is possible then to make a valid regex rule that captures all the new handler requests. The sessions that were established previously will continue to work.

@@ -36,11 +36,11 @@ Override_Config
 
 ## Options
 
-  **COMMUNITY**
+### COMMUNITY
 
   The SNMP community string to use which must be read-write.  Default is `public`.
 
-  **SOURCE**
+### SOURCE
 
   The location of the source file to be uploaded to the Cisco device.
 

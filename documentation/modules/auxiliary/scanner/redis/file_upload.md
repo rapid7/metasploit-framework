@@ -22,19 +22,19 @@ Virtual testing environments (inside docker container):
 
 ## Options
 
-**DISABLE_RDBCOMPRESSION**
+### DISABLE_RDBCOMPRESSION
 
 If set to `false`, redis server will disable compression before saving. Defaults to `true`.
 
-**FLUSHALL**
+### FLUSHALL
 
 If set to `true`, redis server will remove all redis data before saving. Defaults to `false`.
 
-**LocalFile**
+### LocalFile
 
 Path to the local file to be uploaded.
 
-**RemoteFile**
+### RemoteFile
 
 Path, or file name, to store the file as on the Redis server.
 

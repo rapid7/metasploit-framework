@@ -38,37 +38,37 @@ accordingly.
 12. Apply the acquired session cookie for the vCenter host at the `/ui` path
 
 ## Options
-**DOMAIN**
+### DOMAIN
 
 The vSphere SSO domain; by default this is `vsphere.local`. If this does not match the vSphere SSO
 domain, the module will return `HTTP 400: Issuer not trusted` on execution.
 
-**USERNAME**
+### USERNAME
 
 The target user within the SSO domain. This must be a valid user as vCenter will happily issue
 SAML assertions for invalid usernames, but the provided session tokens will not function. There
 should be no reason to modify the target user from the default `administrator` in most scenarios.
 
-**RHOSTS**
+### RHOSTS
 
 The vCenter appliance IPv4 address or DNS FQDN. This must be reachable over HTTPS for the module
 to function.
 
-**VHOST**
+### VHOST
 
 The fully qualified DNS name of the vCenter appliance; this must be present in the Issuer element
 of the assertion for the module to function. If this value does not match the vCenter appliance
 FQDN, the module will return `HTTP 400` during the initial `GET` request.
 
-**VC_IDP_CERT**
+### VC_IDP_CERT
 
 The filesystem path to the vCenter SSO IdP certificate in DER or PEM format.
 
-**VC_IDP_KEY**
+### VC_IDP_KEY
 
 The filesystem path to the vCenter SSO IdP private key in DER or PEM format.
 
-**VC_VMCA_CERT**
+### VC_VMCA_CERT
 
 The filesystem path to the vCenter VMCA certificate in DER or PEM format.
 

@@ -101,7 +101,7 @@ The following table contains the file types associated with the characters:
 
 ## Options
 
-  **PATH**
+### PATH
 
   It is possible to view content within a directory of the gophermap.  If the initial run shows directory `Directory: foobar`,
   setting **path** to `/foobar` will enumerate the contents of that folder.  Default: [empty string].

@@ -27,23 +27,23 @@
 
 ## Options
 
-**HttpUsername**
+### HttpUsername
 
 The username for Snare remote access (default: `snare`).
 
-**HttpPassword**
+### HttpPassword
 
 The password for Snare remote access (default: blank).
 
-**REG_DUMP_KEY**
+### REG_DUMP_KEY
 
 Retrieve the specified registry key and all sub-keys.
 
-**REG_DUMP_ALL**
+### REG_DUMP_ALL
 
 Retrieve the entire Windows registry.
 
-**TIMEOUT**
+### TIMEOUT
 
 Timeout in seconds for downloading each registry key/hive.
 

@@ -41,23 +41,23 @@ msf exploit(psexec) > exploit
 
 By default, using auxiliary/admin/smb/ms17_010_command can be as simple as setting the RHOSTS option, and you're ready to go.
 
-**The NAMEDPIPE Option**
+### The NAMEDPIPE Option
 
 By default, the module will scan for a list of common pipes for any available one. You can specify one by name.
 
-**The LEAKATTEMPTS Option**
+### The LEAKATTEMPTS Option
 
 Information leaks are used to ensure stability of the exploit. Sometimes they don't pop on the first try.
 
-**The DBGTRACE Option**
+### The DBGTRACE Option
 
 Used to debug, gives extremely verbose information.
 
-**The SMBUser Option**
+### The SMBUser Option
 
 This is a valid Windows username.
 
-**The SMBPass option**
+### The SMBPass option
 
 This can be either the plain text version or the Windows hash.
 
