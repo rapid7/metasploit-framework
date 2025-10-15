@@ -20,11 +20,11 @@ The following was done on Ubuntu 16.04, and is largely base on [1and1.com](https
 
 ## Options
 
-  **SERVERINFO**
+### SERVERINFO
 
   If set to `true`, the server info will also enumerated and set in msf's DB.  Defaults to `false`.
 
-  **CREATEUSER**
+### CREATEUSER
 
   If set to `true`, the server info will attempt to create an account in CouchDB using configured credentials (limited to CVE-2017-12635 conditions). Defaults to `false`.
 

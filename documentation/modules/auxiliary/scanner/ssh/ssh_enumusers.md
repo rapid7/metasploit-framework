@@ -20,19 +20,19 @@ creating an opportunity for a timing attack to enumerate users.
 
 ## Options
 
-**USERNAME**
+### USERNAME
 
 Single username to test (username spray).
 
-**USER_FILE**
+### USER_FILE
 
 File containing usernames, one per line.
 
-**THRESHOLD**
+### THRESHOLD
 
 Amount of seconds needed before a user is considered found (timing attack only).
 
-**CHECK_FALSE**
+### CHECK_FALSE
 
 Check for false positives (random username).
 

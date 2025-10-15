@@ -16,14 +16,14 @@
 
 ## Options
 
-  **PORTS**
+### PORTS
 
   This is the list of ports to test for UDP amplification on each host.
   Formats like `1,2,3`, `1-3`, `1,2-3`, etc, are all supported.  You'll
   generally only want to specify a small, targeted set of ports with an
   appropriately tailored `PROBE` value, described below
 
-  **PROBE**
+### PROBE
 
   This is the payload to send in each UDP datagram. Unset or set to the empty
   string `''` or `""` to send empty UDP datagrams, or use the `file://`

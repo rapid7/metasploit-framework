@@ -21,7 +21,7 @@
   
 ## Options
 
-  **The CHANNELS_FILE option**
+### The CHANNELS_FILE option
 
   This option should contain the path to a text file which contains a list of channel names that will be checked. One channel name per line.
 

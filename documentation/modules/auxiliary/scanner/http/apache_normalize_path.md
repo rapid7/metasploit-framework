@@ -70,19 +70,19 @@ docker start CVE-2021-42013
 
 ## Options
 
-**CVE**
+### CVE
 
 The vulnerability to use (Accepted: CVE-2021-41773, CVE-2021-42013). Default: CVE-2021-42013
 
-**DEPTH**
+### DEPTH
 
 Depth for path traversal. Default: 5
 
-**FILEPATH**
+### FILEPATH
 
 The file you want to read. Default: `/etc/passwd`
 
-**TARGETURI**
+### TARGETURI
 
 Base path. Default: `/cgi-bin`
 

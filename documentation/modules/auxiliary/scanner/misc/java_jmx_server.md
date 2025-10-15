@@ -24,7 +24,7 @@ docker restart `docker ps -q`
 
 ## Options
 
-  **Option name**
+### Option name
 
   Talk about what it does, and how to use it appropriately.  If the default value is likely to change, include the default value here.
 

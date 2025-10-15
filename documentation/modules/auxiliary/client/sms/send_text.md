@@ -8,7 +8,7 @@ mail services such as Gmail, Yahoo, Live should work fine.
 
 ## Options
 
-**CELLNUMBERS**
+### CELLNUMBERS
 
 The 10-digit phone number (or numbers) you want to send the text to. If you wish to target against
 multiple phone numbers, ideally you want to create the list in a text file (one number per line),
@@ -20,16 +20,16 @@ set CELLNUMBERS file:///tmp/att_phone_numbers.txt
 
 Remember that these phone numbers must be the same carrier.
 
-**SMSCARRIER**
+### SMSCARRIER
 
 The carrier that the targeted numbers use. See **Supported Carrier Gateways** to learn more about
 supported carriers.
 
-**SMSSUBJECT**
+### SMSSUBJECT
 
 The text subject.
 
-**SMSMESSAGE**
+### SMSMESSAGE
 
 The text message you want to send. For example, this will send a text with a link to google:
 
@@ -39,23 +39,23 @@ set SMSMESSAGE "Hi, please go: google.com"
 
 The link should automatically be parsed on the phone and clickable.
 
-**SMTPADDRESS**
+### SMTPADDRESS
 
 The mail server address you wish to use to send the text messages.
 
-**SMTPPORT**
+### SMTPPORT
 
 The mail server port. By default, this is ```25```.
 
-**SMTPUSERNAME**
+### SMTPUSERNAME
 
 The username you use to log into the SMTP server.
 
-**SMTPPASSWORD**
+### SMTPPASSWORD
 
 The password you use to log into the SMTP server.
 
-**SMTPFROM**
+### SMTPFROM
 
 The FROM field of SMTP. In some cases, it may be used as ```SMTPUSER```.
 
@@ -72,7 +72,7 @@ The module supports the following carriers:
 * Verizon
 * Virgin Mobile
 
-**Note:** During development, we could not find a valid gateway for Sprint, therefore it is currently
+### Note: During development, we could not find a valid gateway for Sprint, therefore it is currently
 not supported.
 
 ### Finding the Carrier for a Phone Number
@@ -82,7 +82,7 @@ how to identify the carrier of a phone number. There are many services that can 
 
 http://freecarrierlookup.com/
 
-**Note:** If the phone is using Google Fi, then it may appear as a different carrier.
+### Note: If the phone is using Google Fi, then it may appear as a different carrier.
 
 ### Gmail SMTP Example
 

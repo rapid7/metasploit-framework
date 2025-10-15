@@ -9,15 +9,15 @@ Windows is the most ideal target because it supports WPAD by default.
 
 ## Options
 
-**NBADDR**
+### NBADDR
 
 The address that the NetBIOS name (NBNAME) should resolve to.
 
-**NBNAME**
+### NBNAME
 
 The NetBIOS name to spoof a reply for.
 
-**PPSRATE**
+### PPSRATE
 
 The rate at which to send NetBIOS replies.
 

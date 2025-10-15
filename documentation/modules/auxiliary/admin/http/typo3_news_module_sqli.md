@@ -10,11 +10,11 @@ To exploit the vulnerability, the module generates requests and sets a value for
 
 ## Options
 
-**PATTERN1** and **PATTERN2**
+### PATTERN1 and **PATTERN2**
 
 These patterns are used to determine whether the news articles have been reordered. By default, the module will search for headlines and set the first identified headline to PATTERN1 and the second to PATTERN2.
 
-**ID**
+### ID
 
 The value for query parameter `id` of the page that the news extension is running on.
 

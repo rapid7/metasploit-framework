@@ -21,11 +21,11 @@ in a production environment.
 
 ## Options
 
-  **IMAPPASS**
+### IMAPPASS
 
   A password for an IMAP account.
 
-  **IMAPUSER**
+### IMAPUSER
 
   A username for an IMAP account.
 

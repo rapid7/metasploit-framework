@@ -8,19 +8,19 @@ This module creates a mock VNC server which accepts credentials.  Upon receiving
 
 ## Options
 
-  **CHALLENGE**
+### CHALLENGE
 
   The 16 byte challenge used in the authentication.  Default is `00112233445566778899aabbccddeeff`.
 
-  **JOHNPWFILE**
+### JOHNPWFILE
 
   Write a file containing a John the Ripper format for cracking the credentials.  Default is ``.
 
-  **SSL**
+### SSL
 
   Boolean if SSL should be used.  Default is `False`.
 
-  **SSLCert**
+### SSLCert
 
   File path to a combined Private Key and Certificate file.  If not provided, a certificate will be automatically
   generated.  Default is ``.

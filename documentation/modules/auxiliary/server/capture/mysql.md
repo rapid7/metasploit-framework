@@ -8,27 +8,27 @@ This module creates a mock MySQL server which accepts credentials.  Upon receivi
 
 ## Options
 
-  **CHALLENGE**
+### CHALLENGE
 
   The MySQL 16 byte challenge used in the authentication.  Default is `112233445566778899AABBCCDDEEFF1122334455`.
 
-  **JOHNPWFILE**
+### JOHNPWFILE
 
   Write a file containing a John the Ripper format for cracking the credentials.  Default is ``.
 
-  **CAINPWFILE**
+### CAINPWFILE
 
   Write a file containing a Cain & Abel format for cracking the credentials.  Default is ``.
 
-  **SRVVERSION**
+### SRVVERSION
 
   The MySQL version to print in the login banner.  Default is `5.5.16`.
 
-  **SSL**
+### SSL
 
   Boolean if SSL should be used.  Default is `False`.
 
-  **SSLCert**
+### SSLCert
 
   File path to a combined Private Key and Certificate file.  If not provided, a certificate will be automatically
   generated.  Default is ``.
