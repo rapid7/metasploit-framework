@@ -89,7 +89,7 @@ module Anemone
         e.new( self ).run rescue next
       end.flatten.
           compact.map do |p|
-              abs = to_absolute( URI( p ) ) rescue next
+              abs = to_absolute(p) rescue next
               !in_domain?( abs ) ? nil : abs
           end.compact.uniq
     end
@@ -168,6 +168,20 @@ module Anemone
     end
 
     #
+    # Base URI from the HTML doc head element
+    # http://www.w3.org/TR/html4/struct/links.html#edef-BASE
+    #
+    def base
+      @base = if doc
+                href = doc.search('//head/base/@href')
+                URI(href.to_s) unless href.nil? rescue nil
+              end unless @base
+
+      return nil if @base && @base.to_s().empty?
+      @base
+    end
+
+    #
     # Converts relative URL *link* into an absolute URL based on the
     # location of the page
     #
@@ -178,7 +192,7 @@ module Anemone
       link = URI::DEFAULT_PARSER.escape(link.to_s.gsub(/#[a-zA-Z0-9_-]*$/,''))
 
       relative = URI(link)
-      absolute = @url.merge(relative)
+      absolute = base ? base.merge(relative) : @url.merge(relative)
 
       absolute.path = '/' if absolute.path.empty?
 
@@ -230,7 +244,7 @@ module Anemone
        '@visited' => hash['visited'],
        '@depth' => hash['depth'].to_i,
        '@referer' => hash['referer'],
-       '@redirect_to' => URI(hash['redirect_to']),
+       '@redirect_to' => (!!hash['redirect_to'] && !hash['redirect_to'].empty?) ? URI(hash['redirect_to']) : nil,
        '@response_time' => hash['response_time'].to_i,
        '@fetched' => hash['fetched']
       }.each do |var, value|

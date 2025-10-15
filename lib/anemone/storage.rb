@@ -18,6 +18,11 @@ module Anemone
       self::TokyoCabinet.new(file)
     end
 
+    def self.KyotoCabinet(file = 'anemone.kch')
+      require 'anemone/storage/kyoto_cabinet'
+      self::KyotoCabinet.new(file)
+    end
+
     def self.MongoDB(mongo_db = nil, collection_name = 'pages')
       require 'anemone/storage/mongodb'
       mongo_db ||= Mongo::Connection.new.db('anemone')
@@ -28,6 +33,11 @@ module Anemone
     def self.Redis(opts = {})
       require 'anemone/storage/redis'
       self::Redis.new(opts)
+    end
+
+    def self.SQLite3(file = 'anemone.db')
+      require 'anemone/storage/sqlite3'
+      self::SQLite3.new(file)
     end
 
   end

@@ -1,6 +1,7 @@
 begin
   require 'tokyocabinet'
 rescue LoadError
+  puts $!
   puts "You need the tokyocabinet gem to use Anemone::Storage::TokyoCabinet"
   exit
 end
@@ -38,7 +39,9 @@ module Anemone
       end
 
       def each
-        @db.each { |k, v| yield k, load_value(v) }
+        @db.keys.each do |k|
+          yield(k, self[k])
+        end
       end
 
       def merge!(hash)

@@ -1,5 +1,5 @@
 require 'thread'
-require 'robots'
+require 'robotex'
 require 'anemone/tentacle'
 require 'anemone/page'
 require 'anemone/exceptions'
@@ -9,7 +9,7 @@ require 'anemone/storage/base'
 
 module Anemone
 
-  VERSION = '0.5.0'
+  VERSION = '0.7.2'
 
   #
   # Convenience method to start a crawl
@@ -54,6 +54,12 @@ module Anemone
       :accept_cookies => false,
       # skip any link with a query string? e.g. http://foo.com/?u=user
       :skip_query_strings => false,
+      # proxy server hostname
+      :proxy_host => nil,
+      # proxy server port number
+      :proxy_port => false,
+      # HTTP read timeout in seconds
+      :read_timeout => nil,
       :dirbust  => true
     }
 
@@ -198,7 +204,7 @@ module Anemone
       @opts[:threads] = 1 if @opts[:delay] > 0
       storage = Anemone::Storage::Base.new(@opts[:storage] || Anemone::Storage.Hash)
       @pages = PageStore.new(storage)
-      @robots = Robots.new(@opts[:user_agent]) if @opts[:obey_robots_txt]
+      @robots = Robotex.new(@opts[:user_agent]) if @opts[:obey_robots_txt]
 
       # freeze_options
     end
@@ -265,6 +271,8 @@ module Anemone
     #
     def allowed(link)
       @opts[:obey_robots_txt] ? @robots.allowed?(link) : true
+    rescue
+      false
     end
 
     #
