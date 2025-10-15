@@ -72,8 +72,7 @@ The module supports the following carriers:
 * Verizon
 * Virgin Mobile
 
-### Note: During development, we could not find a valid gateway for Sprint, therefore it is currently
-not supported.
+**Note:** During development, we could not find a valid gateway for Sprint, therefore it is currently
 
 ### Finding the Carrier for a Phone Number
 
@@ -82,7 +81,7 @@ how to identify the carrier of a phone number. There are many services that can 
 
 http://freecarrierlookup.com/
 
-### Note: If the phone is using Google Fi, then it may appear as a different carrier.
+**Note:** If the phone is using Google Fi, then it may appear as a different carrier.
 
 ### Gmail SMTP Example
 

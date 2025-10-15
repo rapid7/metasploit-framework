@@ -65,7 +65,7 @@ A comma-separated list of environment variable names to extract. If not specifie
 the module will automatically attempt to extract a default list of common sensitive
 environment variables.
 
-### Default variables extracted (when ENVVAR is not set):
+**Default variables extracted (when ENVVAR is not set):**
 - `LISTMONK_db__host` - Database host
 - `LISTMONK_db__port` - Database port
 - `LISTMONK_db__user` - Database username
@@ -73,7 +73,7 @@ environment variables.
 - `LISTMONK_db__database` - Database name
 - `LISTMONK_app__address` - Application address
 
-### Examples of custom variables to target:
+**Examples of custom variables to target:**
 - `LISTMONK_app__admin_username`, `LISTMONK_app__admin_password` - Admin credentials
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` - Email server credentials
 - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` - Cloud provider credentials

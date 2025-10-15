@@ -21,27 +21,13 @@ It has been tested with Windows servers 2012, 2016, 2019 and 2022
 
 ### USER_FILE
 
-### Description: Path to the file containing the list of usernames to enumerate. Each username should be on a separate line.
+Path to the file containing the list of usernames to enumerate. Each username should be on a separate line.
+Example: `set USER_FILE /path/to/usernames.txt`
 
-### Usage: Provide the path to the file that contains the list of user accounts you want to test.
+### RPORT
 
-### Example: `set USER_FILE /path/to/usernames.txt`
-
-2- `RHOSTS` (required)
-
-### Description: The target IP address or range of IP addresses of the Domain Controllers.
-
-### Usage: Specify the IP address or addresses of the Domain Controllers you are targeting.
-
-### Example: `set RHOSTS 192.168.1.100`
-
-3- `RPORT` (optional)
-
-### Description: The port for the MS-NRPC interface. If not specified, the module will attempt to determine the endpoint.
-
-### Usage: If you know the port used by the MS-NRPC interface, you can specify it. Otherwise, the module will find it automatically.
-
-### Example: `set RPORT 49664`
+Optional. The port for the MS-NRPC interface. If not specified, the module will attempt to determine the endpoint.
+If you know the port used by the MS-NRPC interface, you can specify it. Otherwise, the module will find it automatically.
 
 ## Scenarios
 

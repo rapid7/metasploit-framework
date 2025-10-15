@@ -31,7 +31,7 @@ The file path on the remote you wish to retrieve.
 
 A URL you wish to fetch the contents of from the remote machine.
 
-### Note: One or the other must be set!
+**Note:** One or the other must be set!
 
 ## Scenarios
 

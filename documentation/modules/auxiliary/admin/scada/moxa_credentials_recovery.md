@@ -103,10 +103,6 @@
 
 ## Options
 
-### RHOST
-
-  Target device.
-
 ### FUNCTION
 
   Either CREDS (default) or ENUM:
