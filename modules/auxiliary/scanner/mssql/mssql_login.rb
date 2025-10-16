@@ -106,7 +106,6 @@ class MetasploitModule < Msf::Auxiliary
         auth: datastore['Mssql::Auth'],
         domain_controller_rhost: datastore['DomainControllerRhost'],
         hostname: datastore['Mssql::Rhostname'],
-        windows_authentication: datastore['USE_WINDOWS_AUTHENT'],
         tdsencryption: datastore['TDSENCRYPTION'],
         framework: framework,
         framework_module: self,

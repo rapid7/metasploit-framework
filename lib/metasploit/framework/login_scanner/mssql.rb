@@ -43,10 +43,6 @@ module Metasploit
         #   @return [String] Auth The mssql hostname, required for Kerberos Authentication
         attr_accessor :hostname
 
-        # @!attribute windows_authentication
-        #   @return [Boolean] Whether to use Windows Authentication instead of SQL Server Auth.
-        attr_accessor :windows_authentication
-
         # @!attribute use_client_as_proof
         #   @return [Boolean] If a login is successful and this attribute is true - an MSSQL::Client instance is used as proof
         attr_accessor :use_client_as_proof
@@ -58,9 +54,6 @@ module Metasploit
         # @!attribute send_delay
         #   @return [Integer] The delay between sending packets
         attr_accessor :send_delay
-
-        validates :windows_authentication,
-          inclusion: { in: [true, false] }
 
         attr_accessor :tdsencryption
 
@@ -117,7 +110,6 @@ module Metasploit
           self.use_ntlm2_session      = true if self.use_ntlm2_session.nil?
           self.use_ntlmv2             = true if self.use_ntlmv2.nil?
           self.auth                   = Msf::Exploit::Remote::AuthOption::AUTO if self.auth.nil?
-          self.windows_authentication = false if self.windows_authentication.nil?
           self.tdsencryption          = false if self.tdsencryption.nil?
         end
       end

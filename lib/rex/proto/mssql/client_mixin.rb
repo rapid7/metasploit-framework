@@ -369,7 +369,8 @@ module ClientMixin
   #
   # Parse individual tokens from a TDS reply
   #
-  def mssql_parse_reply(data, info)
+  def mssql_parse_reply(data, info=nil)
+    info ||= {}
     info[:errors] = []
     return if not data
     states = []

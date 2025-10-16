@@ -36,7 +36,6 @@ module Rex
         attr_accessor :use_lmkey
         attr_accessor :use_ntlm2_session
         attr_accessor :use_ntlmv2
-        attr_accessor :windows_authentication
         attr_reader :framework_module
         attr_reader :framework
         # @!attribute max_send_size
@@ -63,7 +62,6 @@ module Rex
           @auth                   = framework_module.datastore['Mssql::Auth']         || Msf::Exploit::Remote::AuthOption::AUTO
           @hostname               = framework_module.datastore['Mssql::Rhostname']    || ''
 
-          @windows_authentication = framework_module.datastore['USE_WINDOWS_AUTHENT'] || false
           @tdsencryption          = framework_module.datastore['TDSENCRYPTION']       || false
           @hex2binary             = framework_module.datastore['HEX2BINARY']          || ''
 
@@ -74,6 +72,7 @@ module Rex
           @proxies = proxies
           @sslkeylogfile = sslkeylogfile
           @current_database = ''
+          @initial_connection_info = {errors: []}
         end
 
         # MS SQL Server only supports Windows and Linux
@@ -138,7 +137,7 @@ module Rex
         def mssql_login(user='sa', pass='', db='', domain_name='')
           if auth == Msf::Exploit::Remote::AuthOption::KERBEROS
             login_kerberos(user, pass, db, domain_name)
-          elsif auth == Msf::Exploit::Remote::AuthOption::NTLM || windows_authentication
+          elsif auth == Msf::Exploit::Remote::AuthOption::NTLM
             login_ntlm(user, pass, db, domain_name)
           else
             login_sql(user, pass, db, domain_name)
