@@ -21,7 +21,7 @@ There are many locations that are checked for having evidence of being a virtual
 
 ## Options
 
-  **SESSION**
+### SESSION
 
   Which session to use, which can be viewed with `sessions -l`
 

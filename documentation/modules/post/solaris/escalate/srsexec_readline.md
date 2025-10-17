@@ -30,7 +30,7 @@
 
 ## Options
 
-  **File**
+### File
 
   The file that should have the first line read.  Default is `/etc/shadow` and root's hash will be databased.
 
