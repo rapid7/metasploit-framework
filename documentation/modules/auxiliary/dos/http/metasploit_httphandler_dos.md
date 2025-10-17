@@ -14,14 +14,20 @@
 
 ### DOSTYPE
 
-	GENTLE: *Current sessions will continue to work, but not future ones*
-	  A lack of input sanitation permits an attacker to submit a request that will be added to the resources and will be used as regex rule it is possible then to make a valid regex rule that captures all the new handler requests. The sessions that were established previously will continue to work.
+#### GENTLE
 
-	SOFT: *No past or future sessions will work*
-      A lack of input sanitation and lack of exception handling causes Metasploit to behave abnormally when looking an appropriate resource for the request, by submitting an invalid regex as a resource. This means that no request, current or future will get served an answer.
+*Current sessions will continue to work, but not future ones*
+A lack of input sanitation permits an attacker to submit a request that will be added to the resources and will be used as regex rule it is possible then to make a valid regex rule that captures all the new handler requests. The sessions that were established previously will continue to work.
 
-	HARD: *ReDOS or Catastrophic Regex Backtracking*
-	  A lack of input sanitization on paths added as resources allows an attacker to execute a catastrophic regex backtracking operation causing a Denial of Service by CPU consumption.
+#### SOFT
+
+*No past or future sessions will work*
+A lack of input sanitation and lack of exception handling causes Metasploit to behave abnormally when looking an appropriate resource for the request, by submitting an invalid regex as a resource. This means that no request, current or future will get served an answer.
+
+#### HARD
+
+*ReDOS or Catastrophic Regex Backtracking*
+A lack of input sanitization on paths added as resources allows an attacker to execute a catastrophic regex backtracking operation causing a Denial of Service by CPU consumption.
 
 ## Scenarios
 
