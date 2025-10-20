@@ -97,6 +97,7 @@ PATH
       rex-text
       rex-zip
       rinda
+      robotex (= 1.0.0)
       ruby-macho
       ruby-mysql
       ruby_smb (~> 3.3.15)
@@ -535,6 +536,7 @@ GEM
       forwardable
       ipaddr
     rkelly-remix (0.0.7)
+    robotex (1.0.0)
     rspec (3.13.1)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)

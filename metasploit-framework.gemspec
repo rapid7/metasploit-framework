@@ -267,6 +267,9 @@ Gem::Specification.new do |spec|
   # Needed for caching validation
   spec.add_runtime_dependency 'parallel'
 
+  # Required by the Anemone vendored library as of version 0.7.1.
+  spec.add_runtime_dependency 'robotex', '1.0.0'
+
   # Standard libraries: https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/
   %w[
     abbrev
