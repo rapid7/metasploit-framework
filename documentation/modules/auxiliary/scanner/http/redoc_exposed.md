@@ -2,13 +2,11 @@
 
 Detects publicly exposed ReDoc API documentation pages by looking for known DOM elements and script names. The module is read-only and sends safe `GET` requests.
 
-### Module Options
 
-- **RHOSTS** (required): Target address range or CIDR identifier.
-- **RPORT**: Default `80` (from `DefaultOptions`).
-- **SSL**: Enable to negotiate HTTPS to the target.
-- **REDOC_PATHS** (required): Comma-separated paths to probe. **Default**:  
-  `/redoc,/redoc/,/docs,/api/docs,/openapi`
+#### REDOC_PATHS
+Comma-separated custom paths to probe. If unset, defaults to:
+/redoc,/redoc/,/docs,/api/docs,/openapi
+
 
 ### How It Works
 
