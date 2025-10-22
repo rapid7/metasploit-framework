@@ -21,12 +21,6 @@ is read-only and sends safe `GET` requests.
 ### REDOC_PATHS
 Comma-separated custom paths to probe. If unset, defaults to `/redoc,/redoc/,/docs,/api/docs,/openapi`
 
-## How It Works
-
-- Prefers DOM checks (`<redoc>`, `#redoc`, or scripts containing `redoc` / `redoc.standalone`).
-- Falls back to title/body heuristics for “redoc”.
-- Considers only **2xx** and **403** responses (avoids noisy redirects).
-- 
 ## Scenarios
 
 ```text
