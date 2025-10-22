@@ -52,7 +52,7 @@ flowchart LR
 ```
 
 The Domain Computer will need to be configured to use NTLMv1 by setting the
-following registry key to a value less or equal to 2:
+following registry key to a value less than or equal to 2:
 
 ```
 PS > reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa -v LmCompatibilityLevel /t REG_DWORD /d 0x2 /f
@@ -95,7 +95,7 @@ I.E. the filename john will produce two files, `john_netntlm` and `john_netntlmv
 ### RELAY_TIMEOUT
 
 Seconds that the relay socket will wait for a response after the client has
-initiated communication (default 25 sec.).
+initiated communication.
 
 ### SMBDomain
 

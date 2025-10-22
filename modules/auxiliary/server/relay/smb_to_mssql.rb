@@ -13,9 +13,11 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Microsoft Windows SMB to MSSQL Relay',
         'Description' => %q{
-          This module supports running an SMB server which validates credentials, and
-          then attempts to execute a relay attack against an MSSQL server on the
-          configured RHOSTS hosts.
+          This module supports running an SMB server which validates credentials, and then attempts to execute a relay
+          attack against an MSSQL server on the configured RHOSTS hosts.
+
+          If the relay succeeds, an MSSQL session to the target will be created. This can be used by any modules that
+          support MSSQL sessions, like `admin/mssql/mssql_enum`. The session can also be used to run arbitrary queries.
 
           Supports SMBv2, SMBv3, and captures NTLMv1 as well as NTLMv2 hashes.
           SMBv1 is not supported - please see https://github.com/rapid7/metasploit-framework/issues/16261
