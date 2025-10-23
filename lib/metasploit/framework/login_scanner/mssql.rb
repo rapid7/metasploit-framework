@@ -32,9 +32,6 @@ module Metasploit
         validates :auth,
                   inclusion: { in: Msf::Exploit::Remote::AuthOption::MSSQL_OPTIONS }
 
-        validates :auth,
-                  inclusion: { in: Msf::Exploit::Remote::AuthOption::MSSQL_OPTIONS }
-
         # @!attribute domain_controller_rhost
         #   @return [String] Auth The domain controller rhost, required for Kerberos Authentication
         attr_accessor :domain_controller_rhost
