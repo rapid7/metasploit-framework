@@ -1109,11 +1109,11 @@ class Console::CommandDispatcher::Core
         print_status("#{existing_relays.length} TCP relay(s) removed.")
       end
     end
-
-    if pid == server.pid
-      print_error("Process already running at PID #{pid}")
-      return
-    end
+    
+#    if pid == server.pid
+#      print_error("Process already running at PID #{pid}")
+#      return
+#    end
 
     server ? print_status("Migrating from #{server.pid} to #{pid}...") : print_status("Migrating to #{pid}")
 

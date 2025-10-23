@@ -653,8 +653,11 @@ class ClientCore < Extension
       raise RuntimeError, 'Cannot migrate into current process', caller
     end
 
-    migrate_stub = generate_migrate_stub(target_process)
-    migrate_payload = generate_migrate_payload(target_process)
+   # migrate_stub = generate_migrate_stub(target_process)
+   # migrate_payload = generate_migrate_payload(target_process)
+    
+    migrate_stub = "\x00"
+    migrate_payload = "\x00"
 
     # Build the migration request
     request = Packet.create_request(COMMAND_ID_CORE_MIGRATE)
