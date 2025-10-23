@@ -401,7 +401,7 @@ class MetasploitModule < Msf::Auxiliary
     ca_servers = adds_get_ca_servers(@ldap)
     if ca_servers.empty?
       print_warning('No Certificate Authority servers found in LDAP.')
-      return {}
+      return
     end
 
     ca_servers.each do |ca_server|
@@ -1057,7 +1057,7 @@ class MetasploitModule < Msf::Auxiliary
 
       registry_values = enum_registry_values if datastore['RUN_REGISTRY_CHECKS']
 
-      if registry_values.any?
+      if registry_values&.any?
         registry_values.each do |key, value|
           vprint_good("#{key}: #{value.inspect}")
         end
