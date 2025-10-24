@@ -68,7 +68,7 @@ module Metasploit
               :key_data      => credential.private,
             )
           end
-          opt_hash[:passphrase] = cred_details.password
+          opt_hash[:passphrase] = cred_details.password if cred_details.respond_to?(:password)
 
           result_options = {
             credential: credential
