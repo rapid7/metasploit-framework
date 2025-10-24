@@ -96,6 +96,7 @@ PATH
       rex-struct2
       rex-text
       rex-zip
+      rexml (= 3.4.1)
       rinda
       ruby-macho
       ruby-mysql
@@ -529,7 +530,7 @@ GEM
       bigdecimal
     rex-zip (0.1.6)
       rex-text
-    rexml (3.4.4)
+    rexml (3.4.1)
     rinda (0.2.0)
       drb
       forwardable
