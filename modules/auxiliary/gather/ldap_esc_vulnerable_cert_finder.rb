@@ -1035,6 +1035,58 @@ class MetasploitModule < Msf::Auxiliary
     ip_addresses
   end
 
+  def domain_controller_version_check
+    domain = adds_get_domain_info(@ldap)[:dns_name]
+    user = adds_get_current_user(@ldap)[:sAMAccountName].first.to_s
+    print_status("user: #{user}, domain: #{domain}")
+
+    version_raw = nil
+    conn = create_winrm_connection(datastore['RHOSTS'], domain, user, datastore['WINRM_TIMEOUT'])
+    # Get the build number over WinRM by querying the Update Build Revision from the registry and appending it to the OS version.
+    # If there is no URB append 0 so we the string always ends in a numberical value
+    conn.shell(:powershell) do |shell|
+      ps = <<~PS
+        $os = Get-CimInstance Win32_OperatingSystem -ErrorAction Stop
+        $ubr = (Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion' -Name UBR -ErrorAction SilentlyContinue).UBR
+        if ($ubr -eq $null) { $ubr = 0 }
+        Write-Output ("{0}.{1}" -f $os.Version, $ubr)
+      PS
+      output = shell.run(ps)
+      version_raw = output.stdout&.lines&.first&.strip
+      shell.close
+    end
+
+    if version_raw.blank?
+      fail_with(Failure::Unknown, "Could not retrieve Windows version string from #{datastore['RHOSTS']} via WinRM.")
+    end
+
+    version_obj = Rex::Version.new(version_raw)
+
+    print_status("Detected target Windows version: #{version_raw}")
+
+    # Product ranges: [ Product name, RTM version, Sept2025 patch version ]
+    # Replace the 'patch_version' entries with actual September 2025 version/build strings.
+    ranges = [
+      [Msf::WindowsVersion::ServerNameMapping[:Server2025], Msf::WindowsVersion::Server2025, Rex::Version.new('10.0.26100.6588')],
+      [Msf::WindowsVersion::ServerNameMapping[:Server2022], Msf::WindowsVersion::Server2022, Rex::Version.new('10.0.20348.4171')],
+      [Msf::WindowsVersion::ServerNameMapping[:Server2019], Msf::WindowsVersion::Server2019, Rex::Version.new('10.0.17763.7792')],
+      [Msf::WindowsVersion::ServerNameMapping[:Server2016], Msf::WindowsVersion::Server2016, Rex::Version.new('10.0.14393.8422')],
+    ]
+
+    ranges.each do |product, rtm_version, patch_version|
+      if version_obj >= rtm_version && version_obj < patch_version
+        print_good("Detected #{product} version #{version_obj} — appears vulnerable (below Sept 2025 threshold #{patch_version}). Module will continue.")
+        return false
+      end
+
+      if version_obj >= patch_version
+        fail_with(Failure::NotVulnerable, "Detected #{product} version #{version_obj} which is at-or-above the September 2025 threshold (#{patch_version}). Target appears patched. Weak certificate mappings/ ESC techniques are not exploitable on this domain controller")
+      end
+    end
+
+    fail_with(Failure::Unknown, "Could not map detected Windows version #{version_obj} to a known product range. Cannot proceed with module execution.")
+  end
+
   def validate
     super
     if (datastore['RUN_REGISTRY_CHECKS']) && !%w[auto plaintext ntlm].include?(datastore['LDAP::Auth'].downcase)
@@ -1063,6 +1115,11 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
       @ldap = ldap
+
+      # If the domain controller is patched up to Sept 2025, the CA can still issue Certificates which appear
+      # vulnerable (ie. Subject Alt Names can be specified with UPN: Administrator) however the Domain controller no
+      # longer accepts weak certificate mappings regardless of the StrongCertificateBindingEnforcement/ CertificaateMappingMethod registry key.
+      domain_controller_version_check
 
       templates = query_ldap_server('(objectClass=pkicertificatetemplate)', CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
       fail_with(Failure::NotFound, 'No certificate templates were found.') if templates.empty?
