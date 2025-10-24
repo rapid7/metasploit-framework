@@ -27,6 +27,9 @@ class MetasploitModule < Msf::Auxiliary
           not provided. It then uses the admin/kerberos/get_ticket module to retrieve the NTLM hash of the target user
           and requests a certificate via MS-ICPR. The resulting certificate can be used for various operations, such as
           authentication.
+
+          The module ensures that any changes made by the ldap_object_attribute or shadow_credentials module are
+          reverted after execution to maintain system integrity.
         },
         'License' => MSF_LICENSE,
         'Author' => [
