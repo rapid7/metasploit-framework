@@ -206,7 +206,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     load_embedded_extensions
 
-    extensions = datastore['AutoLoadExtensions']&.delete(' ').split(',') || []
+    extensions = datastore['AutoLoadExtensions']&.delete(' ')&.split(',') || []
 
     # BEGIN: This should be removed on MSF 7
     # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP (by default unhook is first, see meterpreter_options/windows.rb)
