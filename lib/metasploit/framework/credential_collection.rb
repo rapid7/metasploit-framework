@@ -402,7 +402,7 @@ module Metasploit::Framework
         yield ["", :password]
       end
 
-      if pass_file
+      if pass_file.present?
         File.open(pass_file, 'r:binary') do |pass_fd|
           pass_fd.each_line do |pass_from_file|
             pass_from_file.chomp!
