@@ -192,7 +192,6 @@ class MetasploitModule < Msf::Auxiliary
     esc_entries.each do |entry|
       certificate_symbol = entry[:cn][0].to_sym
       certificate_details = @certificate_details[certificate_symbol]
-      certificate_details[:can_enroll] = can_enroll?(certificate_details)
       certificate_details[:techniques] << esc_id
       certificate_details[:notes] += notes
     end
@@ -510,7 +509,6 @@ class MetasploitModule < Msf::Auxiliary
       if @registry_values[:strong_certificate_binding_enforcement].present?
         note += " Registry value: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}."
       end
-      @certificate_details[certificate_symbol][:can_enroll] = can_enroll?(@certificate_details[certificate_symbol])
       @certificate_details[certificate_symbol][:target_users] = users
       @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
       @certificate_details[certificate_symbol][:techniques] << 'ESC9'
@@ -553,7 +551,7 @@ class MetasploitModule < Msf::Auxiliary
       if @registry_values[:strong_certificate_binding_enforcement].present? && @registry_values[:certificate_mapping_methods].present?
         note += " Registry values: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{@registry_values[:certificate_mapping_methods]}."
       end
-      @certificate_details[certificate_symbol][:can_enroll] = can_enroll?(@certificate_details[certificate_symbol])
+
       @certificate_details[certificate_symbol][:target_users] = users
       @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
       @certificate_details[certificate_symbol][:techniques] << 'ESC10'
@@ -768,7 +766,6 @@ class MetasploitModule < Msf::Auxiliary
           @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due to the active policy EditFlags having: EDITF_ATTRIBUTESUBJECTALTNAME2 set (which is essentially ESC6) on the Certificate Authority: #{ca_name}. Also the CA having 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
         elsif @registry_values.blank?
           # We couldn't read the registry values - mark as potentially vulnerable
-          @certificate_details[certificate_symbol][:can_enroll] = can_enroll?(@certificate_details[certificate_symbol])
           @certificate_details[certificate_symbol][:techniques] << 'ESC16_2'
           @certificate_details[certificate_symbol][:notes] << 'ESC16_2: Template appears to be vulnerable (most templates do)'
 
@@ -829,7 +826,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def can_enroll?(template)
-    (template[:permissions].include?('FULL CONTROL') || template[:permissions].include?('ENROLL')) && template[:ca_servers].values.any? { _1[:permissions].include?('REQUEST CERTIFICATES') }
+    (template[:permissions].include?('FULL CONTROL') || template[:permissions].include?('ENROLL')) && (template[:ca_servers].empty? || template[:ca_servers].values.any? { _1[:permissions].include?('REQUEST CERTIFICATES') })
   end
 
   def print_vulnerable_cert_info
@@ -1120,6 +1117,12 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unknown, "Could not map detected Windows version #{version_obj} to a known product range. Cannot proceed with module execution.")
   end
 
+  def set_can_enroll_flags
+    @certificate_details.each_key do |certificate_template|
+      @certificate_details[certificate_template][:can_enroll] = can_enroll?(@certificate_details[certificate_template])
+    end
+  end
+
   def validate
     super
     if (datastore['RUN_REGISTRY_CHECKS']) && !%w[auto plaintext ntlm].include?(datastore['LDAP::Auth'].downcase)
@@ -1175,6 +1178,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       find_enrollable_vuln_certificate_templates
+      set_can_enroll_flags
       find_esc1_vuln_cert_templates
       find_esc2_vuln_cert_templates
       find_esc3_vuln_cert_templates
