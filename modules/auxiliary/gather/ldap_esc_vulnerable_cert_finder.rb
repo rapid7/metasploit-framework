@@ -192,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
     esc_entries.each do |entry|
       certificate_symbol = entry[:cn][0].to_sym
       certificate_details = @certificate_details[certificate_symbol]
-
+      certificate_details[:can_enroll] = can_enroll?(certificate_details)
       certificate_details[:techniques] << esc_id
       certificate_details[:notes] += notes
     end
@@ -499,6 +499,7 @@ class MetasploitModule < Msf::Auxiliary
       enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
       users = find_users_with_write_and_enroll_rights(enroll_sids)
       next if users.empty?
+      next unless users_compatible_with_template?(users, template['mspki-certificate-name-flag'])
 
       user_plural = users.size > 1 ? 'accounts' : 'account'
       has_plural = users.size > 1 ? 'have' : 'has'
@@ -509,6 +510,7 @@ class MetasploitModule < Msf::Auxiliary
       if @registry_values[:strong_certificate_binding_enforcement].present?
         note += " Registry value: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}."
       end
+      @certificate_details[certificate_symbol][:can_enroll] = can_enroll?(@certificate_details[certificate_symbol])
       @certificate_details[certificate_symbol][:target_users] = users
       @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
       @certificate_details[certificate_symbol][:techniques] << 'ESC9'
@@ -526,11 +528,11 @@ class MetasploitModule < Msf::Auxiliary
         "(pkiextendedkeyusage=#{OIDs::OID_ANY_EXTENDED_KEY_USAGE.value})"\
         '(!(pkiextendedkeyusage=*))'\
       ')'\
-  '(|'\
-    "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_UPN})"\
-    "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_DNS})"\
-  ')'\
-  ')'
+    '(|'\
+      "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_UPN})"\
+      "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_DNS})"\
+    ')'\
+    ')'
 
     esc10_templates = query_ldap_server(esc10_raw_filter, CERTIFICATE_ATTRIBUTES + ['msPKI-Certificate-Name-Flag'], base_prefix: CERTIFICATE_TEMPLATES_BASE)
     esc10_templates.each do |template|
@@ -539,6 +541,7 @@ class MetasploitModule < Msf::Auxiliary
       enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
       users = find_users_with_write_and_enroll_rights(enroll_sids)
       next if users.empty?
+      next unless users_compatible_with_template?(users, template['mspki-certificate-name-flag'])
 
       user_plural = users.size > 1 ? 'accounts' : 'account'
       has_plural = users.size > 1 ? 'have' : 'has'
@@ -550,6 +553,7 @@ class MetasploitModule < Msf::Auxiliary
       if @registry_values[:strong_certificate_binding_enforcement].present? && @registry_values[:certificate_mapping_methods].present?
         note += " Registry values: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{@registry_values[:certificate_mapping_methods]}."
       end
+      @certificate_details[certificate_symbol][:can_enroll] = can_enroll?(@certificate_details[certificate_symbol])
       @certificate_details[certificate_symbol][:target_users] = users
       @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
       @certificate_details[certificate_symbol][:techniques] << 'ESC10'
@@ -697,6 +701,24 @@ class MetasploitModule < Msf::Auxiliary
     query_ldap_server_certificates(esc_raw_filter, 'ESC15', notes: notes)
   end
 
+  def users_compatible_with_template?(users, flag_values)
+    return false if users.blank? || flag_values.blank?
+
+    raw = flag_values.is_a?(Array) ? flag_values.first : flag_values
+    return false if raw.nil?
+
+    # Normalize to a 32-bit unsigned mask (handles negative signed strings)
+    mask = raw.to_i & 0xffffffff
+
+    if (mask & CT_FLAG_SUBJECT_ALT_REQUIRE_DNS) != 0 && users.any? { |user| user.end_with?('$') }
+      true
+    elsif (mask & CT_FLAG_SUBJECT_ALT_REQUIRE_UPN) != 0 && users.any? { |user| !user.end_with?('$') }
+      true
+    else
+      false
+    end
+  end
+
   def find_esc16_vuln_cert_templates
     # if we were able to read the registry values and this OID is not explicitly disabled, then we know for certain the server is not vulnerable
     esc16_raw_filter = '(&'\
@@ -720,33 +742,41 @@ class MetasploitModule < Msf::Auxiliary
       # Get the CA servers that issue this template and we'll check their registry values
       @certificate_details[certificate_symbol][:ca_servers].each_value do |ca_server|
         ca_name = ca_server[:name].to_sym
-        next unless @registry_values.present? && @registry_values.key?(ca_name)
+        @certificate_details[certificate_symbol][:certificate_name_flags] = entry['mspki-certificate-name-flag']
+        enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
+        users = find_users_with_write_and_enroll_rights(enroll_sids)
+        user_plural = users.size > 1 ? 'accounts' : 'account'
+        has_plural = users.size > 1 ? 'have' : 'has'
+        current_user = adds_get_current_user(@ldap)[:samaccountname].first
+        @certificate_details[certificate_symbol][:target_users] = users
+
         # ESC16 revolves around the szOID_NTDS_CA_SECURITY_EXT being globally disabled on the CA server via the disable_extension_list. If it's not disabled, skip
-        next if (@registry_values[ca_name][:disable_extension_list] && !@registry_values[ca_name][:disable_extension_list].include?('1.3.6.1.4.1.311.25.2'))
-
-        if @registry_values[:strong_certificate_binding_enforcement] && (@registry_values[:strong_certificate_binding_enforcement] == 0 || @registry_values[:strong_certificate_binding_enforcement] == 1)
-          enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
-          users = find_users_with_write_and_enroll_rights(enroll_sids)
+        if @registry_values[ca_name]&.[](:disable_extension_list)&.include?('1.3.6.1.4.1.311.25.2') && @registry_values[:strong_certificate_binding_enforcement] && (@registry_values[:strong_certificate_binding_enforcement] == 0 || @registry_values[:strong_certificate_binding_enforcement] == 1)
           next if users.empty?
-
-          user_plural = users.size > 1 ? 'accounts' : 'account'
-          has_plural = users.size > 1 ? 'have' : 'has'
-
-          current_user = adds_get_current_user(@ldap)[:samaccountname].first
+          next unless users_compatible_with_template?(users, entry['mspki-certificate-name-flag'])
 
           note = "ESC16: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
           note += " Registry values: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{@registry_values[:certificate_mapping_methods]}."
           note += " The Certificate Authority: #{ca_name} has 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
 
           # Scenario 1 - StrongCertificateBindingEnforcement = 1 or 0 then it's the same as ESC9 - mark them all as vulnerable
-          @certificate_details[certificate_symbol][:target_users] = users
-          @certificate_details[certificate_symbol][:certificate_name_flags] = entry['mspki-certificate-name-flag']
-          @certificate_details[certificate_symbol][:techniques] << 'ESC16'
+          @certificate_details[certificate_symbol][:techniques] << 'ESC16_1'
           @certificate_details[certificate_symbol][:notes] << note
-        elsif @registry_values[ca_name][:edit_flags] & EDITF_ATTRIBUTESUBJECTALTNAME2 != 0
+        elsif @registry_values[ca_name]&.[](:disable_extension_list)&.include?('1.3.6.1.4.1.311.25.2') && @registry_values[ca_name][:edit_flags] & EDITF_ATTRIBUTESUBJECTALTNAME2 != 0
           # Scenario 2 - StrongCertificateBindingEnforcement = 2 but the edit_flags contain EDITF_ATTRIBUTESUBJECTALTNAME2 which re-enables the ability to exploit the certificate in the same way as ESC6
-          @certificate_details[certificate_symbol][:techniques] << 'ESC16'
+          @certificate_details[certificate_symbol][:techniques] << 'ESC16_2'
           @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due to the active policy EditFlags having: EDITF_ATTRIBUTESUBJECTALTNAME2 set (which is essentially ESC6) on the Certificate Authority: #{ca_name}. Also the CA having 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
+        elsif @registry_values.blank?
+          # We couldn't read the registry values - mark as potentially vulnerable
+          @certificate_details[certificate_symbol][:can_enroll] = can_enroll?(@certificate_details[certificate_symbol])
+          @certificate_details[certificate_symbol][:techniques] << 'ESC16_2'
+          @certificate_details[certificate_symbol][:notes] << 'ESC16_2: Template appears to be vulnerable (most templates do)'
+
+          next if users.empty?
+          next unless users_compatible_with_template?(users, entry['mspki-certificate-name-flag'])
+
+          @certificate_details[certificate_symbol][:techniques] << 'ESC16_1'
+          @certificate_details[certificate_symbol][:notes] << "ESC16_1: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
         end
       end
     end
@@ -777,7 +807,7 @@ class MetasploitModule < Msf::Auxiliary
   def reporting_split_techniques(template)
     # these techniques are special in the sense that the exploit steps involve a different user performing the request
     # meaning that whether or not we can issue them is irrelevant
-    enroll_by_proxy = %w[ESC9 ESC10 ESC16]
+    enroll_by_proxy = %w[ESC9 ESC10 ESC16_1]
     # technically ESC15 might be patched and we can't fingerprint that status but we live it in the "vulnerable" category
 
     # when we have the registry values, we can tell the vulnerabilities for certain
@@ -884,8 +914,11 @@ class MetasploitModule < Msf::Auxiliary
       if potentially_vulnerable_techniques.include?('ESC10')
         print_warning('  Potentially vulnerable to: ESC10 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to 0 or CertificateMappingMethods must be set to 4)')
       end
-      if potentially_vulnerable_techniques.include?('ESC16')
-        print_warning('  Potentially vulnerable to: ESC16 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to either 0 or 1. If StrongCertificateBindingEnforcement is set to 2, ESC16 is exploitable if the active policy EditFlags has EDITF_ATTRIBUTESUBJECTALTNAME2 set.')
+      if potentially_vulnerable_techniques.include?('ESC16_1')
+        print_warning('  Potentially vulnerable to: ESC16_1 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to either 0 or 1 and the CA must have the SID security extention OID: 1.3.6.1.4.1.311.25.2 listed under the DisbaledExtensionlist registry key.')
+      end
+      if potentially_vulnerable_techniques.include?('ESC16_2')
+        print_warning('  Potentially vulnerable to: ESC16_2 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to 2 and the CA must have the SID security extention OID: 1.3.6.1.4.1.311.25.2 listed under the DisbaledExtensionlist registry key and EDITF_ATTRIBUTESUBJECTALTNAME2 enabled in the EditFlags policy).')
       end
 
       print_status("  Permissions: #{hash[:permissions].join(', ')}")
@@ -1119,7 +1152,11 @@ class MetasploitModule < Msf::Auxiliary
       # If the domain controller is patched up to Sept 2025, the CA can still issue Certificates which appear
       # vulnerable (ie. Subject Alt Names can be specified with UPN: Administrator) however the Domain controller no
       # longer accepts weak certificate mappings regardless of the StrongCertificateBindingEnforcement/ CertificaateMappingMethod registry key.
-      domain_controller_version_check
+      begin
+        domain_controller_version_check
+      rescue WinRM::WinRMAuthorizationError => e
+        print_warning("Unable to determine the version of Window so these all might be false postives! WinRM authorization error: #{e.message}")
+      end
 
       templates = query_ldap_server('(objectClass=pkicertificatetemplate)', CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
       fail_with(Failure::NotFound, 'No certificate templates were found.') if templates.empty?
