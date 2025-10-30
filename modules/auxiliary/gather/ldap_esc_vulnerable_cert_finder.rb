@@ -192,6 +192,7 @@ class MetasploitModule < Msf::Auxiliary
     esc_entries.each do |entry|
       certificate_symbol = entry[:cn][0].to_sym
       certificate_details = @certificate_details[certificate_symbol]
+
       certificate_details[:techniques] << esc_id
       certificate_details[:notes] += notes
     end
@@ -705,7 +706,6 @@ class MetasploitModule < Msf::Auxiliary
     raw = flag_values.is_a?(Array) ? flag_values.first : flag_values
     return false if raw.nil?
 
-    # Normalize to a 32-bit unsigned mask (handles negative signed strings)
     mask = raw.to_i & 0xffffffff
 
     if (mask & CT_FLAG_SUBJECT_ALT_REQUIRE_DNS) != 0 && users.any? { |user| user.end_with?('$') }
