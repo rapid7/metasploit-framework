@@ -1,7 +1,4 @@
 require 'msf/core'
-require 'chunky_png'
-require 'rqrcode'
-
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::FILEFORMAT
@@ -10,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   #
   # 1. Load the module:
   # 2. Set the deep link scheme (like for Wechat lets say):
-  #    `use auxiliary/generator/android_deeplinking_qr`
+  #    `use auxiliary/generator/android_deeplink`
   #
   #    `set DEEPLINK_SCHEME weixin://`
   #
@@ -27,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Android Deep Link QR Code Payload Generator',
       'Description'    => %q{
-        This module make QR code with ANdroid Deep Link.
+        This module make QR code with Android Deep Link.
         When user scan QR, phone open app with deep link.
         Can use for test app security or social engineering.
       },
@@ -108,14 +105,20 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('FILENAME', [true, 'QR code output file', 'deeplink_qr.png']),
       OptInt.new('SIZE', [true, 'QR code size in pixel', 400])
     ])
-
-    # List for reference
-    # maybe add more  in future
-
-
   end
 
   def run
+    unless check_gems_available
+      if datastore['INSTALL_GEMS']
+        install_missing_gems
+        return
+      else
+        print_error("Required gems not found. Run: gem install rqrcode chunky_png")
+        print_error("Or set INSTALL_GEMS to true to install automatically")
+        return
+      end
+    end
+
     scheme = datastore['DEEPLINK_SCHEME']
     
     if scheme == 'custom://'
@@ -148,6 +151,10 @@ class MetasploitModule < Msf::Auxiliary
     print_status("This deep link will open: #{app_name}")
 
     begin
+      # Iput this here just in case
+      require 'rqrcode'
+      require 'chunky_png'
+
       generate_qr_code(target_deep_link)
     
       print_good("QR code generate success: #{datastore['FILENAME']}")
@@ -244,5 +251,4 @@ class MetasploitModule < Msf::Auxiliary
     else 'Unknown App'
     end
   end
-
 end
