@@ -223,7 +223,6 @@ Module options (auxiliary/scanner/mssql/mssql_login):
    USERPASS_FILE                         no        File containing users and passwords separated by space, one pair per line
    USER_AS_PASS         false            no        Try the username as the password for all users
    USER_FILE                             no        File containing usernames, one per line
-   USE_WINDOWS_AUTHENT  false            yes       Use windows authentication (requires DOMAIN option set)
    VERBOSE              true             yes       Whether to print output for all attempts
 
 
