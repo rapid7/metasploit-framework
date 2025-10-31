@@ -749,7 +749,7 @@ class MetasploitModule < Msf::Auxiliary
         @certificate_details[certificate_symbol][:target_users] = users
 
         # ESC16 revolves around the szOID_NTDS_CA_SECURITY_EXT being globally disabled on the CA server via the disable_extension_list. If it's not disabled, skip
-        if @registry_values[ca_name]&.[](:disable_extension_list)&.include?('1.3.6.1.4.1.311.25.2') && @registry_values[:strong_certificate_binding_enforcement] && (@registry_values[:strong_certificate_binding_enforcement] == 0 || @registry_values[:strong_certificate_binding_enforcement] == 1)
+        if vulnerable_to_esc16_1?(ca_name)
           next if users.empty?
           next unless users_compatible_with_template?(users, entry['mspki-certificate-name-flag'])
 
@@ -760,7 +760,7 @@ class MetasploitModule < Msf::Auxiliary
           # Scenario 1 - StrongCertificateBindingEnforcement = 1 or 0 then it's the same as ESC9 - mark them all as vulnerable
           @certificate_details[certificate_symbol][:techniques] << 'ESC16_1'
           @certificate_details[certificate_symbol][:notes] << note
-        elsif @registry_values[ca_name]&.[](:disable_extension_list)&.include?('1.3.6.1.4.1.311.25.2') && @registry_values[ca_name][:edit_flags] & EDITF_ATTRIBUTESUBJECTALTNAME2 != 0
+        elsif vulnerable_to_esc16_2?(ca_name)
           # Scenario 2 - StrongCertificateBindingEnforcement = 2 but the edit_flags contain EDITF_ATTRIBUTESUBJECTALTNAME2 which re-enables the ability to exploit the certificate in the same way as ESC6
           @certificate_details[certificate_symbol][:techniques] << 'ESC16_2'
           @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due to the active policy EditFlags having: EDITF_ATTRIBUTESUBJECTALTNAME2 set (which is essentially ESC6) on the Certificate Authority: #{ca_name}. Also the CA having 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
@@ -777,6 +777,14 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     end
+  end
+
+  def vulnerable_to_esc16_1?(ca_name)
+    @registry_values[ca_name]&.[](:disable_extension_list)&.include?('1.3.6.1.4.1.311.25.2') && @registry_values[:strong_certificate_binding_enforcement] && (@registry_values[:strong_certificate_binding_enforcement] == 0 || @registry_values[:strong_certificate_binding_enforcement] == 1)
+  end
+
+  def vulnerable_to_esc16_2?(ca_name)
+    @registry_values[ca_name]&.[](:disable_extension_list)&.include?('1.3.6.1.4.1.311.25.2') && @registry_values[ca_name][:edit_flags] & EDITF_ATTRIBUTESUBJECTALTNAME2 != 0 && @registry_values[:strong_certificate_binding_enforcement] && @registry_values[:strong_certificate_binding_enforcement] == 2
   end
 
   def find_enrollable_vuln_certificate_templates
@@ -1087,7 +1095,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if version_raw.blank?
-      fail_with(Failure::Unknown, "Could not retrieve Windows version string from #{datastore['RHOSTS']} via WinRM.")
+      print_error("Could not retrieve Windows version string from #{datastore['RHOSTS']} via WinRM.")
     end
 
     version_obj = Rex::Version.new(version_raw)
@@ -1114,7 +1122,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    fail_with(Failure::Unknown, "Could not map detected Windows version #{version_obj} to a known product range. Cannot proceed with module execution.")
+    print_error("Could not map detected Windows version #{version_obj} to a known product range.")
   end
 
   def set_can_enroll_flags
