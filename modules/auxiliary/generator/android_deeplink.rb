@@ -4,7 +4,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::FILEFORMAT
 
   # How to use this module:
-  #
+  # 
+  #    Search: `search android_deeplink` to check for module
   # 1. Load the module:
   # 2. Set the deep link scheme (like for Wechat lets say):
   #    `use auxiliary/generator/android_deeplink`
@@ -108,15 +109,20 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    unless check_gems_available
-      if datastore['INSTALL_GEMS']
-        install_missing_gems
-        return
-      else
-        print_error("Required gems not found. Run: gem install rqrcode chunky_png")
-        print_error("Or set INSTALL_GEMS to true to install automatically")
-        return
-      end
+   
+    begin
+      require 'rqrcode'
+      require 'chunky_png'
+      gems_available = true
+    rescue LoadError
+      gems_available = false
+    end
+
+    unless gems_available
+      print_error("Required gems not found. Please install them with:")
+      print_error("gem install rqrcode chunky_png")
+      print_error("Then restart msfconsole and try again.")
+      return
     end
 
     scheme = datastore['DEEPLINK_SCHEME']
@@ -151,20 +157,12 @@ class MetasploitModule < Msf::Auxiliary
     print_status("This deep link will open: #{app_name}")
 
     begin
-      # Iput this here just in case
-      require 'rqrcode'
-      require 'chunky_png'
-
       generate_qr_code(target_deep_link)
-    
       print_good("QR code generate success: #{datastore['FILENAME']}")
       print_warning("When user scan this QR, #{app_name} will open with deep link")
       
     rescue => e
       print_error("Generate QR code fail: #{e.message}")
-      if e.message.include?('missing constant') || e.message.include?('require')
-        print_error("Maybe need install gem: gem install rqrcode chunky_png")
-      end
     end
   end
 
