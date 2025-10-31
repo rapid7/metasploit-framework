@@ -36,7 +36,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2018-10933'],
-          ['URL', 'https://www.libssh.org/security/advisories/CVE-2018-10933.txt']
+          ['URL', 'https://www.libssh.org/security/advisories/CVE-2018-10933.txt'],
+          ['ATT&CK', Mitre::Attack::Technique::T1021_004_SSH]
         ],
         'DisclosureDate' => '2018-10-16',
         'License' => MSF_LICENSE,
