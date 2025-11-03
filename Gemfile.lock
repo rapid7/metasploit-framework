@@ -21,6 +21,7 @@ PATH
       bson
       chunky_png
       csv
+      date (= 3.4.1)
       dnsruby
       drb
       ed25519
