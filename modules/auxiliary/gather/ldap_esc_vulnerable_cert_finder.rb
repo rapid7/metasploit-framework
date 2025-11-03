@@ -498,13 +498,12 @@ class MetasploitModule < Msf::Auxiliary
 
       enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
       users = find_users_with_write_and_enroll_rights(enroll_sids)
+      current_user = adds_get_current_user(@ldap)[:samaccountname].first
       next if users.empty?
-      next unless users_compatible_with_template?(users, template['mspki-certificate-name-flag'])
+      next unless users_compatible_with_template?(current_user, users, template['mspki-certificate-name-flag'])
 
       user_plural = users.size > 1 ? 'accounts' : 'account'
       has_plural = users.size > 1 ? 'have' : 'has'
-
-      current_user = adds_get_current_user(@ldap)[:samaccountname].first
 
       note = "ESC9: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
       if @registry_values[:strong_certificate_binding_enforcement].present?
@@ -539,13 +538,12 @@ class MetasploitModule < Msf::Auxiliary
 
       enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
       users = find_users_with_write_and_enroll_rights(enroll_sids)
+      current_user = adds_get_current_user(@ldap)[:samaccountname].first
       next if users.empty?
-      next unless users_compatible_with_template?(users, template['mspki-certificate-name-flag'])
+      next unless users_compatible_with_template?(current_user, users, template['mspki-certificate-name-flag'])
 
       user_plural = users.size > 1 ? 'accounts' : 'account'
       has_plural = users.size > 1 ? 'have' : 'has'
-
-      current_user = adds_get_current_user(@ldap)[:samaccountname].first
 
       note = "ESC10: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
 
@@ -700,7 +698,7 @@ class MetasploitModule < Msf::Auxiliary
     query_ldap_server_certificates(esc_raw_filter, 'ESC15', notes: notes)
   end
 
-  def users_compatible_with_template?(users, flag_values)
+  def users_compatible_with_template?(current_user, users, flag_values)
     return false if users.blank? || flag_values.blank?
 
     raw = flag_values.is_a?(Array) ? flag_values.first : flag_values
@@ -708,9 +706,9 @@ class MetasploitModule < Msf::Auxiliary
 
     mask = raw.to_i & 0xffffffff
 
-    if (mask & CT_FLAG_SUBJECT_ALT_REQUIRE_DNS) != 0 && users.any? { |user| user.end_with?('$') }
+    if (mask & CT_FLAG_SUBJECT_ALT_REQUIRE_DNS) != 0 && users.any? { |user| user.end_with?('$') } && current_user.to_s.end_with?('$')
       true
-    elsif (mask & CT_FLAG_SUBJECT_ALT_REQUIRE_UPN) != 0 && users.any? { |user| !user.end_with?('$') }
+    elsif (mask & CT_FLAG_SUBJECT_ALT_REQUIRE_UPN) != 0 && users.any? { |user| !user.end_with?('$') } && !current_user.to_s.end_with?('$')
       true
     else
       false
@@ -751,7 +749,7 @@ class MetasploitModule < Msf::Auxiliary
         # ESC16 revolves around the szOID_NTDS_CA_SECURITY_EXT being globally disabled on the CA server via the disable_extension_list. If it's not disabled, skip
         if vulnerable_to_esc16_1?(ca_name)
           next if users.empty?
-          next unless users_compatible_with_template?(users, entry['mspki-certificate-name-flag'])
+          next unless users_compatible_with_template?(current_user, users, entry['mspki-certificate-name-flag'])
 
           note = "ESC16: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
           note += " Registry values: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{@registry_values[:certificate_mapping_methods]}."
@@ -770,7 +768,7 @@ class MetasploitModule < Msf::Auxiliary
           @certificate_details[certificate_symbol][:notes] << 'ESC16_2: Template appears to be vulnerable (most templates do)'
 
           next if users.empty?
-          next unless users_compatible_with_template?(users, entry['mspki-certificate-name-flag'])
+          next unless users_compatible_with_template?(current_user, users, entry['mspki-certificate-name-flag'])
 
           @certificate_details[certificate_symbol][:techniques] << 'ESC16_1'
           @certificate_details[certificate_symbol][:notes] << "ESC16_1: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
