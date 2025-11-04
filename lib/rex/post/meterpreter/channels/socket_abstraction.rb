@@ -77,15 +77,6 @@ module SocketAbstraction
   end
 
   #
-  # Performs a close operation on the right side of the local stream.
-  #
-  def dio_close_handler(packet)
-    rsock.close
-
-    return super(packet)
-  end
-
-  #
   # Cleans up the stream abstraction.
   #
   def cleanup
