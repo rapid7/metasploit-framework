@@ -75,6 +75,39 @@ module Rex
           @current_database = ''
         end
 
+        def connect(global = true, opts={})
+          dossl = false
+          if(opts.has_key?('SSL'))
+            dossl = opts['SSL']
+          else
+            dossl = ssl
+          end
+
+          @mstds_channel = Rex::Proto::MsTds::Channel.new(
+            'PeerHost'      =>  opts['RHOST'] || rhost,
+            'PeerHostname'  =>  opts['SSLServerNameIndication'] || opts['RHOSTNAME'],
+            'PeerPort'      => (opts['RPORT'] || rport).to_i,
+            'LocalHost'     =>  opts['CHOST'] || chost || "0.0.0.0",
+            'LocalPort'     => (opts['CPORT'] || cport || 0).to_i,
+            'SSL'           =>  dossl,
+            'SSLVersion'    =>  opts['SSLVersion'] || ssl_version,
+            'SSLVerifyMode' =>  opts['SSLVerifyMode'] || ssl_verify_mode,
+            'SSLKeyLogFile' =>  opts['SSLKeyLogFile'] || sslkeylogfile,
+            'SSLCipher'     =>  opts['SSLCipher'] || ssl_cipher,
+            'Proxies'       => proxies,
+            'Timeout'       => (opts['ConnectTimeout'] || connection_timeout || 10).to_i,
+            'Context'       => { 'Msf' => framework, 'MsfExploit' => framework_module }
+          )
+          nsock = @mstds_channel.lsock
+          # enable evasions on this socket
+          set_tcp_evasions(nsock)
+
+          # Set this socket to the global socket as necessary
+          self.sock = nsock if (global)
+
+          return nsock
+        end
+
         # MS SQL Server only supports Windows and Linux
         def map_compile_os_to_platform(server_info)
           return '' if server_info.blank?
@@ -340,12 +373,12 @@ module Rex
             # upon receiving the ntlm_negociate request it send an ntlm_challenge but the status flag of the tds packet header
             # is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentification
             if tdsencryption == true
-               proxy = TDSSSLProxy.new(sock, sslkeylogfile: sslkeylogfile)
-               proxy.setup_ssl
-               resp = proxy.send_recv(pkt)
-            else
-               resp = mssql_send_recv(pkt, 15, false)
+              #proxy = TDSSSLProxy.new(sock, sslkeylogfile: sslkeylogfile)
+              #proxy.setup_ssl
+              #resp = proxy.send_recv(pkt)
+              @mstds_channel.starttls
             end
+            resp = mssql_send_recv(pkt, 15, false)
 
             # Strip the TDS header
             resp = resp[3..-1]
@@ -369,13 +402,7 @@ module Rex
 
             pkt = pkt_hdr.pack("CCnnCC") + type3_blob
 
-            if self.tdsencryption == true
-              resp = mssql_ssl_send_recv(pkt, proxy)
-              proxy.cleanup
-              proxy = nil
-            else
-              resp = mssql_send_recv(pkt)
-            end
+            resp = mssql_send_recv(pkt)
 
             #SQL Server Authentication
           else
