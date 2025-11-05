@@ -1,5 +1,4 @@
 require 'metasploit/framework/tcp/client'
-require 'metasploit/framework/mssql/tdssslproxy'
 require 'rex/proto/mssql/client_mixin'
 require 'rex/text'
 require 'msf/core/exploit'
@@ -372,12 +371,7 @@ module Rex
             # has a strange behavior that differs from the specifications
             # upon receiving the ntlm_negociate request it send an ntlm_challenge but the status flag of the tds packet header
             # is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentification
-            if tdsencryption == true
-              #proxy = TDSSSLProxy.new(sock, sslkeylogfile: sslkeylogfile)
-              #proxy.setup_ssl
-              #resp = proxy.send_recv(pkt)
-              @mstds_channel.starttls
-            end
+            @mstds_channel.starttls if tdsencryption
             resp = mssql_send_recv(pkt, 15, false)
 
             # Strip the TDS header
@@ -484,15 +478,8 @@ module Rex
             # Packet header and total length including header
             pkt = "\x10\x01" + [pkt.length + 8].pack('n') + [0].pack('n') + [1].pack('C') + "\x00" + pkt
 
-            if self.tdsencryption == true
-              proxy = TDSSSLProxy.new(sock, sslkeylogfile: sslkeylogfile)
-              proxy.setup_ssl
-              resp = mssql_ssl_send_recv(pkt, proxy)
-              proxy.cleanup
-              proxy = nil
-            else
-              resp = mssql_send_recv(pkt)
-            end
+            @mstds_channel.starttls if tdsencryption
+            resp = mssql_send_recv(pkt)
 
           end
 
@@ -562,10 +549,6 @@ module Rex
             end
           end
           data
-        end
-
-        def mssql_ssl_send_recv(req, tdsproxy, timeout=15, check_status=true)
-          tdsproxy.send_recv(req)
         end
 
         def query(sqla, doprint=false, opts={})
