@@ -41,8 +41,7 @@ RSpec.describe Msf::Db::PostgresPR::Connection do
         allow(socket).to receive(:read).with(1).and_return('S')
 
         expect(socket).to receive(:write).with('ssl_request_data')
-        expect(socket).to receive(:extend).with(Rex::Socket::SslTcp)
-        expect(socket).to receive(:initsock_with_ssl_version)
+        expect(socket).to receive(:starttls).with(Rex::Socket::Parameters)
 
         client = described_class.new(db_name, 'username', 'password', "tcp://#{host}:#{port}", nil, true, ssl_opts)
         expect(client).to be_a(Msf::Db::PostgresPR::Connection)
