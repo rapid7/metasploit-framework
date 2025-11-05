@@ -103,11 +103,7 @@
 
 ## Options
 
-  **RHOST**
-
-  Target device.
-
-  **FUNCTION**
+### FUNCTION
 
   Either CREDS (default) or ENUM:
   * CREDS attempts to retrieve administrative password and SNMP community strings

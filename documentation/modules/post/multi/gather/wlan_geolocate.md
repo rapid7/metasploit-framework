@@ -26,11 +26,11 @@
 
 ## Options
 
-  **geolocate**
+### geolocate
   
   A boolean on if wireless information should only be gathered, or the Google geolocate API should be used to geo the victim.  Defaults to `false`
   
-  **apikey**
+### apikey
 
   A string containing the Google provided geolocation api key. **REQUIRED** if `geolocate` is set to true. Defaults to empty string
 

@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/ssh'
+require 'metasploit/framework/credential_collection'
 
 RSpec.describe Metasploit::Framework::LoginScanner::SSH do
   let(:public) { 'root' }
@@ -48,7 +49,8 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
   }
 
   let(:detail_group) {
-    [ pub_blank, pub_pub, pub_pri]
+    Metasploit::Framework::CredentialCollection.new()
+    # [ pub_blank, pub_pub, pub_pri]
   }
 
   subject(:ssh_scanner) {
@@ -145,6 +147,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
             :proxy           => factory,
             :append_all_supported_algorithms => true,
             :auth_methods    => ['password','keyboard-interactive'],
+            :passphrase      => nil,
             :password        => private,
             :non_interactive => true,
             :verify_host_key => :never

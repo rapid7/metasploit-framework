@@ -27,16 +27,16 @@ Then do the thing:
 
 ## Options
 
-**CANBUS**
+### CANBUS
 Determines which CAN interface to use.
 
-**FRAMELIST**
+### FRAMELIST
 Path of the file that contains the list of frames. Default is "/usr/share/metasploit-framework/data/wordlists/can_flood_frames.txt".
 
-**ROUNDS**
+### ROUNDS
 Number of executed rounds. Default is 200.
 
-**SESSION**
+### SESSION
 The session to run this module on.
 
 ## Scenarios

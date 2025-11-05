@@ -330,5 +330,50 @@ RSpec.describe ModuleValidation::Validator do
         end
       end
     end
+
+    context 'when targets and default target are present' do
+      let(:mod_options) do
+        super().merge(
+          targets: [
+            [
+              'Automatic (Unix In-Memory)',
+              {
+                'Platform' => 'unix',
+                'Arch' => ARCH_CMD,
+                'DefaultOptions' => { 'PAYLOAD' => 'cmd/unix/reverse_bash' },
+                'Type' => :unix_memory
+              }
+            ],
+            [
+              'Automatic (Linux Dropper)',
+              {
+                'Platform' => 'linux',
+                'Arch' => [ARCH_X86, ARCH_X64],
+                'CmdStagerFlavor' => ['echo', 'printf', 'wget', 'curl'],
+                'DefaultOptions' => { 'PAYLOAD' => 'linux/x86/meterpreter/reverse_tcp' },
+                'Type' => :linux_dropper
+              }
+            ]
+          ],
+          default_target: 1
+        )
+      end
+
+      it 'has no errors' do
+        expect(subject.errors.full_messages).to be_empty
+      end
+
+      context 'when the default_target is out of bounds' do
+        let(:mod_options) do
+          super().merge(
+            default_target: 4
+          )
+        end
+
+        it 'has errors for default_target' do
+          expect(subject.errors.full_messages).to eq ["Default target is out of range. Must specify a valid target index between 0 and 1, got '4'"]
+        end
+      end
+    end
   end
 end

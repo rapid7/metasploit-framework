@@ -18,6 +18,7 @@ class MetasploitModule < Msf::Auxiliary
           allowing to read arbitrary files with the web server privileges.
         },
         'References' => [
+          ['CVE', '2025-34126'],
           ['EDB', '18660'],
           ['URL', 'http://codesec.blogspot.com/2015/03/rips-scanner-v-054-local-file-include.html']
         ],

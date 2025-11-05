@@ -15,9 +15,17 @@
   send in the RDP negotiation request, which can be helpful in identifying RDP
   endpoints that might be locked down or configured differently:
 
-  **TLS** Set to true to request TLS security support
-  **CredSSP** Set to true to request CredSSP support
-  **EarlyUser** Set to true to request Early User Authorization Result PDU support
+### TLS
+
+Set to true to request TLS security support
+
+### CredSSP
+
+Set to true to request CredSSP support
+
+### EarlyUser
+
+Set to true to request Early User Authorization Result PDU support
 
 ## Scenarios
 

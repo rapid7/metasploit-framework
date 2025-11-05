@@ -11,7 +11,7 @@ This module will enumerate all installed applications on a Windows system.
 
 ## Options
 
-  **SESSION**
+### SESSION
 
   The session to run this module on.
 

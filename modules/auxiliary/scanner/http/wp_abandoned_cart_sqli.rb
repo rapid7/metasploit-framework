@@ -26,6 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
+          ['CVE', '2025-47608'],
           ['WPVDB', '10461'],
           ['URL', 'https://wpdeeply.com/woocommerce-abandoned-cart-before-5-8-2-sql-injection/'],
           ['URL', 'https://plugins.trac.wordpress.org/changeset/2413885']

@@ -14,11 +14,11 @@
 
 ## Options
 
-  **EXE_PATH**
+### EXE_PATH
 
   Path to the `screencap` executable on Android device. Default is `/system/bin/screencap`.
 
-  **TMP_PATH**
+### TMP_PATH
 
   Path to temp directory on Android device to save the screenshot to temporarily. Default is `/data/local/tmp/`.
 

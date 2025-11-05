@@ -19,15 +19,15 @@ When installing, you must edit conf/beans.xml line 183 "remoteIp" to put in your
 
 ## Options
 
-  **FTPUSER**
+### FTPUSER
 
   Default user for Colorado FTP is `ftpuser`
 
-  **FTPPASS**
+### FTPPASS
 
   Default password for Colorado FTP is `ftpuser123`
 
-  **DEPTH**
+### DEPTH
 
   Default depth of ../ to do is 2 to get back to the root of Colorado FTP.  This can run anywhere, so you may have to play a bit to find the root.
 

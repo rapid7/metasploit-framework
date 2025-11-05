@@ -33,6 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           'Grant Willcox' # Metasploit Module
         ],
         'References' => [
+          [ 'CVE', '2021-45511' ],
           [ 'URL', 'https://kb.netgear.com/000063961/Security-Advisory-for-Authentication-Bypass-Vulnerability-on-the-D7000-and-Some-Routers-PSV-2021-0133' ],
           [ 'URL', 'https://ssd-disclosure.com/ssd-advisory-netgear-d7000-authentication-bypass/' ]
         ],

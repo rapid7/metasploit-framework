@@ -18,6 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         this module will attempt to download the Barracuda configuration file.
       },
       'References' => [
+        ['CVE', '2010-20109'],
         ['OSVDB', '68301'],
         ['URL', 'https://web.archive.org/web/20101004131244/http://secunia.com/advisories/41609/'],
         ['EDB', '15130']

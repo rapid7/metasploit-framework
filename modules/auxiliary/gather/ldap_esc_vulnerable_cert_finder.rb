@@ -1182,7 +1182,7 @@ class MetasploitModule < Msf::Auxiliary
 
       registry_values = enum_registry_values if datastore['RUN_REGISTRY_CHECKS']
 
-      if registry_values.present?
+      if registry_values&.any?
         registry_values.each do |key, value|
           vprint_good("#{key}: #{value.inspect}")
         end

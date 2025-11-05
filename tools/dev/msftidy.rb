@@ -923,6 +923,8 @@ class Msftidy
 
           rubocop_result = rubocop_runner.run(full_filepath, options)
           @exit_status = MsftidyRunner::ERROR if rubocop_result != RuboCop::CLI::STATUS_SUCCESS
+
+          return @exit_status if options[:fail_fast] && @exit_status != 0
         end
       rescue Errno::ENOENT
         $stderr.puts "#{File.basename(__FILE__)}: #{dir}: No such file or directory"
@@ -954,6 +956,10 @@ if __FILE__ == $PROGRAM_NAME
 
     opts.on('-A', '--auto-correct-all', 'Auto-correct offenses (safe and unsafe).') do |auto_correct_all|
       options[:auto_correct_all] = auto_correct_all
+    end
+
+    opts.on('--fail-fast', 'Exit after the first detected failure instead of processing the rest of the files.') do |fail_fast|
+      options[:fail_fast] = fail_fast
     end
   end
   options_parser.parse!

@@ -12,9 +12,9 @@
 
 ## Options
 
-  **RPORTS** Set to a comma or space-delimited list of ports to check for the vulnerability.
+### RPORTS Set to a comma or space-delimited list of ports to check for the vulnerability.
 
-  **VERBOSE** Set to see how the probabilities of a vulnerable host are calculated.
+### VERBOSE Set to see how the probabilities of a vulnerable host are calculated.
 
 ## Scenarios
 

@@ -29,6 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
+          ['CVE', '2015-10139'],
           ['WPVDB', '7785']
         ],
         'DisclosureDate' => '2015-02-09',

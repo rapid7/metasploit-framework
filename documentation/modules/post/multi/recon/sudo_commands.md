@@ -24,15 +24,15 @@
 
 ## Options
 
-  **SESSION**
+### SESSION
 
   Which session to use, which can be viewed with `sessions`
 
-  **SUDO_PATH**
+### SUDO_PATH
 
   Path to sudo executable (default: `/usr/bin/sudo`)
 
-  **PASSWORD**
+### PASSWORD
 
   Password for the session user
 

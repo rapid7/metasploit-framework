@@ -38,16 +38,16 @@
 
 ## Options
 
-  **DBPASS**
+### DBPASS
   The password to authenticate with. Change this from TIGER to the password of the privileged user created in step 4 of Preparation.
 
-  **DBUSER**
+### DBUSER
   The username to authenticate with. Change this from SCOTT to the user you created who is granted privileges to select from the sys.user$ table
 
-  **RPORT**
+### RPORT
   The TNS port of the Oracle DB server. By default, Oracle uses port 1521. Double-check the port of your Oracle DB.
 
-  **SID**
+### SID
   The Service ID (of the database) to authenticate with. Change this to your SID (if you changed the SID from default upon installation).
   Default is `ORCL` (default Oracle install value) or `XE` for free edition.
 

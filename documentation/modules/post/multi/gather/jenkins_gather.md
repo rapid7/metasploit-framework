@@ -43,17 +43,17 @@ This module has been verified against:
 
 ## Options
 
-  **SEARCH_JOBS**
+### SEARCH_JOBS
 
   This option searches through the `jobs` folder for interesting
 keywords but obviously increases runtime on larger instances.
 
-  **STORE_LOOT**
+### STORE_LOOT
 
   This option saves interesting files and loot to disk. If set to
 false will simply output data to console.
 
-  **JENKINS_HOME**
+### JENKINS_HOME
   This option can be set if we want to specify where the Jenkins
 data resides.
 

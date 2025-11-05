@@ -12,11 +12,11 @@ This module will speak whatever is in the 'TEXT' option on the victim machine.
 
 ## Options
 
-  **TEXT**
+### TEXT
 
   The text that should be read.  Default is `meta-sploit!`.
 
-  **VOICE**
+### VOICE
 
   The voice to use.  Default is `alex`.
   This can be obtained on the system by specifying `-v ?` (example from 10.14.4):

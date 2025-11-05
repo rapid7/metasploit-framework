@@ -52,7 +52,7 @@ ctx.qry.path can come from querystring_cb(), which takes unescaped data from the
 
 ## Options
 
-**REPO**
+### REPO
 
 Git repository on the remote server. Default is empty, `''`.
 

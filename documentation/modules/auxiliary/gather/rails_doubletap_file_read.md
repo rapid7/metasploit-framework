@@ -18,11 +18,11 @@
 
 ## Options
 
-  **ROUTE**
+### ROUTE
 
   This is a web path or "route" on the vulnerable server. Since the vulnerability lies within the PathResolver of Rails, the route should be in the server's routes.rb file. 
 
-  **TARGET_FILE**
+### TARGET_FILE
 
   This is the file to be read on the remote server. This *must* be an absolute path (eg. /etc/passwd).
 

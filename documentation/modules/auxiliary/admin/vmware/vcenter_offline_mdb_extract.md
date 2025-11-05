@@ -30,15 +30,15 @@ value is provided for `VC_IP` the module defaults to assigning the loopback IP `
 7. Do: `dump`
 
 ## Options
-**VMDIR_MDB**
+### VMDIR_MDB
 
 Path to the vmdird MDB database file on the local system. Example: `/tmp/data.mdb`
 
-**VMAFD_DB**
+### VMAFD_DB
 
 Path to the vmafd DB file on the local system. Example: `/tmp/afd.db`
 
-**VC_IP**
+### VC_IP
 
 Optional parameter to set the IPv4 address associated with loot entries made by the module.
 

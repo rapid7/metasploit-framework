@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Auxiliary
           'Brandon Perry <bperry.volatile[at]gmail.com>' # meatpistol module
         ],
         'References' => [
+          ['CVE', '2013-5967'],
           ['EDB', '32644']
         ],
         'DefaultOptions' => {

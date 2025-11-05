@@ -62,13 +62,13 @@ Msquitto can be configured to require credentials.  To run in this way:
 
 ## Options
 
-  **CLIENT_ID**
+### CLIENT_ID
 
   When specified, this will set the ID of the client when connecting to the MQTT endpoint.  While
   not all MQTT implementation support this, some, like mosquitto, support filtering by client ID and
   this option can be used in those scenarios.  By default, a random ID is selected.
 
-  **READ_TIMEOUT**
+### READ_TIMEOUT
 
   The amount of time, in seconds, to wait for responses from the MQTT endpoint.
 

@@ -24,19 +24,19 @@ This module authenticates to AWS S3 (Simple Storage Service), to identify bucket
 
 ## Options
 
-  **ACCESS_KEY_ID**
+### ACCESS_KEY_ID
 
   This AWS credential is like a username.  It uniquely identifies the user, and is paired with a 'secret access key'.  The access key ID is retrievable through the AWS console.
   
   An example `ACCESS_KEY_ID` would be `AKIA5C76TR3KXHXA5CRC`
 
-  **SECRET_ACCESS_KEY**
+### SECRET_ACCESS_KEY
 
   This AWS credential is like a password, and should be treated as such.  It is paired with a 'access key ID'.  The access key ID cannot be retrieved from AWS after it has been generated, but it may be discoverable through environment variables, configuration files, source code, or backups.
   
   An example `SECRET_ACCESS_KEY` would be `EKfx3wOWWiGk1WgBTAZfF/2dq3SbDsQj4jdyOMOv`.
 
-  **REGION**
+### REGION
 
   AWS resources are located in regions.  Optionally, this module's output can be filtered based on region to minimize the query to AWS.  Alternatively, `REGION` can be left blank, such that all regions will be checked.
   

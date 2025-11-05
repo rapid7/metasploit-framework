@@ -13,7 +13,9 @@
 
 ## Options
 
-  **SESSION** - The session to run the module on.
+### SESSION
+
+The session to run the module on.
 
 ## Extracted data
 

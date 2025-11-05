@@ -15,6 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         By sending a specially crafted value of the Sec-WebSocket-Extensions header on the initial WebSocket upgrade request, the ws component will crash.
       },
       'References' => [
+        ['CVE', '2016-10542'],
         ['URL', 'https://nodesecurity.io/advisories/550'],
         ['CWE', '400'],
       ],

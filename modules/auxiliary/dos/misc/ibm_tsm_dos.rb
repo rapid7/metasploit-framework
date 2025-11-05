@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Auxiliary
           'William Webb <william_webb[at]rapid7.com>', # Metasploit
         ],
         'References' => [
+          ['CVE', '2015-1930'],
           ['EDB', '38979'],
           ['OSVDB', '132307']
         ],

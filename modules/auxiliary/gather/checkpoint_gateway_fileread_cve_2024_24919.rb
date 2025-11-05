@@ -29,6 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         },
         'DefaultOptions' => { 'SSL' => true },
         'References' => [
+          ['CVE', '2024-24919'],
           # Vendor advisory
           [ 'URL', 'https://support.checkpoint.com/results/sk/sk182336' ],
           # Rapid7 ETR advisory for CVE-2024-24919

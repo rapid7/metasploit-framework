@@ -22,7 +22,7 @@ Note: The [EDB PoC](https://www.exploit-db.com/exploits/43141/) used relative pa
 
 ## Options
 
-**PATH**
+### PATH
 
 This option specifies the absolute or relative path of the file to download. (default: `/…/fileIndex.db`)
 

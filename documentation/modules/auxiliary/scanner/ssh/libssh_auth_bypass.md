@@ -112,18 +112,18 @@ Shell    Spawn a shell
 
 ## Options
 
-**CMD**
+### CMD
 
 Set this to a command or shell you want to execute. An `exec` channel
 request will be sent instead of a `shell` channel request.
 
-**SPAWN_PTY**
+### SPAWN_PTY
 
 Enable this if you would like a PTY. Some server implementations may
 require this. Note that you WILL be logged in `utmp`, `wtmp`, and
 `lastlog` in most cases.
 
-**CHECK_BANNER**
+### CHECK_BANNER
 
 This is a banner check for libssh. It's not sophisticated, and the
 banner may be changed, but it may prevent false positives due to how the

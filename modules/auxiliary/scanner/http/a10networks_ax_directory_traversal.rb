@@ -25,6 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           option must be set to 'true' either manually or by script.
         },
         'References' => [
+          ['CVE', '2014-125125'],
           ['OSVDB', '102657'],
           ['BID', '65206'],
           ['EDB', '31261']

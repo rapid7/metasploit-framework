@@ -19,6 +19,9 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => ['Sil3nt_Dre4m'],
         'License' => MSF_LICENSE,
         'DisclosureDate' => '2011-07-02',
+        'References' => [
+          [ 'CVE', '2011-10020' ]
+        ],
         'Notes' => {
           'Stability' => [CRASH_SERVICE_DOWN],
           'SideEffects' => [],

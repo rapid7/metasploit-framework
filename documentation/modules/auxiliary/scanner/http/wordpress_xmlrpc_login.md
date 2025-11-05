@@ -84,27 +84,27 @@ Admin panel: http://msf-wp.docksal/wp-admin. User/password: admin/admin
 
 ## Options
 
-**USERNAME**
+### USERNAME
 
 A specific username to authenticate as
 
-**USER_FILE**
+### USER_FILE
 
 File containing usernames, one per line
 
-**PASSWORD**
+### PASSWORD
 
 A specific password to authenticate with
 
-**PASS_FILE**
+### PASS_FILE
 
 File containing passwords, one per line
 
-**USERPASS_FILE**
+### USERPASS_FILE
 
 File containing users and passwords separated by space, one pair per line
 
-**USER_AS_PASS**
+### USER_AS_PASS
 
 Try the username as the password for all users (default: `false`)
 

@@ -18,15 +18,15 @@ https://github.com/advisories/GHSA-pj4g-4488-wmxm
 
 ## Options
 
-**RHOST**
+### RHOST
 
 Configure the remote vulnerable system.
 
-**RPORT**
+### RPORT
 
 Configure the TCP port of the RPyC server.
 
-**COMMAND**
+### COMMAND
 
 Configure the command to execute on the remote system.
 

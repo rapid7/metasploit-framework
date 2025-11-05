@@ -19,6 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           to read arbitrary files with the web server privileges.
         },
         'References' => [
+          ['CVE', '2015-10133'],
           ['WPVDB', '8102'],
           ['PACKETSTORM', '132694'],
           ['URL', 'https://advisories.dxw.com/advisories/admin-only-local-file-inclusion-and-arbitrary-code-execution-in-subscribe-to-comments-2-1-2/']

@@ -23,6 +23,6 @@ http://goo.gl/pHAqS1
 
 ## Options
 
-  **TRYDEFAULT**
+### TRYDEFAULT
 
   The ```TRYDEFAULT``` options adds the default credential admin:123456 to the credential list.

@@ -15,6 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         Netgear SPH200D Skype telephone.
       },
       'References' => [
+        [ 'CVE', '2013-10063' ],
         [ 'BID', '57660' ],
         [ 'EDB', '24441' ],
         [ 'URL', 'http://support.netgear.com/product/SPH200D' ],

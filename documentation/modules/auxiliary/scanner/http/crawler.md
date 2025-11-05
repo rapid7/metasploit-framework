@@ -10,19 +10,19 @@ You can use any web application to test the crawler.
 
 ## Options
 
-  **URI**
+### URI
 
   Default path is `/`
 
-  **DirBust**
+### DirBust
 
   Bruteforce common url path, default is `true` but may generate noise in reports.
 
-  **HttpPassword**, **HttpUsername**, **HTTPAdditionalHeaders**, **HTTPCookie**
+### HttpPassword, **HttpUsername**, **HTTPAdditionalHeaders**, **HTTPCookie**
 
   You can add some login information
 
-  **UserAgent**
+### UserAgent
 
   Default User Agent is `Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)`
 

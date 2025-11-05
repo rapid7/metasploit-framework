@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
+          [ 'CVE', '2025-34110' ],
           [ 'EDB', '40231'],
           [ 'URL', 'https://bitbucket.org/nolife/coloradoftp/commits/16a60c4a74ef477cd8c16ca82442eaab2fbe8c86'],
           [ 'URL', 'https://bugtraq.securityfocus.com/archive/1/539186']

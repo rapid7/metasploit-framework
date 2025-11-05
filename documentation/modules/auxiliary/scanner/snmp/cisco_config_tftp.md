@@ -17,7 +17,7 @@
 
 ## Options
 
-  **COMMUNITY**
+### COMMUNITY
 
   The SNMP community string to use which must be read-write.  Default is `public`.
 

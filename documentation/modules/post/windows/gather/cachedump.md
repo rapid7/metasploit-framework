@@ -11,7 +11,7 @@ This module uses the registry to extract the stored domain hashes that have been
 
 ## Options
 
-  **SESSION**
+### SESSION
 
   The session to run this module on.
 

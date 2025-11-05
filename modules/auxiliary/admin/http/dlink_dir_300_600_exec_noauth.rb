@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
         'License' => MSF_LICENSE,
         'References' => [
+          [ 'CVE', '2013-10069' ],
           [ 'OSVDB', '89861' ],
           [ 'EDB', '24453' ],
           [ 'URL', 'https://eu.dlink.com/uk/en/products/dir-600-wireless-n-150-home-router' ],

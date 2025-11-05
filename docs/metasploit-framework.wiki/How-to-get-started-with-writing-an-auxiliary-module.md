@@ -41,7 +41,7 @@ include Msf::Auxiliary::Scanner
 
 A couple of new things will be added to your module when you include this mixin. You will have a new datastore option named "RHOSTS", which allows the user to specify multiple hosts. There's a new "THREADS" option, which allows the number of threads to run during execution. There's also "ShowProgress" and "ShowProgressPercent" for tracking scan progress.
 
-Typically, the main method for an auxiliary module is "def run". But when you use the ```Msf::Auxiliary::Scanenr``` mixin, you need to be using ```def run_host(ip)```. The IP parameter is the target machine.
+Typically, the main method for an auxiliary module is "def run". But when you use the ```Msf::Auxiliary::Scanner``` mixin, you need to be using ```def run_host(ip)```. The IP parameter is the target machine.
 
 ## Templates
 

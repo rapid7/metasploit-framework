@@ -73,7 +73,7 @@ creds -v
 The `kerberos_enumusers` module only requires the `RHOST`, `DOMAIN` and
 `USER_FILE` options to run.
 
-**The DOMAIN option**
+### The DOMAIN option
 
 This option is used to specify the target domain. If the domain name is
 incorrect an error is returned and domain user account enumeration will fail.
@@ -84,7 +84,7 @@ An example of setting DOMAIN:
 set DOMAIN [domain name]
 ```
 
-**The USER_FILE option**
+### The USER_FILE option
 
 This option is used to specify the file containing a list of user names
 to query the Domain Controller to identify if they exist in the target domain
@@ -96,7 +96,7 @@ An example of setting USER_FILE:
 set USER_FILE [path to file]
 ```
 
-**The Timeout option**
+### The Timeout option
 
 This option is used to specify the TCP timeout i.e. the time to wait
 before a connection to the Domain Controller is established and data read.

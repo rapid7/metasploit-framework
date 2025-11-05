@@ -22,11 +22,11 @@
 
 ## Options
 
-  **PFEXEC_PATH**
+### PFEXEC_PATH
 
   Path to pfexec (default: `/usr/bin/pfexec`)
 
-  **SHELL_PATH**
+### SHELL_PATH
 
   Path to shell (default: `/bin/sh`)
 

@@ -31,6 +31,7 @@ class MetasploitModule < Msf::Auxiliary
           'SideEffects' => [IOC_IN_LOGS]
         },
         'References' => [
+          ['CVE', '2023-33568'],
           ['URL', 'https://www.dsecbypass.com/en/dolibarr-pre-auth-contact-database-dump/'],
           ['URL', 'https://github.com/Dolibarr/dolibarr/blob/16.0.5/ChangeLog#L34'],
           ['URL', 'https://github.com/Dolibarr/dolibarr/commit/bb7b69ef43673ed403436eac05e0bc31d5033ff7'],

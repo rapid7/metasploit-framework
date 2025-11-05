@@ -11,15 +11,15 @@ This Module will perform an ARP scan for a given IP range through a Meterpreter 
 
 ## Options
 
-  **RHOSTS**
+### RHOSTS
 
   The target address range or CIDR identifier.
 
-  **SESSION**
+### SESSION
 
   The session to run this module on.
 
-  **THREADS**
+### THREADS
 
   The number of concurrent threads.
 

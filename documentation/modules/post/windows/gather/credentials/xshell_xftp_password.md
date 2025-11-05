@@ -17,7 +17,7 @@ This module can decrypt the password of xshell and xftp, If the user chooses to 
 
 ## Options
 
- **MASTER_PASSWORD**
+### MASTER_PASSWORD
 
   - Specify user's master password, e.g.:123456'
 

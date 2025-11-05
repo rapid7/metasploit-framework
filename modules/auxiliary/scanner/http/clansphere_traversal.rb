@@ -19,6 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           used to read any file outside the virtual directory.
         },
         'References' => [
+          ['CVE', '2012-10034'],
           ['OSVDB', '86720'],
           ['EDB', '22181']
         ],

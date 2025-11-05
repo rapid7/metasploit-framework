@@ -18,6 +18,7 @@ class MetasploitModule < Msf::Auxiliary
           is present in version of linknat vos2009/vos3000
         },
         'References' => [
+          ['CVE', '2025-34118'],
           ['URL', 'http://www.linknat.com/'],
           ['URL', 'http://www.wooyun.org/bugs/wooyun-2010-0145458']
         ],

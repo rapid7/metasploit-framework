@@ -73,20 +73,20 @@ To setup an Environment that the scanner can be run against, follow the below st
 
 ## Options
 
-**CMD**
+### CMD
 
 This is the command that will be run by the scanner. The default setting is `/usr/bin/id`.
 
-**CVE**
+### CVE
 
 This is the CVE that will be used to exploit the vulnerability.
 The default setting is `CVE-2014-6271` but valid options are `CVE-2014-6271` or `CVE-2014-6278`.
 
-**HEADER**
+### HEADER
 
 This is the user agent string that is sent when the module is run. The default setting is `User-Agent`.
 
-**METHOD**
+### METHOD
 
 This is HTTP method used by the module.  The default setting is `GET`.
 

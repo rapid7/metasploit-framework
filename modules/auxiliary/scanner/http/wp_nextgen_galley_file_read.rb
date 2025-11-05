@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Auxiliary
           to read arbitrary directories with the web server privileges.
         },
         'References' => [
+          ['CVE', '2015-9538'],
           ['WPVDB', '8165'],
           ['URL', 'http://permalink.gmane.org/gmane.comp.security.oss.general/17650']
         ],

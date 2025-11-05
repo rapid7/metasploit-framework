@@ -28,17 +28,17 @@ Chrome does not need to be running on the target machine for this module to work
 
 ## Options
 
-  **CHROME_BINARY_PATH**
+### CHROME_BINARY_PATH
 
   The path to the user's Chrome binary. On Linux this defaults to searching for `google-chrome` in `$PATH`. On macOS, this defaults to `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'`. If the module doesn't find any cookies, it may be that a different Chrome binary to the one the user normally uses is being run. In that case, you can change the Chrome binary executed with this option.
 
-  **WRITABLE_DIR**
+### WRITABLE_DIR
 
   Directory used to write temporary files.
 
   Two files are written, with random 10-15 character alphanumeric filenames. One file contains an html file for Chrome and the other is where the cookies are saved. Both files are deleted during cleanup.
 
-  **REMOTE_DEBUGGING_PORT**
+### REMOTE_DEBUGGING_PORT
 
   Port to tell Chrome to expose Remote Debugging on. Default is the normal remote debugging port, `9222`.
 

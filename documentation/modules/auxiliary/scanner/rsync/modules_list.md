@@ -51,11 +51,11 @@ rsync3:VU&A1We5DEa8M6^8" > /etc/rsyncd.secrets```
 
 ## Options
 
-  **TEST_AUTHENTICATION**
+### TEST_AUTHENTICATION
 
   Connect to each share and test if authentication is required.
 
-  **VERBOSE**
+### VERBOSE
 
   When set to `false`, each module will be listed.  When set to `true` each module will be listed, then a summary
   table will also be printed including if authentication is required, and any module comments.  `false` is the default value.

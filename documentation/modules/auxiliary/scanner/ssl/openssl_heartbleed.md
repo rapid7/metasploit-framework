@@ -65,38 +65,38 @@ $ curl https://localhost:8443 -k
 
 ## Options
 
-  **Action**
+### Action
 
   * SCAN: Scan the host to see if it is vulnerable.  If `verbose` is set to `true`, also print the memory that was dumped.  This is the default.
   * DUMP: Dump the memory and store it as loot.
   * KEYS: Similar to DUMP but scan the results for the private key.
 
-  **TLS_CALLBACK**
+### TLS_CALLBACK
 
   Protocol to use if a specific underlying protocol is required.  Default is `None`.
 
-  **TLS_VERSION**
+### TLS_VERSION
 
   The specific version of TLS (or SSL) to use, if only specific ones are available.  Defaults to `1.0` (TLS1.0).
 
-  **MAX_KEYTRIES**
+### MAX_KEYTRIES
 
   If Action is set to `KEYS`, the maximum amount of times to dump memory and attempt to retrieve the private key.
   Similar to `LEAK_COUNT` but only applies to `KEYS`.  Default is `50`.
 
-  **STATUS_EVERY**
+### STATUS_EVERY
 
   If Action is set to `KEYS`, how often the status should be printed.  Default is `5`.
 
-  **DUMPFILTER**
+### DUMPFILTER
 
   A regular expression (used in scan function) to use to filter the dump before storing.  Default is `nil`.
 
-  **RESPONSE_TIMEOUT**
+### RESPONSE_TIMEOUT
 
   How long to wait for the server to respond in seconds.  Default is `10`.
 
-  **LEAK_COUNT**
+### LEAK_COUNT
 
   If Action is set to `SCAN` or `DUMP`, the maximum amount of times to dump memory.
   Similar to `MAX_KEYTRIES`.  Default is `1`.

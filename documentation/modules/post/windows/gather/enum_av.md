@@ -11,7 +11,7 @@ This module will enumerate all installed AntiVirus applications on the target Wi
 
 ## Options
 
-**SESSION**
+### SESSION
 
 The session to run this module on.
 

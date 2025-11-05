@@ -8,22 +8,22 @@ may need to tweak them for your target.
 
 ## Options
 
-**OFFSET_START**
+### OFFSET_START
 
 You want to set this to a value where you can see a backtrace. Set this
 lower if you're not sure. Default is 2000.
 
-**OFFSET_END**
+### OFFSET_END
 
 Set this option to a value where you don't see a backtrace. Set this
 higher if you're not sure. Default is 5000.
 
-**RETRIES**
+### RETRIES
 
 Sometimes the attack won't be successful on the first run. This option
 controls how many times to retry the attack. Default is 10.
 
-**VERBOSE**
+### VERBOSE
 
 This will tell you how long the binary search took and how many requests
 were sent during exploitation. Default is false.

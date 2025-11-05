@@ -31,6 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         'Targets' => [['WordPress', {}]],
         'DefaultTarget' => 0,
         'References' => [
+          ['CVE', '2021-4374'],
           ['URL', 'https://blog.nintechnet.com/critical-vulnerability-fixed-in-wordpress-automatic-plugin/']
         ],
         'Notes' => {

@@ -8,7 +8,7 @@ This module creates a mock FTP server which accepts credentials before throwing 
 
 ## Options
 
-  **BANNER**
+### BANNER
 
   The Banner which should be displayed (200 server message).  Default is `FTP Server Ready`.
   Some notable banners to emulate:
@@ -19,12 +19,12 @@ This module creates a mock FTP server which accepts credentials before throwing 
   * `Serv-U FTP Server v15.0 ready...`
   * `ProFTPD 1.3.4a Server (FTP-Server)`
 
-  **SSL**
+### SSL
 
   Boolean if SSL should be used, making this FTPS.  FTPS is typically run on port 990.  If `SSLCert` is not set, a certificate
   will be automatically generated.  Default is `False`.
 
-  **SSLCert**
+### SSLCert
 
   File path to a combined Private Key and Certificate file.  If not provided, a certificate will be automatically
   generated.  Default is ``.

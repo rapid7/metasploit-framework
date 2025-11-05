@@ -21,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
           'Talha Karakumru <talhakarakumru[at]gmail.com>'
         ],
         'References' => [
+          ['CVE', '2025-34076'],
           ['URL', 'https://huntr.dev/bounties/09218d3f-1f6a-48ae-981c-85e86ad5ed8b/']
         ],
         'Notes' => {

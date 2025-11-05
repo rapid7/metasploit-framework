@@ -20,21 +20,21 @@ without providing any warning to the user. This allows an attacker the opportuni
 
 ## Options
 
-**CREATOR**
+### CREATOR
 
 This option allows you to customise the document author for the new document:
 ```
 set CREATOR New_User
 ```
 
-**FILENAME**
+### FILENAME
 
 This option allows you to customise the generated filename:
 ```
 set FILENAME salary.odt
 ```
 
-**LHOST**
+### LHOST
 
 This option allows you to set the IP address of the SMB Listener that the .odt document points to:
 

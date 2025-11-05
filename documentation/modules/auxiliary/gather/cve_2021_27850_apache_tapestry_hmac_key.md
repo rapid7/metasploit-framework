@@ -19,15 +19,15 @@ List the steps needed to make sure this thing works
 
 ## Options
 
-**RHOSTS**
+### RHOSTS
 
 Set the target host.
 
-**RPORT**
+### RPORT
 
 Set the target port. The default value is `8080` which is the default value used by Tapestry server.
 
-**TARGETED_CLASS**
+### TARGETED_CLASS
 
 This is not a required option and by default the value is `AppModule.class` which is also the default java class of by Tapestry server where the hmac key is set. But in case you want to target a different java class, it can be done by setting this option with another class name.
 

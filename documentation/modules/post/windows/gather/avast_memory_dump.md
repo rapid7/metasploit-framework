@@ -22,10 +22,10 @@ exists.
 
 ## Options
 
-**PID** 
+### PID 
 Specify the PID of the process you would like to dump.
 
-**DUMP_PATH** 
+### DUMP_PATH 
 Specify the location to write the memory dump to.
 
 ##  Scenarios  

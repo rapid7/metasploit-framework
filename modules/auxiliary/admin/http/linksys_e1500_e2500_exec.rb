@@ -21,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
         'License' => MSF_LICENSE,
         'References' => [
+          [ 'CVE', '2018-3953' ],
           [ 'OSVDB', '89912' ],
           [ 'BID', '57760' ],
           [ 'EDB', '24475' ],

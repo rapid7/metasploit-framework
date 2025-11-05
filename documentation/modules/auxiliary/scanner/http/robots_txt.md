@@ -20,7 +20,7 @@ is extremely common.
 
 ## Options
 
-**PATH**
+### PATH
 
 You can set the test path where the scanner will try to find `robots.txt` file.
 Default is `/`

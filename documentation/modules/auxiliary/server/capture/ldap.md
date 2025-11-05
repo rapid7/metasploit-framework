@@ -14,7 +14,7 @@ Upon receiving successful Bind Request, a `ldap_bind: Authentication method not 
 
 ## Options
 
-  **Authentication**
+### Authentication
   
 The type of LDAP authentication to capture. The default type is `Simple`
 

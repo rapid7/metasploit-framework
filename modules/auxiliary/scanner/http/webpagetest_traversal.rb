@@ -19,6 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           to read a file outside the www directory.
         },
         'References' => [
+          ['CVE', '2019-17199'],
           ['EDB', '19790'],
           ['OSVDB', '83817']
         ],

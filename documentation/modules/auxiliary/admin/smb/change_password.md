@@ -25,22 +25,22 @@ The required options are based on the action being performed:
 - When resetting or changing a password, you must specify `NEW_PASSWORD`
 - When resetting or changing an NTLM hash, you must specify `NEW_NTLM`
 
-**SMBUser**
+### SMBUser
 
 The username to use to authenticate to the server. Required for changing a password, even if using an existing session.
 
-**SMBPass**
+### SMBPass
 
 The password to use to authenticate to the server, prior to performing the password modification. Required for changing a password, even if using an existing session (since the server requires proof that you know the existing password).
 
-**TARGET_USER**
+### TARGET_USER
 
 For resetting passwords, the user account for which to reset the password. The authenticated account (SMBUser) must have privileges over the target user (e.g. Ownership, or the `User-Force-Change-Password` extended right)
 
-**NEW_PASSWORD**
+### NEW_PASSWORD
 
 The new password to set for `RESET` and `CHANGE` actions. 
 
-**NEW_NTLM**
+### NEW_NTLM
 
 The new NTLM hash to set for `RESET_NTLM` and `CHANGE_NTLM` actions. This can either be an NT hash, or a colon-delimited NTLM hash.

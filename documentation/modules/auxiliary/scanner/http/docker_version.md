@@ -4,7 +4,7 @@ This module scans for Docker servers listening on a TCP port (default 2375).
 
 ## Options
 
-**VERBOSE**
+### VERBOSE
 
 Enable this to dump all info to the screen.
 

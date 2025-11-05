@@ -4,15 +4,15 @@ with an error or an acknowldegment.  We use this information to map out modules 
 
 ## Options
 
-  **STARTID**
+### STARTID
 
   The CAN ID to start your scan from.
 
-  **ENDID**
+### ENDID
 
   The CAN ID to stop the CAN scan.
 
-  **CANBUS**
+### CANBUS
 
   The bus to scan.  See 'supported_buses' for a list of available buses
 

@@ -25,6 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           'juan vazquez' # Metasploit module
         ],
         'References' => [
+          [ 'CVE', '2010-1587' ],
           [ 'OSVDB', '86401' ],
           [ 'URL', 'http://www.verisigninc.com/en_US/products-and-services/network-intelligence-availability/idefense/public-vulnerability-reports/articles/index.xhtml?id=895' ],
           [ 'URL', 'https://issues.apache.org/jira/browse/amq-2788' ]

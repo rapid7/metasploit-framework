@@ -26,12 +26,12 @@ Manual     Dump an arbitrary file (FILE option)
 
 ## Options
 
-**FILE**
+### FILE
 
 Set this to the file you want to dump. The default is `/etc/passwd`.
 Valid only in manual mode.
 
-**PRINT**
+### PRINT
 
 Whether to print file contents to the screen. Valid only in manual mode.
 

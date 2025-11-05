@@ -39,7 +39,7 @@ wvu@kharak:~$
 
 ## Options
 
-  **APIKEY**
+### APIKEY
 
   Valid API key for accessing Pimcore's REST API in order to perform the injection.
 

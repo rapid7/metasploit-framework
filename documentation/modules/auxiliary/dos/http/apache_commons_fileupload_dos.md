@@ -21,7 +21,7 @@
 
 ## Options
 
-  **TARGETURI**
+### TARGETURI
 
   The URI where the multipart form is located.  There is no real default and this will change based on the application.
 

@@ -15,7 +15,7 @@
 
 ## Options
 
-  **SESSION**
+### SESSION
 
   The session to run the module on.
 

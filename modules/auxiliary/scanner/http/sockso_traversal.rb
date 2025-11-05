@@ -19,6 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           a vulnerable machine.
         },
         'References' => [
+          [ 'CVE', '2012-10061' ],
           [ 'URL', 'http://aluigi.altervista.org/adv/sockso_1-adv.txt' ],
         ],
         'Author' => [

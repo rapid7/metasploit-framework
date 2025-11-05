@@ -23,6 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
+          [ 'CVE', '2014-125122' ],
           [ 'EDB', '31758' ],
           [ 'OSVDB', '103521' ],
           [ 'URL', 'https://web.archive.org/web/20210424073058/http://www.devttys0.com/2014/02/wrt120n-fprintf-stack-overflow/' ] # a huge amount of details about this vulnerability and the original exploit

@@ -8,15 +8,15 @@ This module creates a mock telnet server which accepts credentials.  Upon receiv
 
 ## Options
 
-  **BANNER**
+### BANNER
 
   The Banner which should be displayed.  Default is empty, which will display `Welcome`.
 
-  **SSL**
+### SSL
 
   Boolean if SSL should be used.  Default is `False`.
 
-  **SSLCert**
+### SSLCert
 
   File path to a combined Private Key and Certificate file.  If not provided, a certificate will be automatically
   generated.  Default is ``.

@@ -22,13 +22,13 @@ With this module you can list the config files that SAP loads when starts the SA
 
 ## Options
 
-  **RHOSTS**: Set up which server or servers do you want to test
+### RHOSTS: Set up which server or servers do you want to test
 
-  **RPORT**: Port tcp/50013 set up by default
+### RPORT: Port tcp/50013 set up by default
 
   In case of more advanced deployments you can set up the SSL parameters here:
 
-  **SSL**: Set to ```true```
+### SSL: Set to ```true```
 
 
 ## Scenarios

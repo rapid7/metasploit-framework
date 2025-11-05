@@ -18,12 +18,12 @@ Any UNIX-like system with a `shell` or `meterpreter` session using GRUB.
 
 ## Options
 
-**FILENAME**
+### FILENAME
 
 A string that can be used to specify an additional file to check after the
 usual places.
 
-**VERBOSE**
+### VERBOSE
 
 A boolean that, when set, will provide more details on what is being checked.
 _(Note: this option is defined elsewhere in metasploit, but this module can make

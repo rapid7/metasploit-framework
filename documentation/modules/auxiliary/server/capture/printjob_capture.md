@@ -9,23 +9,23 @@ This module creates a mock print server which accepts print jobs.
 
 ## Options
 
-  **FORWARD**
+### FORWARD
 
   After the print job is captured, should it be forwarded to another printer.  Default is `false`.
 
-  **RPORT**
+### RPORT
 
   If `forward` is set, this is the port of the remote printer to forward the print job to.  Default is `9100`.
 
-  **RHOST**
+### RHOST
 
   If `forward` is set, this is the IP of the remote printer to forward the print job to.
 
-  **METADATA**
+### METADATA
 
   If set to `true` the print job metadata will be printed to screen.  Default is `true`.
 
-  **MODE**
+### MODE
 
   Set the printer mode.  RAW format, which typically runs on port `9100`, is a raw TCP data stream that would send to a printer.
   `LPR`, Line Printer remote, which typically runs on port 515, is the newer more widely accepted standard.  Default is `RAW`.

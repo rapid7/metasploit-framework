@@ -8,12 +8,12 @@
 
 ## Options
 
-**SRVHOST**
+### SRVHOST
 
 The local IP address to bind the proxy server to. The default value of `0.0.0.0` will expose the proxy to everything on
 the attacker's network.
 
-**SRVPORT**
+### SRVPORT
 
 The local port to bind the proxy to. The default value is `1080`, the standard port for a SOCKS proxy.
 

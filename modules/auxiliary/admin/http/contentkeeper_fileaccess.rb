@@ -16,6 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         files outside of the webroot.
         },
       'References' => [
+        [ 'CVE', '2009-10005' ],
         [ 'OSVDB', '54551' ],
         [ 'URL', 'http://www.aushack.com/200904-contentkeeper.txt' ],
       ],

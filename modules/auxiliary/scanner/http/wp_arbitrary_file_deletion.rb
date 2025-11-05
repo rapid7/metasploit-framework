@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
+          ['CVE', '2018-12895'],
           ['WPVDB', '9100'],
           ['EDB', '44949'],
           ['PACKETSTORM', '148333'],
