@@ -769,6 +769,7 @@ class MetasploitModule < Msf::Auxiliary
         elsif @registry_values.blank?
           # We couldn't read the registry values - mark as potentially vulnerable
           next unless users_compatible_with_template?(current_user, entry['mspki-certificate-name-flag'])
+
           @certificate_details[certificate_symbol][:techniques] << 'ESC16_2'
           @certificate_details[certificate_symbol][:notes] << 'ESC16_2: Template appears to be vulnerable (most templates do)'
 
