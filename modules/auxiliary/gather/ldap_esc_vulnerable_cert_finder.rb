@@ -755,7 +755,7 @@ class MetasploitModule < Msf::Auxiliary
           next if users.empty?
           next unless users_compatible_with_template?(current_user, entry['mspki-certificate-name-flag'], users)
 
-          note = "ESC16: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
+          note = "ESC16_1: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
           note += " Registry values: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{@registry_values[:certificate_mapping_methods]}."
           note += " The Certificate Authority: #{ca_name} has 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
 
@@ -765,7 +765,7 @@ class MetasploitModule < Msf::Auxiliary
         elsif vulnerable_to_esc16_2?(ca_name)
           # Scenario 2 - StrongCertificateBindingEnforcement = 2 but the edit_flags contain EDITF_ATTRIBUTESUBJECTALTNAME2 which re-enables the ability to exploit the certificate in the same way as ESC6
           @certificate_details[certificate_symbol][:techniques] << 'ESC16_2'
-          @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due to the active policy EditFlags having: EDITF_ATTRIBUTESUBJECTALTNAME2 set (which is essentially ESC6) on the Certificate Authority: #{ca_name}. Also the CA having 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
+          @certificate_details[certificate_symbol][:notes] << "ESC16_2: Template is vulnerable due to the active policy EditFlags having: EDITF_ATTRIBUTESUBJECTALTNAME2 set (which is essentially ESC6) on the Certificate Authority: #{ca_name}. Also the CA having 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
         elsif @registry_values.blank?
           # We couldn't read the registry values - mark as potentially vulnerable
           next unless users_compatible_with_template?(current_user, entry['mspki-certificate-name-flag'])
