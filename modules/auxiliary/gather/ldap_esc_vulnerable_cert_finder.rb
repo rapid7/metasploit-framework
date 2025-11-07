@@ -762,23 +762,26 @@ class MetasploitModule < Msf::Auxiliary
           # Scenario 1 - StrongCertificateBindingEnforcement = 1 or 0 then it's the same as ESC9 - mark them all as vulnerable
           @certificate_details[certificate_symbol][:techniques] << 'ESC16_1'
           @certificate_details[certificate_symbol][:notes] << note
-        elsif vulnerable_to_esc16_2?(ca_name)
+        end
+
+        if vulnerable_to_esc16_2?(ca_name)
           # Scenario 2 - StrongCertificateBindingEnforcement = 2 but the edit_flags contain EDITF_ATTRIBUTESUBJECTALTNAME2 which re-enables the ability to exploit the certificate in the same way as ESC6
           @certificate_details[certificate_symbol][:techniques] << 'ESC16_2'
           @certificate_details[certificate_symbol][:notes] << "ESC16_2: Template is vulnerable due to the active policy EditFlags having: EDITF_ATTRIBUTESUBJECTALTNAME2 set (which is essentially ESC6) on the Certificate Authority: #{ca_name}. Also the CA having 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
-        elsif @registry_values.blank?
-          # We couldn't read the registry values - mark as potentially vulnerable
-          next unless users_compatible_with_template?(current_user, entry['mspki-certificate-name-flag'])
-
-          @certificate_details[certificate_symbol][:techniques] << 'ESC16_2'
-          @certificate_details[certificate_symbol][:notes] << 'ESC16_2: Template appears to be vulnerable (most templates do)'
-
-          next if users.empty?
-          next unless users_compatible_with_template?(current_user, entry['mspki-certificate-name-flag'], users)
-
-          @certificate_details[certificate_symbol][:techniques] << 'ESC16_1'
-          @certificate_details[certificate_symbol][:notes] << "ESC16_1: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
         end
+
+        next unless @registry_values.blank?
+        # We couldn't read the registry values - mark as potentially vulnerable
+        next unless users_compatible_with_template?(current_user, entry['mspki-certificate-name-flag'])
+
+        @certificate_details[certificate_symbol][:techniques] << 'ESC16_2'
+        @certificate_details[certificate_symbol][:notes] << 'ESC16_2: Template appears to be vulnerable (most templates do)'
+
+        next if users.empty?
+        next unless users_compatible_with_template?(current_user, entry['mspki-certificate-name-flag'], users)
+
+        @certificate_details[certificate_symbol][:techniques] << 'ESC16_1'
+        @certificate_details[certificate_symbol][:notes] << "ESC16_1: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
       end
     end
   end
