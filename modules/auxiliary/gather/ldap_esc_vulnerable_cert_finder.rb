@@ -820,14 +820,16 @@ class MetasploitModule < Msf::Auxiliary
     # these techniques are special in the sense that the exploit steps involve a different user performing the request
     # meaning that whether or not we can issue them is irrelevant
     enroll_by_proxy = %w[ESC9 ESC10 ESC16_1]
-    # technically ESC15 might be patched and we can't fingerprint that status but we live it in the "vulnerable" category
+    # technically ESC15 might be patched and we can't fingerprint that status but we leave it in the "vulnerable" category
 
     # when we have the registry values, we can tell the vulnerabilities for certain
     if @registry_values.present?
       potentially_vulnerable = []
       vulnerable = template[:techniques].dup
     else
-      potentially_vulnerable = template[:techniques] & enroll_by_proxy
+      # ESC16_2 doesn't require a separate user to enroll, so it does not belong in the enroll_by_proxy array
+      # however should it should be reported as potentially vulnerable if we don't have registry data
+      potentially_vulnerable = template[:techniques] & (enroll_by_proxy + ['ESC16_2'])
       vulnerable = template[:techniques] - potentially_vulnerable
     end
 
@@ -835,6 +837,9 @@ class MetasploitModule < Msf::Auxiliary
       vulnerable.keep_if do |technique|
         enroll_by_proxy.include?(technique) || can_enroll?(template)
       end
+
+      potentially_vulnerable.delete('ESC16_2') if potentially_vulnerable.include?('ESC16_2') && !can_enroll?(template)
+
     end
 
     [vulnerable, potentially_vulnerable]
