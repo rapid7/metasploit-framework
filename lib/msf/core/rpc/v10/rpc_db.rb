@@ -371,6 +371,10 @@ public
   #
   # @param [Hash] xopts Options:
   # @option xopts [String] :workspace Name of the workspace.
+  # @option xopts [String] :addresses Host addresses
+  # @option xopts [Boolean] :only_up If true, return hosts that are up.
+  # @option xopts [Integer] :limit Maximum number of hosts to return.
+  # @option xopts [Integer] :offset return the hosts starting at index `offset`.
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
   #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
   #  * 500 Database not loaded. Try: rpc.call('console.create')
@@ -432,7 +436,7 @@ public
   # @option xopts [Integer] :limit Limit.
   # @option xopts [Integer] :offset Offset.
   # @option xopts [String] :proto Protocol.
-  # @option xopts [String] :address Address.
+  # @option xopts [String] :address Host address.
   # @option xopts [String] :ports Port range.
   # @option xopts [String] :names Names (Use ',' as the separator).
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
@@ -494,6 +498,7 @@ public
   # @option xopts [String] :proto Protocol.
   # @option xopts [String] :address Address.
   # @option xopts [String] :ports Port range.
+  # @option xopts [String] :names Exploit that was used.
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
   #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
   #  * 500 Database not loaded. Try: rpc.call('console.create')
@@ -517,7 +522,7 @@ public
     conditions = {}
     conditions["hosts.address"] = opts[:address] if opts[:address]
     conditions[:name] = opts[:names].strip().split(",") if opts[:names]
-    conditions["services.port"] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:port]
+    conditions["services.port"] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:ports]
     conditions["services.proto"] = opts[:proto] if opts[:proto]
 
     ret = {}
@@ -1113,7 +1118,6 @@ end
   # @param [Hash] xopts Filters for the search. See below:
   # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :address Host address.
-  # @option xopts [String] :names Names (separated by ',').
   # @option xopts [String] :ntype Note type.
   # @option xopts [String] :proto Protocol.
   # @option xopts [String] :ports Port change.
@@ -1139,7 +1143,6 @@ end
 
     conditions = {}
     conditions["hosts.address"] = opts[:address] if opts[:address]
-    conditions[:name] = opts[:names].strip().split(",") if opts[:names]
     conditions[:ntype] = opts[:ntype] if opts[:ntype]
     conditions["services.port"] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:ports]
     conditions["services.proto"] = opts[:proto] if opts[:proto]
