@@ -140,7 +140,20 @@ class MetasploitModule < Msf::Auxiliary
   def session_setup(shell, _rhost, _rport, _endpoint)
     # We use cmd rather than powershell because powershell v3 on 2012 (and maybe earlier)
     # do not seem to pass us stdout/stderr.
-    interactive_process_id = shell.send_command('cmd.exe')
+    begin
+      interactive_process_id = shell.send_command('cmd.exe')
+    rescue WinRM::WinRMWSManFault => e
+      case e.fault_code
+      when ::WindowsError::Win32::ERROR_ACCESS_DENIED.value.to_s
+        print_warning("Credentials were correct but access is denied for user: #{datastore['USERNAME']}")
+        wlog(e.fault_description)
+      else
+        print_error(e.fault_description)
+        elog(e.full_message, error: e)
+      end
+      return
+    end
+
     sess = Msf::Sessions::WinrmCommandShell.new(shell, interactive_process_id)
     sess.platform = 'windows'
     username = datastore['USERNAME']
