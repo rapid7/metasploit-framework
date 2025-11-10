@@ -369,7 +369,8 @@ GEM
     mime-types-data (3.2025.0924)
     mini_portile2 (2.8.9)
     minitest (5.25.5)
-    mqtt (0.6.0)
+    mqtt (0.7.0)
+      logger
     msgpack (1.6.1)
     multi_json (1.15.0)
     mustermann (3.0.3)
