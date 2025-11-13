@@ -138,7 +138,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   end
 
   def load_embedded_extensions
-    Rex::Post::Meterpreter::ExtensionMapper.get_extension_klasses
+    # Rex::Post::Meterpreter::ExtensionMapper.get_extension_klasses
 
     # First of all, let's see if we have stdapi.
     commands = self.core.get_loaded_extension_commands('stdapi')
