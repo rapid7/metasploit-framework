@@ -16,8 +16,14 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'Fortinet FortiWeb create new local admin',
         'Description' => %q{
           This auxiliary module exploits an authentication bypass via path traversal vulnerability in the Fortinet
-          FortiWeb management interface to create a new local administrator user account. This vulnerability
-          appears to be patched in the latest version of the product, version 8.0.2.
+          FortiWeb management interface to create a new local administrator user account. This vulnerability affects the
+          following versions:
+
+          * FortiWeb 8.0.0 through 8.0.1 (Patched in 8.0.2 and above)
+          * FortiWeb 7.6.0 through 7.6.4 (Patched in 7.6.5 and above)
+          * FortiWeb 7.4.0 through 7.4.9 (Patched in 7.4.10 and above)
+          * FortiWeb 7.2.0 through 7.2.11 (Patched in 7.2.12 and above)
+          * FortiWeb 7.0.0 through 7.0.11 (Patched in 7.0.12 and above)
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -25,13 +31,14 @@ class MetasploitModule < Msf::Auxiliary
           'sfewer-r7', # MSF module
         ],
         'References' => [
-          # ['C V E', '2025-??'], # No known CVE assigned yet (as of Nov 14, 2025)
+          ['CVE', '2025-64446'],
           ['URL', 'https://x.com/defusedcyber/status/1975242250373517373'], # Original PoC posted online
           ['URL', 'https://github.com/watchtowrlabs/watchTowr-vs-Fortiweb-AuthBypass'], # PoC
           ['URL', 'https://www.pwndefend.com/2025/11/13/suspected-fortinet-zero-day-exploited-in-the-wild/'],
-          ['URL', 'https://www.rapid7.com/blog/post/etr-critical-vulnerability-in-fortinet-fortiweb-exploited-in-the-wild/']
+          ['URL', 'https://www.rapid7.com/blog/post/etr-critical-vulnerability-in-fortinet-fortiweb-exploited-in-the-wild/'],
+          ['URL', 'https://www.fortiguard.com/psirt/FG-IR-25-910'] # Vendor Advisory
         ],
-        # 'D i s c l o s u r e D a t e' => '2025-??-??', # Not yet disclosed by the vendor (as of Nov 14, 2025)
+        'DisclosureDate' => '2025-11-14',
         'DefaultOptions' => {
           'RPORT' => 443,
           'SSL' => true

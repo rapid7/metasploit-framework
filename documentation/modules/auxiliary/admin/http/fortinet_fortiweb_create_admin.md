@@ -1,7 +1,13 @@
 ## Vulnerable Application
 This auxiliary module exploits an authentication bypass via path traversal vulnerability in the Fortinet
-FortiWeb management interface to create a new local administrator user account. This vulnerability
-appears to be patched in the latest version of the product, version 8.0.2.
+FortiWeb management interface to create a new local administrator user account. This vulnerability affects the
+following versions:
+
+* FortiWeb `8.0.0` through `8.0.1` (Patched in `8.0.2` and above).
+* FortiWeb `7.6.0` through `7.6.4` (Patched in `7.6.5` and above).
+* FortiWeb `7.4.0` through `7.4.9` (Patched in `7.4.10` and above).
+* FortiWeb `7.2.0` through `7.2.11` (Patched in `7.2.12` and above).
+* FortiWeb `7.0.0` through `7.0.11` (Patched in `7.0.12` and above).
 
 ## Testing
 Download a suitable FortiWeb-VM image and create a new VM. When creating the VM, assign the first network interface to a
