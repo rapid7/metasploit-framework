@@ -12,12 +12,22 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Socket Channel Tests',
-        'Description' => %q{ This module will test socket channels. It must be run with a session on the same host as Metasploit. },
+        'Description' => %q{
+          This module will test socket channels. The LHOST and RHOST options must be set when Metasploit and the
+          Meterpreter instance are not on the same host. It's important that there is no firewall or NAT in place.
+        },
         'License' => MSF_LICENSE,
         'Author' => [ 'Spencer McIntyre' ],
         'Platform' => [ 'linux', 'osx', 'windows' ],
         'SessionTypes' => [ 'shell', 'meterpreter' ] # SSH sessions are reported as 'shell'
       )
+    )
+
+    register_options(
+      [
+        OptAddressLocal.new('LHOST', [true, 'The local IP address to use for binding.', '127.0.0.1']),
+        OptAddress.new('RHOST', [true, 'The remote IP address to use for binding.', '127.0.0.1']),
+      ], self.class
     )
   end
 
@@ -32,7 +42,7 @@ class MetasploitModule < Msf::Post
   end
 
   def tcp_client_socket_pair(params={}, timeout: 5)
-    params = Rex::Socket::Parameters.new('Proto' => 'tcp', 'PeerHost' => '127.0.0.1', **params)
+    params = Rex::Socket::Parameters.new('Proto' => 'tcp', 'PeerHost' => datastore['LHOST'], **params)
 
     server = TCPSocketServer.new(host: params.peerhost, port: params.peerport)
     params.peerport = server.port
@@ -43,7 +53,7 @@ class MetasploitModule < Msf::Post
   end
 
   def tcp_server_socket_trio(params={}, timeout: 5)
-    params = Rex::Socket::Parameters.new('Proto' => 'tcp', 'LocalHost' => '127.0.0.1', 'Server' => true, **params)
+    params = Rex::Socket::Parameters.new('Proto' => 'tcp', 'LocalHost' => datastore['RHOST'], 'Server' => true, **params)
 
     server = session.create(params)
     client_connector = TCPSocketClient.new(host: server.params.localhost, port: server.params.localport)
@@ -61,7 +71,7 @@ class MetasploitModule < Msf::Post
   end
 
   def udp_socket_pair(params={})
-    params = Rex::Socket::Parameters.new('Proto' => 'udp', 'PeerHost' => '127.0.0.1', **params)
+    params = Rex::Socket::Parameters.new('Proto' => 'udp', 'PeerHost' => datastore['LHOST'], 'LocalHost' => datastore['RHOST'], **params)
 
     server = UDPSocket.new
     server.bind(params.peerhost, params.peerport)
