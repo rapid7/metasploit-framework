@@ -410,6 +410,9 @@ module ClientMixin
       when 0xab
         states << :mssql_parse_info
         mssql_parse_info(data, info)
+      when 0xa9
+        states << :mssql_parse_nbcrow
+        mssql_parse_nbcrow(data, info)
       when 0xaa
         states << :mssql_parse_error
         mssql_parse_error(data, info)
@@ -698,6 +701,261 @@ module ClientMixin
     len = data.slice!(0, 2).unpack('v')[0]
     _buff = data.slice!(0, len)
     info[:login_ack] = true
+  end
+
+  #
+  # Parse a "NBCROW" (Null Bitmap Compressed Row) TDS token
+  # This token is used in SQL Server 2019+ for compressed row data
+  # See: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/7e12206c-0e1b-4c8c-b2e5-2ad8b0e3b9b0
+  #
+  def mssql_parse_nbcrow(data, info)
+    # Attempt to parse NBCROW token with fallback to TDS row parsing
+    # This fixes the "unsupported token: 169" error with SQL Server 2022
+    begin
+      return mssql_parse_nbcrow_internal(data, info)
+    rescue StandardError => e
+      info[:errors] ||= []
+      info[:errors] << "NBCROW parsing failed, using TDS fallback: #{e.message}"
+      return mssql_parse_tds_row(data, info)
+    end
+  end
+
+  #
+  # Internal NBCROW parsing implementation
+  # Separated to allow fallback mechanism in main method
+  #
+  def mssql_parse_nbcrow_internal(data, info)
+    info[:rows] ||= []
+    
+    # Fallback: if we can't parse NBCROW properly, try parsing as regular TDS row
+    begin
+      return info if info[:colinfos].nil? || info[:colinfos].empty?
+      return info if data.length == 0
+
+      # Read the null bitmap length
+      null_bitmap_len = (info[:colinfos].length + 7) / 8
+      
+      # Check if we have enough data for the null bitmap
+      if data.length < null_bitmap_len
+        # Fallback to regular TDS row parsing
+        return mssql_parse_tds_row(data, info)
+      end
+      
+      null_bitmap = data.slice!(0, null_bitmap_len).unpack('C*')
+
+    row = []
+    info[:colinfos].each_with_index do |col, col_idx|
+      # Check if this column is null using the null bitmap
+      byte_idx = col_idx / 8
+      bit_idx = col_idx % 8
+      
+      # Ensure we don't access beyond the bitmap array
+      if byte_idx >= null_bitmap.length
+        info[:errors] ||= []
+        info[:errors] << "NBCROW null bitmap index out of bounds: #{byte_idx} >= #{null_bitmap.length}"
+        return info
+      end
+      
+      is_null = (null_bitmap[byte_idx] & (1 << bit_idx)) != 0
+
+      if is_null
+        row << nil
+        next
+      end
+
+      # Check if we have enough data remaining for column parsing
+      if data.length == 0
+        info[:errors] ||= []
+        info[:errors] << "Insufficient data remaining for NBCROW column #{col_idx} (#{col[:id]})"
+        return info
+      end
+
+      # Parse the column data based on type (similar to mssql_parse_tds_row)
+      begin
+        case col[:id]
+        when :hex
+          return info if data.length < 2
+          str = ""
+          len = data.slice!(0, 2).unpack('v')[0]
+          if len > 0 && len < 65535 && data.length >= len
+            str << data.slice!(0, len)
+          end
+          row << str.unpack("H*")[0]
+
+        when :guid
+          return info if data.length < 1
+          read_length = data.slice!(0, 1).unpack1('C')
+          if read_length == 0
+            row << nil
+          elsif data.length >= read_length
+            row << Rex::Text.to_guid(data.slice!(0, read_length))
+          else
+            return info
+          end
+
+        when :string
+          return info if data.length < 2
+          str = ""
+          len = data.slice!(0, 2).unpack('v')[0]
+          if len > 0 && len < 65535 && data.length >= len
+          str << data.slice!(0, len)
+        end
+        row << str.gsub("\x00", '')
+
+      when :ntext
+        str = nil
+        ptrlen = data.slice!(0, 1).unpack("C")[0]
+        ptr = data.slice!(0, ptrlen)
+        unless ptrlen == 0
+          timestamp = data.slice!(0, 8)
+          datalen = data.slice!(0, 4).unpack("V")[0]
+          if datalen > 0 && datalen < 65535
+            str = data.slice!(0, datalen).gsub("\x00", '')
+          else
+            str = ''
+          end
+        end
+        row << str
+
+      when :float
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        case datalen
+        when 8
+          row << data.slice!(0, datalen).unpack('E')[0]
+        when 4
+          row << data.slice!(0, datalen).unpack('e')[0]
+        else
+          row << nil
+        end
+
+      when :numeric
+        varlen = data.slice!(0, 1).unpack('C')[0]
+        if varlen == 0
+          row << nil
+        else
+          sign = data.slice!(0, 1).unpack('C')[0]
+          raw = data.slice!(0, varlen - 1)
+          value = ''
+
+          case varlen
+          when 5
+            value = raw.unpack('L')[0]/(10**col[:scale]).to_f
+          when 9
+            value = raw.unpack('Q')[0]/(10**col[:scale]).to_f
+          when 13
+            chunks = raw.unpack('L3')
+            value = chunks[2] << 64 | chunks[1] << 32 | chunks[0]
+            value /= (10**col[:scale]).to_f
+          when 17
+            chunks = raw.unpack('L4')
+            value = chunks[3] << 96 | chunks[2] << 64 | chunks[1] << 32 | chunks[0]
+            value /= (10**col[:scale]).to_f
+          end
+          case sign
+          when 1
+            row << value
+          when 0
+            row << value * -1
+          end
+        end
+
+      when :money
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        if datalen == 0
+          row << nil
+        else
+          raw = data.slice!(0, datalen)
+          rev = raw.slice(4, 4) << raw.slice(0, 4)
+          row << rev.unpack('q')[0]/10000.0
+        end
+
+      when :smallmoney
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        if datalen == 0
+          row << nil
+        else
+          row << data.slice!(0, datalen).unpack('l')[0] / 10000.0
+        end
+
+      when :smalldatetime
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        if datalen == 0
+          row << nil
+        else
+          days = data.slice!(0, 2).unpack('S')[0]
+          minutes = data.slice!(0, 2).unpack('S')[0] / 1440.0
+          row << DateTime.new(1900, 1, 1) + days + minutes
+        end
+
+      when :datetime
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        if datalen == 0
+          row << nil
+        else
+          days = data.slice!(0, 4).unpack('l')[0]
+          minutes = data.slice!(0, 4).unpack('l')[0] / 1440.0
+          row << DateTime.new(1900, 1, 1) + days + minutes
+        end
+
+      when :rawint
+        row << data.slice!(0, 4).unpack('V')[0]
+
+      when :bigint
+        row << data.slice!(0, 8).unpack("H*")[0]
+
+      when :smallint
+        row << data.slice!(0, 2).unpack("v")[0]
+
+      when :smallint3
+        row << [data.slice!(0, 3)].pack("Z4").unpack("V")[0]
+
+      when :tinyint
+        row << data.slice!(0, 1).unpack("C")[0]
+
+      when :bitn
+        has_value = data.slice!(0, 1).unpack("C")[0]
+        if has_value == 0
+          row << nil
+        else
+          row << data.slice!(0, 1).unpack("C")[0]
+        end
+
+      when :bit
+        row << data.slice!(0, 1).unpack("C")[0]
+
+      when :image
+        str = ''
+        len = data.slice!(0, 1).unpack('C')[0]
+        str = data.slice!(0, len) if len && len > 0
+        row << str.unpack("H*")[0]
+
+      when :int
+        len = data.slice!(0, 1).unpack("C")[0]
+        raw = data.slice!(0, len) if len && len > 0
+
+        case len
+        when 0, 255
+          row << ''
+        when 1
+          row << raw.unpack("C")[0]
+        when 2
+          row << raw.unpack('v')[0]
+        when 4
+          row << raw.unpack('V')[0]
+        when 5
+          row << raw.unpack('V')[0] # XXX: missing high byte
+        when 8
+          row << raw.unpack('VV')[0] # XXX: missing high dword
+        else
+          info[:errors] << "invalid integer size: #{len} #{data[0, 16].unpack("H*")[0]}"
+        end
+      else
+        info[:errors] << "unknown column type: #{col.inspect}"
+      end
+    end
+
+    info[:rows] << row
+    info
   end
 
 end
