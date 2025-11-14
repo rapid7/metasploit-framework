@@ -1,3 +1,19 @@
+GIT
+  remote: https://github.com/zeroSteiner/rex-core
+  revision: 65d936d0d01f4f7fd41cbc676fc0af12aed536d6
+  branch: feat/io/relay-manager
+  specs:
+    rex-core (0.1.35)
+
+GIT
+  remote: https://github.com/zeroSteiner/rex-socket
+  revision: 04b35d4085c7f8a621d41e50a5b1b6509b4f533e
+  branch: feat/tcp/starttls
+  specs:
+    rex-socket (0.1.64)
+      dnsruby
+      rex-core
+
 PATH
   remote: .
   specs:
@@ -486,7 +502,6 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.34)
     rex-encoder (0.1.8)
       metasm
       rex-arch
@@ -520,9 +535,6 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.62)
-      dnsruby
-      rex-core
     rex-sslscan (0.1.13)
       rex-core
       rex-socket
@@ -681,6 +693,8 @@ DEPENDENCIES
   pry-byebug
   rake
   redcarpet
+  rex-core!
+  rex-socket!
   rspec-rails
   rspec-rerun
   rubocop (= 1.75.7)

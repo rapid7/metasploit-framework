@@ -271,9 +271,10 @@ module BindAwsSsm
             # Configure Channel
             chan._start_ssm_keepalive if datastore['SSM_KEEP_ALIVE']
             chan.params.comm = Rex::Socket::Comm::Local unless chan.params.comm
+            chan.params.peerhostname = peer_info['ComputerName']
             chan.params.peerhost = peer_info['IpAddress']
             chan.params.peerport = 0
-            chan.params.peerhostname = peer_info['ComputerName']
+            chan.lsock.initinfo(Rex::Socket.to_authority(peer_info['IpAddress'], 0), chan.lsock.localinfo)
             chan.update_term_size
           rescue => e
             print_error("AWS SSM handler failed: #{e.message}")
