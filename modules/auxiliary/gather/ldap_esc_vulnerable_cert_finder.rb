@@ -498,17 +498,18 @@ class MetasploitModule < Msf::Auxiliary
 
       enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
       users = find_users_with_write_and_enroll_rights(enroll_sids)
+      current_user = adds_get_current_user(@ldap)[:samaccountname].first
       next if users.empty?
+      next unless users_compatible_with_template?(current_user, template['mspki-certificate-name-flag'], users)
 
       user_plural = users.size > 1 ? 'accounts' : 'account'
       has_plural = users.size > 1 ? 'have' : 'has'
-
-      current_user = adds_get_current_user(@ldap)[:samaccountname].first
 
       note = "ESC9: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
       if @registry_values[:strong_certificate_binding_enforcement].present?
         note += " Registry value: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}."
       end
+      @certificate_details[certificate_symbol][:target_users] = users
       @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
       @certificate_details[certificate_symbol][:techniques] << 'ESC9'
       @certificate_details[certificate_symbol][:notes] << note
@@ -525,11 +526,11 @@ class MetasploitModule < Msf::Auxiliary
         "(pkiextendedkeyusage=#{OIDs::OID_ANY_EXTENDED_KEY_USAGE.value})"\
         '(!(pkiextendedkeyusage=*))'\
       ')'\
-  '(|'\
-    "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_UPN})"\
-    "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_DNS})"\
-  ')'\
-  ')'
+    '(|'\
+      "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_UPN})"\
+      "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_DNS})"\
+    ')'\
+    ')'
 
     esc10_templates = query_ldap_server(esc10_raw_filter, CERTIFICATE_ATTRIBUTES + ['msPKI-Certificate-Name-Flag'], base_prefix: CERTIFICATE_TEMPLATES_BASE)
     esc10_templates.each do |template|
@@ -537,18 +538,20 @@ class MetasploitModule < Msf::Auxiliary
 
       enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
       users = find_users_with_write_and_enroll_rights(enroll_sids)
+      current_user = adds_get_current_user(@ldap)[:samaccountname].first
       next if users.empty?
+      next unless users_compatible_with_template?(current_user, template['mspki-certificate-name-flag'], users)
 
       user_plural = users.size > 1 ? 'accounts' : 'account'
       has_plural = users.size > 1 ? 'have' : 'has'
-
-      current_user = adds_get_current_user(@ldap)[:samaccountname].first
 
       note = "ESC10: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
 
       if @registry_values[:strong_certificate_binding_enforcement].present? && @registry_values[:certificate_mapping_methods].present?
         note += " Registry values: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{@registry_values[:certificate_mapping_methods]}."
       end
+
+      @certificate_details[certificate_symbol][:target_users] = users
       @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
       @certificate_details[certificate_symbol][:techniques] << 'ESC10'
       @certificate_details[certificate_symbol][:notes] << note
@@ -695,6 +698,27 @@ class MetasploitModule < Msf::Auxiliary
     query_ldap_server_certificates(esc_raw_filter, 'ESC15', notes: notes)
   end
 
+  # For ESC9, ESC10 and ESC16
+  def users_compatible_with_template?(current_user, flag_values, users = nil)
+    return false if flag_values.blank?
+
+    raw = flag_values.is_a?(Array) ? flag_values.first : flag_values
+    return false if raw.nil?
+
+    mask = raw.to_i & 0xffffffff
+
+    dns_required = (mask & CT_FLAG_SUBJECT_ALT_REQUIRE_DNS) != 0
+    upn_required = (mask & CT_FLAG_SUBJECT_ALT_REQUIRE_UPN) != 0
+
+    if dns_required && current_user.to_s.end_with?('$') && (users.blank? || users.any? { |user| user.end_with?('$') })
+      true
+    elsif upn_required && !current_user.to_s.end_with?('$') && (users.blank? || users.any? { |user| !user.end_with?('$') })
+      true
+    else
+      false
+    end
+  end
+
   def find_esc16_vuln_cert_templates
     # if we were able to read the registry values and this OID is not explicitly disabled, then we know for certain the server is not vulnerable
     esc16_raw_filter = '(&'\
@@ -718,21 +742,56 @@ class MetasploitModule < Msf::Auxiliary
       # Get the CA servers that issue this template and we'll check their registry values
       @certificate_details[certificate_symbol][:ca_servers].each_value do |ca_server|
         ca_name = ca_server[:name].to_sym
-        next unless @registry_values.present? && @registry_values.key?(ca_name)
-        # ESC16 revolves around the szOID_NTDS_CA_SECURITY_EXT being globally disabled on the CA server via the disable_extension_list. If it's not disabled, skip
-        next if (@registry_values[ca_name][:disable_extension_list] && !@registry_values[ca_name][:disable_extension_list].include?('1.3.6.1.4.1.311.25.2'))
+        @certificate_details[certificate_symbol][:certificate_name_flags] = entry['mspki-certificate-name-flag']
+        enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
+        users = find_users_with_write_and_enroll_rights(enroll_sids)
+        user_plural = users.size > 1 ? 'accounts' : 'account'
+        has_plural = users.size > 1 ? 'have' : 'has'
+        current_user = adds_get_current_user(@ldap)[:samaccountname].first
+        @certificate_details[certificate_symbol][:target_users] = users
 
-        if @registry_values[:strong_certificate_binding_enforcement] && (@registry_values[:strong_certificate_binding_enforcement] == 0 || @registry_values[:strong_certificate_binding_enforcement] == 1)
+        # ESC16 revolves around the szOID_NTDS_CA_SECURITY_EXT being globally disabled on the CA server via the disable_extension_list. If it's not disabled, skip
+        if vulnerable_to_esc16_1?(ca_name)
+          next if users.empty?
+          next unless users_compatible_with_template?(current_user, entry['mspki-certificate-name-flag'], users)
+
+          note = "ESC16_1: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
+          note += " Registry values: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{@registry_values[:certificate_mapping_methods]}."
+          note += " The Certificate Authority: #{ca_name} has 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
+
           # Scenario 1 - StrongCertificateBindingEnforcement = 1 or 0 then it's the same as ESC9 - mark them all as vulnerable
-          @certificate_details[certificate_symbol][:techniques] << 'ESC16'
-          @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due StrongCertificateBindingEnforcement = #{@registry_values[:strong_certificate_binding_enforcement]} and the Certificate Authority: #{ca_name} having 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
-        elsif @registry_values[ca_name][:edit_flags] & EDITF_ATTRIBUTESUBJECTALTNAME2 != 0
-          # Scenario 2 - StrongCertificateBindingEnforcement = 2 but the edit_flags contain EDITF_ATTRIBUTESUBJECTALTNAME2 which re-enables the ability to exploit the certificate in the same way as ESC6
-          @certificate_details[certificate_symbol][:techniques] << 'ESC16'
-          @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due to the active policy EditFlags having: EDITF_ATTRIBUTESUBJECTALTNAME2 set (which is essentially ESC6) on the Certificate Authority: #{ca_name}. Also the CA having 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
+          @certificate_details[certificate_symbol][:techniques] << 'ESC16_1'
+          @certificate_details[certificate_symbol][:notes] << note
         end
+
+        if vulnerable_to_esc16_2?(ca_name)
+          # Scenario 2 - StrongCertificateBindingEnforcement = 2 but the edit_flags contain EDITF_ATTRIBUTESUBJECTALTNAME2 which re-enables the ability to exploit the certificate in the same way as ESC6
+          @certificate_details[certificate_symbol][:techniques] << 'ESC16_2'
+          @certificate_details[certificate_symbol][:notes] << "ESC16_2: Template is vulnerable due to the active policy EditFlags having: EDITF_ATTRIBUTESUBJECTALTNAME2 set (which is essentially ESC6) on the Certificate Authority: #{ca_name}. Also the CA having 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
+        end
+
+        next unless @registry_values.blank?
+        # We couldn't read the registry values - mark as potentially vulnerable
+        next unless users_compatible_with_template?(current_user, entry['mspki-certificate-name-flag'])
+
+        @certificate_details[certificate_symbol][:techniques] << 'ESC16_2'
+        @certificate_details[certificate_symbol][:notes] << 'ESC16_2: Template appears to be vulnerable (most templates do)'
+
+        next if users.empty?
+        next unless users_compatible_with_template?(current_user, entry['mspki-certificate-name-flag'], users)
+
+        @certificate_details[certificate_symbol][:techniques] << 'ESC16_1'
+        @certificate_details[certificate_symbol][:notes] << "ESC16_1: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
       end
     end
+  end
+
+  def vulnerable_to_esc16_1?(ca_name)
+    @registry_values[ca_name]&.[](:disable_extension_list)&.include?('1.3.6.1.4.1.311.25.2') && @registry_values[:strong_certificate_binding_enforcement] && (@registry_values[:strong_certificate_binding_enforcement] == 0 || @registry_values[:strong_certificate_binding_enforcement] == 1)
+  end
+
+  def vulnerable_to_esc16_2?(ca_name)
+    @registry_values[ca_name]&.[](:disable_extension_list)&.include?('1.3.6.1.4.1.311.25.2') && @registry_values[ca_name][:edit_flags] & EDITF_ATTRIBUTESUBJECTALTNAME2 != 0 && @registry_values[:strong_certificate_binding_enforcement] && @registry_values[:strong_certificate_binding_enforcement] == 2
   end
 
   def find_enrollable_vuln_certificate_templates
@@ -760,15 +819,17 @@ class MetasploitModule < Msf::Auxiliary
   def reporting_split_techniques(template)
     # these techniques are special in the sense that the exploit steps involve a different user performing the request
     # meaning that whether or not we can issue them is irrelevant
-    enroll_by_proxy = %w[ESC9 ESC10 ESC16]
-    # technically ESC15 might be patched and we can't fingerprint that status but we live it in the "vulnerable" category
+    enroll_by_proxy = %w[ESC9 ESC10 ESC16_1]
+    # technically ESC15 might be patched and we can't fingerprint that status but we leave it in the "vulnerable" category
 
     # when we have the registry values, we can tell the vulnerabilities for certain
     if @registry_values.present?
       potentially_vulnerable = []
       vulnerable = template[:techniques].dup
     else
-      potentially_vulnerable = template[:techniques] & enroll_by_proxy
+      # ESC16_2 doesn't require a separate user to enroll, so it does not belong in the enroll_by_proxy array
+      # however should it should be reported as potentially vulnerable if we don't have registry data
+      potentially_vulnerable = template[:techniques] & (enroll_by_proxy + ['ESC16_2'])
       vulnerable = template[:techniques] - potentially_vulnerable
     end
 
@@ -776,13 +837,16 @@ class MetasploitModule < Msf::Auxiliary
       vulnerable.keep_if do |technique|
         enroll_by_proxy.include?(technique) || can_enroll?(template)
       end
+
+      potentially_vulnerable.delete('ESC16_2') if potentially_vulnerable.include?('ESC16_2') && !can_enroll?(template)
+
     end
 
     [vulnerable, potentially_vulnerable]
   end
 
   def can_enroll?(template)
-    (template[:permissions].include?('FULL CONTROL') || template[:permissions].include?('ENROLL')) && template[:ca_servers].values.any? { _1[:permissions].include?('REQUEST CERTIFICATES') }
+    (template[:permissions].include?('FULL CONTROL') || template[:permissions].include?('ENROLL')) && (template[:ca_servers].empty? || template[:ca_servers].values.any? { _1[:permissions].include?('REQUEST CERTIFICATES') })
   end
 
   def print_vulnerable_cert_info
@@ -867,8 +931,11 @@ class MetasploitModule < Msf::Auxiliary
       if potentially_vulnerable_techniques.include?('ESC10')
         print_warning('  Potentially vulnerable to: ESC10 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to 0 or CertificateMappingMethods must be set to 4)')
       end
-      if potentially_vulnerable_techniques.include?('ESC16')
-        print_warning('  Potentially vulnerable to: ESC16 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to either 0 or 1. If StrongCertificateBindingEnforcement is set to 2, ESC16 is exploitable if the active policy EditFlags has EDITF_ATTRIBUTESUBJECTALTNAME2 set.')
+      if potentially_vulnerable_techniques.include?('ESC16_1')
+        print_warning('  Potentially vulnerable to: ESC16_1 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to either 0 or 1 and the CA must have the SID security extention OID: 1.3.6.1.4.1.311.25.2 listed under the DisbaledExtensionlist registry key.')
+      end
+      if potentially_vulnerable_techniques.include?('ESC16_2')
+        print_warning('  Potentially vulnerable to: ESC16_2 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to 2 and the CA must have the SID security extention OID: 1.3.6.1.4.1.311.25.2 listed under the DisbaledExtensionlist registry key and EDITF_ATTRIBUTESUBJECTALTNAME2 enabled in the EditFlags policy).')
       end
 
       print_status("  Permissions: #{hash[:permissions].join(', ')}")
@@ -1018,6 +1085,64 @@ class MetasploitModule < Msf::Auxiliary
     ip_addresses
   end
 
+  def domain_controller_version_check
+    domain = adds_get_domain_info(@ldap)[:dns_name]
+    user = adds_get_current_user(@ldap)[:sAMAccountName].first.to_s
+    print_status("user: #{user}, domain: #{domain}")
+
+    version_raw = nil
+    conn = create_winrm_connection(datastore['RHOSTS'], domain, user, datastore['WINRM_TIMEOUT'])
+    # Get the build number over WinRM by querying the Update Build Revision from the registry and appending it to the OS version.
+    # If there is no URB append 0 so we the string always ends in a numberical value
+    conn.shell(:powershell) do |shell|
+      ps = <<~PS
+        $os = Get-CimInstance Win32_OperatingSystem -ErrorAction Stop
+        $ubr = (Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion' -Name UBR -ErrorAction SilentlyContinue).UBR
+        if ($ubr -eq $null) { $ubr = 0 }
+        Write-Output ("{0}.{1}" -f $os.Version, $ubr)
+      PS
+      output = shell.run(ps)
+      version_raw = output.stdout&.lines&.first&.strip
+      shell.close
+    end
+
+    if version_raw.blank?
+      print_error("Could not retrieve Windows version string from #{datastore['RHOSTS']} via WinRM.")
+    end
+
+    version_obj = Rex::Version.new(version_raw)
+
+    print_status("Detected target Windows version: #{version_raw}")
+
+    # Product ranges: [ Product name, RTM version, Sept2025 patch version ]
+    # Replace the 'patch_version' entries with actual September 2025 version/build strings.
+    ranges = [
+      [Msf::WindowsVersion::ServerNameMapping[:Server2025], Msf::WindowsVersion::Server2025, Rex::Version.new('10.0.26100.6588')],
+      [Msf::WindowsVersion::ServerNameMapping[:Server2022], Msf::WindowsVersion::Server2022, Rex::Version.new('10.0.20348.4171')],
+      [Msf::WindowsVersion::ServerNameMapping[:Server2019], Msf::WindowsVersion::Server2019, Rex::Version.new('10.0.17763.7792')],
+      [Msf::WindowsVersion::ServerNameMapping[:Server2016], Msf::WindowsVersion::Server2016, Rex::Version.new('10.0.14393.8422')],
+    ]
+
+    ranges.each do |product, rtm_version, patch_version|
+      if version_obj >= rtm_version && version_obj < patch_version
+        print_good("Detected #{product} version #{version_obj} — appears vulnerable (below Sept 2025 threshold #{patch_version}). Module will continue.")
+        return false
+      end
+
+      if version_obj >= patch_version
+        fail_with(Failure::NotVulnerable, "Detected #{product} version #{version_obj} which is at-or-above the September 2025 threshold (#{patch_version}). Target appears patched. Weak certificate mappings/ ESC techniques are not exploitable on this domain controller")
+      end
+    end
+
+    print_error("Could not map detected Windows version #{version_obj} to a known product range.")
+  end
+
+  def set_can_enroll_flags
+    @certificate_details.each_key do |certificate_template|
+      @certificate_details[certificate_template][:can_enroll] = can_enroll?(@certificate_details[certificate_template])
+    end
+  end
+
   def validate
     super
     if (datastore['RUN_REGISTRY_CHECKS']) && !%w[auto plaintext ntlm].include?(datastore['LDAP::Auth'].downcase)
@@ -1047,6 +1172,15 @@ class MetasploitModule < Msf::Auxiliary
       end
       @ldap = ldap
 
+      # If the domain controller is patched up to Sept 2025, the CA can still issue Certificates which appear
+      # vulnerable (ie. Subject Alt Names can be specified with UPN: Administrator) however the Domain controller no
+      # longer accepts weak certificate mappings regardless of the StrongCertificateBindingEnforcement/ CertificaateMappingMethod registry key.
+      begin
+        domain_controller_version_check
+      rescue WinRM::WinRMAuthorizationError => e
+        print_warning("Unable to determine the version of Window so these all might be false postives! WinRM authorization error: #{e.message}")
+      end
+
       templates = query_ldap_server('(objectClass=pkicertificatetemplate)', CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
       fail_with(Failure::NotFound, 'No certificate templates were found.') if templates.empty?
 
@@ -1064,6 +1198,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       find_enrollable_vuln_certificate_templates
+      set_can_enroll_flags
       find_esc1_vuln_cert_templates
       find_esc2_vuln_cert_templates
       find_esc3_vuln_cert_templates

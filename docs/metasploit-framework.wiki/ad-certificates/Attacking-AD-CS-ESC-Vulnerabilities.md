@@ -1580,7 +1580,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhost=172.16.199.200 cert_f
 [*] Auxiliary module execution completed
 ```
 
-#### ESC16 Scenario 2
+## ESC16 Scenario 2
 If domain controllers are in Full Enforcement mode (`StrongCertificateBindingEnforcement` == 2), ESC16 alone would normally
 prevent authentication using certificates that lack the required SID extension. However, if the CA is also vulnerable
 to ESC6, which is defined as: `EDITF_ATTRIBUTESUBJECTALTNAME2` flag is set under it's `EditFlags` registry key, located here:
