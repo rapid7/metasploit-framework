@@ -24,6 +24,7 @@ require:
   - ./lib/rubocop/cop/lint/module_enforce_notes.rb
   - ./lib/rubocop/cop/lint/detect_invalid_pack_directives.rb
   - ./lib/rubocop/cop/lint/detect_metadata_trailing_leading_whitespace.rb
+  - ./lib/rubocop/cop/lint/detect_outdated_cmd_exec_api.rb
 
 Layout/SpaceBeforeBrackets:
   Enabled: true
@@ -675,4 +676,10 @@ Style/UnpackFirst:
   Enabled: false
 
 Lint/DetectMetadataTrailingLeadingWhitespace:
+  Enabled: true
+
+Lint/DetectOutdatedCmdExecApi:
+  Description: >-
+    Detects outdated usage of cmd_exec with separate arguments.
+    Use `create_process(executable, args: [], time_out: 15, opts: {})` API with an args array instead.
   Enabled: true
