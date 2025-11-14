@@ -137,7 +137,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def session_setup(shell, _rhost, _rport, _endpoint)
+  def session_setup(shell, rhost, _rport, _endpoint)
     # We use cmd rather than powershell because powershell v3 on 2012 (and maybe earlier)
     # do not seem to pass us stdout/stderr.
     begin
@@ -145,10 +145,10 @@ class MetasploitModule < Msf::Auxiliary
     rescue WinRM::WinRMWSManFault => e
       case e.fault_code
       when ::WindowsError::Win32::ERROR_ACCESS_DENIED.value.to_s
-        print_warning("Credentials were correct but access is denied for user: #{datastore['USERNAME']}")
+        print_brute(level: :warn, rhost: rhost, msg: "Credentials were correct but access is denied for user: #{shell.connection_opts[:user]}")
         wlog(e.fault_description)
       else
-        print_error(e.fault_description)
+        print_brute(level: :error, rhost: rhost, msg: e.fault_description)
         elog(e.full_message, error: e)
       end
       return
