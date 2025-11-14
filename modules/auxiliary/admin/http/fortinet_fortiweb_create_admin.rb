@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.rapid7.com/blog/post/etr-critical-vulnerability-in-fortinet-fortiweb-exploited-in-the-wild/'],
           ['URL', 'https://www.fortiguard.com/psirt/FG-IR-25-910'] # Vendor Advisory
         ],
-        'DisclosureDate' => '2025-11-14', # Vendor disclosed Nov 14, 2025, fixes were several months prior.
+        'DisclosureDate' => '2025-11-14',
         'DefaultOptions' => {
           'RPORT' => 443,
           'SSL' => true
