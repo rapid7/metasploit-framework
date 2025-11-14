@@ -254,6 +254,28 @@ module Acceptance::Session
         }
       },
       {
+        name: "post/test/socket_channels",
+        platforms: [:linux, :osx, :windows],
+        skipped: false,
+        lines: {
+          linux: {
+            known_failures: [
+              "[-] FAILED: [UDP] Has the correct peer information"
+            ]
+          },
+          osx: {
+            known_failures: [
+              "[-] FAILED: [UDP] Has the correct peer information"
+            ]
+          },
+          windows: {
+            known_failures: [
+              "[-] FAILED: [UDP] Has the correct peer information"
+            ]
+          }
+        }
+      },
+      {
         name: "post/test/unix",
         platforms: [
           :linux,
