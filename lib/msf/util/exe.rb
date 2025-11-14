@@ -209,6 +209,13 @@ require 'digest/sha1'
       # TODO: Add remaining RISCV64LE systems here
     end
 
+    if arch.index(ARCH_LOONGARCH64)
+      if plat.index(Msf::Module::Platform::Linux)
+        return to_linux_loongarch64_elf(framework, code)
+      end
+      # TODO: Add remaining LOONGARCH64 systems here
+    end
+
     nil
   end
 
@@ -1314,6 +1321,28 @@ require 'digest/sha1'
     to_exe_elf(framework, opts, "template_riscv32le_linux_dll.bin", code)
   end
 
+  # Create a LOONGARCH64 64-bit LE Linux ELF containing the payload provided in +code+
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
+  def self.to_linux_loongarch64_elf(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_loongarch64_linux.bin", code)
+  end
+
+  # Create a LOONGARCH64 64-bit LE Linux ELF_DYN containing the payload provided in +code+
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
+  def self.to_linux_loongarch64_elf_dll(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_loongarch64_linux_dll.bin", code)
+  end
+
   # self.to_exe_vba
   #
   # @param exes [String]
@@ -2208,6 +2237,8 @@ require 'digest/sha1'
           to_linux_riscv32le_elf(framework, code, exeopts)
         when ARCH_RISCV64LE
           to_linux_riscv64le_elf(framework, code, exeopts)
+        when ARCH_LOONGARCH64
+          to_linux_loongarch64_elf(framework, code, exeopts)
         end
       elsif plat && plat.index(Msf::Module::Platform::BSD)
         case arch
@@ -2240,6 +2271,8 @@ require 'digest/sha1'
           to_linux_riscv32le_elf_dll(framework, code, exeopts)
         when ARCH_RISCV64LE
           to_linux_riscv64le_elf_dll(framework, code, exeopts)
+        when ARCH_LOONGARCH64
+          to_linux_loongarch64_elf_dll(framework, code, exeopts)
         end
       end
     when 'macho', 'osx-app'
