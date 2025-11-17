@@ -36,11 +36,11 @@ class MetasploitModule < Msf::Post
     output = cmd_exec("/config/bin/setup_cmd /bin/date -f #{datastore['RPATH']}")
 
     print_status('Command completed:')
-    output.each_line do |line|
+    output.lines[1..-1].each do |line|
       line = line.strip
       print_line(line.delete_prefix(
-        "/bin/date: invalid date '"
-      ).delete_suffix("'"))
+        "/bin/date: invalid date ‘"
+      ).delete_suffix("’"))
     end
   end
 end
