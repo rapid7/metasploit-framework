@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           'Marco Stuurman' # discovery
         ],
         'References' => [
-          [ 'URL', 'https://github.com/advisories/GHSA-g7j7-h4q8-8w2f'],
+          [ 'GHSA', 'g7j7-h4q8-8w2f' ],
           [ 'URL', 'https://github.com/fe-ax/tf-cve-2021-36782'],
           [ 'URL', 'https://fe.ax/cve-2021-36782/'],
           [ 'CVE', '2021-36782']
