@@ -193,7 +193,7 @@ module Msf::DBManager::Service
       return unless service.is_a?(Hash)
       return if service[:port].nil? || service[:proto].nil?
 
-      parents =nil
+      parents = nil
       if service[:parents]&.any?
         parents = process_service_chain(host, service[:parents])
       end
@@ -210,7 +210,7 @@ module Msf::DBManager::Service
         return
       end
       service_obj.state ||= Msf::ServiceState::Open
-      service_obj.info ||= ''
+      service_obj.info = service[:info] ? service[:info] : ''
 
       if parents
         parents.each do |parent|
