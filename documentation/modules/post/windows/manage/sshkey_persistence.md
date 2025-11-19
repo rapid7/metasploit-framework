@@ -19,29 +19,29 @@ This module will add an SSH key to a specified user (or all), to allow remote lo
 
 ## Options
 
-  **SSHD_CONFIG**
+### SSHD_CONFIG
 
   Location of the sshd_config file on the remote system.
   We use this to determine if the authorized_keys file location has changed on the system.
   If it hasn't, we default to .ssh/authorized_keys
 
-  **USERNAME**
+### USERNAME
 
   If set, we only write our key to this user.  If not, we'll write to all users
 
-  **PUBKEY**
+### PUBKEY
 
   A public key to use.  If not provided, a pub/priv key pair is generated automatically
 
-  **ADMIN_KEY_FILE**
+### ADMIN_KEY_FILE
 
   Location of public keys for Administrator level accounts
 
-  **ADMIN**
+### ADMIN
 
   Add public keys for gaining access to Administrator level accounts
 
-  **EDIT_CONFIG**
+### EDIT_CONFIG
 
   Allow the module to edit the sshd_config to enable public key authentication
 

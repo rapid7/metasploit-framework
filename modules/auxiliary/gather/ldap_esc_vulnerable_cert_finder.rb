@@ -97,12 +97,13 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
       OptEnum.new('REPORT', [true, 'What templates to report (applies filtering to results)', 'vulnerable-and-published', %w[all published enrollable vulnerable vulnerable-and-published vulnerable-and-enrollable]]),
       OptBool.new('RUN_REGISTRY_CHECKS', [true, 'Authenticate to WinRM to query the registry values to enhance reporting for ESC9, ESC10 and ESC16. Must be a privileged user in order to query successfully', false]),
+      OptInt.new('WINRM_TIMEOUT', [false, 'The WinRM timeout when running registry checks', 20], conditions: %w[RUN_REGISTRY_CHECKS == true]),
     ])
   end
 
   # TODO: Spencer to check all of these are still used and shouldn't be moved
   # Constants Definition
-  CERTIFICATE_ATTRIBUTES = %w[cn name description nTSecurityDescriptor msPKI-Certificate-Policy msPKI-Enrollment-Flag msPKI-RA-Signature msPKI-Template-Schema-Version pkiExtendedKeyUsage]
+  CERTIFICATE_ATTRIBUTES = %w[cn name description nTSecurityDescriptor msPKI-Certificate-Policy msPKI-Enrollment-Flag msPKI-RA-Signature msPKI-Template-Schema-Version pkiExtendedKeyUsage msPKI-Certificate-Name-Flag]
   CERTIFICATE_TEMPLATES_BASE = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'.freeze
   CONTROL_ACCESS = 0x00000100
 
@@ -349,35 +350,78 @@ class MetasploitModule < Msf::Auxiliary
     value
   end
 
-  def enum_registry_values
-    @registry_values ||= {}
-
-    endpoint = "http://#{datastore['RHOST']}:5985/wsman"
-    domain = adds_get_domain_info(@ldap)[:dns_name]
-    user = adds_get_current_user(@ldap)[:sAMAccountName].first.to_s
-    pass = datastore['LDAPPassword']
-    conn = WinRM::Connection.new(
+  def create_winrm_connection(host, domain, user, timeout)
+    endpoint = "http://#{host}:5985/wsman"
+    WinRM::Connection.new(
       endpoint: endpoint,
       domain: domain,
       user: user,
-      password: pass,
-      transport: :negotiate
+      password: datastore['LDAPPassword'],
+      transport: :negotiate,
+      operation_timeout: timeout
     )
+  end
 
-    begin
-      conn.shell(:powershell) do |shell|
-        @registry_values[:certificate_mapping_methods] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\Schannel', 'CertificateMappingMethods').to_i
-        @registry_values[:strong_certificate_binding_enforcement] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Kdc', 'StrongCertificateBindingEnforcement').to_i
+  def query_ca_policy_values(shell)
+    active_policy_name = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'Active')
+    disable_ext = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'DisableExtensionList', active_policy_name)
+    edit_flags = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'EditFlags', active_policy_name).to_i
+    { disable_extension_list: disable_ext, edit_flags: edit_flags }
+  end
 
-        active_policy_name = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'Active')
-        @registry_values[:disable_extension_list] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'DisableExtensionList', active_policy_name)
-        @registry_values[:edit_flags] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'EditFlags', active_policy_name).to_i
+  def query_dc_reg_values(ca_name, ca_ip_address, domain, user)
+    conn = create_winrm_connection(datastore['RHOST'], domain, user, datastore['WINRM_TIMEOUT'])
+    handled_locally = false
+    conn.shell(:powershell) do |shell|
+      @registry_values[:certificate_mapping_methods] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\Schannel', 'CertificateMappingMethods').to_i
+      @registry_values[:strong_certificate_binding_enforcement] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Kdc', 'StrongCertificateBindingEnforcement').to_i
+      if datastore['RHOST'] == ca_ip_address
+        @registry_values[ca_name.to_sym] = query_ca_policy_values(shell)
+        handled_locally = true
       end
-    rescue StandardError => e
-      vprint_warning("Failed to query registry values: #{e.message}")
+      shell.close
+    end
+    return if handled_locally
+
+    query_ca_reg_values(ca_name, ca_ip_address, domain, user)
+  end
+
+  def query_ca_reg_values(ca_name, ca_ip_address, domain, user)
+    conn = create_winrm_connection(ca_ip_address, domain, user, datastore['WINRM_TIMEOUT'])
+    conn.shell(:powershell) do |shell|
+      @registry_values[ca_name.to_sym] = query_ca_policy_values(shell)
+      shell.close
+    end
+  end
+
+  def enum_registry_values
+    @registry_values ||= {}
+    domain = adds_get_domain_info(@ldap)[:dns_name]
+    user = adds_get_current_user(@ldap)[:sAMAccountName].first.to_s
+    ca_servers = adds_get_ca_servers(@ldap)
+    if ca_servers.empty?
+      print_warning('No Certificate Authority servers found in LDAP.')
+      return
+    end
+
+    ca_servers.each do |ca_server|
+      vprint_good("Found CA: #{ca_server[:name]} (#{ca_server[:dNSHostName]})")
+      ca_ip_address = Rex::Socket.getaddress(ca_server[:dNSHostName], false)
+      unless ca_ip_address
+        vprint_error("Unable to resolve the DNS Host Name of the CA server: #{ca_server[:dNSHostName]}. Checking registry values is unable to continue")
+        next
+      end
+
+      query_dc_reg_values(ca_server[:name], ca_ip_address, domain, user)
     end
 
     @registry_values
+  rescue StandardError => e
+    print_error("Failed to query all registry values. Ensure the user has sufficient privileges to query the Domain Controller and Certificate Authorities: #{e.message}.")
+    if @registry_values.key?(:certificate_mapping_methods) && @registry_values.key?(:strong_certificate_binding_enforcement)
+      print_error('  The user was able to query the Domain Controller but not the Certificate Authorities, meaning the user is likely an Admin but not a Domain Admin. ESC16 reporting will be inaccurate.')
+      return @registry_values
+    end
   end
 
   def resolve_group_memberships(user_dn)
@@ -448,7 +492,7 @@ class MetasploitModule < Msf::Auxiliary
       ')'\
     ')'
 
-    esc9_templates = query_ldap_server(esc9_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
+    esc9_templates = query_ldap_server(esc9_raw_filter, CERTIFICATE_ATTRIBUTES + ['msPKI-Certificate-Name-Flag'], base_prefix: CERTIFICATE_TEMPLATES_BASE)
     esc9_templates.each do |template|
       certificate_symbol = template[:cn][0].to_sym
 
@@ -465,6 +509,7 @@ class MetasploitModule < Msf::Auxiliary
       if @registry_values[:strong_certificate_binding_enforcement].present?
         note += " Registry value: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}."
       end
+      @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
       @certificate_details[certificate_symbol][:techniques] << 'ESC9'
       @certificate_details[certificate_symbol][:notes] << note
     end
@@ -486,7 +531,7 @@ class MetasploitModule < Msf::Auxiliary
   ')'\
   ')'
 
-    esc10_templates = query_ldap_server(esc10_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
+    esc10_templates = query_ldap_server(esc10_raw_filter, CERTIFICATE_ATTRIBUTES + ['msPKI-Certificate-Name-Flag'], base_prefix: CERTIFICATE_TEMPLATES_BASE)
     esc10_templates.each do |template|
       certificate_symbol = template[:cn][0].to_sym
 
@@ -504,7 +549,7 @@ class MetasploitModule < Msf::Auxiliary
       if @registry_values[:strong_certificate_binding_enforcement].present? && @registry_values[:certificate_mapping_methods].present?
         note += " Registry values: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{@registry_values[:certificate_mapping_methods]}."
       end
-
+      @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
       @certificate_details[certificate_symbol][:techniques] << 'ESC10'
       @certificate_details[certificate_symbol][:notes] << note
     end
@@ -652,8 +697,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def find_esc16_vuln_cert_templates
     # if we were able to read the registry values and this OID is not explicitly disabled, then we know for certain the server is not vulnerable
-    return if @registry_values.present? && @registry_values[:disable_extension_list] && !@registry_values[:disable_extension_list].include?('1.3.6.1.4.1.311.25.2')
-
     esc16_raw_filter = '(&'\
      '(|'\
     "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_UPN})"\
@@ -666,24 +709,28 @@ class MetasploitModule < Msf::Auxiliary
       '(pkiextendedkeyusage=*)'\
     ')'
 
-    esc_entries = query_ldap_server(esc16_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
+    esc_entries = query_ldap_server(esc16_raw_filter, CERTIFICATE_ATTRIBUTES + ['msPKI-Certificate-Name-Flag'], base_prefix: CERTIFICATE_TEMPLATES_BASE)
     return if esc_entries.empty?
 
-    if @registry_values[:strong_certificate_binding_enforcement] && (@registry_values[:strong_certificate_binding_enforcement] == 0 || @registry_values[:strong_certificate_binding_enforcement] == 1)
-      # Scenario 1 -  StrongCertificateBindingEnforcement = 1 or 0 then it's the same as ESC9 - mark them all as vulnerable
-      esc_entries.each do |entry|
-        certificate_symbol = entry[:cn][0].to_sym
+    esc_entries.each do |entry|
+      certificate_symbol = entry[:cn][0].to_sym
 
-        @certificate_details[certificate_symbol][:techniques] << 'ESC16'
-        @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due StrongCertificateBindingEnforcement = #{@registry_values[:strong_certificate_binding_enforcement]} and the CA's disabled policy extension list includes: 1.3.6.1.4.1.311.25.2."
-      end
-    elsif @registry_values[:edit_flags] & EDITF_ATTRIBUTESUBJECTALTNAME2 != 0
-      # Scenario 2 - StrongCertificateBindingEnforcement = 2 (or nil) but if EditFlags in the active policy module has EDITF_ATTRIBUTESUBJECTALTNAME2 set then ESC6 is essentially re-enabled and we mark them all as vulnerable
-      esc_entries.each do |entry|
-        certificate_symbol = entry[:cn][0].to_sym
+      # Get the CA servers that issue this template and we'll check their registry values
+      @certificate_details[certificate_symbol][:ca_servers].each_value do |ca_server|
+        ca_name = ca_server[:name].to_sym
+        next unless @registry_values.present? && @registry_values.key?(ca_name)
+        # ESC16 revolves around the szOID_NTDS_CA_SECURITY_EXT being globally disabled on the CA server via the disable_extension_list. If it's not disabled, skip
+        next if (@registry_values[ca_name][:disable_extension_list] && !@registry_values[ca_name][:disable_extension_list].include?('1.3.6.1.4.1.311.25.2'))
 
-        @certificate_details[certificate_symbol][:techniques] << 'ESC16'
-        @certificate_details[certificate_symbol][:notes] << 'ESC16: Template is vulnerable due to the active policy EditFlags having: EDITF_ATTRIBUTESUBJECTALTNAME2 set (which is essentially ESC6) combined with the CA\'s disabled policy extension list including: 1.3.6.1.4.1.311.25.2.'
+        if @registry_values[:strong_certificate_binding_enforcement] && (@registry_values[:strong_certificate_binding_enforcement] == 0 || @registry_values[:strong_certificate_binding_enforcement] == 1)
+          # Scenario 1 - StrongCertificateBindingEnforcement = 1 or 0 then it's the same as ESC9 - mark them all as vulnerable
+          @certificate_details[certificate_symbol][:techniques] << 'ESC16'
+          @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due StrongCertificateBindingEnforcement = #{@registry_values[:strong_certificate_binding_enforcement]} and the Certificate Authority: #{ca_name} having 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
+        elsif @registry_values[ca_name][:edit_flags] & EDITF_ATTRIBUTESUBJECTALTNAME2 != 0
+          # Scenario 2 - StrongCertificateBindingEnforcement = 2 but the edit_flags contain EDITF_ATTRIBUTESUBJECTALTNAME2 which re-enables the ability to exploit the certificate in the same way as ESC6
+          @certificate_details[certificate_symbol][:techniques] << 'ESC16'
+          @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due to the active policy EditFlags having: EDITF_ATTRIBUTESUBJECTALTNAME2 set (which is essentially ESC6) on the Certificate Authority: #{ca_name}. Also the CA having 1.3.6.1.4.1.311.25.2 defined in it's disabled extension list"
+        end
       end
     end
   end
@@ -1009,6 +1056,12 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       registry_values = enum_registry_values if datastore['RUN_REGISTRY_CHECKS']
+
+      if registry_values&.any?
+        registry_values.each do |key, value|
+          vprint_good("#{key}: #{value.inspect}")
+        end
+      end
 
       find_enrollable_vuln_certificate_templates
       find_esc1_vuln_cert_templates

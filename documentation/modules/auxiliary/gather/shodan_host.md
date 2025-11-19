@@ -15,15 +15,15 @@ In order for this module to function properly, a Shodan API key is needed. You c
 
 ## Options
 
-  **RHOSTS**
+### RHOSTS
 
   The target machine(s) whose port information will be obtained from Shodan
 
-  **SHODAN_APIKEY**
+### SHODAN_APIKEY
 
   This is the API key you receive when signing up for a Shodan account. It should be a 32 character string of random letters and numbers.
 
-  **Proxies**
+### Proxies
   A proxy chain of format type:host:port[,type:host:port][...] that will be used to establish the connection to the Shodan servers.
 
 

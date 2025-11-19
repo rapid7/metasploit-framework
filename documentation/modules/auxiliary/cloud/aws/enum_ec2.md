@@ -24,13 +24,13 @@ This module authenticates to AWS EC2 (Elastic Compute Cloud) to identify compute
 
 ## Options
 
-  **ACCESS_KEY_ID**
+### ACCESS_KEY_ID
 
   This AWS credential is like a username.  It uniquely identifies the user, and is paired with a 'secret access key'.  The access key ID is retrievable through the AWS console.
   
   An example `ACCESS_KEY_ID` would be `AKIA5C76TR3KXHXA5CRC`
 
-  **SECRET_ACCESS_KEY**
+### SECRET_ACCESS_KEY
 
   This AWS credential is like a password, and should be treated as such.  It is paired with a 'access key ID'.  The access key ID cannot be retrieved from AWS after it has been generated, but it may be discoverable through environment variables, configuration files, source code, or backups.
   

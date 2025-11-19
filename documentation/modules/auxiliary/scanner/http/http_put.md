@@ -17,11 +17,11 @@ This module can abuse misconfigured web servers to upload and delete web content
 
 Set `ACTION` to either `PUT` or `DELETE`. (Default: `PUT`)
 
-**PUT**
+### PUT
 
 Action is set to PUT to upload files to the server. If `FILENAME` isn't specified, the module will generate a random string as a .txt file.
 
-**DELETE** 
+### DELETE 
 
 Deletes the file specified in the `FILENAME` option (Default: `msf_http_put_test.txt`). `FILENAME` is required when Action is set to DELETE. 
 

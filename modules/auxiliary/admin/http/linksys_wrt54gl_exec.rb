@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
         'License' => MSF_LICENSE,
         'References' => [
+          [ 'CVE', '2023-31742' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-01' ],
           [ 'URL', 'http://www.s3cur1ty.de/attacking-linksys-wrt54gl' ],
           [ 'EDB', '24202' ],

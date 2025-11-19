@@ -8,18 +8,18 @@
 
 ## Options
 
-  **PORTS**
+### PORTS
 
   This is the list of ports to test for TCP Scan on each host.
   Formats like  `1-3`, `1,2,3`, `1,2-3`, etc. are all supported. Default
   options is to scan `1-10000` ports.
  
-  **ConnectTimeout**
+### ConnectTimeout
 
   This options states the maximum number of seconds to establish a tcp 
   connection. Default value if `10`.
  
-  **VERBOSE**
+### VERBOSE
 
   Gives detailed message about the scan of all the ports. It also shows the
   ports that were closed.

@@ -17,11 +17,11 @@ This module looks for container platforms running on the target and then lists a
 
 ## Options
 
-  **SESSION**
+### SESSION
 
   Which session to use, which can be viewed with `sessions -l`
  
-  **CMD**
+### CMD
 
   Optional shell command to run on each running container
 

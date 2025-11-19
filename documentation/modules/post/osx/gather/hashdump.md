@@ -13,7 +13,7 @@ This module dumps SHA-1, LM, NT, and SHA-512 Hashes on OSX. Supports versions 10
 
 ## Options
 
-  **MATCHUSER**
+### MATCHUSER
   A regex to run against usernames.  Only matched usernames will have their hashes dumped.
 
 ## Scenarios

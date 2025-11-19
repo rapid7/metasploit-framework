@@ -18,11 +18,11 @@
 
 ## Options
 
- **MASTER_PASSWORD**
+### MASTER_PASSWORD
 
 - If you know the password, you can skip decrypting the master password. If not, it will be decrypted automatically
 
- **CONFIG_PATH**
+### CONFIG_PATH
 
 - Specifies the config file path for MobaXterm
 

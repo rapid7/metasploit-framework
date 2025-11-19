@@ -34,11 +34,11 @@ Affecting total.js package, versions:
 
 ## Options
 
- **DEPTH**
+### DEPTH
 
   Traversal depth. Default is `1`
 
- **FILE**
+### FILE
 
   File to obtain. Default is `databases/settings.json`
 

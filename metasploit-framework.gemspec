@@ -74,7 +74,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.221'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.237'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.45'
   # Needed by msfgui and other rpc components
@@ -100,17 +100,19 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'recog'
   # required for bitlocker fvek extraction
   spec.add_runtime_dependency 'openssl-ccm'
-  # Needed for documentation generation - locked unitl Ruby 2.6 support is dropped
-  spec.add_runtime_dependency 'octokit', '~> 4.0'
+  spec.add_runtime_dependency 'octokit'
   spec.add_runtime_dependency 'redcarpet'
   # Needed for Microsoft patch finding tool (msu_finder)
   spec.add_runtime_dependency 'patch_finder'
   # Required for Metasploit Web Services
   spec.add_runtime_dependency 'puma'
   spec.add_runtime_dependency 'ruby-mysql'
-  spec.add_runtime_dependency 'thin'
-  spec.add_runtime_dependency 'sinatra'
-  spec.add_runtime_dependency 'rack'
+  # webserver - pinned due to: https://github.com/github/secure_headers/issues/514
+  spec.add_runtime_dependency 'thin', '~> 1.x'
+  # rack pinned due to authlogic warnings when setting cookie keys with a / char present: https://github.com/binarylogic/authlogic/issues/779
+  spec.add_runtime_dependency 'rack', '~> 2.2'
+  # 4.x needs tested and verified for JSON RPC service
+  spec.add_runtime_dependency 'sinatra', '~> 3.2'
   spec.add_runtime_dependency 'warden'
   spec.add_runtime_dependency 'swagger-blocks'
   # Required for JSON-RPC client
@@ -151,10 +153,13 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'bcrypt_pbkdf'
   spec.add_runtime_dependency 'ruby_smb', '~> 3.3.15'
   spec.add_runtime_dependency 'net-imap' # Used in Postgres auth for its SASL stringprep implementation
+  spec.add_runtime_dependency 'date', '3.4.1' # Temporarily pinned until 3.5 can be tested
   spec.add_runtime_dependency 'net-ldap'
   spec.add_runtime_dependency 'net-smtp'
   spec.add_runtime_dependency 'net-sftp'
   spec.add_runtime_dependency 'winrm'
+  # Pinned to avoid WinRM warnings: https://github.com/WinRb/WinRM/issues/355 - if bumping verify windows/winrm/winrm_script_exec works against metasploitable with vagrant/vagrant creds 
+  spec.add_runtime_dependency 'rexml', '3.4.1'
   spec.add_runtime_dependency 'ffi', '< 1.17.0'
 
   #
@@ -235,7 +240,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'faye-websocket'
   spec.add_runtime_dependency 'eventmachine'
 
-  spec.add_runtime_dependency 'faraday', '2.7.11'
+  spec.add_runtime_dependency 'faraday'
   spec.add_runtime_dependency 'faraday-retry'
 
   # Required for windows terminal colors as of Ruby 3.0

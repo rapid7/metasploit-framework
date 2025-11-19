@@ -19,6 +19,6 @@ The following platforms are supported:
 
 ## Options
 
-**URI**
+### URI
 
 The URI that should be passed to the opening command, can be a website or a file.

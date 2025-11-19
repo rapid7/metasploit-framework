@@ -124,6 +124,7 @@ class MsfAutoload
       'macho' => 'MachO',
       'nodejs' => 'NodeJS',
       'jsobfu' => 'JSObfu',
+      'vbsobfuscate' => 'VBSObfuscate',
       'osx' => 'OSX',
       'webrtc' => 'WebRTC',
       'json' => 'JSON',

@@ -26,20 +26,20 @@ This module has been tested against:
 
 
 ## Options
-  **PYTHON_VERSION**
+### PYTHON_VERSION
 
   Specifies the Python version you would like to download. Downloads Python version 3.8.2 by default.
 
-  **PYTHON_URL**
+### PYTHON_URL
 
   Specifies the URL used to download the Python embeddable zip file.
 
-  **FILE_PATH**
+### FILE_PATH
 
   Specifies the directory to place the Python embeddable zip file.
   Places Python zip file in the current working directory by default.
 
-  **CLEANUP**
+### CLEANUP
 
   If true, this option will delete the Python zip file as well as its extracted contents. It will also terminate running processes with name 'python', as you cannot delete the Python interpreter if it is actively running.
 

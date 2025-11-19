@@ -1196,12 +1196,28 @@ class Console::CommandDispatcher::Core
         print_warning("The \"#{md}\" extension has already been loaded.")
         next
       end
+      
+      if extensions.include?('stdapi') && md.starts_with?('stdapi_')
+        print_error("Full extension of stdapi has already been loaded.")
+        next
+      end
+
+      loaded_stdapi_namespaces = extensions.select { |e| e.starts_with?('stdapi_')}
+
+      if loaded_stdapi_namespaces.length > 0 && md == 'stdapi'
+        print_error("Partial extension of stdapi has already been loaded.")
+        next
+      end
+
+      client_load = (md == 'stdapi_audio' && loaded_stdapi_namespaces.select {|e| ['stdapi_webcam', 'stdapi_ui'].include?(e)}.any?)
+                    (md == 'stdapi_sys'   && loaded_stdapi_namespaces.select {|e| ['stdapi_webcam', 'stdapi_ui'].include?(e)}.any?)
+                    (md == 'stdapi_webcam' && loaded_stdapi_namespaces.select {|e| ['stdapi_ui'].include?(e)}.any?)
 
       print("Loading extension #{md}...")
 
       begin
         # Use the remote side, then load the client-side
-        if (client.core.use(modulenameprovided) == true)
+        if (client_load || client.core.use(modulenameprovided) == true)
           add_extension_client(md)
 
           if md == 'stdapi' && (client.exploit_datastore && !client.exploit_datastore['AutoLoadStdapi'] && client.exploit_datastore['AutoSystemInfo'])
@@ -1624,13 +1640,14 @@ class Console::CommandDispatcher::Core
     if status.nil?
       # Check to see if we can find this command in another extension. This relies on the core extension being the last
       # in the dispatcher stack which it should be since it's the first loaded.
-      Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.each do |ext_name|
+      Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.select{ | ext_name | !ext_name.starts_with?('stdapi_')}.each do |ext_name|
         next if extensions.include?(ext_name)
         ext_klass = get_extension_client_class(ext_name)
         next if ext_klass.nil?
 
         if ext_klass.has_command?(cmd)
-          print_error("The \"#{cmd}\" command requires the \"#{ext_name}\" extension to be loaded (run: `load #{ext_name}`)")
+          print_error("The \"#{cmd}\" command requires the \"#{ext_name}\" extension to be loaded (run: `load #{ext_name}`)") if ext_name != "stdapi"
+          print_error("The \"#{cmd}\" command requires the stdapi extension to be loaded or the relative subcomponent (run: `load stdapi` or `load stdapi_audio/_fs/_net/_sys/_railgun/_ui/_webcam`)") if ext_name == "stdapi"
           return :handled
         end
       end

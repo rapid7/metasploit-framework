@@ -22,10 +22,10 @@ Launch msf:
 
 ## Options
 
-**ARBID**
+### ARBID
 CAN ID to perform ECU Hard Reset (Default: 0x7DF)
 
-**CANBUS**
+### CANBUS
 CAN Bus to perform scan on, defaults to connected bus
 
 ## Scenarios

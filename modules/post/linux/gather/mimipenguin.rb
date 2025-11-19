@@ -37,7 +37,9 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://github.com/huntergregal/mimipenguin' ],
           [ 'URL', 'https://bugs.launchpad.net/ubuntu/+source/gnome-keyring/+bug/1772919' ],
           [ 'URL', 'https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1717490' ],
-          [ 'CVE', '2018-20781' ]
+          [ 'CVE', '2018-20781' ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_007_PROC_FILESYSTEM ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_008_ETC_PASSWD_AND_ETC_SHADOW ]
         ],
         'DisclosureDate' => '2018-05-23',
         'DefaultTarget' => 0,

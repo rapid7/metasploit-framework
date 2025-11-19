@@ -32,7 +32,10 @@ class MetasploitModule < Msf::Auxiliary
           'Reliability' => UNKNOWN_RELIABILITY,
           'Stability' => UNKNOWN_STABILITY,
           'SideEffects' => UNKNOWN_SIDE_EFFECTS
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_008_ETC_PASSWD_AND_ETC_SHADOW ]
+        ]
       )
     )
 

@@ -18,6 +18,24 @@ module Acceptance::Session
             MeterpreterDebugBuild: true
           }
         }
+      },
+      {
+        name: "windows/x64/meterpreter/reverse_tcp",
+        extension: ".exe",
+        platforms: [:windows],
+        execute_cmd: ["${payload_path}"],
+        executable: true,
+        generate_options: {
+          '-f': "exe"
+        },
+        datastore: {
+          global: {},
+          module: {
+            # Not supported by Windows Meterpreter
+            # MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: false
+          }
+        }
       }
     ],
     module_tests: [
@@ -338,6 +356,24 @@ module Acceptance::Session
           },
           windows: {
             known_failures: []
+          }
+        }
+      },
+      {
+        name: "post/test/socket_channels",
+        platforms: [:linux, :osx, :windows],
+        skipped: false,
+        lines: {
+          linux: {
+            known_failures: []
+          },
+          osx: {
+            known_failures: []
+          },
+          windows: {
+            known_failures: [
+              "[-] FAILED: [UDP] Has the correct peer information"
+            ]
           }
         }
       },

@@ -104,11 +104,11 @@ pass: admin
 
 ## Options
 
-**FILEPATH**
+### FILEPATH
 
 The path to the file to read (default: `/etc/passwd`)
 
-**DEPTH**
+### DEPTH
 
 Traversal Depth (to reach the root folder) (default: `7`)
 

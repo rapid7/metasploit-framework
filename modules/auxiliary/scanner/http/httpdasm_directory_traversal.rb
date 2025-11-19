@@ -20,6 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
+          ['CVE', '2010-10012'],
           ['EDB', '15861']
         ],
         'Notes' => {

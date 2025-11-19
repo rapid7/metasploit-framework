@@ -21,7 +21,9 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => ['Koen Riepe (koen.riepe@fox-it.com)'],
-        'References' => [''],
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_003_NTDS ]
+        ],
         'Platform' => [ 'win' ],
         'Arch' => [ 'x86', 'x64' ],
         'SessionTypes' => [ 'meterpreter' ],
