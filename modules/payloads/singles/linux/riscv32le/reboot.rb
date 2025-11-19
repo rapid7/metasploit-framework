@@ -16,12 +16,16 @@ module MetasploitModule
         'Description' => %q{
           A very small shellcode for rebooting the system using
           the reboot syscall. This payload is sometimes helpful
-          for testing purposes.
+          for testing purposes. Requires CAP_SYS_BOOT privileges.
         },
         'Author' => 'bcoles',
         'License' => MSF_LICENSE,
         'Platform' => 'linux',
-        'Arch' => ARCH_RISCV32LE
+        'Arch' => ARCH_RISCV32LE,
+        'References' => [
+          ['URL', 'https://man7.org/linux/man-pages/man2/reboot.2.html'],
+          ['URL', 'https://github.com/bcoles/shellcode/blob/main/riscv32/reboot/reboot.s'],
+        ]
       )
     )
   end
