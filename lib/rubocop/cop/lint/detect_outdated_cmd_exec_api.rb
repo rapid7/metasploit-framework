@@ -25,7 +25,7 @@ module RuboCop
       #   create_process(binary, args: args_array, time_out: timeout)
       class DetectOutdatedCmdExecApi < Base
         MSG = 'Do not use cmd_exec with separate arguments. ' \
-              "Use create_process with an args array instead use: `create_process(executable, args: [], time_out: 15, opts: {})`"
+              "Use create_process with an args array instead, see https://docs.metasploit.com/docs/development/developing-modules/libraries/post-mixins.html#msfpostcommon"
 
         # Called for every method in the code
         # Checks if it's a cmd_exec call with separate arguments and registers an offense if so

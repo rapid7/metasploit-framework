@@ -11,28 +11,28 @@ RSpec.describe RuboCop::Cop::Lint::DetectOutdatedCmdExecApi, :config do
   it 'registers an offense when cmd_exec is called with separate arguments' do
     expect_offense(<<~RUBY)
       cmd_exec('cmd.exe', '/c echo hello')
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/DetectOutdatedCmdExecApi: Do not use cmd_exec with separate arguments. Use create_process with an args array instead use: `create_process(executable, args: [], time_out: 15, opts: {})`
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/DetectOutdatedCmdExecApi: Do not use cmd_exec with separate arguments. Use create_process with an args array instead, see https://docs.metasploit.com/docs/development/developing-modules/libraries/post-mixins.html
     RUBY
   end
 
   it 'registers an offense when cmd_exec is called with variable arguments' do
     expect_offense(<<~RUBY)
       cmd_exec(binary, args, timeout)
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/DetectOutdatedCmdExecApi: Do not use cmd_exec with separate arguments. Use create_process with an args array instead use: `create_process(executable, args: [], time_out: 15, opts: {})`
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/DetectOutdatedCmdExecApi: Do not use cmd_exec with separate arguments. Use create_process with an args array instead, see https://docs.metasploit.com/docs/development/developing-modules/libraries/post-mixins.html
     RUBY
   end
 
   it 'registers an offense when cmd_exec is called with command and args string' do
     expect_offense(<<~RUBY)
       cmd_exec("ls", "-la /tmp")
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/DetectOutdatedCmdExecApi: Do not use cmd_exec with separate arguments. Use create_process with an args array instead use: `create_process(executable, args: [], time_out: 15, opts: {})`
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/DetectOutdatedCmdExecApi: Do not use cmd_exec with separate arguments. Use create_process with an args array instead, see https://docs.metasploit.com/docs/development/developing-modules/libraries/post-mixins.html
     RUBY
   end
 
   it 'registers an offense when cmd_exec is called with command and timeout without explicit nil' do
     expect_offense(<<~RUBY)
       cmd_exec('cmd.exe', "/c \#{rasdial_cmd}", 60)
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/DetectOutdatedCmdExecApi: Do not use cmd_exec with separate arguments. Use create_process with an args array instead use: `create_process(executable, args: [], time_out: 15, opts: {})`
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/DetectOutdatedCmdExecApi: Do not use cmd_exec with separate arguments. Use create_process with an args array instead, see https://docs.metasploit.com/docs/development/developing-modules/libraries/post-mixins.html
     RUBY
   end
 
