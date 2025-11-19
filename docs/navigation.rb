@@ -598,6 +598,10 @@ NAVIGATION_CONFIG = [
                 ]
               },
               {
+                path: 'Post-Mixins.md',
+                title: 'PostMixins'
+              },
+              {
                 path: 'How-to-log-in-Metasploit.md',
                 title: 'Logging'
               },
