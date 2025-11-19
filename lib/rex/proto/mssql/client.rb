@@ -135,11 +135,18 @@ module Rex
         #
 
         def mssql_login(user='sa', pass='', db='', domain_name='')
-          if auth == Msf::Exploit::Remote::AuthOption::KERBEROS
+          case auth
+          when Msf::Exploit::Remote::AuthOption::AUTO
+            if domain_name.blank?
+              login_sql(user, pass, db, domain_name)
+            else
+              login_ntlm(user, pass, db, domain_name)
+            end
+          when Msf::Exploit::Remote::AuthOption::KERBEROS
             login_kerberos(user, pass, db, domain_name)
-          elsif auth == Msf::Exploit::Remote::AuthOption::NTLM
+          when Msf::Exploit::Remote::AuthOption::NTLM
             login_ntlm(user, pass, db, domain_name)
-          else
+          when Msf::Exploit::Remote::AuthOption::PLAINTEXT
             login_sql(user, pass, db, domain_name)
           end
         end
@@ -465,7 +472,7 @@ module Rex
           info[:login_ack] ? true : false
         end
 
-        def login_sql(user, pass, db, domain_name)
+        def login_sql(user, pass, db, _domain_name)
           prelogin_data = mssql_prelogin
 
           pkt_hdr = MsTdsHeader.new(
