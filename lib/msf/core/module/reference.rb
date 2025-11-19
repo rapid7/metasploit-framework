@@ -114,6 +114,10 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       self.site = "https://wpscan.com/vulnerability/#{in_ctx_val}"
     elsif in_ctx_id == 'PACKETSTORM'
       self.site = "https://packetstormsecurity.com/files/#{in_ctx_val}"
+    elsif in_ctx_id == 'GHSA'
+      # Handle both formats: with or without GHSA- prefix
+      ghsa_id = in_ctx_val.start_with?('GHSA-') ? in_ctx_val : "GHSA-#{in_ctx_val}"
+      self.site = "https://github.com/advisories/#{ghsa_id}"
     elsif in_ctx_id == 'URL'
       self.site = in_ctx_val.to_s
     elsif in_ctx_id == 'LOGO'

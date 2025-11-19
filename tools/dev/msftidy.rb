@@ -270,6 +270,11 @@ class MsftidyRunner
           warn("Invalid WPVDB reference") if value !~ /^\d+$/ and value !~ /^[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}?$/
         when 'PACKETSTORM'
           warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
+        when 'GHSA'
+          # Allow both formats: with or without GHSA- prefix
+          # Format: GHSA-xxxx-xxxx-xxxx or xxxx-xxxx-xxxx (where xxxx is 4 alphanumeric chars)
+          ghsa_pattern = /^(?:GHSA-)?[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/i
+          warn("Invalid GHSA reference") if value !~ ghsa_pattern
         when 'URL'
           if value =~ /^https?:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")
@@ -289,6 +294,8 @@ class MsftidyRunner
             warn("Please use 'WPVDB' for '#{value}'")
           elsif value =~ /^https?:\/\/(?:[^\.]+\.)?packetstormsecurity\.(?:com|net|org)\//
             warn("Please use 'PACKETSTORM' for '#{value}'")
+          elsif value =~ /^https?:\/\/github\.com\/(?:advisories|[\w\-]+\/[\w\-]+\/security\/advisories)\/GHSA-/
+            warn("Please use 'GHSA' for '#{value}'")
           end
         when 'AKA'
           warn("Please include AKA values in the 'notes' section, rather than in 'references'.")
