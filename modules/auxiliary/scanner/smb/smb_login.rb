@@ -43,6 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'References' => [
         [ 'CVE', '1999-0506'], # Weak password
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_002_SMB_WINDOWS_ADMIN_SHARES ],
       ],
       'License' => MSF_LICENSE,
       'DefaultOptions' => {

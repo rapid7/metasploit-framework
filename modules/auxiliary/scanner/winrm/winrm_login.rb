@@ -30,7 +30,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => [ 'thelightcosine', 'smashery' ],
       'References' => [
-        [ 'CVE', '1999-0502'] # Weak password
+        [ 'CVE', '1999-0502'], # Weak password
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_006_WINDOWS_REMOTE_MANAGEMENT ]
       ],
       'License' => MSF_LICENSE
     )

@@ -35,7 +35,10 @@ class MetasploitModule < Msf::Auxiliary
         be shared between subject keys or only belong to a single one.
       },
       'Author' => ['todb', 'RageLtMan'],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'References' => [
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_004_SSH ]
+      ]
     )
 
     register_options(

@@ -30,6 +30,9 @@ class MetasploitModule < Msf::Auxiliary
         'mubix' # copied from hdm upload_file module
       ],
       'License' => MSF_LICENSE,
+      'References' => [
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_002_SMB_WINDOWS_ADMIN_SHARES ]
+      ],
       'Notes' => {
         'Stability' => [OS_RESOURCE_LOSS],
         'SideEffects' => [],

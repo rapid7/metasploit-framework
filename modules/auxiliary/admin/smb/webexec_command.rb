@@ -30,7 +30,8 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['URL', 'https://webexec.org'],
-          ['CVE', '2018-15442']
+          ['CVE', '2018-15442'],
+          ['ATT&CK', Mitre::Attack::Technique::T1021_002_SMB_WINDOWS_ADMIN_SHARES]
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
