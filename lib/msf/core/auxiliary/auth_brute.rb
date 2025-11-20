@@ -729,7 +729,7 @@ module Auxiliary::AuthBrute
     else
       complete_message = ''
       unless ip.blank? && port.blank?
-        complete_message << "#{ip}:#{port}"
+        complete_message << Rex::Socket.to_authority(ip, port).ljust(21)
       else
         complete_message << proto || 'Bruteforce'
       end

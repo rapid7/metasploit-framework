@@ -16,13 +16,13 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::NTLM
 
         DEFAULT_PORT         = 1433
-        DEFAULT_REALM         = 'WORKSTATION'
+        DEFAULT_REALM        = nil
         # Lifted from lib/msf/core/exploit/mssql.rb
         LIKELY_PORTS         = [ 1433, 1434, 1435, 14330, 2533, 9152, 2638 ]
         # Lifted from lib/msf/core/exploit/mssql.rb
         LIKELY_SERVICE_NAMES = [ 'ms-sql-s', 'ms-sql2000', 'sybase', 'mssql' ]
         PRIVATE_TYPES        = [ :password, :ntlm_hash ]
-        REALM_KEY           = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+        REALM_KEY            = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
 
         # @!attribute auth
         #   @return [Array<String>] Auth The Authentication mechanism to use
