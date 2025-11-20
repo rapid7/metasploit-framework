@@ -81,6 +81,8 @@ class Msf::Module::SiteReference < Msf::Module::Reference
   #
   def self.from_a(ary)
     return nil if (ary.length < 2)
+    # Reject if first element is an array (nested array structure)
+    return nil if ary[0].kind_of?(Array)
 
     self.new(ary[0], ary[1], ary[2])
   end
@@ -92,6 +94,10 @@ class Msf::Module::SiteReference < Msf::Module::Reference
   # * https://docs.metasploit.com/docs/development/developing-modules/module-metadata/module-reference-identifiers.html
   #
   def initialize(in_ctx_id = 'Unknown', in_ctx_val = '', in_ctx_repo = nil)
+    # Ensure ctx_id and ctx_val are strings, not arrays
+    in_ctx_id = in_ctx_id.to_s if in_ctx_id.respond_to?(:to_s)
+    in_ctx_val = in_ctx_val.to_s if in_ctx_val.respond_to?(:to_s)
+    
     self.ctx_id  = in_ctx_id
     self.ctx_val = in_ctx_val
     self.ctx_repo = in_ctx_repo
