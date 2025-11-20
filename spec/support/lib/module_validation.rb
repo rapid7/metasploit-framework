@@ -92,6 +92,7 @@ module ModuleValidation
       MSB
       EDB
       GHSA
+      OSV
       US-CERT-VU
       ZDI
       URL

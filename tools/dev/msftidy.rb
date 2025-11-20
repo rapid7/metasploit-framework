@@ -277,6 +277,10 @@ class MsftidyRunner
           ghsa_pattern = /^(?:GHSA-)?[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/i
           warn("Invalid GHSA reference") if value !~ ghsa_pattern
           # No specific validation for repo format yet, as it's an optional string
+        when 'OSV'
+          # OSV format: ECOSYSTEM-YEAR-ID (e.g., GO-2021-0113, PYSEC-2024-123)
+          osv_pattern = /^[A-Z]+-\d{4}-[A-Z0-9-]+$/i
+          warn("Invalid OSV reference") if value !~ osv_pattern
         when 'URL'
           if value =~ /^https?:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")
@@ -298,6 +302,8 @@ class MsftidyRunner
             warn("Please use 'PACKETSTORM' for '#{value}'")
           elsif value =~ /^https?:\/\/github\.com\/(?:advisories|[\w\-]+\/[\w\-]+\/security\/advisories)\/GHSA-/
             warn("Please use 'GHSA' for '#{value}'")
+          elsif value =~ /^https?:\/\/osv\.dev\/vulnerability\//
+            warn("Please use 'OSV' for '#{value}'")
           end
         when 'AKA'
           warn("Please include AKA values in the 'notes' section, rather than in 'references'.")

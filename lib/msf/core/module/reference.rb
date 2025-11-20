@@ -131,6 +131,8 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       else
         self.site = "https://github.com/advisories/#{ghsa_id}"
       end
+    elsif in_ctx_id == 'OSV'
+      self.site = "https://osv.dev/vulnerability/#{in_ctx_val}"
     elsif in_ctx_id == 'URL'
       self.site = in_ctx_val.to_s
     elsif in_ctx_id == 'LOGO'

@@ -25,6 +25,7 @@ def types
     'WPVDB',
     'PACKETSTORM',
     'GHSA',
+    'OSV',
     'URL'
   ]
 end
