@@ -278,8 +278,9 @@ class MsftidyRunner
           warn("Invalid GHSA reference") if value !~ ghsa_pattern
           # No specific validation for repo format yet, as it's an optional string
         when 'OSV'
-          # OSV format: ECOSYSTEM-YEAR-ID (e.g., GO-2021-0113, PYSEC-2024-123)
-          osv_pattern = /^[A-Z]+-\d{4}-[A-Z0-9-]+$/i
+          # OSV format: ECOSYSTEM-YEAR-ID or ECOSYSTEM-xxxx-xxxx-xxxx (e.g., GO-2021-0113, GHSA-8c52-x9w7-vc95, MINI-xwm2-xhhw-2w6h)
+          # OSV accepts various formats depending on the ecosystem
+          osv_pattern = /^[A-Z]+-[A-Z0-9-]+$/i
           warn("Invalid OSV reference") if value !~ osv_pattern
         when 'URL'
           if value =~ /^https?:\/\/cvedetails\.com\/cve/
