@@ -246,9 +246,10 @@ class MsftidyRunner
         in_refs = false
       elsif in_super and line =~ /["']Notes["'][[:space:]]*=>/
         in_notes = true
-      elsif in_super and in_refs and line =~ /[^#]+\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*\]/
+      elsif in_super and in_refs and line =~ /[^#]+\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*(?:,[[:space:]]*['"](.+)['"])?[[:space:]]*\]/
         identifier = $1.strip.upcase
         value      = $2.strip
+        repo       = $3.strip if $3
 
         case identifier
         when 'CVE'
@@ -275,6 +276,7 @@ class MsftidyRunner
           # Format: GHSA-xxxx-xxxx-xxxx or xxxx-xxxx-xxxx (where xxxx is 4 alphanumeric chars)
           ghsa_pattern = /^(?:GHSA-)?[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/i
           warn("Invalid GHSA reference") if value !~ ghsa_pattern
+          # No specific validation for repo format yet, as it's an optional string
         when 'URL'
           if value =~ /^https?:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")

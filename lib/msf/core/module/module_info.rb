@@ -64,11 +64,11 @@ module Msf::Module::ModuleInfo
   # Register options with a specific owning class.
   #
   def info_fixups
-    # Each reference should be an array consisting of two elements
+    # Each reference should be an array consisting of two or three elements
     refs = module_info['References']
     if(refs and not refs.empty?)
       refs.each_index do |i|
-        if !(refs[i].respond_to?('[]') and refs[i].length == 2)
+        if !(refs[i].respond_to?('[]') and (refs[i].length == 2 || refs[i].length == 3))
           refs[i] = nil
         end
       end
