@@ -59,7 +59,7 @@ module Msf
       def setup_handler
         # The current SSH server implementation does not support OpenSSL 3
         if OpenSSL::OPENSSL_LIBRARY_VERSION.start_with? 'OpenSSL 3'
-          raise RuntimeError, "ReverseSSH failed to load. OpenSSL version #{OpenSSL::VERSION} not supported."
+          raise "ReverseSSH failed to load. OpenSSL version #{OpenSSL::VERSION} not supported."
         end
 
         local_addr = nil
@@ -141,6 +141,8 @@ module Msf
       # Always wait at least 5 seconds for this payload (due to channel delays)
       #
       def wfs_delay
+        return 5 if datastore['WfsDelay'].nil?
+
         datastore['WfsDelay'] > 4 ? datastore['WfsDelay'] : 5
       end
       attr_accessor :service # :nodoc:
