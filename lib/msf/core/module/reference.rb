@@ -94,9 +94,9 @@ class Msf::Module::SiteReference < Msf::Module::Reference
   # * https://docs.metasploit.com/docs/development/developing-modules/module-metadata/module-reference-identifiers.html
   #
   def initialize(in_ctx_id = 'Unknown', in_ctx_val = '', in_ctx_repo = nil)
-    # Ensure ctx_id and ctx_val are strings, not arrays
-    in_ctx_id = in_ctx_id.to_s if in_ctx_id.respond_to?(:to_s)
-    in_ctx_val = in_ctx_val.to_s if in_ctx_val.respond_to?(:to_s)
+    # Ensure ctx_id and ctx_val are strings (handle constants like ATT&CK techniques)
+    in_ctx_id = in_ctx_id.to_s if in_ctx_id.respond_to?(:to_s) && !in_ctx_id.is_a?(String)
+    in_ctx_val = in_ctx_val.to_s if in_ctx_val.respond_to?(:to_s) && !in_ctx_val.is_a?(String)
     
     self.ctx_id  = in_ctx_id
     self.ctx_val = in_ctx_val
