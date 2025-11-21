@@ -2,6 +2,16 @@
 
 IGEL OS < 11.10.100 with a `shell` or `meterpreter` session.
 
+IGEL OS is a Linux-based operating system designed for endpoint devices,
+primarily used in enterprise environments to provide secure access to virtual
+workspaces. It focuses on enhancing security, simplifying management, and
+improving user productivity across various sectors, including healthcare and
+finance.
+
+In previous versions, `/config/bin/setup_cmd` was an SUID binary, with a preset
+list of files it could execute with elevated permissions. This allowed
+`/bin/date -f` to be used for data extraction as root.
+
 ## Verification Steps
 
 1. Get a `shell` or `meterpreter` session on an IGEL OS < 11.10.100 host
