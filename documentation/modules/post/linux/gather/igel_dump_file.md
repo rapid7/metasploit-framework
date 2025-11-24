@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-IGEL OS < 11.10.100 with a `shell` or `meterpreter` session.
+IGEL OS < 11.09.310 with a `shell` or `meterpreter` session.
 
 IGEL OS is a Linux-based operating system designed for endpoint devices,
 primarily used in enterprise environments to provide secure access to virtual
@@ -16,7 +16,7 @@ The dumped file is printed to screen and saved as loot.
 
 ## Verification Steps
 
-1. Get a `shell` or `meterpreter` session on an IGEL OS < 11.10.100 host
+1. Get a `shell` or `meterpreter` session on an IGEL OS < 11.09.310 host
 2. Use: `use post/linux/gather/igel_dump_file`
 3. Set: `set SESSION <id>`, replacing `<id>` with the session ID
 4. Optionally, set `RPATH`
