@@ -79,6 +79,7 @@ PATH
       recog
       redcarpet
       reline
+      rest-client
       rex-arch
       rex-bin_tools
       rex-core
@@ -285,6 +286,7 @@ GEM
     hrr_rb_ssh-ed25519 (0.4.2)
       ed25519 (~> 1.2)
       hrr_rb_ssh (>= 0.4)
+    http-accept (1.7.0)
     http-cookie (1.0.8)
       domain_name (~> 0.5)
     http_parser.rb (0.8.0)
@@ -388,6 +390,7 @@ GEM
     net-smtp (0.5.1)
       net-protocol
     net-ssh (7.3.0)
+    netrc (0.11.0)
     network_interface (0.0.4)
     nexpose (7.3.0)
     nio4r (2.7.4)
@@ -478,6 +481,11 @@ GEM
     reline (0.6.2)
       io-console (~> 0.5)
     require_all (3.0.0)
+    rest-client (2.1.0)
+      http-accept (>= 1.7.0, < 2.0)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 4.0)
+      netrc (~> 0.8)
     rex-arch (0.1.18)
       rex-text
     rex-bin_tools (0.1.10)
