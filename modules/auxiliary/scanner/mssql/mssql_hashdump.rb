@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
       username: datastore['USERNAME']
     }
 
-    if datastore['USE_WINDOWS_AUTHENT']
+    if datastore['DOMAIN'].present?
       credential_data[:realm_key] = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
       credential_data[:realm_value] = datastore['DOMAIN']
     end
