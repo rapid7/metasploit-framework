@@ -12,6 +12,8 @@ In previous versions, `/config/bin/setup_cmd` was an SUID binary, with a preset
 list of files it could execute with elevated permissions. This allowed
 `/bin/date -f` to be used for data extraction as root.
 
+The dumped file is printed to screen and saved as loot.
+
 ## Verification Steps
 
 1. Get a `shell` or `meterpreter` session on an IGEL OS < 11.10.100 host
