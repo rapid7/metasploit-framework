@@ -157,8 +157,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'net-ldap'
   spec.add_runtime_dependency 'net-smtp'
   spec.add_runtime_dependency 'net-sftp'
+  spec.add_runtime_dependency 'rest-client'
   spec.add_runtime_dependency 'winrm'
-  # Pinned to avoid WinRM warnings: https://github.com/WinRb/WinRM/issues/355 - if bumping verify windows/winrm/winrm_script_exec works against metasploitable with vagrant/vagrant creds 
+  # Pinned to avoid WinRM warnings: https://github.com/WinRb/WinRM/issues/355 - if bumping verify windows/winrm/winrm_script_exec works against metasploitable with vagrant/vagrant creds
   spec.add_runtime_dependency 'rexml', '3.4.1'
   spec.add_runtime_dependency 'ffi', '< 1.17.0'
 
