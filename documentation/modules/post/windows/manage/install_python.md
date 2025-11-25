@@ -57,7 +57,9 @@ Get initial access: Create a Meterpreter exe using msfvenom, then transfer it to
 
 Use the post module to install Python on the target filesystem
 
-    msf > use post/windows/manage/install_python
+    msf > use post/windows/<same-module-path>
+    run
+
     msf post(windows/manage/install_python) > set SESSION 1
     SESSION => 1
     msf post(windows/manage/install_python) > exploit
