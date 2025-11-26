@@ -31,7 +31,7 @@ module MetasploitModule
   end
 
   # @return [String] the full path of the file to be modified
-  def file_path
+  def chmod_file_path
     datastore['FILE'] || ''
   end
 
@@ -63,7 +63,7 @@ module MetasploitModule
       0x05d00893,  # li a7,93 # __NR_exit
       0x00000073,  # ecall
     ].pack('V*')
-    shellcode += file_path + "\x00"
+    shellcode += chmod_file_path + "\x00"
 
     # align our shellcode to 4 bytes
     shellcode += "\x00" while shellcode.bytesize % 4 != 0
