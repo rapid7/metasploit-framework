@@ -6,6 +6,9 @@ module Msf::Module::ModuleInfo
   # The list of options that don't support merging in an information hash.
   UpdateableOptions = [ "Name", "Description", "Alias", "PayloadCompat" , "Stance"]
 
+  # Reference types that can have 2 or 3 elements (e.g., GHSA with optional repo)
+  ReferencesWithOptionalThirdElement = ['GHSA'].freeze
+
   #
   # Instance Methods
   #
@@ -68,7 +71,18 @@ module Msf::Module::ModuleInfo
     refs = module_info['References']
     if(refs and not refs.empty?)
       refs.each_index do |i|
-        if !(refs[i].respond_to?('[]') and (refs[i].length == 2 || refs[i].length == 3))
+        if !refs[i].respond_to?('[]') || refs[i].length < 1
+          refs[i] = nil
+          next
+        end
+        
+        # Some reference types can have 2 or 3 elements (e.g., GHSA with optional repo)
+        # Other references should have 2 elements
+        ref_type = refs[i][0]
+        can_have_third_element = ReferencesWithOptionalThirdElement.include?(ref_type)
+        valid_length = can_have_third_element ? (refs[i].length == 2 || refs[i].length == 3) : (refs[i].length == 2)
+        
+        if !valid_length
           refs[i] = nil
         end
       end
