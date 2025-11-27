@@ -264,11 +264,22 @@ class MetasploitModule < Msf::Post
     end
 
     it '[UDP] Receives data from the peer' do
+      print_status("[UDP] Monitoring 'Receives data from the peer' test...")
       client, server_client = udp_socket_pair
       data = Random.new.bytes(rand(10..100))
       server_client.send(data, 0, client.localhost, client.localport)
-      received, _ = client.recvfrom(data.length)
+      received, elapsed_time = Rex::Stopwatch.elapsed_time do
+        received, _ = client.recvfrom(data.length)
+        received
+      end
       ret = received == data
+      unless ret
+        print_warning("[UDP] Receives data from the peer failed in #{elapsed_time.round(5)} seconds")
+        print_warning("[UDP]   expected: #{data.unpack1('H*')}")
+        if received
+          print_warning("[UDP]   received: #{received.unpack1('H*')}")
+        end
+      end
       client.close
       server_client.close
       ret
