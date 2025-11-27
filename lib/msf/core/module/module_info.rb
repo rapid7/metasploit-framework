@@ -88,42 +88,24 @@ module Msf::Module::ModuleInfo
   # Checks and merges the supplied key/value pair in the supplied hash.
   #
   def merge_check_key(info, name, val)
-    if (self.respond_to?("merge_info_#{name.downcase}", true))
-      self.send("merge_info_#{name.downcase}", info, val)
-    else
-      # If the info hash already has an entry for this name
-      if (info[name])
-        # If it's not an array, convert it to an array and merge the
-        # two
-        if (info[name].kind_of?(Hash))
-          raise TypeError, 'can only merge a hash into a hash' unless val.kind_of?(Hash)
-          val.each_pair do |val_key, val_val|
-            merge_check_key(info[name], val_key, val_val)
-          end
+    merge_method = "merge_info_#{name.downcase}"
+    return __send__(merge_method, info, val) if respond_to?(merge_method, true)
 
-          return
-        elsif (info[name].kind_of?(Array) == false)
-          curr       = info[name]
-          info[name] = [ curr ]
-        end
+    return info[name] = val unless info[name]
 
-        # If the value being merged is an array, add each one
-        if (val.kind_of?(Array) == true)
-          val.each { |v|
-            if (info[name].include?(v) == false)
-              info[name] << v
-            end
-          }
-        # Otherwise just add the value
-        elsif (info[name].include?(val) == false)
-          info[name] << val
-        end
-      # Otherwise, just set the value equal if no current value
-      # exists
-      else
-        info[name] = val
-      end
+    # Handle hash merging recursively
+    if info[name].is_a?(Hash)
+      raise TypeError, 'can only merge a hash into a hash' unless val.is_a?(Hash)
+      val.each_pair { |val_key, val_val| merge_check_key(info[name], val_key, val_val) }
+      return
     end
+
+    # Convert to array if needed
+    info[name] = Array(info[name]) unless info[name].is_a?(Array)
+
+    # Merge values, avoiding duplicates
+    values_to_add = val.is_a?(Array) ? val : [val]
+    values_to_add.each { |v| info[name] << v unless info[name].include?(v) }
   end
 
   #
