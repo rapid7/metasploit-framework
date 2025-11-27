@@ -54,9 +54,13 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptIntRange.new('APPLIANCE_ID', [true, 'Appliance ID range to test (e.g., 1-30)', '1-30']),
-      OptString.new('TARGETURI', [true, 'The base path to N-Central', '/']),
-      OptString.new('FILE', [false, 'File to read via XXE (e.g., /etc/passwd, /opt/nable/var/ncsai/etc/ncbackup.conf, /var/opt/n-central/tmp/ncbackup/ncbackup.bin, /opt/nable/etc/masterPassword, /etc/shadow)', '/etc/passwd']),
-      OptString.new('LOG_PATH', [false, 'Directory path where the log file is written', '/opt/nable/webapps/ROOT/applianceLog'])
+      OptString.new('LOG_PATH', [true, 'Directory path where the log file is written', '/opt/nable/webapps/ROOT/applianceLog']),
+      OptString.new('FILE', [
+        true,
+        'File to read via XXE (e.g., /etc/passwd, /opt/nable/var/ncsai/etc/ncbackup.conf, ' \
+        '/var/opt/n-central/tmp/ncbackup/ncbackup.bin, /opt/nable/etc/masterPassword, /etc/shadow)',
+        '/etc/passwd'
+      ])
     ])
   end
 
