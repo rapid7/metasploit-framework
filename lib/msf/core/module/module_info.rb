@@ -69,26 +69,18 @@ module Msf::Module::ModuleInfo
   def info_fixups
     # Each reference should be an array consisting of two or three elements
     refs = module_info['References']
-    if(refs and not refs.empty?)
-      refs.each_index do |i|
-        if !refs[i].respond_to?('[]') || refs[i].length < 1
-          refs[i] = nil
-          next
-        end
-        
-        # Some reference types can have 2 or 3 elements (e.g., GHSA with optional repo)
-        # Other references should have 2 elements
-        ref_type = refs[i][0]
-        can_have_third_element = ReferencesWithOptionalThirdElement.include?(ref_type)
-        valid_length = can_have_third_element ? (refs[i].length == 2 || refs[i].length == 3) : (refs[i].length == 2)
-        
-        if !valid_length
-          refs[i] = nil
-        end
-      end
+    return unless refs&.any?
 
-      # Purge invalid references
-      refs.delete(nil)
+    refs.reject! do |ref|
+      next true unless ref.respond_to?('[]') && !ref.empty?
+
+      # Some reference types can have 2 or 3 elements (e.g., GHSA with optional repo)
+      # Other references should have 2 elements
+      ref_type = ref[0]
+      can_have_third_element = ReferencesWithOptionalThirdElement.include?(ref_type)
+      valid_length = can_have_third_element ? (ref.length == 2 || ref.length == 3) : (ref.length == 2)
+
+      !valid_length
     end
   end
 
