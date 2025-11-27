@@ -125,11 +125,11 @@ RSpec.describe ModuleValidation::Validator do
 
       it 'has errors' do
         expect(subject.errors.full_messages).to eq [
-          "References url is not valid, must be in [\"ATT&CK\", \"CVE\", \"CWE\", \"BID\", \"MSB\", \"EDB\", \"US-CERT-VU\", \"ZDI\", \"URL\", \"WPVDB\", \"PACKETSTORM\", \"LOGO\", \"SOUNDTRACK\", \"OSVDB\", \"VTS\", \"OVE\"]",
-          "References FOO is not valid, must be in [\"ATT&CK\", \"CVE\", \"CWE\", \"BID\", \"MSB\", \"EDB\", \"US-CERT-VU\", \"ZDI\", \"URL\", \"WPVDB\", \"PACKETSTORM\", \"LOGO\", \"SOUNDTRACK\", \"OSVDB\", \"VTS\", \"OVE\"]",
+          "References url is not valid, must be in [\"ATT&CK\", \"CVE\", \"CWE\", \"BID\", \"MSB\", \"EDB\", \"GHSA\", \"OSV\", \"US-CERT-VU\", \"ZDI\", \"URL\", \"WPVDB\", \"PACKETSTORM\", \"LOGO\", \"SOUNDTRACK\", \"OSVDB\", \"VTS\", \"OVE\"]",
+          "References FOO is not valid, must be in [\"ATT&CK\", \"CVE\", \"CWE\", \"BID\", \"MSB\", \"EDB\", \"GHSA\", \"OSV\", \"US-CERT-VU\", \"ZDI\", \"URL\", \"WPVDB\", \"PACKETSTORM\", \"LOGO\", \"SOUNDTRACK\", \"OSVDB\", \"VTS\", \"OVE\"]",
           "References NOCVE please include NOCVE values in the 'notes' section, rather than in 'references'",
           "References AKA please include AKA values in the 'notes' section, rather than in 'references'",
-          "References ATTACK is not valid, must be in [\"ATT&CK\", \"CVE\", \"CWE\", \"BID\", \"MSB\", \"EDB\", \"US-CERT-VU\", \"ZDI\", \"URL\", \"WPVDB\", \"PACKETSTORM\", \"LOGO\", \"SOUNDTRACK\", \"OSVDB\", \"VTS\", \"OVE\"]"
+          "References ATTACK is not valid, must be in [\"ATT&CK\", \"CVE\", \"CWE\", \"BID\", \"MSB\", \"EDB\", \"GHSA\", \"OSV\", \"US-CERT-VU\", \"ZDI\", \"URL\", \"WPVDB\", \"PACKETSTORM\", \"LOGO\", \"SOUNDTRACK\", \"OSVDB\", \"VTS\", \"OVE\"]"
         ]
       end
     end

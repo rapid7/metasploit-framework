@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['CVE', '2025-49136'],
-          ['URL', 'https://github.com/knadh/listmonk/security/advisories/GHSA-jc7g-x28f-3v3h']
+          ['GHSA', 'jc7g-x28f-3v3h', 'knadh/listmonk']
         ],
         'DisclosureDate' => '2025-06-08',
         'Notes' => {
