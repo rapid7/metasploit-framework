@@ -4,7 +4,7 @@ module Msf::Module::ModuleInfo
   #
 
   # The list of options that don't support merging in an information hash.
-  UpdateableOptions = [ "Name", "Description", "Alias", "PayloadCompat" , "Stance"]
+  UpdateableOptions = ['Name', 'Description', 'Alias', 'PayloadCompat', 'Stance'].freeze
 
   # Reference types that can have 2 or 3 elements (e.g., GHSA with optional repo)
   ReferencesWithOptionalThirdElement = ['GHSA'].freeze
