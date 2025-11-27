@@ -708,7 +708,8 @@ require 'digest/sha1'
         :payload  => code,
         :template => opts[:template],
         :arch     => :x64,
-        :secname	=> opts[:secname]
+        :secname	=> opts[:secname],
+        :preserve_entrypoint => true
       })
       pe =  appender.generate_pe
     end

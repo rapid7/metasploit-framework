@@ -42,8 +42,10 @@ module Exe
       pe.sections << s
       pe.invalidate_header
 
-      # Change the entrypoint to our new section
-      pe.optheader.entrypoint = 'new_entrypoint'
+      unless @preserve_entrypoint
+        # Change the entrypoint to our new section
+        pe.optheader.entrypoint = 'new_entrypoint'
+      end
       pe.cpu = pe_orig.cpu
 
       pe.encode_string

