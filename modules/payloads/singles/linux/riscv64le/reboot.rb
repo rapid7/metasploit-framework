@@ -6,6 +6,7 @@
 module MetasploitModule
   CachedSize = 40
 
+  include Msf::Payload::Linux::Riscv64le::Prepends
   include Msf::Payload::Single
 
   def initialize(info = {})
