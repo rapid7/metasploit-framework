@@ -16,9 +16,9 @@ This module creates a mock VNC server which accepts credentials.  Upon receiving
 
   Write a file containing a John the Ripper format for cracking the credentials.  Default is ``.
 
-### SSL
+### SRVSSL
 
-  Boolean if SSL should be used.  Default is `False`.
+  Boolean if SSL/TLS should be used for the server.  Default is `False`. Note: This option is separate from the `SSL` option which controls client connections.
 
 ### SSLCert
 

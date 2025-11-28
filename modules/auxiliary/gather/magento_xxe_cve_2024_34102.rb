@@ -161,7 +161,7 @@ class MetasploitModule < Msf::Auxiliary
         end,
         'Path' => '/'
       },
-      'ssl' => false
+      'Ssl' => false
     })
 
     xxe_request

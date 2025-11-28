@@ -12,9 +12,9 @@ This module creates a mock telnet server which accepts credentials.  Upon receiv
 
   The Banner which should be displayed.  Default is empty, which will display `Welcome`.
 
-### SSL
+### SRVSSL
 
-  Boolean if SSL should be used.  Default is `False`.
+  Boolean if SSL/TLS should be used for the server.  Default is `False`. Note: This option is separate from the `SSL` option which controls client connections.
 
 ### SSLCert
 
