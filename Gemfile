@@ -55,3 +55,6 @@ group :test do
   gem 'timecop'
 end
 
+gem 'rex-core', git: 'https://github.com/zeroSteiner/rex-core', branch: 'feat/io/relay-manager'
+gem 'rex-socket', git: 'https://github.com/zeroSteiner/rex-socket', branch: 'feat/tcp/starttls'
+
