@@ -85,9 +85,11 @@ class SimpleClient
   
         dlog("SMB version(s) to negotiate: #{self.versions}")
         ok = self.client.negotiate
+        
+        # if SMB negotiation fails when selecting dialect, return false
         if ok.blank?
           dlog("Failed to negotiate SMB version")
-          return false
+          raise XCEPT::UnknownDialect
         end
         dlog("Negotiated SMB version: SMB#{negotiated_smb_version}")
 
