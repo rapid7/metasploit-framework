@@ -27,6 +27,10 @@ class MetasploitModule < Msf::Auxiliary
           'alanfoster',
         ],
         'References' => [
+          ['ATT&CK', Mitre::Attack::Technique::T1110_001_PASSWORD_GUESSING],
+          ['ATT&CK', Mitre::Attack::Technique::T1110_003_PASSWORD_SPRAYING],
+          ['ATT&CK', Mitre::Attack::Technique::T1589_001_CREDENTIALS],
+          ['ATT&CK', Mitre::Attack::Technique::T1087_002_DOMAIN_ACCOUNT]
         ],
         'License' => MSF_LICENSE,
         'Notes' => {
