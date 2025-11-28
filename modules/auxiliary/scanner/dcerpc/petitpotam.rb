@@ -61,7 +61,9 @@ class MetasploitModule < Msf::Auxiliary
       'References' => [
         [ 'CVE', '2021-36942' ],
         [ 'URL', 'https://github.com/topotam/PetitPotam' ],
-        [ 'URL', 'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/403c7ae0-1a3a-4e96-8efc-54e79a2cc451' ]
+        [ 'URL', 'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/403c7ae0-1a3a-4e96-8efc-54e79a2cc451' ],
+        ['ATT&CK', Mitre::Attack::Technique::T1187_FORCED_AUTHENTICATION],
+        ['ATT&CK', Mitre::Attack::Technique::T1212_EXPLOITATION_FOR_CREDENTIAL_ACCESS]
       ],
       'License' => MSF_LICENSE
     )
