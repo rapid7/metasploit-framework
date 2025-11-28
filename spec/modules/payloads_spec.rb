@@ -516,6 +516,22 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/linux/http/mips64'
   end
 
+  context 'cmd/linux/http/riscv32le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/riscv32le'
+                          ],
+                          reference_name: 'cmd/linux/http/riscv32le'
+  end
+
+  context 'cmd/linux/http/riscv64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/riscv64le'
+                          ],
+                          reference_name: 'cmd/linux/http/riscv64le'
+  end
+
   context 'cmd/linux/https/mips64' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -677,6 +693,22 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/linux/tftp/mipsle'
   end
 
+  context 'cmd/linux/https/riscv32le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/riscv32le'
+                          ],
+                          reference_name: 'cmd/linux/https/riscv32le'
+  end
+
+  context 'cmd/linux/https/riscv64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/riscv64le'
+                          ],
+                          reference_name: 'cmd/linux/https/riscv64le'
+  end
+
   context 'cmd/linux/http/ppc' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -747,6 +779,22 @@ RSpec.describe 'modules/payloads', :content do
                             'adapters/cmd/linux/tftp/ppc64le'
                           ],
                           reference_name: 'cmd/linux/tftp/ppc64le'
+  end
+
+  context 'cmd/linux/tftp/riscv32le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/riscv32le'
+                          ],
+                          reference_name: 'cmd/linux/tftp/riscv32le'
+  end
+
+  context 'cmd/linux/tftp/riscv64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/riscv64le'
+                          ],
+                          reference_name: 'cmd/linux/tftp/riscv64le'
   end
 
   context 'cmd/linux/http/x86' do
