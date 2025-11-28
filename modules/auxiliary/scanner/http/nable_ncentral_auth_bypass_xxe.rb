@@ -75,9 +75,8 @@ class MetasploitModule < Msf::Auxiliary
     # Synchronize SSL with DTD_PROTO: N-Central (Java) cannot validate self-signed certificates and will fail with:
     # "PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException:
     # unable to find valid certification path to requested target"
-    original_ssl = datastore['SSL']
-    datastore['SSL'] = (datastore['DTD_PROTO'] == 'https')
     start_service({
+      'ssl' => (datastore['DTD_PROTO'] == 'https'),
       'Uri' => {
         'Proc' => proc do |cli, req|
           on_request_uri(cli, req)
@@ -85,7 +84,6 @@ class MetasploitModule < Msf::Auxiliary
         'Path' => '/'
       }
     })
-    datastore['SSL'] = original_ssl
 
     print_status("Started XXE DTD server on #{srvhost_addr}:#{srvport}")
     super
