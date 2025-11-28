@@ -32,7 +32,9 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://blogs.technet.com/b/srd/archive/2014/11/18/additional-information-about-cve-2014-6324.aspx'],
           ['URL', 'https://labs.mwrinfosecurity.com/blog/2014/12/16/digging-into-ms14-068-exploitation-and-defence/'],
           ['URL', 'http://web.archive.org/web/20180107213459/https://github.com/bidord/pykek'],
-          ['URL', 'https://www.rapid7.com/blog/post/2014/12/25/12-days-of-haxmas-ms14-068-now-in-metasploit']
+          ['URL', 'https://www.rapid7.com/blog/post/2014/12/25/12-days-of-haxmas-ms14-068-now-in-metasploit'],
+          ['ATT&CK', Mitre::Attack::Technique::T1068_EXPLOITATION_FOR_PRIVILEGE_ESCALATION],
+          ['ATT&CK', Mitre::Attack::Technique::T1558_001_GOLDEN_TICKET]
         ],
         'License' => MSF_LICENSE,
         'DisclosureDate' => '2014-11-18',

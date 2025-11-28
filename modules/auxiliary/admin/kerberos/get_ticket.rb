@@ -39,7 +39,11 @@ class MetasploitModule < Msf::Auxiliary
           [ 'GET_HASH', { 'Description' => 'Request a TGS to recover the NTLM hash' } ]
         ],
         'DefaultAction' => 'GET_TGT',
-        'AKA' => ['PKINIT']
+        'AKA' => ['PKINIT'],
+        'References' => [
+          ['ATT&CK', Mitre::Attack::Technique::T1550_003_PASS_THE_TICKET],
+          ['ATT&CK', Mitre::Attack::Technique::T1550_002_PASS_THE_HASH]
+        ]
       )
     )
 
