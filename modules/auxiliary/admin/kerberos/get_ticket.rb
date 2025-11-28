@@ -203,7 +203,7 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['Krb5Ccname'].present?
       tgt_request_options[:cache_file] = datastore['Krb5Ccname']
     end
-    credential = authenticator.request_tgt_only(tgt_request_options)
+    credential = authenticator.request_tgt_only(tgt_request_options)[:credential]
 
     if datastore['IMPERSONATE'].present? && datastore['DMSA'] == true
       print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{@realm} (SPN: #{datastore['SPN']})")
