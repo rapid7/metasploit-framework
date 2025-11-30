@@ -18,10 +18,6 @@ Microsoft provides an article on how to detect, disable, and enable SMB in vario
 
 ## Options
 
-### CAINPWFILE
-
-A file to store Cain & Abel formatted captured hashes in. Only supports NTLMv1 Hashes.
-
 ### CHALLENGE
 
 The 8 byte server challenge. If unset or not a valid 16 character hexadecimal pattern, a random challenge is used instead.

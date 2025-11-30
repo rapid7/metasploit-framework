@@ -23,10 +23,6 @@ Example steps in this format (is also in the PR):
 
 Target address range or CIDR identifier to relay to.
 
-### CAINPWFILE
-
-A file to store Cain & Abel formatted captured hashes in. Only supports NTLMv1 Hashes.
-
 ### JOHNPWFILE
 
 A file to store John the Ripper formatted hashes in. NTLMv1 and NTLMv2 hashes

@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => %q{
         This module provides a fake MySQL service that is designed to
         capture authentication credentials. It captures	challenge and
-        response pairs that can be supplied to Cain or JtR for cracking.
+        response pairs that can be supplied to JtR for cracking.
       },
       'Author' => 'Patrik Karlsson <patrik[at]cqure.net>',
       'License' => MSF_LICENSE,
@@ -27,7 +27,6 @@ class MetasploitModule < Msf::Auxiliary
         OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 3306 ]),
         OptString.new('CHALLENGE', [ true, 'The 16 byte challenge', '112233445566778899AABBCCDDEEFF1122334455' ]),
         OptString.new('SRVVERSION', [ true, 'The server version to report in the greeting response', '5.5.16' ]),
-        OptString.new('CAINPWFILE', [ false, 'The local filename to store the hashes in Cain&Abel format', nil ]),
         OptString.new('JOHNPWFILE', [ false, 'The prefix to the local filename to store the hashes in JOHN format', nil ]),
       ]
     )
@@ -177,20 +176,6 @@ class MetasploitModule < Msf::Auxiliary
         password: hash_line,
         proof: info[:database] || hash_line
       )
-
-      if datastore['CAINPWFILE']
-        fd = ::File.open(datastore['CAINPWFILE'], 'ab')
-        fd.puts(
-          [
-            info[:username],
-            'NULL',
-            info[:response].unpack('H*')[0],
-            @challenge.unpack('H*')[0],
-            'SHA1'
-          ].join("\t").gsub(/\n/, '\\n')
-        )
-        fd.close
-      end
 
       if datastore['JOHNPWFILE']
         john_hash_line = "#{info[:username]}:$mysqlna$#{@challenge.unpack('H*')[0]}*#{info[:response].unpack('H*')[0]}"

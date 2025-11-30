@@ -39,8 +39,6 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      # OptString.new('LOGFILE',     [ false, "The local filename to store the captured hashes", nil ]),
-      OptString.new('CAINPWFILE', [ false, 'The local filename to store the hashes in Cain&Abel format', nil ]),
       OptString.new('JOHNPWFILE', [ false, 'The prefix to the local filename to store the hashes in JOHN format', nil ]),
       OptString.new('CHALLENGE', [ true, 'The 8 byte challenge ', '1122334455667788' ])
 
@@ -308,8 +306,6 @@ class MetasploitModule < Msf::Auxiliary
           "NTHASH:#{nt_hash || '<NULL>'} " \
           "NT_CLIENT_CHALLENGE:#{nt_cli_challenge || '<NULL>'}\n"
       when NTLM_CONST::NTLM_2_SESSION_RESPONSE
-        # we can consider those as netv1 has they have the same size and i cracked the same way by cain/jtr
-        # also 'real' netv1 is almost never seen nowadays except with smbmount or msf server capture
         capturelogmessage =
           "#{capturedtime}\nNTLM2_SESSION Response Captured from #{host} \n" \
           "DOMAIN: #{domain} USER: #{user} \n" \
@@ -337,24 +333,6 @@ class MetasploitModule < Msf::Auxiliary
       opts_report.merge!(nt_cli_challenge: nt_cli_challenge) if nt_cli_challenge
 
       report_creds(opts_report)
-
-      # if(datastore['LOGFILE'])
-      #  File.open(datastore['LOGFILE'], "ab") {|fd| fd.puts(capturelogmessage + "\n")}
-      # end
-
-      if datastore['CAINPWFILE'] && user && ((ntlm_ver == NTLM_CONST::NTLM_V1_RESPONSE) || (ntlm_ver == NTLM_CONST::NTLM_2_SESSION_RESPONSE))
-        fd = File.open(datastore['CAINPWFILE'], 'ab')
-        fd.puts(
-          [
-            user,
-            domain || 'NULL',
-            @challenge.unpack('H*')[0],
-            lm_hash || '0' * 48,
-            nt_hash || '0' * 48
-          ].join(':').gsub(/\n/, '\\n')
-        )
-        fd.close
-      end
 
       if datastore['JOHNPWFILE'] && user
         case ntlm_ver
