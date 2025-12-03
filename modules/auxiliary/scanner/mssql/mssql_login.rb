@@ -74,18 +74,6 @@ class MetasploitModule < Msf::Auxiliary
     @print_prefix = '' # remove the redundant prefix because #print_brute will add it
     print_brute level: :status, ip: ip, msg: 'MSSQL - Starting authentication scanner.'
 
-    if datastore['TDSENCRYPTION']
-      if create_session?
-        raise Msf::OptionValidateError.new(
-          {
-            'TDSENCRYPTION' => "Cannot create sessions when encryption is enabled. See https://github.com/rapid7/metasploit-framework/issues/18745 to vote for this feature."
-          }
-        )
-      else
-        print_brute level: :vstatus, ip: ip, msg: 'TDS Encryption enabled'
-      end
-    end
-
     cred_collection = build_credential_collection(
       realm: datastore['DOMAIN'],
       username: datastore['USERNAME'],
