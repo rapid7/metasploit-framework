@@ -15,6 +15,11 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' => ['FutileSkills'],
         'License' => MSF_LICENSE,
+        'Actions' => [
+          ['PRINT', { 'Description' => 'Print a Message' }],
+          ['DRAWER', { 'Description' => 'Trigger the Drawer' }],
+          ['CUT', { 'Description' => 'Cut paper (if applicable)' }]
+        ],
         'References' => [
           ['URL', 'https://github.com/futileskills/Security-Advisory']
         ],
