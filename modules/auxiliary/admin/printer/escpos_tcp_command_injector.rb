@@ -34,10 +34,9 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(9100),
-        OptEnum.new('ACTION', [true, 'The action to perform', 'PRINT', ['PRINT', 'DRAWER', 'CUT']]),
-        OptString.new('MESSAGE', [false, 'Message to print (for the PRINT action)', 'PWNED']),
-        OptInt.new('DRAWER_COUNT', [false, 'Number of times to trigger the drawer (for the DRAWER action)', 1]),
-        OptInt.new('FEED_LINES', [false, 'Number of lines to feed before cutting (for the CUT action)', 5])
+        OptString.new('MESSAGE', [false, 'Message to print', 'PWNED'], conditions: %w[ACTION == PRINT]),
+        OptInt.new('DRAWER_COUNT', [false, 'Number of times to trigger the drawer', 1], conditions: %w[ACTION == DRAWER])),
+        OptInt.new('FEED_LINES', [false, 'Number of lines to feed before cutting (for the CUT action)', 5], conditions: %w[ACTION == CUT])
       ]
     )
   end
