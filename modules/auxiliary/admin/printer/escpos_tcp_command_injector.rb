@@ -20,6 +20,7 @@ class MetasploitModule < Msf::Auxiliary
           ['DRAWER', { 'Description' => 'Trigger the Drawer' }],
           ['CUT', { 'Description' => 'Cut paper (if applicable)' }]
         ],
+        'DefaultAction' => 'PRINT',
         'References' => [
           ['URL', 'https://github.com/futileskills/Security-Advisory']
         ],
