@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(9100),
         OptString.new('MESSAGE', [false, 'Message to print', 'PWNED'], conditions: %w[ACTION == PRINT]),
-        OptInt.new('DRAWER_COUNT', [false, 'Number of times to trigger the drawer', 1], conditions: %w[ACTION == DRAWER])),
+        OptInt.new('DRAWER_COUNT', [false, 'Number of times to trigger the drawer', 1], conditions: %w[ACTION == DRAWER]),
         OptInt.new('FEED_LINES', [false, 'Number of lines to feed before cutting (for the CUT action)', 5], conditions: %w[ACTION == CUT])
       ]
     )
