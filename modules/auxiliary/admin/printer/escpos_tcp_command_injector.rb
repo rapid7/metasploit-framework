@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
     connect
     print_status("Connected to printer at #{rhost}")
 
-    case datastore['ACTION']
+    case action.name.upcase
     when 'PRINT'
       handle_print
     when 'DRAWER'
