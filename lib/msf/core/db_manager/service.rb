@@ -6,7 +6,14 @@ module Msf::DBManager::Service
   ::ApplicationRecord.connection_pool.with_connection {
     deleted = []
     opts[:ids].each do |service_id|
-      service = Mdm::Service.find(service_id)
+      begin
+        service = Mdm::Service.find(service_id)
+      rescue ActiveRecord::RecordNotFound
+        # This happens when the service was the child of another service we have already deleted
+        # Deletion of children is automatic via dependent: :destroy on the association
+        dlog("Service with id #{service_id} already deleted")
+        next
+      end
       begin
         deleted << service.destroy
       rescue
