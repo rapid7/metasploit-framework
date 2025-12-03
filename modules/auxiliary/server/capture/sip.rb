@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => %q{
         This module provides a fake SIP service that is designed to
         capture authentication credentials. It captures	challenge and
-        response pairs that can be supplied to Cain or JtR for cracking.
+        response pairs that can be supplied to JtR for cracking.
       },
       'Author' => 'Patrik Karlsson <patrik[at]cqure.net>',
       'License' => MSF_LICENSE,
@@ -35,7 +35,6 @@ class MetasploitModule < Msf::Auxiliary
         OptAddress.new('SRVHOST', [ true, 'The local host to listen on.', '0.0.0.0' ]),
         OptString.new('NONCE', [ true, 'The server byte nonce', '1234' ]),
         OptString.new('JOHNPWFILE', [ false, 'The prefix to the local filename to store the hashes in JOHN format', nil ]),
-        OptString.new('CAINPWFILE', [ false, 'The local filename to store the hashes in Cain&Abel format', nil ]),
       ]
     )
     register_advanced_options(
@@ -203,22 +202,6 @@ class MetasploitModule < Msf::Auxiliary
 
             fd = File.open(datastore['JOHNPWFILE'] + '_sip', 'ab')
             fd.puts(username + ':' + resp.join('*'))
-            fd.close
-          end
-
-          if datastore['CAINPWFILE']
-            resp = []
-            resp << auth_tokens['realm']
-            resp << auth_tokens['username']
-            resp << ''
-            resp << request[:uri]
-            resp << auth_tokens['nonce']
-            resp << response
-            resp << method
-            resp << algorithm
-
-            fd = File.open(datastore['CAINPWFILE'], 'ab')
-            fd.puts resp.join("\t") + "\r\n"
             fd.close
           end
 

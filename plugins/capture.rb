@@ -287,9 +287,7 @@ module Msf
           end
 
           datastore = {}
-          # Capturers
           datastore['SRVHOST'] = config[:srvhost]
-          datastore['CAINPWFILE'] = File.join(config[:hashdir], "cain_#{svc}")
           datastore['JOHNPWFILE'] = File.join(config[:hashdir], "john_#{svc}")
 
           # Poisoners

@@ -16,10 +16,6 @@ This module creates a mock MySQL server which accepts credentials.  Upon receivi
 
   Write a file containing a John the Ripper format for cracking the credentials.  Default is ``.
 
-### CAINPWFILE
-
-  Write a file containing a Cain & Abel format for cracking the credentials.  Default is ``.
-
 ### SRVVERSION
 
   The MySQL version to print in the login banner.  Default is `5.5.16`.
