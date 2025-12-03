@@ -231,7 +231,7 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     diff-lcs (1.6.2)
-    dnsruby (1.73.0)
+    dnsruby (1.73.1)
       base64 (>= 0.2)
       logger (~> 1.6)
       simpleidn (~> 0.2.1)
@@ -494,7 +494,7 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.34)
+    rex-core (0.1.35)
     rex-encoder (0.1.8)
       metasm
       rex-arch
@@ -528,7 +528,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.62)
+    rex-socket (0.1.64)
       dnsruby
       rex-core
     rex-sslscan (0.1.13)

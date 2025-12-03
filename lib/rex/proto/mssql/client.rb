@@ -1,5 +1,4 @@
 require 'metasploit/framework/tcp/client'
-require 'metasploit/framework/mssql/tdssslproxy'
 require 'rex/proto/mssql/client_mixin'
 require 'rex/text'
 require 'msf/core/exploit'
@@ -65,7 +64,6 @@ module Rex
           @tdsencryption          = framework_module.datastore['TDSENCRYPTION']       || false
           @hex2binary             = framework_module.datastore['HEX2BINARY']          || ''
 
-
           @domain_controller_rhost = framework_module.datastore['DomainControllerRhost'] || ''
           @rhost = rhost
           @rport = rport
@@ -73,6 +71,39 @@ module Rex
           @sslkeylogfile = sslkeylogfile
           @current_database = ''
           @initial_connection_info = {errors: []}
+        end
+
+        def connect(global = true, opts={})
+          dossl = false
+          if(opts.has_key?('SSL'))
+            dossl = opts['SSL']
+          else
+            dossl = ssl
+          end
+
+          @mstds_channel = Rex::Proto::MsTds::Channel.new(
+            'PeerHost'      =>  opts['RHOST'] || rhost,
+            'PeerHostname'  =>  opts['SSLServerNameIndication'] || opts['RHOSTNAME'],
+            'PeerPort'      => (opts['RPORT'] || rport).to_i,
+            'LocalHost'     =>  opts['CHOST'] || chost || "0.0.0.0",
+            'LocalPort'     => (opts['CPORT'] || cport || 0).to_i,
+            'SSL'           =>  dossl,
+            'SSLVersion'    =>  opts['SSLVersion'] || ssl_version,
+            'SSLVerifyMode' =>  opts['SSLVerifyMode'] || ssl_verify_mode,
+            'SSLKeyLogFile' =>  opts['SSLKeyLogFile'] || sslkeylogfile,
+            'SSLCipher'     =>  opts['SSLCipher'] || ssl_cipher,
+            'Proxies'       => proxies,
+            'Timeout'       => (opts['ConnectTimeout'] || connection_timeout || 10).to_i,
+            'Context'       => { 'Msf' => framework, 'MsfExploit' => framework_module }
+          )
+          nsock = @mstds_channel.lsock
+          # enable evasions on this socket
+          set_tcp_evasions(nsock)
+
+          # Set this socket to the global socket as necessary
+          self.sock = nsock if (global)
+
+          return nsock
         end
 
         # MS SQL Server only supports Windows and Linux
@@ -208,10 +239,6 @@ module Rex
             end
           end
           data
-        end
-
-        def mssql_ssl_send_recv(req, tdsproxy, timeout=15, check_status=true)
-          tdsproxy.send_recv(req)
         end
 
         def query(sqla, doprint=false, opts={})
@@ -383,11 +410,9 @@ module Rex
           pkt_hdr.packet_length += pkt_body.num_bytes
           pkt = pkt_hdr.to_binary_s + pkt_body.to_binary_s
 
-          # Rem : One have to set check_status to false here because sql server sp0 (and maybe above)
-          # has a strange behavior that differs from the specifications
-          # upon receiving the ntlm_negociate request it send an ntlm_challenge but the status flag of the tds packet header
-          # is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentification
-          resp = mssql_send_recv(pkt, 15, false)
+          @mstds_channel.starttls if tdsencryption == true
+
+          resp = mssql_send_recv(pkt)
 
           info = {:errors => []}
           info = mssql_parse_reply(resp, info)
@@ -430,17 +455,13 @@ module Rex
           pkt_hdr.packet_length += pkt_body.num_bytes
           pkt = pkt_hdr.to_binary_s + pkt_body.to_binary_s
 
+          @mstds_channel.starttls if tdsencryption == true
+
           # Rem : One have to set check_status to false here because sql server sp0 (and maybe above)
           # has a strange behavior that differs from the specifications
           # upon receiving the ntlm_negotiate request it send an ntlm_challenge but the status flag of the tds packet header
           # is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentification
-          if tdsencryption == true
-            proxy = TDSSSLProxy.new(sock, sslkeylogfile: sslkeylogfile)
-            proxy.setup_ssl
-            resp = proxy.send_recv(pkt)
-          else
-            resp = mssql_send_recv(pkt, 15, false)
-          end
+          resp = mssql_send_recv(pkt, 15, false)
 
           # Strip the TDS header
           resp = resp[3..-1]
@@ -456,12 +477,7 @@ module Rex
           pkt_hdr.packet_length += type3_blob.length
           pkt = pkt_hdr.to_binary_s + type3_blob
 
-          if self.tdsencryption == true
-            resp = mssql_ssl_send_recv(pkt, proxy)
-            proxy.cleanup
-          else
-            resp = mssql_send_recv(pkt)
-          end
+          resp = mssql_send_recv(pkt)
 
           info = {:errors => []}
           info = mssql_parse_reply(resp, info)
@@ -490,14 +506,9 @@ module Rex
           pkt_hdr.packet_length += pkt_body.num_bytes
           pkt = pkt_hdr.to_binary_s + pkt_body.to_binary_s
 
-          if self.tdsencryption == true
-            proxy = TDSSSLProxy.new(sock, sslkeylogfile: sslkeylogfile)
-            proxy.setup_ssl
-            resp = mssql_ssl_send_recv(pkt, proxy)
-            proxy.cleanup
-          else
-            resp = mssql_send_recv(pkt)
-          end
+          @mstds_channel.starttls if tdsencryption
+
+          resp = mssql_send_recv(pkt)
 
           info = {:errors => []}
           info = mssql_parse_reply(resp, info)
