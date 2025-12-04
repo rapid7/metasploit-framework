@@ -4,8 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  Rank = ExcellentRanking
-
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
 
