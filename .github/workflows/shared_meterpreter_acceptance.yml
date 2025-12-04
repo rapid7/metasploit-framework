@@ -112,11 +112,12 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
 
-      - uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231
+      - uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1
         if: ${{ matrix.meterpreter.name == 'php' }}
         with:
           php-version: ${{ matrix.meterpreter.runtime_version }}
           tools: none
+          extensions: sockets
 
       - name: Set up Python
         if: ${{ matrix.meterpreter.name == 'python' }}
@@ -192,7 +193,7 @@ jobs:
           ref: ${{ inputs.metasploit_framework_commit }}
 
       # https://github.com/orgs/community/discussions/26952
-      - name: Support longpaths
+      - name: Support longpaths when running on Windows
         if: runner.os == 'Windows'
         run: git config --system core.longpaths true
 
