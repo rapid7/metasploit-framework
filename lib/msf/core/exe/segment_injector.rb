@@ -18,6 +18,7 @@ module Exe
       @arch  = opts[:arch] || :x86
       @buffer_register = opts[:buffer_register]
       @secname = opts[:secname]
+      @preserve_entrypoint = opts[:preserve_entrypoint] || false
       x86_regs = %w{eax ecx edx ebx edi esi}
       x64_regs = %w{rax rcx rdx rbx rdi rsi} + (8..15).map{|n| "r#{n}" }
 
