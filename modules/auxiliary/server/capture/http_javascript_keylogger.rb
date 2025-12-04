@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
       port = datastore['SRVPORT'].to_i
     end
 
-    prot = !datastore['SSL'].nil? ? 'https://' : 'http://'
+    prot = datastore['SRVSSL'] ? 'https://' : 'http://'
     if Rex::Socket.is_ipv6?(host)
       host = "[#{host}]"
     end
