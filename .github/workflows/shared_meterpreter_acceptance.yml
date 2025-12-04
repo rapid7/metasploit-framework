@@ -117,6 +117,7 @@ jobs:
         with:
           php-version: ${{ matrix.meterpreter.runtime_version }}
           tools: none
+          extensions: sockets
 
       - name: Set up Python
         if: ${{ matrix.meterpreter.name == 'python' }}
