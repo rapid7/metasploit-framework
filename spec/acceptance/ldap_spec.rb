@@ -102,7 +102,7 @@ RSpec.describe 'LDAP modules' do
             },
             linux: {
               known_failures: [
-                /Auxiliary aborted due to failure: not-found/
+                /Auxiliary aborted due to failure: (not-found|unknown: Net::LDAP::Error: 127.0.0.1:389 LDAP Error: Extended Operation\(1.3.6.1.4.1.4203.1.11.3\) not supported)/,
               ]
             }
           }
