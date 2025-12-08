@@ -67,7 +67,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-14
+          - macos-15
           - windows-2022
           - ubuntu-latest
         ruby:
@@ -78,7 +78,7 @@ jobs:
           - { name: python, runtime_version: 3.11 }
 
           # Java
-          - { name: java, runtime_version: 8 }
+          - { name: java, runtime_version: 11 }
           - { name: java, runtime_version: 21 }
 
           # PHP
@@ -92,7 +92,7 @@ jobs:
           # - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2025 }
 
           # Mettle
-          - { meterpreter: { name: mettle }, os: macos-13 }
+          - { meterpreter: { name: mettle }, os: macos-15 }
           - { meterpreter: { name: mettle }, os: ubuntu-latest }
 
     runs-on: ${{ matrix.os }}
@@ -125,7 +125,7 @@ jobs:
         with:
           python-version: ${{ matrix.meterpreter.runtime_version }}
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         if: ${{ matrix.meterpreter.name == 'java' }}
         with:
           distribution: temurin
