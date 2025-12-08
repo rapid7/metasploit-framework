@@ -82,7 +82,6 @@ jobs:
           - { name: java, runtime_version: 21 }
 
           # PHP
-          - { name: php, runtime_version: 5.3 }
           - { name: php, runtime_version: 7.4 }
           - { name: php, runtime_version: 8.3 }
         include:
