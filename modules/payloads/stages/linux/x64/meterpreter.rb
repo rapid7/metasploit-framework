@@ -98,4 +98,6 @@ module MetasploitModule
       generate_config(opts.merge(config_opts))
     ).to_binary :process_image
   end
+
+
 end
