@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['EDB', '51329'],
           ['URL', 'https://www.sonarsource.com/blog/path-traversal-vulnerabilities-in-icinga-web/'],
-          ['URL', 'https://github.com/Icinga/icingaweb2/security/advisories/GHSA-5p3f-rh28-8frw'],
+          ['GHSA', '5p3f-rh28-8frw', 'Icinga/icingaweb2'],
           ['URL', 'https://github.com/Icinga/icingaweb2/commit/9931ed799650f5b8d5e1dc58ea3415a4cdc5773d'],
           ['CVE', '2022-24716'],
         ],
