@@ -10,12 +10,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(_info = {})
     super({
-      'Name' => 'ESC8 Relay: SMB to HTTP(S)',
+      'Name' => 'AD/CS Authenticated Web Enrollment Services Module',
       'Description' => %q{
-        This module creates an SMB server and then relays the credentials passed to it
-        to an HTTP server to gain an authenticated connection.  Once that connection is
-        established, the module makes an authenticated request for a certificate based
-        on a given template.
+        Authenticates to the AD/CS Web enrollment service and allows the user to query templates and create
+        certificates based on available templates.
       },
       'Author' => [
         'bwatters-r7',
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptEnum.new('MODE', [ true, 'The issue mode.', 'ALL', %w[ALL QUERY_ONLY SPECIFIC_TEMPLATE]]),
+        OptEnum.new('MODE', [ true, 'The issue mode.', 'SPECIFIC_TEMPLATE', %w[ALL QUERY_ONLY SPECIFIC_TEMPLATE]]),
         OptString.new('CERT_TEMPLATE', [ false, 'The template to issue if MODE is SPECIFIC_TEMPLATE.' ], conditions: %w[MODE == SPECIFIC_TEMPLATE]),
         OptString.new('TARGETURI', [ true, 'The URI for the cert server.', '/certsrv/' ])
       ]
