@@ -1,22 +1,3 @@
-GIT
-  remote: https://github.com/cdelafuente-r7/metasploit_data_models.git
-  revision: 40b566f81584a365fea3f4e961e5c2519042d426
-  branch: MS-9930_resource_layered_services
-  specs:
-    metasploit_data_models (6.0.11)
-      activerecord (~> 7.0)
-      activesupport (~> 7.0)
-      arel-helpers
-      bigdecimal
-      drb
-      metasploit-concern
-      metasploit-model (>= 3.1)
-      mutex_m
-      pg
-      railties (~> 7.0)
-      recog
-      webrick
-
 PATH
   remote: .
   specs:
@@ -372,6 +353,19 @@ GEM
       mutex_m
       railties (~> 7.0)
     metasploit-payloads (2.0.237)
+    metasploit_data_models (6.0.11)
+      activerecord (~> 7.0)
+      activesupport (~> 7.0)
+      arel-helpers
+      bigdecimal
+      drb
+      metasploit-concern
+      metasploit-model (>= 3.1)
+      mutex_m
+      pg
+      railties (~> 7.0)
+      recog
+      webrick
     metasploit_payloads-mettle (1.0.45)
     method_source (1.1.0)
     mime-types (3.7.0)
@@ -694,7 +688,6 @@ DEPENDENCIES
   license_finder (= 5.11.1)
   memory_profiler
   metasploit-framework!
-  metasploit_data_models!
   octokit
   pry-byebug
   rake
