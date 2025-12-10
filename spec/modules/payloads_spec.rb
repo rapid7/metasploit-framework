@@ -2143,7 +2143,8 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/loongarch64/reboot'
-
+  end
+  
   context 'linux/x64/exec' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
