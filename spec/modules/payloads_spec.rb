@@ -2055,6 +2055,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/ppc64/shell_reverse_tcp'
   end
 
+  context 'linux/riscv32le/chmod' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv32le/chmod'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv32le/chmod'
+  end
+
   context 'linux/riscv32le/exec' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2073,6 +2083,26 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/riscv32le/reboot'
+  end
+
+  context 'linux/riscv32le/shell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv32le/shell_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv32le/shell_reverse_tcp'
+  end
+
+  context 'linux/riscv64le/chmod' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv64le/chmod'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv64le/chmod'
   end
 
   context 'linux/riscv64le/exec' do
@@ -2095,6 +2125,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/riscv64le/reboot'
   end
 
+  context 'linux/riscv64le/shell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv64le/shell_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv64le/shell_reverse_tcp'
+  end
+  
   context 'linux/loongarch64/reboot' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2103,7 +2143,6 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/loongarch64/reboot'
-  end
 
   context 'linux/x64/exec' do
     it_should_behave_like 'payload cached size is consistent',

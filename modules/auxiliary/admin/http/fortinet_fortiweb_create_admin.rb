@@ -46,7 +46,8 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
-          'SideEffects' => [IOC_IN_LOGS]
+          'SideEffects' => [IOC_IN_LOGS],
+          'RelatedModules' => ['exploit/linux/http/fortinet_fortiweb_rce']
         }
       )
     )

@@ -367,8 +367,7 @@ class Connection
         @conn.write(ssl_request_message.dump)
         response = @conn.read(1)
         if response == 'S'
-          @conn.extend(Rex::Socket::SslTcp)
-          @conn.initsock_with_ssl_version(params, (params.ssl_version || Rex::Socket::Ssl::DEFAULT_SSL_VERSION))
+          @conn.starttls(params)
         elsif response == 'N'
           # Server does not support SSL
           raise "SSL connection requested but server at #{u.host}:#{u.port} does not support SSL"

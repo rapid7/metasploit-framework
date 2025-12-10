@@ -9,9 +9,19 @@ msf auxiliary(scanner/mssql/mssql_hashdump) > options
 
 Module options (auxiliary/scanner/mssql/mssql_hashdump):
 
-   Name                 Current Setting  Required  Description
-   ----                 ---------------  --------  -----------
-   USE_WINDOWS_AUTHENT  false            yes       Use windows authentication (requires DOMAIN option set)
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   CHOST                     no        The local client address
+   CPORT                     no        The local client port
+   Proxies                   no        A proxy chain of format type:host:port[,type:host:port][...]. Supported proxies: sapni, socks4, http, socks5, socks5
+                                       h
+
+
+   Used when connecting via an existing SESSION:
+
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   SESSION                   no        The session to run this module on
 
 
    Used when making a new connection via RHOSTS:
@@ -24,13 +34,6 @@ Module options (auxiliary/scanner/mssql/mssql_hashdump):
    RPORT     1433             no        The target port (TCP)
    THREADS   1                yes       The number of concurrent threads (max one per host)
    USERNAME  MSSQL            no        The username to authenticate as
-
-
-   Used when connecting via an existing SESSION:
-
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   SESSION                   no        The session to run this module on
 ```
 
 ## Scenarios

