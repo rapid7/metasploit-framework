@@ -289,16 +289,26 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def extract_file_contents(response_text)
-    # Extract file contents from SOAP fault detail
-    # Pattern: <detail><string>[tid: UUID] /<file_contents> (File name too long)</string>
-    # The file content is injected directly into the path, so we capture everything after "] /"
-    pattern = %r{<detail><string>\[tid:[^\]]+\]\s*/(.*?)(?:\s*\(File name too long\))?</string>}m
+    # Extract file contents from SOAP fault detail - handles different instance formats
+    patterns = [
+      %r{<detail><string>\[tid:[^\]]+\]\s*/(.*?)(?:\s*\(File name too long\))?</string>}m,
+      %r{<detail><string>/(.*?)(?:\s*\(File name too long\))?</string>}m,
+      %r{<detail><string>[^<]*?/(.*?)(?:\s*\(File name too long\))?</string>}m
+    ]
 
-    match = response_text.match(pattern)
-    return nil unless match
+    patterns.each do |pattern|
+      match = response_text.match(pattern)
+      next unless match
 
-    content = match[1].strip
-    content.empty? ? nil : content
+      content = match[1].strip
+      next if content.empty? || content.include?('<string>')
+
+      content = content.sub(%r{^[^\n]*?/}, '') if content.match?(%r{^[^\n:]*:/})
+
+      return content unless content.empty?
+    end
+
+    nil
   end
 
   def on_request_uri(cli, req)
