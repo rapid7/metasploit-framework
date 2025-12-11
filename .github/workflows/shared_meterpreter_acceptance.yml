@@ -42,9 +42,9 @@ jobs:
       - name: Checkout metasploit-payloads
         uses: actions/checkout@v4
         with:
-          repository: rapid7/metasploit-payloads
+          repository: zeroSteiner/metasploit-payloads
           path: metasploit-payloads
-          ref: ${{ inputs.metasploit_payloads_commit }}
+          ref: fix/met/php-udp-sockets-2
 
       - name: Build Meterpreter payloads
         run: |
@@ -67,7 +67,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-13
+          - macos-15
           - windows-2022
           - ubuntu-latest
         ruby:
@@ -78,11 +78,10 @@ jobs:
           - { name: python, runtime_version: 3.11 }
 
           # Java
-          - { name: java, runtime_version: 8 }
+          - { name: java, runtime_version: 11 }
           - { name: java, runtime_version: 21 }
 
           # PHP
-          - { name: php, runtime_version: 5.3 }
           - { name: php, runtime_version: 7.4 }
           - { name: php, runtime_version: 8.3 }
         include:
@@ -92,7 +91,7 @@ jobs:
           # - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2025 }
 
           # Mettle
-          - { meterpreter: { name: mettle }, os: macos-13 }
+          - { meterpreter: { name: mettle }, os: macos-15 }
           - { meterpreter: { name: mettle }, os: ubuntu-latest }
 
     runs-on: ${{ matrix.os }}
@@ -112,11 +111,12 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
 
-      - uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231
+      - uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1
         if: ${{ matrix.meterpreter.name == 'php' }}
         with:
           php-version: ${{ matrix.meterpreter.runtime_version }}
           tools: none
+          extensions: sockets
 
       - name: Set up Python
         if: ${{ matrix.meterpreter.name == 'python' }}
@@ -124,7 +124,7 @@ jobs:
         with:
           python-version: ${{ matrix.meterpreter.runtime_version }}
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         if: ${{ matrix.meterpreter.name == 'java' }}
         with:
           distribution: temurin
@@ -192,9 +192,13 @@ jobs:
           ref: ${{ inputs.metasploit_framework_commit }}
 
       # https://github.com/orgs/community/discussions/26952
-      - name: Support longpaths
+      - name: Support longpaths when running on Windows
         if: runner.os == 'Windows'
         run: git config --system core.longpaths true
+
+      - name: Install PostgreSQL client libraries when running on MacOS
+        if: runner.os == 'macos'
+        run: brew install postgresql
 
       - name: Setup Ruby
         env:
@@ -255,9 +259,9 @@ jobs:
         if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
         uses: actions/checkout@v4
         with:
-          repository: rapid7/metasploit-payloads
+          repository: zeroSteiner/metasploit-payloads
           path: metasploit-payloads
-          ref: ${{ inputs.metasploit_payloads_commit }}
+          ref: fix/met/php-udp-sockets-2
 
       - name: Build Windows payloads via Visual Studio 2019 Build (Windows)
         shell: cmd
