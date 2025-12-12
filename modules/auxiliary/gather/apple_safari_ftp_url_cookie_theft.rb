@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       Rex::Proto::Http::Server,
       opts['ServerPort'].to_i,
       opts['ServerHost'],
-      datastore['SSL'],
+      datastore['SRVSSL'],
       {
         'Msf' => framework,
         'MsfExploit' => self,
@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
       'Path' => resource_uri
     }.update(opts['Uri'] || {})
 
-    proto = (datastore['SSL'] ? 'https' : 'http')
+    proto = (datastore['SRVSSL'] ? 'https' : 'http')
     print_status("Using URL: #{proto}://#{opts['ServerHost']}:#{opts['ServerPort']}#{uopts['Path']}")
 
     if opts['ServerHost'] == '0.0.0.0'
