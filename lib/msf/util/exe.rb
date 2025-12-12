@@ -700,7 +700,27 @@ require 'digest/sha1'
     # Allow the user to specify their own service EXE template
     set_template_default(opts, "template_x64_windows_svc.exe")
     opts[:exe_type] = :service_exe
-    exe_sub_method(code,opts)
+    # Try to inject code into executable by adding a section without affecting executable behavior
+    if opts[:inject]
+      injector = Msf::Exe::SegmentInjector.new({
+        :payload  => code,
+        :template => opts[:template],
+        :arch     => :x64,
+        :secname  => opts[:secname]
+      })
+      pe = injector.generate_pe
+    else
+      # Append a new section instead
+      appender = Msf::Exe::SegmentAppender.new({
+        :payload  => code,
+        :template => opts[:template],
+        :arch     => :x64,
+        :secname	=> opts[:secname],
+        :preserve_entrypoint => true
+      })
+      pe =  appender.generate_pe
+    end
+    return pe
   end
 
   # self.set_template_default_winpe_dll
