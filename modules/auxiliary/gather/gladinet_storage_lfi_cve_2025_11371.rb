@@ -87,7 +87,6 @@ class MetasploitModule < Msf::Auxiliary
     Exploit::CheckCode::Appears('Gladinet detected but LFI not confirmed')
   end
 
-
   def read_file_via_lfi(file_path)
     print_status("Attempting to read file via LFI: #{file_path}")
 
