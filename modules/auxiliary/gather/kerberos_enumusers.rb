@@ -25,7 +25,9 @@ class MetasploitModule < Msf::Auxiliary
           'sjanusz-r7' # Enhancements
         ],
         'References' => [
-          ['URL', 'https://nmap.org/nsedoc/scripts/krb5-enum-users.html']
+          ['URL', 'https://nmap.org/nsedoc/scripts/krb5-enum-users.html'],
+          ['ATT&CK', Mitre::Attack::Technique::T1087_002_DOMAIN_ACCOUNT],
+          ['ATT&CK', Mitre::Attack::Technique::T1589_001_CREDENTIALS]
         ],
         'License' => MSF_LICENSE,
         'Notes' => {

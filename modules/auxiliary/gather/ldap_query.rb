@@ -42,6 +42,10 @@ class MetasploitModule < Msf::Auxiliary
           'Grant Willcox', # Original module author
         ],
         'References' => [
+          ['ATT&CK', Mitre::Attack::Technique::T1069_002_DOMAIN_GROUPS],
+          ['ATT&CK', Mitre::Attack::Technique::T1087_002_DOMAIN_ACCOUNT],
+          ['ATT&CK', Mitre::Attack::Technique::T1018_REMOTE_SYSTEM_DISCOVERY],
+          ['ATT&CK', Mitre::Attack::Technique::T1201_PASSWORD_POLICY_DISCOVERY]
         ],
         'DisclosureDate' => '2022-05-19',
         'License' => MSF_LICENSE,
