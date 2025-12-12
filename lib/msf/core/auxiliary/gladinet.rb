@@ -76,7 +76,20 @@ module Msf
     # @param response [Rex::Proto::Http::Response] HTTP response from login page
     # @return [Boolean] True if target appears to be Gladinet
     def gladinet?(response)
-      response&.code == 200 && response.body.include?('id="__VIEWSTATEGENERATOR"')
+      return false unless response&.code == 200
+
+      # Check for Gladinet-specific cookies (strong indicator)
+      cookies = response.get_cookies || ''
+      has_glad_cookies = cookies.include?('y-glad-state=') || cookies.include?('y-glad-lsid=') || cookies.include?('y-glad-token=')
+
+      # Check for ViewState generator in body (required for ASP.NET ViewState)
+      has_viewstate = response.body.include?('id="__VIEWSTATEGENERATOR"')
+
+      # Check for Gladinet branding in body
+      has_gladinet_branding = response.body.include?('CentreStack') || response.body.include?('Triofox') || response.body.include?('GLADINET')
+
+      # At least one strong indicator (cookies or ViewState + branding)
+      (has_glad_cookies) || (has_viewstate && has_gladinet_branding)
     end
 
     # Detect the application type from response body
