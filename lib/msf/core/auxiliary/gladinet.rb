@@ -78,5 +78,40 @@ module Msf
     def gladinet?(response)
       response&.code == 200 && response.body.include?('id="__VIEWSTATEGENERATOR"')
     end
+
+    # Detect the application type from response body
+    #
+    # @param body [String] HTTP response body
+    # @return [String] Application type: 'CentreStack', 'Triofox', or 'Unknown'
+    def detect_app_type(body)
+      return 'CentreStack' if body.include?('CentreStack')
+      return 'Triofox' if body.include?('Triofox')
+
+      'Unknown'
+    end
+
+    # Extract build version from response body
+    #
+    # @param body [String] HTTP response body
+    # @return [String, nil] Build version string or nil if not found
+    def extract_build_version(body)
+      build = body.match(/\(Build\s*.*\)/)
+      return nil if build.nil?
+
+      build[0].gsub(/[[:space:]]/, '').split('Build')[1].chomp(')')
+    end
+
+    # Send a GET request to the Gladinet login page and extract version
+    #
+    # @return [String, nil] Build version string or nil if not found
+    def gladinet_version
+      res = send_request_cgi({
+        'method' => 'GET',
+        'uri' => normalize_uri(target_uri.path, 'portal', 'loginpage.aspx')
+      })
+      return nil unless res&.code == 200 && gladinet?(res)
+
+      extract_build_version(res.body)
+    end
   end
 end

