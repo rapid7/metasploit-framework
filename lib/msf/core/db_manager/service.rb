@@ -6,7 +6,14 @@ module Msf::DBManager::Service
   ::ApplicationRecord.connection_pool.with_connection {
     deleted = []
     opts[:ids].each do |service_id|
-      service = Mdm::Service.find(service_id)
+      begin
+        service = Mdm::Service.find(service_id)
+      rescue ActiveRecord::RecordNotFound
+        # This happens when the service was the child of another service we have already deleted
+        # Deletion of children is automatic via dependent: :destroy on the association
+        dlog("Service with id #{service_id} already deleted")
+        next
+      end
       begin
         deleted << service.destroy
       rescue
@@ -43,11 +50,15 @@ module Msf::DBManager::Service
   # +:workspace+:: the workspace for the service
   #
   # opts may contain
-  # +:name+::  the application layer protocol (e.g. ssh, mssql, smb)
-  # +:sname+:: an alias for the above
-  # +:info+:: Detailed information about the service such as name and version information
-  # +:state+:: The current listening state of the service (one of: open, closed, filtered, unknown)
-  #
+  # +:name+::     the application layer protocol (e.g. ssh, mssql, smb)
+  # +:sname+::    an alias for the above
+  # +:info+::     detailed information about the service such as name and version information
+  # +:state+::    the current listening state of the service (one of: open, closed, filtered, unknown)
+  # +:resource+:: the resource this service is associated with, such as a a DN for an an LDAP object
+  #               base URI for a web application, pipe name for DCERPC service, etc.
+  # +:parents+::  a single service Hash or an Array of service Hash representing the parent services this
+  #               service is associated with, such as a HTTP service for a web application.
+  #`
   # @return [Mdm::Service,nil]
   def report_service(opts)
     return if !active
@@ -69,6 +80,7 @@ module Msf::DBManager::Service
     if opts[:sname]
       opts[:name] = opts.delete(:sname)
     end
+    opts[:name] = opts[:name].to_s.downcase if opts[:name]
 
     if addr.kind_of? ::Mdm::Host
       host = addr
@@ -84,7 +96,14 @@ module Msf::DBManager::Service
 
     proto = opts[:proto] || Msf::DBManager::DEFAULT_SERVICE_PROTO
 
-    service = host.services.where(port: opts[:port].to_i, proto: proto).first_or_initialize
+    sopts = {
+      port: opts[:port].to_i,
+      proto: proto
+    }
+    sopts[:name] = opts[:name] if opts[:name]
+    sopts[:resource] = opts[:resource] if opts[:resource]
+    service = host.services.where(sopts).first_or_initialize
+
     ostate = service.state
     opts.each { |k,v|
       if (service.attribute_names.include?(k.to_s))
@@ -93,8 +112,15 @@ module Msf::DBManager::Service
         dlog("Unknown attribute for Service: #{k}")
       end
     }
+
     service.state ||= Msf::ServiceState::Open
     service.info  ||= ""
+    parents = process_service_chain(host, opts.delete(:parents)) if opts[:parents]
+    if parents
+      parents.each do |parent|
+        service.parents << parent if parent && !service.parents.include?(parent)
+      end
+    end
 
     begin
       framework.events.on_db_service(service) if service.new_record?
@@ -162,5 +188,45 @@ module Msf::DBManager::Service
     service.update!(opts)
     return service
   }
+  end
+
+  def process_service_chain(host, services)
+    return if services.nil? || host.nil?
+    return unless services.is_a?(Hash) || services.is_a?(::Array)
+    return unless host.is_a?(Mdm::Host)
+
+    services = [services] unless services.is_a?(Array)
+    services.map do |service|
+      return unless service.is_a?(Hash)
+      return if service[:port].nil? || service[:proto].nil?
+
+      parents = nil
+      if service[:parents]&.any?
+        parents = process_service_chain(host, service[:parents])
+      end
+
+      service_info = {
+        port: service[:port].to_i,
+        proto: service[:proto].to_s.downcase,
+      }
+      service_info[:name] = service[:name].downcase if service[:name]
+      service_info[:resource] = service[:resource] if service[:resource]
+      service_obj = host.services.find_or_create_by(service_info)
+      if service_obj.id.nil?
+        elog("Failed to create service #{service_info.inspect} for host #{host.name} (#{host.address})")
+        return
+      end
+      service_obj.state ||= Msf::ServiceState::Open
+      service_obj.info = service[:info] ? service[:info] : ''
+
+      if parents
+        parents.each do |parent|
+          service_obj.parents << parent if parent && !service_obj.parents.include?(parent)
+        end
+      end
+
+      service_obj
+    end
+
   end
 end
