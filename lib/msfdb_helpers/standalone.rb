@@ -76,6 +76,18 @@ module MsfdbHelpers
       @conn.exec("alter role #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
       @conn.exec("CREATE DATABASE #{@options[:msf_db_name]}")
       @conn.exec("CREATE DATABASE #{@options[:msftest_db_name]}")
+
+      # In PostgreSQL 15+, users need explicit permission to create objects in the public schema.
+      # Grant all privileges on the public schema to the database users.
+      conninfo = @conn.conninfo_hash
+      [@options[:msf_db_name], @options[:msftest_db_name]].each_with_index do |db_name, idx|
+        db_user = idx == 0 ? @options[:msf_db_user] : @options[:msftest_db_user]
+        db_conn = PG.connect(host: conninfo[:host], port: conninfo[:port], dbname: db_name,
+                             user: conninfo[:user], password: conninfo[:password])
+        db_conn.exec("GRANT ALL ON SCHEMA public TO #{db_user}")
+        db_conn.finish
+      end
+
       @conn.finish
     end
   end
