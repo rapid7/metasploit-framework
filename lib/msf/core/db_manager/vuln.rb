@@ -44,11 +44,15 @@ module Msf::DBManager::Vuln
     other_vulns.empty? ? nil : other_vulns.first
   end
 
-  def find_vuln_by_refs(refs, host, service = nil, cve_only = true)
+  def find_vuln_by_refs(refs, host, service = nil, cve_only = true, resource = nil)
     ref_ids = cve_only ? refs.find_all { |ref| ref.name.starts_with? 'CVE-'} : refs
     relation = host.vulns.joins(:refs)
     if !service.try(:id).nil?
-      return relation.where(service_id: service.try(:id), refs: { id: ref_ids}).first
+      if resource
+        return relation.where(service_id: service.try(:id), refs: { id: ref_ids}, resource: resource).first
+      else
+        return relation.where(service_id: service.try(:id), refs: { id: ref_ids}).first
+      end
     end
     return relation.where(refs: { id: ref_ids}).first
   end
@@ -80,12 +84,20 @@ module Msf::DBManager::Vuln
   # opts MUST contain
   # +:host+:: the host where this vulnerability resides
   # +:name+:: the friendly name for this vulnerability (title)
+  # +:workspace+:: the workspace to report this vulnerability in
   #
   # opts can contain
   # +:info+::   a human readable description of the vuln, free-form text
   # +:refs+::   an array of Ref objects or string names of references
   # +:details+:: a hash with :key pointed to a find criteria hash and the rest containing VulnDetail fields
   # +:sname+:: the name of the service this vulnerability relates to, used to associate it or create it.
+  # +:exploited_at+:: a timestamp indicating when this vulnerability was exploited, if applicable
+  # +:ref_ids+:: an array of reference IDs to associate with this vulnerability
+  # +:service+:: a Mdm::Service object or a Hash with service attributes to associate this vulnerability with
+  # +:port+:: the port number of the service this vulnerability relates to, if applicable
+  # +:proto+:: the transport layer protocol of the service this vulnerability relates to, if applicable
+  # +:details_match+:: a Mdm:VulnDetail with details related to this vulnerability
+  # +:resource+:: a resource hash to associate with this vulnerability, such as a URI or pipe name
   #
   def report_vuln(opts)
     return if not active
@@ -141,7 +153,16 @@ module Msf::DBManager::Vuln
     vuln = nil
 
     # Identify the associated service
-    service = opts.delete(:service)
+    service_opt = opts.delete(:service)
+    case service_opt
+    when Mdm::Service
+      service = service_opt
+    when Hash
+      service = report_service(service_opt.merge(workspace: wspace, host: host))
+    else
+      dlog("Skipping service since it is not a Hash or Mdm::Service: #{service.class}")
+      service = nil
+    end
 
     # Treat port zero as no service
     if service or opts[:port].to_i > 0
@@ -160,9 +181,17 @@ module Msf::DBManager::Vuln
           sname = opts[:proto]
         end
 
-        services = host.services.where(port: opts[:port].to_i, proto: proto)
-        services = services.where(name: sname) if sname.present?
-        service = services.first_or_create
+        # If sname and proto are not provided, this will assign the first service
+        # registered in the database for this host with the given port and proto.
+        # This is likely to be the TCP service.
+        sopts = {
+          workspace: wspace,
+          host: host,
+          port: opts[:port].to_i,
+          proto: proto
+        }
+        sopts[:name] = sname if sname.present?
+        service = report_service(sopts)
       end
 
       # Try to find an existing vulnerability with the same service & references
@@ -172,8 +201,12 @@ module Msf::DBManager::Vuln
       # prevent dupes of the same vuln found by both local patch and
       # service detection.
       if rids and rids.length > 0
-        vuln = find_vuln_by_refs(rids, host, service)
-        vuln.service = service if vuln
+        if opts[:resource]
+          vuln = find_vuln_by_refs(rids, host, service, nil, opts[:resource])
+        else
+          vuln = find_vuln_by_refs(rids, host, service)
+        end
+        vuln.service = service if vuln && !vuln.service_id?
       end
     else
       # Try to find an existing vulnerability with the same host & references
@@ -194,9 +227,17 @@ module Msf::DBManager::Vuln
     # No matches, so create a new vuln record
     unless vuln
       if service
-        vuln = service.vulns.find_by_name(name)
+        if opts[:resource]
+          vuln = service.vulns.find_by(name: name, resource: opts[:resource])
+        else
+          vuln = service.vulns.find_by_name(name)
+        end
       else
-        vuln = host.vulns.find_by_name(name)
+        if opts[:resource]
+          vuln = host.vulns.find_by(name: name, resource: opts[:resource])
+        else
+          vuln = host.vulns.find_by_name(name)
+        end
       end
 
       unless vuln
@@ -208,6 +249,7 @@ module Msf::DBManager::Vuln
         }
 
         vinf[:service_id] = service.id if service
+        vinf[:resource] = opts[:resource] if opts[:resource]
         vuln = Mdm::Vuln.create(vinf)
 
         begin
