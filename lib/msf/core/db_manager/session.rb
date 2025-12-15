@@ -250,20 +250,10 @@ module Msf::DBManager::Session
         workspace: wspace,
       }
 
-      if session.exploit.respond_to?(:service_details) && session.exploit.service_details
-        service_details = session.exploit.service_details
-        service_name = service_details[:service_name]
-        port = service_details[:port]
-        if port.nil?
-          port = session.respond_to?(:target_port) && session.target_port ? session.target_port : session.exploit_datastore["RPORT"]
-        end
-        proto = service_details[:protocol]
-        vuln_info[:service] = host.services.find_or_create_by(name: service_name, port: port.to_i, proto: proto, state: 'open')
-      end
-      unless vuln_info[:service]
-        port = session.respond_to?(:target_port) && session.target_port ? session.target_port : session.exploit_datastore["RPORT"]
-        vuln_info[:service] = host.services.find_by_port(port.to_i) if port
-      end
+      port    = session.exploit_datastore["RPORT"]
+      service = (port ? host.services.find_by_port(port.to_i) : nil)
+
+      vuln_info[:service] = service if service
 
       vuln = report_vuln(vuln_info)
 
@@ -271,6 +261,7 @@ module Msf::DBManager::Session
         host: host,
         module: mod_fullname,
         refs: refs,
+        service: service,
         session_id: s.id,
         timestamp: Time.now.utc,
         username: session.username,

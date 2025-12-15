@@ -174,25 +174,14 @@ module ModuleCommandDispatcher
     print_line
   end
 
-  def report_vuln(instance, checkcode = nil)
-    opts = {
+  def report_vuln(instance)
+    framework.db.report_vuln(
       workspace: instance.workspace,
-      host: instance.respond_to?(:target_host) && instance.target_host ? instance.target_host : instance.datastore['RHOST'],
-      proto: instance.datastore['PROTO'] || 'tcp',
+      host: instance.rhost,
       name: instance.name,
       info: "This was flagged as vulnerable by the explicit check of #{instance.fullname}.",
       refs: instance.references
-    }
-
-    if checkcode&.kind_of?(Msf::Exploit::CheckCode) && checkcode.vuln.present?
-      if checkcode.vuln.kind_of?(Array)
-        checkcode.vuln.each { |vuln| framework.db.report_vuln(opts.merge(vuln)) }
-      else
-        framework.db.report_vuln(opts.merge(checkcode.vuln))
-      end
-    else
-      framework.db.report_vuln(opts)
-    end
+    )
   end
 
   def check_simple(instance=nil)
@@ -225,7 +214,7 @@ module ModuleCommandDispatcher
           print_good("#{peer_msg}#{code[1]}")
           # Restore RHOST for report_vuln
           instance.datastore['RHOST'] ||= rhost
-          report_vuln(instance, code)
+          report_vuln(instance)
         else
           print_status("#{peer_msg}#{code[1]}")
         end
