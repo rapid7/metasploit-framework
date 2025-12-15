@@ -225,7 +225,6 @@ RSpec.describe "Metasploit's json-rpc" do
             result: {
               code: 'safe',
               details: {},
-              vuln: {},
               message: 'The target is not exploitable.',
               reason: nil
             }

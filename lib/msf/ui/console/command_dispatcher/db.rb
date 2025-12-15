@@ -846,7 +846,6 @@ class Db
     output_file = nil
     set_rhosts = false
     col_search = ['port', 'proto', 'name', 'state', 'info']
-    extra_columns = ['resource', 'parents']
 
     names = nil
     order_by = nil
@@ -963,7 +962,7 @@ class Db
     end
     tbl = Rex::Text::Table.new({
                                    'Header'    => "Services",
-                                   'Columns'   => extra_columns.empty? ? (['host'] + col_names) : (['host'] + col_names + extra_columns),
+                                   'Columns'   => ['host'] + col_names,
                                    'SortIndex' => order_by
                                })
 
@@ -977,7 +976,6 @@ class Db
       opts[:workspace] = framework.db.workspace
       opts[:hosts] = {address: host_search} if !host_search.nil?
       opts[:port] = ports if ports
-      opts[:name] = names if names
       framework.db.services(opts).each do |service|
 
         unless service.state == 'open'
@@ -995,10 +993,6 @@ class Db
         end
 
         columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
-        unless extra_columns.empty?
-          columns << service.resource.to_json
-          columns << service.parents.map { |parent| "#{parent.name} (#{parent.port}/#{parent.proto})"}.join(', ')
-        end
         tbl << columns
         if set_rhosts
           addr = (host.scope.to_s != "" ? host.address + '%' + host.scope : host.address )
@@ -1072,7 +1066,7 @@ class Db
   def cmd_vulns(*args)
     return unless active?
 
-    default_columns = ['Timestamp', 'Host', 'Service', 'Resource', 'Name', 'References']
+    default_columns = ['Timestamp', 'Host', 'Name', 'References']
     host_ranges = []
     port_ranges = []
     svcs        = []
@@ -1173,8 +1167,6 @@ class Db
       row = []
       row << vuln.created_at
       row << vuln.host.address
-      row << (vuln.service.present? ? "#{vuln.service.name} (#{vuln.service.port}/#{vuln.service.proto})" : 'None')
-      row << vuln.resource.to_s
       row << vuln.name
       row << reflist.join(',')
       if show_info
@@ -2370,15 +2362,6 @@ class Db
 
   def _format_vulns_and_vuln_attempts(vulns)
     vulns.map.with_index do |vuln, index|
-      service_str = ''
-      if vuln.service.present?
-        service_str << "#{vuln.service.name} (port: #{vuln.service.port}, resource: #{vuln.service.resource.to_json})"
-        if vuln.service.parents.any?
-          service_str << "\nParent Services:\n".indent(5)
-          service_str << _print_service_parents(vuln.service).indent(7)
-        end
-      end
-
       vuln_formatted = <<~EOF.strip.indent(2)
         #{index}. Vuln ID: #{vuln.id}
            Timestamp: #{vuln.created_at}
@@ -2386,8 +2369,6 @@ class Db
            Name: #{vuln.name}
            References: #{vuln.refs.map {|r| r.name}.join(',')}
            Information: #{_format_vuln_value(vuln.info)}
-           Resource: #{vuln.resource.to_json}
-           Service: #{service_str}
       EOF
 
       vuln_attempts_formatted = vuln.vuln_attempts.map.with_index do |vuln_attempt, i|
@@ -2407,16 +2388,6 @@ class Db
 
       { :vuln => vuln_formatted, :vuln_attempts => vuln_attempts_formatted }
     end
-  end
-
-  def _print_service_parents(service, indent_level = 0)
-    service.parents.map do |parent_service|
-      parent_service_str = "#{parent_service.name} (port: #{parent_service.port}, resource: #{parent_service.resource.to_json})".indent(indent_level * 2)
-      if parent_service.parents&.any?
-        parent_service_str << "\n#{_print_service_parents(parent_service, indent_level + 1)}"
-      end
-      parent_service_str
-    end.flatten.join("\n")
   end
 
   def _print_vulns_and_attempts(vulns_and_attempts)
