@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     when 'ALL', 'QUERY_ONLY'
       unless datastore['CERT_TEMPLATE'].nil? || datastore['CERT_TEMPLATE'].blank?
-        print_warning('CERT_TEMPLATE is ignored in ALL, AUTO, and QUERY_ONLY modes.')
+        print_warning('CERT_TEMPLATE is ignored in ALL and QUERY_ONLY modes.')
       end
     end
   end
@@ -108,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
       queried_domain = queried_domain.encode(datastore_domain.encoding)
 
       if datastore['DOMAIN'] != 'WORKSTATION' && queried_domain != datastore_domain
-        fail_with(Failure::UnexpectedReply, "Server claims to be a member of #{domain} domain and does not match the datastore domain entry #{datastore['DOMAIN']}")
+        fail_with(Failure::UnexpectedReply, "Server claims to be a member of #{queried_domain} domain and does not match the datastore domain entry #{datastore['DOMAIN']}")
       end
       connection_identity = queried_domain + '\\\\' + datastore['HttpUsername']
     end
