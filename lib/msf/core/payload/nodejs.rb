@@ -85,6 +85,6 @@ module Msf::Payload::NodeJS
   # @param [String] code the javascript code to run
   # @return [String] a command that invokes "node" and passes the code
   def nodejs_cmd(code)
-    "node -e 'eval(\"#{code.gsub(/[^a-zA-Z0-9\s]/) { |char| Rex::Text.to_hex(char, '\\x') }}\");'"
+    "node -e 'eval(\"#{code.gsub(/[^a-z0-9\s]/i) { |char| Rex::Text.to_hex(char, '\\x') }}\");'"
   end
 end
