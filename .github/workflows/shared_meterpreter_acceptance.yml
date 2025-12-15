@@ -67,7 +67,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-13
+          - macos-15-intel
           - windows-2022
           - ubuntu-latest
         ruby:
@@ -92,7 +92,7 @@ jobs:
           # - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2025 }
 
           # Mettle
-          - { meterpreter: { name: mettle }, os: macos-13 }
+          - { meterpreter: { name: mettle }, os: macos-15-intel }
           - { meterpreter: { name: mettle }, os: ubuntu-latest }
 
     runs-on: ${{ matrix.os }}

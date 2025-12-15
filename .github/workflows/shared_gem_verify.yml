@@ -31,7 +31,7 @@ jobs:
           - ubuntu-latest
           - windows-2022
           - windows-2025
-          - macos-13
+          - macos-15-intel
 
     env:
       RAILS_ENV: test
