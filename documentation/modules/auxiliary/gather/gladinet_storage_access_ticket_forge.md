@@ -8,7 +8,7 @@ The access ticket is an encrypted string that contains:
 - Filepath: The absolute path to the file on the server
 - Username: Empty (Application Pool Identity will be used)
 - Password: Empty
-- Timestamp: Creation time (set to excessive year to never expire)
+- Timestamp: Creation time (set to 100 years in the future so that it doesn't expire)
 
 Because the cryptographic keys are hardcoded and identical across all vulnerable installations, an attacker can forge
 tickets to read arbitrary files from the server's file system, including sensitive configuration files like `Web.config`
