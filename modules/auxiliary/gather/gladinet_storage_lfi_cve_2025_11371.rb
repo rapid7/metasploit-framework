@@ -29,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' => [
           'Huntress Team', # Vulnerability discovery
-          'Valentin Lobstein <chocapikk[at]leakix.net>' # Metasploit module
+          'Valentin Lobstein <chocapikk[at]leakix.net>', # Metasploit module
+          'Julien Voisin' # Review
         ],
         'License' => MSF_LICENSE,
         'References' => [

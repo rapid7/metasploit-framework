@@ -22,12 +22,13 @@ module Msf
       return nil unless content
 
       # Extract machineKey from Web.config
-      # Pattern: <machineKey decryptionKey="..." validationKey="..." />
+      # Pattern: <machineKey ... validationKey="..." ... />
       # NOTE: The exploit module only needs the validationKey, not the decryptionKey
-      machinekey_match = content.match(/<machineKey decryptionKey="([^"]+)" validationKey="([^"]+)"/i)
+      # The regex allows for other attributes (like decryption="AES") between decryptionKey and validationKey
+      machinekey_match = content.match(/<machineKey[^>]*validationKey="([^"]+)"/i)
       return nil unless machinekey_match
 
-      validation_key = machinekey_match[2]
+      validation_key = machinekey_match[1]
 
       # Return only validationKey (hex format) as required by the exploit module
       validation_key
