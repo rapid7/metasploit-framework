@@ -24,7 +24,7 @@ module Msf
       # Extract machineKey from Web.config
       # Pattern: <machineKey decryptionKey="..." validationKey="..." />
       # NOTE: The exploit module only needs the validationKey, not the decryptionKey
-      machinekey_match = content.match(/<machineKey[^>]*decryptionKey=["']([^"']+)["'][^>]*validationKey=["']([^"']+)["']/i)
+      machinekey_match = content.match(/<machineKey decryptionKey="([^"]+)" validationKey="([^"]+)"/i)
       return nil unless machinekey_match
 
       validation_key = machinekey_match[2]
