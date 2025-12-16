@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-An insecure cryptography vulnerability exists in Gladinet CentreStack and Triofox that allows an
+An insecure cryptography vulnerability exists in Gladinet CentreStack and Triofox allowing an
 unauthenticated attacker to forge access tickets for the `/storage/filesvr.dn` endpoint. The vulnerability exists because
 the application uses hardcoded cryptographic keys in GladCtrl64.dll to encrypt/decrypt access tickets.
 
