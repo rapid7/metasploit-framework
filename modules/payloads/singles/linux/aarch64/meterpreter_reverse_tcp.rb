@@ -41,9 +41,9 @@ module MetasploitModule
     }.merge(mettle_logging_config)
     payload = MetasploitPayloads::Mettle.new('aarch64-linux-musl', generate_config(opts)).to_binary :exec
     ds = opts[:datastore] || datastore
-    if ds['PayloadLinuxMinKernel'] == '3.17'
-      return in_memory_load(payload) + payload
+    if Rex::Version.new(ds['PayloadLinuxMinKernel']) < Rex::Version.new('3.17')
+      return payload
     end
-    payload
+    in_memory_load(payload) + payload
   end
 end
