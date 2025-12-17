@@ -126,10 +126,10 @@ module Msf
       info_fixups
 
       # Transform some of the fields to arrays as necessary
-      self.author = Msf::Author.transform(module_info['Author'])
+      self.author = Msf::Author.transform(merge_module_info_with_target_info(module_info, 'Author'))
       self.arch = Rex::Transformer.transform(merge_module_info_with_target_info(module_info, 'Arch'), Array, [ String ], 'Arch')
       self.platform = PlatformList.transform(merge_module_info_with_target_info(module_info, 'Platform'))
-      self.references = Rex::Transformer.transform(module_info['References'], Array, [ SiteReference, Reference ], 'Ref')
+      self.references = Rex::Transformer.transform(merge_module_info_with_target_info(module_info, 'References'), Array, [ SiteReference, Reference ], 'Ref')
 
       # Create and initialize the option container for this module
       self.options = Msf::OptionContainer.new
