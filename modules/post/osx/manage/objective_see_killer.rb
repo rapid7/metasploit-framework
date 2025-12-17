@@ -110,6 +110,7 @@ class MetasploitModule < Msf::Post
 
     return if datastore['ENUMERATE_ONLY']
 
+    # Add return here if user is not root
     ObjectiveSee.installed_products.each {|product| product.kill_pids} if datastore['KILL_PROCESSES']
   end
 end
