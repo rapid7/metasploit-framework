@@ -126,6 +126,7 @@ module Msf
           return to_linux_x86_elf(framework, code, opts)       if arch.index(ARCH_X86)
           return to_linux_x64_elf(framework, code, opts)       if arch.index(ARCH_X64)
           return to_linux_zarch_elf(framework, code, opts)     if arch.index(ARCH_ZARCH)
+          return to_linux_loongarch64_elf(framework, code, opts) if arch.index(ARCH_LOONGARCH64)
         elsif plat.index(Msf::Module::Platform::OSX)
           return to_osx_arm_macho(framework, code, opts)      if arch.index(ARCH_ARMLE)
           return to_osx_aarch64_macho(framework, code, opts)  if arch.index(ARCH_AARCH64)
@@ -158,130 +159,22 @@ module Msf
         exe
       end
 
-      # XXX: Add remaining x86 systems here
-    end
-
-    if arch.index(ARCH_X64)
-      if (plat.index(Msf::Module::Platform::Windows))
-        return to_win64pe(framework, code, opts)
-      end
-
-      if plat.index(Msf::Module::Platform::Linux)
-        return to_linux_x64_elf(framework, code, opts)
-      end
-
-      if plat.index(Msf::Module::Platform::OSX)
-        return to_osx_x64_macho(framework, code)
-      end
-
-      if plat.index(Msf::Module::Platform::BSD)
-        return to_bsd_x64_elf(framework, code)
-      end
-    end
-
-    if arch.index(ARCH_ARMLE)
-      if plat.index(Msf::Module::Platform::OSX)
-        return to_osx_arm_macho(framework, code)
-      end
-
-      if plat.index(Msf::Module::Platform::Linux)
-        return to_linux_armle_elf(framework, code)
-      end
-
-      # XXX: Add remaining ARMLE systems here
-    end
-
-    if arch.index(ARCH_AARCH64)
-      if plat.index(Msf::Module::Platform::Linux)
-        return to_linux_aarch64_elf(framework, code)
-      end
-
-      if plat.index(Msf::Module::Platform::OSX)
-        return to_osx_aarch64_macho(framework, code)
-      end
-
-      # XXX: Add remaining AARCH64 systems here
-    end
-
-    if arch.index(ARCH_PPC)
-      if plat.index(Msf::Module::Platform::OSX)
-        return to_osx_ppc_macho(framework, code)
-      end
-      # XXX: Add PPC OS X and Linux here
-    end
-
-    if arch.index(ARCH_MIPSLE)
-      if plat.index(Msf::Module::Platform::Linux)
-        return to_linux_mipsle_elf(framework, code)
-      end
-      # XXX: Add remaining MIPSLE systems here
-    end
-
-    if arch.index(ARCH_MIPSBE)
-      if plat.index(Msf::Module::Platform::Linux)
-        return to_linux_mipsbe_elf(framework, code)
-      end
-      # XXX: Add remaining MIPSLE systems here
-    end
-
-    if arch.index(ARCH_RISCV32LE)
-      if plat.index(Msf::Module::Platform::Linux)
-        return to_linux_riscv32le_elf(framework, code)
-      end
-      # TODO: Add remaining RISCV32LE systems here
-    end
-
-    if arch.index(ARCH_RISCV64LE)
-      if plat.index(Msf::Module::Platform::Linux)
-        return to_linux_riscv64le_elf(framework, code)
-      end
-      # TODO: Add remaining RISCV64LE systems here
-    end
-
-    if arch.index(ARCH_LOONGARCH64)
-      if plat.index(Msf::Module::Platform::Linux)
-        return to_linux_loongarch64_elf(framework, code)
-      end
-      # TODO: Add remaining LOONGARCH64 systems here
-    end
-
-    nil
-  end
-
-  # Clears the DYNAMIC_BASE flag for a Windows executable
-  #
-  # @param  exe  [String] The raw executable to be modified by the method
-  # @param  pe   [Rex::PeParsey::Pe] Use Rex::PeParsey::Pe.new_from_file
-  # @return      [String] the modified executable
-  def self.clear_dynamic_base(exe, pe)
-    c_bits = ("%32d" %pe.hdr.opt.DllCharacteristics.to_s(2)).split('').map { |e| e.to_i }.reverse
-    c_bits[6] = 0 # DYNAMIC_BASE
-    new_dllcharacteristics = c_bits.reverse.join.to_i(2)
-
-    # PE Header Pointer offset = 60d
-    # SizeOfOptionalHeader offset = 94h
-    dll_ch_offset = exe[60, 4].unpack('h4')[0].reverse.hex + 94
-    exe[dll_ch_offset, 2] = [new_dllcharacteristics].pack("v")
-    exe
-  end
-
-  # self.to_win32pe
-  #
-  # @param  framework [Msf::Framework]
-  # @param  code      [String]
-  # @param  opts      [Hash]
-  # @option opts      [String] :sub_method
-  # @option opts      [String] :inject, Code to inject into the exe
-  # @option opts      [String] :template
-  # @option opts      [Symbol] :arch, Set to :x86 by default
-  # @return           [String]
-  def self.to_win32pe(framework, code, opts = {})
-
-    # For backward compatibility, this is roughly equivalent to 'exe-small' fmt
-    if opts[:sub_method]
-      if opts[:inject]
-        raise RuntimeError, 'NOTE: using the substitution method means no inject support'
-      end
+      # self.to_win32pe
+      #
+      # @param  framework [Msf::Framework]
+      # @param  code      [String]
+      # @param  opts      [Hash]
+      # @option opts      [String] :sub_method
+      # @option opts      [String] :inject, Code to inject into the exe
+      # @option opts      [String] :template
+      # @option opts      [Symbol] :arch, Set to :x86 by default
+      # @return           [String]
+      def self.to_win32pe(framework, code, opts = {})
+        # For backward compatibility, this is roughly equivalent to 'exe-small' fmt
+        if opts[:sub_method]
+          if opts[:inject]
+            raise 'NOTE: using the substitution method means no inject support'
+          end
 
       # use
       self.to_win32pe_exe_sub(framework, code, opts)
@@ -1047,318 +940,23 @@ module Msf
         zip.pack
       end
 
-    elf
-  end
-
-  # Create a 32-bit Linux ELF containing the payload provided in +code+
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_x86_elf(framework, code, opts = {})
-    default = true unless opts[:template]
-
-    if default
-      elf = to_exe_elf(framework, opts, "template_x86_linux.bin", code)
-    else
-      # Use set_template_default to normalize the :template key. It will just end up doing
-      # opts[:template] = File.join(opts[:template_path], opts[:template])
-      # for us, check if the file exists.
-      set_template_default(opts, 'template_x86_linux.bin')
-
-      # If this isn't our normal template, we have to do some fancy
-      # header patching to mark the .text section rwx before putting our
-      # payload into the entry point.
-
-      # read in the template and parse it
-      e = Metasm::ELF.decode_file(opts[:template])
-
-      # This will become a modified copy of the template's original phdr
-      new_phdr = Metasm::EncodedData.new
-      e.segments.each { |s|
-        # Be lazy and mark any executable segment as writable.  Doing
-        # it this way means we don't have to care about which one
-        # contains .text
-        s.flags += [ "W" ] if s.flags.include? "X"
-        new_phdr << s.encode(e)
-      }
-
-      # Copy the original file
-      elf = self.get_file_contents(opts[:template], "rb")
-
-      # Replace the header with our rwx modified version
-      elf[e.header.phoff, new_phdr.data.length] = new_phdr.data
-
-      # Replace code at the entrypoint with our payload
-      entry_off = e.addr_to_off(e.label_addr('entrypoint'))
-      elf[entry_off, code.length] = code
-    end
-
-    elf
-  end
-
-  # Create a 32-bit BSD (test on FreeBSD) ELF containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_bsd_x86_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_x86_bsd.bin", code)
-  end
-
-  # Create a 64-bit Linux ELF containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_bsd_x64_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_x64_bsd.bin", code)
-  end
-
-  # Create a 32-bit Solaris ELF containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_solaris_x86_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_x86_solaris.bin", code)
-  end
-
-  # Create a 64-bit Linux ELF containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_x64_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_x64_linux.bin", code)
-  end
-
-  # Create a 32-bit Linux ELF_DYN containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_x86_elf_dll(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_x86_linux_dll.bin", code)
-  end
-
-  # Create a AARCH64 Linux ELF_DYN containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_aarch64_elf_dll(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_aarch64_linux_dll.bin", code)
-  end
-
-  # Create a 64-bit Linux ELF_DYN containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_x64_elf_dll(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_x64_linux_dll.bin", code)
-  end
-
-  # self.to_linux_armle_elf
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_armle_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_armle_linux.bin", code)
-  end
-
-  # self.to_linux_armle_elf_dll
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf-so
-  def self.to_linux_armle_elf_dll(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_armle_linux_dll.bin", code)
-  end
-
-  # self.to_linux_aarch64_elf
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_aarch64_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_aarch64_linux.bin", code)
-  end
-
-  # self.to_linux_ppc64le_elf
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_ppc64le_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_ppc64le_linux.bin", code)
-  end
-  
-  # self.to_linux_ppc_elf
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_ppc_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_ppc_linux.bin", code)
-  end
-   # self.to_linux_mipsle_elf
-  # Little Endian
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_mipsle_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_mipsle_linux.bin", code)
-  end
-
-  # self.to_linux_mipsbe_elf
-  # Big Endian
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_mipsbe_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_mipsbe_linux.bin", code, true)
-  end
-
-  # Create a RISC-V 64-bit LE Linux ELF containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_riscv64le_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_riscv64le_linux.bin", code)
-  end
-
-  # Create a RISC-V 64-bit LE Linux ELF_DYN containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_riscv64le_elf_dll(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_riscv64le_linux_dll.bin", code)
-  end
-
-  # Create a RISC-V 32-bit LE Linux ELF containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_riscv32le_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_riscv32le_linux.bin", code)
-  end
-
-  # Create a RISC-V 32-bit LE Linux ELF_DYN containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_riscv32le_elf_dll(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_riscv32le_linux_dll.bin", code)
-  end
-
-  # Create a LOONGARCH64 64-bit LE Linux ELF containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_loongarch64_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_loongarch64_linux.bin", code)
-  end
-
-  # Create a LOONGARCH64 64-bit LE Linux ELF_DYN containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_loongarch64_elf_dll(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_loongarch64_linux_dll.bin", code)
-  end
-
-  # self.to_exe_vba
-  #
-  # @param exes [String]
-  def self.to_exe_vba(exes='')
-    exe = exes.unpack('C*')
-    hash_sub = {}
-    idx = 0
-    maxbytes = 2000
-    var_base_idx = 0
-    var_base = Rex::Text.rand_text_alpha(5).capitalize
-
-    # First write the macro into the vba file
-    hash_sub[:var_magic] = Rex::Text.rand_text_alpha(10).capitalize
-    hash_sub[:var_fname] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_fenvi] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_fhand] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_parag] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_itemp] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_btemp] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_appnr] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_index] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_gotmagic] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_farg] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:var_stemp] = var_base + (var_base_idx+=1).to_s
-    hash_sub[:filename] = Rex::Text.rand_text_alpha(rand(8)+8)
-
-    # Function 1 extracts the binary
-    hash_sub[:func_name1] = var_base + (var_base_idx+=1).to_s
-
-    # Function 2 executes the binary
-    hash_sub[:func_name2] = var_base + (var_base_idx+=1).to_s
-
-    hash_sub[:data] = ""
-
-    # Writing the bytes of the exe to the file
-    1.upto(exe.length) do |pc|
-      while c = exe[idx]
-        hash_sub[:data] << "&H#{("%.2x" % c).upcase}"
-        if idx > 1 && (idx % maxbytes) == 0
-          # When maxbytes are written make a new paragrpah
-          hash_sub[:data] << "\r\n"
+      # Create an ELF executable containing the payload provided in +code+
+      #
+      # For the default template, this method just appends the payload, checks if
+      # the template is 32 or 64 bit and adjusts the offsets accordingly
+      # For user-provided templates, modifies the header to mark all executable
+      # segments as writable and overwrites the entrypoint (usually _start) with
+      # the payload.
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @param template   [String]
+      # @param code       [String]
+      # @param big_endian [Boolean]  Set to "false" by default
+      # @return           [String]
+      def self.to_exe_elf(framework, opts, template, code, big_endian = false)
+        if elf? code
+          return code
         end
 
         # Allow the user to specify their own template
@@ -1690,6 +1288,14 @@ module Msf
       # @return           [String] Returns an elf
       def self.to_linux_riscv32le_elf_dll(framework, code, opts = {})
         to_exe_elf(framework, opts, 'template_riscv32le_linux_dll.bin', code)
+      end
+
+      def self.to_linux_loongarch64_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_loongarch64_linux.bin', code)
+      end
+
+      def self.to_linux_loongarch64_elf_dll(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_loongarch64_linux_dll.bin', code)
       end
 
       # self.to_exe_vba
@@ -2452,140 +2058,12 @@ module Msf
         soff = enc.data.index("\xe9\xff\xff\xff\xff") + 1
         res = enc.data + code
 
-    if which_offset == 'start'
-      res[soff,4] = [block_offset - (soff + 4)].pack('V')
-    elsif which_offset == 'end'
-      res[soff,4] = [res.length - (soff + 4) + block_offset].pack('V')
-    else
-      raise RuntimeError, 'Blast! Msf::Util::EXE.rwx_exec_thread called with invalid offset!'
-    end
-    res
-  end
-
-
-  #
-  # Generate an executable of a given format suitable for running on the
-  # architecture/platform pair.
-  #
-  # This routine is shared between msfvenom, rpc, and payload modules (use
-  # <payload>)
-  #
-  # @param framework [Framework]
-  # @param arch [String] Architecture for the target format; one of the ARCH_*
-  # constants
-  # @param plat [#index] platform
-  # @param code [String] The shellcode for the resulting executable to run
-  # @param fmt [String] One of the executable formats as defined in
-  #   {.to_executable_fmt_formats}
-  # @param exeopts [Hash] Passed directly to the appropriate method for
-  #   generating an executable for the given +arch+/+plat+ pair.
-  # @return [String] An executable appropriate for the given
-  #   architecture/platform pair.
-  # @return [nil] If the format is unrecognized or the arch and plat don't
-  #   make sense together.
-  def self.to_executable_fmt(framework, arch, plat, code, fmt, exeopts)
-    # For backwards compatibility with the way this gets called when
-    # generating from Msf::Simple::Payload.generate_simple
-    if arch.kind_of? Array
-      output = nil
-      arch.each do |a|
-        output = to_executable_fmt(framework, a, plat, code, fmt, exeopts)
-        break if output
-      end
-      return output
-    end
-
-    # otherwise the result of this huge case statement is returned
-    case fmt
-    when 'asp'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
-      Msf::Util::EXE.to_exe_asp(exe, exeopts)
-    when 'aspx'
-      Msf::Util::EXE.to_mem_aspx(framework, code, exeopts)
-    when 'aspx-exe'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
-      Msf::Util::EXE.to_exe_aspx(exe, exeopts)
-    when 'dll'
-      case arch
-      when ARCH_X86,nil
-        to_win32pe_dll(framework, code, exeopts)
-      when ARCH_X64
-        to_win64pe_dll(framework, code, exeopts)
-      end
-    when 'exe'
-      case arch
-      when ARCH_X86,nil
-        to_win32pe(framework, code, exeopts)
-      when ARCH_X64
-        to_win64pe(framework, code, exeopts)
-      when ARCH_AARCH64
-        to_winaarch64pe(framework, code, exeopts)
-      end
-    when 'exe-service'
-      case arch
-      when ARCH_X86,nil
-        to_win32pe_service(framework, code, exeopts)
-      when ARCH_X64
-        to_win64pe_service(framework, code, exeopts)
-      end
-    when 'exe-small'
-      case arch
-      when ARCH_X86,nil
-        to_win32pe_old(framework, code, exeopts)
-      when ARCH_X64
-        to_win64pe(framework, code, exeopts)
-      end
-    when 'exe-only'
-      case arch
-      when ARCH_X86,nil
-        to_winpe_only(framework, code, exeopts)
-      when ARCH_X64
-        to_winpe_only(framework, code, exeopts, arch)
-      end
-    when 'msi'
-      case arch
-        when ARCH_X86,nil
-          exe = to_win32pe(framework, code, exeopts)
-        when ARCH_X64
-          exe = to_win64pe(framework, code, exeopts)
-      end
-      exeopts[:uac] = true
-      Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
-    when 'msi-nouac'
-      case arch
-      when ARCH_X86,nil
-        exe = to_win32pe(framework, code, exeopts)
-      when ARCH_X64
-        exe = to_win64pe(framework, code, exeopts)
-      end
-      Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
-    when 'elf'
-      if elf? code
-        return code
-      end
-      puts arch
-      if !plat || plat.index(Msf::Module::Platform::Linux)
-        case arch
-        when ARCH_X86,nil
-          to_linux_x86_elf(framework, code, exeopts)
-        when ARCH_X64
-          to_linux_x64_elf(framework, code, exeopts)
-        when ARCH_AARCH64
-          to_linux_aarch64_elf(framework, code, exeopts)
-        when ARCH_PPC64
-          to_linux_ppc64_elf(framework, code, exeopts)
-        when ARCH_ARMLE
-          to_linux_armle_elf(framework, code, exeopts)
-        when ARCH_MIPSBE
-          to_linux_mipsbe_elf(framework, code, exeopts)
-        when ARCH_MIPSLE
-          to_linux_mipsle_elf(framework, code, exeopts)
-        when ARCH_RISCV32LE
-          to_linux_riscv32le_elf(framework, code, exeopts)
-        when ARCH_RISCV64LE
-          to_linux_riscv64le_elf(framework, code, exeopts)
-        when ARCH_LOONGARCH64
-          to_linux_loongarch64_elf(framework, code, exeopts)
+        if which_offset == 'start'
+          res[soff, 4] = [block_offset - (soff + 4)].pack('V')
+        elsif which_offset == 'end'
+          res[soff, 4] = [res.length - (soff + 4) + block_offset].pack('V')
+        else
+          raise 'Blast! Msf::Util::EXE.rwx_exec_thread called with invalid offset!'
         end
         res
       end
@@ -2719,6 +2197,8 @@ module Msf
               to_linux_ppce500v2_elf(framework, code, exeopts)
             when ARCH_ZARCH
               to_linux_zarch_elf(framework, code, exeopts)
+            when ARCH_LOONGARCH64
+              to_linux_loongarch64_elf(framework, code, exeopts)
             end
           elsif plat && plat.index(Msf::Module::Platform::BSD)
             case arch
@@ -2752,6 +2232,8 @@ module Msf
               to_linux_riscv32le_elf_dll(framework, code, exeopts)
             when ARCH_RISCV64LE
               to_linux_riscv64le_elf_dll(framework, code, exeopts)
+            when ARCH_LOONGARCH64
+              to_linux_loongarch64_elf_dll(framework, code, exeopts)
             end
           end
         when 'macho', 'osx-app'
@@ -2851,22 +2333,28 @@ module Msf
           'war'
         ]
       end
-      if !plat || plat.index(Msf::Module::Platform::Linux)
-        case arch
-        when ARCH_X86
-          to_linux_x86_elf_dll(framework, code, exeopts)
-        when ARCH_X64
-          to_linux_x64_elf_dll(framework, code, exeopts)
-        when ARCH_ARMLE
-          to_linux_armle_elf_dll(framework, code, exeopts)
-        when ARCH_AARCH64
-          to_linux_aarch64_elf_dll(framework, code, exeopts)
-        when ARCH_RISCV32LE
-          to_linux_riscv32le_elf_dll(framework, code, exeopts)
-        when ARCH_RISCV64LE
-          to_linux_riscv64le_elf_dll(framework, code, exeopts)
-        when ARCH_LOONGARCH64
-          to_linux_loongarch64_elf_dll(framework, code, exeopts)
+
+      # self.get_file_contents
+      #
+      # @param perms  [String]
+      # @param file   [String]
+      # @return       [String]
+      def self.get_file_contents(file, perms = 'rb')
+        contents = ''
+        File.open(file, perms) { |fd| contents = fd.read(fd.stat.size) }
+        contents
+      end
+
+      # self.find_payload_tag
+      #
+      # @param mo       [String]
+      # @param err_msg  [String]
+      # @raise [RuntimeError] if the "PAYLOAD:" is not found
+      # @return         [Integer]
+      def self.find_payload_tag(mo, err_msg)
+        bo = mo.index('PAYLOAD:')
+        unless bo
+          raise err_msg.to_s
         end
 
         bo
