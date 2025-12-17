@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 3231
+  CachedSize = 1356
 
   include Msf::Payload::Single
   include Msf::Payload::NodeJS
