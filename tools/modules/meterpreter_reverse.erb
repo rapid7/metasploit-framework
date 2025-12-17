@@ -38,7 +38,7 @@ module MetasploitModule
       stageless: true
     }.merge(mettle_logging_config)
     payload = MetasploitPayloads::Mettle.new('<%= payload %>', generate_config(opts)).to_binary :exec
-    <% if platform.downcase == 'linux' && !['armbe', 'ppc64le', 'ppc', 'ppce500v2'].include?(arch.downcase) %>ds = opts[:datastore] || datastore
+    <% if platform.downcase == 'linux' && !['armbe', 'ppc64le', 'ppc', 'ppce500v2', 'zarch'].include?(arch.downcase) %>ds = opts[:datastore] || datastore
     if Rex::Version.new(ds['PayloadLinuxMinKernel']) < Rex::Version.new('3.17')
       return payload
     end
