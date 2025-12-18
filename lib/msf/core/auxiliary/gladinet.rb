@@ -51,7 +51,10 @@ module Msf
       return unless content.include?('machineKey') || filepath.include?('Web.config')
 
       machinekey = extract_machinekey(content)
-      return print_warning('Could not extract machineKey from Web.config') unless machinekey
+      unless machinekey
+        print_warning('Could not extract machineKey from Web.config')
+        return nil
+      end
 
       print_good('Extracted machineKey from Web.config')
       print_line("MachineKey: #{machinekey}")

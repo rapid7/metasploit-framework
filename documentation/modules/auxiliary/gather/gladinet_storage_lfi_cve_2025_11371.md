@@ -45,6 +45,13 @@ You are now ready to test the module.
 
 The file path to read on the target. Default: `Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config`
 
+### DEPTH
+
+Path traversal depth (number of `..\` sequences). Default: `..\..\..\`
+
+This option allows you to adjust the path traversal depth based on the target's directory structure.
+You may need to increase or decrease the depth depending on where the application is installed.
+
 ### EXTRACT_MACHINEKEY
 
 Whether to automatically extract the machineKey from Web.config if found. Default: `true`
@@ -202,7 +209,8 @@ msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > run
 ## Limitations
 
 The LFI vulnerability requires directory traversal using Windows-style backslashes (`\`). The module automatically
-prepends `..\..\..\` to the file path to escape from the web root directory.
+prepends the `DEPTH` option value (default: `..\..\..\`) to the file path to escape from the web root directory.
+You can adjust the `DEPTH` option if the default value doesn't work for your target.
 
 Some files may not be readable due to:
 * File system permissions
