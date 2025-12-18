@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
     ticket_forge_vulnerable = rex_version <= Rex::Version.new('16.12.10420.56791')
     return Exploit::CheckCode::Vulnerable("Access ticket forge vulnerability confirmed (Build #{version})") if ticket_forge_vulnerable
 
-    Exploit::CheckCode::Detected("Version #{version} detected, attempting ticket forge anyway")
+    Exploit::CheckCode::Appears("Version #{version} detected, attempting ticket forge anyway")
   end
 
   def run
