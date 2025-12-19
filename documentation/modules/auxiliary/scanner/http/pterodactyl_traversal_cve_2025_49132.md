@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
 Pterodactyl Panel is an open-source game server management panel built with PHP, React, and Go.
-This module exploits a path traversal vulnerability (CVE-2025-49132) in Pterodactyl Panel versions prior to the fixed release.
+This module exploits a path traversal vulnerability (CVE-2025-49132) in Pterodactyl Panel versions prior to the fixed release: `v1.11.11 `.
 The vulnerability exists in the `/locales/locale.json` endpoint. It allows an unauthenticated attacker to manipulate the `locale` parameter to traverse directories and read arbitrary files on the server (e.g., configuration files containing sensitive keys).
 
 To set up a vulnerable environment, you can install an older version of Pterodactyl Panel using the standard installation scripts or Docker, ensuring you do not apply the patch for CVE-2025-49132.
