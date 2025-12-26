@@ -10,11 +10,11 @@ Generates a GET request to the provided web servers and returns the server heade
 
 ## Options
 
-**SHOW_TITLES**
+### SHOW_TITLES
 
 If set to `false`, will not show the titles on the console as they are grabbed. Defaults to `true`.
 
-**STORE_NOTES**
+### STORE_NOTES
 
 If set to `false`, will not store the captured information in notes. Use `notes -t http.title` to view. Defaults to `true`.
 

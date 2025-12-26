@@ -27,7 +27,8 @@ class MetasploitModule < Msf::Post
         'Platform' => ['linux'],
         'SessionTypes' => ['shell', 'meterpreter'],
         'References' => [
-          ['URL', 'https://gist.github.com/rvrsh3ll/cc93a0e05e4f7145c9eb#file-openvpnscraper-sh']
+          ['URL', 'https://gist.github.com/rvrsh3ll/cc93a0e05e4f7145c9eb#file-openvpnscraper-sh'],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_007_PROC_FILESYSTEM ]
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],

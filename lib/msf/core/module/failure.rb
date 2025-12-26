@@ -56,9 +56,14 @@ module Msf::Module::Failure
     info[:target_name] = self.target.name if self.respond_to?(:target)
 
     if self.datastore['RHOST'] && (self.options['RHOST'] || self.options['RHOSTS'])
-      info[:host] = self.datastore['RHOST']
+      # Only include RHOST if it's a single valid host, not a multi-value string or file path
+      rhost = self.datastore['RHOST'].to_s
+      # Check if RHOST is a valid IP address to avoid ActiveRecord issues on validation
+      if Rex::Socket.is_ip_addr?(rhost)
+        info[:host] = rhost
+      end
     end
-
+    
     if self.datastore['RPORT'] and self.options['RPORT']
       info[:port] = self.datastore['RPORT']
       if self.class.ancestors.include?(Msf::Exploit::Remote::Tcp)

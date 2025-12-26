@@ -87,12 +87,12 @@ root@kali:/tmp/goahead-3.4.1# build/linux-x64-default/bin/goahead --verbose --ho
 
 ## Options
 
-  **DEPTH**
+### DEPTH
 
   The depth to traverse from the webroot.  This does not need to be exact, overshooting (using a number larger than needed)
   will still result in the file being obtained.  Default is `5`
 
-  **FILEPATH**
+### FILEPATH
 
   The path to the file to read.  Default is `/etc/passwd`.
 

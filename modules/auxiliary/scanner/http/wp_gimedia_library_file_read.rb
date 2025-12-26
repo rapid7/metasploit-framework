@@ -20,6 +20,7 @@ class MetasploitModule < Msf::Auxiliary
           on GI-Media Library version 2.2.2 with WordPress 4.1.3 on Ubuntu 12.04 Server.
         },
         'References' => [
+          ['CVE', '2015-10136'],
           ['WPVDB', '7754'],
           ['URL', 'http://web.archive.org/web/20191021124407/http://wordpressa.quantika14.com/repository/index.php?id=24']
         ],

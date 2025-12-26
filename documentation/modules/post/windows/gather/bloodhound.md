@@ -23,9 +23,9 @@ This module can take several/many minutes to run due to the volume of data being
 Which method to use to get shaphound running.  Default is `download`.
 
   1. `download` requires the compromised host to have connectivity back to metasploit to download and execute the
-      payload.  Sharphound is not written to disk.
+payload.  Sharphound is not written to disk.
   2. `disk` requires admin privileges to bypass the execution policy (if it isn't open).  Writes the `sharphound.exe`
-     file to disk.  No connectivity is required but a disk write does happen which is likely to get caught by AV.
+file to disk.  No connectivity is required but a disk write does happen which is likely to get caught by AV.
 
 ### CollectionMethode
 

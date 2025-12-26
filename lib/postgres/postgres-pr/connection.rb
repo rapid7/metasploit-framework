@@ -56,12 +56,12 @@ class Connection
     end
   end
 
-  def initialize(database, user, password=nil, uri = nil, proxies = nil)
+  def initialize(database, user, password=nil, uri = nil, proxies = nil, ssl = nil, ssl_opts = {})
     uri ||= DEFAULT_URI
 
     @transaction_status = nil
     @params = { 'username' => user, 'database' => database }
-    establish_connection(uri, proxies)
+    establish_connection(uri, proxies, ssl, ssl_opts)
 
     # Check if the password supplied is a Postgres-style md5 hash
     md5_hash_match = password.match(/^md5([a-f0-9]{32})$/)
@@ -231,7 +231,11 @@ class Connection
 
   def close
     raise "connection already closed" if @conn.nil?
-    @conn.shutdown
+    if @conn.respond_to?(:shutdown)
+      @conn.shutdown
+    elsif @conn.respond_to?(:close)
+      @conn.close
+    end
     @conn = nil
   end
 
@@ -343,16 +347,34 @@ class Connection
 
   # tcp://localhost:5432
   # unix:/tmp/.s.PGSQL.5432
-  def establish_connection(uri, proxies)
+  def establish_connection(uri, proxies, ssl = nil, ssl_opts = {})
     u = URI.parse(uri)
     case u.scheme
     when 'tcp'
-      @conn = Rex::Socket.create(
-      'PeerHost' => (u.host || DEFAULT_HOST).gsub(/[\[\]]/, ''),  # Strip any brackets off (IPv6)
-      'PeerPort' => (u.port || DEFAULT_PORT),
-      'proto' => 'tcp',
-      'Proxies' => proxies
-    )
+      params = Rex::Socket::Parameters.from_hash(
+        'PeerHost' => (u.host || DEFAULT_HOST).gsub(/\[|\]/, ''),
+        'PeerPort' => (u.port || DEFAULT_PORT),
+        'proto' => 'tcp',
+        'Proxies' => proxies,
+        'SSLVersion' => ssl_opts[:ssl_version],
+        'SSLVerifyMode' => ssl_opts[:ssl_verify_mode],
+        'SSLCipher' => ssl_opts[:ssl_cipher]
+      )
+      @conn = Rex::Socket.create_param(params)
+
+      if ssl
+        ssl_request_message = SSLRequest.new(80877103)
+        @conn.write(ssl_request_message.dump)
+        response = @conn.read(1)
+        if response == 'S'
+          @conn.starttls(params)
+        elsif response == 'N'
+          # Server does not support SSL
+          raise "SSL connection requested but server at #{u.host}:#{u.port} does not support SSL"
+        else
+          raise "Unexpected response to SSLRequest: #{response.inspect}"
+        end
+      end
     when 'unix'
       @conn = UNIXSocket.new(u.path)
     else

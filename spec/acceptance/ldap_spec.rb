@@ -90,24 +90,6 @@ RSpec.describe 'LDAP modules' do
           }
         },
         {
-          name: 'auxiliary/gather/ldap_esc_vulnerable_cert_finder',
-          platforms: %i[linux osx windows],
-          targets: [:session, :rhost],
-          skipped: false,
-          lines: {
-            all: {
-              required: [
-                /Successfully queried/
-              ]
-            },
-            linux: {
-              known_failures: [
-                /Auxiliary aborted due to failure: not-found/
-              ]
-            }
-          }
-        },
-        {
           name: 'auxiliary/admin/ldap/rbcd',
           platforms: %i[linux osx windows],
           targets: [:session, :rhost],

@@ -12,7 +12,7 @@ Tested with Schneider TM221CE16R
 
 ## Options
 
-**MODE**
+### MODE
 
 Default: UPLOAD. Changes offset within a packet that is used to check for a zip header.
 

@@ -40,7 +40,10 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_getpid
             ]
           }
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_002_SECURITY_ACCOUNT_MANAGER ]
+        ]
       )
     )
     register_options(

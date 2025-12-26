@@ -10,15 +10,15 @@ This module downloads PDF files and extracts the author's name from the document
 
 ## Options
 
-**URL**
+### URL
 
 The URL of a PDF to analyse.
 
-**URL_LIST**
+### URL_LIST
 
 File containing a list of PDF URLs to analyze.
 
-**OUTFILE**
+### OUTFILE
 
 File to store extracted author names.
 

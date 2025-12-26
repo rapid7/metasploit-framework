@@ -5,47 +5,47 @@ demonstrated to work against static key garage door openers.
 
 ## Options
 
-  **FREQ**
+### FREQ
 
   Frequency to brute force.
 
-  **BAUD**
+### BAUD
 
   Baud rate.  Default: 2000
 
-  **BINLENGTH**
+### BINLENGTH
 
   Binary bit-length for bruteforcing.  Default: 8
 
-  **REPEAT**
+### REPEAT
 
   How many times to repeat the sending of the packet.  Default: 5
 
-  **PPAD**
+### PPAD
 
   Binary data to append to packet.  (Example: "0101")  Default: None
 
-  **TPAD**
+### TPAD
 
   Binary data to add to end of packet.  (Example: "0101")  Default: None
 
-  **RAW**
+### RAW
 
   Do not do PWM encoding on packet.  Default: False
 
-  **TRI**
+### TRI
 
   Use trinary signals.  Default: False
 
-  **EXTRAVERBOSE**
+### EXTRAVERBOSE
 
   Adds some extra status messages.
 
-  **INDEX**
+### INDEX
 
   USB Index number.  Default: 0
 
-  **DELAY**
+### DELAY
 
   How many milliseconds to delay before transmission.  Too fast tends to lock up the device.  Default: 500 (0.5 seconds)
 

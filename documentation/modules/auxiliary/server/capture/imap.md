@@ -8,7 +8,7 @@ This module creates a mock IMAP server which accepts credentials.
 
 ## Options
 
-  **BANNER**
+### BANNER
 
   The Banner which should be displayed.  Default is `IMAP4`.
   Some notable banners to emulate:
@@ -20,12 +20,12 @@ This module creates a mock IMAP server which accepts credentials.
   * `The Microsoft Exchange IMAP4 service is ready.`
   * `Microsoft Exchange Server 2003 IMAP4rev1 server versino 6.5.7638.1 (domain.local) ready.`
 
-  **SSL**
+### SSL
 
   Boolean if SSL should be used, making this Secure IMAP.  Secure IMAP is typically run on port 993.  If `SSLCert` is not set, a certificate
   will be automatically generated.  Default is `False`.
 
-  **SSLCert**
+### SSLCert
 
   File path to a combined Private Key and Certificate file.  If not provided, a certificate will be automatically
   generated.  Default is ``.

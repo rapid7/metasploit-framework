@@ -21,7 +21,7 @@ Virtual testing environments (inside docker container):
 
 ## Options
 
-**COMMAND**
+### COMMAND
 
 Requires a valid redis command to be executed on rhosts. Defaults to `INFO`. 
 Redis commands list can be found [here](https://redis.io/commands).

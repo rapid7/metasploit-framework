@@ -19,6 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => 'Matt "hostess" Andreko <mandreko[at]accuvant.com>',
         'License' => MSF_LICENSE,
         'References' => [
+          [ 'CVE', '2013-10065' ],
           [ 'OSVDB', '92081'],
           [ 'URL', 'https://www.mattandreko.com/2013/04/sysax-multi-server-610-ssh-dos.html']
         ],

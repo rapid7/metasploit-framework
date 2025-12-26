@@ -137,6 +137,27 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
   end
 
+  def load_embedded_extensions
+    # Rex::Post::Meterpreter::ExtensionMapper.get_extension_klasses
+
+    # First of all, let's see if we have stdapi.
+    commands = self.core.get_loaded_extension_commands('stdapi')
+    console.run_single("load stdapi") if commands.length > 0
+
+    return if self.platform != 'windows'
+
+    exts = Set.new
+    exts.merge(binary_suffix.map { |suffix| MetasploitPayloads.list_meterpreter_extensions(suffix) }.flatten)
+    exts = exts.sort.uniq
+
+    exts.each { |e| 
+      commands = self.core.get_loaded_extension_commands(e.downcase)
+      if commands.length > 0 && !e.downcase.starts_with?('stdapi')
+        console.run_single("load #{e.downcase}")
+      end
+    }
+  end
+
   def bootstrap(datastore = {}, handler = nil)
     session = self
 
@@ -180,24 +201,30 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       print_warning('Meterpreter start up operations have been aborted. Use the session at your own risk.')
       return nil
     end
-    extensions = datastore['AutoLoadExtensions']&.delete(' ').split(',') || []
+
+    original = console.disable_output
+    console.disable_output = true
+
+    load_embedded_extensions
+
+    extensions = datastore['AutoLoadExtensions']&.delete(' ')&.split(',') || []
 
     # BEGIN: This should be removed on MSF 7
     # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP (by default unhook is first, see meterpreter_options/windows.rb)
-    extensions.push('unhook') if datastore['AutoUnhookProcess'] && session.platform == 'windows'
+    # The unhook extension is broken. reference: https://github.com/rapid7/metasploit-framework/pull/20514
+
+    #extensions.push('unhook') if datastore['AutoUnhookProcess'] && session.platform == 'windows'
     extensions.push('stdapi') if datastore['AutoLoadStdapi']
     extensions.push('priv') if datastore['AutoLoadStdapi'] && session.platform == 'windows'
     extensions.push('android') if session.platform == 'android'
     extensions = extensions.uniq
     # END
-    original = console.disable_output
-    console.disable_output = true
     # TODO: abstract this a little, perhaps a "post load" function that removes
     # platform-specific stuff?
     extensions.each do |extension|
       begin
         console.run_single("load #{extension}")
-        console.run_single('unhook_pe') if extension == 'unhook'
+        # console.run_single('unhook_pe') if extension == 'unhook'
         session.load_session_info if extension == 'stdapi' && datastore['AutoSystemInfo']
       rescue => e
         print_warning("Failed loading extension #{extension}")

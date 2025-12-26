@@ -17,7 +17,10 @@ class MetasploitModule < Msf::Auxiliary
         This module runs arbitrary Windows commands using the WinRM Service
         },
       'Author' => [ 'thelightcosine' ],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'References' => [
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_006_WINDOWS_REMOTE_MANAGEMENT ]
+      ]
     )
 
     register_options(

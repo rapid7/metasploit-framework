@@ -15,21 +15,21 @@ Detects a closed port via a RST received in response to the FIN
 
 ## Options
 
-  **PORTS**
+### PORTS
   
   This is the list of TCP ports to test on each host.
   Formats like  `1-3`, `1,2,3`, `1,2-3`, etc. are all supported. Default
   options is to scan `1-10000` ports.
   
-  **Timeout**
+### Timeout
 
   This options states the reply read timeout in milliseconds. Default value if `500`.
 
-  **RHOSTS**
+### RHOSTS
 
   The target address range is defined in this option.
 
-  **VERBOSE**
+### VERBOSE
   
   Gives detailed message about the scan of all the ports. It also shows the
   ports that were not open/filtered.

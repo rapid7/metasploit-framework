@@ -242,6 +242,76 @@ module Acceptance::Session
         }
       },
       {
+        name: "post/test/socket_channels",
+        platforms: [:linux, :osx, :windows],
+        skipped: false,
+        lines: {
+          linux: {
+            known_failures: [
+              "[-] [[TCP-Server] Allows binding to port 0] FAILED: [TCP-Server] Allows binding to port 0",
+              "[-] [[TCP-Server] Allows binding to port 0] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Accepts a connection] FAILED: [TCP-Server] Accepts a connection",
+              "[-] [[TCP-Server] Accepts a connection] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Has the correct peer information] FAILED: [TCP-Server] Has the correct peer information",
+              "[-] [[TCP-Server] Has the correct peer information] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Receives data from the peer] FAILED: [TCP-Server] Receives data from the peer",
+              "[-] [[TCP-Server] Receives data from the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Sends data to the peer] FAILED: [TCP-Server] Sends data to the peer",
+              "[-] [[TCP-Server] Sends data to the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Propagates close events to the server] FAILED: [TCP-Server] Propagates close events to the server",
+              "[-] [[TCP-Server] Propagates close events to the server] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Propagates close events to the peer] FAILED: [TCP-Server] Propagates close events to the peer",
+              "[-] [[TCP-Server] Propagates close events to the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Propagates close events from the peer] FAILED: [TCP-Server] Propagates close events from the peer",
+              "[-] [[TCP-Server] Propagates close events from the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] FAILED: [UDP] Has the correct peer information"
+            ]
+          },
+          osx: {
+              known_failures: [
+              "[-] [[TCP-Server] Allows binding to port 0] FAILED: [TCP-Server] Allows binding to port 0",
+              "[-] [[TCP-Server] Allows binding to port 0] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Accepts a connection] FAILED: [TCP-Server] Accepts a connection",
+              "[-] [[TCP-Server] Accepts a connection] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Has the correct peer information] FAILED: [TCP-Server] Has the correct peer information",
+              "[-] [[TCP-Server] Has the correct peer information] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Receives data from the peer] FAILED: [TCP-Server] Receives data from the peer",
+              "[-] [[TCP-Server] Receives data from the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Sends data to the peer] FAILED: [TCP-Server] Sends data to the peer",
+              "[-] [[TCP-Server] Sends data to the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Propagates close events to the server] FAILED: [TCP-Server] Propagates close events to the server",
+              "[-] [[TCP-Server] Propagates close events to the server] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Propagates close events to the peer] FAILED: [TCP-Server] Propagates close events to the peer",
+              "[-] [[TCP-Server] Propagates close events to the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Propagates close events from the peer] FAILED: [TCP-Server] Propagates close events from the peer",
+              "[-] [[TCP-Server] Propagates close events from the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] FAILED: [UDP] Has the correct peer information"
+            ]
+          },
+          windows: {
+            known_failures: [
+              "[-] [[TCP-Server] Allows binding to port 0] FAILED: [TCP-Server] Allows binding to port 0",
+              "[-] [[TCP-Server] Allows binding to port 0] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Accepts a connection] FAILED: [TCP-Server] Accepts a connection",
+              "[-] [[TCP-Server] Accepts a connection] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Has the correct peer information] FAILED: [TCP-Server] Has the correct peer information",
+              "[-] [[TCP-Server] Has the correct peer information] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Receives data from the peer] FAILED: [TCP-Server] Receives data from the peer",
+              "[-] [[TCP-Server] Receives data from the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Sends data to the peer] FAILED: [TCP-Server] Sends data to the peer",
+              "[-] [[TCP-Server] Sends data to the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Propagates close events to the server] FAILED: [TCP-Server] Propagates close events to the server",
+              "[-] [[TCP-Server] Propagates close events to the server] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Propagates close events to the peer] FAILED: [TCP-Server] Propagates close events to the peer",
+              "[-] [[TCP-Server] Propagates close events to the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] [[TCP-Server] Propagates close events from the peer] FAILED: [TCP-Server] Propagates close events from the peer",
+              "[-] [[TCP-Server] Propagates close events from the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
+              "[-] FAILED: [UDP] Has the correct peer information"
+            ]
+          }
+        }
+      },
+      {
         name: "post/test/unix",
         platforms: [
           :linux,

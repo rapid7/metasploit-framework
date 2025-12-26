@@ -30,6 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           'bcoles' # Metasploit module
         ],
         'References' => [
+          [ 'CVE', '2025-34119' ],
           [ 'EDB', '39102' ]
         ],
         'Notes' => {

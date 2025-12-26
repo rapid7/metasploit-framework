@@ -31,19 +31,19 @@ root@kali:/var/www/html# service apache2 start
 
 ## Options
 
-  **GIT_CONFIG**
+### GIT_CONFIG
 
   Attempts to locate the `config` file, which may contain useful information.  Default is `true`.
 
-  **GIT_INDEX**
+### GIT_INDEX
 
   Attempts to locate the `index` file, which identifies the git version and number of files.  Default is `true`.
 
-  **TARGETURI**
+### TARGETURI
 
   Where the `.git` folder is located.  Default is `/.git/`
 
-  **UserAgent**
+### UserAgent
 
   The user agent to emulate.  Default is `git/1.7.9.5`.
 

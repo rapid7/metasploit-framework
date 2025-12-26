@@ -47,12 +47,12 @@ on setting up the [BAFX 34t5](https://bafxpro.com/products/obdreader) with Kali 
 
 ## Options
 
- **TARGETURI**
+### TARGETURI
 
  Specifies the base target URI to communicate to the HWBridge API.  By default this is '/' but it
  could be things such as '/api' or the randomly generated URI from the local_hwbridge module
 
- **DEBUGJSON**
+### DEBUGJSON
 
  Prints out all the JSON packets that come from the HWBridge API.  Useful for troubleshooting
  a device.

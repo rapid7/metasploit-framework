@@ -25,19 +25,19 @@ List the steps needed to make sure this thing works
 
 ## Options
 
-**RHOSTS**
+### RHOSTS
 
 Set the target host.
 
-**USERNAME**
+### USERNAME
 
 Set the USERNAME of the admin account you want to add.
 
-**PASSWORD**
+### PASSWORD
 
 Set the PASSWORD of the admin account you want to add.
 
-**RETRIES**
+### RETRIES
 
 You can change the maximum number of attempts to add an admin account by using `set RETRIES <max_retries>`.
 

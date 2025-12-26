@@ -26,6 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['URL', 'https://github.com/fortra/impacket/blob/master/examples/changepasswd.py'],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1021_002_SMB_WINDOWS_ADMIN_SHARES ]
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],

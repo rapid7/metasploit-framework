@@ -17,15 +17,15 @@
 
 ## Options
 
-  **DESCRIPTION**
+### DESCRIPTION
 
   Message shown in the login prompt.
 
-  **PROCESS**
+### PROCESS
 
   Prompt if a specific process is started by the target. (e.g. `calc.exe` or specify * for all processes.)
 
-  **SESSION**
+### SESSION
 
   The session to run this module on.
 

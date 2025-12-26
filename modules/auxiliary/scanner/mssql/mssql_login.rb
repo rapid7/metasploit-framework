@@ -71,19 +71,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{rhost}:#{rport} - MSSQL - Starting authentication scanner.")
-
-    if datastore['TDSENCRYPTION']
-      if create_session?
-        raise Msf::OptionValidateError.new(
-          {
-            'TDSENCRYPTION' => "Cannot create sessions when encryption is enabled. See https://github.com/rapid7/metasploit-framework/issues/18745 to vote for this feature"
-          }
-        )
-      else
-        print_status("TDS Encryption enabled")
-      end
-    end
+    @print_prefix = '' # remove the redundant prefix because #print_brute will add it
+    print_brute level: :status, ip: ip, msg: 'MSSQL - Starting authentication scanner.'
 
     cred_collection = build_credential_collection(
       realm: datastore['DOMAIN'],
@@ -105,7 +94,6 @@ class MetasploitModule < Msf::Auxiliary
         auth: datastore['Mssql::Auth'],
         domain_controller_rhost: datastore['DomainControllerRhost'],
         hostname: datastore['Mssql::Rhostname'],
-        windows_authentication: datastore['USE_WINDOWS_AUTHENT'],
         tdsencryption: datastore['TDSENCRYPTION'],
         framework: framework,
         framework_module: self,
@@ -130,7 +118,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+        print_brute level: :good, ip: ip, msg: "Login Successful: #{result.credential}"
         successful_logins << result
 
         if create_session?
@@ -144,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       else
         invalidate_login(credential_data)
-        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        print_brute level: :verror, ip: ip, msg: "LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
     { successful_logins: successful_logins, successful_sessions: successful_sessions }

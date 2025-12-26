@@ -17,12 +17,14 @@ module MetasploitModule
           A very small shellcode for rebooting the system.
           This payload is sometimes helpful for testing purposes or executing
           other payloads that rely on initial startup procedures.
+          Requires CAP_SYS_BOOT privileges.
         },
         'Author' => [
           'Michael Messner <devnull[at]s3cur1ty.de>', # metasploit payload
           'rigan - <imrigan[at]gmail.com>' # original payload
         ],
         'References' => [
+          ['URL', 'https://man7.org/linux/man-pages/man2/reboot.2.html'],
           ['URL', 'http://www.shell-storm.org/shellcode/files/shellcode-795.php']
         ],
         'License' => MSF_LICENSE,

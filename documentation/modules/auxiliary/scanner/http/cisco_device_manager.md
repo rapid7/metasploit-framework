@@ -16,11 +16,11 @@
 
 ## Options
 
-  **HttpUsername**
+### HttpUsername
 
   Username to use for basic authentication.  Default value is `cisco`
 
-  **HttpPassword**
+### HttpPassword
 
   Password to use for basic authentication.  Default value is `cisco`
 

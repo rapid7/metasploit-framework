@@ -27,7 +27,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['URL', 'https://seclists.org/fulldisclosure/2017/Feb/2'],
-          ['URL', 'https://en.wikipedia.org/wiki/Binary_search_algorithm']
+          ['URL', 'https://en.wikipedia.org/wiki/Binary_search_algorithm'],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING]
         ],
         'DisclosureDate' => '2017-01-31',
         'License' => MSF_LICENSE,

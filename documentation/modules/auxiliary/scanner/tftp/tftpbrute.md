@@ -24,7 +24,7 @@ This creates the root tftp directory in `/srv/tftp`.
 
 ## Options
 
-  **DICTIONARY**
+### DICTIONARY
 
   The newline separated list of files to find.  Default depends on install location, however it will be within `metasploit-framework/data/wordlists/tftp.txt`.
 

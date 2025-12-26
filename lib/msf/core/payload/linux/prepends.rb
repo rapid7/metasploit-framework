@@ -17,7 +17,7 @@ module Msf::Payload::Linux::Prepends
       'PrependSetregid' => [false, 'Prepend a stub that executes the setregid(0, 0) system call', 'false'],
       'PrependSetgid' => [false, 'Prepend a stub that executes the setgid(0) system call', 'false'],
       'PrependChrootBreak' => [false, 'Prepend a stub that will break out of a chroot (includes setreuid to root)', 'false'],
-      'AppendExit' => [false, 'Prepend a stub that will break out of a chroot (includes setreuid to root)', 'false']
+      'AppendExit' => [false, 'Append a stub that executes the exit(0) system call', 'false']
     }
     avaiable_options = []
     for prepend in prepends_order

@@ -23,11 +23,11 @@ This will start a webserver running on port 9222 for all network interfaces.
 
 ## Options
 
-**FILEPATH**
+### FILEPATH
 
 The file path on the remote you wish to retrieve.
 
-**URL**
+### URL
 
 A URL you wish to fetch the contents of from the remote machine.
 

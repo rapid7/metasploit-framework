@@ -5,27 +5,27 @@ attempt to check for return packets.
 
 ## Options
 
-  **STARTID**
+### STARTID
 
   The CAN ID to start your scan from.
 
-  **STOPID**
+### STOPID
 
   The CAN ID to stop the CAN scan.  If no STOPID is specified it will only scan one ID (STARTID).
 
-  **FUZZ**
+### FUZZ
 
   If true the data segment will iterate through all possibilities (0-255).
 
-  **PROBEVALUE**
+### PROBEVALUE
 
   The value to put at each data segment.  The default is 0xFF.  When Fuzz is enabled this value is ignored.
 
-  **PADDING**
+### PADDING
 
   If you need to pad out the packet to be 8 packets for each request you can set this value to something between 0-255.
 
-  **CANBUS**
+### CANBUS
 
   The bus to scan.  See 'supported_buses' for a list of available buses.
 

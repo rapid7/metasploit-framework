@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'hdm'
       ],
       'References' => [
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_002_SMB_WINDOWS_ADMIN_SHARES ]
       ],
       'License' => MSF_LICENSE,
       'Notes' => {

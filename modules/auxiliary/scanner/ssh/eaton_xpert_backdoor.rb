@@ -33,7 +33,8 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2018-16158'],
           ['EDB', '45283'],
           ['URL', 'https://www.eaton.com/content/dam/eaton/company/news-insights/cybersecurity/security-bulletins/PXM-Advisory.pdf'],
-          ['URL', 'https://www.ctrlu.net/vuln/0006.html']
+          ['URL', 'https://www.ctrlu.net/vuln/0006.html'],
+          ['ATT&CK', Mitre::Attack::Technique::T1021_004_SSH]
         ],
         'DisclosureDate' => '2018-07-18',
         'License' => MSF_LICENSE,

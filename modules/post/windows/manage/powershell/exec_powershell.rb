@@ -59,8 +59,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('SUBSTITUTIONS', [false, 'Script subs in gsub format - original,sub;original,sub' ]),
         OptBool.new('DELETE', [false, 'Delete file after execution', false ]),
-        OptBool.new('DRY_RUN', [false, 'Only show what would be done', false ]),
-        OptInt.new('TIMEOUT', [false, 'Execution timeout', 15]),
+        OptBool.new('DRY_RUN', [false, 'Only show what would be done', false ])
       ]
     )
   end
@@ -80,19 +79,6 @@ class MetasploitModule < Msf::Post
 
     # Make substitutions in script if needed
     script_in = make_subs(script_in, subs) unless subs.empty?
-
-    # Get target's computer name
-    computer_name = session.sys.config.sysinfo['Computer']
-
-    # Create unique log directory
-    log_dir = ::File.join(Msf::Config.log_directory, 'scripts', computer_name)
-    ::FileUtils.mkdir_p(log_dir)
-
-    # Define log filename
-    script_ext = ::File.extname(datastore['SCRIPT'])
-    script_base = ::File.basename(datastore['SCRIPT'], script_ext)
-    time_stamp = ::Time.now.strftime('%Y%m%d:%H%M%S')
-    log_file = ::File.join(log_dir, "#{script_base}-#{time_stamp}.txt")
 
     # Compress
     print_status('Compressing script contents.')
@@ -118,15 +104,13 @@ class MetasploitModule < Msf::Post
 
     # Execute the powershell script
     print_status('Executing the script.')
-    cmd_out, running_pids, open_channels = execute_script(script, datastore['TIMEOUT'])
-
-    # Write output to log
-    print_status("Logging output to #{log_file}.")
-    write_to_log(cmd_out, log_file, eof)
-
-    # Clean up
-    print_status('Cleaning up residual objects and processes.')
-    clean_up(datastore['SCRIPT'], eof, running_pids, open_channels, env_suffix)
+    cmd_out = psh_exec(script)
+    if cmd_out.nil?
+      error_msg = "Powershell command returned a nil value; this could be because the command timed out.\n"
+      error_msg << 'You may want to increase the Powershell::Post::timeout value and try again.'
+      print_warning(error_msg)
+    end
+    print_status(cmd_out.to_s)
 
     # That's it
     print_good('Finished!')
