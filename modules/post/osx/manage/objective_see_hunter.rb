@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Objective See Killer' => 'OSX Manage Module: Enumerate and disable Objective See products',
+        'Objective See Hunter' => 'OSX Manage Module: Enumerate and disable Objective See products',
         'Description' => %q{
           This module enumerates the system for the presence of Objective See products such as LuLu, BlockBlock, Do Not Disturb,
           Rei Key, Ransom Where and Over Sight by checking the /Applications directory. If the KILL_PROCESS option is set to true
