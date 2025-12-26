@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::Process
   include Msf::Post::File
-  include Msf::Post::OSX::Priv 
+  include Msf::Post::OSX::Priv
 
   def initialize(info = {})
     super(
@@ -91,11 +91,11 @@ class MetasploitModule < Msf::Post
 
   def kill_pids(obj_see)
     print_status "Attempting to kill pid(s) #{obj_see.pids.inspect} for #{obj_see.name}"
-    obj_see.pids.each do |pid| 
+    obj_see.pids.each do |pid|
       result = kill_process pid
       print_good "Kill signal was successful for #{pid}" if result
-    end 
-  end 
+    end
+  end
 
   def run
     print_status('Retrieving process list...')
@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Post
     # todo test killing procs
     if datastore['KILL_PROCESSES']
       fail_no_root
-      ObjectiveSee.installed_products.each {|prod| kill_pids prod}
+      ObjectiveSee.installed_products.each { |prod| kill_pids prod }
     end
   end
 end
