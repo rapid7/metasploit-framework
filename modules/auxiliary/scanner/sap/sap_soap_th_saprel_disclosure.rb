@@ -102,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
         saptbl << [ 'DB version', kern_dblib ]
         saptbl << [ 'SAP patch level', kern_patchlevel ]
         saptbl << [ 'SAP Version', kern_rel ]
-        print(saptbl)
+        print(saptbl.to_s)
 
         report_note(
           host: ip,
