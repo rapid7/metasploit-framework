@@ -502,6 +502,9 @@ class Payload < Msf::Module
     # XXX: This approach is subpar, and payloads should really be ranked!
     preferred_payloads = [
       # These payloads are generally reliable and common enough in practice
+      'windows/meterpreter/reverse_tcp',  # all 64-bit versions of Windows will also support x86 but the same isn't true
+      'x64/meterpreter/reverse_tcp',      # for Linux so if a 32-bit Windows Meterpreter isn't an option, select any x64
+      'x86/meterpreter/reverse_tcp',      # Meterpreter
       '/meterpreter/reverse_tcp',
       '/shell/reverse_tcp',
       'cmd/unix/reverse_bash',
