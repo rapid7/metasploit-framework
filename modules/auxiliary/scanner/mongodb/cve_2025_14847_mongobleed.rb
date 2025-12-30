@@ -78,20 +78,6 @@ class MetasploitModule < Msf::Auxiliary
   OP_MSG = 2013
   COMPRESSOR_ZLIB = 2
 
-  # Vulnerable version ranges for CVE-2025-14847 (per MongoDB JIRA SERVER-115508)
-  # Format: [major.minor] => max_vulnerable_patch
-  # All patch versions <= max_vulnerable_patch are vulnerable
-  VULNERABLE_VERSIONS = {
-    '3.6' => 99,   # 3.6.x - all versions vulnerable (EOL, no fix)
-    '4.0' => 99,   # 4.0.x - all versions vulnerable (EOL, no fix)
-    '4.2' => 99,   # 4.2.x - all versions vulnerable (EOL, no fix)
-    '4.4' => 29,   # 4.4.0 - 4.4.29 vulnerable, 4.4.30 fixed
-    '5.0' => 31,   # 5.0.0 - 5.0.31 vulnerable, 5.0.32 fixed
-    '6.0' => 26,   # 6.0.0 - 6.0.26 vulnerable, 6.0.27 fixed
-    '7.0' => 27,   # 7.0.0 - 7.0.27 vulnerable, 7.0.28 fixed
-    '8.0' => 16,   # 8.0.0 - 8.0.16 vulnerable, 8.0.17 fixed
-    '8.2' => 2     # 8.2.0 - 8.2.2 vulnerable, 8.2.3 fixed
-  }.freeze
 
   def check_vulnerable_version(version_str)
     # Parse version for comparison
