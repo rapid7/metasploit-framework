@@ -78,7 +78,6 @@ class MetasploitModule < Msf::Auxiliary
   OP_MSG = 2013
   COMPRESSOR_ZLIB = 2
 
-
   def check_vulnerable_version(version_str)
     # Parse version for comparison
     version_match = version_str.match(/^(\d+\.\d+\.\d+)/)
