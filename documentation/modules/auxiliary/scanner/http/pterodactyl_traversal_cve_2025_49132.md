@@ -6,6 +6,59 @@ The vulnerability exists in the `/locales/locale.json` endpoint. It allows an un
 
 To set up a vulnerable environment, you can install an older version of Pterodactyl Panel using the standard installation scripts or Docker, ensuring you do not apply the patch for CVE-2025-49132.
 
+A vulnerable environment (v1.11.10) can be set up using the following `docker-compose.yml`:
+```yaml
+version: '3.8'
+services:
+  database:
+    image: public.ecr.aws/docker/library/mariadb:10.5
+    restart: always
+    environment:
+      MYSQL_DATABASE: panel
+      MYSQL_USER: pterodactyl
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root_password
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  cache:
+    image: public.ecr.aws/docker/library/redis:alpine
+    restart: always
+
+  panel:
+    image: ghcr.io/pterodactyl/panel:v1.11.10
+    ports:
+      - "80:80"
+    environment:
+      DB_HOST: database
+      DB_DATABASE: panel
+      DB_USERNAME: pterodactyl
+      DB_PASSWORD: password
+      REDIS_HOST: cache
+      APP_URL: "http://localhost"
+      APP_ENV: "local"
+      APP_DEBUG: "true"
+      APP_SERVICE_AUTHOR: "support@example.com"
+      APP_TIMEZONE: "Asia/Shanghai"
+    depends_on:
+      database:
+        condition: service_healthy
+      cache:
+        condition: service_started
+    volumes:
+      - panel_data:/app/var/
+
+volumes:
+  db_data:
+  panel_data:
+```
+
 ## Verification Steps
 
 1. Install the application.
