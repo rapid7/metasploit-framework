@@ -103,6 +103,35 @@ class MetasploitModule < Msf::Auxiliary
     :unknown
   end
 
+  def check_host(_ip)
+    version_info = get_mongodb_version
+    if version_info
+      version_str = version_info[:version]
+      vuln_status = check_vulnerable_version(version_str)
+
+      case vuln_status
+      when :patched
+        return Msf::Exploit::CheckCode::Safe("MongoDB #{version_str} is patched")
+      when :vulnerable, :vulnerable_eol
+        return Msf::Exploit::CheckCode::Appears("MongoDB #{version_str} appears vulnerable")
+      end
+    end
+
+    [117, 388, 256].each do |offset|
+      response = send_probe(offset, offset + 500)
+      next if response.nil? || response.empty?
+
+      leaks = extract_leaks(response)
+      if leaks.any?
+        return Msf::Exploit::CheckCode::Vulnerable("Leaked #{leaks.length} memory fragments")
+      end
+    end
+
+    Msf::Exploit::CheckCode::Unknown
+  rescue ::Rex::ConnectionError
+    Msf::Exploit::CheckCode::Unknown
+  end
+
   def run_host(ip)
     version_info = get_mongodb_version
 
