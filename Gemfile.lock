@@ -1,3 +1,23 @@
+GIT
+  remote: https://github.com/cdelafuente-r7/metasploit-credential
+  revision: 305bebed27cbcc656e3302eec2c31c4eedd52260
+  branch: fix_create_credential_service
+  specs:
+    metasploit-credential (6.0.20)
+      bigdecimal
+      csv
+      drb
+      metasploit-concern
+      metasploit-model
+      metasploit_data_models (>= 5.0.0)
+      mutex_m
+      net-ssh
+      pg
+      railties
+      rex-socket
+      rubyntlm
+      rubyzip (< 3.0.0)
+
 PATH
   remote: .
   specs:
@@ -331,20 +351,6 @@ GEM
       mutex_m
       railties (~> 7.0)
       zeitwerk
-    metasploit-credential (6.0.19)
-      bigdecimal
-      csv
-      drb
-      metasploit-concern
-      metasploit-model
-      metasploit_data_models (>= 5.0.0)
-      mutex_m
-      net-ssh
-      pg
-      railties
-      rex-socket
-      rubyntlm
-      rubyzip (< 3.0.0)
     metasploit-model (5.0.4)
       activemodel (~> 7.0)
       activesupport (~> 7.0)
@@ -684,6 +690,7 @@ DEPENDENCIES
   fivemat
   license_finder (= 5.11.1)
   memory_profiler
+  metasploit-credential!
   metasploit-framework!
   octokit
   pry-byebug
