@@ -68,6 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  # MongoDB Wire Protocol opcodes (https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/)
   OP_QUERY = 2004
   OP_REPLY = 1
   OP_COMPRESSED = 2012
