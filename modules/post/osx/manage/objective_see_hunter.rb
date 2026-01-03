@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
         'Description' => %q{
           This module enumerates the system for the presence of Objective-See products such as LuLu, BlockBlock, Do Not Disturb,
           Rei Key, Ransom Where and Over Sight by checking the /Applications directory. If the KILL_PROCESS option is set to true
-          the module will attempt to send a kill signal to the process id of each AV product, doing so requires sudo privileges.
+          the module will attempt to send a kill signal to the process id of each product, doing so requires sudo privileges.
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'gardnerapp' ],
