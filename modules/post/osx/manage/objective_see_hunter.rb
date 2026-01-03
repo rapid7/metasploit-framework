@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Post
     print_status('Retrieving process list...')
     @processes = get_processes
 
-    print_status('Enumerating Objective See security products...')
+    print_status('Enumerating Objective-See security products...')
     enumerate
 
     if ObjectiveSee.installed_products.empty?
