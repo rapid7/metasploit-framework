@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # Holds information on an objective see product. i.e name, installation status and location on filesystem.
+  # Holds information on an Objective-See product. i.e name, installation status and location on filesystem.
   class ObjectiveSee
 
     attr_accessor :name, :path, :pids
