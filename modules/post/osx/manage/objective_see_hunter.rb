@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Post
   def fail_no_root
     unless is_root?
       fail_with(Failure::BadConfig,
-                'The current session is not root. Please escalate the session and try again before rerunning the module.')
+                'The current session is not root. Please escalate the session and rerun the module.')
     end
   end
 
