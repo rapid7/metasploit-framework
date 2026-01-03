@@ -105,7 +105,7 @@ class MetasploitModule < Msf::Post
 
     if ObjectiveSee.installed_products.empty?
       fail_with(Failure::NotFound,
-                'No Objective Cee products were found to be installed on the system.')
+                'No Objective-See products were found to be installed on the system.')
     else
       print_good('The following Objective See products were found installed on the system:')
       ObjectiveSee.installed_products.each { |prod| print_status("Found #{prod.name} with pids of #{prod.pids.inspect}") }
