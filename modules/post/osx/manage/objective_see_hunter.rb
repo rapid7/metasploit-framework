@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptBool.new('KILL_PROCESSES', [
-          true, 'Kills processes of installed objective see products. Requires root privilleges.', false
+          true, 'Kills processes of installed Objective-See products. Requires root privileges.', false
         ]),
       ]
     )
