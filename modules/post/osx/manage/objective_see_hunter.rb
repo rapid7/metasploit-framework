@@ -108,7 +108,7 @@ class MetasploitModule < Msf::Post
                 'No Objective-See products were found to be installed on the system.')
     else
       print_good('The following Objective-See products were found installed on the system:')
-      ObjectiveSee.installed_products.each { |prod| print_status("Found #{prod.name} with pids of #{prod.pids.inspect}") }
+      ObjectiveSee.installed_products.each { |prod| print_status("Found #{prod.name} with pid #{prod.pids.inspect}") }
     end
 
     # TODO: look into report_note post/windows/gather/enum_av uses these to log antivirus installation on the system
