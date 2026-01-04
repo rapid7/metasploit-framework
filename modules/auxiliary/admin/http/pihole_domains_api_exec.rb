@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           'SchneiderSec' # original PoC, discovery
         ],
         'References' => [
-          ['URL', 'https://github.com/pi-hole/AdminLTE/security/advisories/GHSA-5cm9-6p3m-v259'],
+          ['GHSA', '5cm9-6p3m-v259', 'pi-hole/AdminLTE'],
           ['CVE', '2021-32706']
         ],
         'Targets' => [

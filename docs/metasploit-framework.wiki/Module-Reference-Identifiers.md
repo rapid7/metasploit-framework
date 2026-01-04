@@ -18,6 +18,7 @@ US-CERT-VU | kb.cert.org | ```['US-CERT-VU', '800113']```
 ZDI | zerodayinitiative.com | ```['ZDI', '10-123']```
 WPVDB | wpvulndb.com | ```['WPVDB', '7615']```
 PACKETSTORM | packetstormsecurity.com | ```['PACKETSTORM', '132721']```
+GHSA | github.com/advisories or github.com/owner/repo/security/advisories | ```['GHSA', 'xxxx-xxxx-xxxx']``` or ```['GHSA', 'xxxx-xxxx-xxxx', 'owner/repo']```
 URL | anything | ```['URL', 'http://example.com/blog.php?id=123']```
 AKA (_deprecated_*) | anything | ~~`['AKA', 'shellshock']`~~
 

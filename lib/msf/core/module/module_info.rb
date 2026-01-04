@@ -4,7 +4,10 @@ module Msf::Module::ModuleInfo
   #
 
   # The list of options that don't support merging in an information hash.
-  UpdateableOptions = [ "Name", "Description", "Alias", "PayloadCompat" , "Stance"]
+  UpdateableOptions = ['Name', 'Description', 'Alias', 'PayloadCompat', 'Stance'].freeze
+
+  # Reference types that can have 2 or 3 elements (e.g., GHSA with optional repo)
+  ReferencesWithOptionalThirdElement = ['GHSA'].freeze
 
   #
   # Instance Methods
@@ -64,17 +67,20 @@ module Msf::Module::ModuleInfo
   # Register options with a specific owning class.
   #
   def info_fixups
-    # Each reference should be an array consisting of two elements
+    # Each reference should be an array consisting of two or three elements
     refs = module_info['References']
-    if(refs and not refs.empty?)
-      refs.each_index do |i|
-        if !(refs[i].respond_to?('[]') and refs[i].length == 2)
-          refs[i] = nil
-        end
-      end
+    return unless refs&.any?
 
-      # Purge invalid references
-      refs.delete(nil)
+    refs.reject! do |ref|
+      next true unless ref.respond_to?('[]') && !ref.empty?
+
+      # Some reference types can have 2 or 3 elements (e.g., GHSA with optional repo)
+      # Other references should have 2 elements
+      ref_type = ref[0]
+      can_have_third_element = ReferencesWithOptionalThirdElement.include?(ref_type)
+      valid_length = can_have_third_element ? (ref.length == 2 || ref.length == 3) : (ref.length == 2)
+
+      !valid_length
     end
   end
 
@@ -82,42 +88,24 @@ module Msf::Module::ModuleInfo
   # Checks and merges the supplied key/value pair in the supplied hash.
   #
   def merge_check_key(info, name, val)
-    if (self.respond_to?("merge_info_#{name.downcase}", true))
-      self.send("merge_info_#{name.downcase}", info, val)
-    else
-      # If the info hash already has an entry for this name
-      if (info[name])
-        # If it's not an array, convert it to an array and merge the
-        # two
-        if (info[name].kind_of?(Hash))
-          raise TypeError, 'can only merge a hash into a hash' unless val.kind_of?(Hash)
-          val.each_pair do |val_key, val_val|
-            merge_check_key(info[name], val_key, val_val)
-          end
+    merge_method = "merge_info_#{name.downcase}"
+    return __send__(merge_method, info, val) if respond_to?(merge_method, true)
 
-          return
-        elsif (info[name].kind_of?(Array) == false)
-          curr       = info[name]
-          info[name] = [ curr ]
-        end
+    return info[name] = val unless info[name]
 
-        # If the value being merged is an array, add each one
-        if (val.kind_of?(Array) == true)
-          val.each { |v|
-            if (info[name].include?(v) == false)
-              info[name] << v
-            end
-          }
-        # Otherwise just add the value
-        elsif (info[name].include?(val) == false)
-          info[name] << val
-        end
-      # Otherwise, just set the value equal if no current value
-      # exists
-      else
-        info[name] = val
-      end
+    # Handle hash merging recursively
+    if info[name].is_a?(Hash)
+      raise TypeError, 'can only merge a hash into a hash' unless val.is_a?(Hash)
+      val.each_pair { |val_key, val_val| merge_check_key(info[name], val_key, val_val) }
+      return
     end
+
+    # Convert to array if needed
+    info[name] = Array(info[name]) unless info[name].is_a?(Array)
+
+    # Merge values, avoiding duplicates
+    values_to_add = val.is_a?(Array) ? val : [val]
+    values_to_add.each { |v| info[name] << v unless info[name].include?(v) }
   end
 
   #

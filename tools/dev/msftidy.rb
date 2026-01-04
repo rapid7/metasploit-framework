@@ -246,9 +246,10 @@ class MsftidyRunner
         in_refs = false
       elsif in_super and line =~ /["']Notes["'][[:space:]]*=>/
         in_notes = true
-      elsif in_super and in_refs and line =~ /[^#]+\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*\]/
+      elsif in_super and in_refs and line =~ /[^#]+\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*(?:,[[:space:]]*['"](.+)['"])?[[:space:]]*\]/
         identifier = $1.strip.upcase
         value      = $2.strip
+        repo       = $3.strip if $3
 
         case identifier
         when 'CVE'
@@ -270,6 +271,17 @@ class MsftidyRunner
           warn("Invalid WPVDB reference") if value !~ /^\d+$/ and value !~ /^[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}?$/
         when 'PACKETSTORM'
           warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
+        when 'GHSA'
+          # Allow both formats: with or without GHSA- prefix
+          # Format: GHSA-xxxx-xxxx-xxxx or xxxx-xxxx-xxxx (where xxxx is 4 alphanumeric chars)
+          ghsa_pattern = /^(?:GHSA-)?[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/i
+          warn("Invalid GHSA reference") if value !~ ghsa_pattern
+          # No specific validation for repo format yet, as it's an optional string
+        when 'OSV'
+          # OSV format: ECOSYSTEM-YEAR-ID or ECOSYSTEM-xxxx-xxxx-xxxx (e.g., GO-2021-0113, GHSA-8c52-x9w7-vc95, MINI-xwm2-xhhw-2w6h)
+          # OSV accepts various formats depending on the ecosystem
+          osv_pattern = /^[A-Z]+-[A-Z0-9-]+$/i
+          warn("Invalid OSV reference") if value !~ osv_pattern
         when 'URL'
           if value =~ /^https?:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")
@@ -289,6 +301,10 @@ class MsftidyRunner
             warn("Please use 'WPVDB' for '#{value}'")
           elsif value =~ /^https?:\/\/(?:[^\.]+\.)?packetstormsecurity\.(?:com|net|org)\//
             warn("Please use 'PACKETSTORM' for '#{value}'")
+          elsif value =~ /^https?:\/\/github\.com\/(?:advisories|[\w\-]+\/[\w\-]+\/security\/advisories)\/GHSA-/
+            warn("Please use 'GHSA' for '#{value}'")
+          elsif value =~ /^https?:\/\/osv\.dev\/vulnerability\//
+            warn("Please use 'OSV' for '#{value}'")
           end
         when 'AKA'
           warn("Please include AKA values in the 'notes' section, rather than in 'references'.")

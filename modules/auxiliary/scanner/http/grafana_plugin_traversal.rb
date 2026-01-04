@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2021-12-02',
         'References' => [
           ['CVE', '2021-43798'],
-          ['URL', 'https://github.com/grafana/grafana/security/advisories/GHSA-8pjx-jj86-j47p'],
+          ['GHSA', '8pjx-jj86-j47p', 'grafana/grafana'],
           ['URL', 'https://grafana.com/blog/2021/12/07/grafana-8.3.1-8.2.7-8.1.8-and-8.0.7-released-with-high-severity-security-fix/'],
           ['EDB', '50581'],
           ['URL', 'https://github.com/jas502n/Grafana-CVE-2021-43798'],
