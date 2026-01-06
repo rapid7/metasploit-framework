@@ -84,7 +84,7 @@ class Service
       res.body = process_exception(e).to_msgpack
       res.code = e.code
       res.message = e.http_msg
-    rescue ::Exception => e
+    rescue ::StandardError => e
       elog('Unknown Exception', error: e)
       res.body = process_exception(e).to_msgpack
       res.code = 500
