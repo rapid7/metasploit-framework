@@ -9,7 +9,7 @@ module MetasploitModule
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions::<%= platform.split('_').each { |s| s.casecmp?('osx') ? 'OSX' : s.capitalize! }.join %>
   include Msf::Sessions::MettleConfig
-  <% if platform.downcase == 'linux' && !['armbe', 'ppc64le', 'ppc', 'ppce500v2'].include?(arch.downcase) %>include Msf::Payload::Linux::<%= arch.capitalize %>::ElfLoader<% end %>
+  <% if platform.downcase == 'linux' && !['armbe', 'ppc64le', 'ppc', 'ppce500v2', 's390x'].include?(arch.downcase) %>include Msf::Payload::Linux::<%= arch.capitalize %>::ElfLoader<% end %>
   <% if platform.downcase == 'linux' %>include Msf::Payload::Linux::<%= arch.capitalize %>::Prepends<% end %>
 
   def initialize(info = {})
