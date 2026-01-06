@@ -236,7 +236,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # lw	$t2, 16($ra)
     # jr $t2
     when 'mipsbe'
-      %^"0411000000000000014a50268fea00100140000800000000"$(echo (printf %04x $vdso_addr))^
+      %^"0411000000000000014a50268fea00100140000800000000"$(echo $(printf %04x $vdso_addr))^
     
     # MIPS64 shellcode
     # bgezal $zero, 4
@@ -262,7 +262,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # mtlr 3
     # blr
     when 'ppc64'
-      %^"480000057e4802a6e87200107c6803a64e800020"$(echo (printf %016x $vdso_addr))^
+      %^"480000057e4802a6e87200107c6803a64e800020"$(echo $(printf %016x $vdso_addr))^
     # PPC64le shellcode
     # bl 4
     # mflr 18
