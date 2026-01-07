@@ -59,6 +59,7 @@ module Auxiliary::AuthBrute
   # @return [Metasploit::Framework::CredentialCollection] the built CredentialCollection
   def build_credential_collection(opts)
     cred_collection = Metasploit::Framework::CredentialCollection.new({
+      anonymous_login: datastore['ANONYMOUS_LOGIN'],
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file: datastore['PASS_FILE'],
       user_file: datastore['USER_FILE'],
@@ -728,7 +729,7 @@ module Auxiliary::AuthBrute
     else
       complete_message = ''
       unless ip.blank? && port.blank?
-        complete_message << "#{ip}:#{port}"
+        complete_message << Rex::Socket.to_authority(ip, port).ljust(21)
       else
         complete_message << proto || 'Bruteforce'
       end

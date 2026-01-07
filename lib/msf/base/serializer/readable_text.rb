@@ -581,7 +581,13 @@ class ReadableText
 
     option_tables = []
 
-    options_grouped_by_conditions.sort.each do |conditions, options|
+    sort_by_empty_then_lexicographical = proc do |(conditions_a, _options_a), (conditions_b, _options_b)|
+      next -1 if conditions_a.empty?
+      next 1 if conditions_b.empty?
+      conditions_a.to_s <=> conditions_b.to_s
+    end
+
+    options_grouped_by_conditions.sort(&sort_by_empty_then_lexicographical).each do |conditions, options|
       tbl = options_table(missing, mod, options, indent)
 
       next if tbl.rows.empty?

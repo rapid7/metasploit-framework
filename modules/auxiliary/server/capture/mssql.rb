@@ -46,7 +46,6 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 1433 ]),
-        OptString.new('CAINPWFILE', [ false, 'The local filename to store the hashes in Cain&Abel format', nil ]),
         OptString.new('JOHNPWFILE', [ false, 'The prefix to the local filename to store the hashes in JOHN format', nil ]),
         OptString.new('CHALLENGE', [ true, 'The 8 byte challenge ', '1122334455667788' ])
       ]
@@ -258,8 +257,6 @@ class MetasploitModule < Msf::Auxiliary
           "NTHASH:#{nt_hash || '<NULL>'} " \
           "NT_CLIENT_CHALLENGE:#{nt_cli_challenge || '<NULL>'}\n"
       when NTLM_CONST::NTLM_2_SESSION_RESPONSE
-        # we can consider those as netv1 has they have the same size and i cracked the same way by cain/jtr
-        # also 'real' netv1 is almost never seen nowadays except with smbmount or msf server capture
         smb_db_type_hash = Metasploit::Framework::Hashes::JTR_NTLMV1
         capturelogmessage =
           "#{capturedtime}\nNTLM2_SESSION Response Captured from #{host} \n" \
@@ -272,10 +269,6 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       print_status(capturelogmessage)
-
-      # DB reporting
-      # Rem :  one report it as a smb_challenge on port 445 has breaking those hashes
-      # will be mainly use for psexec / smb related exploit
 
       jtr_hash = case smb_db_type_hash
                  when Metasploit::Framework::Hashes::JTR_NTLMV2
@@ -294,23 +287,6 @@ class MetasploitModule < Msf::Auxiliary
         type: :nonreplayable_hash,
         jtr_format: smb_db_type_hash
       )
-      # if(datastore['LOGFILE'])
-      #	File.open(datastore['LOGFILE'], "ab") {|fd| fd.puts(capturelogmessage + "\n")}
-      # end
-
-      if datastore['CAINPWFILE'] && user && ((ntlm_ver == NTLM_CONST::NTLM_V1_RESPONSE) || (ntlm_ver == NTLM_CONST::NTLM_2_SESSION_RESPONSE))
-        fd = File.open(datastore['CAINPWFILE'], 'ab')
-        fd.puts(
-          [
-            user,
-            domain || 'NULL',
-            @challenge.unpack('H*')[0],
-            lm_hash || '0' * 48,
-            nt_hash || '0' * 48
-          ].join(':').gsub(/\n/, '\\n')
-        )
-        fd.close
-      end
 
       if datastore['JOHNPWFILE'] && user
         case ntlm_ver

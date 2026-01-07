@@ -23,30 +23,30 @@ Stop  Stop all jobs
 
 ## Options
 
-**OSC_HOST**
+### OSC_HOST
 
 This is the OSC server host, which is `127.0.0.1` by default.
 
-**OSC_PORT**
+### OSC_PORT
 
 This is the OSC server (UDP) port, which is `4557` by default.
 
-**START_SONIC_PI**
+### START_SONIC_PI
 
 Enable this to start Sonic Pi if it isn't running already. Note that
 this will start the GUI, which will be visible to the user.
 
-**FILE**
+### FILE
 
 This is the path to Sonic Pi code you want to run. It can be arbitrary
 Ruby.
 
-**SonicPiPath**
+### SonicPiPath
 
 This is the path to the Sonic Pi executable within its application
 bundle.
 
-**RubyPath**
+### RubyPath
 
 This is the path to a Ruby executable. Sonic Pi's vendored Ruby is the
 default.

@@ -21,7 +21,8 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           [ 'CVE', '2012-1803' ],
           [ 'EDB', '18779' ],
-          [ 'US-CERT-VU', '889195' ]
+          [ 'US-CERT-VU', '889195' ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1021_REMOTE_SERVICES ]
         ],
         'Author' => [
           'Borja Merino <bmerinofe[at]gmail.com>',

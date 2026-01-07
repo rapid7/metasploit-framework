@@ -516,6 +516,22 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/linux/http/mips64'
   end
 
+  context 'cmd/linux/http/riscv32le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/riscv32le'
+                          ],
+                          reference_name: 'cmd/linux/http/riscv32le'
+  end
+
+  context 'cmd/linux/http/riscv64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/riscv64le'
+                          ],
+                          reference_name: 'cmd/linux/http/riscv64le'
+  end
+
   context 'cmd/linux/https/mips64' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -677,6 +693,22 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/linux/tftp/mipsle'
   end
 
+  context 'cmd/linux/https/riscv32le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/riscv32le'
+                          ],
+                          reference_name: 'cmd/linux/https/riscv32le'
+  end
+
+  context 'cmd/linux/https/riscv64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/riscv64le'
+                          ],
+                          reference_name: 'cmd/linux/https/riscv64le'
+  end
+
   context 'cmd/linux/http/ppc' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -747,6 +779,22 @@ RSpec.describe 'modules/payloads', :content do
                             'adapters/cmd/linux/tftp/ppc64le'
                           ],
                           reference_name: 'cmd/linux/tftp/ppc64le'
+  end
+
+  context 'cmd/linux/tftp/riscv32le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/riscv32le'
+                          ],
+                          reference_name: 'cmd/linux/tftp/riscv32le'
+  end
+
+  context 'cmd/linux/tftp/riscv64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/riscv64le'
+                          ],
+                          reference_name: 'cmd/linux/tftp/riscv64le'
   end
 
   context 'cmd/linux/http/x86' do
@@ -2055,6 +2103,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/ppc64/shell_reverse_tcp'
   end
 
+  context 'linux/riscv32le/chmod' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv32le/chmod'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv32le/chmod'
+  end
+
   context 'linux/riscv32le/exec' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2073,6 +2131,36 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/riscv32le/reboot'
+  end
+
+  context 'linux/riscv32le/shell_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv32le/shell_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv32le/shell_bind_tcp'
+  end
+
+  context 'linux/riscv32le/shell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv32le/shell_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv32le/shell_reverse_tcp'
+  end
+
+  context 'linux/riscv64le/chmod' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv64le/chmod'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv64le/chmod'
   end
 
   context 'linux/riscv64le/exec' do
@@ -2095,6 +2183,36 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/riscv64le/reboot'
   end
 
+  context 'linux/riscv64le/shell_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv64le/shell_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv64le/shell_bind_tcp'
+  end
+
+  context 'linux/riscv64le/shell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv64le/shell_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv64le/shell_reverse_tcp'
+  end
+  
+  context 'linux/loongarch64/reboot' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/loongarch64/reboot'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/loongarch64/reboot'
+  end
+  
   context 'linux/x64/exec' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -5200,6 +5318,15 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/aarch64/exec'
   end
 
+  context 'windows/x64/download_exec' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/windows/x64/download_exec'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/download_exec'
+  end
 
   context 'windows/x64/custom/bind_ipv6_tcp' do
     it_should_behave_like 'payload is not cached',
@@ -6134,76 +6261,6 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/mipsle/meterpreter_reverse_https'
   end
 
-  context 'linux/ppc/meterpreter_reverse_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/ppc/meterpreter_reverse_http'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc/meterpreter_reverse_http'
-  end
-
-  context 'linux/ppc/meterpreter_reverse_https' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/ppc/meterpreter_reverse_https'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc/meterpreter_reverse_https'
-  end
-
-  context 'linux/ppce500v2/meterpreter_reverse_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/linux/ppce500v2/meterpreter_reverse_http'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppce500v2/meterpreter_reverse_http'
-  end
-
-  context 'linux/ppce500v2/meterpreter_reverse_https' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/linux/ppce500v2/meterpreter_reverse_https'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppce500v2/meterpreter_reverse_https'
-  end
-
-  context 'linux/ppce500v2/meterpreter_reverse_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/linux/ppce500v2/meterpreter_reverse_tcp'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppce500v2/meterpreter_reverse_tcp'
-  end
-
-  context 'linux/ppc64le/meterpreter_reverse_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/ppc64le/meterpreter_reverse_http'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc64le/meterpreter_reverse_http'
-  end
-
-  context 'linux/ppc64le/meterpreter_reverse_https' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/ppc64le/meterpreter_reverse_https'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc64le/meterpreter_reverse_https'
-  end
-
   context 'linux/x64/meterpreter_reverse_http' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -6437,26 +6494,6 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsle/meterpreter_reverse_tcp'
-  end
-
-  context 'linux/ppc/meterpreter_reverse_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/ppc/meterpreter_reverse_tcp'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc/meterpreter_reverse_tcp'
-  end
-
-  context 'linux/ppc64le/meterpreter_reverse_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/ppc64le/meterpreter_reverse_tcp'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc64le/meterpreter_reverse_tcp'
   end
 
   context 'linux/x64/meterpreter/bind_tcp' do

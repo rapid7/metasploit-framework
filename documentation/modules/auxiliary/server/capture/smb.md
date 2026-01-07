@@ -18,26 +18,22 @@ Microsoft provides an article on how to detect, disable, and enable SMB in vario
 
 ## Options
 
-**CAINPWFILE**
-
-A file to store Cain & Abel formatted captured hashes in. Only supports NTLMv1 Hashes.
-
-**CHALLENGE**
+### CHALLENGE
 
 The 8 byte server challenge. If unset or not a valid 16 character hexadecimal pattern, a random challenge is used instead.
 
 The format is `1122334455667788`.
 
-**JOHNPWFILE**
+### JOHNPWFILE
 
 A file to store John the Ripper formatted hashes in. NTLMv1 and NTLMv2 hashes will be stored in separate files.
 I.E. the filename john will produce two files, `john_netntlm` and `john_netntlmv2`.
 
-**DOMAIN**
+### DOMAIN
 
 The domain name used during smb exchange.
 
-**TIMEOUT**
+### TIMEOUT
 
 Seconds that the server socket will wait for a response after the client has initiated communication. 
 This only applies to the server waiting on the client to respond with [a type3 message](http://davenport.sourceforge.net/ntlm.html#theType3Message).

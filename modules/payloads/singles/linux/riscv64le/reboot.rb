@@ -6,6 +6,7 @@
 module MetasploitModule
   CachedSize = 40
 
+  include Msf::Payload::Linux::Riscv64le::Prepends
   include Msf::Payload::Single
 
   def initialize(info = {})
@@ -16,12 +17,16 @@ module MetasploitModule
         'Description' => %q{
           A very small shellcode for rebooting the system using
           the reboot syscall. This payload is sometimes helpful
-          for testing purposes.
+          for testing purposes. Requires CAP_SYS_BOOT privileges.
         },
         'Author' => 'bcoles',
         'License' => MSF_LICENSE,
         'Platform' => 'linux',
-        'Arch' => ARCH_RISCV64LE
+        'Arch' => ARCH_RISCV64LE,
+        'References' => [
+          ['URL', 'https://man7.org/linux/man-pages/man2/reboot.2.html'],
+          ['URL', 'https://github.com/bcoles/shellcode/blob/main/riscv64/reboot/reboot.s'],
+        ]
       )
     )
   end

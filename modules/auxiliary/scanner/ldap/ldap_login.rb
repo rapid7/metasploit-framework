@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     validate_connect_options!
-    results = super
+    results = super || {}
     logins = results.flat_map { |_k, v| v[:successful_logins] }
     sessions = results.flat_map { |_k, v| v[:successful_sessions] }
     print_status("Bruteforce completed, #{logins.size} #{logins.size == 1 ? 'credential was' : 'credentials were'} successful.")
@@ -93,24 +93,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    ignore_public = ignore_private = false
-    case datastore['LDAP::Auth']
-    when Msf::Exploit::Remote::AuthOption::SCHANNEL
-      ignore_public = ignore_private = true
-    when Msf::Exploit::Remote::AuthOption::KERBEROS
-      ignore_private = !datastore['ANONYMOUS_LOGIN'] && !datastore['LDAPPassword']
-    end
-
-    cred_collection = build_credential_collection(
-      username: datastore['LDAPUsername'],
-      password: datastore['LDAPPassword'],
-      realm: datastore['LDAPDomain'],
-      anonymous_login: datastore['ANONYMOUS_LOGIN'],
-      blank_passwords: false,
-      ignore_public: ignore_public,
-      ignore_private: ignore_private
+    cred_collection = build_specific_credential_collection(
+      void_login: datastore['LDAP::Auth'] == Msf::Exploit::Remote::AuthOption::SCHANNEL,
+      no_password_login: datastore['LDAP::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS && !datastore['ANONYMOUS_LOGIN'] && !datastore['LDAPPassword']
     )
 
+    pkcs12_storage = Msf::Exploit::Remote::Pkcs12::Storage.new(framework: framework, framework_module: self)
     opts = {
       domain: datastore['LDAPDomain'],
       append_domain: datastore['APPEND_DOMAIN'],
@@ -118,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
       proxies: datastore['PROXIES'],
       domain_controller_rhost: datastore['DomainControllerRhost'],
       ldap_auth: datastore['LDAP::Auth'],
-      ldap_cert_file: datastore['LDAP::CertFile'],
+      ldap_pkcs12: datastore['LDAP::CertFile'] ? pkcs12_storage.read_pkcs12_cert_path(datastore['LDAP::CertFile']) : nil,
       ldap_rhostname: datastore['Ldap::Rhostname'],
       ldap_krb_offered_enc_types: datastore['Ldap::KrbOfferedEncryptionTypes'],
       ldap_krb5_cname: datastore['Ldap::Krb5Ccname']
@@ -167,7 +155,11 @@ class MetasploitModule < Msf::Auxiliary
         successful_logins << result
         if opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::SCHANNEL
           # Schannel auth has no meaningful credential information to store in the DB
-          msg = opts[:ldap_cert_file].nil? ? 'Using stored certificate' : "Cert File #{opts[:ldap_cert_file]}"
+          msg = opts[:ldap_pkcs12].nil? ? 'Using stored certificate' : "Cert File #{opts[:ldap_pkcs12][:path]} (#{opts[:ldap_pkcs12][:value].certificate.subject})"
+          report_successful_login(
+            public: opts[:ldap_pkcs12][:value].certificate.subject.to_s,
+            private: opts[:ldap_pkcs12][:path]
+          )
           print_brute level: :good, ip: ip, msg: "Success: '#{msg}'"
         else
           create_credential_and_login(credential_data) if result.credential.private
@@ -209,5 +201,26 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     start_session(self, nil, merge_me, false, my_session.rstream, my_session)
+  end
+
+  def build_specific_credential_collection(void_login:, no_password_login:)
+    if void_login
+      Metasploit::Framework::PrivateCredentialCollection.new({
+        nil_passwords: true
+      })
+    elsif no_password_login
+      Metasploit::Framework::CredentialCollection.new({
+        username: datastore['LDAPUsername'],
+        nil_passwords: true
+      })
+    else
+      build_credential_collection(
+        username: datastore['LDAPUsername'],
+        password: datastore['LDAPPassword'],
+        realm: datastore['DOMAIN'],
+        anonymous_login: datastore['ANONYMOUS_LOGIN'],
+        blank_passwords: false
+      )
+    end
   end
 end

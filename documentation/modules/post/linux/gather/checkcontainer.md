@@ -15,7 +15,7 @@
 
 ## Options
 
-  **SESSION**
+### SESSION
 
   Which session to use, which can be viewed with `sessions -l`
 

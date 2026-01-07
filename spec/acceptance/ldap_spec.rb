@@ -67,8 +67,8 @@ RSpec.describe 'LDAP modules' do
                 /Searching base DN: DC=ldap,DC=example,DC=com/,
                 /Checking if the target LDAP server is an Active Directory Domain Controller.../,
                 /The target LDAP server is not an Active Directory Domain Controller./,
-                /Credentials \(password\) found in ms-mcs-admpwd: Administrator:\[LAPSv1\]SuperSecretPassword!/,
-                /Credentials \(password\) found in mslaps-password: Administrator:\[LAPSv2\]SuperSecretPassword!/,
+                /Credential found in ms-mcs-admpwd: Administrator:\[LAPSv1\]SuperSecretPassword!/,
+                /Credential found in mslaps-password: Administrator:\[LAPSv2\]SuperSecretPassword!/,
                 /Found [1-9]\d* entries and [1-9]\d* credentials in 'DC=ldap,DC=example,DC=com'./
               ]
             }
@@ -85,24 +85,6 @@ RSpec.describe 'LDAP modules' do
               required: [
                 /Discovered base DN: DC=ldap,DC=example,DC=com/,
                 /The msDS-KeyCredentialLink field is empty./
-              ]
-            }
-          }
-        },
-        {
-          name: 'auxiliary/gather/ldap_esc_vulnerable_cert_finder',
-          platforms: %i[linux osx windows],
-          targets: [:session, :rhost],
-          skipped: false,
-          lines: {
-            all: {
-              required: [
-                /Successfully queried/
-              ]
-            },
-            linux: {
-              known_failures: [
-                /Auxiliary aborted due to failure: not-found/
               ]
             }
           }

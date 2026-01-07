@@ -13,7 +13,7 @@ module Payload::Java::MeterpreterLoader
 
   include Msf::Payload::Java
   include Msf::Payload::UUID::Options
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Java
 
   def initialize(info = {})
     super(update_info(info,

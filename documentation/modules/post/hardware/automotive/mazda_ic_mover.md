@@ -26,7 +26,7 @@ Launch msf:
 
 ## Options
 
-**CANBUS**
+### CANBUS
 CAN Bus to perform scan on, defaults to connected bus
 
 ## Scenarios

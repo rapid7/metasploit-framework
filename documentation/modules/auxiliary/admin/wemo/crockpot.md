@@ -21,16 +21,16 @@ Stop  Stop cooking
 
 ## Options
 
-**TEMP**
+### TEMP
 
 Set this to the desired temperature for cooking. Valid values are `Off`,
 `Warm`, `Low`, and `High`.
 
-**TIME**
+### TIME
 
 Set this to the desired cook time in full minutes.
 
-**DefangedMode**
+### DefangedMode
 
 Set this to `false` to disable defanged mode and enable module
 functionality. Set this only if you're SURE you want to proceed.

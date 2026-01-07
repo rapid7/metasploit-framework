@@ -247,6 +247,7 @@ module DbConnector
       targ,name = dest.split('/')
       (name = targ and targ = nil) if not name
       res[:host],res[:port] = targ.split(':') if targ
+      name = name&.split('?')&.first
     end
     res[:name] = name || 'metasploit3'
     res

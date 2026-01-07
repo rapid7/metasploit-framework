@@ -29,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
           ['EDB', '39224'],
           ['PACKETSTORM', '135225'],
           ['URL', 'https://seclists.org/fulldisclosure/2016/Jan/26'],
-          ['URL', 'https://blog.fortinet.com/post/brief-statement-regarding-issues-found-with-fortios']
+          ['URL', 'https://blog.fortinet.com/post/brief-statement-regarding-issues-found-with-fortios'],
+          ['ATT&CK', Mitre::Attack::Technique::T1021_004_SSH]
         ],
         'DisclosureDate' => '2016-01-09',
         'License' => MSF_LICENSE,

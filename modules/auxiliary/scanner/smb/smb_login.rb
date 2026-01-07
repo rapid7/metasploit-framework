@@ -43,6 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'References' => [
         [ 'CVE', '1999-0506'], # Weak password
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_002_SMB_WINDOWS_ADMIN_SHARES ],
       ],
       'License' => MSF_LICENSE,
       'DefaultOptions' => {
@@ -67,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    options_to_deregister = %w[USERNAME PASSWORD CommandShellCleanupCommand AutoVerifySession]
+    options_to_deregister = %w[USERNAME PASSWORD CommandShellCleanupCommand AutoVerifySession KrbCacheMode]
 
     if framework.features.enabled?(Msf::FeatureManager::SMB_SESSION_TYPE)
       add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
@@ -115,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Msf::Exploit::Failure::BadConfig, 'The SMBDomain option is required when using Kerberos authentication.') if datastore['SMBDomain'].blank?
       fail_with(Msf::Exploit::Failure::BadConfig, 'The DomainControllerRhost is required when using Kerberos authentication.') if datastore['DomainControllerRhost'].blank?
 
-      if !datastore['PASSWORD']
+      if datastore['SMBPass'].blank?
         # In case no password has been provided, we assume the user wants to use Kerberos tickets stored in cache
         # Write mode is still enable in case new TGS tickets are retrieved.
         ticket_storage = kerberos_ticket_storage({ read: true, write: true })
@@ -178,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
       realm: domain,
       username: datastore['SMBUser'],
       password: datastore['SMBPass'],
-      ignore_private: datastore['SMB::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS && !datastore['PASSWORD']
+      nil_passwords: datastore['SMB::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS && datastore['SMBPass'].blank?
     )
     cred_collection = prepend_db_hashes(cred_collection)
 

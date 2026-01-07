@@ -119,6 +119,10 @@ module Metasploit
             public_send("#{attribute}=", value)
           end
         end
+        
+        def get_type
+          self.cracker
+        end
 
         # This method takes a {framework.db.cred.private.jtr_format} (string), and
         # returns the string number associated to the hashcat format
@@ -300,22 +304,19 @@ module Metasploit
           if cracker_path && ::File.file?(cracker_path)
             return cracker_path
           else
-            # Look in the Environment PATH for the john binary
-            if cracker == 'john'
-              path = Rex::FileUtils.find_full_path('john') ||
-                     Rex::FileUtils.find_full_path('john.exe')
-            elsif cracker == 'hashcat'
-              path = Rex::FileUtils.find_full_path('hashcat') ||
-                     Rex::FileUtils.find_full_path('hashcat.exe')
+            case cracker
+            when 'hashcat'
+              path = get_hashcat
+            when 'john'
+              path = get_john
+            when 'auto'
+              path = get_john || get_hashcat
             else
-              raise PasswordCrackerNotFoundError, 'No suitable Cracker was selected, so a binary could not be found on the system'
+              raise PasswordCrackerNotFoundError, 'No suitable Cracker was selected, so a binary could not be found on the system JOHN || HASHCAT'
             end
+            raise PasswordCrackerNotFoundError, 'No suitable john/hashcat binary was found on the system' unless path && ::File.file?(path)
 
-            if path && ::File.file?(path)
-              return path
-            end
-
-            raise PasswordCrackerNotFoundError, 'No suitable john/hashcat binary was found on the system'
+            return path
           end
         end
 
@@ -574,6 +575,20 @@ module Metasploit
             end
           end
           cmd << hash_path
+        end
+        
+        def get_hashcat
+          # Look in the Environment PATH for the hashcat binary
+          self.cracker = 'hashcat'
+          Rex::FileUtils.find_full_path('hashcat') ||
+            Rex::FileUtils.find_full_path('hashcat.exe')
+        end
+
+        def get_john
+          self.cracker = 'john'
+          # Look in the Environment PATH for the john binary
+          Rex::FileUtils.find_full_path('john') ||
+            Rex::FileUtils.find_full_path('john.exe')
         end
 
       end

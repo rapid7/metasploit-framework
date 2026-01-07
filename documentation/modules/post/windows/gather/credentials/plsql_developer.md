@@ -17,7 +17,7 @@ You can find its official website [here](https://www.allroundautomations.com/pro
 
 ## Options
 
- **PLSQL_PATH**
+### PLSQL_PATH
 
   - Specify the path of PL/SQL Developer
 

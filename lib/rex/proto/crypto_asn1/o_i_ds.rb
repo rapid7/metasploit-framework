@@ -79,6 +79,9 @@ module Rex::Proto::CryptoAsn1
     OID_AES192_CCM = ObjectId.new('2.16.840.1.101.3.4.1.27', name: 'OID_AES192_CCM', label: 'AES192 in CCM mode')
     OID_AES256_GCM = ObjectId.new('2.16.840.1.101.3.4.1.46', name: 'OID_AES256_GCM', label: 'AES256 in GCM mode')
     OID_AES256_CCM = ObjectId.new('2.16.840.1.101.3.4.1.47', name: 'OID_AES256_CCM', label: 'AES256 in CCM mode')
+    
+    # https://oidref.com/2.5.29.37.0
+    OID_ANY_EXTENDED_KEY_USAGE = ObjectId.new('2.5.29.37.0', name: 'OID_ANY_EXTENDED_KEY_USAGE', label: 'Any Extended Key Usage')
 
     def self.name(value)
       value = ObjectId.new(value) if value.is_a?(String)

@@ -24,10 +24,6 @@ docker restart `docker ps -q`
 
 ## Options
 
-  **Option name**
-
-  Talk about what it does, and how to use it appropriately.  If the default value is likely to change, include the default value here.
-
 ## Scenarios
 
 ### ActiveMQ 5.13.3

@@ -90,6 +90,72 @@ a normal user account by analyzing the objects in LDAP.
 1. Scroll down and select the `ESC3-Template2` certificate, and select `OK`.
 1. The certificate should now be available to be issued by the CA server.
 
+### Setting up a ESC8 Vulnerable Host
+1. Follow instructions for creating an AD CS enabled server
+1. Select Add Roles and Features
+1. Under "Select Server Roles" expand Active Directory Certificate Services and add `Certificate Enrollment Policy Web Service`, `Certificate Enrollment Web Service`, and `Certificate Authority Web Enrollment`.
+1. For each selection, accept the default for any pop-up.
+1. Accept the default features and install.
+1. When the installation is complete, click on the warning in the Dashboard for post-deployment configuration.
+1. Under Credentials, accept the default
+1. Under Role Services, select `Certificate Authority Web Enrollment`, `Certificate Enrollment Web Service`, and `Certificate Enrollment Policy Web Service`
+1. In CA for CES, accept the defaults
+1. In Authentication Types, accept the default integrated authentication
+1. In Service account for CES, select `Use built-in application pool identity`
+1. Accept default integrated authentication for CEP
+1. Select the domain certificate in Server Certificate (the one that starts with the domain name by default) if more than one appears.
+1. Accept the remaining defaults.
+
+### Setting up a ESC9 Vulnerable Certificate Template
+1. Open up the run prompt and type in `certsrv`.
+1. In the window that appears you should see your list of certification authorities under `Certification Authority (Local)`.
+1. Right click on the folder in the drop down marked `Certificate Templates` and then click `Manage`.
+1. Scroll down to the `User` certificate. Right click on it and select `Duplicate Template`.
+1. The `User` certificate already has the `Client Authentication` EKU enabled so we can use this as a base template.
+1. Select the Subject Name tab and select `Build from this Active Directory Information`, under the `Subject Name Format` section select `User Principal Name (UPN)` (or `DNS Name` depending on what scenario you're attempting to exploit).
+1. Under the `Subject Name Format` also be sure to unselect `Include e-mail name in subject name` and `E-mail name`.
+1. Select the `General` tab and rename this to something meaningful like `ESC9-Template`, then click the `Apply` button.
+1. Select the Security tab and click the `Add` button.
+1. Enter `user2` (or whatever user's UPN you will be changing for this attack). Click OK.
+1. Under Permissions for `user2` select `Allow` for `Enroll` and `Read`.
+1. Click `Apply` and then `OK`.
+1. Open Active Directory Users and Computers, expand the domain on the left hand side.
+1. Enable advanced features to access the security tab by checking "View" > "Advanced Features"
+1. Right click `Users` and navigate `user2` and select `Properties`.
+1. In the security tab, select `Add` and enter `user1` (or whatever user you will be using to perform the attack). Click OK.
+1. Under Permissions for `user1` select `Allow` for `Read` and `Write` (or select `Allow` for `Full Control`).
+1. Open a Powershell prompt as Administrator and run the following (change `kerberos.issue` to your domain name):
+```powershell
+$template = [ADSI]"LDAP://CN=ESC9-Template,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=kerberos,DC=issue"
+$template.Put("msPKI-Enrollment-Flag", 0x80000)
+$template.SetInfo()
+```
+#### Configuring Windows to be Vulnerable to ESC9
+1. The template should now be reported as `Potentially Vulnerable` by the module.
+1. In order to be able to exploit this template run the following Powershell command and ensure `StrongCertificateBindingEnforcement` is not set to `2` (it should be 1, or 0):
+```powershell
+Set-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name StrongCertificateBindingEnforcement -Value 1
+Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name StrongCertificateBindingEnforcement
+```
+
+### Setting up a ESC10 Vulnerable Certificate Template
+1. Follow the first 15 steps `Setting up a ESC9 Vulnerable Certificate Template` to create the `ESC10-Template`.
+    1. Everything up to and excluding the `msPKI-Enrollment-Flag", 0x80000` powershell step.
+#### Configuring Windows to be Vulnerable to ESC10
+1. The template should now be reported as `Potentially Vulnerable` by the module.
+##### ESC10 Case1:
+1. In order to be able to exploit this template run the following Powershell command and ensure `StrongCertificateBindingEnforcement` is set to `0`
+```powershell
+Set-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name StrongCertificateBindingEnforcement -Value 0
+Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name StrongCertificateBindingEnforcement
+```
+##### ESC10 Case2:
+1. In order to be able to exploit this template run the following Powershell command and ensure `CertificateMappingMethods` is set to `0x4`
+```powershell
+Set-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Control\SecurityProviders\Schannel\" -Name CertificateMappingMethods -Value 4
+Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Control\SecurityProviders\Schannel\" -Name CertificateMappingMethods
+```
+
 ### Setting up a ESC13 Vulnerable Certificate Template
 1. Follow the instructions above to duplicate the ESC2 template and name it `ESC13`, then click `Apply`.
 1. Go to the `Extensions` tab, click the Issuance Policies entry, click the `Add` button, click the `New...` button.
@@ -131,6 +197,51 @@ a normal user account by analyzing the objects in LDAP.
 1. Go back to the `certsrv` screen and right click on the `Certificate Templates` folder and ensure `WebServer` is listed, if it's not, add it.
 1. The certificate should now be available to be issued by the CA server.
 
+### Setting up a ESC16 Vulnerable Certificate Template
+#### Configuring Windows to be Vulnerable to ESC16
+1. There are two ECS16 scenarios and both depend on the CA having the OID: `1.3.6.1.4.1.311.25.2` being present in its `policy\DisableExtensionList`
+1. Run the following Powershell snippet to add the OID to the `DisableExtensionList` if it is not already present:
+```powershell
+$activePolicyName = Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\*\PolicyModules" -Name "Active" | Select-Object -ExpandProperty Active
+$disableExtensionList = Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\*\PolicyModules\$activePolicyName" -Name "DisableExtensionList" | Select-Object -ExpandProperty DisableExtensionList
+
+if (-not ($disableExtensionList -contains "1.3.6.1.4.1.311.25.2")) {
+    $updatedList = $disableExtensionList + @("1.3.6.1.4.1.311.25.2")
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\*\PolicyModules\$activePolicyName" -Name "DisableExtensionList" -Value $updatedList
+    Write-Output "OID 1.3.6.1.4.1.311.25.2 has been added to the DisableExtensionList."
+} else {
+    Write-Output "OID 1.3.6.1.4.1.311.25.2 is already present in the DisableExtensionList."
+}
+```
+#### ESC16 Scenario 1
+When a CA has the OID `1.3.6.1.4.1.311.25.2` added to its `policy\DisableExtensionList` registry setting every certificate issued by this CA will lack this SID security extension.
+This effectively makes all templates published by this CA behave as if they were individually configured with the `CT_FLAG_NO_SECURITY_EXTENSION` flag (as seen in ESC9).
+So if `StrongCertificateBindingEnforcement` is not set to `2` we can exploit this weak mapping.
+
+In order to create a template vulnerable to ESC16 scenario 1, follow the first 15 steps in `Setting up a ESC9 Vulnerable Certificate Template`,
+which is all the steps up to and excluding the `msPKI-Enrollment-Flag", 0x80000` powershell step which is how you set the `CT_FLAG_NO_SECURITY_EXTENSION`.
+Ensure that `StrongCertificateBindingEnforcement` is set to `0` or `1` (not `2`) by running the following command listed in `Configuring Windows to be Vulnerable to ESC9`
+
+#### ESC16 Scenario 2
+When a CA has the OID `1.3.6.1.4.1.311.25.2` added to its `policy\DisableExtensionList` and `StrongCertificateBindingEnforcement` is set to `2`, there is still a way to exploit the template.
+If the policy module's `EditFlags` has the `EDITF_ATTRIBUTESUBJECTALTNAME2` flag set (which is essentially ESC6), then the template is vulnerable to ESC16 scenario 2.
+
+Ensure the `EDITF_ATTRIBUTESUBJECTALTNAME2` flag is set by running following PowerShell command:
+```powershell
+certutil -setreg policy\EditFlags +EDITF_ATTRIBUTESUBJECTALTNAME2
+```
+
+Then restart the Certificate Services service:
+```powershell
+net stop certsvc
+net start certsvc
+```
+
+Then vefify the flag is set by running:
+```powershell
+certutil -getreg policy\EditFlags
+```
+
 ## Module usage
 
 1. Do: Start msfconsole
@@ -144,15 +255,15 @@ a normal user account by analyzing the objects in LDAP.
 
 ## Options
 
-### REPORT_NONENROLLABLE
-If set to `True` then report any certificate templates that are vulnerable but which are not known to be enrollable.
-If set to `False` then skip over these certificate templates and only report on certificate templates
-that are both vulnerable and enrollable.
+### REPORT
+What templates to report (applies filtering to results).
 
-### REPORT_PRIVENROLLABLE
-If set to `True` then report certificate templates that are only enrollable by the Domain and Enterprise Admins groups.
-If set to `False` then skip over these certificate templates and only report on certificate templates that are
-enrollable by at least one additional user or group.
+* **all** - Report all certificate templates.
+* **published** - Report certificate templates that are published by at least one CA server.
+* **enrollable** - Same as above, but omits templates that the user does not have permissions to enroll in.
+* **vulnerable** - Report certificate templates where at least one misconfiguration is appears to be present.
+* **vulnerable-and-published** - Same as above, but omits templates that are not published by at least one CA server.
+* **vulnerable-and-enrollable** - Same as above, but omits templates that the user does not have permissions to enroll in.
 
 ## Scenarios
 

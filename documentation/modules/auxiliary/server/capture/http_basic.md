@@ -8,7 +8,7 @@ This module creates a mock web server which, utilizing a HTTP 401 response, prom
 
 ## Options
 
-  **REALM**
+### REALM
 
   The Realm for the Basic Authentication, which may be displayed in the input box to the user.
   Default is `Secure Site`.
@@ -19,21 +19,21 @@ This module creates a mock web server which, utilizing a HTTP 401 response, prom
   * `HuaweiHomeGateway`
   * `Broadband Router`
 
-  **RedirectURL**
+### RedirectURL
 
   After the user enters a set of credentials, their browser will be redirected to this address.  Default is ``.
 
-  **SSL**
+### SSL
 
   Boolean if SSL should be used, making this HTTPS.  HTTPS is typically run on port 443.  If `SSLCert` is not set, a certificate
   will be automatically generated.  Default is `False`.
 
-  **SSLCert**
+### SSLCert
 
   File path to a combined Private Key and Certificate file.  If not provided, a certificate will be automatically
   generated.  Default is ``.
 
-  **URIPATH**
+### URIPATH
 
   What URI should be utilized to prompt for the Basic Authentication.  For instance, you may want this to run on `/cisco` if you use
   the `REALM` `level_15 or view_access`.  Default is ``, which will randomly generate a URIPATH.

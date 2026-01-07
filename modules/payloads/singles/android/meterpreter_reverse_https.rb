@@ -10,7 +10,7 @@ module MetasploitModule
   include Msf::Payload::Single
   include Msf::Payload::Android
   include Msf::Payload::UUID::Options
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Android
 
   def initialize(info = {})
     super(

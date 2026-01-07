@@ -12,7 +12,7 @@ This modules retrieves stored bookmarks for Google Chrome, Microsoft Edge and Op
 ## Options
 
 
-  **SESSION**
+### SESSION
 
   The session to run this module on.
 

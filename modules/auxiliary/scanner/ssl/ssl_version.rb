@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -75,84 +74,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        OptString.new('SSLServerNameIndication', [ false, 'SSL/TLS Server Name Indication (SNI)', nil]),
         OptEnum.new('SSLVersion', [ true, 'SSL version to test', 'All', ['All'] + Array.new(OpenSSL::SSL::SSLContext.new.ciphers.length) { |i| (OpenSSL::SSL::SSLContext.new.ciphers[i][1]).to_s }.uniq.reverse]),
         OptEnum.new('SSLCipher', [ true, 'SSL cipher to test', 'All', ['All'] + Array.new(OpenSSL::SSL::SSLContext.new.ciphers.length) { |i| (OpenSSL::SSL::SSLContext.new.ciphers[i][0]).to_s }.uniq]),
       ]
     )
-  end
-
-  def get_metasploit_ssl_versions
-    # There are two ways to generate a list of valid SSL Versions (SSLv3, TLS1.1, etc) and cipher suites (AES256-GCM-SHA384,
-    # ECDHE-RSA-CHACHA20-POLY1305, etc). The first would be to generate them independently. It's possible to
-    # pull all SSLContext methods (SSL Versions) via OpenSSL::SSL::SSLContext::METHODS here, as referenced in
-    # https://github.com/rapid7/rex-socket/blob/6ea0bb3b4e19c53d73e4337617be72c0ed351ceb/lib/rex/socket/ssl_tcp.rb#L46
-    # then pull all ciphers with OpenSSL::Cipher.ciphers. Now in theory you have a nice easy loop:
-    #
-    # OpenSSL::SSL::SSLContext::METHODS.each do |ssl_version|
-    #    OpenSSL::Cipher.ciphers.each do |cipher_suite|
-    #      # do something
-    #    end
-    # end
-    #
-    # However, in practice we find that OpenSSL::SSL::SSLContext::METHODS includes '_client' and '_server' variants
-    # such as :TLSv1, :TLSv1_client, :TLSv1_server. In this case, we only need :TLSv1, so we need to remove ~2/3 of the list.
-    #
-    # Next, we'll find that many ciphers in OpenSSL::Cipher.ciphers are not applicable for various SSL versions.
-    # The loop we previously looked at has (at the time of writing on Kali Rollin, msf 6.2.23) 3060 rounds.
-    # This is a lot of iterations when we already know there are many combinations that will not be applicable for our
-    # use. Luckily there is a 2nd way which is much more efficient.
-    #
-    # The OpenSSL library includes https://docs.ruby-lang.org/en/2.4.0/OpenSSL/SSL/SSLContext.html#method-i-ciphers
-    # which we can use to generate a list of all ciphers, and SSL versions they work with. The structure is:
-    #
-    # [[name, version, bits, alg_bits], ...]
-    #
-    # which makes it very easy to just pull the 2nd element (version, or SSL version) from each list item, and unique it.
-    # This gives us the list of all SSL versions which also have at least one working cipher on our system.
-    # Using this method we produce no unusable SSL versions or matching cipher suites and the list is 60 items long, so 1/51 the size.
-    # Later in get_metasploit_ssl_cipher_suites, we can grab all cipher suites to a SSL version easily by simply filtering
-    # the 2nd element (version, or SSL version) from each list item.
-
-    if datastore['SSLVersion'] == 'All'
-      return Array.new(OpenSSL::SSL::SSLContext.new.ciphers.length) { |i| (OpenSSL::SSL::SSLContext.new.ciphers[i][1]).to_s }.uniq.reverse
-    end
-
-    [datastore['SSLVersion']]
-  end
-
-  def get_metasploit_ssl_cipher_suites(ssl_version)
-    # See comments in get_metasploit_ssl_versions for details on the use of
-    # OpenSSL::SSL::SSLContext.new.ciphers vs other methods to generate
-    # valid ciphers for a given SSL version
-
-    # First find all valid ciphers that the Metasploit host supports.
-    # Also transform the SSL version to a standard format.
-    ssl_version = ssl_version.to_s.gsub('_', '.')
-    all_ciphers = OpenSSL::SSL::SSLContext.new.ciphers
-    valid_ciphers = []
-
-    # For each cipher that the Metasploit host supports, determine if that cipher
-    # is supported for use with the SSL version passed into this function. If it is,
-    # then add it to the valid_ciphers list.
-    all_ciphers.each do |cipher|
-      # cipher list has struct of [cipher, ssl_version, <int>, <int>]
-      if cipher[1] == ssl_version
-        valid_ciphers << cipher[0]
-      end
-    end
-
-    # If the user wants to use all ciphers then return all valid ciphers.
-    # Otherwise return only the one that matches the one the user specified
-    # in the SSLCipher datastore option.
-    #
-    # If no match is found for some reason then we will return an empty array.
-    if datastore['SSLCipher'] == 'All'
-      return valid_ciphers
-    elsif valid_ciphers.contains? datastore['SSLCipher']
-      return [datastore['SSLCipher']]
-    end
-
-    []
   end
 
   def public_key_size(cert)
@@ -239,6 +165,22 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_status("\tNo certificate subject or common name found.")
     end
+  end
+
+  # Process certificate with enhanced analysis
+  def process_certificate(ip, cert)
+    print_cert(cert, ip)
+
+    # Store certificate in loot with rex-sslscan metadata
+    loot_cert = store_loot(
+      'ssl.certificate.rex_sslscan',
+      'application/x-pem-file',
+      ip,
+      cert.to_pem,
+      "ssl_cert_#{ip}_#{rport}.pem",
+      "SSL Certificate from #{ip}:#{rport}"
+    )
+    print_good("Certificate saved to loot: #{loot_cert}")
   end
 
   def check_vulnerabilities(ip, ssl_version, ssl_cipher, cert)
@@ -368,31 +310,6 @@ class MetasploitModule < Msf::Auxiliary
 
     return if cert.nil?
 
-    key_size = public_key_size(cert)
-    if key_size > 0
-      if key_size == 1024
-        print_good('Public Key only 1024 bits')
-        report_vuln(
-          host: ip,
-          port: rport,
-          proto: 'tcp',
-          name: name,
-          info: "Module #{fullname} confirmed certificate key size 1024 bits",
-          refs: ['CWE-326']
-        )
-      elsif key_size < 1024
-        print_good('Public Key < 1024 bits')
-        report_vuln(
-          host: ip,
-          port: rport,
-          proto: 'tcp',
-          name: name,
-          info: "Module #{fullname} confirmed certificate key size < 1024 bits",
-          refs: ['CWE-326']
-        )
-      end
-    end
-
     # certificate signed md5
     alg = cert.signature_algorithm
 
@@ -435,88 +352,146 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # Fingerprint a single host
-  def run_host(ip)
-    # Get the available SSL/TLS versions that that Metasploit host supports
-    versions = get_metasploit_ssl_versions
+  # Enhanced vulnerability checking leveraging rex-sslscan data
+  def check_vulnerabilities_enhanced(ip, ssl_version, cipher_name, cert, is_weak_cipher)
+    check_vulnerabilities(ip, ssl_version, cipher_name, cert)
 
-    certs_found = {}
-    skip_ssl_version = false
-    vprint_status("Scanning #{ip} for: #{versions.map(&:to_s).join(', ')}")
+    if is_weak_cipher
+      print_good("#{ip}:#{rport} - Weak cipher detected: #{cipher_name}")
+      report_vuln(
+        host: ip,
+        port: rport,
+        proto: 'tcp',
+        name: name,
+        info: "Module #{fullname} detected weak cipher: #{cipher_name}",
+        refs: ['CWE-327']
+      )
+    end
+  end
 
-    # For each SSL/TLS version...
-    versions.each do |version|
-      skip_ssl_version = false
+  # Store comprehensive rex-sslscan results
+  def store_rex_sslscan_results(ip, scan_result)
+    # Create detailed report
+    report_data = {
+      host: ip,
+      port: rport,
+      scan_timestamp: Time.now.utc,
+      ssl_versions: {
+        sslv2_supported: scan_result.supports_sslv2?,
+        sslv3_supported: scan_result.supports_sslv3?,
+        tlsv1_supported: scan_result.supports_tlsv1?,
+        tlsv1_1_supported: scan_result.supports_tlsv1_1?,
+        tlsv1_2_supported: scan_result.supports_tlsv1_2?
+      },
+      cipher_summary: {
+        total_accepted: scan_result.accepted.length,
+        total_rejected: scan_result.rejected.length,
+        weak_ciphers: scan_result.weak_ciphers.length,
+        strong_ciphers: scan_result.strong_ciphers.length
+      },
+      detailed_ciphers: scan_result.ciphers.to_a
+    }
 
-      # Get the cipher suites that SSL/TLS can use on the Metasploit host
-      # and print them out.
-      ciphers = get_metasploit_ssl_cipher_suites(version)
-      vprint_status("Scanning #{ip} #{version} with ciphers: #{ciphers.map(&:to_s).join(', ')}")
+    # Store as JSON loot
+    loot_file = store_loot(
+      'ssl.scan.rex_sslscan',
+      'application/json',
+      ip,
+      report_data.to_json,
+      "ssl_scan_#{ip}_#{rport}.json",
+      "Rex::SSLScan results for #{ip}:#{rport}"
+    )
+    print_good("Detailed scan results saved to loot: #{loot_file}")
+  end
 
-      # For each cipher attempt to connect to the server. If we could connect with the given SSL version,
-      # then skip it and move onto the next one. If the cipher isn't supported, then note this.
-      # If the server responds with a peer certificate, make a new certificate object from it and find
-      # its fingerprint, then check it for vulnerabilities, before saving it to loot if it hasn't been
-      # saved already (check done using the certificate's SHA1 hash).
-      #
-      # In all cases the SSL version and cipher combination will also be checked for vulnerabilities
-      # using the check_vulnerabilities function.
-      ciphers.each do |cipher|
-        break if skip_ssl_version
+  # Process rex-sslscan results
+  def process_rex_sslscan_results(ip, scan_result)
+    # Report certificate if available
+    if scan_result.cert
+      process_certificate(ip, scan_result.cert)
+    end
 
-        vprint_status("Attempting connection with SSL Version: #{version}, Cipher: #{cipher}")
-        begin
-          # setting the connect global to false means we can't see the socket, therefore the cert
-          connect(true, { 'SSL' => true, 'SSLVersion' => version.sub('.', '_').to_sym, 'SSLCipher' => cipher }) # Force SSL
-          print_good("Connected with SSL Version: #{version}, Cipher: #{cipher}")
+    # Process accepted ciphers by version
+    %i[SSLv2 SSLv3 TLSv1 TLSv1_1 TLSv1_2].each do |version|
+      accepted_ciphers = scan_result.accepted(version)
+      next if accepted_ciphers.empty?
 
-          if sock.respond_to? :peer_cert
-            cert = OpenSSL::X509::Certificate.new(sock.peer_cert)
-            # https://stackoverflow.com/questions/16516555/ruby-code-for-openssl-to-generate-fingerprint
-            cert_fingerprint = OpenSSL::Digest::SHA1.new(cert.to_der).to_s
-            if certs_found.key? cert_fingerprint
-              # dont check the cert more than once if its the same cert
-              check_vulnerabilities(ip, version, cipher, nil)
-            else
-              loot_cert = store_loot('ssl.certificate', 'text/plain', ip, cert.to_text)
-              print_good("Certificate saved to loot: #{loot_cert}")
-              print_cert(cert, ip)
-              check_vulnerabilities(ip, version, cipher, cert)
-            end
-            certs_found[cert_fingerprint] = cert
-          end
-        rescue ::OpenSSL::SSL::SSLError => e
-          error_message = e.message.match(/ state=(.+)$/)
+      print_good("#{ip}:#{rport} - #{version} supported with #{accepted_ciphers.length} cipher(s)")
 
-          if error_message.nil?
-            vprint_error("\tSSL Connection Error: #{e}")
-            next
-          end
-
-          # catch if the ssl_version/protocol isn't allowed and then we can skip out of it.
-          if error_message[1].include? 'no protocols available'
-            skip_ssl_version = true
-            vprint_error("\tDoesn't accept #{version} connections, Skipping")
-            break
-          end
-          vprint_error("\tDoes not accept #{version} using cipher #{cipher}, error message: #{error_message[1]}")
-        rescue ArgumentError => e
-          if e.message.match(%r{This version of Ruby does not support the requested SSL/TLS version})
-            skip_ssl_version = true
-            vprint_error("\t#{e.message}, Skipping")
-            break
-          end
-          print_error("Exception encountered: #{e}")
-        rescue StandardError => e
-          if e.message.match(/connection was refused/) || e.message.match(/timed out/)
-            print_error("\tPort closed or timeout occurred.")
-            return 'Port closed or timeout occurred.'
-          end
-          print_error("\tException encountered: #{e}")
-        ensure
-          disconnect
+      key_size = public_key_size(scan_result.cert)
+      if key_size > 0
+        if key_size == 1024
+          print_good('Public Key only 1024 bits')
+          report_vuln(
+            host: ip,
+            port: rport,
+            proto: 'tcp',
+            name: name,
+            info: "Module #{fullname} confirmed certificate key size 1024 bits",
+            refs: ['CWE-326']
+          )
+        elsif key_size < 1024
+          print_good('Public Key < 1024 bits')
+          report_vuln(
+            host: ip,
+            port: rport,
+            proto: 'tcp',
+            name: name,
+            info: "Module #{fullname} confirmed certificate key size < 1024 bits",
+            refs: ['CWE-326']
+          )
         end
       end
+
+      accepted_ciphers.each do |cipher_info|
+        cipher_name = cipher_info[:cipher]
+        key_length = cipher_info[:key_length]
+        is_weak = cipher_info[:weak]
+
+        # Report the cipher
+        print_status("  #{version}: #{cipher_name} (#{key_length} bits)#{is_weak ? ' - WEAK' : ''}")
+
+        # Check for vulnerabilities using existing logic
+        check_vulnerabilities_enhanced(ip, version.to_s, cipher_name, scan_result.cert, is_weak)
+      end
+    end
+
+    # Report weak ciphers summary
+    weak_ciphers = scan_result.weak_ciphers
+    if weak_ciphers.any?
+      print_bad("#{ip}:#{rport} - #{weak_ciphers.length} weak cipher(s) detected")
+    end
+
+    # Store comprehensive scan results in loot
+    store_rex_sslscan_results(ip, scan_result)
+  end
+
+  # Fingerprint a single host
+  def run_host(ip)
+    print_status("Starting enhanced SSL/TLS scan of #{ip}:#{rport}")
+
+    begin
+      ctx = { 'Msf' => framework, 'MsfExploit' => self }
+      tls_server_name_indication = nil
+      tls_server_name_indication = datastore['SSLServerNameIndication'] if datastore['SSLServerNameIndication'].present?
+      tls_server_name_indication = datastore['RHOSTNAME'] if tls_server_name_indication.nil? && datastore['RHOSTNAME'].present?
+      # Initialize rex-sslscan scanner
+      scanner = Rex::SSLScan::Scanner.new(ip, rport, ctx, tls_server_name_indication: tls_server_name_indication)
+
+      # Perform the scan
+      scan_result = scanner.scan
+
+      # Check if SSL/TLS is supported
+      unless scan_result.supports_ssl?
+        print_error("#{ip}:#{rport} - Server does not appear to support SSL/TLS")
+        return
+      end
+
+      # Process and report results
+      process_rex_sslscan_results(ip, scan_result)
+    rescue StandardError => e
+      print_error("#{ip}:#{rport} - Scan error: #{e.message}")
+      vprint_error("#{ip}:#{rport} - Backtrace: #{e.backtrace}")
     end
   end
 end

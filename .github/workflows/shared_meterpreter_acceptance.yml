@@ -67,7 +67,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-13
+          - macos-15-intel
           - windows-2022
           - ubuntu-latest
         ruby:
@@ -92,7 +92,7 @@ jobs:
           # - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2025 }
 
           # Mettle
-          - { meterpreter: { name: mettle }, os: macos-13 }
+          - { meterpreter: { name: mettle }, os: macos-15-intel }
           - { meterpreter: { name: mettle }, os: ubuntu-latest }
 
     runs-on: ${{ matrix.os }}
@@ -198,7 +198,8 @@ jobs:
 
       - name: Setup Ruby
         env:
-          BUNDLE_FORCE_RUBY_PLATFORM: true
+          # Introduces flakiness when downloading zlib etc: https://github.com/sparklemotion/nokogiri/issues/3521
+          # BUNDLE_FORCE_RUBY_PLATFORM: true
           # Required for macos13 pg gem compilation
           PKG_CONFIG_PATH: "/usr/local/opt/libpq/lib/pkgconfig"
         # Pinned to avoid Windows compilation failure with nokogiri
@@ -268,12 +269,26 @@ jobs:
         working-directory: metasploit-payloads
 
       - name: Build Windows payloads via Visual Studio 2022 Build (Windows)
-        shell: cmd
+        shell: pwsh
         if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2022' && inputs.build_metasploit_payloads }}
         run: |
-          cd c/meterpreter
-          git submodule init && git submodule update
-          make.bat
+          Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
+          dir
+          $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+          $WorkLoads = '--config "D:\a\metasploit-payloads\metasploit-payloads\metasploit-payloads\c\meterpreter\vs-configs\vs2022.vsconfig"'
+          $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"", $WorkLoads, '--quiet', '--norestart', '--nocache')
+          $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+          if ($process.ExitCode -eq 0) {
+            Write-Host "components have been successfully added"
+          } else {
+            Write-Host "components were not installed"
+            exit 1
+          }
+          Set-Location "D:\a\metasploit-payloads\metasploit-payloads\metasploit-payloads\c\meterpreter"
+          $r = Invoke-Command -ScriptBlock { cmd.exe /c 'git submodule init && git submodule update' }
+          Write-Host $r
+          $r = Invoke-Command -ScriptBlock { cmd.exe /c '"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" && make.bat' }
+          Write-Host $r
         working-directory: metasploit-payloads
 
       - name: Build Windows payloads via Visual Studio 2025 Build (Windows)

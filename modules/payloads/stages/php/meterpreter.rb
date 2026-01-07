@@ -6,7 +6,7 @@
 require 'securerandom'
 
 module MetasploitModule
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Php
 
   def initialize(info = {})
     super(

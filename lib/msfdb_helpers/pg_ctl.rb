@@ -46,7 +46,7 @@ module MsfdbHelpers
       begin
         file_name = File.join(path, 'msfdb_testfile')
         File.open(file_name, 'w') do |f|
-          f.puts "#!/bin/bash\necho exec"
+          f.puts "#!/bin/sh\necho exec"
         end
         File.chmod(0744, file_name)
 

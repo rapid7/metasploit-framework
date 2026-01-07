@@ -18,6 +18,7 @@ class MetasploitModule < Msf::Auxiliary
           execute arbitrary system commands.
         },
         'References' => [
+          ['CVE', '2017-5255'],
           ['URL', 'http://ipositivesecurity.com/2015/11/28/cambium-epmp-1000-multiple-vulnerabilities/'],
           ['URL', 'https://support.cambiumnetworks.com/file/476262a0256fdd8be0e595e51f5112e0f9700f83']
         ],

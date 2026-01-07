@@ -1005,7 +1005,7 @@ def should_delete
   ask_yn("Would you like to delete your existing data and configurations?")
 end
 
-if $PROGRAM_NAME == __FILE__
+if File.expand_path($PROGRAM_NAME) == File.expand_path(__FILE__)
   # Bomb out if we're root
   if !Gem.win_platform? && Process.uid.zero?
     puts "Please run #{@script_name} as a non-root user"

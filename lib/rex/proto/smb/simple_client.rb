@@ -85,8 +85,14 @@ class SimpleClient
   
         dlog("SMB version(s) to negotiate: #{self.versions}")
         ok = self.client.negotiate
+        
+        # if SMB negotiation fails when selecting dialect, return false
+        if ok.blank?
+          dlog("Failed to negotiate SMB version")
+          raise XCEPT::UnknownDialect
+        end
         dlog("Negotiated SMB version: SMB#{negotiated_smb_version}")
-  
+
         if self.client.is_a?(RubySMB::Client)
           self.server_max_buffer_size = self.client.server_max_buffer_size
         else

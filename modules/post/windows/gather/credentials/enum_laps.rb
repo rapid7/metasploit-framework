@@ -42,7 +42,10 @@ class MetasploitModule < Msf::Post
               stdapi_net_resolve_hosts
             ]
           }
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING ]
+        ]
       )
     )
 

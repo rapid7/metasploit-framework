@@ -4,13 +4,13 @@
 ##
 
 module MetasploitModule
-  CachedSize = 204892
+  CachedSize = 232028
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Single
   include Msf::Payload::Windows::MeterpreterLoader_x64
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Windows
 
   def initialize(info = {})
     super(

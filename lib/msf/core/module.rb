@@ -114,6 +114,8 @@ module Msf
       @module_info_copy = info.dup
 
       self.module_info = info
+      # Initialize UUID for RPC compatibility
+      uuid
 
       set_defaults
 

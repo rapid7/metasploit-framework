@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('DOMAIN', [ false, 'The Fully Qualified Domain Name (FQDN). Ex: mydomain.local' ]),
         OptString.new('USERNAME', [ false, 'The domain user' ]),
         OptString.new('PASSWORD', [ false, 'The domain user\'s password' ]),
-        OptPath.new('CERT_FILE', [ false, 'The PKCS12 (.pfx) certificate file to authenticate with' ]),
+        OptPkcs12Cert.new('CERT_FILE', [ false, 'The PKCS12 (.pfx) certificate file to authenticate with' ]),
         OptString.new('CERT_PASSWORD', [ false, 'The certificate file\'s password' ]),
         OptString.new(
           'NTHASH', [
@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
           ],
           conditions: %w[ACTION == GET_TGS]
         ),
-        OptPath.new(
+        OptKerberosCredentialCache.new(
           'Krb5Ccname', [
             false,
             'The Kerberos TGT to use when requesting the service ticket. If unset, the database will be checked'
@@ -91,12 +91,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def validate_options
     if datastore['CERT_FILE'].present?
-      certificate = File.binread(datastore['CERT_FILE'])
-      begin
-        @pfx = OpenSSL::PKCS12.new(certificate, datastore['CERT_PASSWORD'] || '')
-      rescue OpenSSL::PKCS12::PKCS12Error => e
-        fail_with(Failure::BadConfig, "Unable to parse certificate file (#{e})")
-      end
+      pkcs12_storage = Msf::Exploit::Remote::Pkcs12::Storage.new(framework: framework, framework_module: self)
+      @pfx = pkcs12_storage.read_pkcs12_cert_path(datastore['CERT_FILE'], datastore['CERT_PASSWORD'], workspace: workspace)[:value]
 
       if datastore['USERNAME'].blank? && datastore['DOMAIN'].present?
         fail_with(Failure::BadConfig, 'Domain override provided but no username override provided (must provide both or neither)')

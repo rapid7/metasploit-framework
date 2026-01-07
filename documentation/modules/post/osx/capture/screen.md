@@ -13,19 +13,19 @@ This module takes screenshots of target desktop and automatically downloads them
 
 ## Options
 
-  **COUNT**
+### COUNT
   The number of screenshots to collect.  Default is `1`.
 
-  **DELAY**
+### DELAY
   Interval between screenshots in seconds. 0 for no delay.  Default is `10`.
 
-  **EXE_PATH**
+### EXE_PATH
   Path to remote screencapture executable.  Default is `/usr/sbin/screencapture`
 
-  **FILETYPE**
+### FILETYPE
   File format to use when saving a snapshot (Accepted: png, gif).  Default is `png`.
 
-  **TMP_PATH**
+### TMP_PATH
   Path to remote temp directory.  Default is `/tmp/<random>`
 
 ## Scenarios

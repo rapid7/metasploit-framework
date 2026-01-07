@@ -26,7 +26,10 @@ class MetasploitModule < Msf::Post
           'Reliability' => [],
           'SideEffects' => []
         },
-        'Author' => ['Rob Bathurst <rob.bathurst[at]foundstone.com>']
+        'Author' => ['Rob Bathurst <rob.bathurst[at]foundstone.com>'],
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_004_LSA_SECRETS ]
+        ]
       )
     )
     register_options([

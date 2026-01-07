@@ -22,18 +22,18 @@ The required options are based on the action being performed:
 - When changing a password, you must specify the `LDAPUsername` and `LDAPPassword`, even if using an existing session (since the API requires both of these to be specified, even for open LDAP sessions)
 - The `NEW_PASSWORD` option must always be provided
 
-**LDAPUsername**
+### LDAPUsername
 
 The username to use to authenticate to the server. Required for changing a password, even if using an existing session.
 
-**LDAPPassword**
+### LDAPPassword
 
 The password to use to authenticate to the server, prior to performing the password modification. Required for changing a password, even if using an existing session (since the server requires proof that you know the existing password).
 
-**TARGET_USER**
+### TARGET_USER
 
 For resetting passwords, the user account for which to reset the password. The authenticated account (username) must have privileges over the target user (e.g. Ownership, or the `User-Force-Change-Password` extended right)
 
-**NEW_PASSWORD**
+### NEW_PASSWORD
 
 The new password to set.

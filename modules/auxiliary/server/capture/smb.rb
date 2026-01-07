@@ -18,8 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         password NTLMv1 & NTLMv2 hashes used with SMB1, SMB2, or SMB3 client systems.
         Responses sent by this service by default use a random 8 byte challenge string.
         A specific value (such as `1122334455667788`) can be set using the CHALLENGE option,
-        allowing for easy cracking using Cain & Abel (NTLMv1) or John the Ripper
-        (with jumbo patch).
+        allowing for easy cracking using John the Ripper (with jumbo patch).
 
         To exploit this, the target system must try to authenticate to this
         module. One way to force an SMB authentication attempt is by embedding
@@ -51,7 +50,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('CAINPWFILE', [ false, 'Name of file to store Cain&Abel hashes in. Only supports NTLMv1 hashes. Can be a path.', nil ]),
         OptString.new('JOHNPWFILE', [ false, 'Name of file to store JohnTheRipper hashes in. Supports NTLMv1 and NTLMv2 hashes, each of which is stored in separate files. Can also be a path.', nil ]),
         OptString.new('CHALLENGE', [ false, 'The 8 byte server challenge. Set values must be a valid 16 character hexadecimal pattern. If unset a valid random challenge is used.' ], regex: /^([a-fA-F0-9]{16})$/),
         OptString.new('SMBDomain', [ true, 'The domain name used during SMB exchange.', 'WORKGROUP'], aliases: ['DOMAIN_NAME']),

@@ -173,6 +173,18 @@ private
     file_extension = 'x86.dll'
     file_extension = 'x64.dll' unless is_x86?
 
+    @opts[:extensions] = [] if @opts[:extensions].blank?
+    prev_length = @opts[:extensions].length
+    @opts[:extensions] = @opts[:extensions].select {|ext_name| ext_name.index('stdapi_') != 0}
+    if prev_length != @opts[:extensions].length
+      raise Msf::OptionValidateError.new(
+        {
+          'EXTENSIONS' => 'The extensions starting with stdapi_* are currently not supported.'
+        },
+        message: "The extensions starting with stdapi_* are currently not supported."
+      )
+    end
+
     (@opts[:extensions] || []).each do |e|
       config << extension_block(e, file_extension, debug_build: @opts[:debug_build])
     end

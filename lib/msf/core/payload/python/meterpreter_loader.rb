@@ -14,7 +14,7 @@ module Payload::Python::MeterpreterLoader
   include Msf::Payload::Python
   include Msf::Payload::UUID::Options
   include Msf::Payload::TransportConfig
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Python
 
   def initialize(info = {})
     super(update_info(info,

@@ -29,7 +29,10 @@ class MetasploitModule < Msf::Auxiliary
         'Stability' => [CRASH_SAFE],
         'SideEffects' => [],
         'Reliability' => []
-      }
+      },
+      'References' => [
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_002_SMB_WINDOWS_ADMIN_SHARES ]
+      ]
     )
 
     register_options([

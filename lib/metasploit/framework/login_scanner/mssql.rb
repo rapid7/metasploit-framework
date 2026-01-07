@@ -16,21 +16,18 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::NTLM
 
         DEFAULT_PORT         = 1433
-        DEFAULT_REALM         = 'WORKSTATION'
+        DEFAULT_REALM        = nil
         # Lifted from lib/msf/core/exploit/mssql.rb
         LIKELY_PORTS         = [ 1433, 1434, 1435, 14330, 2533, 9152, 2638 ]
         # Lifted from lib/msf/core/exploit/mssql.rb
         LIKELY_SERVICE_NAMES = [ 'ms-sql-s', 'ms-sql2000', 'sybase', 'mssql' ]
         PRIVATE_TYPES        = [ :password, :ntlm_hash ]
-        REALM_KEY           = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+        REALM_KEY            = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
 
         # @!attribute auth
         #   @return [Array<String>] Auth The Authentication mechanism to use
         #   @see Msf::Exploit::Remote::AuthOption::MSSQL_OPTIONS
         attr_accessor :auth
-
-        validates :auth,
-                  inclusion: { in: Msf::Exploit::Remote::AuthOption::MSSQL_OPTIONS }
 
         validates :auth,
                   inclusion: { in: Msf::Exploit::Remote::AuthOption::MSSQL_OPTIONS }
@@ -43,10 +40,6 @@ module Metasploit
         #   @return [String] Auth The mssql hostname, required for Kerberos Authentication
         attr_accessor :hostname
 
-        # @!attribute windows_authentication
-        #   @return [Boolean] Whether to use Windows Authentication instead of SQL Server Auth.
-        attr_accessor :windows_authentication
-
         # @!attribute use_client_as_proof
         #   @return [Boolean] If a login is successful and this attribute is true - an MSSQL::Client instance is used as proof
         attr_accessor :use_client_as_proof
@@ -58,9 +51,6 @@ module Metasploit
         # @!attribute send_delay
         #   @return [Integer] The delay between sending packets
         attr_accessor :send_delay
-
-        validates :windows_authentication,
-          inclusion: { in: [true, false] }
 
         attr_accessor :tdsencryption
 
@@ -93,7 +83,7 @@ module Metasploit
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             result_options[:proof] = e
           rescue => e
-            elog(e)
+            elog(e, error: e)
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             result_options[:proof] = e
           end
@@ -117,7 +107,6 @@ module Metasploit
           self.use_ntlm2_session      = true if self.use_ntlm2_session.nil?
           self.use_ntlmv2             = true if self.use_ntlmv2.nil?
           self.auth                   = Msf::Exploit::Remote::AuthOption::AUTO if self.auth.nil?
-          self.windows_authentication = false if self.windows_authentication.nil?
           self.tdsencryption          = false if self.tdsencryption.nil?
         end
       end

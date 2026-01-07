@@ -54,9 +54,9 @@ retrieve deployment packages from S3.
 The VPC or Virtual Private Cloud, an isolated local area network. Network access
 can be made available by assigning an Internet routable IP address to a host or
 routing traffic to it through an ELB (Elastic Load Balancer). In either case
-security-groups are used to open access to network ranges and specific TPC/UDP
+security-groups are used to open access to network ranges and specific TCP/UDP
 ports. Security-groups provide much of the functionality of traditional firewalls
-and can be configured by specifying a protocol, a CIDR and a port. 
+and can be configured by specifying a protocol, a CIDR and a port.
 
 ## How it Works
 
@@ -65,7 +65,7 @@ Web console or the CLI, launching a host in the Cloud requires a fair
 amount of configuration; this module does its best to abstract configuration
 requirements away from the user by auto detecting the VPC, subnets, creating
 security groups, etc. It performs several tasks to launch a host with
-a public IP address, these are as follow: 1) select a VPC, 2) select a subnet, 3)
+a public IP address, these are as follows: 1) select a VPC, 2) select a subnet, 3)
 create/select a security group, 4) create/select a key-pair, and 5) launch
 a host.
 
@@ -80,7 +80,7 @@ an Internet routable IP address. The module dynamically finds which subnet to
 launch the host in. It will use the first subnet it finds having the
 `Auto-assign Public IP` option set, if no such subnet exists, then it will
 select the first subnet having an Internet gateway. To circumvent this process,
-the `SUBNET_ID` advanced option can be set. 
+the `SUBNET_ID` advanced option can be set.
 
 When launching a Cloud host at least one security group is required. There are
 several advanced options for creating/selecting a security group. The
@@ -88,7 +88,7 @@ several advanced options for creating/selecting a security group. The
 That is, the module will create a security group unless the `SEC_GROUP_ID`
 options is set. If the `SEC_GROUP_ID` option is not set, the module will attempt
 to create a security group using the values specified in the `SEC_GROUP_CIDR`,
-`SEC_GROUP_NAME`, and `SEC_GROUP_PORT` options as configuration. 
+`SEC_GROUP_NAME`, and `SEC_GROUP_PORT` options as configuration.
 
 The `KEY_NAME` and `SSH_PUB_KEY` options are used in conjunction to select or
 create a key-pair (a named SSH public key). Key-pairs are used to authenticate
@@ -113,7 +113,7 @@ use command. To run the module, only the `AccessKeyId`, `SecretAccessKey`, and
 Basic Options:
 
 * `AMI_ID`: The Amazon Machine Image (AMI) ID (region dependent)
-* `RHOST`: the AWS EC2 Endpoint (ec2.us-west-2.amazonaws.com), may change this to something closer to you
+* `RHOST`: The AWS EC2 Endpoint (ec2.us-west-2.amazonaws.com), may change this to something closer to you
 * `Region`: The default region (us-west-2), must match endpoint
 * `AccessKeyId`: AWS API access key
 * `SecretAccessKey`: AWS API secret access key
@@ -129,10 +129,10 @@ Advanced Options:
 * `MinCount`: Minimum number of instances to launch
 * `ROLE_NAME`: The instance profile/role name
 * `RPORT:` AWS EC2 Endpoint TCP Port
-* `SEC_GROUP_ID`: the EC2 security group to use
-* `SEC_GROUP_CIDR`: the EC2 security group network access CIDR, defaults to 0.0.0.0/0
-* `SEC_GROUP_NAME`: the EC2 security group name
-* `SEC_GROUP_PORT`: the EC2 security group network access port, defaults to tcp:22
+* `SEC_GROUP_ID`: The EC2 security group to use
+* `SEC_GROUP_CIDR`: The EC2 security group network access CIDR, defaults to 0.0.0.0/0
+* `SEC_GROUP_NAME`: The EC2 security group name
+* `SEC_GROUP_PORT`: The EC2 security group network access port, defaults to tcp:22
 * `SUBNET_ID`: The public subnet to use
 * `UserAgent`: The User-Agent header to use for all requests
 * `VPC_ID`: The EC2 VPC ID
@@ -181,7 +181,7 @@ msf auxiliary(aws_launch_instances) > run
 ...
 [*] instance i-12345678 status: ok
 [*] Instance i-12345678 has IP address 54.186.158.6
-[*] Auxiliary module execution completed 
+[*] Auxiliary module execution completed
 ```
 
 When the host has passed its primary system checks, the IP address will be
