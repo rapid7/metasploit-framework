@@ -45,6 +45,7 @@ class MetasploitModule < Msf::Auxiliary
         print_warning('CERT_TEMPLATE is ignored in ALL and QUERY_ONLY modes.')
       end
     end
+    setup
   end
 
   def pull_domain(target_ip, target_uri)
@@ -54,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
       temp_password = datastore['HttpPassword']
       # datastore and options must be nil to fail login so we get ntlm challenge
       datastore['HttpUsername'] = nil
-      datastore['HttpUsername'] = nil
+      datastore['HttpPassword'] = nil
       res = send_request_cgi({
         'rhost' => target_ip,
         'encode' => true,
