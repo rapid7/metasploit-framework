@@ -110,7 +110,7 @@ module Msf
         
         if plat.index(Msf::Module::Platform::Windows)
           return to_win32pe(framework, code, opts)  if arch.index(ARCH_X86)
-          return to_win64pe(framework, code, opts)  if arch.index(ARCH_X86)
+          return to_win64pe(framework, code, opts)  if arch.index(ARCH_X64)
         elsif plat.index(Msf::Module::Platform::Linux)
           return to_linux_armle_elf(framework, code, opts)     if arch.index(ARCH_ARMLE)
           return to_linux_armbe_elf(framework, code, opts)     if arch.index(ARCH_ARMBE)
