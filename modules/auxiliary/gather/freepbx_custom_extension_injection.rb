@@ -26,9 +26,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://horizon3.ai/attack-research/the-freepbx-rabbit-hole-cve-2025-66039-and-others/']
         ],
         'Notes' => {
-          'Stability' => [UNKNOWN_STABILITY],
-          'Reliability' => [UNKNOWN_RELIABILITY],
-          'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
         }
       )
     )
