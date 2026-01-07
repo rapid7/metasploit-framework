@@ -22,12 +22,13 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           [ 'CVE', '2025-66039'], # Authentication Bypass
-          [ 'CVE', '2025-61675']  # SQL injections
+          [ 'CVE', '2025-61675'], # SQL injections
+          [ 'URL', 'https://horizon3.ai/attack-research/the-freepbx-rabbit-hole-cve-2025-66039-and-others/']
         ],
         'Notes' => {
-          'Stability' => [],
-          'Reliability' => [],
-          'SideEffects' => []
+          'Stability' => [UNKNOWN_STABILITY],
+          'Reliability' => [UNKNOWN_RELIABILITY],
+          'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
         }
       )
     )
