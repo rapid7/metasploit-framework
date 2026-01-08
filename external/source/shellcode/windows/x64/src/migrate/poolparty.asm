@@ -35,7 +35,6 @@
 ;     We are starting the process in SUSPENDED mode and then Resuming it, here we need to wait for an event.
 ;     This shellcode is done to work with multiple PoolParty variants.
 ;     Supported Variants:
-;             - TP Wait Insertion
 ;             - TP Direct Insertion
 
 [BITS 64]
