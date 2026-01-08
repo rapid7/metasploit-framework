@@ -10,7 +10,11 @@ SQL injection in the custom extension component.
 The module chains these vulnerabilities into an unauthenticated SQL injection attack that creates a
 new fake user and effectively grants an attacker access to the administration.
 
-To setup the environment, perform minimal installation from [here](https://downloads.freepbxdistro.org/ISO/SNG7-PBX16-64bit-2302-1.iso).
+To setup the environment, perform minimal installation from [here](https://downloads.freepbxdistro.org/ISO/SNG7-PBX16-64bit-2302-1.iso). Note that **Authorization Type** needs to be set to **webserver**:
+
+1. Login into FreePBX Administration
+1. Settings -> Advanced Settings
+1. Change **Authorization Type** to **webserver**
 
 ## Verification Steps
 
