@@ -175,7 +175,17 @@ module Acceptance::Session
       },
       {
         name: "post/test/railgun",
-        platforms: [:linux, :osx, :windows],
+        platforms: [
+          :linux,
+          [
+            :osx,
+            {
+              skip: true,
+              reason: "Unavailable on macOS ARM runners"
+            }
+          ],
+          :windows
+        ],
         skipped: false,
         lines: {
           linux: {
@@ -197,9 +207,17 @@ module Acceptance::Session
           linux: {
             known_failures: []
           },
-          osx: {
-            known_failures: []
-          },
+          platforms: [
+            :linux,
+            [
+              :osx,
+              {
+                skip: true,
+                reason: "Unavailable on macOS ARM runners"
+              }
+            ],
+            :windows
+          ],
           windows: {
             known_failures: []
           }
