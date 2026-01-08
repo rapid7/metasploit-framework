@@ -54,9 +54,9 @@ module Rex
         end
 
         module PaS4uX509UserOptions
-          CHECK_LOGON_RESTRICTIONS = 0x40000000,
-          SIGN_REPLY = 0x20000000,
-          NT_AUTH_POLICY_NOT_REQUIRED = 0x10000000,
+          CHECK_LOGON_RESTRICTIONS = 0x40000000
+          SIGN_REPLY = 0x20000000
+          NT_AUTH_POLICY_NOT_REQUIRED = 0x10000000
           UNCONDITIONAL_DELEGATION = 0x08000000
         end
 

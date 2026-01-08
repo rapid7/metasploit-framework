@@ -35,17 +35,18 @@ module Rex
           #     //}
 
 
-          def initialize(name, realm, nonce, dmsa: false)
+          def initialize(name, impersonate_type, realm, nonce)
+            puts 'tessttdddsst'
             self.nonce = nonce
             # Set cname name_type based on dMSA flag
             self.cname = Rex::Proto::Kerberos::Model::PrincipalName.new(
-              name_type: dmsa ? NameType::NT_PRINCIPAL : NameType::NT_ENTERPRISE,
+              name_type: impersonate_type == 'dmsa' ? NameType::NT_PRINCIPAL : NameType::NT_ENTERPRISE,
               name_string: [name]
             )
             self.crealm = realm
 
             # Default options
-            self.options = dmsa ? ::Rex::Proto::Kerberos::Model::PaS4uX509UserOptions::UNCONDITIONAL_DELEGATION | ::Rex::Proto::Kerberos::Model::PaS4uX509UserOptions::SIGN_REPLY : ::Rex::Proto::Kerberos::Model::PaS4uX509UserOptions::SIGN_REPLY
+            self.options = impersonate_type == 'dmsa' ? ::Rex::Proto::Kerberos::Model::PaS4uX509UserOptions::UNCONDITIONAL_DELEGATION | ::Rex::Proto::Kerberos::Model::PaS4uX509UserOptions::SIGN_REPLY : ::Rex::Proto::Kerberos::Model::PaS4uX509UserOptions::SIGN_REPLY
           end
 
           # Decodes the S4UUserID from an input

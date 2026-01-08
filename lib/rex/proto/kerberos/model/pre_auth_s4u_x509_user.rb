@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'openssl'
+
 module Rex
   module Proto
     module Kerberos
@@ -14,31 +16,29 @@ module Rex
           #   @return [Rex::Proto::Kerberos::Model::Checksum] The checksum
           attr_accessor :checksum
 
-          require 'openssl'
+          def get_checksum(key, data)
+            checksum_type = Rex::Proto::Kerberos::Crypto::Checksum::SHA1_AES256
+            cksum_key_usage = Rex::Proto::Kerberos::Crypto::KeyUsage::PA_S4U_X509_USER
+            checksummer = Rex::Proto::Kerberos::Crypto::Checksum::from_checksum_type(checksum_type)
+            checksummer.checksum(key, cksum_key_usage, data)
+          end
 
-            def get_checksum(key, data)
-              checksum_type = Rex::Proto::Kerberos::Crypto::Checksum::SHA1_AES256
-              cksum_key_usage = Rex::Proto::Kerberos::Crypto::KeyUsage::PA_S4U_X509_USER
-              checksummer = Rex::Proto::Kerberos::Crypto::Checksum::from_checksum_type(checksum_type)
-              checksummer.checksum(key, cksum_key_usage, data)
-            end
+          # Initializes the PA-S4U-X509-USER structure
+          #
+          # @param key [String] The encryption key
+          # @param impersonate [String] The impersonation principal name
+          # @param impersonate_type [String] The impersonation principal name
+          # @param realm [String] The realm
+          # @param nonce [Integer] The nonce
+          # @param e_type [Symbol] The encryption type
+          def initialize(key, impersonate, impersonate_type, realm, nonce, e_type: Rex::Proto::Kerberos::Crypto::Encryption::AES256)
+            self.user_id = S4UUserID.new(impersonate, impersonate_type, realm, nonce)
+            self.checksum = Rex::Proto::Kerberos::Model::Checksum.new(type: Rex::Proto::Kerberos::Crypto::Encryption::DES3_CBC_SHA1, checksum: get_checksum(key.value, user_id.encode))
+          end
 
-            # Initializes the PA-S4U-X509-USER structure
-            #
-            # @param key [String] The encryption key
-            # @param impersonate [String] The impersonation principal name
-            # @param realm [String] The realm
-            # @param nonce [Integer] The nonce
-            # @param e_type [Symbol] The encryption type
-            # @param dmsa [Boolean] Whether the request is for dMSA
-            def initialize(key, impersonate, realm, nonce, e_type: Rex::Proto::Kerberos::Crypto::Encryption::AES256, dmsa: false)
-              self.user_id = S4UUserID.new(impersonate, realm, nonce, dmsa: dmsa)
-              self.checksum = Rex::Proto::Kerberos::Model::Checksum.new(type: Rex::Proto::Kerberos::Crypto::Encryption::DES3_CBC_SHA1, checksum: get_checksum(key.value, user_id.encode))
-            end
-
-            # Encodes the PA-S4U-X509-USER structure into an ASN.1 String
-            #
-            # @return [String]
+          # Encodes the PA-S4U-X509-USER structure into an ASN.1 String
+          #
+          # @return [String]
           def encode
             elems = []
             elems << OpenSSL::ASN1::ASN1Data.new([user_id.encode], 0, :CONTEXT_SPECIFIC)

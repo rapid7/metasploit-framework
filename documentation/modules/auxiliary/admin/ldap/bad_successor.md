@@ -2,9 +2,9 @@
 
 This module exploits 'Bad Successor', which allows operators to elevate privileges on domain controllers
 running at the Windows 2025 forest functional level. Microsoft decided to introduce Delegated Managed Service
-Accounts in this forest level and they came ripe for exploitation.
+Accounts (dMSA) in this forest level and they came ripe for exploitation.
 
-Normal users can't create dMSA accounts where dMSA accounts are suppoed to be created, the Managed Service
+Normal users can't create dMSA accounts where dMSA accounts are supposed to be created, the Managed Service
 Accounts OU, but if a normal user has write access to any other OU they can then create a dMSA account in
 said OU. After creating the account the user can edit LDAP attributes of the account to indicate that this
 account should inherit privileges from the Administrator user. Once this is complete we can request kerberos
@@ -20,7 +20,7 @@ escalation.
 - Rename the computer to `DC1` and hardcode the IP address.
 - Promote the server to a domain controller for a new forest (e.g., `msf.local`).
 - Set the domain functional level to Windows Server 2025.
-- Once the domain controller is set up, create create a `KdsRootKey` with an effective time at least 10 hours in the past:
+- Once the domain controller is set up, create a `KdsRootKey` with an effective time at least 10 hours in the past:
 ```powershell
 PS C:\Users\Administrator> Add-KdsRootKey -EffectiveTime (Get-Date).AddHours(-10)
 
@@ -105,7 +105,7 @@ The name of the dMSA account to be created.
 
 The name of the account to impersonate using the dMSA.
 
-### DC_FQDM
+### DC_FQDN
 
 The fully qualified domain name (FQDN) of the domain controller.
 

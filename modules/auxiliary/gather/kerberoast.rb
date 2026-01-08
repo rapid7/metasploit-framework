@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Auxiliary
     options = {
       cache_file: datastore['LDAP::Krb5Ccname']
     }
-    credential = authenticator.request_tgt_only(options)[:credential]
+    credential = authenticator.request_tgt_only(options)
 
     now = Time.now.utc
     expiry_time = now + 1.day
