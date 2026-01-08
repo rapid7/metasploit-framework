@@ -1672,6 +1672,24 @@ module Msf
                 print("\nPayload advanced options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
               end
             end
+
+            if (mod.exploit? and mod.datastore['ENCODER'])
+              p = framework.encoders.create(mod.datastore['ENCODER'])
+
+              if (!p)
+                print_error("Invalid encoder defined: #{mod.datastore['ENCODER']}\n")
+                return
+              end
+
+              p.share_datastore(mod.datastore)
+
+              if (p)
+                p_opt = Serializer::ReadableText.dump_advanced_options(p, '   ')
+                print("\nEncoder advanced options (#{mod.datastore['ENCODER']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
+              end
+            end
+
+
             print("\nView the full module info with the #{Msf::Ui::Tip.highlight('info')}, or #{Msf::Ui::Tip.highlight('info -d')} command.\n\n")
           end
 
