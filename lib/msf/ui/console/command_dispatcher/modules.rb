@@ -1673,19 +1673,19 @@ module Msf
               end
             end
 
-            if (mod.exploit? and mod.datastore['ENCODER'])
-              p = framework.encoders.create(mod.datastore['ENCODER'])
+            if ((mod.exploit? or mod.evasion? or mod.payload?) and mod.datastore['ENCODER'])
+              e = framework.encoders.create(mod.datastore['ENCODER'])
 
-              if (!p)
+              if (!e)
                 print_error("Invalid encoder defined: #{mod.datastore['ENCODER']}\n")
                 return
               end
 
-              p.share_datastore(mod.datastore)
+              e.share_datastore(mod.datastore)
 
-              if (p)
-                p_opt = Serializer::ReadableText.dump_advanced_options(p, '   ')
-                print("\nEncoder advanced options (#{mod.datastore['ENCODER']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
+              if (e)
+                e_opt = Serializer::ReadableText.dump_advanced_options(e, '   ')
+                print("\nEncoder advanced options (#{mod.datastore['ENCODER']}):\n\n#{e_opt}\n") if (e_opt and e_opt.length > 0)
               end
             end
 
