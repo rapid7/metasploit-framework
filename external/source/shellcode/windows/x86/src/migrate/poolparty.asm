@@ -1,5 +1,5 @@
 ;-----------------------------------------------------------------------------;
-; Author: Muzaffer Umut ŞAHİN
+; Author: Muzaffer Umut ŞAHİN (mailatmayinlutfen[at]gmail[dot]com)
 ; Compatible: Windows 11, 10
 ; Architecture: x86
 ; Version: 0.1 (Jan 2026)
