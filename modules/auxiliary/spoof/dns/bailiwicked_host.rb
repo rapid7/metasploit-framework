@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptEnum.new('SRCADDR', [true, 'The source address to use for sending the queries', 'Real', ['Real', 'Random'], 'Real']),
-        OptPort.new('SRCPORT', [true, "The target server's source query port (0 for automatic)", nil]),
+        OptPort.new('SRCPORT', [true, "The target server's source query port (0 for automatic)", 0]),
         OptString.new('HOSTNAME', [true, 'Hostname to hijack', 'pwned.example.com']),
         OptAddress.new('NEWADDR', [true, 'New address for hostname', '1.3.3.7']),
         OptAddress.new('RECONS', [true, 'The nameserver used for reconnaissance', '208.67.222.222']),
@@ -250,7 +250,7 @@ class MetasploitModule < Msf::Auxiliary
       # print_status " Got answer with #{answer1.header.anCount} answers, #{answer1.header.nsCount} authorities"
       answer1.answer.each do |rr1|
         print_status "   Got an #{rr1.type} record: #{rr1.inspect}"
-        res2 = Net::DNS::Resolver.new(nameservers: rr1.address, dns_search: false, recursive: false, retry: 1)
+        res2 = Net::DNS::Resolver.new(nameservers: [rr1.address.to_s], dns_search: false, recursive: false, retry: 1)
         print_status "    Checking Authoritativeness: Querying #{rr1.address} for #{domain}..."
         answer2 = res2.send(domain, Net::DNS::SOA)
         next unless answer2 && answer2.header.auth? && (answer2.header.anCount >= 1)
