@@ -359,33 +359,39 @@ module Rex
 
     def report_web_vuln(&block)
       return if should_skip_this_page
-      return unless @state[:web_page]
       return unless @state[:web_site]
       return unless @state[:vuln_info]
 
-      web_vuln_info = {}
-      web_vuln_info[:web_site] = @state[:web_site]
-      web_vuln_info[:path] = @state[:web_page][:path]
-      web_vuln_info[:query] = @state[:web_page][:query]
-      web_vuln_info[:method] = @state[:page_request_verb]
-      web_vuln_info[:pname] = ""
-      if @state[:page_response].blank?
-        web_vuln_info[:proof] = "<empty response>"
-      else
-        web_vuln_info[:proof] = @state[:page_response]
-      end
-      web_vuln_info[:risk] = 5
-      web_vuln_info[:params] = []
-      unless @state[:report_item][:parameter].blank?
-        # Acunetix only lists a single parameter...
-        web_vuln_info[:params] << [ @state[:report_item][:parameter].to_s, "" ]
-      end
-      web_vuln_info[:category] = "imported"
-      web_vuln_info[:confidence] = 100
-      web_vuln_info[:name] = @state[:vuln_info][:name]
+      # If we have a web_page, report as a web vulnerability (detailed)
+      if @state[:web_page]
+        web_vuln_info = {}
+        web_vuln_info[:web_site] = @state[:web_site]
+        web_vuln_info[:path] = @state[:web_page][:path]
+        web_vuln_info[:query] = @state[:web_page][:query]
+        web_vuln_info[:method] = @state[:page_request_verb]
+        web_vuln_info[:pname] = ""
+        if @state[:page_response].blank?
+          web_vuln_info[:proof] = "<empty response>"
+        else
+          web_vuln_info[:proof] = @state[:page_response]
+        end
+        web_vuln_info[:risk] = 5
+        web_vuln_info[:params] = []
+        unless @state[:report_item][:parameter].blank?
+          # Acunetix only lists a single parameter...
+          web_vuln_info[:params] << [ @state[:report_item][:parameter].to_s, "" ]
+        end
+        web_vuln_info[:category] = "imported"
+        web_vuln_info[:confidence] = 100
+        web_vuln_info[:name] = @state[:vuln_info][:name]
 
-      db.emit(:web_vuln, web_vuln_info[:name], &block) if block
-      vuln = db_report(:web_vuln, web_vuln_info)
+        db.emit(:web_vuln, web_vuln_info[:name], &block) if block
+        vuln = db_report(:web_vuln, web_vuln_info)
+      else
+        # If web_page is not available, report as a regular vulnerability
+        # This allows vulnerabilities to be imported even without complete request/response data
+        report_other_vuln(&block)
+      end
     end
 
     def report_other_vuln(&block)
@@ -583,4 +589,3 @@ module Rex
   end
   end
 end
-
