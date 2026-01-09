@@ -23,10 +23,11 @@ This module creates a mock web server which, utilizing a HTTP 401 response, prom
 
   After the user enters a set of credentials, their browser will be redirected to this address.  Default is ``.
 
-### SSL
+### SRVSSL
 
-  Boolean if SSL should be used, making this HTTPS.  HTTPS is typically run on port 443.  If `SSLCert` is not set, a certificate
-  will be automatically generated.  Default is `False`.
+  Boolean if SSL/TLS should be used for the server, making this HTTPS.  HTTPS is typically run on port 443.  If `SSLCert` is not set,
+  a certificate will be automatically generated.  Default is `False`. Note: This option is separate from the `SSL` option which
+  controls client connections.
 
 ### SSLCert
 
@@ -156,8 +157,8 @@ Oj6N43ld9EONST6BhP3v1buoWHi1FMouocrUkUDuahiHoLlK4ERSUrb4uNnwko24
 WdNCCmA8APA1qf2BYVqs
 -----END CERTIFICATE-----
 msf > use auxiliary/server/capture/http_basic 
-msf auxiliary(server/capture/http_basic) > set ssl true
-ssl => true
+msf auxiliary(server/capture/http_basic) > set srvssl true
+srvssl => true
 msf auxiliary(server/capture/http_basic) > set srvport 443
 srvport => 443
 msf auxiliary(server/capture/http_basic) > set sslcert /root/metasploit-framework/selfsigned.pem

@@ -9,9 +9,9 @@ This module creates a mock PostgreSQL server which accepts credentials.  Upon re
 
 ## Options
 
-### SSL
+### SRVSSL
 
-  Boolean if SSL should be used.  Default is `False`.
+  Boolean if SSL/TLS should be used for the server.  Default is `False`. Note: This option is separate from the `SSL` option which controls client connections.
 
 ### SSLCert
 
