@@ -486,7 +486,7 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
-    rex-arch (0.1.18)
+    rex-arch (0.1.19)
       rex-text
     rex-bin_tools (0.1.10)
       metasm
