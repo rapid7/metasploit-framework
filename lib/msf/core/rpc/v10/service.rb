@@ -83,6 +83,12 @@ class Service
       elog('RPC Exception', error: e)
       res.body = process_exception(e).to_msgpack
       res.code = e.code
+      res.message = e.http_msg
+    rescue ::StandardError => e
+      elog('Unknown Exception', error: e)
+      res.body = process_exception(e).to_msgpack
+      res.code = 500
+      res.message = 'Internal Server Error'
     end
     cli.send_response(res)
   end
@@ -145,9 +151,6 @@ class Service
         self.handlers[group].send(mname, *msg)
       end
 
-    rescue ::Exception => e
-      elog('RPC Exception', error: e)
-      process_exception(e)
     ensure
       Thread.current[:rpc_token] = nil
     end
