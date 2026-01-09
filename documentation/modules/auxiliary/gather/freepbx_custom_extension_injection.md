@@ -8,7 +8,7 @@ FreePBX uses Webserver Authorization Mode (an option the admin can enable), it a
 authenticate as any user. The latter CVE describes multiple SQL injections; this module exploits the
 SQL injection in the custom extension component.
 The module chains these vulnerabilities into an unauthenticated SQL injection attack that creates a
-new fake user and effectively grants an attacker access to the administration.
+new administrative user.
 
 To setup the environment, perform minimal installation from [here](https://downloads.freepbxdistro.org/ISO/SNG7-PBX16-64bit-2302-1.iso). Note that **Authorization Type** needs to be set to **webserver**:
 
@@ -30,13 +30,13 @@ To setup the environment, perform minimal installation from [here](https://downl
 
 ## Options
 
-### FAKE_USERNAME
+### NEW_USERNAME
 
-Username for fake injected user.
+Username for new administrative user.
 
-### FAKE_PASSWORD
+### NEW_PASSWORD
 
-Password for fake injected user.
+Password for new administrative user.
 
 ### USERNAME
 
