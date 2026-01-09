@@ -89,6 +89,10 @@ module Common
       # create the output file and assign it to the RHOSTS variable
       rhosts_file.write(rhosts.join("\n")+"\n")
       rhosts_file.close
+      # Keep a reference so Ruby's GC doesn't finalize and unlink the temp file
+      # before a module has a chance to read it.
+      @persisted_rhosts_files ||= []
+      @persisted_rhosts_files << rhosts_file
     else
       # For short lists, just set it directly
       mydatastore['RHOSTS'] = rhosts.join(" ")
