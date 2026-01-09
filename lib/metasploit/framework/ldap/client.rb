@@ -12,11 +12,11 @@ module Metasploit
             host: rhost,
             port: rport,
             connect_timeout: connect_timeout,
-            proxies: opts[:proxies]
-          }
+          proxies: opts[:proxies]
+        }
 
-          if ssl
-            connect_opts[:encryption] = {
+        if ssl
+          connect_opts[:encryption] = {
               method: :simple_tls,
               tls_options: {
                 verify_mode: OpenSSL::SSL::VERIFY_NONE
@@ -68,7 +68,8 @@ module Metasploit
             ticket_storage: opts[:kerberos_ticket_storage],
             offered_etypes: offered_etypes,
             mutual_auth: true,
-            use_gss_checksum: sign_and_seal || ssl
+            use_gss_checksum: sign_and_seal || ssl,
+            clock_skew: opts[:kerberos_clock_skew]
           )
 
           auth_opts[:auth] = {

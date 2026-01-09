@@ -170,7 +170,7 @@ module Rex
               if error_code == ErrorCodes::KRB_AP_ERR_SKEW && res&.respond_to?(:stime)
                 now = Time.now
                 skew = (res.stime - now).abs.to_i
-                return "#{error_code}. Local time: #{now}, Server time: #{res.stime}, off by #{skew} seconds"
+                return "#{error_code}. Local time: #{now}, Server time: #{res.stime}, off by #{skew} seconds. Note the advanced datastore option 'KrbClockSkew' can be set in order to rectify this skew." 
               elsif error_code == ErrorCodes::KDC_ERR_CLIENT_REVOKED && res&.respond_to?(:e_data) && res.e_data.present?
                 begin
                   pa_datas = res.e_data_as_pa_data
