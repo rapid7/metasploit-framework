@@ -1827,6 +1827,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'java/shell_reverse_tcp'
   end
 
+  context 'linux/aarch64/chmod' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/aarch64/chmod'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/aarch64/chmod'
+  end
+
   context 'linux/aarch64/shell_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -1868,7 +1878,6 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/aarch64/shell/reverse_tcp'
   end
 
-
   context 'linux/armbe/shell_bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -1887,6 +1896,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armle/adduser'
+  end
+
+  context 'linux/armle/chmod' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/armle/chmod'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armle/chmod'
   end
 
   context 'linux/armle/exec' do
