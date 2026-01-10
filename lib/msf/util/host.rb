@@ -43,7 +43,7 @@ module Msf
             host.sock.respond_to?(:peerhost) &&
             host.sock.peerhost.to_s.length > 0
         )
-          norm_host = session.sock.peerhost
+          norm_host = host.sock.peerhost
         end
         # If We got here and still don't have a real host, there's nothing left
         # to try, just log it and return what we were given
