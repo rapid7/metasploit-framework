@@ -291,6 +291,8 @@ class MsftidyRunner
             warn("Please use 'WPVDB' for '#{value}'")
           elsif value =~ %r{^https?://(?:[^.]+\.)?packetstormsecurity\.(?:com|net|org)/}
             warn("Please use 'PACKETSTORM' for '#{value}'")
+          elsif value =~ %r{^https?://attack\.mitre\.org/}
+            warn("Please use 'ATT&CK' for '#{value}'")
           end
         when 'AKA'
           warn("Please include AKA values in the 'notes' section, rather than in 'references'.")
