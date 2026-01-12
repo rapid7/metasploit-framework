@@ -22,14 +22,19 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'License' => MSF_LICENSE
     })
-
-    register_options(
-      [
-        OptEnum.new('MODE', [ true, 'The issue mode.', 'SPECIFIC_TEMPLATE', %w[ALL QUERY_ONLY SPECIFIC_TEMPLATE]]),
-        OptString.new('CERT_TEMPLATE', [ false, 'The template to issue if MODE is SPECIFIC_TEMPLATE.' ], conditions: %w[MODE == SPECIFIC_TEMPLATE]),
-        OptString.new('TARGETURI', [ true, 'The URI for the cert server.', '/certsrv/' ])
-      ]
-    )
+    # deregister_options('CA', 'CERT_TEMPLATE', 'ADD_CERT_APP_POLICY', 'RPORT', 'SMBDomain', 'SMBPassword')
+    deregister_options('HttpUsername', 'HttpPassword')
+    register_options([
+      Opt::RPORT(80),
+      OptString.new('HttpUsername', [false, 'The HTTP username to specify for authentication', '']),
+      OptString.new('HttpPassword', [false, 'The HTTP password to specify for authentication', '']),
+      OptEnum.new('MODE', [ true, 'The issue mode.', 'SPECIFIC_TEMPLATE', %w[ALL QUERY_ONLY SPECIFIC_TEMPLATE]]),
+      OptString.new('CERT_TEMPLATE', [ false, 'The template to issue if MODE is SPECIFIC_TEMPLATE.' ], conditions: %w[MODE == SPECIFIC_TEMPLATE]),
+      OptString.new('TARGETURI', [ true, 'The URI for the cert server.', '/certsrv/' ])
+    ])
+    register_advanced_options([
+      OptEnum.new('DigestAlgorithm', [ true, 'The digest algorithm to use', 'SHA256', %w[SHA1 SHA256] ])
+    ])
     @issued_certs = {}
   end
 

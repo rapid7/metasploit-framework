@@ -8,23 +8,46 @@ authenticating with credentials we have.
 
 ### NTLM
 1. Install and configure the application
-    * See https://docs.metasploit.com/docs/pentesting/active-directory/ad-certificates/overview.html#setting-up-a-esc8-vulnerable-host
+    * See https://docs.metasploit.com/docs/pentesting/active-directory/ad-certificates/ldap_esc_vulnerable_cert_finder.html
 2. Start `msfconsole`
 2. Do: `use auxiliary/admin/http/web_enrollment_cert`
 3. Set the `RHOSTS` option to the AD CS Web Enrollment server
 4. Set the `HTTP::Auth` option to `ntlm`
-4. Run the module and wait for a request to be relayed
+4. Set the `HttpUsername` option to a valid user
+4. Set the `HttpPassword` option to a valid user password
+4. Set `MODE`, `CERT_TEMPLATE`, and `TARGETURI` to the desired settings.
 
 ### Kerberos
 1. Install and configure the application
-    * See https://docs.metasploit.com/docs/pentesting/active-directory/ad-certificates/overview.html#setting-up-a-esc8-vulnerable-host
+    * See https://docs.metasploit.com/docs/pentesting/active-directory/ad-certificates/ldap_esc_vulnerable_cert_finder.html
 2. Start `msfconsole`
 2. Do: `use auxiliary/admin/http/web_enrollment_cert`
 3. Set the `RHOSTS` option to the AD CS Web Enrollment server
 4. Set the `HTTP::Auth` option to `kerberos`
 5. Set the `DOMAIN` option to the FQDN
 6. Set the `DomainControllerRhost` if it is not available through DNS
-4. Run the module and wait for a request to be relayed
+4. Set the `HttpUsername` option to a valid user
+4. Set the `HttpPassword` option to a valid user password
+4. Set `MODE`, `CERT_TEMPLATE`, and `TARGETURI` to the desired settings.
+
+### ESC1 
+1. Install and configure the application with ESC1 vulnerable template
+   * https://docs.metasploit.com/docs/pentesting/active-directory/ad-certificates/ldap_esc_vulnerable_cert_finder.html
+2. Follow steps above based on authentication type
+4. Set `MODE` to `SPECIFIC_TEMPLATE`
+3. Set `CERT_TEMPLATE` to a template vulnerable to ESC1
+4. Set `ALT_UPN` to the desired User
+5. Set `ALT_SID` to the desired SID, if necessary
+6. Set `ALT_DNS` if required
+
+### ESC2
+1. Install and configure the application with ESC2 vulnerable template
+    * https://docs.metasploit.com/docs/pentesting/active-directory/ad-certificates/ldap_esc_vulnerable_cert_finder.html
+2. Follow steps above based on authentication type
+4. Set `MODE` to `SPECIFIC_TEMPLATE`
+3. Set `CERT_TEMPLATE` to a template vulnerable to ESC2
+4. Set `ON_BEHALF_OF` to the desired User
+5. Set `PFX` to the desired certificate file
 
 ## Options
 
@@ -43,9 +66,9 @@ The template to issue if MODE is SPECIFIC_TEMPLATE.
 
 ## Scenarios
 
-### Version and OS
-#### NTLM
-```
+### Windows 2019
+#### NTLM with MODE ALL
+```msf
 msf auxiliary(admin/http/web_enrollment_cert) > show options
 
 Module options (auxiliary/admin/http/web_enrollment_cert):
