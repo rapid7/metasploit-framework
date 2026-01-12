@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
     register_options([
-      OptString.new('USERNAME', [true, 'A valid FreePBX user', 'admin']),
+      OptString.new('USERNAME', [true, 'A valid FreePBX user']),
       OptString.new('NEW_USERNAME', [false, 'Username for inserted user']),
       OptString.new('NEW_PASSWORD', [false, 'Password for inserted user']),
     ])
