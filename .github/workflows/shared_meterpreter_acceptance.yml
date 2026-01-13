@@ -25,7 +25,7 @@ on:
         type: boolean
       build_metasploit_payloads:
         description: "Whether or not to build metasploit-payloads"
-        default: false
+        default: true
         required: false
         type: boolean
 
