@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
         'module' => 'userman',
         'command' => 'checkPasswordReminder'
       },
-      'headers' => { Referer: normalize_uri('admin', 'config.php') },
+      'headers' => { Referer: full_uri(normalize_uri('admin', 'config.php')) },
       'vars_post' => {
         'username' => username,
         'password' => Rex::Text.encode_base64(password),
