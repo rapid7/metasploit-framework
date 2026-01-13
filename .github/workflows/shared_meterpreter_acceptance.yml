@@ -42,9 +42,9 @@ jobs:
       - name: Checkout metasploit-payloads
         uses: actions/checkout@v4
         with:
-          repository: rapid7/metasploit-payloads
+          repository: dledda-r7/metasploit-payloads
           path: metasploit-payloads
-          ref: ${{ inputs.metasploit_payloads_commit }}
+          ref: feat/metsrv-direct-syscall
 
       - name: Build Meterpreter payloads
         run: |
@@ -255,9 +255,9 @@ jobs:
         if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
         uses: actions/checkout@v4
         with:
-          repository: rapid7/metasploit-payloads
+          repository: dledda-r7/metasploit-payloads
           path: metasploit-payloads
-          ref: ${{ inputs.metasploit_payloads_commit }}
+          ref: feat/metsrv-direct-syscall
 
       - name: Build Windows payloads via Visual Studio 2019 Build (Windows)
         shell: cmd
