@@ -77,6 +77,24 @@ class MetasploitModule < Msf::Auxiliary
     true
   end
 
+  def validate
+    errors = {}
+
+    unless %w[ auto ntlm plaintext]
+      # if AUTO changes in the future to not require a password, we'll need to reevaluate this
+      errors['LDAP::Auth'] = 'Only password-based LDAP authentication methods are supported with this exploit.'
+    end
+
+    case action.name
+    when 'GET_TICKET'
+      if %w[ auto ntlm ].include?(datastore['LDAP::Auth']) && Net::NTLM.is_ntlm_hash?(datastore['LDAPPassword'].encode(::Encoding::UTF_16LE))
+        errors['LDAPPassword'] = 'The GET_TICKET action is incompatible with LDAP passwords that are NTLM hashes.'
+      end
+    end
+
+    raise Msf::OptionValidateError.new(errors) unless errors.empty?
+  end
+
   def check
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
