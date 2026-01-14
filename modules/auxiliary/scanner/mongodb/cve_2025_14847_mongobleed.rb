@@ -602,7 +602,7 @@ class MetasploitModule < Msf::Auxiliary
         connection_errors = 0 # Reset on success
       rescue ::Rex::ConnectionError, ::Errno::ECONNRESET => e
         connection_errors += 1
-        @persistent_sock = nil  # Force reconnection
+        close_persistent_connection
         vprint_error("Connection error at offset #{doc_len}: #{e.message}")
         if connection_errors >= max_conn_errors
           print_error("Too many connection errors (#{max_conn_errors}), aborting scan")
@@ -610,7 +610,7 @@ class MetasploitModule < Msf::Auxiliary
         end
         next
       rescue ::Timeout::Error
-        @persistent_sock = nil  # Force reconnection
+        close_persistent_connection
         vprint_error("Timeout at offset #{doc_len}")
         next
       end
