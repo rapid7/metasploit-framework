@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/bcoles/rex-arch.git
+  revision: bb020257ec9261aea16cf82c1a20cd9661b17659
+  branch: registers
+  specs:
+    rex-arch (0.1.19)
+      rex-text
+
 PATH
   remote: .
   specs:
@@ -486,8 +494,6 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
-    rex-arch (0.1.19)
-      rex-text
     rex-bin_tools (0.1.10)
       metasm
       rex-arch
@@ -689,6 +695,7 @@ DEPENDENCIES
   pry-byebug
   rake
   redcarpet
+  rex-arch!
   rspec-rails
   rspec-rerun
   rubocop (= 1.75.7)

@@ -55,3 +55,4 @@ group :test do
   gem 'timecop'
 end
 
+gem 'rex-arch', git: 'https://github.com/bcoles/rex-arch.git', branch: 'registers'
