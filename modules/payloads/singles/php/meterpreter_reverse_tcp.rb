@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 36399
+  CachedSize = 36978
 
   include Msf::Payload::Single
   include Msf::Payload::Php::ReverseTcp
