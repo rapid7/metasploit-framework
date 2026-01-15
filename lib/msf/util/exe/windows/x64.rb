@@ -1,5 +1,14 @@
 module Msf::Util::EXE::Windows::x64
   include Msf::Util::EXE::Windows::Common
+
+  def to_executable(framework, code, fmt = 'exe', opts = {})
+    return to_win64pe(framework, code, opts) if fmt == 'exe'
+    return self.class.to_win64pe_service(framework, code, opts) if fmt == 'exe-service'
+    return self.class.to_win64pe_dll(framework, code, opts) if fmt == 'dll'
+    return self.class.to_win64pe_dccw_gdiplus_dll(framework, code, opts) if fmt == 'dll-dccw-gdiplus'
+    nil
+  end
+  
   # to_win64pe
   #
   # @param framework  [Msf::Framework]  The framework of you want to use

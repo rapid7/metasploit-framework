@@ -2,12 +2,19 @@
 module Msf::Util::EXE::Windows::X86
   include Msf::Util::EXE::Windows::Common
 
-  def to_executable(framework, code, opts = {}, fmt = 'exe')
+  def to_executable(framework, code, fmt = 'exe', opts = {})
     return to_win32pe(framework, code, opts) if fmt == 'exe'
     return to_win32pe_service(framework, code, opts) if fmt == 'exe-service'
     return to_win32pe_dll(framework, code, opts) if fmt == 'dll'
     return to_winpe_only(framework, code, opts, ARCH_X86) if fmt == 'exe-only'
     return to_win32pe_old(framework, code, opts) if fmt == 'exe-small'
+    
+    return to_exe_asp(to_win32pe_old(framework, code, opts), opts) if fmt == 'asp'
+    return to_mem_aspx(to_win32pe_old(framework, code, opts), opts) if fmt == 'aspx'
+    return to_exe_aspx(to_win32pe_old(framework, code, opts), opts) if fmt == 'aspx-exe'
+    return to_exe_msi(to_win32pe(framework, code, opts), opts.merge({ :uac => true})) if fmt == 'msi'
+    return to_exe_msi(to_win32pe(framework, code, opts), opts) if fmt == 'msi-nouac'
+    # TODO: add ther formats here...
     nil
   end
 
