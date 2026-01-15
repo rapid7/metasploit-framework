@@ -85,5 +85,5 @@ During a physical security assessment, this module can be used to:
 
 ## References
 
-- [DECT Security Research](https://dedected.org/)
+- [DECT Security Research](https://web.archive.org/web/20210210224853/https://dedected.org/trac)
 - [COM-ON-AIR Documentation](https://github.com/znuh/COA)
