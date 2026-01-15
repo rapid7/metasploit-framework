@@ -1,7 +1,7 @@
 module Msf::Util::EXE::BSD::X64
   include Msf::Util::EXE::Common
 
-  def to_executable(framework, code, opts = {}, fmt='elf')
+  def to_executable(framework, code, fmt='elf', opts = {})
     return to_bsd_x64_elf(framework, code, opts) if fmt == 'elf'
     #return to_bsd_x64_elf_dll(framework, code, opts) if fmt == 'elf-so' Not yet implemented
   end

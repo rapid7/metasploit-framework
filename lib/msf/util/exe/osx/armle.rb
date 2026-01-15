@@ -1,7 +1,7 @@
 module Msf::Util::EXE::OSX::Armle
   include Msf::Util::EXE::OSX::Common
 
-  def to_executable(framework, code, opts = {}, fmt='macho')
+  def to_executable(framework, code, fmt='macho', opts = {})
     return self.to_osx_arm_macho(framework, code, opts) if fmt == 'macho'
   end
   

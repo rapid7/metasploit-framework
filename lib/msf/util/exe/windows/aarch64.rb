@@ -1,6 +1,6 @@
 module Msf::Util::EXE::Windows::Aarch64
 
-  def to_executable(framework, code, opts = {}, fmt = 'exe')
+  def to_executable(framework, code, fmt = 'exe', opts = {})
     return to_winaarch64pe(framework, code, opts) if fmt == 'exe'
     nil
   end

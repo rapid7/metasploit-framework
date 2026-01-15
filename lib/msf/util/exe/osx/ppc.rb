@@ -1,7 +1,7 @@
  module Msf::Util::EXE::OSX::Ppc
   include Msf::Util::EXE::OSX::Common
 
-  def to_executable(framework, code, opts = {}, fmt='macho')
+  def to_executable(framework, code, fmt='macho', opts = {})
     return to_osx_ppc_macho(framework, code, opts) if fmt == 'macho'
   end
   

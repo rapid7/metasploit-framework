@@ -1,7 +1,7 @@
 module Msf::Util::EXE::OSX::Aarch64 
   include Msf::Util::EXE::OSX::Common
 
-  def to_executable(framework, code, opts = {}, fmt='macho')
+  def to_executable(framework, code, fmt='macho', opts = {})
     return to_osx_aarch64_macho(framework, code, opts) if fmt == 'macho'
   end
 

@@ -1,7 +1,7 @@
 module Msf::Util::EXE::Linux::Aarch64
   include Msf::Util::EXE::Linux::Common
 
-  def to_executable(framework, code, opts = {}, fmt='elf')
+  def to_executable(framework, code, fmt='elf', opts = {})
     return to_linux_aarch64_elf(framework, code, opts) if fmt == 'elf'
     return to_linux_aarch64_elf_dll(framework, code, opts) if fmt == 'elf-so'
   end

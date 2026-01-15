@@ -1,7 +1,7 @@
 module Msf::Util::EXE::Solaris::X86
   include Msf::Util::EXE::Common
 
-  def to_executable(framework, code, opts = {}, fmt='elf')
+  def to_executable(framework, code, fmt='elf', opts = {})
     return self.to_solaris_x86_elf(framework, code, opts) if fmt == 'elf'
   end 
   # Create a 32-bit Solaris ELF containing the payload provided in +code+

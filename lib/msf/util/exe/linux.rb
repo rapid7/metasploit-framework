@@ -1,5 +1,5 @@
 module Msf::Util::EXE::Linux
-  def to_executable(framework, arch, code, opts = {}, fmt = 'elf')
+  def to_executable(framework, arch, code, fmt = 'elf', opts = {})
     linux = Object.new.extend(Msf::Util::EXE::Common)
     linux.extend(Msf::Util::EXE::Linux::Common)
     linux.extend(Msf::Util::EXE::Linux::Common)

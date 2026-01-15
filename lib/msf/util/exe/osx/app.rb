@@ -1,7 +1,7 @@
 module Msf::Util::EXE::OSX::App
   include Msf::Util::EXE::OSX::Common
 
-  def to_executable(framework, code, opts = {}, fmt='app')
+  def to_executable(framework, code, fmt='macho', opts = {})
     return to_osx_app(code, opts) if fmt == 'app'
   end
 

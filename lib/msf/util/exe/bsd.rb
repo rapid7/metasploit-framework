@@ -1,5 +1,5 @@
 module Msf::Util::EXE::Bsd
-  def to_executable(framework, arch, code, opts = {}, fmt = 'elf')
+  def to_executable(framework, arch, code, fmt = 'elf',opts = {})
     bsd = Object.new.extend(Msf::Util::EXE::Common)
     # bsd.extend(Msf::Util::EXE::Bsd::Common) BSD has no common module yet
     bsd.extend(Msf::Util::EXE::Bsd::X86) if arch =~ /x86|i386/i
