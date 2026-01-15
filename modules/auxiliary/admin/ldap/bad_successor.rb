@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           Accounts OU, but if a normal user has write access to any other OU they can then create a dMSA account in
           said OU. After creating the account the user can edit LDAP attributes of the account to indicate that this
           account should inherit privileges from the Administrator user. Once this is complete we can request kerberos
-          tickets on behalf of the dMSA account and voilà, you're admin.
+          tickets on behalf of the dMSA account and voila, you're admin.
 
           The module has two actions, one for creating the dMSA account and setting it up to impersonate a high
           privilege user, and another action for requesting the kerberos tickets needed to use the dMSA account for privilege
