@@ -104,11 +104,11 @@ module Acceptance::Session
 
       case operator.to_sym
       when :==
-        evaluate_predicate(left_operand, environment) == evaluate_predicate(right_operand, environment)
+        self.eval_predicate(left_operand, environment) == self.eval_predicate(right_operand, environment)
       when :!=
-        evaluate_predicate(left_operand, environment) != evaluate_predicate(right_operand, environment)
+        self.eval_predicate(left_operand, environment) != self.eval_predicate(right_operand, environment)
       when :or
-        evaluate_predicate(left_operand, environment) || evaluate_predicate(right_operand, environment)
+        self.eval_predicate(left_operand, environment) || self.eval_predicate(right_operand, environment)
       else
         raise "unexpected operator #{operator.inspect}"
       end
