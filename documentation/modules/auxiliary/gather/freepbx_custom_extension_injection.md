@@ -41,7 +41,6 @@ Password for new administrative user.
 ### USERNAME
 
 Performing authentication bypass requires the username of an existing user.
-This username is used in the Authorization header along with a random password.
 
 ## Scenarios
 
