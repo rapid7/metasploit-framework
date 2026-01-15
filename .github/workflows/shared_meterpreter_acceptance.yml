@@ -192,7 +192,7 @@ jobs:
           ref: ${{ inputs.metasploit_framework_commit }}
 
       # https://github.com/orgs/community/discussions/26952
-      - name: Support longpaths
+      - name: Support longpaths when running on Windows
         if: runner.os == 'Windows'
         run: git config --system core.longpaths true
 
