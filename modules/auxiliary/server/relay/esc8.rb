@@ -86,6 +86,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def validate
     super
+    unless datastore['HTTP::Auth'] == 'ntlm'
+      fail_with(Failure::BadConfig, 'This module only supports NTLM')
+    end
 
     case datastore['MODE']
     when 'SPECIFIC_TEMPLATE'
