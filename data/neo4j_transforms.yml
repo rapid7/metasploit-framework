@@ -1,0 +1,186 @@
+# Neo4j Hypergraph Transforms Configuration
+#
+# This file contains platform mappings and artisanal module property modifications
+
+# Platform mappings for cross-platform technologies
+# Maps a platform name to the actual platforms it runs on
+platform_edits:
+  java:
+    - windows
+    - linux
+    - osx
+  javascript:
+    - windows
+    - linux
+    - osx
+  python:
+    - windows
+    - linux
+    - osx
+  r:
+    - windows
+    - linux
+    - osx
+  ruby:
+    - windows
+    - linux
+    - osx
+  nodejs:
+    - windows
+    - linux
+    - osx
+  php:
+    - windows
+    - linux
+    - osx
+
+# Artisanal property modifications for specific modules
+module_edits:
+  auxiliary/admin/dcerpc/icpr_cert:
+    add:
+      authentication_out:
+        - schannel
+
+  auxiliary/admin/kerberos/forge_ticket:
+    add:
+      authentication_in:
+        - kerberos/keys
+      authentication_out:
+        - kerberos
+
+  auxiliary/admin/kerberos/get_ticket:
+    add:
+      authentication_in:
+        - plaintext
+        - schannel # schannel isn't quite the right term but we'll use it as an alias for cert-based
+      authentication_out:
+        - kerberos
+
+  auxiliary/admin/ldap/bad_successor:
+    remove:
+      authentication_in:
+        - kerberos
+        - schannel
+
+  auxiliary/admin/sccm/get_naa_credentials:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/gather/windows_secrets_dump:
+    add:
+      authentication_out:
+        - plaintext
+        - ntlm
+        - kerberos/keys
+
+  auxiliary/scanner/ldap/ldap_login:
+    add:
+      authentication_out:
+        - session/ldap
+
+  auxiliary/scanner/mssql/mssql_login:
+    add:
+      authentication_out:
+        - session/mssql
+
+  auxiliary/scanner/mysql/mysql_login:
+    add:
+      authentication_out:
+        - session/mysql
+
+  auxiliary/scanner/smb/smb_login:
+    add:
+      authentication_out:
+        - session/smb
+
+  auxiliary/server/capture/drda:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/server/capture/ftp:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/server/capture/imap:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/server/capture/ldap:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/server/capture/mssql:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/server/capture/mysql:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/server/capture/pop3:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/server/capture/postgresql:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/server/capture/printjob_capture:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/server/capture/sip:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/server/capture/smb:
+    add:
+      authentication_out:
+        - ntlm
+        - plaintext
+
+  auxiliary/server/capture/smtp:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/server/capture/telnet:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/server/capture/vnc:
+    add:
+      authentication_out:
+        - plaintext
+
+  auxiliary/server/relay/relay_get_naa_credentials:
+    add:
+      authentication_out:
+        - plaintext
+
+  post/windows/gather/hashdump:
+    add:
+      authentication_out:
+        - ntlm
+
+  post/windows/gather/smart_hashdump:
+    add:
+      authentication_out:
+        - ntlm
+
+  post/windows/manage/kerberos_tickets:
+    add:
+      authentication_out:
+        - kerberos
