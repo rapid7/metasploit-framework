@@ -97,9 +97,9 @@ memory_profiler, 1.1.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.5, "New BSD"
 metasploit-credential, 6.0.19, "New BSD"
-metasploit-framework, 6.4.108, "New BSD"
+metasploit-framework, 6.4.109, "New BSD"
 metasploit-model, 5.0.4, "New BSD"
-metasploit-payloads, 2.0.239, "3-clause (or ""modified"") BSD"
+metasploit-payloads, 2.0.240, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.9, "New BSD"
 metasploit_payloads-mettle, 1.0.45, "3-clause (or ""modified"") BSD"
 method_source, 1.1.0, MIT
@@ -166,7 +166,7 @@ regexp_parser, 2.11.3, MIT
 reline, 0.6.2, ruby
 require_all, 3.0.0, MIT
 rest-client, 2.1.0, MIT
-rex-arch, 0.1.18, "New BSD"
+rex-arch, 0.1.19, "New BSD"
 rex-bin_tools, 0.1.10, "New BSD"
 rex-core, 0.1.35, "New BSD"
 rex-encoder, 0.1.8, "New BSD"
