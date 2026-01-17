@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Post
         # ObjectiveSee.installed_products => [<ObjectiveSee>,<ObjectiveSee>]
         @@installed_products << self
 
-        # get_processes returns an array pf hashes, composed of the name of the program and the pid
+        # 'processes' returns an array pf hashes, composed of the name of the program and the pid
         # ex. [{"name"=>"configd", "pid"=>116}, {"name"=>"logd", "pid"=>104},..
 
         processes.each { |elem| @pids << elem['pid'] if elem['name'].include? @name.split(' ')[0] }
@@ -103,16 +103,16 @@ class MetasploitModule < Msf::Post
     print_status('Enumerating Objective-See security products...')
     enumerate
 
+    
     if ObjectiveSee.installed_products.empty?
-      fail_with(Failure::NotFound,
-                'No Objective-See products were found to be installed on the system.')
+      print_error("No Objective-See products were found to be installed on the system.")
     else
       print_good('The following Objective-See products were found installed on the system:')
-      ObjectiveSee.installed_products.each { |prod| print_status("Found #{prod.name} with pid #{prod.pids.inspect}") }
+      ObjectiveSee.installed_products.each { |prod| print_good("Found #{prod.name} with pid #{prod.pids.inspect}") }
     end
 
-    # TODO: look into report_note post/windows/gather/enum_av uses these to log antivirus installation on the system
-    # todo test killing procs
+    report_note(host: target_host, type: 'osx.antivirus', data: ObjectiveSee.installed_products, update: :unique_data)
+
     if datastore['KILL_PROCESSES']
       fail_no_root
       ObjectiveSee.installed_products.each { |prod| kill_pids prod }
