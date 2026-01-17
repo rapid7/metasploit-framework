@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Post
         # ObjectiveSee.installed_products => [<ObjectiveSee>,<ObjectiveSee>]
         @@installed_products << self
 
-        # get_processes returns an array pf hashes, composed of the name of the program and the pid
+        # `processes` is an array of hashes, composed of the name of the program and the pid
         # ex. [{"name"=>"configd", "pid"=>116}, {"name"=>"logd", "pid"=>104},..
 
         processes.each { |elem| @pids << elem['pid'] if elem['name'].include? @name.split(' ')[0] }
