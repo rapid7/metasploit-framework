@@ -119,9 +119,9 @@ module Metasploit
             public_send("#{attribute}=", value)
           end
         end
-        
+
         def get_type
-          self.cracker
+          cracker
         end
 
         # This method takes a {framework.db.cred.private.jtr_format} (string), and
@@ -157,6 +157,16 @@ module Metasploit
             '5500'
           when 'netntlmv2'
             '5600'
+          when 'krb5tgs-rc4'
+            '13100'
+          when 'krb5tgs-aes128'
+            '19600'
+          when 'krb5tgs-aes256'
+            '19700'
+          when 'krb5asrep-rc4'
+            '18200'
+          when 'timeroast'
+            '31300'
           # dbs
           when 'mssql'
             '131'
@@ -576,7 +586,7 @@ module Metasploit
           end
           cmd << hash_path
         end
-        
+
         def get_hashcat
           # Look in the Environment PATH for the hashcat binary
           self.cracker = 'hashcat'
