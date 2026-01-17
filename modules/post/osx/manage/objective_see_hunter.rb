@@ -22,8 +22,8 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'gardnerapp' ],
         'Platform' => [ 'osx' ],
         'SessionTypes' => 'meterpreter', # ˇTODO test on non-meterpreter sessions
-        'URL' => [
-          'https://objective-see.org/tools.html'
+        'References' => [
+          ['URL', 'https://objective-see.org/tools.html']
         ]
       )
 
