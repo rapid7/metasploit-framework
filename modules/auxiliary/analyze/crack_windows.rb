@@ -20,6 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         MSCASH2 is format 2100 in hashcat.
         NetNTLM is format 5500 in hashcat.
         NetNTLMv2 is format 5600 in hashcat.
+        krb5tgs (Kerberos Tickets) is format 13100 in hashcat.
       ),
       'Author' => [
         'theLightCosine',
@@ -47,6 +48,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('MSCASH', [false, 'Crack M$ CASH hashes (1 and 2)', true]),
         OptBool.new('NETNTLM', [false, 'Crack NetNTLM', true]),
         OptBool.new('NETNTLMV2', [false, 'Crack NetNTLMv2', true]),
+        OptBool.new('KERBEROS', [false, 'Crack krb5 related hashes', true]),
         OptBool.new('INCREMENTAL', [false, 'Run in incremental mode', true]),
         OptBool.new('WORDLIST', [false, 'Run in wordlist mode', true]),
         OptBool.new('NORMAL', [false, 'Run in normal mode (John the Ripper only)', true])
@@ -110,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
         cred['username'] = fields.shift
         cred['core_id'] = fields.pop
         case hash_type
-        when 'mscash', 'mscash2', 'netntlm', 'netntlmv2'
+        when 'mscash', 'mscash2', 'netntlm', 'netntlmv2', 'krb5tgs'
           cred['password'] = fields.shift
         when 'lm', 'nt'
           # If we don't have an expected minimum number of fields, this is probably not a NTLM hash
@@ -145,6 +147,8 @@ class MetasploitModule < Msf::Auxiliary
         if ['netntlm', 'netntlmv2'].include? hash_type
           # we could grab the username here, but no need since we grab it later based on core_id, which is safer
           6.times { fields.shift } # Get rid of a bunch of extra fields
+        elsif ['krb5tgs-rc4', 'krb5asrep-rc4'].include? hash_type
+          2.times { fields.shift } # Get rid of extra hash fields
         else
           cred['hash'] = fields.shift
         end
@@ -179,6 +183,11 @@ class MetasploitModule < Msf::Auxiliary
     hash_types_to_crack << 'mscash2' if datastore['MSCASH']
     hash_types_to_crack << 'netntlm' if datastore['NETNTLM']
     hash_types_to_crack << 'netntlmv2' if datastore['NETNTLMV2']
+    hash_types_to_crack << 'krb5tgs-rc4' if datastore['KERBEROS']
+    hash_types_to_crack << 'krb5tgs-aes128' if datastore['KERBEROS']
+    hash_types_to_crack << 'krb5tgs-aes256' if datastore['KERBEROS']
+    hash_types_to_crack << 'krb5asrep-rc4' if datastore['KERBEROS']
+    hash_types_to_crack << 'timeroast' if datastore['KERBEROS']
 
     jobs_to_do = []
 

@@ -327,6 +327,13 @@ RSpec.describe Metasploit::Framework::Hashes do
     end
   end
 
+  describe 'identify_timeroast' do
+    it 'returns timeroast' do
+      hash = described_class.identify_hash('$sntp-ms$cfc7023381cf6bb474cdcbeb0a67bdb3$907733697536811342962140955567108526489624716566696971338784438986103976327367763739445744705380')
+      expect(hash).to match('timeroast')
+    end
+  end
+
   describe 'identify_vnc' do
     it 'returns vnc' do
       hash = described_class.identify_hash('*00112233445566778899aabbccddeeff*6feb3cb1f07b66151656b5832341f223')

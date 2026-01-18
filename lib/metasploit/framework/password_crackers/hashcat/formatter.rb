@@ -131,10 +131,12 @@ module Metasploit
                 # https://hashcat.net/forum/thread-8833.html
                 # while we can do the transformation, we'd have to throw extra flags at hashcat which aren't currently written into the lib for automation
                 nil
-              when /^krb5$/
-                return "#{cred.id}:#{cred.private.data}"
+              # when /^krb5$/
+              #  return "#{cred.id}:#{cred.private.data}"
               when /^(krb5.|timeroast$)/
-                return cred.private.data
+                #             krb5tgs-rc4, krb5tgs-aes128, krb5tgs-aes256, krb5asrep-rc4, timeroast
+                ## hash-mode: 13100        19600           19700           18200          31300
+                return "#{cred.id}:#{cred.private.data}"
               end
             end
             nil
