@@ -20,7 +20,11 @@ class MetasploitModule < Msf::Auxiliary
         MSCASH2 is format 2100 in hashcat.
         NetNTLM is format 5500 in hashcat.
         NetNTLMv2 is format 5600 in hashcat.
-        krb5tgs (Kerberos Tickets) is format 13100 in hashcat.
+        krb5tgs-rc4 is format 13100 in hashcat.
+        krb5tgs-aes128 is format 19600 in hashcat.
+        krb5tgs-aes256 is format 19700 in hashcat.
+        krb5asrep-rc4 is format 18200 in hashcat.
+        timeroast is format 31300 in hashcat.
       ),
       'Author' => [
         'theLightCosine',
@@ -48,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('MSCASH', [false, 'Crack M$ CASH hashes (1 and 2)', true]),
         OptBool.new('NETNTLM', [false, 'Crack NetNTLM', true]),
         OptBool.new('NETNTLMV2', [false, 'Crack NetNTLMv2', true]),
-        OptBool.new('KERBEROS', [false, 'Crack krb5 related hashes', true]),
+        OptBool.new('KERBEROS', [false, 'Crack krb5/timeroast related hashes', true]),
         OptBool.new('INCREMENTAL', [false, 'Run in incremental mode', true]),
         OptBool.new('WORDLIST', [false, 'Run in wordlist mode', true]),
         OptBool.new('NORMAL', [false, 'Run in normal mode (John the Ripper only)', true])
