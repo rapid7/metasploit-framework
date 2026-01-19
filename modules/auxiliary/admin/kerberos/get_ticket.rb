@@ -134,6 +134,10 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['SPN'].present? && !datastore['SPN'].match(%r{.+/.+})
       fail_with(Failure::BadConfig, 'SPN format must be service_name/FQDN (ex: cifs/dc01.mydomain.local)')
     end
+
+    if datastore['IMPERSONATE'].present? && datastore['IMPERSONATE_TYPE'] == 'none'
+      fail_with(Failure::BadConfig, 'IMPERSONATE_TYPE must be set to "generic", "dmsa" or "auto" when IMPERSONATE is provided')
+    end
   end
 
   def run
