@@ -27,6 +27,7 @@ module Metasploit
           }
 
           begin
+            self.kerberos_clock_skew = clock_skew if clock_skew
             res = send_request_tgt(
               server_name: server_name,
               client_name: credential.public,
@@ -66,6 +67,7 @@ module Metasploit
         end
 
         attr_accessor :server_name
+        attr_accessor :clock_skew
 
         # Override the kerberos client's methods with the login scanner implementations
         alias rhost host
