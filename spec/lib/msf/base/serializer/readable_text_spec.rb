@@ -291,6 +291,7 @@ RSpec.describe Msf::Serializer::ReadableText do
           Name                              Current Setting                                   Required  Description
           ----                              ---------------                                   --------  -----------
           DomainControllerRhost                                                               no        The resolvable rhost for the Domain Controller
+          KrbClockSkew                      0s                                                yes       Adjust Kerberos client clock by this offset (e.g. 90s, -5m, 1h)
           Winrm::Krb5Ccname                                                                   no        The ccache file to use for kerberos authentication
           Winrm::KrbOfferedEncryptionTypes  AES256,AES128,RC4-HMAC,DES-CBC-MD5,DES3-CBC-SHA1  yes       Kerberos encryption types to offer
           Winrm::Rhostname                                                                    no        The rhostname which is required for kerberos - the SPN
@@ -350,6 +351,7 @@ RSpec.describe Msf::Serializer::ReadableText do
           Name                              Current Setting                                   Required  Description
           ----                              ---------------                                   --------  -----------
           DomainControllerRhost                                                               no        The resolvable rhost for the Domain Controller
+          KrbClockSkew                      0s                                                yes       Adjust Kerberos client clock by this offset (e.g. 90s, -5m, 1h)
           Winrm::Krb5Ccname                                                                   no        The ccache file to use for kerberos authentication
           Winrm::KrbOfferedEncryptionTypes  AES256,AES128,RC4-HMAC,DES-CBC-MD5,DES3-CBC-SHA1  yes       Kerberos encryption types to offer
           Winrm::Rhostname                                                                    no        The rhostname which is required for kerberos - the SPN
