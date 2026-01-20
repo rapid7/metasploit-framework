@@ -555,9 +555,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Running #{repeat_count} scan passes to maximize data collection...")
     end
 
-    if reuse_conn
-      print_status('Connection reuse enabled for faster scanning')
-    end
+    print_status('Connection reuse enabled for faster scanning') if reuse_conn
 
     # Track overall progress
     progress_interval = datastore['PROGRESS_INTERVAL']
