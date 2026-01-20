@@ -195,7 +195,69 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 
   end
 
-  describe "#cmd_services" do
+  describe "#cmd_services", if: !ENV['REMOTE_DB'] do
+    context "with resource and parent" do
+      before(:example) do
+        framework.db.delete_host(ids: Mdm::Host.pluck(:id))
+
+        @services = []
+        service3 = {
+          host: '192.168.0.1',
+          port: 1024,
+          name: 'service3',
+          proto: 'udp',
+          resource: {base_url: '/service3'},
+          parents: nil
+        }
+        service2 = {
+          host: '192.168.0.1',
+          port: 1024,
+          name: 'service2',
+          proto: 'udp',
+          resource: {base_url: '/service2'},
+          parents: service3
+        }
+        service1 = {
+          host: '192.168.0.1',
+          port: 1024,
+          name: 'service1',
+          proto: 'udp',
+          resource: {base_url: '/service1'},
+          parents: service2
+        }
+
+        framework.db.report_service(service1)
+        framework.db.report_service(service2)
+        framework.db.report_service(service3)
+      end
+
+      after(:example) do
+        framework.db.delete_host(ids: Mdm::Host.pluck(:id))
+      end
+
+      it "should list services with their resource and parent" do
+        orig = RSpec::Support::ObjectFormatter.default_instance.max_formatted_output_length
+        RSpec::Expectations.configuration.max_formatted_output_length = nil
+
+        db.cmd_services
+        expect(@output).to match_array [
+          "Services",
+          "========",
+          "",
+          "host         port  proto  name      state  info  resource                  parents",
+          "----         ----  -----  ----      -----  ----  --------                  -------",
+          "192.168.0.1  1024  udp    service3  open         {\"base_url\":\"/service3\"}",
+          "192.168.0.1  1024  udp    service1  open         {\"base_url\":\"/service1\"}  service2 (1024/udp)",
+          "192.168.0.1  1024  udp    service2  open         {\"base_url\":\"/service2\"}  service3 (1024/udp)"
+        ]
+      ensure
+        RSpec::Expectations.configuration.max_formatted_output_length = orig
+      end
+    end
+
+    context "with some services" do
+    end
+
     describe "-h" do
       it "should show a help message" do
         db.cmd_services "-h"
@@ -244,10 +306,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "Services",
           "========",
           "",
-          "host         port  proto  name      state  info",
-          "----         ----  -----  ----      -----  ----",
-          "192.168.0.1  1024  udp    service1  open",
-          "192.168.0.1  1025  tcp    service2  open"
+          "host         port  proto  name      state  info  resource  parents",
+          "----         ----  -----  ----      -----  ----  --------  -------",
+          "192.168.0.1  1024  udp    service1  open         {}",
+          "192.168.0.1  1025  tcp    service2  open         {}"
         ]
       end
     end
@@ -288,6 +350,14 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   end
 
   describe "#cmd_vulns" do
+    before(:example) do
+      framework.db.delete_host(ids: Mdm::Host.pluck(:id))
+    end
+
+    after(:example) do
+      framework.db.delete_host(ids: Mdm::Host.pluck(:id))
+    end
+
     describe "-h" do
       it "should show a help message" do
         db.cmd_vulns "-h"
@@ -314,59 +384,206 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     end
 
     describe "-v" do
-      before(:example) do
-        vuln_opts = {
-          updated_at: Time.utc(2025, 6, 17, 9, 17, 37),
-          host: '192.168.0.1',
-          name: 'ThinkPHP Multiple PHP Injection RCEs',
-          info: 'Exploited by exploit/unix/webapp/thinkphp_rce to create Session 1',
-          refs: ["CVE-2018-20062"]
-        }
+      context 'without service' do
+        before(:example) do
+          vuln_opts = {
+            updated_at: Time.utc(2025, 6, 17, 9, 17, 37),
+            host: '192.168.0.1',
+            name: 'ThinkPHP Multiple PHP Injection RCEs',
+            info: 'Exploited by exploit/unix/webapp/thinkphp_rce to create Session 1',
+            refs: ["CVE-2018-20062"]
+          }
 
-        vuln_attempt_opts = {
-          id: 3,
-          vuln_id: 1,
-          attempted_at: Time.utc(2025, 6, 17, 9, 17, 37),
-          exploited: true,
-          fail_reason: nil,
-          username: "foo",
-          module: "exploit/unix/webapp/thinkphp_rce",
-          session_id: 1,
-          loot_id: nil,
-          fail_detail: nil
-        }
+          vuln_attempt_opts = {
+            id: 3,
+            vuln_id: 1,
+            attempted_at: Time.utc(2025, 6, 17, 9, 17, 37),
+            exploited: true,
+            fail_reason: nil,
+            username: "foo",
+            module: "exploit/unix/webapp/thinkphp_rce",
+            session_id: 1,
+            loot_id: nil,
+            fail_detail: nil
+          }
 
-        @vuln = framework.db.report_vuln(vuln_opts)
-        @vuln_attempt = framework.db.report_vuln_attempt(@vuln, vuln_attempt_opts)
+          @vuln = framework.db.report_vuln(vuln_opts)
+          @vuln_attempt = framework.db.report_vuln_attempt(@vuln, vuln_attempt_opts)
+        end
+
+        after(:example) do
+          framework.db.delete_vuln({ids: [@vuln.id]})
+        end
+
+        it "should list vulns and vuln attempts" do
+          db.cmd_vulns "-v"
+          expect(@output).to match_array [
+            "Vulnerabilities",
+            "===============",
+            "  0. Vuln ID: #{@vuln.id}",
+            "     Timestamp: #{@vuln.created_at}",
+            "     Host: 192.168.0.1",
+            "     Name: ThinkPHP Multiple PHP Injection RCEs",
+            "     References: CVE-2018-20062",
+            "     Information: Exploited by exploit/unix/webapp/thinkphp_rce to create Session 1",
+            "     Resource: {}",
+            "     Service:",
+            "     Vuln attempts:",
+            "     0. ID: #{@vuln_attempt.id}",
+            "        Vuln ID: #{@vuln.id}",
+            "        Timestamp: #{@vuln_attempt.attempted_at}",
+            "        Exploit: true",
+            "        Fail reason: nil",
+            "        Username: foo",
+            "        Module: exploit/unix/webapp/thinkphp_rce",
+            "        Session ID: 1",
+            "        Loot ID: nil",
+            "        Fail Detail: nil",
+          ]
+        end
       end
 
-      after(:example) do
-        framework.db.delete_vuln({ids: [@vuln.id]})
-      end
+      context 'with service' do
+        let(:myservice) do
+          {
+            name: 'SRV',
+            port: 80,
+            proto: 'tcp',
+            resource: {base_url: '/srv'}
+          }
+        end
 
-      it "should list vulns and vuln attempts" do
-        db.cmd_vulns "-v"
-        expect(@output).to match_array [
-          "Vulnerabilities",
-          "===============",
-          "  0. Vuln ID: #{@vuln.id}",
-          "     Timestamp: #{@vuln.created_at}",
-          "     Host: 192.168.0.1",
-          "     Name: ThinkPHP Multiple PHP Injection RCEs",
-          "     References: CVE-2018-20062",
-          "     Information: Exploited by exploit/unix/webapp/thinkphp_rce to create Session 1",
-          "     Vuln attempts:",
-          "     0. ID: #{@vuln_attempt.id}",
-          "        Vuln ID: #{@vuln.id}",
-          "        Timestamp: #{@vuln_attempt.attempted_at}",
-          "        Exploit: true",
-          "        Fail reason: nil",
-          "        Username: foo",
-          "        Module: exploit/unix/webapp/thinkphp_rce",
-          "        Session ID: 1",
-          "        Loot ID: nil",
-          "        Fail Detail: nil",
-        ]
+        before(:example) do
+          vuln_opts = {
+            updated_at: Time.utc(2025, 6, 17, 9, 17, 37),
+            host: '192.168.0.1',
+            name: 'ThinkPHP Multiple PHP Injection RCEs',
+            info: 'Exploited by exploit/unix/webapp/thinkphp_rce to create Session 1',
+            refs: ["CVE-2018-20062"],
+            resource: {uri: '/thinkphp_rce'},
+            service: myservice
+          }
+
+          @vuln = framework.db.report_vuln(vuln_opts)
+        end
+
+        after(:example) do
+          framework.db.delete_vuln({ids: [@vuln.id]})
+        end
+
+        it 'print the service with resource' do
+          db.cmd_vulns "-v"
+          expect(@output).to match_array [
+            "Vulnerabilities",
+            "===============",
+            "  0. Vuln ID: #{@vuln.id}",
+            "     Timestamp: #{@vuln.created_at}",
+            "     Host: 192.168.0.1",
+            "     Name: ThinkPHP Multiple PHP Injection RCEs",
+            "     References: CVE-2018-20062",
+            "     Information: Exploited by exploit/unix/webapp/thinkphp_rce to create Session 1",
+            "     Resource: {\"uri\":\"/thinkphp_rce\"}",
+            "     Service: srv (port: 80, resource: {\"base_url\":\"/srv\"})",
+            "     Vuln attempts:",
+          ]
+        end
+
+        context 'with parent services' do
+          let(:srv_0_0) do
+            {
+              name: 'SRV_0_0',
+              port: 80,
+              proto: 'tcp',
+              resource: {base_url: '/srv_0_0'},
+              parents: nil
+            }
+          end
+
+          let(:srv_0_1) do
+            {
+              name: 'SRV_0_1',
+              port: 80,
+              proto: 'tcp',
+              resource: {base_url: '/srv_0_1'},
+              parents: nil
+            }
+          end
+
+          let(:srv_0) do
+            {
+              name: 'SRV_0',
+              port: 80,
+              proto: 'tcp',
+              resource: {base_url: '/srv_0'},
+              parents: [srv_0_0, srv_0_1]
+            }
+          end
+
+          let(:srv_1_0_0) do
+            {
+              name: 'SRV_1_0_0',
+              port: 80,
+              proto: 'tcp',
+              resource: {base_url: '/srv_1_0_0'},
+              parents: nil
+            }
+          end
+
+          let(:srv_1_0) do
+            {
+              name: 'SRV_1_0',
+              port: 80,
+              proto: 'tcp',
+              resource: {base_url: '/srv_1_0'},
+              parents: srv_1_0_0
+            }
+          end
+
+          let(:srv_1) do
+            {
+              name: 'SRV_1',
+              port: 80,
+              proto: 'tcp',
+              resource: {base_url: '/srv_1'},
+              parents: srv_1_0
+            }
+          end
+
+          let(:myservice) do
+            {
+              name: 'SRV',
+              port: 80,
+              proto: 'tcp',
+              resource: {base_url: '/srv'},
+              parents: [srv_0, srv_1]
+            }
+          end
+
+          it 'print the service and the parent services' do
+            db.cmd_vulns "-v"
+            expect(@output).to match_array [
+              "Vulnerabilities",
+              "===============",
+              "  0. Vuln ID: #{@vuln.id}",
+              "     Timestamp: #{@vuln.created_at}",
+              "     Host: 192.168.0.1",
+              "     Name: ThinkPHP Multiple PHP Injection RCEs",
+              "     References: CVE-2018-20062",
+              "     Information: Exploited by exploit/unix/webapp/thinkphp_rce to create Session 1",
+              "     Resource: {\"uri\":\"/thinkphp_rce\"}",
+              "     Service: srv (port: 80, resource: {\"base_url\":\"/srv\"})",
+              "       Parent Services:",
+              "         srv_0 (port: 80, resource: {\"base_url\":\"/srv_0\"})",
+              "           srv_0_0 (port: 80, resource: {\"base_url\":\"/srv_0_0\"})",
+              "           srv_0_1 (port: 80, resource: {\"base_url\":\"/srv_0_1\"})",
+              "         srv_1 (port: 80, resource: {\"base_url\":\"/srv_1\"})",
+              "           srv_1_0 (port: 80, resource: {\"base_url\":\"/srv_1_0\"})",
+              "             srv_1_0_0 (port: 80, resource: {\"base_url\":\"/srv_1_0_0\"})",
+              "     Vuln attempts:",
+            ]
+          end
+        end
+
       end
     end
   end
