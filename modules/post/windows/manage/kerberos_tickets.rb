@@ -51,7 +51,9 @@ class MetasploitModule < Msf::Post
         'References' => [
           [ 'URL', 'https://github.com/GhostPack/Rubeus' ],
           [ 'URL', 'https://github.com/wavvs/nanorobeus' ],
-          [ 'ATT&CK', Mitre::Attack::Technique::T1003_004_LSA_SECRETS ]
+          ['ATT&CK', Mitre::Attack::Technique::T1558_STEAL_OR_FORGE_KERBEROS_TICKETS],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_004_LSA_SECRETS],
+          ['ATT&CK', Mitre::Attack::Technique::T1005_DATA_FROM_LOCAL_SYSTEM]
         ],
         'Platform' => ['win'],
         'SessionTypes' => %w[meterpreter],
