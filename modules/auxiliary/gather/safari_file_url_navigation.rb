@@ -241,7 +241,7 @@ class MetasploitModule < Msf::Auxiliary
       Rex::Proto::Http::Server,
       opts['ServerPort'].to_i,
       opts['ServerHost'],
-      datastore['SSL'],
+      datastore['SRVSSL'],
       {
         'Msf' => framework,
         'MsfExploit' => self,

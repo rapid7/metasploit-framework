@@ -245,8 +245,8 @@ class MsftidyDoc
       end
 
       # this will catch either bold or h2/3 universal options.  Defaults aren't needed since they're not unique to this exploit
-      if in_options && ln =~ /^\s*[\*#]{2,3}\s*(rhost|rhosts|rport|lport|lhost|srvhost|srvport|ssl|uripath|session|proxies|payload|targeturi)\*{0,2}$/i
-        warn('Universal options such as rhost(s), rport, lport, lhost, srvhost, srvport, ssl, uripath, session, proxies, payload, targeturi can be removed.', idx)
+      if in_options && ln =~ /^\s*[\*#]{2,3}\s*(rhost|rhosts|rport|lport|lhost|srvhost|srvport|srvssl|ssl|uripath|session|proxies|payload|targeturi)\*{0,2}$/i
+        warn('Universal options such as rhost(s), rport, lport, lhost, srvhost, srvport, srvssl, ssl, uripath, session, proxies, payload, targeturi can be removed.', idx)
       end
       # find spaces at EOL not in a code block which is ``` or starts with four spaces
       if !in_codeblock && ln =~ /[ \t]$/ && !(ln =~ /^    /)

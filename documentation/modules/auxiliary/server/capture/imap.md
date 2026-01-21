@@ -20,10 +20,11 @@ This module creates a mock IMAP server which accepts credentials.
   * `The Microsoft Exchange IMAP4 service is ready.`
   * `Microsoft Exchange Server 2003 IMAP4rev1 server versino 6.5.7638.1 (domain.local) ready.`
 
-### SSL
+### SRVSSL
 
-  Boolean if SSL should be used, making this Secure IMAP.  Secure IMAP is typically run on port 993.  If `SSLCert` is not set, a certificate
-  will be automatically generated.  Default is `False`.
+  Boolean if SSL/TLS should be used for the server, making this Secure IMAP.  Secure IMAP is typically run on port 993.
+  If `SSLCert` is not set, a certificate will be automatically generated.  Default is `False`. Note: This option is separate
+  from the `SSL` option which controls client connections.
 
 ### SSLCert
 
@@ -144,8 +145,8 @@ l/m7Kka0n7lXnKo+IFSJ0dTooBvwaV7+4tEGuHxWJsNO+2aex9qFCuDUdBFxyWyK
 uBVlsY6F7EjTfWpxwyVP
 -----END CERTIFICATE-----
 msf > use auxiliary/server/capture/imap 
-msf auxiliary(server/capture/imap) > set ssl true
-ssl => true
+msf auxiliary(server/capture/imap) > set srvssl true
+srvssl => true
 msf auxiliary(server/capture/imap) > set sslcert /root/metasploit-framework/selfsigned.pem
 sslcert => /root/metasploit-framework/selfsigned.pem
 msf auxiliary(server/capture/imap) > set srvport 993

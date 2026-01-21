@@ -19,10 +19,11 @@ This module creates a mock FTP server which accepts credentials before throwing 
   * `Serv-U FTP Server v15.0 ready...`
   * `ProFTPD 1.3.4a Server (FTP-Server)`
 
-### SSL
+### SRVSSL
 
-  Boolean if SSL should be used, making this FTPS.  FTPS is typically run on port 990.  If `SSLCert` is not set, a certificate
-  will be automatically generated.  Default is `False`.
+  Boolean if SSL/TLS should be used for the server, making this FTPS.  FTPS is typically run on port 990.  If `SSLCert` is not set,
+  a certificate will be automatically generated.  Default is `False`. Note: This option is separate from the `SSL` option which
+  controls client connections.
 
 ### SSLCert
 
@@ -147,8 +148,8 @@ mVuIIRbrDW/sOgu2Viis
 msf > use auxiliary/server/capture/ftp
 msf auxiliary(server/capture/ftp) > set srvport 990
 srvport => 990
-msf auxiliary(server/capture/ftp) > set ssl true
-ssl => true
+msf auxiliary(server/capture/ftp) > set srvssl true
+srvssl => true
 msf auxiliary(server/capture/ftp) > set sslcert /root/metasploit-framework/selfsigned.pem
 sslcert => /root/metasploit-framework/selfsigned.pem
 msf auxiliary(server/capture/ftp) > run
