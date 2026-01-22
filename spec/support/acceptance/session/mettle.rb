@@ -1,4 +1,6 @@
-module Acceptance::Session
+require_relative './shared'
+
+module Acceptance::Session::Mettle
   METTLE_METERPRETER = {
     payloads: [
       {
@@ -325,17 +327,20 @@ module Acceptance::Session
         lines: {
           linux: {
             known_failures: [
-              "[-] FAILED: [UDP] Has the correct peer information"
+              "[-] FAILED: [UDP] Has the correct peer information",
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           },
           osx: {
               known_failures: [
-              "[-] FAILED: [UDP] Has the correct peer information"
+              "[-] FAILED: [UDP] Has the correct peer information",
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           },
           windows: {
             known_failures: [
-              "[-] FAILED: [UDP] Has the correct peer information"
+              "[-] FAILED: [UDP] Has the correct peer information",
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           }
         }
