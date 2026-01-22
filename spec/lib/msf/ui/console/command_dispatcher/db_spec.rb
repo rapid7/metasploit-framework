@@ -240,22 +240,19 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         RSpec::Expectations.configuration.max_formatted_output_length = nil
 
         db.cmd_services
-        expect(@output).to match_array [
-          "Services",
-          "========",
-          "",
-          "host         port  proto  name      state  info  resource                  parents",
-          "----         ----  -----  ----      -----  ----  --------                  -------",
-          "192.168.0.1  1024  udp    service3  open         {\"base_url\":\"/service3\"}",
-          "192.168.0.1  1024  udp    service1  open         {\"base_url\":\"/service1\"}  service2 (1024/udp)",
-          "192.168.0.1  1024  udp    service2  open         {\"base_url\":\"/service2\"}  service3 (1024/udp)"
-        ]
+        expect(@output.join("\n")).to match_table <<~TABLE
+          Services
+          ========
+
+          host         port  proto  name      state  info  resource                  parents
+          ----         ----  -----  ----      -----  ----  --------                  -------
+          192.168.0.1  1024  udp    service3  open         {"base_url":"/service3"}
+          192.168.0.1  1024  udp    service1  open         {"base_url":"/service1"}  service2 (1024/udp)
+          192.168.0.1  1024  udp    service2  open         {"base_url":"/service2"}  service3 (1024/udp)
+        TABLE
       ensure
         RSpec::Expectations.configuration.max_formatted_output_length = orig
       end
-    end
-
-    context "with some services" do
     end
 
     describe "-h" do
