@@ -1,6 +1,9 @@
 source 'https://rubygems.org'
 # Add default group gems to `metasploit-framework.gemspec`:
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
+
+gem 'metasploit-credential', git: 'https://github.com/cdelafuente-r7/metasploit-credential', branch: 'fix_create_credential_service'
+
 gemspec name: 'metasploit-framework'
 
 # separate from test as simplecov is not run on travis-ci
