@@ -36,10 +36,18 @@ platform_edits:
 
 # Artisanal property modifications for specific modules
 module_edits:
+  auxiliary/analyze/crack_windows:
+    add:
+      authentication_in:
+        - hash/net-ntlm
+        - hash/ntlm
+      authentication_out:
+        - plaintext
+
   auxiliary/admin/dcerpc/icpr_cert:
     add:
       authentication_out:
-        - schannel
+        - certificate
 
   auxiliary/admin/kerberos/forge_ticket:
     add:
@@ -52,7 +60,7 @@ module_edits:
     add:
       authentication_in:
         - plaintext
-        - schannel # schannel isn't quite the right term but we'll use it as an alias for cert-based
+        - certificate
       authentication_out:
         - kerberos
 
@@ -60,7 +68,7 @@ module_edits:
     remove:
       authentication_in:
         - kerberos
-        - schannel
+        - certificate
 
   auxiliary/admin/sccm/get_naa_credentials:
     add:
@@ -71,8 +79,18 @@ module_edits:
     add:
       authentication_out:
         - plaintext
-        - ntlm
+        - hash/ntlm
         - kerberos/keys
+
+  auxiliary/scanner/dcerpc/dfscoerce:
+    add:
+      trigger_out:
+        - coercion/smb
+
+  auxiliary/scanner/dcerpc/petitpotam:
+    add:
+      trigger_out:
+        - coercion/smb
 
   auxiliary/scanner/ldap/ldap_login:
     add:
@@ -98,87 +116,176 @@ module_edits:
     add:
       authentication_out:
         - plaintext
+      trigger_in:
+        - coercion
 
   auxiliary/server/capture/ftp:
     add:
       authentication_out:
         - plaintext
+      trigger_in:
+        - coercion
 
   auxiliary/server/capture/imap:
     add:
       authentication_out:
         - plaintext
+      trigger_in:
+        - coercion
 
   auxiliary/server/capture/ldap:
     add:
       authentication_out:
         - plaintext
+      trigger_in:
+        - coercion
 
   auxiliary/server/capture/mssql:
     add:
       authentication_out:
         - plaintext
+      trigger_in:
+        - coercion
 
   auxiliary/server/capture/mysql:
     add:
       authentication_out:
         - plaintext
+      trigger_in:
+        - coercion
 
   auxiliary/server/capture/pop3:
     add:
       authentication_out:
         - plaintext
+      trigger_in:
+        - coercion
 
   auxiliary/server/capture/postgresql:
     add:
       authentication_out:
         - plaintext
+      trigger_in:
+        - coercion
 
   auxiliary/server/capture/printjob_capture:
     add:
       authentication_out:
         - plaintext
+      trigger_in:
+        - coercion
 
   auxiliary/server/capture/sip:
     add:
       authentication_out:
         - plaintext
+      trigger_in:
+        - coercion
 
   auxiliary/server/capture/smb:
     add:
       authentication_out:
-        - ntlm
-        - plaintext
+        - hash/net-ntlm
+      trigger_in:
+        - coercion
+        - coercion/smb
 
   auxiliary/server/capture/smtp:
     add:
       authentication_out:
         - plaintext
+      trigger_in:
+        - coercion
 
   auxiliary/server/capture/telnet:
     add:
       authentication_out:
         - plaintext
+      trigger_in:
+        - coercion
 
   auxiliary/server/capture/vnc:
     add:
       authentication_out:
         - plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/relay/esc8:
+    add:
+      authentication_out:
+        - certificate
+        - hash/net-ntlm
+      trigger_in:
+        - coercion
+        - coercion/smb
 
   auxiliary/server/relay/relay_get_naa_credentials:
     add:
       authentication_out:
+        - hash/net-ntlm
         - plaintext
+      trigger_in:
+        - coercion
+        - coercion/smb
+
+  auxiliary/server/relay/smb_to_ldap:
+    add:
+      authentication_out:
+        - hash/net-ntlm
+        - session/ldap
+      session_out:
+        - ldap
+      trigger_in:
+        - coercion
+        - coercion/smb
+
+  auxiliary/server/relay/smb_to_mssql:
+    add:
+      authentication_out:
+        - hash/net-ntlm
+        - session/mssql
+      session_out:
+        - mssql
+      trigger_in:
+        - coercion
+        - coercion/smb
+
+  auxiliary/spoof/llmnr/llmnr_response:
+    add:
+      trigger_out:
+        - coercion
+
+  auxiliary/spoof/mdns/mdns_response:
+    add:
+      trigger_out:
+        - coercion
+
+  auxiliary/spoof/nbns/nbns_response:
+    add:
+      trigger_out:
+        - coercion
+
+  exploit/windows/smb/smb_relay:
+    add:
+      authentication_out:
+        - hash/net-ntlm
+        - session/smb
+      session_out:
+        - smb
+      trigger_in:
+        - coercion
+        - coercion/smb
 
   post/windows/gather/hashdump:
     add:
       authentication_out:
-        - ntlm
+        - hash/ntlm
 
   post/windows/gather/smart_hashdump:
     add:
       authentication_out:
-        - ntlm
+        - hash/ntlm
 
   post/windows/manage/kerberos_tickets:
     add:
