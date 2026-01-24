@@ -6,16 +6,31 @@ API_VERSION = "1.0"
 
 
 class Exception < RuntimeError
-  attr_accessor :code, :message
+  attr_accessor :code, :message, :http_msg
 
   # Initializes Exception.
   #
   # @param [Integer] code An error code.
   # @param [String] message An error message.
   # @return [void]
-  def initialize(code, message)
+  def initialize(code, message, http_msg = nil)
     self.code    = code
     self.message = message
+    self.http_msg = http_msg
+    self.http_msg ||= case self.code
+                      when 400
+                        'Bad Request'
+                      when 401
+                        'Unauthorized'
+                      when 403
+                        'Forbidden'
+                      when 404
+                        'Not Found'
+                      when 500
+                        'Internal Server Error'
+                      else
+                        'Unknown Error'
+                      end
   end
 end
 
