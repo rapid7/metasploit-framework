@@ -1,4 +1,5 @@
 require 'rex/text'
+require 'ruby_smb/field/string16'
 
 module Rex::Proto::MsTds
   # see: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/773a62b6-ee89-4c02-9e5e-344882630aac
@@ -20,7 +21,7 @@ module Rex::Proto::MsTds
           @@buffer_field_types[field_name] = (field_type || :uint8_array)
           uint16 "cb_#{field_name}".to_sym, initial_value: -> { send(field_name)&.length || 0 }, onlyif: onlyif
         when Encoding::UTF_16LE
-          @@buffer_field_types[field_name] = (field_type || :string16)
+          @@buffer_field_types[field_name] = (field_type || RubySMB::Field::String16)
           uint16 "cch_#{field_name}".to_sym, initial_value: -> { send(field_name)&.length || 0 }, onlyif: onlyif
         else
           raise RuntimeError, "Unsupported encoding: #{encoding}"
@@ -144,13 +145,13 @@ module Rex::Proto::MsTds
           next
         end
 
-        field_cls = BinData::RegisteredClasses.lookup(@@buffer_field_types[field_name])
+        field_type = @@buffer_field_types[field_name]
+        field_cls = field_type.is_a?(Class) ? field_type : BinData::RegisteredClasses.lookup(field_type)
 
-        case @@buffer_field_types[field_name]
-        when :string16, :ms_tds_login7_password
+        if field_cls <= RubySMB::Field::String16
           field_size *= 2
           field_obj = field_cls.new(read_length: field_size)
-        when :uint8_array
+        elsif field_cls <= BinData::Uint8Array
           field_obj = field_cls.new(read_until: :eof)
         end
 
@@ -201,7 +202,8 @@ module Rex::Proto::MsTds
 
       define_singleton_method("#{field_name}=") do |value|
         unless value.nil?
-          field_cls = BinData::RegisteredClasses.lookup(@@buffer_field_types[field_name])
+          field_type = @@buffer_field_types[field_name]
+          field_cls = field_type.is_a?(Class) ? field_type : BinData::RegisteredClasses.lookup(field_type)
           value = field_cls.new(value)
         end
 
