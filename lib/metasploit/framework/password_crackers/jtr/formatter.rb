@@ -12,17 +12,17 @@ module Metasploit
             params_to_jtr(
               (cred.public.nil? ? '' : cred.public.username),
               cred.private.data,
-              cred.class.model_name.element.to_sym,
+              cred.private.type,
               format: cred.private.jtr_format,
               db_id: cred.id
             )
           end
 
           def self.params_to_jtr(username, private_data, private_type, format: nil, db_id: nil)
-            case private_type
-            when :ntlm_hash
+            case private_type.name
+            when 'Metasploit::Credential::NTLMHash'
               return "#{username}:#{db_id}:#{private_data}:::#{db_id}"
-            when :postgres_md5
+            when 'Metasploit::Credential::PostgresMD5'
               if format =~ /postgres|raw-md5/
                 # john --list=subformats | grep 'PostgreSQL MD5'
                 # UserFormat = dynamic_1034  type = dynamic_1034: md5($p.$u) (PostgreSQL MD5)
@@ -30,7 +30,7 @@ module Metasploit
                 hash_string.gsub!(/^md5/, '')
                 return "#{username}:$dynamic_1034$#{hash_string}:#{db_id}:"
               end
-            when :nonreplayable_hash
+            when 'Metasploit::Credential::NonreplayableHash'
               case format
                 # oracle 11+ password hash descriptions:
                 # this password is stored as a long ascii string with several sections
@@ -88,7 +88,20 @@ module Metasploit
               when /vnc/
                 # add a beginning * if one is missing
                 return "$vnc$#{private_data.start_with?('*') ? private_data.upcase : "*#{private_data.upcase}"}"
+              when /krb5asrep/
+                # for this we overload the username field with the db_id so we can find it in the db easier later
+                data = private_data.split(':') # [username, password_hash]
+                data[0] = db_id
+                return data.join(':')
+              when /krb5tgs/
+                # for this we overload the username field with the db_id so we can find it in the db easier later
+                # https://github.com/openwall/john/issues/5944
+                private_data = private_data.split('$')
+                private_data[5] = private_data[5].split(':').first
+                private_data = private_data.join('$')
+                return "#{db_id}:#{private_data}"
               when /^(krb5.|timeroast$)/
+                # krb5asrep, krb5tgs, timeroast
                 return private_data
               else
                 # /mysql|mysql-sha1/
@@ -102,9 +115,10 @@ module Metasploit
                 # /xsha/
                 # /mscash2/
                 # This also handles *other* type credentials which aren't guaranteed to have a public
-
                 return "#{username}:#{private_data}:#{db_id}:"
               end
+            else
+              puts "[X] JTR Formatter recieved an unknown private_type: #{private_type}"
             end
 
             nil
@@ -131,8 +145,6 @@ module Metasploit
               return ['raw-md5,postgres']
             when 'md5crypt' # from linux module
               return ['md5']
-            when 'descrypt'
-              return ['des']
             when 'bsdicrypt'
               return ['bsdi']
             when 'sha256crypt'
