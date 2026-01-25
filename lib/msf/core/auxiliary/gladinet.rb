@@ -8,9 +8,6 @@ module Msf
   # Module for shared Gladinet CentreStack/Triofox functionality
   ##
   module Auxiliary::Gladinet
-    # Default path to Web.config on Gladinet installations
-    DEFAULT_WEB_CONFIG_PATH = 'Program Files (x86)\\Gladinet Cloud Enterprise\\root\\Web.config'.freeze
-
     # Exploit module for ViewState deserialization RCE
     EXPLOIT_MODULE = 'exploit/windows/http/gladinet_viewstate_deserialization_cve_2025_30406'.freeze
 
@@ -25,10 +22,10 @@ module Msf
       # Pattern: <machineKey ... validationKey="..." ... />
       # NOTE: The exploit module only needs the validationKey, not the decryptionKey
       # The regex allows for other attributes (like decryption="AES") between decryptionKey and validationKey
-      machinekey_match = content.match(/<machineKey[^>]*validationKey="([^"]+)"/i)
+      machinekey_match = content.match(/<machineKey decryptionKey="([^"]+)" validationKey="([^"]+)"/i)
       return nil unless machinekey_match
 
-      validation_key = machinekey_match[1]
+      validation_key = machinekey_match[2]
 
       # Return only validationKey (hex format) as required by the exploit module
       validation_key

