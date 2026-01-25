@@ -111,7 +111,8 @@ class MetasploitModule < Msf::Post
       ObjectiveSee.installed_products.each { |prod| print_good("Found #{prod.name} with pid #{prod.pids.inspect}") }
     end
 
-    report_note(host: target_host, type: 'osx.antivirus', data: ObjectiveSee.installed_products, update: :unique_data)
+    installed_product = { 'installed products' => ObjectiveSee.installed_products.map {|prod| prod.name}.join(', ') }
+    report_note(host: target_host, type: 'osx.antivirus', data: installed_product, update: :unique_data)
 
     if datastore['KILL_PROCESSES']
       fail_no_root
