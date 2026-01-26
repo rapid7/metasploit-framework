@@ -89,9 +89,9 @@ module Msf::Post::Unix
     # the users aren't in /etc/passwd (LDAP, for example)
     case session.platform
     when 'osx'
-      user_dirs << cmd_exec('ls /Users').each_line.map { |l| "/Users/#{l}" }
+      user_dirs << cmd_exec('ls /Users').each_line.map { |l| "/Users/#{l.chomp}" }
     else
-      user_dirs << cmd_exec('ls /home').each_line.map { |l| "/home/#{l}" }
+      user_dirs << cmd_exec('ls /home').each_line.map { |l| "/home/#{l.chomp}" }
     end
 
     user_dirs.flatten!
