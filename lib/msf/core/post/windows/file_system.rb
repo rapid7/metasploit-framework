@@ -28,16 +28,6 @@ module Msf
           )
         end
 
-        class String16 < BinData::String
-          def assign(val)
-            super(val.encode('utf-16le'))
-          end
-
-          def snapshot
-            super.force_encoding('utf-16le')
-          end
-        end
-
         class UnicodeString < BinData::Record
           endian :little
 
