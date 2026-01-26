@@ -25,6 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2025-61675'], # SQL injections
           [ 'URL', 'https://horizon3.ai/attack-research/the-freepbx-rabbit-hole-cve-2025-66039-and-others/']
         ],
+        'DisclosureDate' => '2025-12-11',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
