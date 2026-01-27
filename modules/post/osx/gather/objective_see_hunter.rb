@@ -69,6 +69,13 @@ class MetasploitModule < Msf::Post
     def installed?
       @msf.send :directory?, @path
     end
+
+    def kill
+      @pids.each do |pid|
+        result = kill_process pid 
+        print_good "Kill signal for #{@name} #{pid} was successful" if result
+      end 
+    end 
   end
 
   # Determine which products are installed and their ppid if any
@@ -85,14 +92,6 @@ class MetasploitModule < Msf::Post
     unless is_root?
       fail_with(Failure::BadConfig,
                 'The current session is not root. Please escalate the session and rerun the module.')
-    end
-  end
-
-  def kill_pids(obj_see)
-    print_status "Attempting to kill pid(s) #{obj_see.pids.inspect} for #{obj_see.name}"
-    obj_see.pids.each do |pid|
-      result = kill_process pid
-      print_good "Kill signal was successful for #{pid}" if result
     end
   end
 
@@ -116,7 +115,7 @@ class MetasploitModule < Msf::Post
 
     if datastore['KILL_PROCESSES']
       fail_no_root
-      ObjectiveSee.installed_products.each { |prod| kill_pids prod }
+      ObjectiveSee.installed_products.each { |prod| prod.kill }
     end
   end
 end
