@@ -1,0 +1,19 @@
+name: Add pull request to the kanban board
+
+on:
+  pull_request_target:
+    types:
+       - opened
+       - reopened
+
+jobs:
+  add-to-project:
+    name: Add pull request to the kanban board
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: https://github.com/orgs/rapid7/projects/17
+          # smcintyre/GITHUB_PROJECT_TOKEN (PAT), Expires on Wed, Jan 27 2027
+          github-token: ${{ secrets.GH_PROJECT_TOKEN }}
+
