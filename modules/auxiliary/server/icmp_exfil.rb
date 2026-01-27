@@ -40,9 +40,9 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('START_TRIGGER', [true, 'Trigger for beginning of file', '^BOF']),
       OptString.new('END_TRIGGER', [true, 'Trigger for end of file', '^EOF']),
       OptString.new('RESP_START', [true, 'Data to respond when initial trigger matches', 'SEND']),
-      OptString.new('RESP_CONT', [true, 'Data ro resond when continuation of data expected', 'OK']),
-      OptString.new('RESP_END', [true, 'Data to response when EOF received and data saved', 'COMPLETE']),
-      OptString.new('BPF_FILTER', [true, 'BFP format filter to listen for', 'icmp']),
+      OptString.new('RESP_CONT', [true, 'Data to respond when continuation of data expected', 'OK']),
+      OptString.new('RESP_END', [true, 'Data to respond when EOF received and data saved', 'COMPLETE']),
+      OptString.new('BPF_FILTER', [true, 'BPF format filter to listen for', 'icmp']),
       OptString.new('INTERFACE', [false, 'The name of the interface']),
       OptBool.new('FNAME_IN_PACKET', [true, 'Filename presented in first packet straight after START_TRIGGER', true])
     ])
