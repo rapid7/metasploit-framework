@@ -9,6 +9,7 @@ module Metasploit
           # @param cred [credClass] A credential from framework.db
           # @return [String] The hash in jtr format or nil on no match.
           def self.hash_to_jtr(cred)
+            puts cred.class.model_name.element.to_sym
             params_to_jtr(
               (cred.public.nil? ? '' : cred.public.username),
               cred.private.data,
@@ -19,10 +20,10 @@ module Metasploit
           end
 
           def self.params_to_jtr(username, private_data, private_type, format: nil, db_id: nil)
-            case private_type.name
-            when 'Metasploit::Credential::NTLMHash'
+            case private_type
+            when :ntlm_hash, 'Metasploit::Credential::NTLMHash'
               return "#{username}:#{db_id}:#{private_data}:::#{db_id}"
-            when 'Metasploit::Credential::PostgresMD5'
+            when :postgres_md5, 'Metasploit::Credential::PostgresMD5'
               if format =~ /postgres|raw-md5/
                 # john --list=subformats | grep 'PostgreSQL MD5'
                 # UserFormat = dynamic_1034  type = dynamic_1034: md5($p.$u) (PostgreSQL MD5)
@@ -30,7 +31,7 @@ module Metasploit
                 hash_string.gsub!(/^md5/, '')
                 return "#{username}:$dynamic_1034$#{hash_string}:#{db_id}:"
               end
-            when 'Metasploit::Credential::NonreplayableHash'
+            when :nonreplayable_hash, 'Metasploit::Credential::NonreplayableHash'
               case format
                 # oracle 11+ password hash descriptions:
                 # this password is stored as a long ascii string with several sections
@@ -118,7 +119,7 @@ module Metasploit
                 return "#{username}:#{private_data}:#{db_id}:"
               end
             else
-              puts "[X] JTR Formatter recieved an unknown private_type: #{private_type}"
+              puts "[X] JTR Formatter (params_to_jtr) recieved an unknown private_type: #{private_type} (#{private_type.class})"
             end
 
             nil
