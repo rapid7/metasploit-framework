@@ -1,7 +1,7 @@
 name: Add pull request to the kanban board
 
 on:
-  pull_request:
+  pull_request_target:
     types:
        - opened
        - reopened
