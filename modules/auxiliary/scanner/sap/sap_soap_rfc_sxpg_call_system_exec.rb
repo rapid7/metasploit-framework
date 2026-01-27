@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
         for i in 0..output.length - 1
           saptbl << [output[i]]
         end
-        print(saptbl)
+        print(saptbl.to_s)
       else
         print_error("[SAP] #{ip}:#{rport} - Unknown error")
         return

@@ -127,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
         0.upto(output.length - 1) do |i|
           saptbl << [output[i]]
         end
-        print(saptbl)
+        print(saptbl.to_s)
         this_service = report_service(
           host: ip,
           port: rport,
