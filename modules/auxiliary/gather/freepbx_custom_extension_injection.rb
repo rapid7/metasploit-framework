@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'FreePBX Custom Extension SQL Injection',
         'Description' => %q{
-          FreePBX versions prior to 16.0.44 and 17.0.23 are vulnerable to multiple CVEs, specifically CVE-2025-66039 and CVE-2025-61675, in the context of this module. The former represents an authentication bypass: when FreePBX uses Webserver Authorization Mode (an option the admin can enable), it allows an attacker to authenticate as any user. The latter CVE describes multiple SQL injections; this module exploits the SQL injection in the custom extension component. The module chains these vulnerabilities into an unauthenticated SQL injection attack that creates a new administrative user.
+          FreePBX versions prior to 16.0.44,16.0.92 and 17.0.23,17.0.6 are vulnerable to multiple CVEs, specifically CVE-2025-66039 and CVE-2025-61675, in the context of this module. The versions before 16.0.44 and 17.0.23 are vulnerable to CVE-2025-66039, while versions before 16.0.92 and 17.0.6 are vulnerable to CVE-2025-61675. The former represents an authentication bypass: when FreePBX uses Webserver Authorization Mode (an option the admin can enable), it allows an attacker to authenticate as any user. The latter CVE describes multiple SQL injections; this module exploits the SQL injection in the custom extension component. The module chains these vulnerabilities into an unauthenticated SQL injection attack that creates a new administrative user.
         },
         'Author' => [
           'Noah King', # research
