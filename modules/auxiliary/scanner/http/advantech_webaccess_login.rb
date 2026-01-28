@@ -128,8 +128,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    unless scanner(ip).check_setup
-      print_brute(:level => :error, :ip => ip, :msg => 'Target is not Advantech WebAccess')
+    msg = scanner(ip).check_setup
+    if msg
+      print_brute(:level => :error, :ip => ip, :msg => "Target is not Advantech WebAccess - #{msg}")
       return
     end
 

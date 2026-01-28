@@ -133,8 +133,10 @@ class MetasploitModule < Msf::Auxiliary
   # Start here
   def run_host(ip)
     init(ip)
-    unless @scanner.check_setup
-      print_brute :level => :error, :ip => ip, :msg => 'Target is not a Tenable Nessus server'
+
+    msg = @scanner.check_setup
+    if msg
+      print_brute(:level => :error, :ip => ip, :msg => "Target is not a Tenable Nessus server - #{msg}")
       return
     end
 

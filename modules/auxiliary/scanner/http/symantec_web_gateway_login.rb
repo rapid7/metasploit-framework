@@ -124,8 +124,9 @@ class MetasploitModule < Msf::Auxiliary
 
   # Start here
   def run_host(ip)
-    unless scanner(ip).check_setup
-      print_brute(:level => :error, :ip => ip, :msg => 'Target is not Symantec Web Gateway')
+    msg = scanner(ip).check_setup
+    if msg
+      print_brute(:level => :error, :ip => ip, :msg => "Target is not Symantec Web Gateway - #{msg}")
       return
     end
 

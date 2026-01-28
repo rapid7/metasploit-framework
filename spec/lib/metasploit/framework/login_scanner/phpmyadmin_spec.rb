@@ -28,14 +28,14 @@ RSpec.describe Metasploit::Framework::LoginScanner::PhpMyAdmin do
   let(:successful_res) do
     res = Rex::Proto::Http::Response.new(302, 'OK')
     res.headers['Location'] = 'index.php'
-    res.headers['Set-Cookie'] = 'phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; pma_lang=en; phpMyAdmin=7e1hg9scaugr23p8c6ki8gotbd;' 
+    res.headers['Set-Cookie'] = 'phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; pma_lang=en; phpMyAdmin=7e1hg9scaugr23p8c6ki8gotbd;'
     res.body = "phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; name=\"token\" value=\"4_0'xIB=m@&z%m%#\""
     res
   end
 
   let(:failed_res) do
     res = Rex::Proto::Http::Response.new(200, 'OK')
-    res.headers['Set-Cookie'] = 'phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; pma_lang=en; phpMyAdmin=7e1hg9scaugr23p8c6ki8gotbd;' 
+    res.headers['Set-Cookie'] = 'phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; pma_lang=en; phpMyAdmin=7e1hg9scaugr23p8c6ki8gotbd;'
     res.body = "phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; name=\"token\" value=\"4_0'xIB=m@&z%m%#\""
     res
   end
@@ -62,30 +62,30 @@ RSpec.describe Metasploit::Framework::LoginScanner::PhpMyAdmin do
     end
 
     context 'when the target is not PhpMyAdmin' do
-      it 'should return false' do
-        expect(subject.check_setup).to eql(false)
+      it 'should return a string' do
+        expect(subject.check_setup).to eql("Unable to locate \"phpMyAdmin\" and \"PMA_VERSION\" in body. (Is this really PhpMyAdmin?)")
       end
     end
 
     context 'when the version of PhpMyAdmin is detected' do
       let(:response) { phpMyAdmin_res }
-      it 'should return the version' do
-        expect(subject.check_setup).to eql("4.8.2")
+      it 'should return false' do
+        expect(subject.check_setup).to eql(false)
       end
     end
 
     context 'when the version of PhpMyAdmin is not detected' do
       let(:response) { phpMyAdmin_no_vers }
-      it 'should return "Not Detected"' do
-        expect(subject.check_setup).to eql("Not Detected")
+      it 'returns failure details' do
+        expect(subject.check_setup).to eql("Unable to locate \"phpMyAdmin\" and \"PMA_VERSION\" in body. (Is this really PhpMyAdmin?)")
       end
     end
   end
 
   describe '#get_session_info' do
     context 'when session info cannot be obtained' do
-      it 'should return an unable to connect status' do
-        expect(subject.get_session_info).to eql({ status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Cannot retrieve session info' })
+      it 'returns failure details' do
+        expect(subject.check_setup).to eql("Unable to locate \"phpMyAdmin\" and \"PMA_VERSION\" in body. (Is this really PhpMyAdmin?)")
       end
     end
 

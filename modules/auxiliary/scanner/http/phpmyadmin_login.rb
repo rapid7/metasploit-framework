@@ -80,13 +80,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    phpmyadmin_res = scanner(ip).check_setup
-    unless phpmyadmin_res
-      print_brute(:level => :error, :ip => ip, :msg => "PhpMyAdmin is not available")
+    msg = scanner(ip).check_setup
+    if msg
+      print_brute(:level => :error, :ip => ip, :msg => "PhpMyAdmin is not available - #{msg}")
       return
     end
-
-    print_status("PhpMyAdmin Version: #{phpmyadmin_res}")
 
     scanner(ip).scan! do |result|
       case result.status

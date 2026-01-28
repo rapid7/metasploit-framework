@@ -132,8 +132,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    unless scanner(ip).check_setup
-      print_brute(:level => :error, :ip => ip, :msg => 'Backdoor type is not support')
+    msg = scanner(ip).check_setup
+    if msg
+      print_brute(:level => :error, :ip => ip, :msg => "Target is not caidao - #{msg}")
       return
     end
 

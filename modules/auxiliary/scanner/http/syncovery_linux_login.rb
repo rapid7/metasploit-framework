@@ -128,11 +128,12 @@ class MetasploitModule < Msf::Auxiliary
 
   # Start here
   def run_host(ip)
-    if scanner(ip).check_setup
-      vprint_brute(level: :good, ip: ip, msg: 'Syncovery File Sync & Backup Software confirmed')
-    else
-      print_brute(level: :error, ip: ip, msg: 'Target is not Syncovery File Sync & Backup Software')
+    msg = scanner(ip).check_setup
+    if msg
+      print_brute(level: :error, ip: ip, msg: "Target is not Syncovery File Sync & Backup Software - #{msg}")
       return
+    else
+      vprint_brute(level: :good, ip: ip, msg: 'Syncovery File Sync & Backup Software confirmed')
     end
 
     version = scanner(ip).get_version

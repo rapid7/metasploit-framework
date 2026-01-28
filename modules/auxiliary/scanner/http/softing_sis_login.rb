@@ -107,15 +107,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    softing_ver = scanner(ip).check_setup
-    # if we get "false", throw the error
-    unless softing_ver
-      print_brute(level: :error, ip: ip, msg: 'Target is not Softing Secure Integration Server')
+    msg = scanner(ip).check_setup
+    if msg
+      print_brute(level: :error, ip: ip, msg: "Target is not Softing Secure Integration Server - #{msg}")
       return
     end
 
-    # otherwise, report the version
-    print_brute(level: :good, ip: ip, msg: "Softing Secure Integration Server #{softing_ver}")
     bruteforce(ip)
   end
 

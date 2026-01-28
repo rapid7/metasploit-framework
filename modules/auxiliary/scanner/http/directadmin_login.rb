@@ -87,9 +87,10 @@ class MetasploitModule < Msf::Auxiliary
 
   # Start here
   def run_host(ip)
-    unless scanner(ip).check_setup
-      print_brute(:level => :error, :ip => ip, :msg => 'Target is not DirectAdmin Web Control Panel')
-      return
+     msg = scanner(ip).check_setup
+     if msg
+       print_brute(:level => :error, :ip => ip, :msg => "Target is not DirectAdmin Web Control Panel - #{msg}")
+       return
     end
 
     bruteforce(ip)

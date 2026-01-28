@@ -15,10 +15,11 @@ module Metasploit
         def check_setup
           res = send_request({ 'uri' => normalize_uri('/enginemanager/login.htm') })
 
-          return false unless res
-          return false unless res.code == 200
+          if res && res.body.include?('Wowza Streaming Engine Manager')
+            return false
+          end
 
-          res.body.include?('Wowza Streaming Engine Manager')
+          'Unable to locate "Wowza Streaming Engine Manager" in body. (Is this really Wowza Streaming Engine Manager?)'
         end
 
         #

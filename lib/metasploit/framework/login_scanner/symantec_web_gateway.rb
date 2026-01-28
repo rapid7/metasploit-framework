@@ -12,18 +12,20 @@ module Metasploit
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
 
-        # Checks if the target is Symantec Web Gateway. The login module should call this.
+        # Checks if the target is correct
         #
-        # @return [Boolean] TrueClass if target is SWG, otherwise FalseClass
+        # @return [false] Indicates there were no errors
+        # @return [String] a human-readable error message describing why
+        #   this scanner can't run
         def check_setup
           login_uri = normalize_uri("#{uri}/spywall/login.php")
           res = send_request({'uri'=> login_uri})
 
           if res && res.body.include?('Symantec Web Gateway')
-            return true
+            return false
           end
 
-          false
+          'Unable to locate "Symantec Web Gateway" in body. (Is this really Symantec Web Gateway?)'
         end
 
 
