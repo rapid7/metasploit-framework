@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     msg = scanner(ip).check_setup
     if msg
-      print_brute(:level => :error, :ip => ip, :msg => "TWowza Streaming Engine Manager not found - #{msg}")
+      print_brute(level: :error, ip: ip, msg: "TWowza Streaming Engine Manager not found - #{msg}")
     else
       vprint_brute(level: :good, ip: ip, msg: 'Found Wowza Streaming Engine Manager')
       return
