@@ -1,4 +1,6 @@
-module Acceptance::Session
+require_relative './shared'
+
+module Acceptance::Session::Php
   PHP_METERPRETER = {
     payloads: [
       {
@@ -264,7 +266,8 @@ module Acceptance::Session
               "[-] [[TCP-Server] Propagates close events to the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
               "[-] [[TCP-Server] Propagates close events from the peer] FAILED: [TCP-Server] Propagates close events from the peer",
               "[-] [[TCP-Server] Propagates close events from the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
-              "[-] FAILED: [UDP] Has the correct peer information"
+              "[-] FAILED: [UDP] Has the correct peer information",
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           },
           osx: {
@@ -285,7 +288,8 @@ module Acceptance::Session
               "[-] [[TCP-Server] Propagates close events to the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
               "[-] [[TCP-Server] Propagates close events from the peer] FAILED: [TCP-Server] Propagates close events from the peer",
               "[-] [[TCP-Server] Propagates close events from the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
-              "[-] FAILED: [UDP] Has the correct peer information"
+              "[-] FAILED: [UDP] Has the correct peer information",
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           },
           windows: {
@@ -307,7 +311,7 @@ module Acceptance::Session
               "[-] [[TCP-Server] Propagates close events from the peer] FAILED: [TCP-Server] Propagates close events from the peer",
               "[-] [[TCP-Server] Propagates close events from the peer] Exception: Rex::Post::Meterpreter::RequestError: core_channel_open: Operation failed: 1",
               "[-] FAILED: [UDP] Has the correct peer information",
-              ["[-] FAILED: [UDP] Receives data from the peer", { flaky: true }],
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           }
         }

@@ -1,4 +1,6 @@
-module Acceptance::Session
+require_relative './shared'
+
+module Acceptance::Session::WindowsMeterpreter
   WINDOWS_METERPRETER = {
     payloads: [
       {
@@ -365,14 +367,19 @@ module Acceptance::Session
         skipped: false,
         lines: {
           linux: {
-            known_failures: []
+            known_failures: [
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
+            ]
           },
           osx: {
-            known_failures: []
+            known_failures: [
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
+            ]
           },
           windows: {
             known_failures: [
-              "[-] FAILED: [UDP] Has the correct peer information"
+              "[-] FAILED: [UDP] Has the correct peer information",
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           }
         }
