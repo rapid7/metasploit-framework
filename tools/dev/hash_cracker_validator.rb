@@ -171,7 +171,7 @@ def windows_hashes_and_regex_john_compat
   creds_command = ''
   creds_expected_output_regex = []
   creds_command << ' creds add user:lm_password ntlm:E52CAC67419A9A224A3B108F3FA6CB6D:8846F7EAEE8FB117AD06BDD830B7586C jtr:lm;'
-  creds_expected_output_regex << /lm_password\s+e52cac67419a9a224a3b108f3fa6cb6d:8846f7eaee8fb117ad06bdd830b7586c\s+NTLM hash\s+nt,lm\s+PASSWORD$/
+  creds_expected_output_regex << /lm_password\s+e52cac67419a9a224a3b108f3fa6cb6d:8846f7eaee8fb117ad06bdd830b7586c\s+NTLM hash\s+nt,lm\s+PASSWORD$/i # hashcat does PASSWORD, john does password
   creds_command << ' creds add user:nt_password ntlm:AAD3B435B51404EEAAD3B435B51404EE:8846F7EAEE8FB117AD06BDD830B7586C jtr:nt;'
   creds_expected_output_regex << /nt_password\s+aad3b435b51404eeaad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c\s+NTLM hash\s+nt,lm\s+password$/
   creds_command << ' creds add user:u4-netntlm hash:u4-netntlm::kNS:338d08f8e26de93300000000000000000000000000000000:9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41:cb8086049ec4736c jtr:netntlm;'
