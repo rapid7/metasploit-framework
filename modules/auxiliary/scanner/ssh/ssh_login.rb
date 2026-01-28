@@ -276,7 +276,12 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         if datastore['CreateSession']
-          session_setup(result, scanner, used_key: true)
+          begin
+            session_setup(result, scanner, used_key: true)
+          rescue StandardError => e
+            elog('Failed to setup the session', error: e)
+            print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
+          end
         end
         if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
           msg = 'While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with'
