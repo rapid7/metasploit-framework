@@ -134,8 +134,8 @@ module Metasploit
               # when /^krb5$/
               #  return "#{cred.id}:#{cred.private.data}"
               when /^(krb5.|timeroast$)/
-                #             krb5tgs-rc4, krb5tgs-aes128, krb5tgs-aes256, krb5asrep-rc4, timeroast
-                ## hash-mode: 13100        19600           19700           18200          31300
+                #             krb5tgs, krb5tgs-aes128, krb5tgs-aes256, krb5asrep, timeroast
+                ## hash-mode: 13100    19600           19700           18200      31300
                 return "#{cred.id}:#{cred.private.data}"
               end
             end
