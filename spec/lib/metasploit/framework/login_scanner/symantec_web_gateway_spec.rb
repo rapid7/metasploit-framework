@@ -60,14 +60,14 @@ RSpec.describe Metasploit::Framework::LoginScanner::SymantecWebGateway do
 
       context 'when target is Symantec Web Gateway' do
         let(:response) { swg_html_response }
-        it 'returns true' do
-          expect(subject.check_setup).to be_truthy
+        it 'returns false' do
+          expect(subject.check_setup).to be(false)
         end
       end
 
       context 'when target is not Symantec Web Gateway' do
-        it 'returns false' do
-          expect(subject.check_setup).to be_falsey
+        it 'returns failure details' do
+          expect(subject.check_setup).to eq("Unable to locate \"Symantec Web Gateway\" in body. (Is this really Symantec Web Gateway?)")
         end
       end
     end

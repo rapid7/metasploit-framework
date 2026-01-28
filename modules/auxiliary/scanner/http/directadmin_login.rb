@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'DefaultOptions' => {
           'RPORT' => 2222,
-          'SSL' => true,
+          'SSL' => true
         },
         'Notes' => {
           'Reliability' => UNKNOWN_RELIABILITY,
@@ -69,17 +69,17 @@ class MetasploitModule < Msf::Auxiliary
     scanner(ip).scan! do |result|
       credential_data = result.to_h.merge({
         workspace_id: myworkspace_id,
-        module_fullname: self.fullname,
+        module_fullname: fullname
       })
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute(:level => :good, :ip => ip, :msg => "Success: '#{result.credential}'")
+        print_brute(level: :good, ip: ip, msg: "Success: '#{result.credential}'")
         create_credential_and_login(credential_data)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute(:level => :verror, :ip => ip, :msg => result.proof)
+        vprint_brute(level: :verror, ip: ip, msg: result.proof)
         invalidate_login(credential_data)
       when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute(:level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'")
+        vprint_brute(level: :verror, ip: ip, msg: "Failed: '#{result.credential}'")
         invalidate_login(credential_data)
       end
     end
@@ -87,8 +87,9 @@ class MetasploitModule < Msf::Auxiliary
 
   # Start here
   def run_host(ip)
-    unless scanner(ip).check_setup
-      print_brute(:level => :error, :ip => ip, :msg => 'Target is not DirectAdmin Web Control Panel')
+    msg = scanner(ip).check_setup
+    if msg
+      print_brute(level: :error, ip: ip, msg: "Target is not DirectAdmin Web Control Panel - #{msg}")
       return
     end
 

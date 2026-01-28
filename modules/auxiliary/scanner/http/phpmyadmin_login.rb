@@ -80,18 +80,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    phpmyadmin_res = scanner(ip).check_setup
-    unless phpmyadmin_res
-      print_brute(:level => :error, :ip => ip, :msg => "PhpMyAdmin is not available")
+    msg = scanner(ip).check_setup
+    if msg
+      print_brute(level: :error, ip: ip, msg: "PhpMyAdmin is not available - #{msg}")
       return
     end
-
-    print_status("PhpMyAdmin Version: #{phpmyadmin_res}")
 
     scanner(ip).scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute(:level => :good, :ip => ip, :msg => "Success: '#{result.credential}'")
+        print_brute(level: :good, ip: ip, msg: "Success: '#{result.credential}'")
         store_valid_credential(
           user: result.credential.public,
           private: result.credential.private,
@@ -106,10 +104,10 @@ class MetasploitModule < Msf::Auxiliary
           }
         )
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute(:level => :verror, :ip => ip, :msg => result.proof)
+        vprint_brute(level: :verror, ip: ip, msg: result.proof)
         report_bad_cred(ip, rport, result)
       when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute(:level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'")
+        vprint_brute(level: :verror, ip: ip, msg: "Failed: '#{result.credential}'")
         report_bad_cred(ip, rport, result)
       end
     end

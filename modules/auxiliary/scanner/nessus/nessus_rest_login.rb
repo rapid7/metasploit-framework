@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [ 'void_in' ],
         'License' => MSF_LICENSE,
         'DefaultOptions' => {
-          'SSL' => true,
+          'SSL' => true
         },
         'Notes' => {
           'Reliability' => UNKNOWN_RELIABILITY,
@@ -76,11 +76,11 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     credential_data = {
-      module_fullname: self.fullname,
+      module_fullname: fullname,
       origin_type: :service,
       private_data: result.credential.private,
       private_type: :password,
-      username: result.credential.public,
+      username: result.credential.public
     }.merge(service_data)
 
     login_data = {
@@ -98,10 +98,10 @@ class MetasploitModule < Msf::Auxiliary
     @scanner.scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
         do_report(ip, rport, result)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute :level => :verror, :ip => ip, :msg => result.proof
+        vprint_brute level: :verror, ip: ip, msg: result.proof
         invalidate_login(
           address: ip,
           port: rport,
@@ -114,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
           proof: result.proof
         )
       when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        vprint_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}'"
         invalidate_login(
           address: ip,
           port: rport,
@@ -133,8 +133,10 @@ class MetasploitModule < Msf::Auxiliary
   # Start here
   def run_host(ip)
     init(ip)
-    unless @scanner.check_setup
-      print_brute :level => :error, :ip => ip, :msg => 'Target is not a Tenable Nessus server'
+
+    msg = @scanner.check_setup
+    if msg
+      print_brute(level: :error, ip: ip, msg: "Target is not a Tenable Nessus server - #{msg}")
       return
     end
 

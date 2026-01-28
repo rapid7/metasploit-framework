@@ -13,17 +13,19 @@ module Metasploit
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
 
-        # Checks if the target is a Tenable Nessus server.
+        # Checks if the target is correct
         #
-        # @return [Boolean] TrueClass if target is Nessus server, otherwise FalseClass
+        # @return [false] Indicates there were no errors
+        # @return [String] a human-readable error message describing why
+        #   this scanner can't run
         def check_setup
           login_uri = "/server/properties"
           res = send_request({'uri'=> login_uri})
           if res && res.body.include?('Nessus')
-            return true
+            return false
           end
 
-          false
+          'Unable to locate "Nessus" in body. (Is this really Nessus?)'
         end
 
         # Actually doing the login. Called by #attempt_login

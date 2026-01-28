@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       if datastore['TRYDEFAULT']
-        print_status("Default credential admin:Admin123 added to the credential queue for testing.")
+        print_status('Default credential admin:Admin123 added to the credential queue for testing.')
         cred_collection.add_public('admin')
         cred_collection.add_private('Admin123')
       end
@@ -83,11 +83,11 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     credential_data = {
-      module_fullname: self.fullname,
+      module_fullname: fullname,
       origin_type: :service,
       private_data: result.credential.private,
       private_type: :password,
-      username: result.credential.public,
+      username: result.credential.public
     }.merge(service_data)
 
     login_data = {
@@ -118,21 +118,22 @@ class MetasploitModule < Msf::Auxiliary
     scanner(ip).scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute(:level => :good, :ip => ip, :msg => "Success: '#{result.credential}'")
+        print_brute(level: :good, ip: ip, msg: "Success: '#{result.credential}'")
         report_good_cred(ip, rport, result)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute(:level => :verror, :ip => ip, :msg => result.proof)
+        vprint_brute(level: :verror, ip: ip, msg: result.proof)
         report_bad_cred(ip, rport, result)
       when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute(:level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'")
+        vprint_brute(level: :verror, ip: ip, msg: "Failed: '#{result.credential}'")
         report_bad_cred(ip, rport, result)
       end
     end
   end
 
   def run_host(ip)
-    unless scanner(ip).check_setup
-      print_brute(:level => :error, :ip => ip, :msg => 'Target is not Cisco Firepower Management console.')
+    msg = scanner(ip).check_setup
+    if msg
+      print_brute(level: :error, ip: ip, msg: "Target is not Cisco Firepower Management console - #{msg}")
       return
     end
 

@@ -18,20 +18,19 @@ module Metasploit
           uri = normalize_uri("#{uri}/runtime/core/product-version")
           res = send_request({ 'uri' => uri })
           # make sure we get a response, and that the check was successful
-          unless res && res.code == 200
-            return { status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: res.to_s }
+          if res && res.code == 200
+            # convert the response to JSON
+            # we expect to see a response like {"version" : "1.22.0.8686"}
+            res_json = res.get_json_document
+            # if we successfully get the version
+            if res_json['version']
+              # report the version
+              print_brute(level: :good, ip: ip, msg: "Softing Secure Integration Server #{res_json['version']}")
+              return false
+            end
           end
 
-          # convert the response to JSON
-          # we expect to see a response like {"version" : "1.22.0.8686"}
-          res_json = res.get_json_document
-          # if we successfully get the version
-          if res_json['version']
-            # return true
-            return res_json['version']
-          end
-
-          false
+          'Unable to locate product version in body. (Is this really SoftingSIS?)'
         end
 
         # get the authentication token
@@ -39,7 +38,7 @@ module Metasploit
         # @param user [String] The username
         # @return [Hash]
         #   * status [Metasploit::Model::Login::Status]
-        #   * proof [String] the authentication token 
+        #   * proof [String] the authentication token
         def get_auth_token(user)
           auth_token_uri = normalize_uri("#{uri}/runtime/core/user/#{user}/authentication-token")
 
@@ -108,7 +107,7 @@ module Metasploit
 
           # extract the authentication token from the hash
           auth_token = auth_token_res[:proof]
-          
+
           login_uri = normalize_uri("#{uri}/runtime/core/user/#{user}/authentication")
           # calculate signature to use when logging in
           signature = generate_signature(auth_token, user, pass)

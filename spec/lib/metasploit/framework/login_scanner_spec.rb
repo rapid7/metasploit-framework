@@ -106,14 +106,26 @@ RSpec.describe Metasploit::Framework::LoginScanner do
           stop_on_success: true
         }
         aggregate_failures "#{scanner} is a valid scanner" do
+          expect { scanner.new(options) }.to_not raise_error, "for #{scanner}"
           expect(scanner.const_defined?(:PRIVATE_TYPES)).to be(true), "for #{scanner}"
           expect(scanner.const_defined?(:LIKELY_SERVICE_NAMES)).to be(true), "for #{scanner}"
           expect(scanner.const_defined?(:LIKELY_PORTS)).to be(true), "for #{scanner}"
           if scanner.ancestors.include?(Metasploit::Framework::LoginScanner::HTTP) && scanner != Metasploit::Framework::LoginScanner::WinRM
             expect(scanner::LIKELY_SERVICE_NAMES).to include('http', 'https'), "for #{scanner}"
             expect(scanner::LIKELY_PORTS).to include(80, 443, 8000, 8080), "for #{scanner}"
+
+            subject = scanner.new(options)
+            # Ensure no network calls are made
+            allow(subject).to receive(:send_request).and_return(nil)
+            allow_any_instance_of(Rex::Proto::Http::Client).to receive(:request_cgi).and_return(nil)
+            allow_any_instance_of(Rex::Proto::Http::Client).to receive(:_send_recv).and_return(nil)
+            check_setup_result, elapsed_time = Rex::Stopwatch.elapsed_time do
+              subject.check_setup
+            end
+
+            expect(check_setup_result).to be_a(String), "The check_setup API should return a string when it is not successful, and false when it is valid to run. Instead found: #{check_setup_result.inspect}"
+            expect(elapsed_time).to be < 1.second, "This test took longer than expected (#{elapsed_time} seconds), suggesting that additional network mocking is required"
           end
-          expect { scanner.new(options) }.to_not raise_error, "for #{scanner}"
         end
       end
     end

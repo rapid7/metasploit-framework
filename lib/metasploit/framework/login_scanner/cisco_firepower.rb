@@ -18,10 +18,10 @@ module Metasploit
           })
 
           if res && res.code == 200 && res.body.include?('/img/favicon.png?v=6.0.1-1213')
-            return true
+            return false
           end
 
-          false
+          'Unable to locate favicon in body. (Is this really CiscoFirepower?)'
         end
 
         def do_login(cred)

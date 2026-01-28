@@ -11,9 +11,11 @@ module Metasploit
         PRIVATE_TYPES      = [ :password ]
         LOGIN_STATUS       = Metasploit::Model::Login::Status # Shorter name
 
-        # Checks if the target is Caidao Backdoor. The login module should call this.
+        # Checks if the target is correct
         #
-        # @return [Boolean] TrueClass if target is Caidao, otherwise FalseClass
+        # @return [false] Indicates there were no errors
+        # @return [String] a human-readable error message describing why
+        #   this scanner can't run
         def check_setup
           @flag ||= Rex::Text.rand_text_alphanumeric(4)
           @lmark ||= Rex::Text.rand_text_alphanumeric(4)
@@ -22,7 +24,7 @@ module Metasploit
           case uri
           when /php$/mi
             @payload = "$_=\"#{@flag}\";echo \"#{@lmark}\".$_.\"#{@rmark}\";"
-            return true
+            return false
           when /asp$/mi
             @payload = 'execute("response.write(""'
             @payload << "#{@lmark}"
@@ -31,14 +33,14 @@ module Metasploit
             @payload << '""):response.write(""'
             @payload << "#{@rmark}"
             @payload << '""):response.end")'
-            return true
+            return false
           when /aspx$/mi
             @payload = "Response.Write(\"#{@lmark}\");"
             @payload << "Response.Write(\"#{@flag}\");"
             @payload << "Response.Write(\"#{@rmark}\")"
-            return true
+            return false
           end
-          false
+          "Unable to locate target extension in uri. (Is this really caidao?)"
         end
 
         def set_sane_defaults
