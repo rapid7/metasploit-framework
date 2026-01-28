@@ -58,7 +58,7 @@ def authentication_in_property(mod_ins)
     result.add('certificate') if result.delete?('schannel')
   end
 
-  # check if we can be authenticated by a session
+  # check if we can use a session for access
   session_auth = (session_in_property(mod_ins) || []) & PROTOCOL_SESSIONS
   unless session_auth.empty?
     result.merge(session_auth.map { "session/#{_1}" })
@@ -80,7 +80,9 @@ def session_in_property(mod_ins)
   if mod_ins.is_a?(Msf::PostMixin)
     if (platforms = platform_property(mod_ins)).nil?
       if mod_ins.session_types.include?('meterpreter')
-        platforms = %w[ windows linux osx ] # todo: this should be all platforms that meterpreter runs on, the module is probably generic like autoroute
+        # all the platforms meterpreter will run on after taking into consideration things like python, php and java
+        # which will fingerprint it once running and return the real platform for post-module matching
+        platforms = %w[ android apple_ios linux osx unix windows ]
       end
     end
 
@@ -98,6 +100,27 @@ def session_in_property(mod_ins)
   result.empty? ? nil : result.to_a
 end
 
+# todo: this is going to be horrifically slow, we're initializing every payload exploit permutation that is compatible
+def session_out_property(mod_ins)
+  result = Set.new
+
+  loop do
+    mod_ins.compatible_payloads.each do |ref_name, klass|
+      payload_mod_ins = klass.new
+      next unless payload_mod_ins.session
+      next unless payload_mod_ins.platform
+
+      result.merge(payload_mod_ins.platform.names.reject(&:empty?).map(&:downcase).product([payload_mod_ins.session.type]).map { _1.join('/') })
+    end
+
+    break if mod_ins.target == mod_ins.targets.last
+
+    mod_ins.datastore['TARGET'] = mod_ins.datastore['TARGET'].to_i + 1
+  end
+
+  result.empty? ? nil : result.to_a
+end
+
 NEO4J_PASSWORD = ENV['NEO4J_PASSWORD'] || 'neo4j'
 
 PROTOCOL_SESSIONS = %w[ ldap mssql mysql postgresql smb ]
@@ -106,38 +129,46 @@ TRANSFORMS_FILE = Rails.root.join('data/neo4j_transforms.yml')
 TRANSFORMS_CONFIG = File.exist?(TRANSFORMS_FILE) ? YAML.load_file(TRANSFORMS_FILE) : {}
 PLATFORM_MAPPING = load_platform_mappings(TRANSFORMS_CONFIG)
 
-def import_module(graph, mod_cls)
-  # Module missing data:
-  # exploit:
-  #   session types they can open
-  mod_ins = mod_cls.new
-
-  properties = {
-    type: mod_cls.type
-  }
-
-  case mod_cls.type
-  when ::Msf::MODULE_AUX
-    properties[:authentication_in] = authentication_in_property(mod_ins)
-  when ::Msf::MODULE_EXPLOIT
-    properties[:authentication_in] = authentication_in_property(mod_ins)
-    properties[:platform] = platform_property(mod_ins)
-    properties[:session_in] = session_in_property(mod_ins)
-    # todo: this should be updated to be more accurately reflect the types of sessions a module can open
-    properties[:session_out] = properties[:platform].product(%w[ shell meterpreter ]).map { _1.join('/') }
-  when ::Msf::MODULE_POST
-    properties[:platform] = platform_property(mod_ins)
-    properties[:session_in] = session_in_property(mod_ins)
+class ModuleImporter
+  attr_reader :framework
+  def initialize
+    create_opts = {}
+    create_opts[:module_types] = [
+      ::Msf::MODULE_AUX, ::Msf::MODULE_EXPLOIT, ::Msf::MODULE_PAYLOAD, ::Msf::MODULE_POST
+    ]
+    @framework = ::Msf::Simple::Framework.create(create_opts)
   end
 
-  graph.create_module(
-    mod_cls.fullname,
-    **properties
-  )
-rescue Exception => e
-  $stderr.puts "Failed to import #{mod_cls.fullname}"
-  $stderr.puts "#{e.class}: #{e.message}".indent(2)
-  $stderr.puts e.backtrace.join("\n").indent(2)
+  def import_module(graph, mod_cls)
+    # Module missing data:
+    # exploit:
+    #   session types they can open
+    mod_ins = mod_cls.new
+
+    properties = {
+      type: mod_cls.type
+    }
+
+    case mod_cls.type
+    when ::Msf::MODULE_AUX
+      properties[:authentication_in] = authentication_in_property(mod_ins)
+    when ::Msf::MODULE_EXPLOIT
+      properties[:authentication_in] = authentication_in_property(mod_ins)
+      properties[:platform] = platform_property(mod_ins)
+      properties[:session_in] = session_in_property(mod_ins)
+      # todo: this should be updated to be more accurately reflect the types of sessions a module can open
+      #properties[:session_out] = properties[:platform].product(%w[ shell meterpreter ]).map { _1.join('/') }
+      properties[:session_out] = session_out_property(mod_ins)
+    when ::Msf::MODULE_POST
+      properties[:platform] = platform_property(mod_ins)
+      properties[:session_in] = session_in_property(mod_ins)
+    end
+
+    graph.create_module(
+      mod_cls.fullname,
+      **properties
+    )
+  end
 end
 
 namespace :module_graph do
@@ -157,21 +188,23 @@ namespace :module_graph do
 
     begin
       puts "Phase 1: Importing modules..."
-      create_opts = {}
-      create_opts[:module_types] = [
-        ::Msf::MODULE_AUX, ::Msf::MODULE_EXPLOIT, ::Msf::MODULE_POST
-      ]
-
-      framework = ::Msf::Simple::Framework.create(create_opts)
+      importer = ModuleImporter.new
 
       modules_imported = 0
-      framework.modules.each do |name, mod|
-        if mod.nil?
+      importer.framework.modules.each do |name, mod_cls|
+        if mod_cls.nil?
           puts "  No module object for: #{name}"
           next
         end
-        import_module(graph, mod)
-        modules_imported += 1
+        begin
+          importer.import_module(graph, mod_cls)
+        rescue Exception => e
+          $stderr.puts "Failed to import #{mod_cls.fullname}"
+          $stderr.puts "#{e.class}: #{e.message}".indent(2)
+          $stderr.puts e.backtrace.join("\n").indent(2)
+        else
+          modules_imported += 1
+        end
       end
       puts "Phase 1: Completed importing #{modules_imported} modules.\n"
 
