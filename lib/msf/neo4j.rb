@@ -17,23 +17,15 @@ module Msf
     # Requirement types for the intermediate node model
     # These map requirement values to their typed node labels
     REQUIREMENT_TYPES = {
-      # Session types - represent shell/protocol sessions (platform-qualified)
+      # Access types - represent how a module obtains access to a target
+      # This includes both authentication (credentials) and sessions (established connections)
       # Session IDs are formatted as: session/{platform}/{session_type}
       # e.g., session/windows/meterpreter, session/linux/shell
-      session: {
-        label: 'Session',
-        base_values: %w[shell meterpreter powershell cmd]
+      access: {
+        label: 'Access',
+        base_values: %w[shell meterpreter powershell cmd],
+        values: %w[authentication/plaintext authentication/hash/net-ntlm authentication/hash/ntlm authentication/kerberos authentication/kerberos/keys authentication/certificate session/ldap session/mssql session/mysql session/postgresql session/smb]
       },
-      # Authentication types - credentials and auth mechanisms
-      authentication: {
-        label: 'Authentication',
-        values: %w[plaintext hash/net-ntlm hash/ntlm kerberos kerberos/keys certificate session/ldap session/mssql session/mysql session/postgresql session/smb]
-      },
-      # Information types - gathered data that enables further attacks
-      # information: {
-      #   label: 'Information',
-      #   values: %w[domain_sid computer_account machine_key]
-      # },
       # Trigger types - events/conditions that enable subsequent modules
       # Used for coercion mechanisms (active like PetitPotam, passive like NBNS)
       # that provide inbound authentication to capture/relay modules
@@ -358,54 +350,51 @@ module Msf
     def create_requirement_nodes(batch_size: DEFAULT_BATCH_SIZE)
       puts "Creating requirement nodes..."
 
-      # Collect authentication requirement values (not platform-qualified)
-      authentication_values = Set.new
-
-      # Collect platform-qualified session requirement values
-      session_values = Set.new
+      # Collect all access requirement values (authentication + session)
+      access_values = Set.new
 
       # Collect trigger requirement values
       trigger_values = Set.new
 
       session do |session|
-        # Get all authentication_out values
+        # Get authentication_out values (prefix non-session values with 'authentication/')
         result = session.run(<<~CYPHER)
           MATCH (m:Module)
           WHERE m.authentication_out IS NOT NULL
           UNWIND m.authentication_out AS auth
-          RETURN DISTINCT auth AS value
+          RETURN DISTINCT CASE WHEN auth STARTS WITH 'session/' THEN auth ELSE 'authentication/' + auth END AS value
         CYPHER
-        result.each { |record| authentication_values.add(record['value']) }
+        result.each { |record| access_values.add(record['value']) }
 
-        # Get all authentication_in values
+        # Get authentication_in values (prefix non-session values with 'authentication/')
         result = session.run(<<~CYPHER)
           MATCH (m:Module)
           WHERE m.authentication_in IS NOT NULL
           UNWIND m.authentication_in AS auth
-          RETURN DISTINCT auth AS value
+          RETURN DISTINCT CASE WHEN auth STARTS WITH 'session/' THEN auth ELSE 'authentication/' + auth END AS value
         CYPHER
-        result.each { |record| authentication_values.add(record['value']) }
+        result.each { |record| access_values.add(record['value']) }
 
-        # Get session_out values (already platform-qualified as {platform}/{session_type})
+        # Get session_out values (platform-qualified as {platform}/{session_type})
         # Prepend 'session/' to create final ID: session/{platform}/{session_type}
         result = session.run(<<~CYPHER)
           MATCH (m:Module)
           WHERE m.session_out IS NOT NULL
           UNWIND m.session_out AS sess_value
-          RETURN DISTINCT sess_value AS value
+          RETURN DISTINCT 'session/' + sess_value AS value
         CYPHER
-        result.each { |record| session_values.add(record['value']) }
+        result.each { |record| access_values.add(record['value']) }
 
-        # Get session_in values (already platform-qualified as {platform}/{session_type})
+        # Get session_in values (platform-qualified as {platform}/{session_type})
         result = session.run(<<~CYPHER)
           MATCH (m:Module)
           WHERE m.session_in IS NOT NULL
           UNWIND m.session_in AS sess_value
-          RETURN DISTINCT sess_value AS value
+          RETURN DISTINCT 'session/' + sess_value AS value
         CYPHER
-        result.each { |record| session_values.add(record['value']) }
+        result.each { |record| access_values.add(record['value']) }
 
-        # Get all trigger_out values
+        # Get trigger_out values
         result = session.run(<<~CYPHER)
           MATCH (m:Module)
           WHERE m.trigger_out IS NOT NULL
@@ -414,7 +403,7 @@ module Msf
         CYPHER
         result.each { |record| trigger_values.add(record['value']) }
 
-        # Get all trigger_in values
+        # Get trigger_in values
         result = session.run(<<~CYPHER)
           MATCH (m:Module)
           WHERE m.trigger_in IS NOT NULL
@@ -424,30 +413,15 @@ module Msf
         result.each { |record| trigger_values.add(record['value']) }
       end
 
-      puts "  Found #{authentication_values.size} authentication requirement values"
-      puts "  Found #{session_values.size} platform-qualified session requirement values"
+      puts "  Found #{access_values.size} access requirement values"
       puts "  Found #{trigger_values.size} trigger requirement values"
 
-      # Create authentication requirement nodes in batches
-      authentication_values.each_slice(batch_size) do |batch|
+      # Create access requirement nodes in batches
+      access_values.each_slice(batch_size) do |batch|
         session do |session|
           batch.each do |value|
             session.run(
-              "MERGE (r:Requirement:Authentication {id: #{escape_cypher_string(value)}})"
-            )
-          end
-        end
-      end
-
-      # Create session requirement nodes in batches
-      session_values.each_slice(batch_size) do |batch|
-        session do |session|
-          batch.each do |value|
-            session.run(
-              "MERGE (r:Requirement:Authentication {id: #{escape_cypher_string("session/#{value}")}})"
-            )
-            session.run(
-              "MERGE (r:Requirement:Session {id: #{escape_cypher_string(value)}})"
+              "MERGE (r:Requirement:Access {id: #{escape_cypher_string(value)}})"
             )
           end
         end
@@ -472,7 +446,7 @@ module Msf
     def create_produces_relationships(batch_size: DEFAULT_BATCH_SIZE)
       puts "Creating PRODUCES relationships..."
 
-      # Session PRODUCES relationships (session_out values are already {platform}/{session_type})
+      # Access PRODUCES relationships from session_out (values are {platform}/{session_type})
       session do |session|
         session.run(<<~CYPHER)
           CALL {
@@ -481,25 +455,25 @@ module Msf
             UNWIND m.session_out AS sess_value
             WITH m, 'session/' + sess_value AS qualified_id
             MATCH (r:Requirement {id: qualified_id})
-            MERGE (m)-[:PRODUCES {type: 'session'}]->(r)
+            MERGE (m)-[:PRODUCES {type: 'access'}]->(r)
           } IN TRANSACTIONS OF #{batch_size} ROWS
         CYPHER
       end
-      puts "  Created session PRODUCES relationships"
 
-      # Authentication PRODUCES relationships (authentication_out -> Authentication nodes)
+      # Access PRODUCES relationships from authentication_out (prefix non-session values)
       session do |session|
         session.run(<<~CYPHER)
           CALL {
             MATCH (m:Module)
             WHERE m.authentication_out IS NOT NULL
             UNWIND m.authentication_out AS auth_type
-            MATCH (r:Requirement {id: auth_type})
-            MERGE (m)-[:PRODUCES {type: 'authentication'}]->(r)
+            WITH m, CASE WHEN auth_type STARTS WITH 'session/' THEN auth_type ELSE 'authentication/' + auth_type END AS qualified_id
+            MATCH (r:Requirement {id: qualified_id})
+            MERGE (m)-[:PRODUCES {type: 'access'}]->(r)
           } IN TRANSACTIONS OF #{batch_size} ROWS
         CYPHER
       end
-      puts "  Created authentication PRODUCES relationships"
+      puts "  Created access PRODUCES relationships"
 
       # Trigger PRODUCES relationships (trigger_out -> Trigger nodes)
       session do |session|
@@ -521,7 +495,7 @@ module Msf
     def create_requires_relationships(batch_size: DEFAULT_BATCH_SIZE)
       puts "Creating REQUIRES relationships..."
 
-      # Session REQUIRES relationships (session_in values are already {platform}/{session_type})
+      # Access REQUIRES relationships from session_in (values are {platform}/{session_type})
       session do |session|
         session.run(<<~CYPHER)
           CALL {
@@ -530,25 +504,25 @@ module Msf
             UNWIND m.session_in AS sess_value
             WITH m, 'session/' + sess_value AS qualified_id
             MATCH (r:Requirement {id: qualified_id})
-            MERGE (m)-[:REQUIRES {type: 'session'}]->(r)
+            MERGE (m)-[:REQUIRES {type: 'access'}]->(r)
           } IN TRANSACTIONS OF #{batch_size} ROWS
         CYPHER
       end
-      puts "  Created session REQUIRES relationships"
 
-      # Authentication REQUIRES relationships (authentication_in -> Authentication nodes)
+      # Access REQUIRES relationships from authentication_in (prefix non-session values)
       session do |session|
         session.run(<<~CYPHER)
           CALL {
             MATCH (m:Module)
             WHERE m.authentication_in IS NOT NULL
             UNWIND m.authentication_in AS auth_type
-            MATCH (r:Requirement {id: auth_type})
-            MERGE (m)-[:REQUIRES {type: 'authentication'}]->(r)
+            WITH m, CASE WHEN auth_type STARTS WITH 'session/' THEN auth_type ELSE 'authentication/' + auth_type END AS qualified_id
+            MATCH (r:Requirement {id: qualified_id})
+            MERGE (m)-[:REQUIRES {type: 'access'}]->(r)
           } IN TRANSACTIONS OF #{batch_size} ROWS
         CYPHER
       end
-      puts "  Created authentication REQUIRES relationships"
+      puts "  Created access REQUIRES relationships"
 
       # Trigger REQUIRES relationships (trigger_in -> Trigger nodes)
       session do |session|
@@ -599,7 +573,7 @@ module Msf
         end
 
         # Indexes on typed requirement labels
-        %w[Session Authentication Information Trigger].each do |label|
+        %w[Access Trigger].each do |label|
           begin
             session.run("CREATE INDEX #{label.downcase}_id IF NOT EXISTS FOR (n:#{label}) ON (n.id)")
           rescue StandardError => e
@@ -699,45 +673,57 @@ module Msf
     end
 
     # Find attack chains that satisfy ALL requirements of a target
-    # max_depth: maximum chain length
+    # max_depth: maximum number of modules in the chain
     # Returns paths where each step provides requirements needed by the next
-    def find_attack_chains(target_module_id, max_depth: 5)
+    #
+    # Path pattern: Module -PRODUCES-> Req <-REQUIRES- Module -PRODUCES-> Req ...
+    # Since both PRODUCES and REQUIRES point Module->Requirement, we use undirected
+    # variable-length paths and validate edge directions explicitly.
+    def find_attack_chains(target_module_id, max_depth: 5, limit: 50)
       chains = []
-      session do |session|
-        result = session.run(<<~CYPHER, target_id: target_module_id, max_depth: max_depth)
-          MATCH (target:Module {id: $target_id})
+      (2..max_depth).each do |depth|
+        # Build: (start)-[:PRODUCES]->(r1)<-[:REQUIRES]-(m2)-[:PRODUCES]->...<-[:REQUIRES]-(target)
+        # The chain ends with a REQUIRES edge into the target module
+        chain_pattern = '(start:Module)-[:PRODUCES]->'
+        module_names = ['start']
+        req_names = []
+        (1...depth).each do |i|
+          req_name = "r#{i}"
+          req_names << req_name
+          if i < depth - 1
+            mod_name = "m#{i + 1}"
+            module_names << mod_name
+            chain_pattern += "(#{req_name}:Requirement)<-[:REQUIRES]-(#{mod_name}:Module)-[:PRODUCES]->"
+          else
+            chain_pattern += "(#{req_name}:Requirement)<-[:REQUIRES]-(target)"
+          end
+        end
+        module_names << 'target'
 
-          // Get all required requirements for the target
-          OPTIONAL MATCH (target)-[:REQUIRES]->(req:Requirement)
-          WITH target, collect(DISTINCT req) AS target_requirements
+        modules_return = '[' + module_names.map { |m| "#{m}.id" }.join(', ') + ']'
+        reqs_return = '[' + req_names.map { |r| "#{r}.id" }.join(', ') + ']'
 
-          // Find chains of modules connected through requirements
-          MATCH path = (start:Module)-[:PRODUCES|REQUIRES*1..#{max_depth * 2}]->(target)
-          WHERE start <> target
-            AND all(rel IN relationships(path) WHERE type(rel) IN ['PRODUCES', 'REQUIRES'])
+        session do |session|
+          result = session.run(<<~CYPHER, target_id: target_module_id)
+            MATCH (target:Module {id: $target_id})
+            MATCH #{chain_pattern}
+            WHERE start <> target
+            RETURN #{modules_return} AS module_chain,
+                   #{reqs_return} AS requirements_used,
+                   #{depth} AS chain_length
+            LIMIT #{limit}
+          CYPHER
 
-          // Validate the path alternates correctly: Module->PRODUCES->Req, Req<-REQUIRES-Module
-          WITH target, target_requirements, path,
-               [n IN nodes(path) WHERE n:Module] AS modules_in_path,
-               [n IN nodes(path) WHERE n:Requirement] AS reqs_in_path
-
-          // Return paths that could potentially satisfy requirements
-          RETURN [m IN modules_in_path | m.id] AS module_chain,
-                 [r IN reqs_in_path | r.id] AS requirements_used,
-                 length(path) AS path_length
-          ORDER BY path_length ASC
-          LIMIT 100
-        CYPHER
-
-        result.each do |record|
-          chains << {
-            modules: record['module_chain'],
-            requirements: record['requirements_used'],
-            length: record['path_length']
-          }
+          result.each do |record|
+            chains << {
+              modules: record['module_chain'],
+              requirements: record['requirements_used'],
+              length: record['chain_length']
+            }
+          end
         end
       end
-      chains
+      chains.sort_by { |c| c[:length] }
     end
 
     # Find modules that produce a specific requirement
@@ -775,6 +761,277 @@ module Msf
             module_id: record['module_id'],
             type: record['module_type']
           }
+        end
+      end
+      results
+    end
+
+    # =========================================================================
+    # ATTACK CHAIN QUERIES
+    # =========================================================================
+
+    # Find chains from modules requiring no access to those producing a target access type.
+    # Useful for answering: "How can I get a meterpreter session starting from nothing?"
+    #
+    # target_access: an Access requirement ID pattern (e.g., 'session/windows/meterpreter',
+    #   'authentication/plaintext'). Supports substring matching.
+    # max_depth: maximum number of modules in the chain
+    # limit: maximum number of chains to return per depth level
+    def find_unauthenticated_chains_to(target_access, max_depth: 4, limit: 50)
+      results = []
+      # Query each depth level separately with explicit directed patterns.
+      # This is much faster than undirected variable-length paths because Neo4j
+      # can follow edges in known directions without combinatorial explosion.
+      (1..max_depth).each do |depth|
+        # Build the chain pattern: entry-[:PRODUCES]->(r1)<-[:REQUIRES]-(m2)-[:PRODUCES]->(r2)...->goal
+        # Depth 1: (entry)-[:PRODUCES]->(goal)
+        # Depth 2: (entry)-[:PRODUCES]->(r1)<-[:REQUIRES]-(m2)-[:PRODUCES]->(goal)
+        # Depth 3: (entry)-[:PRODUCES]->(r1)<-[:REQUIRES]-(m2)-[:PRODUCES]->(r2)<-[:REQUIRES]-(m3)-[:PRODUCES]->(goal)
+        chain_pattern = '(entry)-[:PRODUCES]->'
+        module_names = ['entry']
+        req_names = []
+        (1...depth).each do |i|
+          req_name = "r#{i}"
+          mod_name = "m#{i + 1}"
+          req_names << req_name
+          module_names << mod_name
+          chain_pattern += "(#{req_name}:Requirement)<-[:REQUIRES]-(#{mod_name}:Module)-[:PRODUCES]->"
+        end
+        chain_pattern += '(goal)'
+
+        modules_return = '[' + module_names.map { |m| "#{m}.id" }.join(', ') + ']'
+        reqs_return = if req_names.empty?
+                        '[goal.id]'
+                      else
+                        '[' + req_names.map { |r| "#{r}.id" }.join(', ') + ', goal.id]'
+                      end
+
+        session do |session|
+          result = session.run(<<~CYPHER, target: target_access)
+            MATCH (entry:Module)
+            WHERE NOT (entry)-[:REQUIRES]->(:Access)
+            MATCH (goal:Access)
+            WHERE goal.id CONTAINS $target
+            MATCH #{chain_pattern}
+            RETURN #{modules_return} AS chain,
+                   #{reqs_return} AS access_pivots,
+                   goal.id AS target,
+                   #{depth} AS chain_length
+            LIMIT #{limit}
+          CYPHER
+
+          result.each do |record|
+            results << {
+              chain: record['chain'],
+              access_pivots: record['access_pivots'],
+              target: record['target'],
+              chain_length: record['chain_length']
+            }
+          end
+        end
+      end
+      results.sort_by { |r| r[:chain_length] }
+    end
+
+    # Find credential escalation paths between two access types.
+    # Useful for answering: "If I have an NTLM hash, how do I get a kerberos ticket?"
+    #
+    # from_access: starting Access requirement ID (e.g., 'authentication/hash/ntlm')
+    # to_access: goal Access requirement ID (e.g., 'authentication/kerberos')
+    # max_depth: maximum number of modules in the chain
+    def find_access_escalation(from_access, to_access, max_depth: 4, limit: 50)
+      results = []
+      (1..max_depth).each do |depth|
+        # Build: (first)-[:PRODUCES]->...<-[:REQUIRES]-(last)-[:PRODUCES]->(end_req)
+        # where first REQUIRES start_req
+        chain_pattern = '(first)-[:PRODUCES]->'
+        module_names = ['first']
+        req_names = []
+        (1...depth).each do |i|
+          req_name = "r#{i}"
+          mod_name = "m#{i + 1}"
+          req_names << req_name
+          module_names << mod_name
+          chain_pattern += "(#{req_name}:Requirement)<-[:REQUIRES]-(#{mod_name}:Module)-[:PRODUCES]->"
+        end
+        chain_pattern += '(end_req)'
+
+        last_mod = module_names.last
+        modules_return = '[' + module_names.map { |m| "#{m}.id" }.join(', ') + ']'
+        reqs_return = if req_names.empty?
+                        '[end_req.id]'
+                      else
+                        '[' + req_names.map { |r| "#{r}.id" }.join(', ') + ', end_req.id]'
+                      end
+
+        session do |session|
+          result = session.run(<<~CYPHER, from: from_access, to: to_access)
+            MATCH (start_req:Access {id: $from})
+            MATCH (end_req:Access {id: $to})
+            MATCH (first:Module)-[:REQUIRES]->(start_req)
+            MATCH #{chain_pattern}
+            RETURN #{modules_return} AS chain,
+                   #{reqs_return} AS access_pivots,
+                   $from AS from_access,
+                   $to AS to_access,
+                   #{depth} AS chain_length
+            LIMIT #{limit}
+          CYPHER
+
+          result.each do |record|
+            results << {
+              chain: record['chain'],
+              access_pivots: record['access_pivots'],
+              from_access: record['from_access'],
+              to_access: record['to_access'],
+              chain_length: record['chain_length']
+            }
+          end
+        end
+      end
+      results.sort_by { |r| r[:chain_length] }
+    end
+
+    # Find coercion-to-credential chains: trigger → capture/relay → access.
+    # Useful for answering: "What credentials can I get from SMB coercion?"
+    #
+    # coercion_type: a Trigger requirement ID (e.g., 'coercion/smb', 'coercion')
+    def find_coercion_chains(coercion_type = 'coercion/smb')
+      results = []
+      session do |session|
+        result = session.run(<<~CYPHER, coercion: coercion_type)
+          // Find the coercion trigger
+          MATCH (trigger:Trigger {id: $coercion})
+
+          // Find modules that require this trigger (capture/relay servers)
+          MATCH (relay:Module)-[:REQUIRES]->(trigger)
+
+          // Find what access those modules produce
+          MATCH (relay)-[:PRODUCES]->(access:Access)
+
+          RETURN relay.id AS module_id,
+                 relay.type AS module_type,
+                 collect(DISTINCT access.id) AS produces_access
+          ORDER BY module_id
+        CYPHER
+
+        result.each do |record|
+          results << {
+            module_id: record['module_id'],
+            module_type: record['module_type'],
+            produces_access: record['produces_access']
+          }
+        end
+      end
+      results
+    end
+
+    # Find full attack narratives: coercion → relay/capture → credential → exploit → session → post.
+    # Returns the longest interesting chains in the graph.
+    #
+    # max_depth: maximum number of modules in the chain
+    # platform: optional platform filter (e.g., 'windows') applied to session requirement IDs
+    def find_full_attack_paths(max_depth: 6, platform: nil, limit: 25)
+      results = []
+
+      (3..max_depth).each do |depth|
+        # Build the chain pattern for this depth
+        chain_pattern = '(entry)-[:PRODUCES]->'
+        module_names = ['entry']
+        req_names = []
+        (1...depth).each do |i|
+          req_name = "r#{i}"
+          mod_name = "m#{i + 1}"
+          req_names << req_name
+          module_names << mod_name
+          chain_pattern += "(#{req_name}:Requirement)<-[:REQUIRES]-(#{mod_name}:Module)-[:PRODUCES]->"
+        end
+        # Final requirement produced by the last module
+        final_req = "r#{depth}"
+        req_names << final_req
+        chain_pattern += "(#{final_req}:Requirement)"
+
+        modules_return = '[' + module_names.map { |m| "#{m}.id" }.join(', ') + ']'
+        types_return = '[' + module_names.map { |m| "#{m}.type" }.join(', ') + ']'
+        reqs_return = '[' + req_names.map { |r| "#{r}.id" }.join(', ') + ']'
+
+        platform_clause = platform ? "WHERE any(req_id IN #{reqs_return} WHERE req_id CONTAINS '#{platform}')" : ""
+
+        session do |session|
+          result = session.run(<<~CYPHER)
+            MATCH (entry:Module)
+            WHERE (entry)-[:PRODUCES]->(:Trigger)
+               OR (entry.type = 'exploit' AND NOT (entry)-[:REQUIRES]->(:Access))
+            MATCH #{chain_pattern}
+            #{platform_clause}
+            RETURN #{modules_return} AS chain,
+                   #{types_return} AS module_types,
+                   #{reqs_return} AS requirements_used,
+                   #{depth} AS chain_length
+            LIMIT #{limit}
+          CYPHER
+
+          result.each do |record|
+            results << {
+              chain: record['chain'],
+              module_types: record['module_types'],
+              requirements_used: record['requirements_used'],
+              chain_length: record['chain_length']
+            }
+          end
+        end
+      end
+      results.sort_by { |r| -r[:chain_length] }
+    end
+
+    # Find all modules reachable from a given access type, traversing through
+    # the requirement graph. Answers: "What can I do if I have X?"
+    #
+    # access_id: an Access requirement ID (e.g., 'authentication/hash/ntlm',
+    #   'session/windows/meterpreter')
+    # max_depth: how many hops to traverse
+    def find_reachable_from(access_id, max_depth: 3, limit: 50)
+      results = []
+      seen = Set.new
+      (1..max_depth).each do |depth|
+        # Build: (start)<-[:REQUIRES]-(m1)-[:PRODUCES]->(r1)<-[:REQUIRES]-(m2)...
+        # Depth 1: just (start)<-[:REQUIRES]-(m1)
+        # Depth 2: (start)<-[:REQUIRES]-(m1)-[:PRODUCES]->(r1)<-[:REQUIRES]-(m2)
+        chain_pattern = '(start)<-[:REQUIRES]-(m1:Module)'
+        module_names = ['m1']
+        (2..depth).each do |i|
+          mod_name = "m#{i}"
+          module_names << mod_name
+          chain_pattern += "-[:PRODUCES]->(:Requirement)<-[:REQUIRES]-(#{mod_name}:Module)"
+        end
+
+        reached_var = module_names.last
+
+        session do |session|
+          result = session.run(<<~CYPHER, access: access_id)
+            MATCH (start:Access {id: $access})
+            MATCH #{chain_pattern}
+            WITH DISTINCT #{reached_var} AS reached
+            OPTIONAL MATCH (reached)-[:PRODUCES]->(product:Requirement)
+            RETURN reached.id AS module_id,
+                   reached.type AS module_type,
+                   #{depth} AS distance,
+                   collect(DISTINCT product.id) AS produces
+            ORDER BY module_id
+            LIMIT #{limit}
+          CYPHER
+
+          result.each do |record|
+            next if seen.include?(record['module_id'])
+
+            seen.add(record['module_id'])
+            results << {
+              module_id: record['module_id'],
+              module_type: record['module_type'],
+              distance: record['distance'],
+              produces: record['produces']
+            }
+          end
         end
       end
       results
