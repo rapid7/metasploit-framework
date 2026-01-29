@@ -527,6 +527,45 @@ class Payload < Msf::Module
     nil
   end
 
+  def self.choose_encoder(mod)
+    payload_name = mod.datastore['PAYLOAD']
+    payload = mod.framework.payloads.create(payload_name)
+    return nil unless payload
+    compatible_encoders = payload.compatible_encoders.map(&:first)
+    configure_encoder = lambda do |encoder|
+      if payload.datastore.is_a?(Msf::DataStore)
+        payload_defaults = { 'ENCODER' => encoder }
+        payload.datastore.import_defaults_from_hash(payload_defaults, imported_by: 'choose_encoder')
+      else
+        payload.datastore['ENCODER'] = encoder
+      end
+
+      encoder
+    end
+
+    # If there is only one compatible encoder, return it immediately
+    if compatible_encoders.length == 1
+      return configure_encoder.call(compatible_encoders.first)
+    end
+
+    # Prefer encoders that are known to be reliable
+    preferred_encoders = [
+      'x86/shikata_ga_nai',
+      'x64/zutto_dekiru',
+      'cmd/base64',
+    ]
+
+    preferred_encoders.each do |type|
+      encoder = compatible_encoders.find { |name| name.end_with?(type) }
+
+      next unless encoder
+
+      return configure_encoder.call(encoder)
+    end
+
+    nil
+  end
+
   #
   # A placeholder stub, to be overridden by mixins
   #
