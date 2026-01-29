@@ -908,6 +908,14 @@ module Msf
               print_status("No payload configured, defaulting to #{chosen_payload}") if chosen_payload
             end
 
+            # Choose a default encoder when the module is used, not run
+            if mod.datastore['ENCODER']
+              print_status("Using configured encoder #{mod.datastore['ENCODER']}")
+            elsif dispatcher.respond_to?(:choose_encoder)
+              chosen_encoder = dispatcher.choose_encoder(mod) 
+              print_status("No encoder configured, defaulting to #{chosen_encoder}") if chosen_encoder
+            end
+
             if framework.features.enabled?(Msf::FeatureManager::DISPLAY_MODULE_ACTION) && mod.respond_to?(:actions) && mod.actions.size > 1
               print_status "Setting default action %grn#{mod.action.name}%clr - view all #{mod.actions.size} actions with the %grnshow actions%clr command"
             end
