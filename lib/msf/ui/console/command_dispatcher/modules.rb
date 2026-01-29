@@ -908,6 +908,14 @@ module Msf
               print_status("No payload configured, defaulting to #{chosen_payload}") if chosen_payload
             end
 
+            # Choose a default encoder when the module is used, not run
+            if mod.datastore['ENCODER']
+              print_status("Using configured encoder #{mod.datastore['ENCODER']}")
+            elsif dispatcher.respond_to?(:choose_encoder)
+              chosen_encoder = dispatcher.choose_encoder(mod) 
+              print_status("No encoder configured, defaulting to #{chosen_encoder}") if chosen_encoder
+            end
+
             if framework.features.enabled?(Msf::FeatureManager::DISPLAY_MODULE_ACTION) && mod.respond_to?(:actions) && mod.actions.size > 1
               print_status "Setting default action %grn#{mod.action.name}%clr - view all #{mod.actions.size} actions with the %grnshow actions%clr command"
             end
@@ -1672,6 +1680,24 @@ module Msf
                 print("\nPayload advanced options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
               end
             end
+
+            if ((mod.exploit? or mod.evasion? or mod.payload?) and mod.datastore['ENCODER'])
+              e = framework.encoders.create(mod.datastore['ENCODER'])
+
+              if (!e)
+                print_error("Invalid encoder defined: #{mod.datastore['ENCODER']}\n")
+                return
+              end
+
+              e.share_datastore(mod.datastore)
+
+              if (e)
+                e_opt = Serializer::ReadableText.dump_advanced_options(e, '   ')
+                print("\nEncoder advanced options (#{mod.datastore['ENCODER']}):\n\n#{e_opt}\n") if (e_opt and e_opt.length > 0)
+              end
+            end
+
+
             print("\nView the full module info with the #{Msf::Ui::Tip.highlight('info')}, or #{Msf::Ui::Tip.highlight('info -d')} command.\n\n")
           end
 

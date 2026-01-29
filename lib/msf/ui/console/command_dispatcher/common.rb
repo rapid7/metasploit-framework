@@ -121,6 +121,22 @@ module Common
       end
     end
 
+    if ((mod.exploit? or mod.evasion? or mod.payload?) and mod.datastore['ENCODER'])
+      e = framework.encoders.create(mod.datastore['ENCODER'])
+
+      if (!e)
+        print_error("Invalid encoder defined: #{mod.datastore['ENCODER']}\n")
+        return
+      end
+
+      e.share_datastore(mod.datastore)
+
+      if (e)
+        e_opt = Serializer::ReadableText.dump_options(e, '   ')
+        print("\nEncoder options (#{mod.datastore['ENCODER']}):\n\n#{e_opt}\n") if (e_opt and e_opt.length > 0)
+      end
+    end
+
     # Print the selected target
     if (mod.exploit? and mod.target)
       mod_targ = Serializer::ReadableText.dump_exploit_target(mod, '   ')
