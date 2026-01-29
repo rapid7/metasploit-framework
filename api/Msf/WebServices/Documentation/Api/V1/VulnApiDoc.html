@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::WebServices::Documentation::Api::V1::VulnApiDoc
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::WebServices::Documentation::Api::V1::VulnApiDoc";
+  relpath = '../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../_index.html">Index (V)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../WebServices.html" title="Msf::WebServices (module)">WebServices</a></span></span> &raquo; <span class='title'>Documentation</span> &raquo; <span class='title'>Api</span> &raquo; <span class='title'>V1</span>
+     &raquo; 
+    <span class="title">VulnApiDoc</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::WebServices::Documentation::Api::V1::VulnApiDoc
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd>Swagger::Blocks</dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/web_services/documentation/api/v1/vuln_api_doc.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="HOST_ID_DESC-constant" class="">HOST_ID_DESC =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The ID of host record associated with this vuln.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="HOST_DESC-constant" class="">HOST_DESC =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The host where this vuln was discovered.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="NAME_DESC-constant" class="">NAME_DESC =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The friendly name/title for this vulnerability.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="NAME_EXAMPLE-constant" class="">NAME_EXAMPLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Docker Daemon Privilege Escalation</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="INFO_DESC-constant" class="">INFO_DESC =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Information about how this vuln was discovered.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="INFO_EXAMPLE-constant" class="">INFO_EXAMPLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Exploited by exploit/linux/local/docker_daemon_privilege_escalation to create session.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="EXPLOITED_AT_DESC-constant" class="">EXPLOITED_AT_DESC =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The date and time this vuln was successfully exploited.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="VULN_DETAIL_COUNT-constant" class="">VULN_DETAIL_COUNT =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Cached count of the number of associated vuln detail objects.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="VULN_ATTEMPT_COUNT-constant" class="">VULN_ATTEMPT_COUNT =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Cached count of the number of associated vuln attempt object.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="ORIGIN_ID_DESC-constant" class="">ORIGIN_ID_DESC =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ID of the associated origin record.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="ORIGIN_TYPE_DESC-constant" class="">ORIGIN_TYPE_DESC =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The origin type of this vuln.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="REFS_DESC-constant" class="">REFS_DESC =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>An array of public reference IDs for this vuln.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="REF_ID_DESC-constant" class="">REF_ID_DESC =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The ID of the related Mdm::Ref associated with this vuln.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="REF_NAME_DESC-constant" class="">REF_NAME_DESC =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Designation for external reference.  May include a prefix for the authority, such as \&#39;CVE-\&#39;, in which case the rest of the name is the designation assigned by that authority.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="REFS_EXAMPLE-constant" class="">REFS_EXAMPLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CVE-2008-4250</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OSVDB-49243</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MSB-MS08-067</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+  
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:30 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

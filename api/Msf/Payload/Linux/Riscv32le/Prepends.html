@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Linux::Riscv32le::Prepends
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Linux::Riscv32le::Prepends";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Linux.html" title="Msf::Payload::Linux (module)">Linux</a></span></span> &raquo; <span class='title'>Riscv32le</span>
+     &raquo; 
+    <span class="title">Prepends</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Linux::Riscv32le::Prepends
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../Prepends.html" title="Msf::Payload::Linux::Prepends (module)">Prepends</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/linux/riscv32le/prepends.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Linux RISC-V 32-bit prepends</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#appends_map-instance_method" title="#appends_map (instance method)">#<strong>appends_map</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#appends_order-instance_method" title="#appends_order (instance method)">#<strong>appends_order</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#prepends_map-instance_method" title="#prepends_map (instance method)">#<strong>prepends_map</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#prepends_order-instance_method" title="#prepends_order (instance method)">#<strong>prepends_order</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Prepends.html" title="Msf::Payload::Linux::Prepends (module)">Prepends</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Prepends.html#apply_prepends-instance_method" title="Msf::Payload::Linux::Prepends#apply_prepends (method)">#apply_prepends</a></span>, <span class='object_link'><a href="../Prepends.html#initialize-instance_method" title="Msf::Payload::Linux::Prepends#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../Prepends.html#register_prepend_options-instance_method" title="Msf::Payload::Linux::Prepends#register_prepend_options (method)">#register_prepend_options</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="appends_map-instance_method">
+  
+    #<strong>appends_map</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/linux/riscv32le/prepends.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_appends_map'>appends_map</span>
+  <span class='lbrace'>{</span>
+    <span class='comment'># exit(0)
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AppendExit</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+      <span class='int'>0x00000513</span><span class='comma'>,</span> <span class='comment'># li a0,0       # exit code = 0
+</span>      <span class='int'>0x05d00893</span><span class='comma'>,</span> <span class='comment'># li a7,93      # __NR_exit
+</span>      <span class='int'>0x00000073</span>  <span class='comment'># ecall
+</span>    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="appends_order-instance_method">
+  
+    #<strong>appends_order</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/linux/riscv32le/prepends.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_appends_order'>appends_order</span>
+  <span class='qwords_beg'>%w[</span><span class='tstring_content'>AppendExit</span><span class='tstring_end'>]</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="prepends_map-instance_method">
+  
+    #<strong>prepends_map</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/linux/riscv32le/prepends.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_prepends_map'>prepends_map</span>
+  <span class='lbrace'>{</span>
+    <span class='comment'># setuid(0)
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetuid</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+      <span class='int'>0x00000513</span><span class='comma'>,</span> <span class='comment'># li a0,0      # uid = 0
+</span>      <span class='int'>0x09200893</span><span class='comma'>,</span> <span class='comment'># li a7,146    # __NR_setuid
+</span>      <span class='int'>0x00000073</span>  <span class='comment'># ecall
+</span>    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+
+    <span class='comment'># setreuid(0, 0)
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetreuid</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+      <span class='int'>0x00000513</span><span class='comma'>,</span> <span class='comment'># li a0,0       # ruid = 0
+</span>      <span class='int'>0x00000593</span><span class='comma'>,</span> <span class='comment'># li a1,0       # euid = 0
+</span>      <span class='int'>0x09100893</span><span class='comma'>,</span> <span class='comment'># li a7,145     # __NR_setreuid
+</span>      <span class='int'>0x00000073</span>  <span class='comment'># ecall
+</span>    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+
+    <span class='comment'># setresuid(0, 0, 0)
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetresuid</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+      <span class='int'>0x00000513</span><span class='comma'>,</span> <span class='comment'># li a0,0       # ruid = 0
+</span>      <span class='int'>0x00000593</span><span class='comma'>,</span> <span class='comment'># li a1,0       # euid = 0
+</span>      <span class='int'>0x00000613</span><span class='comma'>,</span> <span class='comment'># li a2,0       # suid = 0
+</span>      <span class='int'>0x09300893</span><span class='comma'>,</span> <span class='comment'># li a7,147     # __NR_setresuid
+</span>      <span class='int'>0x00000073</span>  <span class='comment'># ecall
+</span>    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+
+    <span class='comment'># setresgid(0, 0, 0)
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetresgid</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+      <span class='int'>0x00000513</span><span class='comma'>,</span> <span class='comment'># li a0,0       # rgid = 0
+</span>      <span class='int'>0x00000593</span><span class='comma'>,</span> <span class='comment'># li a1,0       # egid = 0
+</span>      <span class='int'>0x00000613</span><span class='comma'>,</span> <span class='comment'># li a2,0       # sgid = 0
+</span>      <span class='int'>0x0aa00893</span><span class='comma'>,</span> <span class='comment'># li a7,170     # __NR_setresgid
+</span>      <span class='int'>0x00000073</span>  <span class='comment'># ecall
+</span>    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+
+    <span class='comment'># setregid(0, 0)
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetregid</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+      <span class='int'>0x00000513</span><span class='comma'>,</span> <span class='comment'># li a0,0       # rgid = 0
+</span>      <span class='int'>0x00000593</span><span class='comma'>,</span> <span class='comment'># li a1,0       # egid = 0
+</span>      <span class='int'>0x04700893</span><span class='comma'>,</span> <span class='comment'># li a7,71      # __NR_setregid
+</span>      <span class='int'>0x00000073</span>  <span class='comment'># ecall
+</span>    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+
+    <span class='comment'># setgid(0)
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetgid</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+      <span class='int'>0x00000513</span><span class='comma'>,</span> <span class='comment'># li a0,0       # gid = 0
+</span>      <span class='int'>0x02e00893</span><span class='comma'>,</span> <span class='comment'># li a7,46      # __NR_setgid
+</span>      <span class='int'>0x00000073</span>  <span class='comment'># ecall
+</span>    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="prepends_order-instance_method">
+  
+    #<strong>prepends_order</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/linux/riscv32le/prepends.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_prepends_order'>prepends_order</span>
+  <span class='qwords_beg'>%w[</span><span class='tstring_content'>PrependSetresuid</span><span class='words_sep'> </span><span class='tstring_content'>PrependSetreuid</span><span class='words_sep'> </span><span class='tstring_content'>PrependSetuid</span><span class='words_sep'> </span><span class='tstring_content'>PrependSetresgid</span><span class='words_sep'> </span><span class='tstring_content'>PrependSetregid</span><span class='words_sep'> </span><span class='tstring_content'>PrependSetgid</span><span class='tstring_end'>]</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:02 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Parser::Dbeaver
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Parser::Dbeaver";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Parser.html" title="Rex::Parser (module)">Parser</a></span></span>
+     &raquo; 
+    <span class="title">Dbeaver</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Parser::Dbeaver
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/parser/dbeaver.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Author:</p>
+<ul class="author">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>Kali-Team</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Dbeaver/Error.html" title="Rex::Parser::Dbeaver::Error (module)">Error</a></span>
+    
+  
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="SECRET_KEY-constant" class="">SECRET_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sdf@!#$verf^wv%6Fwe%$$#FFGwfsdefwfe135s$^H)dg</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="AES_KEY-constant" class="">AES_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xBA\xBBJ\x9FwJ\xB8S\xC9l-e=\xFETJ</span><span class='tstring_end'>&quot;</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decrypt_dbeaver_6_1_3-instance_method" title="#decrypt_dbeaver_6_1_3 (instance method)">#<strong>decrypt_dbeaver_6_1_3</strong>(base64_string)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>decrypt_dbeaver_6_1_3.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decrypt_dbeaver_credentials-instance_method" title="#decrypt_dbeaver_credentials (instance method)">#<strong>decrypt_dbeaver_credentials</strong>(credentials_config_data)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>decrypt_dbeaver_credentials.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_credentials-instance_method" title="#parse_credentials (instance method)">#<strong>parse_credentials</strong>(credentials_config_data)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>parse_credentials.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_data_sources-instance_method" title="#parse_data_sources (instance method)">#<strong>parse_data_sources</strong>(data_sources_data, credentials_config_data)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>parse_data_sources.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_data_sources_xml-instance_method" title="#parse_data_sources_xml (instance method)">#<strong>parse_data_sources_xml</strong>(data_sources_data)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>parse_data_sources_xml.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="decrypt_dbeaver_6_1_3-instance_method">
+  
+    #<strong>decrypt_dbeaver_6_1_3</strong>(base64_string)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>decrypt_dbeaver_6_1_3</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>base64_string</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/parser/dbeaver.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decrypt_dbeaver_6_1_3'>decrypt_dbeaver_6_1_3</span><span class='lparen'>(</span><span class='id identifier rubyid_base64_string'>base64_string</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_plaintext'>plaintext</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_base64_string'>base64_string</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_plaintext'>plaintext</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_decode_base64'>decode_base64</span><span class='lparen'>(</span><span class='id identifier rubyid_base64_string'>base64_string</span><span class='rparen'>)</span>
+  <span class='kw'>for</span> <span class='id identifier rubyid_i'>i</span> <span class='kw'>in</span> <span class='int'>0</span><span class='op'>..</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>3</span>
+    <span class='id identifier rubyid_xor_data'>xor_data</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_xor'>xor</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#SECRET_KEY-constant" title="Rex::Parser::Dbeaver::SECRET_KEY (constant)">SECRET_KEY</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span> <span class='op'>%</span> <span class='const'><span class='object_link'><a href="#SECRET_KEY-constant" title="Rex::Parser::Dbeaver::SECRET_KEY (constant)">SECRET_KEY</a></span></span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_plaintext'>plaintext</span> <span class='op'>+=</span> <span class='id identifier rubyid_xor_data'>xor_data</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_plaintext'>plaintext</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="decrypt_dbeaver_credentials-instance_method">
+  
+    #<strong>decrypt_dbeaver_credentials</strong>(credentials_config_data)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>decrypt_dbeaver_credentials</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>credentials_config_data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>plaintext</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/parser/dbeaver.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decrypt_dbeaver_credentials'>decrypt_dbeaver_credentials</span><span class='lparen'>(</span><span class='id identifier rubyid_credentials_config_data'>credentials_config_data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_aes'>aes</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Cipher</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AES-128-CBC</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_aes'>aes</span><span class='period'>.</span><span class='id identifier rubyid_decrypt'>decrypt</span>
+    <span class='id identifier rubyid_aes'>aes</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#AES_KEY-constant" title="Rex::Parser::Dbeaver::AES_KEY (constant)">AES_KEY</a></span></span>
+    <span class='id identifier rubyid_plaintext'>plaintext</span> <span class='op'>=</span> <span class='id identifier rubyid_aes'>aes</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_credentials_config_data'>credentials_config_data</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_plaintext'>plaintext</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_aes'>aes</span><span class='period'>.</span><span class='id identifier rubyid_final'>final</span>
+  <span class='kw'>rescue</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Cipher</span><span class='op'>::</span><span class='const'>CipherError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="Dbeaver/Error.html" title="Rex::Parser::Dbeaver::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Dbeaver/Error/DecryptionError.html" title="Rex::Parser::Dbeaver::Error::DecryptionError (class)">DecryptionError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Unable to decrypt dbeaver credentials</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_plaintext'>plaintext</span><span class='lbracket'>[</span><span class='id identifier rubyid_plaintext'>plaintext</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>{&quot;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>..</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_credentials-instance_method">
+  
+    #<strong>parse_credentials</strong>(credentials_config_data)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>parse_credentials</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>credentials_config_data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>result_hashmap</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/parser/dbeaver.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_credentials'>parse_credentials</span><span class='lparen'>(</span><span class='id identifier rubyid_credentials_config_data'>credentials_config_data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_decrypt_data'>decrypt_data</span> <span class='op'>=</span> <span class='id identifier rubyid_decrypt_dbeaver_credentials'>decrypt_dbeaver_credentials</span><span class='lparen'>(</span><span class='id identifier rubyid_credentials_config_data'>credentials_config_data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result_hashmap'>result_hashmap</span> <span class='op'>=</span> <span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_result_hashmap'>result_hashmap</span> <span class='op'>=</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_decrypt_data'>decrypt_data</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>JSON</span><span class='op'>::</span><span class='const'>ParserError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="Dbeaver/Error.html" title="Rex::Parser::Dbeaver::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Dbeaver/Error/ParserError.html" title="Rex::Parser::Dbeaver::Error::ParserError (class)">ParserError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[parse_credentials] </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> - </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_result_hashmap'>result_hashmap</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_data_sources-instance_method">
+  
+    #<strong>parse_data_sources</strong>(data_sources_data, credentials_config_data)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>parse_data_sources</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>data_sources_data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>credentials_config_data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>result_hashmap</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/parser/dbeaver.rb', line 56</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_data_sources'>parse_data_sources</span><span class='lparen'>(</span><span class='id identifier rubyid_data_sources_data'>data_sources_data</span><span class='comma'>,</span> <span class='id identifier rubyid_credentials_config_data'>credentials_config_data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_credentials'>credentials</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_credentials'>parse_credentials</span><span class='lparen'>(</span><span class='id identifier rubyid_credentials_config_data'>credentials_config_data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result_hashmap'>result_hashmap</span> <span class='op'>=</span> <span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_credentials'>credentials</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_result_hashmap'>result_hashmap</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_data_sources'>data_sources</span> <span class='op'>=</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_data_sources_data'>data_sources_data</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_connections'>connections</span> <span class='op'>=</span> <span class='id identifier rubyid_data_sources'>data_sources</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>connections</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_connections'>connections</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_connections'>connections</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_result_hashmap'>result_hashmap</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_connections'>connections</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_data_source_id'>data_source_id</span><span class='comma'>,</span> <span class='id identifier rubyid_item'>item</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_item'>item</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>configuration</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+      <span class='id identifier rubyid_result_hashmap'>result_hashmap</span><span class='lbracket'>[</span><span class='id identifier rubyid_data_source_id'>data_source_id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>Hash</span><span class='lbracket'>[</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_item'>item</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>provider</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_item'>item</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>provider</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>host</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_item'>item</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>configuration</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>host</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_item'>item</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>configuration</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_credentials'>credentials</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_data_source_id'>data_source_id</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_credentials'>credentials</span><span class='lbracket'>[</span><span class='id identifier rubyid_data_source_id'>data_source_id</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>#connection</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_credentials'>credentials</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_data_source_id'>data_source_id</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_credentials'>credentials</span><span class='lbracket'>[</span><span class='id identifier rubyid_data_source_id'>data_source_id</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>#connection</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>database</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_item'>item</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>configuration</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>database</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>url</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_item'>item</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>configuration</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>url</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>type</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_item'>item</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>configuration</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>type</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>JSON</span><span class='op'>::</span><span class='const'>ParserError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="Dbeaver/Error.html" title="Rex::Parser::Dbeaver::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Dbeaver/Error/ParserError.html" title="Rex::Parser::Dbeaver::Error::ParserError (class)">ParserError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[parse_data_sources] </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> - </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_result_hashmap'>result_hashmap</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_data_sources_xml-instance_method">
+  
+    #<strong>parse_data_sources_xml</strong>(data_sources_data)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>parse_data_sources_xml</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>data_sources_data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>result_hashmap</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/parser/dbeaver.rb', line 113</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_data_sources_xml'>parse_data_sources_xml</span><span class='lparen'>(</span><span class='id identifier rubyid_data_sources_data'>data_sources_data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_mxml'>mxml</span> <span class='op'>=</span> <span class='const'>REXML</span><span class='op'>::</span><span class='const'>Document</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_data_sources_data'>data_sources_data</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_root'><span class='object_link'><a href="../../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_mxml'>mxml</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="Dbeaver/Error.html" title="Rex::Parser::Dbeaver::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Dbeaver/Error/ParserError.html" title="Rex::Parser::Dbeaver::Error::ParserError (class)">ParserError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[parse_data_sources_xml] XML parsing error</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_result_hashmap'>result_hashmap</span> <span class='op'>=</span> <span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_mxml'>mxml</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>//data-sources//data-source//connection//</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_node'>node</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>connection</span><span class='tstring_end'>&#39;</span></span>
+
+    <span class='id identifier rubyid_data_source_id'>data_source_id</span> <span class='op'>=</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>id</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result_hashmap'>result_hashmap</span><span class='lbracket'>[</span><span class='id identifier rubyid_data_source_id'>data_source_id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>Hash</span><span class='lbracket'>[</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>provider</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>provider</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>host</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>host</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_decrypt_dbeaver_6_1_3'>decrypt_dbeaver_6_1_3</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>database</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>database</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>url</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>url</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>type</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>type</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_result_hashmap'>result_hashmap</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:47 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

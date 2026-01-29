@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Post::Common
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Post::Common";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Post.html" title="Msf::Post (class)">Post</a></span></span>
+     &raquo; 
+    <span class="title">Common</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Post::Common
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="Android/Priv.html" title="Msf::Post::Android::Priv (module)">Android::Priv</a></span>, <span class='object_link'><a href="Android/System.html" title="Msf::Post::Android::System (module)">Android::System</a></span>, <span class='object_link'><a href="File.html" title="Msf::Post::File (module)">File</a></span>, <span class='object_link'><a href="Linux/BusyBox.html" title="Msf::Post::Linux::BusyBox (module)">Linux::BusyBox</a></span>, <span class='object_link'><a href="Linux/Compile.html" title="Msf::Post::Linux::Compile (module)">Linux::Compile</a></span>, <span class='object_link'><a href="Linux/Kernel.html" title="Msf::Post::Linux::Kernel (module)">Linux::Kernel</a></span>, <span class='object_link'><a href="Linux/Priv.html" title="Msf::Post::Linux::Priv (module)">Linux::Priv</a></span>, <span class='object_link'><a href="Linux/System.html" title="Msf::Post::Linux::System (module)">Linux::System</a></span>, <span class='object_link'><a href="Linux/User.html" title="Msf::Post::Linux::User (module)">Linux::User</a></span>, <span class='object_link'><a href="OSX/Priv.html" title="Msf::Post::OSX::Priv (module)">OSX::Priv</a></span>, <span class='object_link'><a href="OSX/System.html" title="Msf::Post::OSX::System (module)">OSX::System</a></span>, <span class='object_link'><a href="Solaris/Kernel.html" title="Msf::Post::Solaris::Kernel (module)">Solaris::Kernel</a></span>, <span class='object_link'><a href="Solaris/Priv.html" title="Msf::Post::Solaris::Priv (module)">Solaris::Priv</a></span>, <span class='object_link'><a href="Solaris/System.html" title="Msf::Post::Solaris::System (module)">Solaris::System</a></span>, <span class='object_link'><a href="Windows/Dotnet.html" title="Msf::Post::Windows::Dotnet (module)">Windows::Dotnet</a></span>, <span class='object_link'><a href="Windows/FileSystem.html" title="Msf::Post::Windows::FileSystem (module)">Windows::FileSystem</a></span>, <span class='object_link'><a href="Windows/Powershell.html" title="Msf::Post::Windows::Powershell (module)">Windows::Powershell</a></span>, <span class='object_link'><a href="Windows/System.html" title="Msf::Post::Windows::System (module)">Windows::System</a></span>, <span class='object_link'><a href="Windows/TaskScheduler.html" title="Msf::Post::Windows::TaskScheduler (module)">Windows::TaskScheduler</a></span>, <span class='object_link'><a href="../SessionCompatibility.html" title="Msf::SessionCompatibility (module)">SessionCompatibility</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Extensions/Stdapi/Webcam/Webcam.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Webcam::Webcam (class)">Rex::Post::Meterpreter::Extensions::Stdapi::Webcam::Webcam</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/post/common.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#clear_screen-instance_method" title="#clear_screen (instance method)">#<strong>clear_screen</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_exec-instance_method" title="#cmd_exec (instance method)">#<strong>cmd_exec</strong>(cmd, args = nil, time_out = 15, opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Executes <code>cmd</code> on the remote system.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_exec_get_pid-instance_method" title="#cmd_exec_get_pid (instance method)">#<strong>cmd_exec_get_pid</strong>(cmd, args = nil, time_out = 15)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_exec_with_result-instance_method" title="#cmd_exec_with_result (instance method)">#<strong>cmd_exec_with_result</strong>(cmd, args = nil, timeout = 15, opts = {})  &#x21d2; Array(String, Boolean) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Executes <code>cmd</code> on the remote system and return an array containing the output and if it was successful or not.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#command_exists%3F-instance_method" title="#command_exists? (instance method)">#<strong>command_exists?</strong>(cmd)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks if the specified command can be executed by the session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_process-instance_method" title="#create_process (instance method)">#<strong>create_process</strong>(executable, args: [], time_out: 15, opts: {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a new process, receiving the program’s output.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_env-instance_method" title="#get_env (instance method)">#<strong>get_env</strong>(env)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of the environment variable <code>env</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_envs-instance_method" title="#get_envs (instance method)">#<strong>get_envs</strong>(*envs)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a hash of environment variables <code>envs</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#peer-instance_method" title="#peer (instance method)">#<strong>peer</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#report_virtualization-instance_method" title="#report_virtualization (instance method)">#<strong>report_virtualization</strong>(virt)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reports to the database that the host is using virtualization and reports the type of virtualization it is (e.g VirtualBox, VMware, Xen, Docker).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rhost-instance_method" title="#rhost (instance method)">#<strong>rhost</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rport-instance_method" title="#rport (instance method)">#<strong>rport</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="clear_screen-instance_method">
+  
+    #<strong>clear_screen</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/common.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_clear_screen'>clear_screen</span>
+  <span class='const'>Gem</span><span class='period'>.</span><span class='id identifier rubyid_win_platform?'>win_platform?</span> <span class='op'>?</span> <span class='lparen'>(</span><span class='id identifier rubyid_system'>system</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cls</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_system'>system</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>clear</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_exec-instance_method">
+  
+    #<strong>cmd_exec</strong>(cmd, args = nil, time_out = 15, opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Executes <code>cmd</code> on the remote system</p>
+
+<p>On Windows meterpreter, this will go through CreateProcess as the “commandLine” parameter. This means it will follow the same rules as Windows’ path disambiguation. For example, if you were to call this method thusly:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>c:\\program files\\sub dir\\program name</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+</code></pre>
+
+<p>Windows would look for these executables, in this order, passing the rest of the line as arguments:</p>
+
+<pre class="code ruby"><code class="ruby">c:\program.exe
+c:\program files\sub.exe
+c:\program files\sub dir\program.exe
+c:\program files\sub dir\program name.exe
+</code></pre>
+
+<p>On POSIX meterpreter, if <code>args</code> is set or if <code>cmd</code> contains shell metacharacters, the server will run the whole thing in /bin/sh. Otherwise, (cmd is a single path and there are no arguments), it will execve the given executable.</p>
+
+<p>On Java, it is passed through Runtime.getRuntime().exec(String) and PHP uses proc_open() both of which have similar semantics to POSIX.</p>
+
+<p>On shell sessions, this passes <code>cmd</code> directly the session’s <code>shell_command_token</code> method.</p>
+
+<p>Returns a (possibly multi-line) String.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/common.rb', line 151</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_time_out'>time_out</span><span class='op'>=</span><span class='int'>15</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'>#
+</span>    <span class='comment'># The meterpreter API requires arguments to come separately from the
+</span>    <span class='comment'># executable path. This has no effect on Windows where the two are just
+</span>    <span class='comment'># blithely concatenated and passed to CreateProcess or its brethren. On
+</span>    <span class='comment'># POSIX, this allows the server to execve just the executable when a
+</span>    <span class='comment'># shell is not needed. Determining when a shell is not needed is not
+</span>    <span class='comment'># always easy, so it assumes anything with arguments needs to go through
+</span>    <span class='comment'># /bin/sh.
+</span>    <span class='comment'>#
+</span>    <span class='comment'># This problem was originally solved by using Shellwords.shellwords but
+</span>    <span class='comment'># unfortunately, it is unsuitable. When a backslash occurs inside double
+</span>    <span class='comment'># quotes (as is often the case with Windows commands) it inexplicably
+</span>    <span class='comment'># removes them. So. Shellwords is out.
+</span>    <span class='comment'>#
+</span>    <span class='comment'># By setting +args+ to an empty string, we can get POSIX to send it
+</span>    <span class='comment'># through /bin/sh, solving all the pesky parsing troubles, without
+</span>    <span class='comment'># affecting Windows.
+</span>    <span class='comment'>#
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>and</span> <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[^a-zA-Z0-9\/._-]</span><span class='regexp_end'>/</span></span>
+      <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_response_timeout'>response_timeout</span> <span class='op'>=</span> <span class='id identifier rubyid_time_out'>time_out</span>
+    <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Hidden</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Channelized</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Subshell</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span>
+    <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Channelized</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_capture_output'>capture_output</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_time_out'>time_out</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powershell</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_time_out'>time_out</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_args'>args</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_time_out'>time_out</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_chomp!'>chomp!</span> <span class='kw'>if</span> <span class='id identifier rubyid_o'>o</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command_token'>shell_command_token</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_time_out'>time_out</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command_token'>shell_command_token</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_args'>args</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_time_out'>time_out</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_chomp!'>chomp!</span> <span class='kw'>if</span> <span class='id identifier rubyid_o'>o</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_o'>o</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_exec_get_pid-instance_method">
+  
+    #<strong>cmd_exec_get_pid</strong>(cmd, args = nil, time_out = 15)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/common.rb', line 207</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_exec_get_pid'>cmd_exec_get_pid</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_time_out'>time_out</span><span class='op'>=</span><span class='int'>15</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>and</span> <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[^a-zA-Z0-9\/._-]</span><span class='regexp_end'>/</span></span>
+        <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_response_timeout'>response_timeout</span> <span class='op'>=</span> <span class='id identifier rubyid_time_out'>time_out</span>
+      <span class='id identifier rubyid_process'>process</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Hidden</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Channelized</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Subshell</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+      <span class='id identifier rubyid_pid'>pid</span> <span class='op'>=</span> <span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_pid'>pid</span>
+      <span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+      <span class='id identifier rubyid_pid'>pid</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_error'>print_error</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmd_exec_get_pid is incompatible with non-meterpreter sessions</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_exec_with_result-instance_method">
+  
+    #<strong>cmd_exec_with_result</strong>(cmd, args = nil, timeout = 15, opts = {})  &#x21d2; <tt>Array(String, Boolean)</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Executes <code>cmd</code> on the remote system and return an array containing the output and if it was successful or not.</p>
+
+<p>This is simply a wrapper around <span class='object_link'><a href="#cmd_exec-instance_method" title="Msf::Post::Common#cmd_exec (method)">#cmd_exec</a></span> that also checks the exit code to determine if the execution was successful or not.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cmd</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The command to execute</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>args</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The optional arguments of the command (can de included in <code>cmd</code> instead)</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>timeout</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>15</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The time in sec. to wait before giving up</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An Hash of options (see <span class='object_link'><a href="#cmd_exec-instance_method" title="Msf::Post::Common#cmd_exec (method)">#cmd_exec</a></span>)</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array(String, Boolean)</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Array containing the output string followed by a boolean indicating if the command succeeded or not. When this boolean is 'true`, the first field contains the normal command output. When it is `false`, the first field contains the error message returned by the command or a timeout error message if the timeout expired.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/common.rb', line 331</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_exec_with_result'>cmd_exec_with_result</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span> <span class='op'>=</span> <span class='int'>15</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># This token will be returned if the command succeeds.
+</span>  <span class='comment'># Redirection operators (`&amp;&amp;` and `||`) are the most reliable methods to
+</span>  <span class='comment'># detect success and failure. See these references for details:
+</span>  <span class='comment'># - https://ss64.com/nt/errorlevel.html
+</span>  <span class='comment'># - https://stackoverflow.com/questions/34936240/batch-goto-loses-errorlevel/34937706#34937706
+</span>  <span class='comment'># - https://stackoverflow.com/questions/10935693/foolproof-way-to-check-for-nonzero-error-return-code-in-windows-batch-file/10936093#10936093
+</span>  <span class='id identifier rubyid_verification_token'>verification_token</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alphanumeric'>rand_text_alphanumeric</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid__cmd'>_cmd</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd'>cmd</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+  <span class='id identifier rubyid__cmd'>_cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_args'>args</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>windows</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powershell</span><span class='tstring_end'>&#39;</span></span>
+      <span class='comment'># The &amp; operator is reserved by Powershell and needs to be wrapped in double quotes
+</span>      <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cmd</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/c </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__cmd'>_cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'> \&quot;&amp;&amp;\&quot; echo </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_verification_token'>verification_token</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cmd</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/c </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__cmd'>_cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'> &amp;&amp; echo </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_verification_token'>verification_token</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>command</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__cmd'>_cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'> &amp;&amp; echo </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_verification_token'>verification_token</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_verification_token'>verification_token</span><span class='rparen'>)</span>
+    <span class='comment'># Removing the verification token to cleanup the output string
+</span>    <span class='lbracket'>[</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_lines'>lines</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>...</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='comma'>,</span> <span class='kw'>true</span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='lbracket'>[</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>TimeoutError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='lbracket'>[</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="command_exists?-instance_method">
+  
+    #<strong>command_exists?</strong>(cmd)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks if the specified command can be executed by the session. It should be noted that not all commands correspond to a binary file on disk. For example, a bash shell session will provide the ‘eval` command when there is no `eval` binary on disk. Likewise, a Powershell session will provide the `Get-Item` command when there is no `Get-Item` executable on disk.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cmd</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the command to check</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>true when the command exists</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/common.rb', line 300</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_verification_token'>verification_token</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha_upper'>rand_text_alpha_upper</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powershell</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>try {if(Get-Command </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>) {echo </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_verification_token'>verification_token</span><span class='embexpr_end'>}</span><span class='tstring_content'>}} catch {}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_verification_token'>verification_token</span><span class='rparen'>)</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>windows</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'># https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/where_1
+</span>    <span class='comment'># https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/if
+</span>    <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmd /c where /q </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'> &amp; if not errorlevel 1 echo </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_verification_token'>verification_token</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_verification_token'>verification_token</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>command -v </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'> || which </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'> &amp;&amp; echo </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_verification_token'>verification_token</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_verification_token'>verification_token</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>rescue</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to check if command `</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; exists</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_process-instance_method">
+  
+    #<strong>create_process</strong>(executable, args: [], time_out: 15, opts: {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a new process, receiving the program’s output</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>executable</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The path to the executable; either absolute or relative to the session's current directory</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>args</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>[]</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The arguments to the executable</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Optional settings to parameterise the process launch</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>Hidden</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>Channelized</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>Suspended</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>UseThreadToken</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>Desktop</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>Session</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>Subshell</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>Pty</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>ParentId</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>InMemory</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/common.rb', line 71</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_process'>create_process</span><span class='lparen'>(</span><span class='id identifier rubyid_executable'>executable</span><span class='comma'>,</span> <span class='label'>args:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>time_out:</span> <span class='int'>15</span><span class='comma'>,</span> <span class='label'>opts:</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_response_timeout'>response_timeout</span> <span class='op'>=</span> <span class='id identifier rubyid_time_out'>time_out</span>
+    <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Hidden</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Channelized</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span>
+      <span class='comment'># Well-behaving meterpreters will ignore the Subshell flag when using arg arrays.
+</span>      <span class='comment'># This is still provided for supporting old meterpreters.
+</span>      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Subshell</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span>
+    <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>windows</span><span class='tstring_end'>&#39;</span></span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>php</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:legacy_args</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions.html" title="Msf::Sessions (module)">Sessions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions/CommandShellWindows.html" title="Msf::Sessions::CommandShellWindows (class)">CommandShellWindows</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_cmd'><span class='object_link'><a href="../Sessions/WindowsEscaping.html#to_cmd-instance_method" title="Msf::Sessions::WindowsEscaping#to_cmd (method)">to_cmd</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:legacy_path</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions.html" title="Msf::Sessions (module)">Sessions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions/CommandShellWindows.html" title="Msf::Sessions::CommandShellWindows (class)">CommandShellWindows</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_cmd'><span class='object_link'><a href="../Sessions/WindowsEscaping.html#to_cmd-instance_method" title="Msf::Sessions::WindowsEscaping#to_cmd (method)">to_cmd</a></span></span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_executable'>executable</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='kw'>elsif</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>python</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:legacy_path</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_executable'>executable</span>
+        <span class='comment'># Yes, Unix. Old Python meterp had a bug where it used posix shell splitting
+</span>        <span class='comment'># syntax even on Windows. For backwards-compatibility, we can trick it into
+</span>        <span class='comment'># doing the right thing by using Unix escaping.
+</span>        <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:legacy_args</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions.html" title="Msf::Sessions (module)">Sessions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions/CommandShellUnix.html" title="Msf::Sessions::CommandShellUnix (class)">CommandShellUnix</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_cmd'><span class='object_link'><a href="../Sessions/UnixEscaping.html#to_cmd-instance_method" title="Msf::Sessions::UnixEscaping#to_cmd (method)">to_cmd</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:legacy_args</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions.html" title="Msf::Sessions (module)">Sessions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions/CommandShellWindows.html" title="Msf::Sessions::CommandShellWindows (class)">CommandShellWindows</a></span></span><span class='period'>.</span><span class='id identifier rubyid_argv_to_commandline'><span class='object_link'><a href="../Sessions/WindowsEscaping.html#argv_to_commandline-instance_method" title="Msf::Sessions::WindowsEscaping#argv_to_commandline (method)">argv_to_commandline</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:legacy_path</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions.html" title="Msf::Sessions (module)">Sessions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions/CommandShellWindows.html" title="Msf::Sessions::CommandShellWindows (class)">CommandShellWindows</a></span></span><span class='period'>.</span><span class='id identifier rubyid_escape_cmd'><span class='object_link'><a href="../Sessions/WindowsEscaping.html#escape_cmd-instance_method" title="Msf::Sessions::WindowsEscaping#escape_cmd (method)">escape_cmd</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_executable'>executable</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:legacy_args</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions.html" title="Msf::Sessions (module)">Sessions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions/CommandShellUnix.html" title="Msf::Sessions::CommandShellUnix (class)">CommandShellUnix</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_cmd'><span class='object_link'><a href="../Sessions/UnixEscaping.html#to_cmd-instance_method" title="Msf::Sessions::UnixEscaping#to_cmd (method)">to_cmd</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:legacy_path</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions.html" title="Msf::Sessions (module)">Sessions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sessions/CommandShellUnix.html" title="Msf::Sessions::CommandShellUnix (class)">CommandShellUnix</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_cmd'><span class='object_link'><a href="../Sessions/UnixEscaping.html#to_cmd-instance_method" title="Msf::Sessions::UnixEscaping#to_cmd (method)">to_cmd</a></span></span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_executable'>executable</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Channelized</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_capture_output'>capture_output</span><span class='lparen'>(</span><span class='id identifier rubyid_executable'>executable</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_time_out'>time_out</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_executable'>executable</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powershell</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_to_cmd'>to_cmd</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_executable'>executable</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_time_out'>time_out</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_chomp!'>chomp!</span> <span class='kw'>if</span> <span class='id identifier rubyid_o'>o</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_to_cmd'>to_cmd</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_executable'>executable</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command_token'>shell_command_token</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_time_out'>time_out</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_chomp!'>chomp!</span> <span class='kw'>if</span> <span class='id identifier rubyid_o'>o</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_o'>o</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_env-instance_method">
+  
+    #<strong>get_env</strong>(env)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of the environment variable <code>env</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/common.rb', line 243</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_env'>get_env</span><span class='lparen'>(</span><span class='id identifier rubyid_env'>env</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_getenv'>getenv</span><span class='lparen'>(</span><span class='id identifier rubyid_env'>env</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powershell</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>echo $env:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_env'>env</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>windows</span><span class='tstring_end'>&#39;</span></span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_env'>env</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%</span><span class='tstring_end'>&#39;</span></span>
+        <span class='kw'>unless</span> <span class='id identifier rubyid_env'>env</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%</span><span class='tstring_end'>&#39;</span></span>
+          <span class='id identifier rubyid_env'>env</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%</span><span class='tstring_end'>&#39;</span></span>
+        <span class='kw'>end</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_env'>env</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_env'>env</span><span class='embexpr_end'>}</span><span class='tstring_content'>%</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+
+      <span class='kw'>return</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>echo </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_env'>env</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_env'>env</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_env'>env</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_env'>env</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+
+      <span class='kw'>return</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>echo \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_env'>env</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_envs-instance_method">
+  
+    #<strong>get_envs</strong>(*envs)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a hash of environment variables <code>envs</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/common.rb', line 275</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_envs'>get_envs</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_envs'>envs</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_getenvs'>getenvs</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_envs'>envs</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powershell</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_envs'>envs</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_env'>env</span><span class='op'>|</span>
+      <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_get_env'>get_env</span><span class='lparen'>(</span><span class='id identifier rubyid_env'>env</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='id identifier rubyid_env'>env</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_res'>res</span> <span class='kw'>unless</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>return</span> <span class='id identifier rubyid_result'>result</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/common.rb', line 5</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_update_info'>update_info</span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_info'>info</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Compat</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Meterpreter</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Commands</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='qwords_beg'>%w[</span><span class='words_sep'>
+            </span><span class='tstring_content'>stdapi_sys_config_getenv</span><span class='words_sep'>
+            </span><span class='tstring_content'>stdapi_sys_process_execute</span><span class='words_sep'>
+          </span><span class='tstring_end'>]</span></span>
+        <span class='rbrace'>}</span>
+      <span class='rbrace'>}</span>
+    <span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="peer-instance_method">
+  
+    #<strong>peer</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/common.rb', line 51</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_peer'>peer</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rhost'>rhost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rport'>rport</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="report_virtualization-instance_method">
+  
+    #<strong>report_virtualization</strong>(virt)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reports to the database that the host is using virtualization and reports the type of virtualization it is (e.g VirtualBox, VMware, Xen, Docker)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/common.rb', line 228</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_report_virtualization'>report_virtualization</span><span class='lparen'>(</span><span class='id identifier rubyid_virt'>virt</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_session'>session</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_virt'>virt</span>
+  <span class='id identifier rubyid_virt_normal'>virt_normal</span> <span class='op'>=</span> <span class='id identifier rubyid_virt'>virt</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_virt_normal'>virt_normal</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='id identifier rubyid_virt_data'>virt_data</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='symbol'>:host</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_target_host'>target_host</span><span class='comma'>,</span>
+    <span class='symbol'>:virtual_host</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_virt_normal'>virt_normal</span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='id identifier rubyid_virt_data'>virt_data</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rhost-instance_method">
+  
+    #<strong>rhost</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/common.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rhost'>rhost</span>
+  <span class='kw'>return</span> <span class='kw'>super</span> <span class='kw'>unless</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='id identifier rubyid_session'>session</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_peerhost'>peerhost</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powershell</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_session_host'>session_host</span>
+  <span class='kw'>end</span>
+<span class='kw'>rescue</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rport-instance_method">
+  
+    #<strong>rport</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/common.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rport'>rport</span>
+  <span class='kw'>return</span> <span class='kw'>super</span> <span class='kw'>unless</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='id identifier rubyid_session'>session</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_peerport'>peerport</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powershell</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_session_port'>session_port</span>
+  <span class='kw'>end</span>
+<span class='kw'>rescue</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:39:31 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

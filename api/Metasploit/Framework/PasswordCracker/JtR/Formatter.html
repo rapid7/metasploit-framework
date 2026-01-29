@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Metasploit::Framework::PasswordCracker::JtR::Formatter
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::PasswordCracker::JtR::Formatter";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../PasswordCracker.html" title="Metasploit::Framework::PasswordCracker (module)">PasswordCracker</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../JtR.html" title="Metasploit::Framework::PasswordCracker::JtR (module)">JtR</a></span></span>
+     &raquo; 
+    <span class="title">Formatter</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Metasploit::Framework::PasswordCracker::JtR::Formatter
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/password_crackers/jtr/formatter.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#hash_to_jtr-class_method" title="hash_to_jtr (class method)">.<strong>hash_to_jtr</strong>(cred)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method takes a frameworkframework.dbframework.db.cred, and normalizes it to the string format JTR is expecting.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#jtr_to_db-class_method" title="jtr_to_db (class method)">.<strong>jtr_to_db</strong>(cred_type)  &#x21d2; Array </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method takes a frameworkframework.dbframework.db.cred, and normalizes it from the JTR format to the DB format.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#params_to_jtr-class_method" title="params_to_jtr (class method)">.<strong>params_to_jtr</strong>(username, private_data, private_type, format: nil, db_id: nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="hash_to_jtr-class_method">
+  
+    .<strong>hash_to_jtr</strong>(cred)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method takes a frameworkframework.dbframework.db.cred, and normalizes it to the string format JTR is expecting.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cred</span>
+      
+      
+        <span class='type'>(<tt>credClass</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A credential from framework.db</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The hash in jtr format or nil on no match.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13
+14
+15
+16
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/password_crackers/jtr/formatter.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_hash_to_jtr'>hash_to_jtr</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_params_to_jtr'>params_to_jtr</span><span class='lparen'>(</span>
+    <span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_public'>public</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_public'>public</span><span class='period'>.</span><span class='id identifier rubyid_username'>username</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_private'>private</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_private'>private</span><span class='period'>.</span><span class='id identifier rubyid_model_name'>model_name</span><span class='period'>.</span><span class='id identifier rubyid_element'>element</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span>
+    <span class='label'>format:</span> <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_private'>private</span><span class='period'>.</span><span class='id identifier rubyid_jtr_format'>jtr_format</span><span class='comma'>,</span>
+    <span class='label'>db_id:</span> <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="jtr_to_db-class_method">
+  
+    .<strong>jtr_to_db</strong>(cred_type)  &#x21d2; <tt>Array</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method takes a frameworkframework.dbframework.db.cred, and normalizes it from the JTR format to the DB format.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>a</span>
+      
+      
+        <span class='type'>(<tt>credClass</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>credential from framework.db</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>All of the hash types that may be in the DB that apply</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/password_crackers/jtr/formatter.rb', line 132</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_jtr_to_db'>jtr_to_db</span><span class='lparen'>(</span><span class='id identifier rubyid_cred_type'>cred_type</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_cred_type'>cred_type</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>descrypt</span><span class='tstring_end'>&#39;</span></span> <span class='comment'># from aix module
+</span>    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>des</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>oracle</span><span class='tstring_end'>&#39;</span></span> <span class='comment'># from databases module
+</span>    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>des,oracle</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dynamic_1506</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dynamic_1506</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>oracle11</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>raw-sha1,oracle</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>oracle12c</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pbkdf2,oracle12c</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dynamic_1034</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>raw-md5,postgres</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>md5crypt</span><span class='tstring_end'>&#39;</span></span> <span class='comment'># from linux module
+</span>    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>md5</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bsdicrypt</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bsdi</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sha256crypt</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sha256,crypt</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sha512crypt</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sha512,crypt</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bcrypt</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bf</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='id identifier rubyid_cred_type'>cred_type</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="params_to_jtr-class_method">
+  
+    .<strong>params_to_jtr</strong>(username, private_data, private_type, format: nil, db_id: nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/password_crackers/jtr/formatter.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_params_to_jtr'>params_to_jtr</span><span class='lparen'>(</span><span class='id identifier rubyid_username'>username</span><span class='comma'>,</span> <span class='id identifier rubyid_private_data'>private_data</span><span class='comma'>,</span> <span class='id identifier rubyid_private_type'>private_type</span><span class='comma'>,</span> <span class='label'>format:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>db_id:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_private_type'>private_type</span>
+  <span class='kw'>when</span> <span class='symbol'>:ntlm_hash</span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_username'>username</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_id'>db_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_data'>private_data</span><span class='embexpr_end'>}</span><span class='tstring_content'>:::</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_id'>db_id</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='symbol'>:postgres_md5</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_format'>format</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>postgres|raw-md5</span><span class='regexp_end'>/</span></span>
+      <span class='comment'># john --list=subformats | grep &#39;PostgreSQL MD5&#39;
+</span>      <span class='comment'># UserFormat = dynamic_1034  type = dynamic_1034: md5($p.$u) (PostgreSQL MD5)
+</span>      <span class='id identifier rubyid_hash_string'>hash_string</span> <span class='op'>=</span> <span class='id identifier rubyid_private_data'>private_data</span>
+      <span class='id identifier rubyid_hash_string'>hash_string</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^md5</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_username'>username</span><span class='embexpr_end'>}</span><span class='tstring_content'>:$dynamic_1034$</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hash_string'>hash_string</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_id'>db_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>when</span> <span class='symbol'>:nonreplayable_hash</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_format'>format</span>
+      <span class='comment'># oracle 11+ password hash descriptions:
+</span>      <span class='comment'># this password is stored as a long ascii string with several sections
+</span>      <span class='comment'># https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/changes-in-oracle-database-12c-password-hashes/
+</span>      <span class='comment'># example:
+</span>      <span class='comment'># hash = []
+</span>      <span class='comment'># hash &lt;&lt; &quot;S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;&quot;
+</span>      <span class='comment'># hash &lt;&lt; &quot;H:DC9894A01797D91D92ECA1DA66242209;&quot;
+</span>      <span class='comment'># hash &lt;&lt; &quot;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C&quot;
+</span>      <span class='comment'># puts hash.join(&#39;&#39;)
+</span>      <span class='comment'># S: = 60 characters -&gt; sha1(password + salt (10 bytes))
+</span>      <span class='comment'>#         40 char sha1, 20 char salt
+</span>      <span class='comment'>#         hash is 8F2D65FB5547B71C8DA3760F10960428CD307B1C
+</span>      <span class='comment'>#         salt is 6271691FC55C1F56554A
+</span>      <span class='comment'># H: = 32 characters
+</span>      <span class='comment'>#         legacy MD5
+</span>      <span class='comment'># T: = 160 characters
+</span>      <span class='comment'>#         PBKDF2-based SHA512 hash specific to 12C (12.1.0.2+)
+</span>    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>raw-sha1|oracle11</span><span class='regexp_end'>/</span></span> <span class='comment'># oracle 11
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_private_data'>private_data</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>S:([\dA-F]{60})</span><span class='regexp_end'>/</span></span> <span class='comment'># oracle 11
+</span>        <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_username'>username</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_last_match'>last_match</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_id'>db_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>oracle12c</span><span class='regexp_end'>/</span></span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_private_data'>private_data</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>T:([\dA-F]{160})</span><span class='regexp_end'>/</span></span> <span class='comment'># oracle 12c
+</span>        <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_username'>username</span><span class='embexpr_end'>}</span><span class='tstring_content'>:$oracle12c$</span><span class='embexpr_beg'>#{</span><span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_last_match'>last_match</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_id'>db_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>dynamic_1506</span><span class='regexp_end'>/</span></span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_private_data'>private_data</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>H:([\dA-F]{32})</span><span class='regexp_end'>/</span></span> <span class='comment'># oracle 11
+</span>        <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_username'>username</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='embexpr_end'>}</span><span class='tstring_content'>:$dynamic_1506$</span><span class='embexpr_beg'>#{</span><span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_last_match'>last_match</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_id'>db_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>oracle</span><span class='regexp_end'>/</span></span> <span class='comment'># oracle
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>des</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># &#39;des,oracle&#39;, not oracle11/12c
+</span>        <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_username'>username</span><span class='embexpr_end'>}</span><span class='tstring_content'>:O$</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_username'>username</span><span class='embexpr_end'>}</span><span class='tstring_content'>#</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_data'>private_data</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_id'>db_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>md5|des|bsdi|crypt|bf|sha256|sha512|xsha512</span><span class='regexp_end'>/</span></span>
+      <span class='comment'># md5(crypt), des(crypt), b(crypt), sha256(crypt), sha512(crypt), xsha512
+</span>      <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_username'>username</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_data'>private_data</span><span class='embexpr_end'>}</span><span class='tstring_content'>:::::</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_id'>db_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>xsha</span><span class='regexp_end'>/</span></span>
+      <span class='comment'># xsha512
+</span>      <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_username'>username</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_data'>private_data</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='embexpr_end'>}</span><span class='tstring_content'>:::::</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_id'>db_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>netntlm</span><span class='regexp_end'>/</span></span>
+      <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_data'>private_data</span><span class='embexpr_end'>}</span><span class='tstring_content'>::::::</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_id'>db_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>qnx</span><span class='regexp_end'>/</span></span>
+      <span class='comment'># https://moar.so/blog/qnx-password-hash-formats.html
+</span>      <span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='id identifier rubyid_private_data'>private_data</span><span class='period'>.</span><span class='id identifier rubyid_end_with?'>end_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:0:0</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_private_data'>private_data</span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_data'>private_data</span><span class='embexpr_end'>}</span><span class='tstring_content'>:0:0</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_username'>username</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hash'>hash</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Raw-MD5u</span><span class='regexp_end'>/</span></span>
+      <span class='comment'># This is just md5(unicode($p)), where $p is the password.
+</span>      <span class='comment'># Avira uses to store their passwords, there may be other apps that also use this though.
+</span>      <span class='comment'># The trailing : shows an empty salt. This is because hashcat only has one unicode hash
+</span>      <span class='comment'># format which is compatible, type 30, but that is listed as md5(utf16le($pass).$salt)
+</span>      <span class='comment'># with a sample hash of b31d032cfdcf47a399990a71e43c5d2a:144816. So this just outputs
+</span>      <span class='comment'># The hash as *hash*: so that it is both JTR and hashcat compatible
+</span>      <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_data'>private_data</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>vnc</span><span class='regexp_end'>/</span></span>
+      <span class='comment'># add a beginning * if one is missing
+</span>      <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$vnc$</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_data'>private_data</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_private_data'>private_data</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_data'>private_data</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>krb5asrep</span><span class='regexp_end'>/</span></span>
+      <span class='comment'># for this we overload the username field with the db_id so we can find it in the db easier later
+</span>      <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_private_data'>private_data</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># [username, password_hash]
+</span>      <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_db_id'>db_id</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>krb5tgs</span><span class='regexp_end'>/</span></span>
+      <span class='comment'># for this we overload the username field with the db_id so we can find it in the db easier later
+</span>      <span class='comment'># https://github.com/openwall/john/issues/5944
+</span>      <span class='id identifier rubyid_private_data'>private_data</span> <span class='op'>=</span> <span class='id identifier rubyid_private_data'>private_data</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_private_data'>private_data</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_private_data'>private_data</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+      <span class='id identifier rubyid_private_data'>private_data</span> <span class='op'>=</span> <span class='id identifier rubyid_private_data'>private_data</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_id'>db_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_data'>private_data</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(krb5.|timeroast$)</span><span class='regexp_end'>/</span></span>
+      <span class='comment'># krb5asrep, krb5tgs, timeroast
+</span>      <span class='kw'>return</span> <span class='id identifier rubyid_private_data'>private_data</span>
+    <span class='kw'>else</span>
+      <span class='comment'># /mysql|mysql-sha1/
+</span>      <span class='comment'># /mssql|mssql05|mssql12/
+</span>      <span class='comment'># /des(crypt)/
+</span>      <span class='comment'># /mediawiki|phpass|atlassian/
+</span>      <span class='comment'># /dynamic_82/
+</span>      <span class='comment'># /ssha/
+</span>      <span class='comment'># /raw-sha512/
+</span>      <span class='comment'># /raw-sha256/
+</span>      <span class='comment'># /xsha/
+</span>      <span class='comment'># /mscash2/
+</span>      <span class='comment'># This also handles *other* type credentials which aren&#39;t guaranteed to have a public
+</span>      <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_username'>username</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_data'>private_data</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_id'>db_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[X] JTR Formatter (params_to_jtr) recieved an unknown private_type: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_type'>private_type</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_type'>private_type</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:36 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

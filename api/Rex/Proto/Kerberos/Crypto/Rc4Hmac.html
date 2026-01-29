@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::Kerberos::Crypto::Rc4Hmac
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Kerberos::Crypto::Rc4Hmac";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Crypto.html" title="Rex::Proto::Kerberos::Crypto (module)">Crypto</a></span></span>
+     &raquo; 
+    <span class="title">Rc4Hmac</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::Kerberos::Crypto::Rc4Hmac
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Proto::Kerberos::Crypto::Rc4Hmac</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../Gss/Asn1.html" title="Rex::Proto::Gss::Asn1 (module)">Gss::Asn1</a></span>, <span class='object_link'><a href="Utils.html" title="Rex::Proto::Kerberos::Crypto::Utils (module)">Utils</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/kerberos/crypto/rc4_hmac.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="MAC_SIZE-constant" class="">MAC_SIZE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>16</span></pre></dd>
+      
+        <dt id="CONFOUNDER_SIZE-constant" class="">CONFOUNDER_SIZE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>8</span></pre></dd>
+      
+        <dt id="PADDING_SIZE-constant" class="">PADDING_SIZE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#calculate_encrypted_length-instance_method" title="#calculate_encrypted_length (instance method)">#<strong>calculate_encrypted_length</strong>(plaintext_len)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#checksum-instance_method" title="#checksum (instance method)">#<strong>checksum</strong>(key, msg_type, data)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Use this class’s encryption routines to create a checksum of the data based on the key and message type.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decrypt-instance_method" title="#decrypt (instance method)">#<strong>decrypt</strong>(ciphertext, key, msg_type)  &#x21d2; String </a>
+    
+
+    
+      (also: #decrypt_asn1)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Decrypts the cipher using RC4-HMAC schema <a href="https://datatracker.ietf.org/doc/rfc4757">datatracker.ietf.org/doc/rfc4757</a>/.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encrypt-instance_method" title="#encrypt (instance method)">#<strong>encrypt</strong>(plaintext, key, msg_type, confounder: nil)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Encrypts the cipher using RC4-HMAC schema <a href="https://datatracker.ietf.org/doc/rfc4757">datatracker.ietf.org/doc/rfc4757</a>/.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#gss_unwrap-instance_method" title="#gss_unwrap (instance method)">#<strong>gss_unwrap</strong>(ciphertext, key, expected_sequence_number, is_initiator, opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#gss_wrap-instance_method" title="#gss_wrap (instance method)">#<strong>gss_wrap</strong>(plaintext, key, sequence_number, is_initiator, opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#header_byte_count-instance_method" title="#header_byte_count (instance method)">#<strong>header_byte_count</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The number of bytes in the encrypted plaintext that precede the actual plaintext.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#string_to_key-instance_method" title="#string_to_key (instance method)">#<strong>string_to_key</strong>(password, salt = nil, params: nil)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Derive an encryption key based on a password and salt for the given cipher type.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#trailing_byte_count-instance_method" title="#trailing_byte_count (instance method)">#<strong>trailing_byte_count</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The number of bytes in the encrypted plaintext that follow the actual plaintext.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Gss/Asn1.html" title="Rex::Proto::Gss::Asn1 (module)">Gss::Asn1</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Gss/Asn1.html#unwrap_pseudo_asn1-instance_method" title="Rex::Proto::Gss::Asn1#unwrap_pseudo_asn1 (method)">#unwrap_pseudo_asn1</a></span>, <span class='object_link'><a href="../../Gss/Asn1.html#wrap_pseudo_asn1-instance_method" title="Rex::Proto::Gss::Asn1#wrap_pseudo_asn1 (method)">#wrap_pseudo_asn1</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Utils.html" title="Rex::Proto::Kerberos::Crypto::Utils (module)">Utils</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Utils.html#xor_bytes-instance_method" title="Rex::Proto::Kerberos::Crypto::Utils#xor_bytes (method)">#xor_bytes</a></span>, <span class='object_link'><a href="Utils.html#xor_strings-instance_method" title="Rex::Proto::Kerberos::Crypto::Utils#xor_strings (method)">#xor_strings</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="calculate_encrypted_length-instance_method">
+  
+    #<strong>calculate_encrypted_length</strong>(plaintext_len)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+270
+271
+272
+273</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/crypto/rc4_hmac.rb', line 270</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_calculate_encrypted_length'>calculate_encrypted_length</span><span class='lparen'>(</span><span class='id identifier rubyid_plaintext_len'>plaintext_len</span><span class='rparen'>)</span>
+  <span class='comment'># We add 1-8 bytes of padding, per RFC1964 section 1.2.2.3
+</span>  <span class='id identifier rubyid_plaintext_len'>plaintext_len</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='int'>8</span> <span class='op'>-</span> <span class='lparen'>(</span><span class='id identifier rubyid_plaintext_len'>plaintext_len</span> <span class='op'>%</span> <span class='int'>8</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="checksum-instance_method">
+  
+    #<strong>checksum</strong>(key, msg_type, data)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Use this class’s encryption routines to create a checksum of the data based on the key and message type</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the key to use to generate the checksum</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>msg_type</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>type of kerberos message</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the data to checksum</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the generated checksum</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/crypto/rc4_hmac.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_checksum'>checksum</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_msg_type'>msg_type</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ksign'>ksign</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>signaturekey\x00</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_md5_hash'>md5_hash</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_md5_raw'>md5_raw</span><span class='lparen'>(</span><span class='id identifier rubyid_usage_str'>usage_str</span><span class='lparen'>(</span><span class='id identifier rubyid_msg_type'>msg_type</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_ksign'>ksign</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_ksign'>ksign</span><span class='comma'>,</span> <span class='id identifier rubyid_md5_hash'>md5_hash</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="decrypt-instance_method">
+  
+    #<strong>decrypt</strong>(ciphertext, key, msg_type)  &#x21d2; <tt>String</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='decrypt_asn1-instance_method'>decrypt_asn1</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Decrypts the cipher using RC4-HMAC schema <a href="https://datatracker.ietf.org/doc/rfc4757">datatracker.ietf.org/doc/rfc4757</a>/</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>ciphertext</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the data to decrypt</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the key to decrypt</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>msg_type</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>type of kerberos message</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the decrypted cipher</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Model/Error/KerberosError.html" title="Rex::Proto::Kerberos::Model::Error::KerberosError (class)">Rex::Proto::Kerberos::Model::Error::KerberosError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if decryption doesn't succeed</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/crypto/rc4_hmac.rb', line 50</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decrypt'>decrypt</span><span class='lparen'>(</span><span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_msg_type'>msg_type</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_ciphertext'>ciphertext</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='const'><span class='object_link'><a href="#MAC_SIZE-constant" title="Rex::Proto::Kerberos::Crypto::Rc4Hmac::MAC_SIZE (constant)">MAC_SIZE</a></span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error.html" title="Rex::Proto::Kerberos::Model::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error/KerberosError.html" title="Rex::Proto::Kerberos::Model::Error::KerberosError (class)">KerberosError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RC4-HMAC decryption failed</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_checksum'>checksum</span> <span class='op'>=</span> <span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#MAC_SIZE-constant" title="Rex::Proto::Kerberos::Crypto::Rc4Hmac::MAC_SIZE (constant)">MAC_SIZE</a></span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="#MAC_SIZE-constant" title="Rex::Proto::Kerberos::Crypto::Rc4Hmac::MAC_SIZE (constant)">MAC_SIZE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>1</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_k1'>k1</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_usage_str'>usage_str</span><span class='lparen'>(</span><span class='id identifier rubyid_msg_type'>msg_type</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_k3'>k3</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_k1'>k1</span><span class='comma'>,</span> <span class='id identifier rubyid_checksum'>checksum</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_cipher'>cipher</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Cipher</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rc4</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_decrypt'>decrypt</span>
+  <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_k3'>k3</span>
+  <span class='id identifier rubyid_decrypted'>decrypted</span> <span class='op'>=</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_final'>final</span>
+
+  <span class='kw'>if</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_k1'>k1</span><span class='comma'>,</span> <span class='id identifier rubyid_decrypted'>decrypted</span><span class='rparen'>)</span> <span class='op'>!=</span> <span class='id identifier rubyid_checksum'>checksum</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error.html" title="Rex::Proto::Kerberos::Model::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error/KerberosError.html" title="Rex::Proto::Kerberos::Model::Error::KerberosError (class)">KerberosError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RC4-HMAC decryption failed, incorrect checksum verification</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Expect the first CONFOUNDER_SIZE bytes to be the confounder
+</span>  <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error.html" title="Rex::Proto::Kerberos::Model::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error/KerberosDecodingError.html" title="Rex::Proto::Kerberos::Model::Error::KerberosDecodingError (class)">KerberosDecodingError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EncryptedData failed to decrypt</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_decrypted'>decrypted</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="#CONFOUNDER_SIZE-constant" title="Rex::Proto::Kerberos::Crypto::Rc4Hmac::CONFOUNDER_SIZE (constant)">CONFOUNDER_SIZE</a></span></span>
+
+  <span class='comment'># Skip the confounder when returning
+</span>  <span class='id identifier rubyid_decrypted'>decrypted</span><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="#CONFOUNDER_SIZE-constant" title="Rex::Proto::Kerberos::Crypto::Rc4Hmac::CONFOUNDER_SIZE (constant)">CONFOUNDER_SIZE</a></span></span><span class='comma'>,</span><span class='id identifier rubyid_decrypted'>decrypted</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encrypt-instance_method">
+  
+    #<strong>encrypt</strong>(plaintext, key, msg_type, confounder: nil)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Encrypts the cipher using RC4-HMAC schema <a href="https://datatracker.ietf.org/doc/rfc4757">datatracker.ietf.org/doc/rfc4757</a>/</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>plaintext</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the data to encrypt</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the key to encrypt</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>msg_type</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>type of kerberos message</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>confounder</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Optionally force the confounder to a specific value</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the encrypted data</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/crypto/rc4_hmac.rb', line 87</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encrypt'>encrypt</span><span class='lparen'>(</span><span class='id identifier rubyid_plaintext'>plaintext</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_msg_type'>msg_type</span><span class='comma'>,</span> <span class='label'>confounder:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_k1'>k1</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_usage_str'>usage_str</span><span class='lparen'>(</span><span class='id identifier rubyid_msg_type'>msg_type</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_confounder'>confounder</span> <span class='op'>=</span> <span class='const'>Random</span><span class='period'>.</span><span class='id identifier rubyid_urandom'>urandom</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#CONFOUNDER_SIZE-constant" title="Rex::Proto::Kerberos::Crypto::Rc4Hmac::CONFOUNDER_SIZE (constant)">CONFOUNDER_SIZE</a></span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_confounder'>confounder</span> <span class='op'>==</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_data_encrypt'>data_encrypt</span> <span class='op'>=</span> <span class='id identifier rubyid_confounder'>confounder</span> <span class='op'>+</span> <span class='id identifier rubyid_plaintext'>plaintext</span>
+
+  <span class='id identifier rubyid_checksum'>checksum</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_k1'>k1</span><span class='comma'>,</span> <span class='id identifier rubyid_data_encrypt'>data_encrypt</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_k3'>k3</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_k1'>k1</span><span class='comma'>,</span> <span class='id identifier rubyid_checksum'>checksum</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_cipher'>cipher</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Cipher</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rc4</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_encrypt'>encrypt</span>
+  <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_k3'>k3</span>
+  <span class='id identifier rubyid_encrypted'>encrypted</span> <span class='op'>=</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_data_encrypt'>data_encrypt</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_final'>final</span>
+
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_checksum'>checksum</span> <span class='op'>+</span> <span class='id identifier rubyid_encrypted'>encrypted</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="gss_unwrap-instance_method">
+  
+    #<strong>gss_unwrap</strong>(ciphertext, key, expected_sequence_number, is_initiator, opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Model/Error/KerberosError.html" title="Rex::Proto::Kerberos::Model::Error::KerberosError (class)">Rex::Proto::Kerberos::Model::Error::KerberosError</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/crypto/rc4_hmac.rb', line 106</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_gss_unwrap'>gss_unwrap</span><span class='lparen'>(</span><span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_expected_sequence_number'>expected_sequence_number</span><span class='comma'>,</span> <span class='id identifier rubyid_is_initiator'>is_initiator</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># Always 32-bit sequence number
+</span>  <span class='id identifier rubyid_expected_sequence_number'>expected_sequence_number</span> <span class='op'>&amp;=</span> <span class='int'>0xFFFFFFFF</span> <span class='kw'>unless</span> <span class='id identifier rubyid_expected_sequence_number'>expected_sequence_number</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_mech_id'>mech_id</span><span class='comma'>,</span> <span class='id identifier rubyid_ciphertext'>ciphertext</span> <span class='op'>=</span> <span class='id identifier rubyid_unwrap_pseudo_asn1'>unwrap_pseudo_asn1</span><span class='lparen'>(</span><span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error.html" title="Rex::Proto::Kerberos::Model::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error/KerberosError.html" title="Rex::Proto::Kerberos::Model::Error::KerberosError (class)">KerberosError</a></span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0x20</span>
+  <span class='id identifier rubyid_header'>header</span> <span class='op'>=</span> <span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>8</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_tok_id'>tok_id</span><span class='comma'>,</span> <span class='id identifier rubyid_alg'>alg</span><span class='comma'>,</span> <span class='id identifier rubyid_seal_alg'>seal_alg</span><span class='comma'>,</span> <span class='id identifier rubyid_filler'>filler</span> <span class='op'>=</span> <span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nnnn</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error.html" title="Rex::Proto::Kerberos::Model::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error/KerberosError.html" title="Rex::Proto::Kerberos::Model::Error::KerberosError (class)">KerberosError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid token id: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tok_id'>tok_id</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_tok_id'>tok_id</span> <span class='op'>==</span> <span class='int'>0x0201</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error.html" title="Rex::Proto::Kerberos::Model::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error/KerberosError.html" title="Rex::Proto::Kerberos::Model::Error::KerberosError (class)">KerberosError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid alg: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_alg'>alg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_alg'>alg</span> <span class='op'>==</span> <span class='int'>0x1100</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error.html" title="Rex::Proto::Kerberos::Model::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error/KerberosError.html" title="Rex::Proto::Kerberos::Model::Error::KerberosError (class)">KerberosError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid seal_alg: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_seal_alg'>seal_alg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_seal_alg'>seal_alg</span> <span class='op'>==</span> <span class='int'>0x1000</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error.html" title="Rex::Proto::Kerberos::Model::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error/KerberosError.html" title="Rex::Proto::Kerberos::Model::Error::KerberosError (class)">KerberosError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid filler: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_filler'>filler</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_filler'>filler</span> <span class='op'>==</span> <span class='int'>0xFFFF</span>
+
+  <span class='id identifier rubyid_encrypted_sequence_num'>encrypted_sequence_num</span> <span class='op'>=</span> <span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='lbracket'>[</span><span class='int'>8</span><span class='comma'>,</span><span class='int'>8</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_eight_checksum_bytes'>eight_checksum_bytes</span> <span class='op'>=</span> <span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='lbracket'>[</span><span class='int'>16</span><span class='comma'>,</span><span class='int'>8</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_encrypted_confounder'>encrypted_confounder</span> <span class='op'>=</span> <span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='lbracket'>[</span><span class='int'>24</span><span class='comma'>,</span><span class='int'>8</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_emessage'>emessage</span> <span class='op'>=</span> <span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='lbracket'>[</span><span class='int'>32</span><span class='comma'>,</span> <span class='id identifier rubyid_ciphertext'>ciphertext</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>32</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_kseq'>kseq</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_kseq'>kseq</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_kseq'>kseq</span><span class='comma'>,</span> <span class='id identifier rubyid_eight_checksum_bytes'>eight_checksum_bytes</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_cipher_seq'>cipher_seq</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Cipher</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rc4</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cipher_seq'>cipher_seq</span><span class='period'>.</span><span class='id identifier rubyid_decrypt'>decrypt</span>
+  <span class='id identifier rubyid_cipher_seq'>cipher_seq</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_kseq'>kseq</span>
+
+  <span class='id identifier rubyid_decrypted_sequence_num'>decrypted_sequence_num</span> <span class='op'>=</span> <span class='id identifier rubyid_cipher_seq'>cipher_seq</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_encrypted_sequence_num'>encrypted_sequence_num</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_decrypted_sequence_num'>decrypted_sequence_num</span> <span class='op'>=</span> <span class='id identifier rubyid_decrypted_sequence_num'>decrypted_sequence_num</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>N</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+  <span class='comment'>#raise Rex::Proto::Kerberos::Model::Error::KerberosError, &#39;Invalid sequence number&#39; unless (decrypted_sequence_num == expected_sequence_number || expected_sequence_number.nil?)
+</span>
+  <span class='id identifier rubyid_klocal'>klocal</span> <span class='op'>=</span> <span class='id identifier rubyid_xor_strings'>xor_strings</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xF0</span><span class='tstring_end'>&quot;</span></span><span class='op'>*</span><span class='int'>16</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_kcrypt'>kcrypt</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_klocal'>klocal</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='comment'># Salt it with the sequence number
+</span>  <span class='id identifier rubyid_kcrypt'>kcrypt</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_kcrypt'>kcrypt</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='id identifier rubyid_decrypted_sequence_num'>decrypted_sequence_num</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>N</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_cipher'>cipher</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Cipher</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rc4</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_encrypt'>encrypt</span>
+  <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_kcrypt'>kcrypt</span>
+  <span class='id identifier rubyid_decrypted_confounder'>decrypted_confounder</span> <span class='op'>=</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_encrypted_confounder'>encrypted_confounder</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_plaintext'>plaintext</span> <span class='op'>=</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_emessage'>emessage</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_chksum_input'>chksum_input</span> <span class='op'>=</span> <span class='id identifier rubyid_usage_str'>usage_str</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Crypto.html" title="Rex::Proto::Kerberos::Crypto (module)">Crypto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="KeyUsage.html" title="Rex::Proto::Kerberos::Crypto::KeyUsage (module)">KeyUsage</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="KeyUsage.html#KRB_PRIV_ENCPART-constant" title="Rex::Proto::Kerberos::Crypto::KeyUsage::KRB_PRIV_ENCPART (constant)">KRB_PRIV_ENCPART</a></span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_header'>header</span> <span class='op'>+</span> <span class='id identifier rubyid_decrypted_confounder'>decrypted_confounder</span>
+  <span class='id identifier rubyid_ksign'>ksign</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>signaturekey\x00</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_sgn_cksum'>sgn_cksum</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_md5_raw'>md5_raw</span><span class='lparen'>(</span><span class='id identifier rubyid_chksum_input'>chksum_input</span><span class='op'>+</span><span class='id identifier rubyid_plaintext'>plaintext</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_sgn_cksum'>sgn_cksum</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_ksign'>ksign</span><span class='comma'>,</span> <span class='id identifier rubyid_sgn_cksum'>sgn_cksum</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_verification_eight_checksum_bytes'>verification_eight_checksum_bytes</span> <span class='op'>=</span> <span class='id identifier rubyid_sgn_cksum'>sgn_cksum</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>8</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error.html" title="Rex::Proto::Kerberos::Model::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error/KerberosError.html" title="Rex::Proto::Kerberos::Model::Error::KerberosError (class)">KerberosError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Checksum error</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_verification_eight_checksum_bytes'>verification_eight_checksum_bytes</span> <span class='op'>==</span> <span class='id identifier rubyid_eight_checksum_bytes'>eight_checksum_bytes</span>
+
+  <span class='comment'># Remove padding, if present (seems MS may not send it back?)
+</span>  <span class='id identifier rubyid_pad_char'>pad_char</span> <span class='op'>=</span> <span class='id identifier rubyid_plaintext'>plaintext</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span>
+  <span class='kw'>if</span> <span class='int'>1</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_pad_char'>pad_char</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_pad_char'>pad_char</span> <span class='op'>&lt;=</span> <span class='int'>8</span>
+    <span class='id identifier rubyid_plaintext'>plaintext</span> <span class='op'>=</span> <span class='id identifier rubyid_plaintext'>plaintext</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_plaintext'>plaintext</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='op'>-</span><span class='id identifier rubyid_pad_char'>pad_char</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_plaintext'>plaintext</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="gss_wrap-instance_method">
+  
+    #<strong>gss_wrap</strong>(plaintext, key, sequence_number, is_initiator, opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/crypto/rc4_hmac.rb', line 170</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_gss_wrap'>gss_wrap</span><span class='lparen'>(</span><span class='id identifier rubyid_plaintext'>plaintext</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_sequence_number'>sequence_number</span><span class='comma'>,</span> <span class='id identifier rubyid_is_initiator'>is_initiator</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dce_style'>dce_style</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:dce_style</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='kw'>false</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_pad_style'>pad_style</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:rc4_pad_style</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='symbol'>:single_byte</span> <span class='rbrace'>}</span>
+  <span class='comment'># Always 32-bit sequence number
+</span>  <span class='id identifier rubyid_sequence_number'>sequence_number</span> <span class='op'>&amp;=</span> <span class='int'>0xFFFFFFFF</span>
+
+  <span class='comment'># Header
+</span>  <span class='id identifier rubyid_tok_id'>tok_id</span> <span class='op'>=</span> <span class='int'>0x0201</span>
+  <span class='id identifier rubyid_alg'>alg</span> <span class='op'>=</span> <span class='int'>0x1100</span>
+  <span class='id identifier rubyid_seal_alg'>seal_alg</span> <span class='op'>=</span> <span class='int'>0x1000</span>
+  <span class='id identifier rubyid_filler'>filler</span> <span class='op'>=</span> <span class='int'>0xFFFF</span>
+  <span class='id identifier rubyid_header'>header</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_tok_id'>tok_id</span><span class='comma'>,</span> <span class='id identifier rubyid_alg'>alg</span><span class='comma'>,</span> <span class='id identifier rubyid_seal_alg'>seal_alg</span><span class='comma'>,</span> <span class='id identifier rubyid_filler'>filler</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nnnn</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Add padding (see RFC1964 section 1.2.2.3)
+</span>  <span class='comment'># Some protocols (LDAP) only support a single byte and seem to fail otherwise
+</span>  <span class='comment'># Others (DRSR) only support 8-byte and seem to fail otherwise
+</span>  <span class='comment'># Some (WinRM) are lenient and are fine with either
+</span>  <span class='comment'>#
+</span>  <span class='comment'># It&#39;s not entirely clear why
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_pad_style'>pad_style</span> <span class='op'>==</span> <span class='symbol'>:single_byte</span>
+    <span class='id identifier rubyid_pad_num'>pad_num</span> <span class='op'>=</span> <span class='int'>1</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_pad_style'>pad_style</span> <span class='op'>==</span> <span class='symbol'>:eight_byte_aligned</span>
+    <span class='id identifier rubyid_pad_num'>pad_num</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='int'>8</span> <span class='op'>-</span> <span class='lparen'>(</span><span class='id identifier rubyid_plaintext'>plaintext</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>%</span> <span class='int'>8</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Unknown pad_style setting</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_plaintext'>plaintext</span> <span class='op'>+=</span> <span class='lparen'>(</span><span class='id identifier rubyid_pad_num'>pad_num</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='op'>*</span> <span class='id identifier rubyid_pad_num'>pad_num</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_send_seq'>send_seq</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_sequence_number'>sequence_number</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>N</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='comment'># See errata on RFC4757
+</span>  <span class='id identifier rubyid_initiator_bytes'>initiator_bytes</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xFF</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>4</span>
+  <span class='id identifier rubyid_initiator_bytes'>initiator_bytes</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>4</span> <span class='kw'>if</span> <span class='id identifier rubyid_is_initiator'>is_initiator</span>
+  <span class='id identifier rubyid_send_seq'>send_seq</span> <span class='op'>+=</span> <span class='id identifier rubyid_initiator_bytes'>initiator_bytes</span>
+
+  <span class='id identifier rubyid_confounder'>confounder</span> <span class='op'>=</span> <span class='const'>Random</span><span class='period'>.</span><span class='id identifier rubyid_urandom'>urandom</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#CONFOUNDER_SIZE-constant" title="Rex::Proto::Kerberos::Crypto::Rc4Hmac::CONFOUNDER_SIZE (constant)">CONFOUNDER_SIZE</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_chksum_input'>chksum_input</span> <span class='op'>=</span> <span class='id identifier rubyid_usage_str'>usage_str</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Crypto.html" title="Rex::Proto::Kerberos::Crypto (module)">Crypto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="KeyUsage.html" title="Rex::Proto::Kerberos::Crypto::KeyUsage (module)">KeyUsage</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="KeyUsage.html#KRB_PRIV_ENCPART-constant" title="Rex::Proto::Kerberos::Crypto::KeyUsage::KRB_PRIV_ENCPART (constant)">KRB_PRIV_ENCPART</a></span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_header'>header</span> <span class='op'>+</span> <span class='id identifier rubyid_confounder'>confounder</span>
+  <span class='id identifier rubyid_ksign'>ksign</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>signaturekey\x00</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_sgn_cksum'>sgn_cksum</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_md5_raw'>md5_raw</span><span class='lparen'>(</span><span class='id identifier rubyid_chksum_input'>chksum_input</span><span class='op'>+</span><span class='id identifier rubyid_plaintext'>plaintext</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_klocal'>klocal</span> <span class='op'>=</span> <span class='id identifier rubyid_xor_strings'>xor_strings</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xF0</span><span class='tstring_end'>&quot;</span></span><span class='op'>*</span><span class='int'>16</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_kcrypt'>kcrypt</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_klocal'>klocal</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='comment'># Salt it with the sequence number
+</span>  <span class='id identifier rubyid_kcrypt'>kcrypt</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_kcrypt'>kcrypt</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='id identifier rubyid_sequence_number'>sequence_number</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>N</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_cipher'>cipher</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Cipher</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rc4</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_encrypt'>encrypt</span>
+  <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_kcrypt'>kcrypt</span>
+  <span class='id identifier rubyid_encrypted_confounder'>encrypted_confounder</span> <span class='op'>=</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_confounder'>confounder</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_encrypted'>encrypted</span> <span class='op'>=</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_plaintext'>plaintext</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_sgn_cksum'>sgn_cksum</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_ksign'>ksign</span><span class='comma'>,</span> <span class='id identifier rubyid_sgn_cksum'>sgn_cksum</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_eight_checksum_bytes'>eight_checksum_bytes</span> <span class='op'>=</span> <span class='id identifier rubyid_sgn_cksum'>sgn_cksum</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>8</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_kseq'>kseq</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_kseq'>kseq</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>HMAC</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_kseq'>kseq</span><span class='comma'>,</span> <span class='id identifier rubyid_eight_checksum_bytes'>eight_checksum_bytes</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_cipher_seq'>cipher_seq</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Cipher</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rc4</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cipher_seq'>cipher_seq</span><span class='period'>.</span><span class='id identifier rubyid_encrypt'>encrypt</span>
+  <span class='id identifier rubyid_cipher_seq'>cipher_seq</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_kseq'>kseq</span>
+
+  <span class='id identifier rubyid_encrypted_sequence_num'>encrypted_sequence_num</span> <span class='op'>=</span> <span class='id identifier rubyid_cipher_seq'>cipher_seq</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_send_seq'>send_seq</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_token'>token</span> <span class='op'>=</span> <span class='id identifier rubyid_header'>header</span> <span class='op'>+</span> <span class='id identifier rubyid_encrypted_sequence_num'>encrypted_sequence_num</span> <span class='op'>+</span> <span class='id identifier rubyid_eight_checksum_bytes'>eight_checksum_bytes</span> <span class='op'>+</span> <span class='id identifier rubyid_encrypted_confounder'>encrypted_confounder</span>
+  <span class='id identifier rubyid_size_prior'>size_prior</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='op'>+</span><span class='id identifier rubyid_encrypted'>encrypted</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_dce_style'>dce_style</span>
+    <span class='id identifier rubyid_wrapped_token'>wrapped_token</span> <span class='op'>=</span> <span class='id identifier rubyid_wrap_pseudo_asn1'>wrap_pseudo_asn1</span><span class='lparen'>(</span>
+        <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Gss.html" title="Rex::Proto::Gss (module)">Gss</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Gss.html#OID_KERBEROS_5-constant" title="Rex::Proto::Gss::OID_KERBEROS_5 (constant)">OID_KERBEROS_5</a></span></span><span class='comma'>,</span>
+        <span class='id identifier rubyid_token'>token</span>
+    <span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_encrypted'>encrypted</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_wrapped_token'>wrapped_token</span> <span class='op'>=</span> <span class='id identifier rubyid_wrap_pseudo_asn1'>wrap_pseudo_asn1</span><span class='lparen'>(</span>
+        <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Gss.html" title="Rex::Proto::Gss (module)">Gss</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Gss.html#OID_KERBEROS_5-constant" title="Rex::Proto::Gss::OID_KERBEROS_5 (constant)">OID_KERBEROS_5</a></span></span><span class='comma'>,</span>
+        <span class='id identifier rubyid_token'>token</span> <span class='op'>+</span> <span class='id identifier rubyid_encrypted'>encrypted</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_asn1_length'>asn1_length</span> <span class='op'>=</span> <span class='id identifier rubyid_wrapped_token'>wrapped_token</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='id identifier rubyid_size_prior'>size_prior</span>
+  <span class='id identifier rubyid_token_length'>token_length</span> <span class='op'>=</span> <span class='id identifier rubyid_asn1_length'>asn1_length</span> <span class='op'>+</span> <span class='id identifier rubyid_token'>token</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+  <span class='lbracket'>[</span><span class='id identifier rubyid_wrapped_token'>wrapped_token</span><span class='comma'>,</span> <span class='id identifier rubyid_token_length'>token_length</span><span class='comma'>,</span> <span class='id identifier rubyid_pad_num'>pad_num</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="header_byte_count-instance_method">
+  
+    #<strong>header_byte_count</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The number of bytes in the encrypted plaintext that precede the actual plaintext</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+259
+260
+261</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/crypto/rc4_hmac.rb', line 259</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_header_byte_count'>header_byte_count</span>
+  <span class='const'><span class='object_link'><a href="#MAC_SIZE-constant" title="Rex::Proto::Kerberos::Crypto::Rc4Hmac::MAC_SIZE (constant)">MAC_SIZE</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="#CONFOUNDER_SIZE-constant" title="Rex::Proto::Kerberos::Crypto::Rc4Hmac::CONFOUNDER_SIZE (constant)">CONFOUNDER_SIZE</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="string_to_key-instance_method">
+  
+    #<strong>string_to_key</strong>(password, salt = nil, params: nil)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Derive an encryption key based on a password and salt for the given cipher type</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>password</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The password to use as the basis for key generation</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>salt</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Ignored for this encryption algorithm</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>params</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Unused for this encryption type</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The derived key</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Model/Error/KerberosError.html" title="Rex::Proto::Kerberos::Model::Error::KerberosError (class)">Rex::Proto::Kerberos::Model::Error::KerberosError</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/crypto/rc4_hmac.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_string_to_key'>string_to_key</span><span class='lparen'>(</span><span class='id identifier rubyid_password'>password</span><span class='comma'>,</span> <span class='id identifier rubyid_salt'>salt</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error.html" title="Rex::Proto::Kerberos::Model::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Model/Error/KerberosError.html" title="Rex::Proto::Kerberos::Model::Error::KerberosError (class)">KerberosError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Params not supported for RC4_HMAC</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>==</span> <span class='kw'>nil</span>
+
+  <span class='id identifier rubyid_unicode_password'>unicode_password</span> <span class='op'>=</span> <span class='id identifier rubyid_password'>password</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>utf-16le</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_password_digest'>password_digest</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Digest</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD4</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_unicode_password'>unicode_password</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="trailing_byte_count-instance_method">
+  
+    #<strong>trailing_byte_count</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The number of bytes in the encrypted plaintext that follow the actual plaintext</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+266
+267
+268</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/crypto/rc4_hmac.rb', line 266</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_trailing_byte_count'>trailing_byte_count</span>
+  <span class='int'>0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:43:15 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

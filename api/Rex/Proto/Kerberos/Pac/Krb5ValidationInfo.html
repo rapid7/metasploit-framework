@@ -1,0 +1,3178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::Kerberos::Pac::Krb5ValidationInfo
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Kerberos::Pac::Krb5ValidationInfo";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (K)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Pac.html" title="Rex::Proto::Kerberos::Pac (module)">Pac</a></span></span>
+     &raquo; 
+    <span class="title">Krb5ValidationInfo</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::Kerberos::Pac::Krb5ValidationInfo
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">RubySMB::Dcerpc::Ndr::NdrStruct</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">RubySMB::Dcerpc::Ndr::NdrStruct</li>
+          
+            <li class="next">Rex::Proto::Kerberos::Pac::Krb5ValidationInfo</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/kerberos/pac/krb5_pac.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p><a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/69e86ccc-85e3-41b9-b514-7d969cd0ed73">learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/69e86ccc-85e3-41b9-b514-7d969cd0ed73</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Krb5ValidationInfoPtr.html" title="Rex::Proto::Kerberos::Pac::Krb5ValidationInfoPtr (class)">Krb5ValidationInfoPtr</a></span></p>
+</div>
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#bad_password_count-instance_method" title="#bad_password_count (instance method)">#<strong>bad_password_count</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>User account’s badPwdCount attribute.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#effective_name-instance_method" title="#effective_name (instance method)">#<strong>effective_name</strong>  &#x21d2; RpcUnicodeString </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>User account’s samAccountName attribute.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#extra_sids-instance_method" title="#extra_sids (instance method)">#<strong>extra_sids</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>corresponding to groups in domains other than the account domain to which the principal belongs.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#failed_i_logon_count-instance_method" title="#failed_i_logon_count (instance method)">#<strong>failed_i_logon_count</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>User account’s msDS-FailedInteractiveLogonCountAtLastSuccessfulLogon.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#full_name-instance_method" title="#full_name (instance method)">#<strong>full_name</strong>  &#x21d2; RpcUnicodeString </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>User account’s full name for interactive logon.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#group_count-instance_method" title="#group_count (instance method)">#<strong>group_count</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Number of groups within the account domain to which the account belongs.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#group_memberships-instance_method" title="#group_memberships (instance method)">#<strong>group_memberships</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>List of GROUP_MEMBERSHIP structures that contains the groups to which the account belongs in the account domain.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#home_directory-instance_method" title="#home_directory (instance method)">#<strong>home_directory</strong>  &#x21d2; RpcUnicodeString </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>User account’s HomeDirectory attribute.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#home_directory_drive-instance_method" title="#home_directory_drive (instance method)">#<strong>home_directory_drive</strong>  &#x21d2; RpcUnicodeString </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>User account’s HomeDrive attribute.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#kick_off_time-instance_method" title="#kick_off_time (instance method)">#<strong>kick_off_time</strong>  &#x21d2; FileTime </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Logoff_time minus the user account’s forceLogoff attribute.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#last_failed_i_logon-instance_method" title="#last_failed_i_logon (instance method)">#<strong>last_failed_i_logon</strong>  &#x21d2; FileTime </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>User account’s msDS-LastFailedInteractiveLogonTime.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#last_successful_i_logon-instance_method" title="#last_successful_i_logon (instance method)">#<strong>last_successful_i_logon</strong>  &#x21d2; FileTime </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>User account’s msDS-LastSuccessfulInteractiveLogonTime.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#logoff_time-instance_method" title="#logoff_time (instance method)">#<strong>logoff_time</strong>  &#x21d2; FileTime </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Time the client’s logon session is set to expire.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#logon_count-instance_method" title="#logon_count (instance method)">#<strong>logon_count</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>User account’s LogonCount attribute.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#logon_domain_id-instance_method" title="#logon_domain_id (instance method)">#<strong>logon_domain_id</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>SID for the domain specified in LogonDomainName.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#logon_domain_name-instance_method" title="#logon_domain_name (instance method)">#<strong>logon_domain_name</strong>  &#x21d2; RpcUnicodeString </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>NetBIOS name of the domain to which this account belongs.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#logon_script-instance_method" title="#logon_script (instance method)">#<strong>logon_script</strong>  &#x21d2; RpcUnicodeString </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>User account’s scriptPath attribute.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#logon_server-instance_method" title="#logon_server (instance method)">#<strong>logon_server</strong>  &#x21d2; RpcUnicodeString </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>NetBIOS name of the Kerberos KDC that performed the authentication server (AS) ticket request.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#logon_time-instance_method" title="#logon_time (instance method)">#<strong>logon_time</strong>  &#x21d2; FileTime </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>User account’s lastLogon attributeÏ.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#password_can_change-instance_method" title="#password_can_change (instance method)">#<strong>password_can_change</strong>  &#x21d2; FileTime </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Time at which the client’s password is allowed to change.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#password_last_set-instance_method" title="#password_last_set (instance method)">#<strong>password_last_set</strong>  &#x21d2; FileTime </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>User account’s pwdLastSet attribute.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#password_must_change-instance_method" title="#password_must_change (instance method)">#<strong>password_must_change</strong>  &#x21d2; FileTime </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Time at which the client’s password expires.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#primary_group_id-instance_method" title="#primary_group_id (instance method)">#<strong>primary_group_id</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>RID for the primary group to which this account belongs.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#profile_path-instance_method" title="#profile_path (instance method)">#<strong>profile_path</strong>  &#x21d2; RpcUnicodeString </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>User account’s profilePath attribute.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reserved_1-instance_method" title="#reserved_1 (instance method)">#<strong>reserved_1</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This member is reserved.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reserved_3-instance_method" title="#reserved_3 (instance method)">#<strong>reserved_3</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This member is reserved.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resource_group_count-instance_method" title="#resource_group_count (instance method)">#<strong>resource_group_count</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Number of resource group identifiers stored in ResourceGroupIds.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resource_group_domain_sid-instance_method" title="#resource_group_domain_sid (instance method)">#<strong>resource_group_domain_sid</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>SID of the domain for the server whose resources the client is authenticating to.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resource_group_ids_ptr-instance_method" title="#resource_group_ids_ptr (instance method)">#<strong>resource_group_ids_ptr</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>account’s groups in the resource domain.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sid_count-instance_method" title="#sid_count (instance method)">#<strong>sid_count</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Total number of SIDs present in the ExtraSids member.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sub_auth_status-instance_method" title="#sub_auth_status (instance method)">#<strong>sub_auth_status</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Subauthentication package’s status code.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#user_account_control-instance_method" title="#user_account_control (instance method)">#<strong>user_account_control</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Set of bit flags that represent information about this account.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#user_flags-instance_method" title="#user_flags (instance method)">#<strong>user_flags</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A set of bit flags that describe the user’s logon information.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#user_id-instance_method" title="#user_id (instance method)">#<strong>user_id</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>RID of the account.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#user_session_key-instance_method" title="#user_session_key (instance method)">#<strong>user_session_key</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A session key that is used for cryptographic operations on a session.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#group_ids=-instance_method" title="#group_ids= (instance method)">#<strong>group_ids=</strong>(group_ids)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="bad_password_count=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="bad_password_count-instance_method">
+  
+    #<strong>bad_password_count</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns User account’s badPwdCount attribute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User account’s badPwdCount attribute</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+444</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 444</span>
+
+<span class='id identifier rubyid_ndr_uint16'>ndr_uint16</span> <span class='symbol'>:bad_password_count</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="effective_name=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="effective_name-instance_method">
+  
+    #<strong>effective_name</strong>  &#x21d2; <tt>RpcUnicodeString</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns User account’s samAccountName attribute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>RpcUnicodeString</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User account’s samAccountName attribute</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+416</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 416</span>
+
+<span class='id identifier rubyid_rpc_unicode_string'>rpc_unicode_string</span> <span class='symbol'>:effective_name</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="extra_sids=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="extra_sids-instance_method">
+  
+    #<strong>extra_sids</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>corresponding to groups in domains other than the account domain to which the principal belongs</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A list of KERB_SID_AND_ATTRIBUTES structures that contain a list of SIDs</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+527</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 527</span>
+
+<span class='id identifier rubyid_krb5_sid_and_attributes_ptr'>krb5_sid_and_attributes_ptr</span> <span class='symbol'>:extra_sids</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="failed_i_logon_count=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="failed_i_logon_count-instance_method">
+  
+    #<strong>failed_i_logon_count</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns User account’s msDS-FailedInteractiveLogonCountAtLastSuccessfulLogon.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User account’s msDS-FailedInteractiveLogonCountAtLastSuccessfulLogon</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+514</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 514</span>
+
+<span class='id identifier rubyid_ndr_uint32'>ndr_uint32</span> <span class='symbol'>:failed_i_logon_count</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="full_name=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="full_name-instance_method">
+  
+    #<strong>full_name</strong>  &#x21d2; <tt>RpcUnicodeString</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns User account’s full name for interactive logon.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>RpcUnicodeString</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User account’s full name for interactive logon</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+420</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 420</span>
+
+<span class='id identifier rubyid_rpc_unicode_string'>rpc_unicode_string</span> <span class='symbol'>:full_name</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="group_count=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="group_count-instance_method">
+  
+    #<strong>group_count</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Number of groups within the account domain to which the account belongs.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Number of groups within the account domain to which the account belongs</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+456</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 456</span>
+
+<span class='id identifier rubyid_ndr_uint32'>ndr_uint32</span> <span class='symbol'>:group_count</span><span class='comma'>,</span> <span class='label'>initial_value:</span> <span class='tlambda'>-&gt;</span> <span class='tlambeg'>{</span> <span class='id identifier rubyid_group_memberships'>group_memberships</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='rbrace'>}</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="group_memberships=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="group_memberships-instance_method">
+  
+    #<strong>group_memberships</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns List of GROUP_MEMBERSHIP structures that contains the groups to which the account belongs in the account domain.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>List of GROUP_MEMBERSHIP structures that contains the groups to which the account belongs in the account domain</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+460</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 460</span>
+
+<span class='id identifier rubyid_pgroup_membership_array'>pgroup_membership_array</span> <span class='symbol'>:group_memberships</span><span class='comma'>,</span> <span class='label'>type:</span> <span class='lbracket'>[</span><span class='symbol'>:group_membership</span><span class='comma'>,</span> <span class='lbrace'>{</span> <span class='label'>byte_align:</span> <span class='int'>4</span> <span class='rbrace'>}</span><span class='rbracket'>]</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="home_directory=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="home_directory-instance_method">
+  
+    #<strong>home_directory</strong>  &#x21d2; <tt>RpcUnicodeString</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns User account’s HomeDirectory attribute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>RpcUnicodeString</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User account’s HomeDirectory attribute</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+432</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 432</span>
+
+<span class='id identifier rubyid_rpc_unicode_string'>rpc_unicode_string</span> <span class='symbol'>:home_directory</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="home_directory_drive=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="home_directory_drive-instance_method">
+  
+    #<strong>home_directory_drive</strong>  &#x21d2; <tt>RpcUnicodeString</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns User account’s HomeDrive attribute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>RpcUnicodeString</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User account’s HomeDrive attribute</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+436</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 436</span>
+
+<span class='id identifier rubyid_rpc_unicode_string'>rpc_unicode_string</span> <span class='symbol'>:home_directory_drive</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="kick_off_time=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="kick_off_time-instance_method">
+  
+    #<strong>kick_off_time</strong>  &#x21d2; <tt>FileTime</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns logoff_time minus the user account’s forceLogoff attribute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>FileTime</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>logoff_time minus the user account’s forceLogoff attribute</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+400</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 400</span>
+
+<span class='id identifier rubyid_ndr_file_time'>ndr_file_time</span> <span class='symbol'>:kick_off_time</span><span class='comma'>,</span> <span class='label'>initial_value:</span> <span class='const'><span class='object_link'><a href="../Pac.html#NEVER_EXPIRE-constant" title="Rex::Proto::Kerberos::Pac::NEVER_EXPIRE (constant)">NEVER_EXPIRE</a></span></span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="last_failed_i_logon=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="last_failed_i_logon-instance_method">
+  
+    #<strong>last_failed_i_logon</strong>  &#x21d2; <tt>FileTime</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns User account’s msDS-LastFailedInteractiveLogonTime.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>FileTime</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User account’s msDS-LastFailedInteractiveLogonTime</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+510</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 510</span>
+
+<span class='id identifier rubyid_ndr_file_time'>ndr_file_time</span> <span class='symbol'>:last_failed_i_logon</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="last_successful_i_logon=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="last_successful_i_logon-instance_method">
+  
+    #<strong>last_successful_i_logon</strong>  &#x21d2; <tt>FileTime</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns User account’s msDS-LastSuccessfulInteractiveLogonTime.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>FileTime</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User account’s msDS-LastSuccessfulInteractiveLogonTime</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+506</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 506</span>
+
+<span class='id identifier rubyid_ndr_file_time'>ndr_file_time</span> <span class='symbol'>:last_successful_i_logon</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="logoff_time=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="logoff_time-instance_method">
+  
+    #<strong>logoff_time</strong>  &#x21d2; <tt>FileTime</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Time the client’s logon session is set to expire.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>FileTime</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Time the client’s logon session is set to expire</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+396</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 396</span>
+
+<span class='id identifier rubyid_ndr_file_time'>ndr_file_time</span> <span class='symbol'>:logoff_time</span><span class='comma'>,</span> <span class='label'>initial_value:</span> <span class='const'><span class='object_link'><a href="../Pac.html#NEVER_EXPIRE-constant" title="Rex::Proto::Kerberos::Pac::NEVER_EXPIRE (constant)">NEVER_EXPIRE</a></span></span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="logon_count=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="logon_count-instance_method">
+  
+    #<strong>logon_count</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns User account’s LogonCount attribute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User account’s LogonCount attribute</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+440</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 440</span>
+
+<span class='id identifier rubyid_ndr_uint16'>ndr_uint16</span> <span class='symbol'>:logon_count</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="logon_domain_id=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="logon_domain_id-instance_method">
+  
+    #<strong>logon_domain_id</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns SID for the domain specified in LogonDomainName.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>SID for the domain specified in LogonDomainName</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+489</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 489</span>
+
+<span class='id identifier rubyid_prpc_sid'>prpc_sid</span> <span class='symbol'>:logon_domain_id</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="logon_domain_name=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="logon_domain_name-instance_method">
+  
+    #<strong>logon_domain_name</strong>  &#x21d2; <tt>RpcUnicodeString</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns NetBIOS name of the domain to which this account belongs.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>RpcUnicodeString</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>NetBIOS name of the domain to which this account belongs</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+485</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 485</span>
+
+<span class='id identifier rubyid_rpc_unicode_string'>rpc_unicode_string</span> <span class='symbol'>:logon_domain_name</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="logon_script=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="logon_script-instance_method">
+  
+    #<strong>logon_script</strong>  &#x21d2; <tt>RpcUnicodeString</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns User account’s scriptPath attribute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>RpcUnicodeString</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User account’s scriptPath attribute</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+424</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 424</span>
+
+<span class='id identifier rubyid_rpc_unicode_string'>rpc_unicode_string</span> <span class='symbol'>:logon_script</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="logon_server=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="logon_server-instance_method">
+  
+    #<strong>logon_server</strong>  &#x21d2; <tt>RpcUnicodeString</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns NetBIOS name of the Kerberos KDC that performed the authentication server (AS) ticket request.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>RpcUnicodeString</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>NetBIOS name of the Kerberos KDC that performed the authentication server (AS) ticket request</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+481</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 481</span>
+
+<span class='id identifier rubyid_rpc_unicode_string'>rpc_unicode_string</span> <span class='symbol'>:logon_server</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="logon_time=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="logon_time-instance_method">
+  
+    #<strong>logon_time</strong>  &#x21d2; <tt>FileTime</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns User account’s lastLogon attributeÏ.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>FileTime</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User account’s lastLogon attributeÏ</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+392</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 392</span>
+
+<span class='id identifier rubyid_ndr_file_time'>ndr_file_time</span> <span class='symbol'>:logon_time</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="password_can_change=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="password_can_change-instance_method">
+  
+    #<strong>password_can_change</strong>  &#x21d2; <tt>FileTime</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Time at which the client’s password is allowed to change.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>FileTime</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Time at which the client’s password is allowed to change</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+408</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 408</span>
+
+<span class='id identifier rubyid_ndr_file_time'>ndr_file_time</span> <span class='symbol'>:password_can_change</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="password_last_set=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="password_last_set-instance_method">
+  
+    #<strong>password_last_set</strong>  &#x21d2; <tt>FileTime</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns User account’s pwdLastSet attribute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>FileTime</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User account’s pwdLastSet attribute</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+404</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 404</span>
+
+<span class='id identifier rubyid_ndr_file_time'>ndr_file_time</span> <span class='symbol'>:password_last_set</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="password_must_change=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="password_must_change-instance_method">
+  
+    #<strong>password_must_change</strong>  &#x21d2; <tt>FileTime</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Time at which the client’s password expires.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>FileTime</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Time at which the client’s password expires</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+412</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 412</span>
+
+<span class='id identifier rubyid_ndr_file_time'>ndr_file_time</span> <span class='symbol'>:password_must_change</span><span class='comma'>,</span> <span class='label'>initial_value:</span> <span class='const'><span class='object_link'><a href="../Pac.html#NEVER_EXPIRE-constant" title="Rex::Proto::Kerberos::Pac::NEVER_EXPIRE (constant)">NEVER_EXPIRE</a></span></span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="primary_group_id=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="primary_group_id-instance_method">
+  
+    #<strong>primary_group_id</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns RID for the primary group to which this account belongs.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>RID for the primary group to which this account belongs</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+452</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 452</span>
+
+<span class='id identifier rubyid_ndr_uint32'>ndr_uint32</span> <span class='symbol'>:primary_group_id</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="profile_path=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="profile_path-instance_method">
+  
+    #<strong>profile_path</strong>  &#x21d2; <tt>RpcUnicodeString</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns User account’s profilePath attribute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>RpcUnicodeString</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User account’s profilePath attribute</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+428</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 428</span>
+
+<span class='id identifier rubyid_rpc_unicode_string'>rpc_unicode_string</span> <span class='symbol'>:profile_path</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="reserved_1=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="reserved_1-instance_method">
+  
+    #<strong>reserved_1</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns This member is reserved.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>This member is reserved</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+494</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 494</span>
+
+<span class='id identifier rubyid_ndr_fix_array'>ndr_fix_array</span> <span class='symbol'>:reserved_1</span><span class='comma'>,</span> <span class='label'>initial_length:</span> <span class='int'>2</span><span class='comma'>,</span> <span class='label'>type:</span> <span class='symbol'>:ndr_uint32</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="reserved_3=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="reserved_3-instance_method">
+  
+    #<strong>reserved_3</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns This member is reserved.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>This member is reserved</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+518</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 518</span>
+
+<span class='id identifier rubyid_ndr_uint32'>ndr_uint32</span> <span class='symbol'>:reserved_3</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="resource_group_count=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="resource_group_count-instance_method">
+  
+    #<strong>resource_group_count</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Number of resource group identifiers stored in ResourceGroupIds.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Number of resource group identifiers stored in ResourceGroupIds</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+535</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 535</span>
+
+<span class='id identifier rubyid_ndr_uint32'>ndr_uint32</span> <span class='symbol'>:resource_group_count</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="resource_group_domain_sid=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="resource_group_domain_sid-instance_method">
+  
+    #<strong>resource_group_domain_sid</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns SID of the domain for the server whose resources the client is authenticating to.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>SID of the domain for the server whose resources the client is authenticating to</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+531</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 531</span>
+
+<span class='id identifier rubyid_prpc_sid'>prpc_sid</span> <span class='symbol'>:resource_group_domain_sid</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="resource_group_ids_ptr=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="resource_group_ids_ptr-instance_method">
+  
+    #<strong>resource_group_ids_ptr</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>account’s groups in the resource domain</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Pointer to list of GROUP_MEMBERSHIP structures that contain the RIDs and attributes of the</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+540</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 540</span>
+
+<span class='id identifier rubyid_pgroup_membership_array'>pgroup_membership_array</span> <span class='symbol'>:resource_group_ids_ptr</span><span class='comma'>,</span> <span class='label'>type:</span> <span class='lbracket'>[</span><span class='symbol'>:group_membership</span><span class='comma'>,</span> <span class='lbrace'>{</span> <span class='label'>byte_align:</span> <span class='int'>4</span> <span class='rbrace'>}</span><span class='rbracket'>]</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="sid_count=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="sid_count-instance_method">
+  
+    #<strong>sid_count</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Total number of SIDs present in the ExtraSids member.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Total number of SIDs present in the ExtraSids member</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+522</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 522</span>
+
+<span class='id identifier rubyid_ndr_uint32'>ndr_uint32</span> <span class='symbol'>:sid_count</span><span class='comma'>,</span> <span class='label'>initial_value:</span> <span class='tlambda'>-&gt;</span> <span class='tlambeg'>{</span> <span class='id identifier rubyid_extra_sids'>extra_sids</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='rbrace'>}</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="sub_auth_status=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="sub_auth_status-instance_method">
+  
+    #<strong>sub_auth_status</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Subauthentication package’s status code.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Subauthentication package’s status code</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+502</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 502</span>
+
+<span class='id identifier rubyid_ndr_uint32'>ndr_uint32</span> <span class='symbol'>:sub_auth_status</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="user_account_control=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="user_account_control-instance_method">
+  
+    #<strong>user_account_control</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Set of bit flags that represent information about this account.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Set of bit flags that represent information about this account</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+498</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 498</span>
+
+<span class='id identifier rubyid_ndr_uint32'>ndr_uint32</span> <span class='symbol'>:user_account_control</span><span class='comma'>,</span> <span class='label'>initial_value:</span> <span class='const'><span class='object_link'><a href="../Pac.html#USER_NORMAL_ACCOUNT-constant" title="Rex::Proto::Kerberos::Pac::USER_NORMAL_ACCOUNT (constant)">USER_NORMAL_ACCOUNT</a></span></span> <span class='op'>|</span> <span class='const'><span class='object_link'><a href="../Pac.html#USER_DONT_EXPIRE_PASSWORD-constant" title="Rex::Proto::Kerberos::Pac::USER_DONT_EXPIRE_PASSWORD (constant)">USER_DONT_EXPIRE_PASSWORD</a></span></span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="user_flags=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="user_flags-instance_method">
+  
+    #<strong>user_flags</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns A set of bit flags that describe the user’s logon information.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A set of bit flags that describe the user’s logon information</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+465
+466
+467
+468
+469
+470
+471
+472
+473</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 465</span>
+
+<span class='id identifier rubyid_ndr_uint32'>ndr_uint32</span> <span class='symbol'>:user_flags</span><span class='comma'>,</span>
+<span class='label'>initial_value:</span> <span class='tlambda'>-&gt;</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='comment'># Bit D: Indicates that the ExtraSids field is populated and contains additional SIDs.
+</span>  <span class='id identifier rubyid_value'>value</span> <span class='op'>|=</span> <span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>5</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sid_count'>sid_count</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+  <span class='comment'># Bit H: Indicates that the ResourceGroupIds field is populated.
+</span>  <span class='id identifier rubyid_value'>value</span> <span class='op'>|=</span> <span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>9</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_resource_group_count'>resource_group_count</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="user_id=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="user_id-instance_method">
+  
+    #<strong>user_id</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns RID of the account.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>RID of the account</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+448</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 448</span>
+
+<span class='id identifier rubyid_ndr_uint32'>ndr_uint32</span> <span class='symbol'>:user_id</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="user_session_key=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="user_session_key-instance_method">
+  
+    #<strong>user_session_key</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns A session key that is used for cryptographic operations on a session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A session key that is used for cryptographic operations on a session</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+477</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 477</span>
+
+<span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='symbol'>:user_session_key</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="group_ids=-instance_method">
+  
+    #<strong>group_ids=</strong>(group_ids)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+542
+543
+544
+545
+546</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 542</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_group_ids='>group_ids=</span><span class='lparen'>(</span><span class='id identifier rubyid_group_ids'>group_ids</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_group_memberships'>group_memberships</span> <span class='op'>=</span> <span class='id identifier rubyid_group_ids'>group_ids</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_id'>id</span><span class='op'>|</span>
+    <span class='lbrace'>{</span> <span class='label'>relative_id:</span> <span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='label'>attributes:</span> <span class='const'><span class='object_link'><a href="../Pac.html#SE_GROUP_ALL-constant" title="Rex::Proto::Kerberos::Pac::SE_GROUP_ALL (constant)">SE_GROUP_ALL</a></span></span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:43:14 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

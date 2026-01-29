@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Handler::BindAwsSsm::AwsSsmSessionChannel
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Handler::BindAwsSsm::AwsSsmSessionChannel";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Handler.html" title="Msf::Handler (module)">Handler</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../BindAwsSsm.html" title="Msf::Handler::BindAwsSsm (module)">BindAwsSsm</a></span></span>
+     &raquo; 
+    <span class="title">AwsSsmSessionChannel</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Handler::BindAwsSsm::AwsSsmSessionChannel
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::Handler::BindAwsSsm::AwsSsmSessionChannel</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd>Rex::IO::StreamAbstraction</dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/handler/bind_aws_ssm.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module implements SSM R/W abstraction to mimic Rex::IO::Stream interfaces These methods are not fully synchronized/thread-safe as the req/resp chain is itself async and rely on a cursor to obtain responses when they are ready from the SSM API.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#close-instance_method" title="#close (instance method)">#<strong>close</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Closes the stream abstraction and kills the monitor thread.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(framework, ssmclient, peer_info)  &#x21d2; AwsSsmSessionChannel </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of AwsSsmSessionChannel.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#monitor_shell_stdout-instance_method" title="#monitor_shell_stdout (instance method)">#<strong>monitor_shell_stdout</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Funnel data from the shell’s stdout to <code>rsock</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ssm_read-instance_method" title="#ssm_read (instance method)">#<strong>ssm_read</strong>(length = nil, opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Find command response on cursor and return to caller - doesn’t respect length arg, yet.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write-instance_method" title="#write (instance method)">#<strong>write</strong>(buf, opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(framework, ssmclient, peer_info)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Handler::BindAwsSsm::AwsSsmSessionChannel (class)">AwsSsmSessionChannel</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of AwsSsmSessionChannel.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_aws_ssm.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_ssmclient'>ssmclient</span><span class='comma'>,</span> <span class='id identifier rubyid_peer_info'>peer_info</span><span class='rparen'>)</span>
+  <span class='ivar'>@framework</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span>
+  <span class='ivar'>@peer_info</span> <span class='op'>=</span> <span class='id identifier rubyid_peer_info'>peer_info</span>
+  <span class='ivar'>@ssmclient</span> <span class='op'>=</span> <span class='id identifier rubyid_ssmclient'>ssmclient</span>
+  <span class='ivar'>@cursor</span>    <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@cmd_doc</span>   <span class='op'>=</span> <span class='id identifier rubyid_peer_info'>peer_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CommandDocument</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_initialize_abstraction'>initialize_abstraction</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_lsock'>lsock</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="AwsSsmSessionChannelExt.html" title="Msf::Handler::BindAwsSsm::AwsSsmSessionChannelExt (module)">AwsSsmSessionChannelExt</a></span></span><span class='rparen'>)</span>
+  <span class='comment'># self.lsock.peerinfo  = peer_info[&#39;ComputerName&#39;] + &#39;:0&#39;
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_lsock'>lsock</span><span class='period'>.</span><span class='id identifier rubyid_peerinfo'>peerinfo</span>  <span class='op'>=</span> <span class='id identifier rubyid_peer_info'>peer_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>IpAddress</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:0</span><span class='tstring_end'>&#39;</span></span>
+  <span class='comment'># Fudge the portspec since each client request is actually a new connection w/ a new source port, for now
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_lsock'>lsock</span><span class='period'>.</span><span class='id identifier rubyid_localinfo'>localinfo</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_source_address'>source_address</span><span class='lparen'>(</span><span class='ivar'>@ssmclient</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_sub'>sub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>https://</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:0</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_monitor_shell_stdout'>monitor_shell_stdout</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="close-instance_method">
+  
+    #<strong>close</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Closes the stream abstraction and kills the monitor thread.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+114
+115
+116
+117
+118
+119</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_aws_ssm.rb', line 114</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
+  <span class='ivar'>@monitor_thread</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@monitor_thread</span><span class='rparen'>)</span>
+  <span class='ivar'>@monitor_thread</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='id identifier rubyid_cleanup_abstraction'>cleanup_abstraction</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="monitor_shell_stdout-instance_method">
+  
+    #<strong>monitor_shell_stdout</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Funnel data from the shell’s stdout to <code>rsock</code></p>
+
+<p><tt>StreamAbstraction#monitor_rsock</tt> will deal with getting data from the client (user input).  From there, it calls our write() below, funneling the data to the shell’s stdin on the other side.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_aws_ssm.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_monitor_shell_stdout'>monitor_shell_stdout</span>
+  <span class='ivar'>@monitor_thread</span> <span class='op'>=</span> <span class='ivar'>@framework</span><span class='period'>.</span><span class='id identifier rubyid_threads'>threads</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AwsSsmSessionHandlerMonitor</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span> <span class='lbrace'>{</span>
+    <span class='kw'>begin</span>
+      <span class='kw'>while</span> <span class='kw'>true</span>
+        <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ThreadSafe</span><span class='period'>.</span><span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='float'>0.5</span><span class='rparen'>)</span> <span class='kw'>while</span> <span class='ivar'>@cursor</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='comment'># Handle data from the API and write to the client
+</span>        <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_ssm_read'>ssm_read</span>
+        <span class='kw'>break</span> <span class='kw'>if</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='id identifier rubyid_rsock'>rsock</span><span class='period'>.</span><span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../../../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AwsSsmSession monitor thread raised </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ssm_read-instance_method">
+  
+    #<strong>ssm_read</strong>(length = nil, opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Find command response on cursor and return to caller - doesn’t respect length arg, yet</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_aws_ssm.rb', line 72</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ssm_read'>ssm_read</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_maxw'>maxw</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:timeout</span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:timeout</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='int'>30</span>
+  <span class='id identifier rubyid_start'>start</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='ivar'>@ssmclient</span><span class='period'>.</span><span class='id identifier rubyid_list_command_invocations'>list_command_invocations</span><span class='lparen'>(</span><span class='label'>command_id:</span> <span class='ivar'>@cursor</span><span class='comma'>,</span> <span class='label'>instance_id:</span> <span class='ivar'>@peer_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>InstanceId</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>details:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_command_invocations'>command_invocations</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='kw'>or</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_command_invocations'>command_invocations</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>InProgress</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>and</span>
+    <span class='lparen'>(</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='id identifier rubyid_start'>start</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='period'>.</span><span class='id identifier rubyid_abs'>abs</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_maxw'>maxw</span> <span class='kw'>do</span>
+    <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ThreadSafe</span><span class='period'>.</span><span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='ivar'>@ssmclient</span><span class='period'>.</span><span class='id identifier rubyid_list_command_invocations'>list_command_invocations</span><span class='lparen'>(</span><span class='label'>command_id:</span> <span class='ivar'>@cursor</span><span class='comma'>,</span> <span class='label'>instance_id:</span> <span class='ivar'>@peer_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>InstanceId</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>details:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='comment'># SSM script invocation states are: InProgress, Success, TimedOut, Cancelled, Failed
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_command_invocations'>command_invocations</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Success</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>or</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_command_invocations'>command_invocations</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Failed</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'># The big limitation: SSM command outputs are only 2500 chars max, otherwise you have to write to S3 and read from there
+</span>    <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_command_invocations'>command_invocations</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_command_plugins'>command_plugins</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_output'>output</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span>
+    <span class='ivar'>@cursor</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_output'>output</span>
+  <span class='kw'>else</span>
+    <span class='ivar'>@cursor</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../../../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AwsSsmSession error </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_resp'>resp</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_resp'>resp</span>
+  <span class='kw'>end</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write-instance_method">
+  
+    #<strong>write</strong>(buf, opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_aws_ssm.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='ivar'>@ssmclient</span><span class='period'>.</span><span class='id identifier rubyid_send_command'>send_command</span><span class='lparen'>(</span>
+    <span class='label'>document_name:</span> <span class='ivar'>@cmd_doc</span><span class='comma'>,</span>
+    <span class='label'>instance_ids:</span> <span class='lbracket'>[</span><span class='ivar'>@peer_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>InstanceId</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>parameters:</span> <span class='lbrace'>{</span> <span class='label'>commands:</span> <span class='lbracket'>[</span><span class='id identifier rubyid_buf'>buf</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_error_count'>error_count</span> <span class='op'>==</span> <span class='int'>0</span>
+    <span class='ivar'>@cursor</span> <span class='op'>=</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_command_id'>command_id</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='kw'>else</span>
+    <span class='ivar'>@cursor</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../../../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AwsSsmSession error </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_resp'>resp</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_resp'>resp</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:42:13 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

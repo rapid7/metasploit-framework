@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::CommandMapper
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::CommandMapper";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span>
+     &raquo; 
+    <span class="title">CommandMapper</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::CommandMapper
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Post::Meterpreter::CommandMapper</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/command_mapper.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="cached_tlv_types-classvariable" class="">@@cached_tlv_types =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span><span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_command_id-class_method" title="get_command_id (class method)">.<strong>get_command_id</strong>(name)  &#x21d2; Integer<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the numeric command ID for the specified command name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_command_name-class_method" title="get_command_name (class method)">.<strong>get_command_name</strong>(id)  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the string command name for the specified command ID.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_command_names-class_method" title="get_command_names (class method)">.<strong>get_command_names</strong>(*extensions)  &#x21d2; Array&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get all of the string command names for the specified extensions.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_commands-class_method" title="get_commands (class method)">.<strong>get_commands</strong>(*extensions)  &#x21d2; Hash&lt;String, Integer&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get a hash of all command name strings mapped to their numeric IDs.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_tlv_names-class_method" title="get_tlv_names (class method)">.<strong>get_tlv_names</strong>(value)  &#x21d2; Array&lt;Symbol&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the TLV Type symbols that are defined with the value Potential return values are [], [:TLV_TYPE_A], and [:TLV_TYPE_A, :PACKET_TYPE_B].</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="get_command_id-class_method">
+  
+    .<strong>get_command_id</strong>(name)  &#x21d2; <tt>Integer</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the numeric command ID for the specified command name.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The name of the command to retrieve the ID for. This parameter is case insensitive.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The command ID or nil if the name does not exist.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/command_mapper.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_command_id'>get_command_id</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_mod_name'>mod_name</span><span class='comma'>,</span> <span class='id identifier rubyid_cmd_name'>cmd_name</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_mod_name'>mod_name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_mod'>mod</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_mod'>mod</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ExtensionMapper.html" title="Rex::Post::Meterpreter::ExtensionMapper (class)">ExtensionMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_extension_module'><span class='object_link'><a href="ExtensionMapper.html#get_extension_module-class_method" title="Rex::Post::Meterpreter::ExtensionMapper.get_extension_module (method)">get_extension_module</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_mod_name'>mod_name</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_mod'>mod</span>
+
+  <span class='id identifier rubyid_const_name'>const_name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>COMMAND_ID_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod_name'>mod_name</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='embexpr_end'>}</span><span class='tstring_content'>_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd_name'>cmd_name</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='id identifier rubyid_const_name'>const_name</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_const_name'>const_name</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_command_name-class_method">
+  
+    .<strong>get_command_name</strong>(id)  &#x21d2; <tt>String</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the string command name for the specified command ID.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>id</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The ID of the command to retrieve the name for.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The command name or nil if the ID does not exist.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/command_mapper.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_command_name'>get_command_name</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_extension_id'>extension_id</span> <span class='op'>=</span> <span class='id identifier rubyid_id'>id</span> <span class='op'>-</span> <span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span> <span class='op'>%</span> <span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_RANGE-constant" title="Rex::Post::Meterpreter::COMMAND_ID_RANGE (constant)">COMMAND_ID_RANGE</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_extension_id'>extension_id</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ClientCore.html" title="Rex::Post::Meterpreter::ClientCore (class)">ClientCore</a></span></span><span class='period'>.</span><span class='id identifier rubyid_extension_id'><span class='object_link'><a href="ClientCore.html#extension_id-class_method" title="Rex::Post::Meterpreter::ClientCore.extension_id (method)">extension_id</a></span></span>  <span class='comment'># this is the meterpreter core which is not exactly an extension.
+</span>    <span class='id identifier rubyid_mod'>mod</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_mod_name'>mod_name</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ExtensionMapper.html" title="Rex::Post::Meterpreter::ExtensionMapper (class)">ExtensionMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_extension_name'><span class='object_link'><a href="ExtensionMapper.html#get_extension_name-class_method" title="Rex::Post::Meterpreter::ExtensionMapper.get_extension_name (method)">get_extension_name</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_extension_id'>extension_id</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_mod'>mod</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ExtensionMapper.html" title="Rex::Post::Meterpreter::ExtensionMapper (class)">ExtensionMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_extension_module'><span class='object_link'><a href="ExtensionMapper.html#get_extension_module-class_method" title="Rex::Post::Meterpreter::ExtensionMapper.get_extension_module (method)">get_extension_module</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_mod_name'>mod_name</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_mod'>mod</span>
+
+  <span class='id identifier rubyid_command_name'>command_name</span> <span class='op'>=</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_constants'>constants</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>COMMAND_ID_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span> <span class='id identifier rubyid_id'>id</span> <span class='op'>==</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_c'>c</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_command_name'>command_name</span>
+
+  <span class='id identifier rubyid_command_name'>command_name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_delete_prefix'>delete_prefix</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>COMMAND_ID_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_command_names-class_method">
+  
+    .<strong>get_command_names</strong>(*extensions)  &#x21d2; <tt>Array&lt;String&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get all of the string command names for the specified extensions.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>extensions</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The names of the extensions to retrieve all of the command names for. The extension names are case insensitive. If no extensions are specified, all extensions will be enumerated.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An array of all of the enumerated command names.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/command_mapper.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_command_names'>get_command_names</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_extensions'>extensions</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_commands'>get_commands</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_extensions'>extensions</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_commands-class_method">
+  
+    .<strong>get_commands</strong>(*extensions)  &#x21d2; <tt>Hash&lt;String, Integer&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get a hash of all command name strings mapped to their numeric IDs.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>extensions</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The names of the extensions to retrieve all of the commands for. The extension names are case insensitive. If no extensions are specified, all extensions will be enumerated.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash&lt;String, Integer&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An hash of all of the enumerated commands.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/command_mapper.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_commands'>get_commands</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_extensions'>extensions</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_extensions'>extensions</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ExtensionMapper.html" title="Rex::Post::Meterpreter::ExtensionMapper (class)">ExtensionMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_extension_names'><span class='object_link'><a href="ExtensionMapper.html#get_extension_names-class_method" title="Rex::Post::Meterpreter::ExtensionMapper.get_extension_names (method)">get_extension_names</a></span></span> <span class='kw'>if</span> <span class='id identifier rubyid_extensions'>extensions</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='id identifier rubyid_commands'>commands</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_extensions'>extensions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_mod_name'>mod_name</span><span class='op'>|</span>
+    <span class='id identifier rubyid_mod_name'>mod_name</span> <span class='op'>=</span> <span class='id identifier rubyid_mod_name'>mod_name</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_mod_name'>mod_name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_mod'>mod</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span>
+    <span class='kw'>else</span>
+      <span class='kw'>begin</span>
+        <span class='id identifier rubyid_mod'>mod</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ExtensionMapper.html" title="Rex::Post::Meterpreter::ExtensionMapper (class)">ExtensionMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_extension_module'><span class='object_link'><a href="ExtensionMapper.html#get_extension_module-class_method" title="Rex::Post::Meterpreter::ExtensionMapper.get_extension_module (method)">get_extension_module</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_mod_name'>mod_name</span><span class='rparen'>)</span>
+      <span class='kw'>rescue</span> <span class='const'>RuntimeError</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_constants'>constants</span> <span class='op'>=</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_constants'>constants</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='op'>|</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>COMMAND_ID_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod_name'>mod_name</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_constants'>constants</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='op'>|</span> <span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_delete_prefix'>delete_prefix</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>COMMAND_ID_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='comma'>,</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_commands'>commands</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_tlv_names-class_method">
+  
+    .<strong>get_tlv_names</strong>(value)  &#x21d2; <tt>Array&lt;Symbol&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the TLV Type symbols that are defined with the value Potential return values are [], [:TLV_TYPE_A], and [:TLV_TYPE_A, :PACKET_TYPE_B]</p>
+
+<p>Returning an array is a solution to having multiple TLV types having the same value, as documented here: <a href="https://github.com/rapid7/metasploit-framework/issues/16267">github.com/rapid7/metasploit-framework/issues/16267</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>Integer</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>value The value of the TLV type to retrieve the TLV type names for.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Symbol&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An array of symbols of all TLV types that are defined with the value. Can be empty.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/command_mapper.rb', line 110</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_names'>get_tlv_names</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='cvar'>@@cached_tlv_types</span><span class='lbracket'>[</span><span class='id identifier rubyid_value'>value</span><span class='rbracket'>]</span> <span class='kw'>unless</span> <span class='cvar'>@@cached_tlv_types</span><span class='lbracket'>[</span><span class='id identifier rubyid_value'>value</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='cvar'>@@cached_tlv_types</span><span class='lbracket'>[</span><span class='id identifier rubyid_value'>value</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='comment'># Default to arrays that contain TLV Types, so that we only deal with one data type
+</span>  <span class='cvar'>@@cached_tlv_types</span> <span class='op'>=</span> <span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_h'>h</span><span class='comma'>,</span> <span class='id identifier rubyid_k'>k</span><span class='op'>|</span> <span class='id identifier rubyid_h'>h</span><span class='lbracket'>[</span><span class='id identifier rubyid_k'>k</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>Set</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_available_modules'>available_modules</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+    <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='comma'>,</span>
+    <span class='op'>*</span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ExtensionMapper.html" title="Rex::Post::Meterpreter::ExtensionMapper (class)">ExtensionMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_extension_klasses'><span class='object_link'><a href="ExtensionMapper.html#get_extension_klasses-class_method" title="Rex::Post::Meterpreter::ExtensionMapper.get_extension_klasses (method)">get_extension_klasses</a></span></span><span class='comma'>,</span>
+    <span class='comment'># Railgun is a special case that defines extra TLV_TYPES inside an extension
+</span>    <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Extensions/Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Extensions/Stdapi/Railgun.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun (module)">Railgun</a></span></span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span>
+
+  <span class='id identifier rubyid_available_modules'>available_modules</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_mod'>mod</span><span class='op'>|</span>
+    <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_constants'>constants</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_const'>const</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_const'>const</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>TLV_TYPE_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_const'>const</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PACKET_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+      <span class='cvar'>@@cached_tlv_types</span><span class='lbracket'>[</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_const'>const</span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_const'>const</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='cvar'>@@cached_tlv_types</span><span class='lbracket'>[</span><span class='id identifier rubyid_value'>value</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:43:16 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

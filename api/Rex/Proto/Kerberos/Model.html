@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Proto::Kerberos::Model
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Kerberos::Model";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span>
+     &raquo; 
+    <span class="title">Model</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Proto::Kerberos::Model
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="Model/Element.html" title="Rex::Proto::Kerberos::Model::Element (class)">Element</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/kerberos/model.rb<span class="defines">,<br />
+  lib/rex/proto/kerberos/model/error.rb,<br /> lib/rex/proto/kerberos/model/ap_rep.rb,<br /> lib/rex/proto/kerberos/model/ap_req.rb,<br /> lib/rex/proto/kerberos/model/pkinit.rb,<br /> lib/rex/proto/kerberos/model/ticket.rb,<br /> lib/rex/proto/kerberos/model/element.rb,<br /> lib/rex/proto/kerberos/model/checksum.rb,<br /> lib/rex/proto/kerberos/model/krb_cred.rb,<br /> lib/rex/proto/kerberos/model/krb_error.rb,<br /> lib/rex/proto/kerberos/model/kdc_request.rb,<br /> lib/rex/proto/kerberos/model/s4u_user_id.rb,<br /> lib/rex/proto/kerberos/model/kdc_response.rb,<br /> lib/rex/proto/kerberos/model/last_request.rb,<br /> lib/rex/proto/kerberos/model/ticket_flags.rb,<br /> lib/rex/proto/kerberos/model/authenticator.rb,<br /> lib/rex/proto/kerberos/model/kerberos_time.rb,<br /> lib/rex/proto/kerberos/model/krb_cred_info.rb,<br /> lib/rex/proto/kerberos/model/encrypted_data.rb,<br /> lib/rex/proto/kerberos/model/encryption_key.rb,<br /> lib/rex/proto/kerberos/model/kerberos_flags.rb,<br /> lib/rex/proto/kerberos/model/principal_name.rb,<br /> lib/rex/proto/kerberos/model/enc_ap_rep_part.rb,<br /> lib/rex/proto/kerberos/model/ticket_enc_part.rb,<br /> lib/rex/proto/kerberos/model/dmsa_key_package.rb,<br /> lib/rex/proto/kerberos/model/enc_kdc_response.rb,<br /> lib/rex/proto/kerberos/model/kdc_option_flags.rb,<br /> lib/rex/proto/kerberos/model/kdc_request_body.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_pw_salt.rb,<br /> lib/rex/proto/kerberos/model/enc_krb_cred_part.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_for_user.rb,<br /> lib/rex/proto/kerberos/model/authorization_data.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_pk_as_rep.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_pk_as_req.rb,<br /> lib/rex/proto/kerberos/model/transited_encoding.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_data_entry.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_etype_info2.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_pac_options.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_pac_request.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_s4u_x509_user.rb,<br /> lib/rex/proto/kerberos/model/kerb_superseded_by_user.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_enc_time_stamp.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_etype_info2_entry.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_pac_options_flags.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Model/AddressType.html" title="Rex::Proto::Kerberos::Model::AddressType (module)">AddressType</a></span>, <span class='object_link'><a href="Model/AuthorizationDataType.html" title="Rex::Proto::Kerberos::Model::AuthorizationDataType (module)">AuthorizationDataType</a></span>, <span class='object_link'><a href="Model/Error.html" title="Rex::Proto::Kerberos::Model::Error (module)">Error</a></span>, <span class='object_link'><a href="Model/NameType.html" title="Rex::Proto::Kerberos::Model::NameType (module)">NameType</a></span>, <span class='object_link'><a href="Model/OID.html" title="Rex::Proto::Kerberos::Model::OID (module)">OID</a></span>, <span class='object_link'><a href="Model/PaS4uX509UserOptions.html" title="Rex::Proto::Kerberos::Model::PaS4uX509UserOptions (module)">PaS4uX509UserOptions</a></span>, <span class='object_link'><a href="Model/Pkinit.html" title="Rex::Proto::Kerberos::Model::Pkinit (module)">Pkinit</a></span>, <span class='object_link'><a href="Model/PreAuthType.html" title="Rex::Proto::Kerberos::Model::PreAuthType (module)">PreAuthType</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Model/ApRep.html" title="Rex::Proto::Kerberos::Model::ApRep (class)">ApRep</a></span>, <span class='object_link'><a href="Model/ApReq.html" title="Rex::Proto::Kerberos::Model::ApReq (class)">ApReq</a></span>, <span class='object_link'><a href="Model/Authenticator.html" title="Rex::Proto::Kerberos::Model::Authenticator (class)">Authenticator</a></span>, <span class='object_link'><a href="Model/AuthorizationData.html" title="Rex::Proto::Kerberos::Model::AuthorizationData (class)">AuthorizationData</a></span>, <span class='object_link'><a href="Model/Checksum.html" title="Rex::Proto::Kerberos::Model::Checksum (class)">Checksum</a></span>, <span class='object_link'><a href="Model/DmsaKeyPackage.html" title="Rex::Proto::Kerberos::Model::DmsaKeyPackage (class)">DmsaKeyPackage</a></span>, <span class='object_link'><a href="Model/Element.html" title="Rex::Proto::Kerberos::Model::Element (class)">Element</a></span>, <span class='object_link'><a href="Model/EncApRepPart.html" title="Rex::Proto::Kerberos::Model::EncApRepPart (class)">EncApRepPart</a></span>, <span class='object_link'><a href="Model/EncKdcResponse.html" title="Rex::Proto::Kerberos::Model::EncKdcResponse (class)">EncKdcResponse</a></span>, <span class='object_link'><a href="Model/EncKrbCredPart.html" title="Rex::Proto::Kerberos::Model::EncKrbCredPart (class)">EncKrbCredPart</a></span>, <span class='object_link'><a href="Model/EncryptedData.html" title="Rex::Proto::Kerberos::Model::EncryptedData (class)">EncryptedData</a></span>, <span class='object_link'><a href="Model/EncryptionKey.html" title="Rex::Proto::Kerberos::Model::EncryptionKey (class)">EncryptionKey</a></span>, <span class='object_link'><a href="Model/HostAddress.html" title="Rex::Proto::Kerberos::Model::HostAddress (class)">HostAddress</a></span>, <span class='object_link'><a href="Model/KdcOptionFlags.html" title="Rex::Proto::Kerberos::Model::KdcOptionFlags (class)">KdcOptionFlags</a></span>, <span class='object_link'><a href="Model/KdcRequest.html" title="Rex::Proto::Kerberos::Model::KdcRequest (class)">KdcRequest</a></span>, <span class='object_link'><a href="Model/KdcRequestBody.html" title="Rex::Proto::Kerberos::Model::KdcRequestBody (class)">KdcRequestBody</a></span>, <span class='object_link'><a href="Model/KdcResponse.html" title="Rex::Proto::Kerberos::Model::KdcResponse (class)">KdcResponse</a></span>, <span class='object_link'><a href="Model/KerbSupersededByUser.html" title="Rex::Proto::Kerberos::Model::KerbSupersededByUser (class)">KerbSupersededByUser</a></span>, <span class='object_link'><a href="Model/KerberosFlags.html" title="Rex::Proto::Kerberos::Model::KerberosFlags (class)">KerberosFlags</a></span>, <span class='object_link'><a href="Model/KerberosTime.html" title="Rex::Proto::Kerberos::Model::KerberosTime (class)">KerberosTime</a></span>, <span class='object_link'><a href="Model/KrbCred.html" title="Rex::Proto::Kerberos::Model::KrbCred (class)">KrbCred</a></span>, <span class='object_link'><a href="Model/KrbCredInfo.html" title="Rex::Proto::Kerberos::Model::KrbCredInfo (class)">KrbCredInfo</a></span>, <span class='object_link'><a href="Model/KrbError.html" title="Rex::Proto::Kerberos::Model::KrbError (class)">KrbError</a></span>, <span class='object_link'><a href="Model/LastRequest.html" title="Rex::Proto::Kerberos::Model::LastRequest (class)">LastRequest</a></span>, <span class='object_link'><a href="Model/PreAuthDataEntry.html" title="Rex::Proto::Kerberos::Model::PreAuthDataEntry (class)">PreAuthDataEntry</a></span>, <span class='object_link'><a href="Model/PreAuthEncTimeStamp.html" title="Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp (class)">PreAuthEncTimeStamp</a></span>, <span class='object_link'><a href="Model/PreAuthEtypeInfo2.html" title="Rex::Proto::Kerberos::Model::PreAuthEtypeInfo2 (class)">PreAuthEtypeInfo2</a></span>, <span class='object_link'><a href="Model/PreAuthEtypeInfo2Entry.html" title="Rex::Proto::Kerberos::Model::PreAuthEtypeInfo2Entry (class)">PreAuthEtypeInfo2Entry</a></span>, <span class='object_link'><a href="Model/PreAuthForUser.html" title="Rex::Proto::Kerberos::Model::PreAuthForUser (class)">PreAuthForUser</a></span>, <span class='object_link'><a href="Model/PreAuthPacOptions.html" title="Rex::Proto::Kerberos::Model::PreAuthPacOptions (class)">PreAuthPacOptions</a></span>, <span class='object_link'><a href="Model/PreAuthPacOptionsFlags.html" title="Rex::Proto::Kerberos::Model::PreAuthPacOptionsFlags (class)">PreAuthPacOptionsFlags</a></span>, <span class='object_link'><a href="Model/PreAuthPacRequest.html" title="Rex::Proto::Kerberos::Model::PreAuthPacRequest (class)">PreAuthPacRequest</a></span>, <span class='object_link'><a href="Model/PreAuthPkAsRep.html" title="Rex::Proto::Kerberos::Model::PreAuthPkAsRep (class)">PreAuthPkAsRep</a></span>, <span class='object_link'><a href="Model/PreAuthPkAsReq.html" title="Rex::Proto::Kerberos::Model::PreAuthPkAsReq (class)">PreAuthPkAsReq</a></span>, <span class='object_link'><a href="Model/PreAuthPwSalt.html" title="Rex::Proto::Kerberos::Model::PreAuthPwSalt (class)">PreAuthPwSalt</a></span>, <span class='object_link'><a href="Model/PreAuthS4uX509User.html" title="Rex::Proto::Kerberos::Model::PreAuthS4uX509User (class)">PreAuthS4uX509User</a></span>, <span class='object_link'><a href="Model/PrincipalName.html" title="Rex::Proto::Kerberos::Model::PrincipalName (class)">PrincipalName</a></span>, <span class='object_link'><a href="Model/S4uUserId.html" title="Rex::Proto::Kerberos::Model::S4uUserId (class)">S4uUserId</a></span>, <span class='object_link'><a href="Model/Ticket.html" title="Rex::Proto::Kerberos::Model::Ticket (class)">Ticket</a></span>, <span class='object_link'><a href="Model/TicketEncPart.html" title="Rex::Proto::Kerberos::Model::TicketEncPart (class)">TicketEncPart</a></span>, <span class='object_link'><a href="Model/TicketFlags.html" title="Rex::Proto::Kerberos::Model::TicketFlags (class)">TicketFlags</a></span>, <span class='object_link'><a href="Model/TransitedEncoding.html" title="Rex::Proto::Kerberos::Model::TransitedEncoding (class)">TransitedEncoding</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="VERSION-constant" class="">VERSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="AS_REQ-constant" class="">AS_REQ =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Application Message Id’s</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span></pre></dd>
+      
+        <dt id="AS_REP-constant" class="">AS_REP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>11</span></pre></dd>
+      
+        <dt id="TGS_REQ-constant" class="">TGS_REQ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>12</span></pre></dd>
+      
+        <dt id="TGS_REP-constant" class="">TGS_REP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>13</span></pre></dd>
+      
+        <dt id="KRB_ERROR-constant" class="">KRB_ERROR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>30</span></pre></dd>
+      
+        <dt id="TICKET-constant" class="">TICKET =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="AUTHENTICATOR-constant" class="">AUTHENTICATOR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="AP_REQ-constant" class="">AP_REQ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>14</span></pre></dd>
+      
+        <dt id="AP_REP-constant" class="">AP_REP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>15</span></pre></dd>
+      
+        <dt id="KRB_CRED-constant" class="">KRB_CRED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>22</span></pre></dd>
+      
+        <dt id="ENC_AP_REP_PART-constant" class="">ENC_AP_REP_PART =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>27</span></pre></dd>
+      
+        <dt id="ENC_KRB_CRED_PART-constant" class="">ENC_KRB_CRED_PART =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>29</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:48 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

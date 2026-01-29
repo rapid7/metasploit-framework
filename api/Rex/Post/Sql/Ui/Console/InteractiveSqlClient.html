@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Post::Sql::Ui::Console::InteractiveSqlClient
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Sql::Ui::Console::InteractiveSqlClient";
+  relpath = '../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../_index.html">Index (I)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Sql.html" title="Rex::Post::Sql (module)">Sql</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Ui.html" title="Rex::Post::Sql::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Console.html" title="Rex::Post::Sql::Ui::Console (module)">Console</a></span></span>
+     &raquo; 
+    <span class="title">InteractiveSqlClient</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Post::Sql::Ui::Console::InteractiveSqlClient
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../../../Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Ui::Interactive</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/sql/ui/console/interactive_sql_client.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Mixin that is meant to extend a sql client class in a manner that adds interactive capabilities.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#client_dispatcher-instance_method" title="#client_dispatcher (instance method)">#<strong>client_dispatcher</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute client_dispatcher.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_log_proc-instance_method" title="#on_log_proc (instance method)">#<strong>on_log_proc</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute on_log_proc.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../../Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Ui::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Interactive.html#completed-instance_method" title="Rex::Ui::Interactive#completed (method)">#completed</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#interacting-instance_method" title="Rex::Ui::Interactive#interacting (method)">#interacting</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#next_session-instance_method" title="Rex::Ui::Interactive#next_session (method)">#next_session</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#on_command_proc-instance_method" title="Rex::Ui::Interactive#on_command_proc (method)">#on_command_proc</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#on_print_proc-instance_method" title="Rex::Ui::Interactive#on_print_proc (method)">#on_print_proc</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#on_run_command_error_proc-instance_method" title="Rex::Ui::Interactive#on_run_command_error_proc (method)">#on_run_command_error_proc</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#orig_suspend-instance_method" title="Rex::Ui::Interactive#orig_suspend (method)">#orig_suspend</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#orig_usr1-instance_method" title="Rex::Ui::Interactive#orig_usr1 (method)">#orig_usr1</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#orig_winch-instance_method" title="Rex::Ui::Interactive#orig_winch (method)">#orig_winch</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../../Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Subscriber/Input.html#user_input-instance_method" title="Rex::Ui::Subscriber::Input#user_input (method)">#user_input</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#user_output-instance_method" title="Rex::Ui::Subscriber::Output#user_output (method)">#user_output</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_fallback-instance_method" title="#_fallback (instance method)">#<strong>_fallback</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_interact-instance_method" title="#_interact (instance method)">#<strong>_interact</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Interacts with self.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_interact_complete-instance_method" title="#_interact_complete (instance method)">#<strong>_interact_complete</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>We don’t need to do any clean-up when finishing the interaction with the REPL.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_interrupt-instance_method" title="#_interrupt (instance method)">#<strong>_interrupt</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called when an interrupt is sent.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_multiline-instance_method" title="#_multiline (instance method)">#<strong>_multiline</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_multiline_with_fallback-instance_method" title="#_multiline_with_fallback (instance method)">#<strong>_multiline_with_fallback</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Try getting multi-line input support provided by Reline, fall back to Readline.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_suspend-instance_method" title="#_suspend (instance method)">#<strong>_suspend</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Suspends interaction with the interactive REPL interpreter.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_winch-instance_method" title="#_winch (instance method)">#<strong>_winch</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Ui::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Interactive.html#_local_fd-instance_method" title="Rex::Ui::Interactive#_local_fd (method)">#_local_fd</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#_remote_fd-instance_method" title="Rex::Ui::Interactive#_remote_fd (method)">#_remote_fd</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#_stream_read_local_write_remote-instance_method" title="Rex::Ui::Interactive#_stream_read_local_write_remote (method)">#_stream_read_local_write_remote</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#_stream_read_remote_write_local-instance_method" title="Rex::Ui::Interactive#_stream_read_remote_write_local (method)">#_stream_read_remote_write_local</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#detach-instance_method" title="Rex::Ui::Interactive#detach (method)">#detach</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#handle_suspend-instance_method" title="Rex::Ui::Interactive#handle_suspend (method)">#handle_suspend</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#handle_usr1-instance_method" title="Rex::Ui::Interactive#handle_usr1 (method)">#handle_usr1</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#handle_winch-instance_method" title="Rex::Ui::Interactive#handle_winch (method)">#handle_winch</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#interact-instance_method" title="Rex::Ui::Interactive#interact (method)">#interact</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#interact_stream-instance_method" title="Rex::Ui::Interactive#interact_stream (method)">#interact_stream</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#prompt-instance_method" title="Rex::Ui::Interactive#prompt (method)">#prompt</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#prompt_yesno-instance_method" title="Rex::Ui::Interactive#prompt_yesno (method)">#prompt_yesno</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#restore_suspend-instance_method" title="Rex::Ui::Interactive#restore_suspend (method)">#restore_suspend</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#restore_usr1-instance_method" title="Rex::Ui::Interactive#restore_usr1 (method)">#restore_usr1</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#restore_winch-instance_method" title="Rex::Ui::Interactive#restore_winch (method)">#restore_winch</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../Ui/Subscriber.html" title="Rex::Ui::Subscriber (module)">Ui::Subscriber</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Subscriber.html#copy_ui-instance_method" title="Rex::Ui::Subscriber#copy_ui (method)">#copy_ui</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber.html#init_ui-instance_method" title="Rex::Ui::Subscriber#init_ui (method)">#init_ui</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber.html#reset_ui-instance_method" title="Rex::Ui::Subscriber#reset_ui (method)">#reset_ui</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Subscriber/Input.html#gets-instance_method" title="Rex::Ui::Subscriber::Input#gets (method)">#gets</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#flush-instance_method" title="Rex::Ui::Subscriber::Output#flush (method)">#flush</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print-instance_method" title="Rex::Ui::Subscriber::Output#print (method)">#print</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print_blank_line-instance_method" title="Rex::Ui::Subscriber::Output#print_blank_line (method)">#print_blank_line</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print_error-instance_method" title="Rex::Ui::Subscriber::Output#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print_good-instance_method" title="Rex::Ui::Subscriber::Output#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print_line-instance_method" title="Rex::Ui::Subscriber::Output#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print_status-instance_method" title="Rex::Ui::Subscriber::Output#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print_warning-instance_method" title="Rex::Ui::Subscriber::Output#print_warning (method)">#print_warning</a></span></p>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="client_dispatcher=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client_dispatcher-instance_method">
+  
+    #<strong>client_dispatcher</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute client_dispatcher.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+177
+178
+179</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/sql/ui/console/interactive_sql_client.rb', line 177</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client_dispatcher'>client_dispatcher</span>
+  <span class='ivar'>@client_dispatcher</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="on_log_proc=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="on_log_proc-instance_method">
+  
+    #<strong>on_log_proc</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute on_log_proc.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+177
+178
+179</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/sql/ui/console/interactive_sql_client.rb', line 177</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_log_proc'>on_log_proc</span>
+  <span class='ivar'>@on_log_proc</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_fallback-instance_method">
+  
+    #<strong>_fallback</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/sql/ui/console/interactive_sql_client.rb', line 155</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__fallback'>_fallback</span>
+  <span class='id identifier rubyid_stop_words'>stop_words</span> <span class='op'>=</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>stop</span><span class='words_sep'> </span><span class='tstring_content'>s</span><span class='words_sep'> </span><span class='tstring_content'>exit</span><span class='words_sep'> </span><span class='tstring_content'>e</span><span class='words_sep'> </span><span class='tstring_content'>end</span><span class='words_sep'> </span><span class='tstring_content'>quit</span><span class='words_sep'> </span><span class='tstring_content'>q</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='id identifier rubyid_line_buffer'>line_buffer</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Readline</span><span class='period'>.</span><span class='id identifier rubyid_readline'>readline</span><span class='lparen'>(</span><span class='id identifier rubyid_prompt'>prompt</span> <span class='op'>=</span> <span class='id identifier rubyid_line_buffer'>line_buffer</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SQL &gt;&gt; </span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SQL *&gt; </span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_add_history'>add_history</span> <span class='op'>=</span> <span class='kw'>true</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='label'>status:</span> <span class='symbol'>:exit</span><span class='comma'>,</span> <span class='label'>result:</span> <span class='kw'>nil</span> <span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_stop_words'>stop_words</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span> <span class='op'>=</span> <span class='kw'>false</span>
+      <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Exiting Interactive mode.</span><span class='tstring_end'>&#39;</span></span>
+      <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='label'>status:</span> <span class='symbol'>:exit</span><span class='comma'>,</span> <span class='label'>result:</span> <span class='kw'>nil</span> <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+    <span class='id identifier rubyid_line_buffer'>line_buffer</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span> <span class='id identifier rubyid_line'>line</span>
+
+    <span class='kw'>break</span> <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_end_with?'>end_with?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='lbrace'>{</span> <span class='label'>status:</span> <span class='symbol'>:success</span><span class='comma'>,</span> <span class='label'>result:</span> <span class='id identifier rubyid_line_buffer'>line_buffer</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_interact-instance_method">
+  
+    #<strong>_interact</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Interacts with self.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/sql/ui/console/interactive_sql_client.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__interact'>_interact</span>
+  <span class='kw'>while</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span>
+    <span class='id identifier rubyid_sql_input'>sql_input</span> <span class='op'>=</span> <span class='id identifier rubyid__multiline_with_fallback'>_multiline_with_fallback</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_sql_input'>sql_input</span><span class='lbracket'>[</span><span class='symbol'>:status</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='symbol'>:exit</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_sql_input'>sql_input</span><span class='lbracket'>[</span><span class='symbol'>:status</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='symbol'>:help</span>
+      <span class='id identifier rubyid_client_dispatcher'>client_dispatcher</span><span class='period'>.</span><span class='id identifier rubyid_query_interactive_help'>query_interactive_help</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># We need to check that the user is still interacting, i.e. if ctrl+z is triggered when requesting user input
+</span>    <span class='kw'>break</span> <span class='kw'>unless</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_sql_input'>sql_input</span><span class='lbracket'>[</span><span class='symbol'>:result</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_on_command_proc'>on_command_proc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_sql_input'>sql_input</span><span class='lbracket'>[</span><span class='symbol'>:result</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_on_command_proc'>on_command_proc</span>
+
+    <span class='id identifier rubyid_formatted_query'>formatted_query</span> <span class='op'>=</span> <span class='id identifier rubyid_client_dispatcher'>client_dispatcher</span><span class='period'>.</span><span class='id identifier rubyid_process_query'>process_query</span><span class='lparen'>(</span><span class='label'>query:</span> <span class='id identifier rubyid_sql_input'>sql_input</span><span class='lbracket'>[</span><span class='symbol'>:result</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Executing query: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_formatted_query'>formatted_query</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_client_dispatcher'>client_dispatcher</span><span class='period'>.</span><span class='id identifier rubyid_cmd_query'>cmd_query</span><span class='lparen'>(</span><span class='id identifier rubyid_formatted_query'>formatted_query</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_interact_complete-instance_method">
+  
+    #<strong>_interact_complete</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>We don’t need to do any clean-up when finishing the interaction with the REPL</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/sql/ui/console/interactive_sql_client.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__interact_complete'>_interact_complete</span>
+  <span class='comment'># noop
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_interrupt-instance_method">
+  
+    #<strong>_interrupt</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called when an interrupt is sent.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+44
+45
+46</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/sql/ui/console/interactive_sql_client.rb', line 44</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__interrupt'>_interrupt</span>
+  <span class='id identifier rubyid_prompt_yesno'>prompt_yesno</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Terminate interactive SQL prompt?</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_multiline-instance_method">
+  
+    #<strong>_multiline</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/sql/ui/console/interactive_sql_client.rb', line 89</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__multiline'>_multiline</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>reline</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Reline</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>LoadError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Failed to load Reline</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='label'>status:</span> <span class='symbol'>:fail</span><span class='comma'>,</span> <span class='label'>errors:</span> <span class='lbracket'>[</span><span class='id identifier rubyid_e'>e</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_stop_words'>stop_words</span> <span class='op'>=</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>stop</span><span class='words_sep'> </span><span class='tstring_content'>s</span><span class='words_sep'> </span><span class='tstring_content'>exit</span><span class='words_sep'> </span><span class='tstring_content'>e</span><span class='words_sep'> </span><span class='tstring_content'>end</span><span class='words_sep'> </span><span class='tstring_content'>quit</span><span class='words_sep'> </span><span class='tstring_content'>q</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='id identifier rubyid_help_words'>help_words</span> <span class='op'>=</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>help</span><span class='words_sep'> </span><span class='tstring_content'>h</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+  <span class='id identifier rubyid_finished'>finished</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_help'>help</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_prompt_proc_before'>prompt_proc_before</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Reline</span><span class='period'>.</span><span class='id identifier rubyid_prompt_proc'>prompt_proc</span>
+    <span class='op'>::</span><span class='const'>Reline</span><span class='period'>.</span><span class='id identifier rubyid_prompt_proc'>prompt_proc</span> <span class='op'>=</span> <span class='id identifier rubyid_proc'>proc</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_line_buffer'>line_buffer</span><span class='op'>|</span> <span class='id identifier rubyid_line_buffer'>line_buffer</span><span class='period'>.</span><span class='id identifier rubyid_each_with_index'>each_with_index</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid__line'>_line</span><span class='comma'>,</span> <span class='id identifier rubyid_i'>i</span><span class='op'>|</span> <span class='id identifier rubyid_i'>i</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SQL *&gt; </span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SQL &gt;&gt; </span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span> <span class='rbrace'>}</span>
+
+    <span class='comment'># We want to do this in a loop
+</span>    <span class='comment'># multiline_input is the whole string that the user has input, not just the current line.
+</span>    <span class='id identifier rubyid_raw_query'>raw_query</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Reline</span><span class='period'>.</span><span class='id identifier rubyid_readmultiline'>readmultiline</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SQL &gt;&gt; </span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_use_history'>use_history</span> <span class='op'>=</span> <span class='kw'>true</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_multiline_input'>multiline_input</span><span class='op'>|</span>
+      <span class='comment'># The user pressed ctrl + c or ctrl + z and wants to background our SQL prompt
+</span>      <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span>
+        <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='label'>status:</span> <span class='symbol'>:exit</span><span class='comma'>,</span> <span class='label'>result:</span> <span class='kw'>nil</span> <span class='rbrace'>}</span>
+        <span class='kw'>next</span> <span class='kw'>true</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># When the user has pressed the enter key with no input, don&#39;t run any queries;
+</span>      <span class='comment'># simply give them a new prompt on a new line.
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_multiline_input'>multiline_input</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+        <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='label'>status:</span> <span class='symbol'>:success</span><span class='comma'>,</span> <span class='label'>result:</span> <span class='kw'>nil</span> <span class='rbrace'>}</span>
+        <span class='kw'>next</span> <span class='kw'>true</span>
+      <span class='kw'>end</span>
+
+      <span class='kw'>if</span> <span class='id identifier rubyid_multiline_input'>multiline_input</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='op'>==</span> <span class='int'>1</span>
+        <span class='comment'># In the case only a stop word was input, exit out of the REPL shell
+</span>        <span class='id identifier rubyid_finished'>finished</span> <span class='op'>=</span> <span class='id identifier rubyid_stop_words'>stop_words</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_multiline_input'>multiline_input</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span><span class='rparen'>)</span>
+        <span class='comment'># In the case when only a help word was input call the help command
+</span>        <span class='id identifier rubyid_help'>help</span> <span class='op'>=</span> <span class='id identifier rubyid_help_words'>help_words</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_multiline_input'>multiline_input</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_finished'>finished</span> <span class='op'>||</span> <span class='id identifier rubyid_help'>help</span> <span class='op'>||</span> <span class='id identifier rubyid_multiline_input'>multiline_input</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span><span class='op'>&amp;.</span><span class='id identifier rubyid_end_with?'>end_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Failed to get multi-line SQL query from user</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+  <span class='kw'>ensure</span>
+    <span class='op'>::</span><span class='const'>Reline</span><span class='period'>.</span><span class='id identifier rubyid_prompt_proc'>prompt_proc</span> <span class='op'>=</span> <span class='id identifier rubyid_prompt_proc_before'>prompt_proc_before</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_result'>result</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_result'>result</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_help'>help</span>
+    <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='label'>status:</span> <span class='symbol'>:help</span><span class='comma'>,</span> <span class='label'>result:</span> <span class='kw'>nil</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_finished'>finished</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span> <span class='op'>=</span> <span class='kw'>false</span>
+    <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Exiting Interactive mode.</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='label'>status:</span> <span class='symbol'>:exit</span><span class='comma'>,</span> <span class='label'>result:</span> <span class='kw'>nil</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='lbrace'>{</span> <span class='label'>status:</span> <span class='symbol'>:success</span><span class='comma'>,</span> <span class='label'>result:</span> <span class='id identifier rubyid_raw_query'>raw_query</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_multiline_with_fallback-instance_method">
+  
+    #<strong>_multiline_with_fallback</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Try getting multi-line input support provided by Reline, fall back to Readline.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/sql/ui/console/interactive_sql_client.rb', line 69</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__multiline_with_fallback'>_multiline_with_fallback</span>
+  <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+  <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_history_file'>history_file</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Msf/Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_history_file_for_session_type'><span class='object_link'><a href="../../../../../Msf/Config.html#history_file_for_session_type-class_method" title="Msf::Config.history_file_for_session_type (method)">history_file_for_session_type</a></span></span><span class='lparen'>(</span><span class='label'>session_type:</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='label'>interactive:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='label'>status:</span> <span class='symbol'>:fail</span><span class='comma'>,</span> <span class='label'>errors:</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to get history file for session type: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='rbrace'>}</span> <span class='kw'>if</span> <span class='id identifier rubyid_history_file'>history_file</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='comment'># Multiline (Reline) and fallback (Readline) have separate history contexts as they are two different libraries.
+</span>  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_history_manager'>history_manager</span><span class='period'>.</span><span class='id identifier rubyid_with_context'>with_context</span><span class='lparen'>(</span><span class='label'>history_file:</span> <span class='id identifier rubyid_history_file'>history_file</span> <span class='comma'>,</span> <span class='label'>name:</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='label'>input_library:</span> <span class='symbol'>:reline</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid__multiline'>_multiline</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_query'>query</span><span class='lbracket'>[</span><span class='symbol'>:status</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='symbol'>:fail</span>
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_history_manager'>history_manager</span><span class='period'>.</span><span class='id identifier rubyid_with_context'>with_context</span><span class='lparen'>(</span><span class='label'>history_file:</span> <span class='id identifier rubyid_history_file'>history_file</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='label'>input_library:</span> <span class='symbol'>:readline</span><span class='rparen'>)</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid__fallback'>_fallback</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_query'>query</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_suspend-instance_method">
+  
+    #<strong>_suspend</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Suspends interaction with the interactive REPL interpreter</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+51
+52
+53
+54
+55</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/sql/ui/console/interactive_sql_client.rb', line 51</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__suspend'>_suspend</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_prompt_yesno'>prompt_yesno</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Background interactive SQL prompt?</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>==</span> <span class='kw'>true</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_winch-instance_method">
+  
+    #<strong>_winch</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/sql/ui/console/interactive_sql_client.rb', line 64</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__winch'>_winch</span>
+  <span class='comment'># noop
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:51 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

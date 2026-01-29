@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Metasploit::Framework::KeyCollection
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::KeyCollection";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (K)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span>
+     &raquo; 
+    <span class="title">KeyCollection</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Metasploit::Framework::KeyCollection
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="CredentialCollection.html" title="Metasploit::Framework::CredentialCollection (class)">CredentialCollection</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="PrivateCredentialCollection.html" title="Metasploit::Framework::PrivateCredentialCollection (class)">PrivateCredentialCollection</a></span></li>
+          
+            <li class="next"><span class='object_link'><a href="CredentialCollection.html" title="Metasploit::Framework::CredentialCollection (class)">CredentialCollection</a></span></li>
+          
+            <li class="next">Metasploit::Framework::KeyCollection</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/key_collection.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#error_list-instance_method" title="#error_list (instance method)">#<strong>error_list</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute error_list.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#key_data-instance_method" title="#key_data (instance method)">#<strong>key_data</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute key_data.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#key_path-instance_method" title="#key_path (instance method)">#<strong>key_path</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute key_path.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#private_key-instance_method" title="#private_key (instance method)">#<strong>private_key</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute private_key.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ssh_keyfile_b64-instance_method" title="#ssh_keyfile_b64 (instance method)">#<strong>ssh_keyfile_b64</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute ssh_keyfile_b64.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="CredentialCollection.html" title="Metasploit::Framework::CredentialCollection (class)">CredentialCollection</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="CredentialCollection.html#additional_publics-instance_method" title="Metasploit::Framework::CredentialCollection#additional_publics (method)">#additional_publics</a></span>, <span class='object_link'><a href="CredentialCollection.html#anonymous_login-instance_method" title="Metasploit::Framework::CredentialCollection#anonymous_login (method)">#anonymous_login</a></span>, <span class='object_link'><a href="CredentialCollection.html#password_spray-instance_method" title="Metasploit::Framework::CredentialCollection#password_spray (method)">#password_spray</a></span>, <span class='object_link'><a href="CredentialCollection.html#user_as_pass-instance_method" title="Metasploit::Framework::CredentialCollection#user_as_pass (method)">#user_as_pass</a></span>, <span class='object_link'><a href="CredentialCollection.html#user_file-instance_method" title="Metasploit::Framework::CredentialCollection#user_file (method)">#user_file</a></span>, <span class='object_link'><a href="CredentialCollection.html#username-instance_method" title="Metasploit::Framework::CredentialCollection#username (method)">#username</a></span>, <span class='object_link'><a href="CredentialCollection.html#userpass_file-instance_method" title="Metasploit::Framework::CredentialCollection#userpass_file (method)">#userpass_file</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="PrivateCredentialCollection.html" title="Metasploit::Framework::PrivateCredentialCollection (class)">PrivateCredentialCollection</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PrivateCredentialCollection.html#additional_privates-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#additional_privates (method)">#additional_privates</a></span>, <span class='object_link'><a href="PrivateCredentialCollection.html#blank_passwords-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#blank_passwords (method)">#blank_passwords</a></span>, <span class='object_link'><a href="PrivateCredentialCollection.html#filter-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#filter (method)">#filter</a></span>, <span class='object_link'><a href="PrivateCredentialCollection.html#nil_passwords-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#nil_passwords (method)">#nil_passwords</a></span>, <span class='object_link'><a href="PrivateCredentialCollection.html#pass_file-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#pass_file (method)">#pass_file</a></span>, <span class='object_link'><a href="PrivateCredentialCollection.html#password-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#password (method)">#password</a></span>, <span class='object_link'><a href="PrivateCredentialCollection.html#prepended_creds-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#prepended_creds (method)">#prepended_creds</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each-instance_method" title="#each (instance method)">#<strong>each</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_key-instance_method" title="#each_key (instance method)">#<strong>each_key</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#has_privates%3F-instance_method" title="#has_privates? (instance method)">#<strong>has_privates?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Override CredentialCollection#has_privates?.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_key-instance_method" title="#read_key (instance method)">#<strong>read_key</strong>(file_path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#realm-instance_method" title="#realm (instance method)">#<strong>realm</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#valid%3F-instance_method" title="#valid? (instance method)">#<strong>valid?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#validate_key_path-instance_method" title="#validate_key_path (instance method)">#<strong>validate_key_path</strong>(key_path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#validate_private_key-instance_method" title="#validate_private_key (instance method)">#<strong>validate_private_key</strong>(private_key)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="CredentialCollection.html" title="Metasploit::Framework::CredentialCollection (class)">CredentialCollection</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="CredentialCollection.html#add_public-instance_method" title="Metasploit::Framework::CredentialCollection#add_public (method)">#add_public</a></span>, <span class='object_link'><a href="CredentialCollection.html#each_filtered-instance_method" title="Metasploit::Framework::CredentialCollection#each_filtered (method)">#each_filtered</a></span>, <span class='object_link'><a href="CredentialCollection.html#each_password-instance_method" title="Metasploit::Framework::CredentialCollection#each_password (method)">#each_password</a></span>, <span class='object_link'><a href="CredentialCollection.html#each_unfiltered-instance_method" title="Metasploit::Framework::CredentialCollection#each_unfiltered (method)">#each_unfiltered</a></span>, <span class='object_link'><a href="CredentialCollection.html#each_unfiltered_password_first-instance_method" title="Metasploit::Framework::CredentialCollection#each_unfiltered_password_first (method)">#each_unfiltered_password_first</a></span>, <span class='object_link'><a href="CredentialCollection.html#each_unfiltered_username_first-instance_method" title="Metasploit::Framework::CredentialCollection#each_unfiltered_username_first (method)">#each_unfiltered_username_first</a></span>, <span class='object_link'><a href="CredentialCollection.html#each_user_pass_from_userpass_file-instance_method" title="Metasploit::Framework::CredentialCollection#each_user_pass_from_userpass_file (method)">#each_user_pass_from_userpass_file</a></span>, <span class='object_link'><a href="CredentialCollection.html#each_username-instance_method" title="Metasploit::Framework::CredentialCollection#each_username (method)">#each_username</a></span>, <span class='object_link'><a href="CredentialCollection.html#empty%3F-instance_method" title="Metasploit::Framework::CredentialCollection#empty? (method)">#empty?</a></span>, <span class='object_link'><a href="CredentialCollection.html#has_users%3F-instance_method" title="Metasploit::Framework::CredentialCollection#has_users? (method)">#has_users?</a></span>, <span class='object_link'><a href="CredentialCollection.html#initialize-instance_method" title="Metasploit::Framework::CredentialCollection#initialize (method)">#initialize</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="PrivateCredentialCollection.html" title="Metasploit::Framework::PrivateCredentialCollection (class)">PrivateCredentialCollection</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PrivateCredentialCollection.html#add_private-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#add_private (method)">#add_private</a></span>, <span class='object_link'><a href="PrivateCredentialCollection.html#each_filtered-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#each_filtered (method)">#each_filtered</a></span>, <span class='object_link'><a href="PrivateCredentialCollection.html#each_unfiltered-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#each_unfiltered (method)">#each_unfiltered</a></span>, <span class='object_link'><a href="PrivateCredentialCollection.html#empty%3F-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#empty? (method)">#empty?</a></span>, <span class='object_link'><a href="PrivateCredentialCollection.html#filtered%3F-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#filtered? (method)">#filtered?</a></span>, <span class='object_link'><a href="PrivateCredentialCollection.html#initialize-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="PrivateCredentialCollection.html#prepend_cred-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#prepend_cred (method)">#prepend_cred</a></span>, <span class='object_link'><a href="PrivateCredentialCollection.html#private_type-instance_method" title="Metasploit::Framework::PrivateCredentialCollection#private_type (method)">#private_type</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <p class="notice">This class inherits a constructor from <span class='object_link'><a href="CredentialCollection.html#initialize-instance_method" title="Metasploit::Framework::CredentialCollection#initialize (method)">Metasploit::Framework::CredentialCollection</a></span></p>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="error_list=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="error_list-instance_method">
+  
+    #<strong>error_list</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute error_list.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+6
+7
+8</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/key_collection.rb', line 6</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_error_list'>error_list</span>
+  <span class='ivar'>@error_list</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="key_data=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="key_data-instance_method">
+  
+    #<strong>key_data</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute key_data.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+3
+4
+5</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/key_collection.rb', line 3</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_key_data'>key_data</span>
+  <span class='ivar'>@key_data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="key_path=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="key_path-instance_method">
+  
+    #<strong>key_path</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute key_path.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/key_collection.rb', line 4</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_key_path'>key_path</span>
+  <span class='ivar'>@key_path</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="private_key=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="private_key-instance_method">
+  
+    #<strong>private_key</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute private_key.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+5
+6
+7</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/key_collection.rb', line 5</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_private_key'>private_key</span>
+  <span class='ivar'>@private_key</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="ssh_keyfile_b64=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="ssh_keyfile_b64-instance_method">
+  
+    #<strong>ssh_keyfile_b64</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute ssh_keyfile_b64.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/key_collection.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ssh_keyfile_b64'>ssh_keyfile_b64</span>
+  <span class='ivar'>@ssh_keyfile_b64</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="each-instance_method">
+  
+    #<strong>each</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/key_collection.rb', line 78</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each'>each</span>
+  <span class='id identifier rubyid_prepended_creds'>prepended_creds</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span> <span class='kw'>yield</span> <span class='id identifier rubyid_c'>c</span> <span class='rbrace'>}</span>
+
+  <span class='kw'>if</span> <span class='ivar'>@user_file</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='ivar'>@user_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_user_fd'>user_fd</span><span class='op'>|</span>
+      <span class='id identifier rubyid_user_fd'>user_fd</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_user_from_file'>user_from_file</span><span class='op'>|</span>
+        <span class='id identifier rubyid_user_from_file'>user_from_file</span><span class='period'>.</span><span class='id identifier rubyid_chomp!'>chomp!</span>
+        <span class='id identifier rubyid_each_key'>each_key</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key_data'>key_data</span><span class='op'>|</span>
+          <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Credential.html" title="Metasploit::Framework::Credential (class)">Credential</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Credential.html#initialize-instance_method" title="Metasploit::Framework::Credential#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>public:</span> <span class='id identifier rubyid_user_from_file'>user_from_file</span><span class='comma'>,</span> <span class='label'>private:</span> <span class='id identifier rubyid_key_data'>key_data</span><span class='comma'>,</span> <span class='label'>realm:</span> <span class='id identifier rubyid_realm'>realm</span><span class='comma'>,</span> <span class='label'>private_type:</span> <span class='symbol'>:ssh_key</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='ivar'>@username</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_each_key'>each_key</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key_data'>key_data</span><span class='op'>|</span>
+      <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Credential.html" title="Metasploit::Framework::Credential (class)">Credential</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Credential.html#initialize-instance_method" title="Metasploit::Framework::Credential#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>public:</span> <span class='ivar'>@username</span><span class='comma'>,</span> <span class='label'>private:</span> <span class='id identifier rubyid_key_data'>key_data</span><span class='comma'>,</span> <span class='label'>realm:</span> <span class='id identifier rubyid_realm'>realm</span><span class='comma'>,</span> <span class='label'>private_type:</span> <span class='symbol'>:ssh_key</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_key-instance_method">
+  
+    #<strong>each_key</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+99
+100
+101
+102
+103</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/key_collection.rb', line 99</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_key'>each_key</span>
+  <span class='ivar'>@key_data</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_data'>data</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='id identifier rubyid_data'>data</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="has_privates?-instance_method">
+  
+    #<strong>has_privates?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Override CredentialCollection#has_privates?</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+10
+11
+12</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/key_collection.rb', line 10</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_has_privates?'>has_privates?</span>
+  <span class='ivar'>@key_data</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_key-instance_method">
+  
+    #<strong>read_key</strong>(file_path)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+105
+106
+107
+108
+109</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/key_collection.rb', line 105</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_key'>read_key</span><span class='lparen'>(</span><span class='id identifier rubyid_file_path'>file_path</span><span class='rparen'>)</span>
+  <span class='ivar'>@cache</span> <span class='op'>||=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='ivar'>@cache</span><span class='lbracket'>[</span><span class='id identifier rubyid_file_path'>file_path</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>SSH</span><span class='op'>::</span><span class='const'>KeyFactory</span><span class='period'>.</span><span class='id identifier rubyid_load_private_key'>load_private_key</span><span class='lparen'>(</span><span class='id identifier rubyid_file_path'>file_path</span><span class='comma'>,</span> <span class='id identifier rubyid_password'>password</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='ivar'>@cache</span><span class='lbracket'>[</span><span class='id identifier rubyid_file_path'>file_path</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="realm-instance_method">
+  
+    #<strong>realm</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/key_collection.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_realm'>realm</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="valid?-instance_method">
+  
+    #<strong>valid?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/key_collection.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_valid?'>valid?</span>
+  <span class='ivar'>@error_list</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@key_data</span> <span class='op'>=</span> <span class='const'>Set</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+  <span class='kw'>if</span> <span class='ivar'>@private_key</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='id identifier rubyid_validate_private_key'>validate_private_key</span><span class='lparen'>(</span><span class='ivar'>@private_key</span><span class='rparen'>)</span>
+  <span class='kw'>elsif</span> <span class='ivar'>@key_path</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='id identifier rubyid_validate_key_path'>validate_key_path</span><span class='lparen'>(</span><span class='ivar'>@key_path</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='ivar'>@error_list</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No key path or key provided</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No key path or key provided</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_results'>results</span><span class='lbracket'>[</span><span class='symbol'>:key_data</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='ivar'>@key_data</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_results'>results</span><span class='lbracket'>[</span><span class='symbol'>:key_data</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='ivar'>@error_list</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='id identifier rubyid_results'>results</span><span class='lbracket'>[</span><span class='symbol'>:error_list</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_results'>results</span><span class='lbracket'>[</span><span class='symbol'>:error_list</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@key_data</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="validate_key_path-instance_method">
+  
+    #<strong>validate_key_path</strong>(key_path)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/key_collection.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_validate_key_path'>validate_key_path</span><span class='lparen'>(</span><span class='id identifier rubyid_key_path'>key_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key_data'>key_data</span> <span class='op'>=</span> <span class='const'>Set</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_error_list'>error_list</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='kw'>if</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_file?'>file?</span><span class='lparen'>(</span><span class='id identifier rubyid_key_path'>key_path</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_key_files'>key_files</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_key_path'>key_path</span><span class='rbracket'>]</span>
+  <span class='kw'>elsif</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_directory?'>directory?</span><span class='lparen'>(</span><span class='id identifier rubyid_key_path'>key_path</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_key_files'>key_files</span> <span class='op'>=</span> <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_entries'>entries</span><span class='lparen'>(</span><span class='id identifier rubyid_key_path'>key_path</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span> <span class='id identifier rubyid_f'>f</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\x2e|\x2epub$</span><span class='regexp_end'>/</span></span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_key_path'>key_path</span><span class='comma'>,</span> <span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='lbrace'>{</span><span class='label'>key_data:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>error:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key_path'>key_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> Invalid key path</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_key_files'>key_files</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+    <span class='kw'>begin</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_read_key'>read_key</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+        <span class='id identifier rubyid_key_data'>key_data</span> <span class='op'>&lt;&lt;</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>rescue</span> <span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_error_list'>error_list</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_f'>f</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='lbrace'>{</span><span class='label'>key_data:</span> <span class='id identifier rubyid_key_data'>key_data</span><span class='comma'>,</span> <span class='label'>error_list:</span> <span class='id identifier rubyid_error_list'>error_list</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="validate_private_key-instance_method">
+  
+    #<strong>validate_private_key</strong>(private_key)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/key_collection.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_validate_private_key'>validate_private_key</span><span class='lparen'>(</span><span class='id identifier rubyid_private_key'>private_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key_data'>key_data</span> <span class='op'>=</span> <span class='const'>Set</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_error_list'>error_list</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>begin</span>
+    <span class='kw'>if</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>SSH</span><span class='op'>::</span><span class='const'>KeyFactory</span><span class='period'>.</span><span class='id identifier rubyid_load_data_private_key'>load_data_private_key</span><span class='lparen'>(</span><span class='id identifier rubyid_private_key'>private_key</span><span class='comma'>,</span> <span class='ivar'>@password</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+      <span class='id identifier rubyid_key_data'>key_data</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_private_key'>private_key</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_error_list'>error_list</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error validating private key: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='lbrace'>{</span><span class='label'>key_data:</span> <span class='id identifier rubyid_key_data'>key_data</span><span class='comma'>,</span> <span class='label'>error_list:</span> <span class='id identifier rubyid_error_list'>error_list</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:42:44 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

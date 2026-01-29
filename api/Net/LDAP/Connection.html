@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Net::LDAP::Connection
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Net::LDAP::Connection";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (C)</a> &raquo;
+    <span class='title'>Net</span> &raquo; <span class='title'>LDAP</span>
+     &raquo; 
+    <span class="title">Connection</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Net::LDAP::Connection
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Net::LDAP::Connection</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/ldap.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Update Net::LDAP’s initialize and new_connection method to honor a tracking proxies setting</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="../../Msf/Exploit/Remote/SMB/Relay/NTLM/Target/LDAP/Client.html" title="Msf::Exploit::Remote::SMB::Relay::NTLM::Target::LDAP::Client (class)">Msf::Exploit::Remote::SMB::Relay::NTLM::Target::LDAP::Client</a></span></p>
+</div>
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Connection/ConnectionSaslIO.html" title="Net::LDAP::Connection::ConnectionSaslIO (module)">ConnectionSaslIO</a></span>, <span class='object_link'><a href="Connection/SocketSaslIO.html" title="Net::LDAP::Connection::SocketSaslIO (module)">SocketSaslIO</a></span>, <span class='object_link'><a href="Connection/SynchronousRead.html" title="Net::LDAP::Connection::SynchronousRead (module)">SynchronousRead</a></span>
+    
+  
+    
+  
+</p>
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(server) {|_self| ... } &#x21d2; Connection </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initialize the LDAP connection using Rex::Socket::TCP, and optionally set up encryption on the connection if configured.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ldapwhoami-instance_method" title="#ldapwhoami (instance method)">#<strong>ldapwhoami</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Monkeypatch upstream library to support the extended Whoami request.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#modify-instance_method" title="#modify (instance method)">#<strong>modify</strong>(args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Another monkeypatch to support :controls.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#search-instance_method" title="#search (instance method)">#<strong>search</strong>(args = nil)  &#x21d2; Net::LDAP::PDU </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Monkeypatch upstream library for now to support :controls hash option in ‘args` so that we can provide controls within searches.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(server) {|_self| ... } &#x21d2; <tt><span class='object_link'><a href="" title="Net::LDAP::Connection (class)">Connection</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initialize the LDAP connection using Rex::Socket::TCP, and optionally set up encryption on the connection if configured.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>server</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Hash of the options needed to set up the Rex::Socket::TCP socket for the LDAP connection.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>_self</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Parameters:</p>
+<ul class="yieldparam">
+  
+    <li>
+      
+        <span class='name'>_self</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Net::LDAP::Connection (class)">Net::LDAP::Connection</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the object that the method was called on</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><a href="http://gemdocs.org/gems/rex-socket/0.1.43/Rex/Socket.html#create-class_method" target="_parent" title="http://gemdocs.org/gems/rex-socket/0.1.43/Rex/Socket.html#create-class_method">http://gemdocs.org/gems/rex-socket/0.1.43/Rex/Socket.html#create-class_method</a></li>
+    
+      <li><a href="http://gemdocs.org/gems/rex-socket/0.1.43/Rex/Socket.html#create_param-class_method" target="_parent" title="http://gemdocs.org/gems/rex-socket/0.1.43/Rex/Socket.html#create_param-class_method">http://gemdocs.org/gems/rex-socket/0.1.43/Rex/Socket.html#create_param-class_method</a></li>
+    
+      <li><a href="http://gemdocs.org/gems/rex-socket/0.1.43/Rex/Socket/Parameters.html#from_hash-class_method" target="_parent" title="http://gemdocs.org/gems/rex-socket/0.1.43/Rex/Socket/Parameters.html#from_hash-class_method">http://gemdocs.org/gems/rex-socket/0.1.43/Rex/Socket/Parameters.html#from_hash-class_method</a></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ldap.rb', line 189</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_server'>server</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='ivar'>@conn</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>Tcp</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PeerHost</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PeerPort</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Proxies</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='symbol'>:proxies</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Timeout</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='symbol'>:connect_timeout</span><span class='rbracket'>]</span>
+    <span class='rparen'>)</span>
+    <span class='ivar'>@conn</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Connection/SynchronousRead.html" title="Net::LDAP::Connection::SynchronousRead (module)">SynchronousRead</a></span></span><span class='rparen'>)</span>
+
+    <span class='comment'># Set up read/write wrapping
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Connection/ConnectionSaslIO.html" title="Net::LDAP::Connection::ConnectionSaslIO (module)">ConnectionSaslIO</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>SocketError</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>LdapError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No such address or other socket error.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>rescue</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>ECONNREFUSED</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>LdapError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Server </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> refused connection on port </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='symbol'>:encryption</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_setup_encryption'>setup_encryption</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='symbol'>:encryption</span><span class='rbracket'>]</span>
+    <span class='ivar'>@conn</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span> <span class='const'>Forwardable</span>
+    <span class='ivar'>@conn</span><span class='period'>.</span><span class='id identifier rubyid_def_delegators'>def_delegators</span> <span class='symbol'>:@io</span><span class='comma'>,</span> <span class='symbol'>:localinfo</span><span class='comma'>,</span> <span class='symbol'>:peerinfo</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>yield</span> <span class='kw'>self</span> <span class='kw'>if</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="ldapwhoami-instance_method">
+  
+    #<strong>ldapwhoami</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Monkeypatch upstream library to support the extended Whoami request. Delete this after <a href="https://github.com/ruby-ldap/ruby-net-ldap/pull/425">github.com/ruby-ldap/ruby-net-ldap/pull/425</a> is landed. This is not the only occurrence of a patch for this functionality.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ldap.rb', line 472</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ldapwhoami'>ldapwhoami</span>
+  <span class='id identifier rubyid_ext_seq'>ext_seq</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>WhoamiOid</span><span class='period'>.</span><span class='id identifier rubyid_to_ber_contextspecific'>to_ber_contextspecific</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='id identifier rubyid_ext_seq'>ext_seq</span><span class='period'>.</span><span class='id identifier rubyid_to_ber_appsequence'>to_ber_appsequence</span><span class='lparen'>(</span><span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>PDU</span><span class='op'>::</span><span class='const'>ExtendedRequest</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_message_id'>message_id</span> <span class='op'>=</span> <span class='id identifier rubyid_next_msgid'>next_msgid</span>
+
+  <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_message_id'>message_id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pdu'>pdu</span> <span class='op'>=</span> <span class='id identifier rubyid_queued_read'>queued_read</span><span class='lparen'>(</span><span class='id identifier rubyid_message_id'>message_id</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_pdu'>pdu</span> <span class='op'>||</span> <span class='id identifier rubyid_pdu'>pdu</span><span class='period'>.</span><span class='id identifier rubyid_app_tag'>app_tag</span> <span class='op'>!=</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>PDU</span><span class='op'>::</span><span class='const'>ExtendedResponse</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>ResponseMissingOrInvalidError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>response missing or invalid</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_pdu'>pdu</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="modify-instance_method">
+  
+    #<strong>modify</strong>(args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Another monkeypatch to support :controls</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ldap.rb', line 444</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_modify'>modify</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_modify_dn'>modify_dn</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:dn</span><span class='rbracket'>]</span> <span class='kw'>or</span> <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to modify empty DN</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ops'>ops</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_modify_ops'>modify_ops</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:operations</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_message_id'>message_id</span> <span class='op'>=</span> <span class='id identifier rubyid_next_msgid'>next_msgid</span>
+  <span class='id identifier rubyid_request'>request</span>    <span class='op'>=</span> <span class='lbracket'>[</span>
+    <span class='id identifier rubyid_modify_dn'>modify_dn</span><span class='period'>.</span><span class='id identifier rubyid_to_ber'>to_ber</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_ops'>ops</span><span class='period'>.</span><span class='id identifier rubyid_to_ber_sequence'>to_ber_sequence</span><span class='comma'>,</span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_ber_appsequence'>to_ber_appsequence</span><span class='lparen'>(</span><span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>PDU</span><span class='op'>::</span><span class='const'>ModifyRequest</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_controls'>controls</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:controls</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_controls'>controls</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_controls'>controls</span> <span class='op'>=</span> <span class='id identifier rubyid_controls'>controls</span><span class='period'>.</span><span class='id identifier rubyid_to_ber_contextspecific'>to_ber_contextspecific</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='id identifier rubyid_controls'>controls</span><span class='comma'>,</span> <span class='id identifier rubyid_message_id'>message_id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pdu'>pdu</span> <span class='op'>=</span> <span class='id identifier rubyid_queued_read'>queued_read</span><span class='lparen'>(</span><span class='id identifier rubyid_message_id'>message_id</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_pdu'>pdu</span> <span class='op'>||</span> <span class='id identifier rubyid_pdu'>pdu</span><span class='period'>.</span><span class='id identifier rubyid_app_tag'>app_tag</span> <span class='op'>!=</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>PDU</span><span class='op'>::</span><span class='const'>ModifyResponse</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>ResponseMissingOrInvalidError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>response missing or invalid</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_pdu'>pdu</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="search-instance_method">
+  
+    #<strong>search</strong>(args = nil)  &#x21d2; <tt><span class='object_link'><a href="PDU.html" title="Net::LDAP::PDU (class)">Net::LDAP::PDU</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Monkeypatch upstream library for now to support :controls hash option in ‘args` so that we can provide controls within searches. Needed so we can specify the LDAP_SERVER_SD_FLAGS_OID flag for searches to prevent getting the SACL when querying for ntSecurityDescriptor, as this is retrieved by default and non-admin users are not allowed to retrieve SACLs for objects. Therefore by adjusting the search to not retrieve SACLs, non-admin users can still retrieve information about the security of objects without violating this rule.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>args</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash of the arguments to be utilized by the search operation.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="PDU.html" title="Net::LDAP::PDU (class)">Net::LDAP::PDU</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A Protocol Data Unit (PDU) object, represented by the Net::LDAP::PDU class, containing the results of the search operation.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><a href="https://github.com/rapid7/metasploit-framework/issues/17324" target="_parent" title="https://github.com/rapid7/metasploit-framework/issues/17324">https://github.com/rapid7/metasploit-framework/issues/17324</a></li>
+    
+      <li><a href="https://github.com/ruby-ldap/ruby-net-ldap/pull/411" target="_parent" title="https://github.com/ruby-ldap/ruby-net-ldap/pull/411">https://github.com/ruby-ldap/ruby-net-ldap/pull/411</a></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ldap.rb', line 231</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_search'>search</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_args'>args</span> <span class='op'>||=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='comment'># filtering, scoping, search base
+</span>  <span class='comment'># filter: https://tools.ietf.org/html/rfc4511#section-4.5.1.7
+</span>  <span class='comment'># base:   https://tools.ietf.org/html/rfc4511#section-4.5.1.1
+</span>  <span class='comment'># scope:  https://tools.ietf.org/html/rfc4511#section-4.5.1.2
+</span>  <span class='id identifier rubyid_filter'>filter</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:filter</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>Filter</span><span class='period'>.</span><span class='id identifier rubyid_eq'>eq</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>objectClass</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_base'>base</span>   <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:base</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_scope'>scope</span>  <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:scope</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>SearchScope_WholeSubtree</span>
+
+  <span class='comment'># attr handling
+</span>  <span class='comment'># attrs:      https://tools.ietf.org/html/rfc4511#section-4.5.1.8
+</span>  <span class='comment'># attrs_only: https://tools.ietf.org/html/rfc4511#section-4.5.1.6
+</span>  <span class='id identifier rubyid_attrs'>attrs</span>  <span class='op'>=</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:attributes</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_attrs_only'>attrs_only</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:attributes_only</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>true</span>
+
+  <span class='comment'># references
+</span>  <span class='comment'># refs:  https://tools.ietf.org/html/rfc4511#section-4.5.3
+</span>  <span class='comment'># deref: https://tools.ietf.org/html/rfc4511#section-4.5.1.3
+</span>  <span class='id identifier rubyid_refs'>refs</span>   <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:return_referrals</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_deref'>deref</span>  <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:deref</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>DerefAliases_Never</span>
+
+  <span class='comment'># limiting, paging, sorting
+</span>  <span class='comment'># size: https://tools.ietf.org/html/rfc4511#section-4.5.1.4
+</span>  <span class='comment'># time: https://tools.ietf.org/html/rfc4511#section-4.5.1.5
+</span>  <span class='id identifier rubyid_size'>size</span>   <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:size</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+  <span class='id identifier rubyid_time'>time</span>   <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:time</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+  <span class='id identifier rubyid_paged'>paged</span>  <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:paged_searches_supported</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_sort'>sort</span>   <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:sort_controls</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+
+  <span class='comment'># arg validation
+</span>  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>search base is required</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_base'>base</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invalid search-size</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invalid search scope</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>SearchScopes</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_scope'>scope</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invalid alias dereferencing value</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>DerefAliasesArray</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_deref'>deref</span><span class='rparen'>)</span>
+
+  <span class='comment'># arg transforms
+</span>  <span class='id identifier rubyid_filter'>filter</span> <span class='op'>=</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>Filter</span><span class='period'>.</span><span class='id identifier rubyid_construct'>construct</span><span class='lparen'>(</span><span class='id identifier rubyid_filter'>filter</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_filter'>filter</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>String</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ber_attrs'>ber_attrs</span> <span class='op'>=</span> <span class='id identifier rubyid_attrs'>attrs</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_attr'>attr</span><span class='op'>|</span> <span class='id identifier rubyid_attr'>attr</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_to_ber'>to_ber</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_ber_sort'>ber_sort</span>  <span class='op'>=</span> <span class='id identifier rubyid_encode_sort_controls'>encode_sort_controls</span><span class='lparen'>(</span><span class='id identifier rubyid_sort'>sort</span><span class='rparen'>)</span>
+
+  <span class='comment'># An interesting value for the size limit would be close to A/D&#39;s
+</span>  <span class='comment'># built-in page limit of 1000 records, but openLDAP newer than version
+</span>  <span class='comment'># 2.2.0 chokes on anything bigger than 126. You get a silent error that
+</span>  <span class='comment'># is easily visible by running slapd in debug mode. Go figure.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># Changed this around 06Sep06 to support a caller-specified search-size
+</span>  <span class='comment'># limit. Because we ALWAYS do paged searches, we have to work around the
+</span>  <span class='comment'># problem that it&#39;s not legal to specify a &quot;normal&quot; sizelimit (in the
+</span>  <span class='comment'># body of the search request) that is larger than the page size we&#39;re
+</span>  <span class='comment'># requesting. Unfortunately, I have the feeling that this will break
+</span>  <span class='comment'># with LDAP servers that don&#39;t support paged searches!!!
+</span>  <span class='comment'>#
+</span>  <span class='comment'># (Because we pass zero as the sizelimit on search rounds when the
+</span>  <span class='comment'># remaining limit is larger than our max page size of 126. In these
+</span>  <span class='comment'># cases, I think the caller&#39;s search limit will be ignored!)
+</span>  <span class='comment'>#
+</span>  <span class='comment'># CONFIRMED: This code doesn&#39;t work on LDAPs that don&#39;t support paged
+</span>  <span class='comment'># searches when the size limit is larger than 126. We&#39;re going to have
+</span>  <span class='comment'># to do a root-DSE record search and not do a paged search if the LDAP
+</span>  <span class='comment'># doesn&#39;t support it. Yuck.
+</span>  <span class='id identifier rubyid_rfc2696_cookie'>rfc2696_cookie</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>126</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_result_pdu'>result_pdu</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_n_results'>n_results</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_message_id'>message_id</span> <span class='op'>=</span> <span class='id identifier rubyid_next_msgid'>next_msgid</span>
+
+  <span class='id identifier rubyid_instrument'>instrument</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>search.net_ldap_connection</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+             <span class='label'>message_id:</span> <span class='id identifier rubyid_message_id'>message_id</span><span class='comma'>,</span>
+             <span class='label'>filter:</span>     <span class='id identifier rubyid_filter'>filter</span><span class='comma'>,</span>
+             <span class='label'>base:</span>       <span class='id identifier rubyid_base'>base</span><span class='comma'>,</span>
+             <span class='label'>scope:</span>      <span class='id identifier rubyid_scope'>scope</span><span class='comma'>,</span>
+             <span class='label'>size:</span>       <span class='id identifier rubyid_size'>size</span><span class='comma'>,</span>
+             <span class='label'>time:</span>       <span class='id identifier rubyid_time'>time</span><span class='comma'>,</span>
+             <span class='label'>sort:</span>       <span class='id identifier rubyid_sort'>sort</span><span class='comma'>,</span>
+             <span class='label'>referrals:</span>  <span class='id identifier rubyid_refs'>refs</span><span class='comma'>,</span>
+             <span class='label'>deref:</span>      <span class='id identifier rubyid_deref'>deref</span><span class='comma'>,</span>
+             <span class='label'>attributes:</span> <span class='id identifier rubyid_attrs'>attrs</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_payload'>payload</span><span class='op'>|</span>
+    <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+      <span class='comment'># should collect this into a private helper to clarify the structure
+</span>      <span class='id identifier rubyid_query_limit'>query_limit</span> <span class='op'>=</span> <span class='int'>0</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+        <span class='id identifier rubyid_query_limit'>query_limit</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='id identifier rubyid_paged'>paged</span>
+                        <span class='lparen'>(</span><span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_size'>size</span> <span class='op'>-</span> <span class='id identifier rubyid_n_results'>n_results</span><span class='rparen'>)</span> <span class='op'>&lt;</span> <span class='int'>126</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='lparen'>(</span><span class='id identifier rubyid_size'>size</span> <span class='op'>-</span> <span class='id identifier rubyid_n_results'>n_results</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='int'>0</span><span class='rparen'>)</span>
+                      <span class='kw'>else</span>
+                        <span class='id identifier rubyid_size'>size</span>
+                      <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+        <span class='id identifier rubyid_base'>base</span><span class='period'>.</span><span class='id identifier rubyid_to_ber'>to_ber</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_scope'>scope</span><span class='period'>.</span><span class='id identifier rubyid_to_ber_enumerated'>to_ber_enumerated</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_deref'>deref</span><span class='period'>.</span><span class='id identifier rubyid_to_ber_enumerated'>to_ber_enumerated</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_query_limit'>query_limit</span><span class='period'>.</span><span class='id identifier rubyid_to_ber'>to_ber</span><span class='comma'>,</span> <span class='comment'># size limit
+</span>        <span class='id identifier rubyid_time'>time</span><span class='period'>.</span><span class='id identifier rubyid_to_ber'>to_ber</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_attrs_only'>attrs_only</span><span class='period'>.</span><span class='id identifier rubyid_to_ber'>to_ber</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_filter'>filter</span><span class='period'>.</span><span class='id identifier rubyid_to_ber'>to_ber</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_ber_attrs'>ber_attrs</span><span class='period'>.</span><span class='id identifier rubyid_to_ber_sequence'>to_ber_sequence</span><span class='comma'>,</span>
+      <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_ber_appsequence'>to_ber_appsequence</span><span class='lparen'>(</span><span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>PDU</span><span class='op'>::</span><span class='const'>SearchRequest</span><span class='rparen'>)</span>
+
+      <span class='comment'># rfc2696_cookie sometimes contains binary data from Microsoft Active Directory
+</span>      <span class='comment'># this breaks when calling to_ber. (Can&#39;t force binary data to UTF-8)
+</span>      <span class='comment'># we have to disable paging (even though server supports it) to get around this...
+</span>
+      <span class='id identifier rubyid_user_controls'>user_controls</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:controls</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_controls'>controls</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_controls'>controls</span> <span class='op'>&lt;&lt;</span>
+        <span class='lbracket'>[</span>
+          <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>LDAPControls</span><span class='op'>::</span><span class='const'>PAGED_RESULTS</span><span class='period'>.</span><span class='id identifier rubyid_to_ber'>to_ber</span><span class='comma'>,</span>
+          <span class='comment'># Criticality MUST be false to interoperate with normal LDAPs.
+</span>          <span class='kw'>false</span><span class='period'>.</span><span class='id identifier rubyid_to_ber'>to_ber</span><span class='comma'>,</span>
+          <span class='id identifier rubyid_rfc2696_cookie'>rfc2696_cookie</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_ber</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_ber_sequence'>to_ber_sequence</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_to_ber'>to_ber</span><span class='comma'>,</span>
+        <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_ber_sequence'>to_ber_sequence</span> <span class='kw'>if</span> <span class='id identifier rubyid_paged'>paged</span>
+      <span class='id identifier rubyid_controls'>controls</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ber_sort'>ber_sort</span> <span class='kw'>if</span> <span class='id identifier rubyid_ber_sort'>ber_sort</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_controls'>controls</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_user_controls'>user_controls</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+        <span class='id identifier rubyid_controls'>controls</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_controls'>controls</span> <span class='op'>+=</span> <span class='id identifier rubyid_user_controls'>user_controls</span>
+        <span class='id identifier rubyid_controls'>controls</span> <span class='op'>=</span> <span class='id identifier rubyid_controls'>controls</span><span class='period'>.</span><span class='id identifier rubyid_to_ber_contextspecific'>to_ber_contextspecific</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='id identifier rubyid_controls'>controls</span><span class='comma'>,</span> <span class='id identifier rubyid_message_id'>message_id</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_result_pdu'>result_pdu</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='id identifier rubyid_controls'>controls</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+      <span class='kw'>while</span> <span class='id identifier rubyid_pdu'>pdu</span> <span class='op'>=</span> <span class='id identifier rubyid_queued_read'>queued_read</span><span class='lparen'>(</span><span class='id identifier rubyid_message_id'>message_id</span><span class='rparen'>)</span>
+        <span class='kw'>case</span> <span class='id identifier rubyid_pdu'>pdu</span><span class='period'>.</span><span class='id identifier rubyid_app_tag'>app_tag</span>
+        <span class='kw'>when</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>PDU</span><span class='op'>::</span><span class='const'>SearchReturnedData</span>
+          <span class='id identifier rubyid_n_results'>n_results</span> <span class='op'>+=</span> <span class='int'>1</span>
+          <span class='kw'>yield</span> <span class='id identifier rubyid_pdu'>pdu</span><span class='period'>.</span><span class='id identifier rubyid_search_entry'>search_entry</span> <span class='kw'>if</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
+        <span class='kw'>when</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>PDU</span><span class='op'>::</span><span class='const'>SearchResultReferral</span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_refs'>refs</span>
+            <span class='kw'>if</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
+              <span class='id identifier rubyid_se'>se</span> <span class='op'>=</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>Entry</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+              <span class='id identifier rubyid_se'>se</span><span class='lbracket'>[</span><span class='symbol'>:search_referrals</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_pdu'>pdu</span><span class='period'>.</span><span class='id identifier rubyid_search_referrals'>search_referrals</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+              <span class='kw'>yield</span> <span class='id identifier rubyid_se'>se</span>
+            <span class='kw'>end</span>
+          <span class='kw'>end</span>
+        <span class='kw'>when</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>PDU</span><span class='op'>::</span><span class='const'>SearchResult</span>
+          <span class='id identifier rubyid_result_pdu'>result_pdu</span> <span class='op'>=</span> <span class='id identifier rubyid_pdu'>pdu</span>
+          <span class='id identifier rubyid_controls'>controls</span> <span class='op'>=</span> <span class='id identifier rubyid_pdu'>pdu</span><span class='period'>.</span><span class='id identifier rubyid_result_controls'>result_controls</span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_refs'>refs</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_pdu'>pdu</span><span class='period'>.</span><span class='id identifier rubyid_result_code'>result_code</span> <span class='op'>==</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>ResultCodeReferral</span>
+            <span class='kw'>if</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
+              <span class='id identifier rubyid_se'>se</span> <span class='op'>=</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>Entry</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+              <span class='id identifier rubyid_se'>se</span><span class='lbracket'>[</span><span class='symbol'>:search_referrals</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_pdu'>pdu</span><span class='period'>.</span><span class='id identifier rubyid_search_referrals'>search_referrals</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+              <span class='kw'>yield</span> <span class='id identifier rubyid_se'>se</span>
+            <span class='kw'>end</span>
+          <span class='kw'>end</span>
+          <span class='kw'>break</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>ResponseTypeInvalidError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invalid response-type in search: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pdu'>pdu</span><span class='period'>.</span><span class='id identifier rubyid_app_tag'>app_tag</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='kw'>if</span> <span class='id identifier rubyid_result_pdu'>result_pdu</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>ResponseMissingOrInvalidError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>response missing</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># count number of pages of results
+</span>      <span class='id identifier rubyid_payload'>payload</span><span class='lbracket'>[</span><span class='symbol'>:page_count</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_payload'>payload</span><span class='lbracket'>[</span><span class='symbol'>:page_count</span><span class='rbracket'>]</span>  <span class='op'>+=</span> <span class='int'>1</span>
+
+      <span class='comment'># When we get here, we have seen a type-5 response. If there is no
+</span>      <span class='comment'># error AND there is an RFC-2696 cookie, then query again for the next
+</span>      <span class='comment'># page of results. If not, we&#39;re done. Don&#39;t screw this up or we&#39;ll
+</span>      <span class='comment'># break every search we do.
+</span>      <span class='comment'>#
+</span>      <span class='comment'># Noticed 02Sep06, look at the read_ber call in this loop, shouldn&#39;t
+</span>      <span class='comment'># that have a parameter of AsnSyntax? Does this just accidentally
+</span>      <span class='comment'># work? According to RFC-2696, the value expected in this position is
+</span>      <span class='comment'># of type OCTET STRING, covered in the default syntax supported by
+</span>      <span class='comment'># read_ber, so I guess we&#39;re ok.
+</span>      <span class='id identifier rubyid_more_pages'>more_pages</span> <span class='op'>=</span> <span class='kw'>false</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_result_pdu'>result_pdu</span><span class='period'>.</span><span class='id identifier rubyid_result_code'>result_code</span> <span class='op'>==</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>ResultCodeSuccess</span> <span class='kw'>and</span> <span class='id identifier rubyid_controls'>controls</span>
+        <span class='id identifier rubyid_controls'>controls</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_oid'>oid</span> <span class='op'>==</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>LDAPControls</span><span class='op'>::</span><span class='const'>PAGED_RESULTS</span>
+            <span class='comment'># just in case some bogus server sends us more than 1 of these.
+</span>            <span class='id identifier rubyid_more_pages'>more_pages</span> <span class='op'>=</span> <span class='kw'>false</span>
+            <span class='kw'>if</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span> <span class='kw'>and</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+              <span class='id identifier rubyid_cookie'>cookie</span> <span class='op'>=</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_read_ber'>read_ber</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+              <span class='kw'>if</span> <span class='id identifier rubyid_cookie'>cookie</span> <span class='kw'>and</span> <span class='id identifier rubyid_cookie'>cookie</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+                <span class='id identifier rubyid_rfc2696_cookie'>rfc2696_cookie</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_cookie'>cookie</span>
+                <span class='id identifier rubyid_more_pages'>more_pages</span> <span class='op'>=</span> <span class='kw'>true</span>
+              <span class='kw'>end</span>
+            <span class='kw'>end</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='kw'>break</span> <span class='kw'>unless</span> <span class='id identifier rubyid_more_pages'>more_pages</span>
+    <span class='kw'>end</span> <span class='comment'># loop
+</span>
+    <span class='comment'># track total result count
+</span>    <span class='id identifier rubyid_payload'>payload</span><span class='lbracket'>[</span><span class='symbol'>:result_count</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_n_results'>n_results</span>
+
+    <span class='id identifier rubyid_result_pdu'>result_pdu</span> <span class='op'>||</span> <span class='const'>OpenStruct</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='symbol'>:status</span> <span class='op'>=&gt;</span> <span class='symbol'>:failure</span><span class='comma'>,</span> <span class='symbol'>:result_code</span> <span class='op'>=&gt;</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>LDAP</span><span class='op'>::</span><span class='const'>ResultCodeOperationsError</span><span class='comma'>,</span> <span class='symbol'>:message</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid search</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span> <span class='comment'># instrument
+</span><span class='kw'>ensure</span>
+
+  <span class='comment'># clean up message queue for this search
+</span>  <span class='id identifier rubyid_messages'>messages</span> <span class='op'>=</span> <span class='id identifier rubyid_message_queue'>message_queue</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_message_id'>message_id</span><span class='rparen'>)</span>
+
+  <span class='comment'># in the exceptional case some messages were *not* consumed from the queue,
+</span>  <span class='comment'># instrument the event but do not fail.
+</span>  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_messages'>messages</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_messages'>messages</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_instrument'>instrument</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>search_messages_unread.net_ldap_connection</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+               <span class='label'>message_id:</span> <span class='id identifier rubyid_message_id'>message_id</span><span class='comma'>,</span> <span class='label'>messages:</span> <span class='id identifier rubyid_messages'>messages</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:44:14 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Auxiliary::ManageEngineXnode::Action
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Auxiliary::ManageEngineXnode::Action";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Auxiliary.html" title="Msf::Auxiliary (class)">Auxiliary</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../ManageEngineXnode.html" title="Msf::Auxiliary::ManageEngineXnode (module)">ManageEngineXnode</a></span></span>
+     &raquo; 
+    <span class="title">Action</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Auxiliary::ManageEngineXnode::Action
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="../ManageEngineXnode.html" title="Msf::Auxiliary::ManageEngineXnode (module)">Msf::Auxiliary::ManageEngineXnode</a></span>, <span class='object_link'><a href="BasicChecks.html" title="Msf::Auxiliary::ManageEngineXnode::BasicChecks (module)">BasicChecks</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/auxiliary/manage_engine_xnode/action.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#action_admin_health-instance_method" title="#action_admin_health (instance method)">#<strong>action_admin_health</strong>  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an Xnode health status request hash.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#action_authenticate-instance_method" title="#action_authenticate (instance method)">#<strong>action_authenticate</strong>(user, pass)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an Xnode authentication request hash.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#action_dr_search-instance_method" title="#action_dr_search (instance method)">#<strong>action_dr_search</strong>(repo_name, fields = nil, custom_query = nil)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an Xnode DataRepository Search request hash.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#action_xnode_info-instance_method" title="#action_xnode_info (instance method)">#<strong>action_xnode_info</strong>  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an Xnode info request hash.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="action_admin_health-instance_method">
+  
+    #<strong>action_admin_health</strong>  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an Xnode health status request hash</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Xnode health status request</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22
+23
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/manage_engine_xnode/action.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_action_admin_health'>action_admin_health</span>
+  <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>action</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>admin:/health</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>de_health</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>request_id</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>  
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="action_authenticate-instance_method">
+  
+    #<strong>action_authenticate</strong>(user, pass)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an Xnode authentication request hash</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>user</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Username</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>pass</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Password</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Xnode authentication request</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11
+12
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/manage_engine_xnode/action.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_action_authenticate'>action_authenticate</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>username</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_user'>user</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>password</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_pass'>pass</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>action</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>session:/authenticate</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="action_dr_search-instance_method">
+  
+    #<strong>action_dr_search</strong>(repo_name, fields = nil, custom_query = nil)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an Xnode DataRepository Search request hash</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>repo_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the DataRepository to query</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>fields</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>data repository fields (columns) to dump</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>custom_query</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash containing a custom query to merge with the query hash</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Xnode data repository search request</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/manage_engine_xnode/action.rb', line 44</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_action_dr_search'>action_dr_search</span><span class='lparen'>(</span><span class='id identifier rubyid_repo_name'>repo_name</span><span class='comma'>,</span> <span class='id identifier rubyid_fields'>fields</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_custom_query'>custom_query</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_time_gen_from'>time_gen_from</span> <span class='op'>=</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>0</span><span class='op'>..</span><span class='int'>10000000</span><span class='rparen'>)</span> <span class='comment'># generate random Unix timestamp somewhere in 1970 (aka Epoch), used below as the &quot;from&quot; date, to ensure we get all data we want
+</span>  <span class='id identifier rubyid_time_gen_to'>time_gen_to</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>+</span> <span class='int'>100000</span> <span class='comment'># take the current time and add 100,000 seconds (a little over a day) to rule out any issues arising from time zone differences
+</span>  <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>action</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dr:/dr_search</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dr_name_list</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_repo_name'>repo_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>query</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TIME_GENERATED:[</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_time_gen_from'>time_gen_from</span><span class='embexpr_end'>}</span><span class='tstring_content'> TO </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_time_gen_to'>time_gen_to</span><span class='embexpr_end'>}</span><span class='tstring_content'>]</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='comment'># this uses Unix Timestamp format
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>request_id</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># pass the fields (columns) to dump if possible
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_fields'>fields</span>
+    <span class='id identifier rubyid_query'>query</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>select_fields</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_fields'>fields</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_custom_query'>custom_query</span>
+    <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_custom_query'>custom_query</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_query'>query</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="action_xnode_info-instance_method">
+  
+    #<strong>action_xnode_info</strong>  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an Xnode info request hash</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Xnode info request</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33
+34
+35
+36</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/manage_engine_xnode/action.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_action_xnode_info'>action_xnode_info</span>
+  <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>action</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>admin:/xnode_info</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>request_id</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:10 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

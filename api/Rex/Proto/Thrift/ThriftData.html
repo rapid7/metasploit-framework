@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::Thrift::ThriftData
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Thrift::ThriftData";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (T)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Thrift.html" title="Rex::Proto::Thrift (module)">Thrift</a></span></span>
+     &raquo; 
+    <span class="title">ThriftData</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::Thrift::ThriftData
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">BinData::Record</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">BinData::Record</li>
+          
+            <li class="next">Rex::Proto::Thrift::ThriftData</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/thrift.rb<span class="defines">,<br />
+  lib/rex/proto/thrift.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>forward definition</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#boolean-class_method" title="boolean (class method)">.<strong>boolean</strong>(field_id, value)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Short hand method for defining a boolean field.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#i16-class_method" title="i16 (class method)">.<strong>i16</strong>(field_id, value)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#i32-class_method" title="i32 (class method)">.<strong>i32</strong>(field_id, value)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#i64-class_method" title="i64 (class method)">.<strong>i64</strong>(field_id, value)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#list-class_method" title="list (class method)">.<strong>list</strong>(field_id, data_type, value)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set-class_method" title="set (class method)">.<strong>set</strong>(field_id, data_type, value)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stop-class_method" title="stop (class method)">.<strong>stop</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#struct-class_method" title="struct (class method)">.<strong>struct</strong>(field_id, value)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#utf7-class_method" title="utf7 (class method)">.<strong>utf7</strong>(field_id, value)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="boolean-class_method">
+  
+    .<strong>boolean</strong>(field_id, value)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Short hand method for defining a boolean field</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+146
+147
+148</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/thrift.rb', line 146</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_boolean'>boolean</span><span class='lparen'>(</span><span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='const'><span class='object_link'><a href="ThriftDataType.html" title="Rex::Proto::Thrift::ThriftDataType (class)">ThriftDataType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ThriftDataType.html#T_BOOLEAN-constant" title="Rex::Proto::Thrift::ThriftDataType::T_BOOLEAN (constant)">T_BOOLEAN</a></span></span><span class='comma'>,</span> <span class='label'>field_id:</span> <span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='label'>data_value:</span> <span class='id identifier rubyid_value'>value</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="i16-class_method">
+  
+    .<strong>i16</strong>(field_id, value)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+150
+151
+152</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/thrift.rb', line 150</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_i16'>i16</span><span class='lparen'>(</span><span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='const'><span class='object_link'><a href="ThriftDataType.html" title="Rex::Proto::Thrift::ThriftDataType (class)">ThriftDataType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ThriftDataType.html#T_I16-constant" title="Rex::Proto::Thrift::ThriftDataType::T_I16 (constant)">T_I16</a></span></span><span class='comma'>,</span> <span class='label'>field_id:</span> <span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='label'>data_value:</span> <span class='id identifier rubyid_value'>value</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="i32-class_method">
+  
+    .<strong>i32</strong>(field_id, value)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+154
+155
+156</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/thrift.rb', line 154</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_i32'>i32</span><span class='lparen'>(</span><span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='const'><span class='object_link'><a href="ThriftDataType.html" title="Rex::Proto::Thrift::ThriftDataType (class)">ThriftDataType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ThriftDataType.html#T_I32-constant" title="Rex::Proto::Thrift::ThriftDataType::T_I32 (constant)">T_I32</a></span></span><span class='comma'>,</span> <span class='label'>field_id:</span> <span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='label'>data_value:</span> <span class='id identifier rubyid_value'>value</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="i64-class_method">
+  
+    .<strong>i64</strong>(field_id, value)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+158
+159
+160</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/thrift.rb', line 158</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_i64'>i64</span><span class='lparen'>(</span><span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='const'><span class='object_link'><a href="ThriftDataType.html" title="Rex::Proto::Thrift::ThriftDataType (class)">ThriftDataType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ThriftDataType.html#T_I64-constant" title="Rex::Proto::Thrift::ThriftDataType::T_I64 (constant)">T_I64</a></span></span><span class='comma'>,</span> <span class='label'>field_id:</span> <span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='label'>data_value:</span> <span class='id identifier rubyid_value'>value</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="list-class_method">
+  
+    .<strong>list</strong>(field_id, data_type, value)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+162
+163
+164</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/thrift.rb', line 162</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_list'>list</span><span class='lparen'>(</span><span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='id identifier rubyid_data_type'>data_type</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='const'><span class='object_link'><a href="ThriftDataType.html" title="Rex::Proto::Thrift::ThriftDataType (class)">ThriftDataType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ThriftDataType.html#T_LIST-constant" title="Rex::Proto::Thrift::ThriftDataType::T_LIST (constant)">T_LIST</a></span></span><span class='comma'>,</span> <span class='label'>field_id:</span> <span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='label'>data_value:</span> <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='id identifier rubyid_data_type'>data_type</span><span class='comma'>,</span> <span class='label'>members:</span> <span class='id identifier rubyid_value'>value</span> <span class='rbrace'>}</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set-class_method">
+  
+    .<strong>set</strong>(field_id, data_type, value)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+166
+167
+168</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/thrift.rb', line 166</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_set'>set</span><span class='lparen'>(</span><span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='id identifier rubyid_data_type'>data_type</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='const'><span class='object_link'><a href="ThriftDataType.html" title="Rex::Proto::Thrift::ThriftDataType (class)">ThriftDataType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ThriftDataType.html#T_SET-constant" title="Rex::Proto::Thrift::ThriftDataType::T_SET (constant)">T_SET</a></span></span><span class='comma'>,</span> <span class='label'>field_id:</span> <span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='label'>data_value:</span> <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='id identifier rubyid_data_type'>data_type</span><span class='comma'>,</span> <span class='label'>members:</span> <span class='id identifier rubyid_value'>value</span> <span class='rbrace'>}</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stop-class_method">
+  
+    .<strong>stop</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+170
+171
+172</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/thrift.rb', line 170</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_stop'>stop</span>
+  <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='const'><span class='object_link'><a href="ThriftDataType.html" title="Rex::Proto::Thrift::ThriftDataType (class)">ThriftDataType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ThriftDataType.html#T_STOP-constant" title="Rex::Proto::Thrift::ThriftDataType::T_STOP (constant)">T_STOP</a></span></span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="struct-class_method">
+  
+    .<strong>struct</strong>(field_id, value)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+174
+175
+176</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/thrift.rb', line 174</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_struct'>struct</span><span class='lparen'>(</span><span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='const'><span class='object_link'><a href="ThriftDataType.html" title="Rex::Proto::Thrift::ThriftDataType (class)">ThriftDataType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ThriftDataType.html#T_STRUCT-constant" title="Rex::Proto::Thrift::ThriftDataType::T_STRUCT (constant)">T_STRUCT</a></span></span><span class='comma'>,</span> <span class='label'>field_id:</span> <span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='label'>data_value:</span> <span class='id identifier rubyid_value'>value</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="utf7-class_method">
+  
+    .<strong>utf7</strong>(field_id, value)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+178
+179
+180</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/thrift.rb', line 178</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_utf7'>utf7</span><span class='lparen'>(</span><span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='const'><span class='object_link'><a href="ThriftDataType.html" title="Rex::Proto::Thrift::ThriftDataType (class)">ThriftDataType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ThriftDataType.html#T_UTF7-constant" title="Rex::Proto::Thrift::ThriftDataType::T_UTF7 (constant)">T_UTF7</a></span></span><span class='comma'>,</span> <span class='label'>field_id:</span> <span class='id identifier rubyid_field_id'>field_id</span><span class='comma'>,</span> <span class='label'>data_value:</span> <span class='id identifier rubyid_value'>value</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:42:54 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

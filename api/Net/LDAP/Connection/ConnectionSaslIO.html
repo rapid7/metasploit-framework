@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Net::LDAP::Connection::ConnectionSaslIO
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Net::LDAP::Connection::ConnectionSaslIO";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'>Net</span> &raquo; <span class='title'>LDAP</span> &raquo; <span class='title'><span class='object_link'><a href="../Connection.html" title="Net::LDAP::Connection (class)">Connection</a></span></span>
+     &raquo; 
+    <span class="title">ConnectionSaslIO</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Net::LDAP::Connection::ConnectionSaslIO
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/ldap.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wrap_read_write-instance_method" title="#wrap_read_write (instance method)">#<strong>wrap_read_write</strong>(wrap_read, wrap_write)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Provide the encryption wrapper for the caller to set up.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="wrap_read_write-instance_method">
+  
+    #<strong>wrap_read_write</strong>(wrap_read, wrap_write)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Provide the encryption wrapper for the caller to set up</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+175
+176
+177
+178</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ldap.rb', line 175</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wrap_read_write'>wrap_read_write</span><span class='lparen'>(</span><span class='id identifier rubyid_wrap_read'>wrap_read</span><span class='comma'>,</span> <span class='id identifier rubyid_wrap_write'>wrap_write</span><span class='rparen'>)</span>
+  <span class='ivar'>@conn</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="SocketSaslIO.html" title="Net::LDAP::Connection::SocketSaslIO (module)">SocketSaslIO</a></span></span><span class='rparen'>)</span>
+  <span class='ivar'>@conn</span><span class='period'>.</span><span class='id identifier rubyid_setup'>setup</span><span class='lparen'>(</span><span class='id identifier rubyid_wrap_read'>wrap_read</span><span class='comma'>,</span> <span class='id identifier rubyid_wrap_write'>wrap_write</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:52 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Metasploit::Framework::LoginScanner::X3
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::LoginScanner::X3";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (X)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../LoginScanner.html" title="Metasploit::Framework::LoginScanner (module)">LoginScanner</a></span></span>
+     &raquo; 
+    <span class="title">X3</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Metasploit::Framework::LoginScanner::X3
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Metasploit::Framework::LoginScanner::X3</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Base.html" title="Metasploit::Framework::LoginScanner::Base (module)">Base</a></span>, <span class='object_link'><a href="RexSocket.html" title="Metasploit::Framework::LoginScanner::RexSocket (module)">RexSocket</a></span>, <span class='object_link'><a href="../Tcp/Client.html" title="Metasploit::Framework::Tcp::Client (module)">Tcp::Client</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/login_scanner/x3.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="DEFAULT_PORT-constant" class="">DEFAULT_PORT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1818</span></pre></dd>
+      
+        <dt id="REALM_KEY-constant" class="">REALM_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='kw'>nil</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Tcp/Client.html" title="Metasploit::Framework::Tcp::Client (module)">Tcp::Client</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Tcp/Client.html#max_send_size-instance_method" title="Metasploit::Framework::Tcp::Client#max_send_size (method)">#max_send_size</a></span>, <span class='object_link'><a href="../Tcp/Client.html#send_delay-instance_method" title="Metasploit::Framework::Tcp::Client#send_delay (method)">#send_delay</a></span>, <span class='object_link'><a href="../Tcp/Client.html#sock-instance_method" title="Metasploit::Framework::Tcp::Client#sock (method)">#sock</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#attempt_login-instance_method" title="#attempt_login (instance method)">#<strong>attempt_login</strong>(credential)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encrypt_pass-instance_method" title="#encrypt_pass (instance method)">#<strong>encrypt_pass</strong>(inp)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Tcp/Client.html" title="Metasploit::Framework::Tcp::Client (module)">Tcp::Client</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Tcp/Client.html#chost-instance_method" title="Metasploit::Framework::Tcp::Client#chost (method)">#chost</a></span>, <span class='object_link'><a href="../Tcp/Client.html#connect-instance_method" title="Metasploit::Framework::Tcp::Client#connect (method)">#connect</a></span>, <span class='object_link'><a href="../Tcp/Client.html#cport-instance_method" title="Metasploit::Framework::Tcp::Client#cport (method)">#cport</a></span>, <span class='object_link'><a href="../Tcp/Client.html#disconnect-instance_method" title="Metasploit::Framework::Tcp::Client#disconnect (method)">#disconnect</a></span>, <span class='object_link'><a href="../Tcp/Client.html#proxies-instance_method" title="Metasploit::Framework::Tcp::Client#proxies (method)">#proxies</a></span>, <span class='object_link'><a href="../Tcp/Client.html#rhost-instance_method" title="Metasploit::Framework::Tcp::Client#rhost (method)">#rhost</a></span>, <span class='object_link'><a href="../Tcp/Client.html#rport-instance_method" title="Metasploit::Framework::Tcp::Client#rport (method)">#rport</a></span>, <span class='object_link'><a href="../Tcp/Client.html#set_tcp_evasions-instance_method" title="Metasploit::Framework::Tcp::Client#set_tcp_evasions (method)">#set_tcp_evasions</a></span>, <span class='object_link'><a href="../Tcp/Client.html#ssl-instance_method" title="Metasploit::Framework::Tcp::Client#ssl (method)">#ssl</a></span>, <span class='object_link'><a href="../Tcp/Client.html#ssl_version-instance_method" title="Metasploit::Framework::Tcp::Client#ssl_version (method)">#ssl_version</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="attempt_login-instance_method">
+  
+    #<strong>attempt_login</strong>(credential)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/x3.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_attempt_login'>attempt_login</span><span class='lparen'>(</span><span class='id identifier rubyid_credential'>credential</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result_options'>result_options</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>credential:</span> <span class='id identifier rubyid_credential'>credential</span><span class='comma'>,</span>
+    <span class='label'>status:</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>INCORRECT</span><span class='comma'>,</span>
+    <span class='label'>host:</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span>
+    <span class='label'>port:</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span>
+    <span class='label'>protocol:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='label'>service_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>X3 AdxAdmin</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># encrypt the password
+</span>  <span class='id identifier rubyid_enc_pass'>enc_pass</span> <span class='op'>=</span> <span class='id identifier rubyid_encrypt_pass'>encrypt_pass</span><span class='lparen'>(</span><span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_private'>private</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+  <span class='comment'># building the initial authentication packet
+</span>  <span class='comment'># [2bytes][userlen 1 byte][username][userlen 1 byte][username][passlen 1 byte][CRYPT:HASH]
+</span>  <span class='id identifier rubyid_user'>user</span> <span class='op'>=</span> <span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_public'>public</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+
+  <span class='id identifier rubyid_t_auth_buffer'>t_auth_buffer</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_user'>user</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>c</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_t_auth_buffer'>t_auth_buffer</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_user'>user</span>
+  <span class='id identifier rubyid_t_auth_buffer'>t_auth_buffer</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_user'>user</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_t_auth_buffer'>t_auth_buffer</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_user'>user</span>
+  <span class='id identifier rubyid_t_auth_buffer'>t_auth_buffer</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_enc_pass'>enc_pass</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_t_auth_buffer'>t_auth_buffer</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_enc_pass'>enc_pass</span>
+
+  <span class='id identifier rubyid_auth_buffer'>auth_buffer</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_auth_buffer'>auth_buffer</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_t_auth_buffer'>t_auth_buffer</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_auth_buffer'>auth_buffer</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_t_auth_buffer'>t_auth_buffer</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_connect'>connect</span>
+    <span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_sock'>sock</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='float'>0.4</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_enc_pass'>enc_pass</span>
+      <span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='id identifier rubyid_auth_buffer'>auth_buffer</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:proof</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_get_once'>get_once</span><span class='lparen'>(</span><span class='int'>1024</span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+
+      <span class='kw'>if</span> <span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:proof</span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:proof</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>4</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:proof</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span> <span class='op'>!=</span> <span class='lbracket'>[</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xFF</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xFF</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xFF</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xFF</span><span class='tstring_end'>&quot;</span></span>
+      <span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:status</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>SUCCESSFUL</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ConnectionError</span><span class='comma'>,</span> <span class='const'>EOFError</span><span class='comma'>,</span> <span class='const'>Timeout</span><span class='op'>::</span><span class='const'>Error</span><span class='comma'>,</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>EPIPE</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_result_options'>result_options</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span>
+      <span class='label'>proof:</span> <span class='id identifier rubyid_e'>e</span><span class='comma'>,</span>
+      <span class='label'>status:</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>UNABLE_TO_CONNECT</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_disconnect'>disconnect</span> <span class='kw'>if</span> <span class='id identifier rubyid_sock'>sock</span>
+
+  <span class='const'><span class='object_link'><a href="Result.html" title="Metasploit::Framework::LoginScanner::Result (class)">Result</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Result.html#initialize-instance_method" title="Metasploit::Framework::LoginScanner::Result#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_result_options'>result_options</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encrypt_pass-instance_method">
+  
+    #<strong>encrypt_pass</strong>(inp)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/x3.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encrypt_pass'>encrypt_pass</span><span class='lparen'>(</span><span class='id identifier rubyid_inp'>inp</span><span class='rparen'>)</span>
+  <span class='comment'># check if it&#39;s already encrypted
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid_inp'>inp</span> <span class='kw'>if</span> <span class='id identifier rubyid_inp'>inp</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CRYPT:</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_num2'>num2</span> <span class='op'>=</span> <span class='id identifier rubyid_inp'>inp</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_num'>num</span> <span class='op'>=</span> <span class='int'>17</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_charset0'>charset0</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cromanwqxfzpgedkvstjhyilu</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span>
+  <span class='id identifier rubyid_xyz'>xyz</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>zxWyZxzvwYzxZXxxZWWyWxYXz</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span>
+  <span class='id identifier rubyid_charset1'>charset1</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cf2tln3yuVkDr7oPaQ8bsSd4x</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span>
+
+  <span class='lparen'>(</span><span class='int'>0</span><span class='op'>..</span><span class='id identifier rubyid_num2'>num2</span> <span class='op'>-</span> <span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+    <span class='id identifier rubyid_num5'>num5</span> <span class='op'>=</span> <span class='id identifier rubyid_inp'>inp</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span>
+    <span class='id identifier rubyid_num7'>num7</span> <span class='op'>=</span> <span class='id identifier rubyid_num5'>num5</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>/</span> <span class='id identifier rubyid_num'>num</span>
+    <span class='id identifier rubyid_num10'>num10</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_num5'>num5</span> <span class='op'>%</span> <span class='id identifier rubyid_num'>num</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_num11'>num11</span> <span class='op'>=</span> <span class='id identifier rubyid_xyz'>xyz</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span>
+    <span class='id identifier rubyid_num12'>num12</span> <span class='op'>=</span> <span class='id identifier rubyid_num11'>num11</span> <span class='op'>-</span> <span class='id identifier rubyid_num7'>num7</span>
+    <span class='id identifier rubyid_num12'>num12</span> <span class='op'>+=</span> <span class='int'>1</span> <span class='kw'>if</span> <span class='id identifier rubyid_num12'>num12</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>!=</span> <span class='id identifier rubyid_num12'>num12</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_num12'>num12</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_charset0'>charset0</span><span class='lbracket'>[</span><span class='id identifier rubyid_num10'>num10</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+    <span class='id identifier rubyid_off'>off</span> <span class='op'>=</span> <span class='id identifier rubyid_charset0'>charset0</span><span class='period'>.</span><span class='id identifier rubyid_find_index'>find_index</span><span class='lparen'>(</span><span class='id identifier rubyid_ret'>ret</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_charset1'>charset1</span><span class='lbracket'>[</span><span class='id identifier rubyid_off'>off</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_off'>off</span> <span class='op'>&amp;</span> <span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_zero?'>zero?</span>
+  <span class='kw'>end</span>
+
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CRYPT:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ret'>ret</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:42:44 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

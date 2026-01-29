@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Proto::X11::Keysymdef
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::X11::Keysymdef";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (K)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../X11.html" title="Rex::Proto::X11 (module)">X11</a></span></span>
+     &raquo; 
+    <span class="title">Keysymdef</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Proto::X11::Keysymdef
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="../X11.html" title="Rex::Proto::X11 (module)">Rex::Proto::X11</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/x11/keysymdef.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This mixin creates a lookup table for non-ascii keysym values to their keyboard mapped entries</p>
+
+<p><a href="https://github.com/D-Programming-Deimos/libX11/blob/master/c/X11/keysymdef.h">github.com/D-Programming-Deimos/libX11/blob/master/c/X11/keysymdef.h</a> converted to printable things and in a hash for easy lookups another good reference: <a href="https://docs.oracle.com/cd/E67482_01/oscar/pdf/45/OnlineHelp_45/helpOnPS2keyCodes.html">docs.oracle.com/cd/E67482_01/oscar/pdf/45/OnlineHelp_45/helpOnPS2keyCodes.html</a> skips <a href="https://github.com/D-Programming-Deimos/libX11/blob/master/c/X11/keysymdef.h#L137-L166">github.com/D-Programming-Deimos/libX11/blob/master/c/X11/keysymdef.h#L137-L166</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="X11KEYSYM_HASH-constant" class="">X11KEYSYM_HASH =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='int'>65288</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[BackSpace]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>    <span class='comment'># XK_BackSpace
+</span>  <span class='int'>65289</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Tab]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_Tab
+</span>  <span class='int'>65290</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Linefeed]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='comment'># XK_Linefeed
+</span>  <span class='int'>65291</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Clear]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_Clear
+</span>  <span class='int'>65293</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Return]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>       <span class='comment'># XK_Return
+</span>  <span class='int'>65299</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Pause]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_Pause
+</span>  <span class='int'>65300</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Scroll_Lock]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='comment'># XK_Scroll_Lock
+</span>  <span class='int'>65301</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Sys_Req]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>      <span class='comment'># XK_Sys_Req
+</span>  <span class='int'>65307</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Escape]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>       <span class='comment'># XK_Escape
+</span>  <span class='int'>65535</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Delete]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>       <span class='comment'># XK_Delete
+</span>  <span class='int'>65360</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Home]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_Home
+</span>  <span class='int'>65361</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Left]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_Left
+</span>  <span class='int'>65362</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Up]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>           <span class='comment'># XK_Up
+</span>  <span class='int'>65363</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Right]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_Right
+</span>  <span class='int'>65364</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Down]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_Down
+</span>  <span class='int'>65365</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Prior/PageUp]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='comment'># XK_Prior
+</span>  <span class='int'>65366</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Next/PageDown]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='comment'># XK_Next
+</span>  <span class='int'>65367</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[End]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_End
+</span>  <span class='int'>65368</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Begin]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_Begin
+</span>  <span class='int'>65376</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Select]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>       <span class='comment'># XK_Select
+</span>  <span class='int'>65377</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Print]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_Print
+</span>  <span class='int'>65378</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Execute]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>      <span class='comment'># XK_Execute
+</span>  <span class='int'>65379</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Insert]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>       <span class='comment'># XK_Insert
+</span>  <span class='int'>65381</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Undo]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_Undo
+</span>  <span class='int'>65382</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Redo]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_Redo
+</span>  <span class='int'>65383</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Menu]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_Menu
+</span>  <span class='int'>65384</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Find]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_Find
+</span>  <span class='int'>65385</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Cancel]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>       <span class='comment'># XK_Cancel
+</span>  <span class='int'>65386</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Help]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_Help
+</span>  <span class='int'>65387</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Break]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_Break
+</span>  <span class='int'>65406</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Mode_switch]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='comment'># XK_Mode_switch
+</span>  <span class='int'>65407</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Num_Lock]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='comment'># XK_Num_Lock
+</span>  <span class='int'>65408</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Space]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='comment'># XK_KP_Space
+</span>  <span class='int'>65417</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Tab]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>       <span class='comment'># XK_KP_Tab
+</span>  <span class='int'>65421</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Enter]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='comment'># XK_KP_Enter
+</span>  <span class='int'>65425</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_F1]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_KP_F1
+</span>  <span class='int'>65426</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_F2]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_KP_F2
+</span>  <span class='int'>65427</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_F3]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_KP_F3
+</span>  <span class='int'>65428</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_F4]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_KP_F4
+</span>  <span class='int'>65429</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Home]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>      <span class='comment'># XK_KP_Home
+</span>  <span class='int'>65430</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Left]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>      <span class='comment'># XK_KP_Left
+</span>  <span class='int'>65431</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Up]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_KP_Up
+</span>  <span class='int'>65432</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Right]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='comment'># XK_KP_Right
+</span>  <span class='int'>65433</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Down]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>      <span class='comment'># XK_KP_Down
+</span>  <span class='int'>65434</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Prior]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='comment'># XK_KP_Prior
+</span>  <span class='int'>65435</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Next]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>      <span class='comment'># XK_KP_Next
+</span>  <span class='int'>65436</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_End]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>       <span class='comment'># XK_KP_End
+</span>  <span class='int'>65437</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Begin]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='comment'># XK_KP_Begin
+</span>  <span class='int'>65438</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Insert]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>    <span class='comment'># XK_KP_Insert
+</span>  <span class='int'>65439</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Delete]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>    <span class='comment'># XK_KP_Delete
+</span>  <span class='int'>65469</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Equal]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='comment'># XK_KP_Equal
+</span>  <span class='int'>65450</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Multiply]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='comment'># XK_KP_Multiply
+</span>  <span class='int'>65451</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Add]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>       <span class='comment'># XK_KP_Add
+</span>  <span class='int'>65452</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Separator]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='comment'># XK_KP_Separator
+</span>  <span class='int'>65453</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Subtract]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='comment'># XK_KP_Subtract
+</span>  <span class='int'>65454</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Decimal]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='comment'># XK_KP_Decimal
+</span>  <span class='int'>65455</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_Divide]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>    <span class='comment'># XK_KP_Divide
+</span>  <span class='int'>65456</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_0]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_KP_0
+</span>  <span class='int'>65457</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_1]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_KP_1
+</span>  <span class='int'>65458</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_2]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_KP_2
+</span>  <span class='int'>65459</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_3]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_KP_3
+</span>  <span class='int'>65460</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_4]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_KP_4
+</span>  <span class='int'>65461</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_5]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_KP_5
+</span>  <span class='int'>65462</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_6]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_KP_6
+</span>  <span class='int'>65463</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_7]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_KP_7
+</span>  <span class='int'>65464</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_8]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_KP_8
+</span>  <span class='int'>65465</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Keypad_9]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_KP_9
+</span>  <span class='int'>65470</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F1]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>           <span class='comment'># XK_F1
+</span>  <span class='int'>65471</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F2]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>           <span class='comment'># XK_F2
+</span>  <span class='int'>65472</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F3]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>           <span class='comment'># XK_F3
+</span>  <span class='int'>65473</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F4]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>           <span class='comment'># XK_F4
+</span>  <span class='int'>65474</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F5]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>           <span class='comment'># XK_F5
+</span>  <span class='int'>65475</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F6]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>           <span class='comment'># XK_F6
+</span>  <span class='int'>65476</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F7]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>           <span class='comment'># XK_F7
+</span>  <span class='int'>65477</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F8]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>           <span class='comment'># XK_F8
+</span>  <span class='int'>65478</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F9]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>           <span class='comment'># XK_F9
+</span>  <span class='int'>65479</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F10]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F10
+</span>  <span class='int'>65480</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F11]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F11
+</span>  <span class='int'>65481</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F12]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F12
+</span>  <span class='int'>65482</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F13]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F13
+</span>  <span class='int'>65483</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F14]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F14
+</span>  <span class='int'>65484</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F15]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F15
+</span>  <span class='int'>65485</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F16]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F16
+</span>  <span class='int'>65486</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F17]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F17
+</span>  <span class='int'>65487</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F18]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F18
+</span>  <span class='int'>65488</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F19]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F19
+</span>  <span class='int'>65489</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F20]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F20
+</span>  <span class='int'>65490</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F21]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F21
+</span>  <span class='int'>65491</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F22]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F22
+</span>  <span class='int'>65492</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F23]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F23
+</span>  <span class='int'>65493</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F24]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F24
+</span>  <span class='int'>65494</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F25]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F25
+</span>  <span class='int'>65495</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F26]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F26
+</span>  <span class='int'>65496</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F27]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F27
+</span>  <span class='int'>65497</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F28]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F28
+</span>  <span class='int'>65498</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F29]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F29
+</span>  <span class='int'>65499</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F30]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F30
+</span>  <span class='int'>65500</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F31]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F31
+</span>  <span class='int'>65501</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F32]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F32
+</span>  <span class='int'>65502</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F33]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F33
+</span>  <span class='int'>65503</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F34]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_F34
+</span>  <span class='int'>65504</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[F35]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>            <span class='comment'># XK_F35
+</span>  <span class='int'>65505</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Shift_L]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_Shift_L
+</span>  <span class='int'>65506</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Shift_R]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_Shift_R
+</span>  <span class='int'>65507</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Control_L]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>      <span class='comment'># XK_Control_L
+</span>  <span class='int'>65508</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Control_R]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>      <span class='comment'># XK_Control_R
+</span>  <span class='int'>65509</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Caps_Lock]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>      <span class='comment'># XK_Caps_Lock
+</span>  <span class='int'>65510</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Shift_Lock]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='comment'># XK_Shift_Lock
+</span>  <span class='int'>65511</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Meta_L]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_Meta_L
+</span>  <span class='int'>65512</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Meta_R]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>         <span class='comment'># XK_Meta_R
+</span>  <span class='int'>65513</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Alt_L]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_Alt_L
+</span>  <span class='int'>65514</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Alt_R]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>          <span class='comment'># XK_Alt_R
+</span>  <span class='int'>65515</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Super_L]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_Super_L
+</span>  <span class='int'>65516</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Super_R]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_Super_R
+</span>  <span class='int'>65517</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Hyper_L]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>        <span class='comment'># XK_Hyper_L
+</span>  <span class='int'>65518</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[Hyper_R]</span><span class='tstring_end'>&#39;</span></span>         <span class='comment'># XK_Hyper_R
+</span><span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:48 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

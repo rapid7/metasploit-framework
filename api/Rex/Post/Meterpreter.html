@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Post::Meterpreter
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Post.html" title="Rex::Post (module)">Post</a></span></span>
+     &raquo; 
+    <span class="title">Meterpreter</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Post::Meterpreter
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/pivot.rb<span class="defines">,<br />
+  lib/rex/post/meterpreter/client.rb,<br /> lib/rex/post/meterpreter/packet.rb,<br /> lib/rex/post/meterpreter/channel.rb,<br /> lib/rex/post/meterpreter/core_ids.rb,<br /> lib/rex/post/meterpreter/extension.rb,<br /> lib/rex/post/meterpreter/ui/console.rb,<br /> lib/rex/post/meterpreter/client_core.rb,<br /> lib/rex/post/meterpreter/channels/pool.rb,<br /> lib/rex/post/meterpreter/packet_parser.rb,<br /> lib/rex/post/meterpreter/command_mapper.rb,<br /> lib/rex/post/meterpreter/object_aliases.rb,<br /> lib/rex/post/meterpreter/channels/stream.rb,<br /> lib/rex/post/meterpreter/pivot_container.rb,<br /> lib/rex/post/meterpreter/extension_mapper.rb,<br /> lib/rex/post/meterpreter/channels/datagram.rb,<br /> lib/rex/post/meterpreter/packet_dispatcher.rb,<br /> lib/rex/post/meterpreter/extensions/priv/fs.rb,<br /> lib/rex/post/meterpreter/channels/pools/file.rb,<br /> lib/rex/post/meterpreter/extensions/kiwi/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/priv/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/espia/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/kiwi/kiwi.rb,<br /> lib/rex/post/meterpreter/extensions/priv/priv.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/ui.rb,<br /> lib/rex/post/meterpreter/extensions/appapi/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/python/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/unhook/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/android/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/espia/espia.rb,<br /> lib/rex/post/meterpreter/extensions/priv/passwd.rb,<br /> lib/rex/post/meterpreter/extensions/sniffer/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/winpmem/tlv.rb,<br /> lib/rex/post/meterpreter/inbound_packet_handler.rb,<br /> lib/rex/post/meterpreter/packet_response_waiter.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/io.rb,<br /> lib/rex/post/meterpreter/extensions/appapi/appapi.rb,<br /> lib/rex/post/meterpreter/extensions/bofloader/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/extapi.rb,<br /> lib/rex/post/meterpreter/extensions/incognito/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/python/python.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/dir.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/stdapi.rb,<br /> lib/rex/post/meterpreter/extensions/unhook/unhook.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/wmi/wmi.rb,<br /> lib/rex/post/meterpreter/extensions/lanattacks/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/peinjector/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/powershell/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/mic/mic.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/arp.rb,<br /> lib/rex/post/meterpreter/channels/pools/stream_pool.rb,<br /> lib/rex/post/meterpreter/extensions/android/android.rb,<br /> lib/rex/post/meterpreter/extensions/sniffer/sniffer.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/mount.rb,<br /> lib/rex/post/meterpreter/extensions/winpmem/winpmem.rb,<br /> lib/rex/post/meterpreter/channels/socket_abstraction.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/adsi/adsi.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/ntds/ntds.rb,<br /> lib/rex/post/meterpreter/extensions/kiwi/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/priv/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/route.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/power.rb,<br /> lib/rex/post/meterpreter/extensions/espia/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/config.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/socket.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/config.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/thread.rb,<br /> lib/rex/post/meterpreter/extensions/appapi/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/python/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/netstat.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/resolve.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process.rb,<br /> lib/rex/post/meterpreter/extensions/unhook/command_ids.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher.rb,<br /> lib/rex/post/meterpreter/extensions/android/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/bofloader/bofloader.rb,<br /> lib/rex/post/meterpreter/extensions/incognito/incognito.rb,<br /> lib/rex/post/meterpreter/extensions/sniffer/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/file_stat.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/util.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi_fs/stdapi_fs.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi_ui/stdapi_ui.rb,<br /> lib/rex/post/meterpreter/extensions/winpmem/command_ids.rb,<br /> lib/rex/post/meterpreter/ui/console/interactive_channel.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/window/window.rb,<br /> lib/rex/post/meterpreter/extensions/lanattacks/dhcp/dhcp.rb,<br /> lib/rex/post/meterpreter/extensions/lanattacks/tftp/tftp.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/interface.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/event_log.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/webcam/webcam.rb,<br /> lib/rex/post/meterpreter/extensions/bofloader/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/incognito/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/lanattacks/lanattacks.rb,<br /> lib/rex/post/meterpreter/extensions/peinjector/peinjector.rb,<br /> lib/rex/post/meterpreter/extensions/powershell/powershell.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi_net/stdapi_net.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi_sys/stdapi_sys.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/pageant/pageant.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/service/service.rb,<br /> lib/rex/post/meterpreter/extensions/lanattacks/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/peinjector/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/powershell/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/library.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/core.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/kiwi.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/priv.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/multicall.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/espia.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi_audio/stdapi_audio.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/appapi.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/python.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/unhook.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/clipboard/clipboard.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/buffer_item.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/android.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/sniffer.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/winpmem.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi_webcam/stdapi_webcam.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/const_manager.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/platform_util.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/bofloader.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/incognito.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi/fs.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi/ui.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi_fs.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi_ui.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/library_helper.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi_railgun/stdapi_railgun.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/wmi.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/lanattacks.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/peinjector.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/powershell.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi/mic.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi/net.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi/sys.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi_net.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi_sys.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/library_wrapper.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/adsi.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/priv/passwd.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/osx/def_libc.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/library_function.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/io.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/priv/elevate.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi_audio.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/audio_output/audio_output.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/type/pointer_util.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/window.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi/stream.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi/webcam.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi_webcam.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/linux/def_libc.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/service.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/priv/timestomp.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi_railgun.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/osx/def_libobjc.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/image.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/lanattacks/dhcp.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/lanattacks/tftp.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/memory.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/thread.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/clipboard.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/osx/api_constants.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_ntdll.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_psapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_user32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_ws2_32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/linux/api_constants.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_crypt32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_dbghelp.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_secur32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_shell32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_spoolss.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_version.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_wlanapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_wldap32.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi/audio_output.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/udp_channel.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_advapi32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_iphlpapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_kernel32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_netapi32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_winspool.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/api_constants.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/registry_key.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/event_log_subsystem/event_record.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/registry_value.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_server_channel.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/remote_registry_key.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Meterpreter/Channels.html" title="Rex::Post::Meterpreter::Channels (module)">Channels</a></span>, <span class='object_link'><a href="Meterpreter/Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span>, <span class='object_link'><a href="Meterpreter/HttpPacketDispatcher.html" title="Rex::Post::Meterpreter::HttpPacketDispatcher (module)">HttpPacketDispatcher</a></span>, <span class='object_link'><a href="Meterpreter/InboundPacketHandler.html" title="Rex::Post::Meterpreter::InboundPacketHandler (module)">InboundPacketHandler</a></span>, <span class='object_link'><a href="Meterpreter/ObjectAliasesContainer.html" title="Rex::Post::Meterpreter::ObjectAliasesContainer (module)">ObjectAliasesContainer</a></span>, <span class='object_link'><a href="Meterpreter/PacketDispatcher.html" title="Rex::Post::Meterpreter::PacketDispatcher (module)">PacketDispatcher</a></span>, <span class='object_link'><a href="Meterpreter/PivotContainer.html" title="Rex::Post::Meterpreter::PivotContainer (module)">PivotContainer</a></span>, <span class='object_link'><a href="Meterpreter/SocketAbstraction.html" title="Rex::Post::Meterpreter::SocketAbstraction (module)">SocketAbstraction</a></span>, <span class='object_link'><a href="Meterpreter/Ui.html" title="Rex::Post::Meterpreter::Ui (module)">Ui</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Meterpreter/Channel.html" title="Rex::Post::Meterpreter::Channel (class)">Channel</a></span>, <span class='object_link'><a href="Meterpreter/Client.html" title="Rex::Post::Meterpreter::Client (class)">Client</a></span>, <span class='object_link'><a href="Meterpreter/ClientCore.html" title="Rex::Post::Meterpreter::ClientCore (class)">ClientCore</a></span>, <span class='object_link'><a href="Meterpreter/CommandMapper.html" title="Rex::Post::Meterpreter::CommandMapper (class)">CommandMapper</a></span>, <span class='object_link'><a href="Meterpreter/Datagram.html" title="Rex::Post::Meterpreter::Datagram (class)">Datagram</a></span>, <span class='object_link'><a href="Meterpreter/Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Extension</a></span>, <span class='object_link'><a href="Meterpreter/ExtensionLoadError.html" title="Rex::Post::Meterpreter::ExtensionLoadError (class)">ExtensionLoadError</a></span>, <span class='object_link'><a href="Meterpreter/ExtensionMapper.html" title="Rex::Post::Meterpreter::ExtensionMapper (class)">ExtensionMapper</a></span>, <span class='object_link'><a href="Meterpreter/GroupTlv.html" title="Rex::Post::Meterpreter::GroupTlv (class)">GroupTlv</a></span>, <span class='object_link'><a href="Meterpreter/ObjectAliases.html" title="Rex::Post::Meterpreter::ObjectAliases (class)">ObjectAliases</a></span>, <span class='object_link'><a href="Meterpreter/Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span>, <span class='object_link'><a href="Meterpreter/PacketParser.html" title="Rex::Post::Meterpreter::PacketParser (class)">PacketParser</a></span>, <span class='object_link'><a href="Meterpreter/PacketResponseWaiter.html" title="Rex::Post::Meterpreter::PacketResponseWaiter (class)">PacketResponseWaiter</a></span>, <span class='object_link'><a href="Meterpreter/Pivot.html" title="Rex::Post::Meterpreter::Pivot (class)">Pivot</a></span>, <span class='object_link'><a href="Meterpreter/PivotListener.html" title="Rex::Post::Meterpreter::PivotListener (class)">PivotListener</a></span>, <span class='object_link'><a href="Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span>, <span class='object_link'><a href="Meterpreter/Stream.html" title="Rex::Post::Meterpreter::Stream (class)">Stream</a></span>, <span class='object_link'><a href="Meterpreter/Tlv.html" title="Rex::Post::Meterpreter::Tlv (class)">Tlv</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="PACKET_TYPE_REQUEST-constant" class="">PACKET_TYPE_REQUEST =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Constants</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="PACKET_TYPE_RESPONSE-constant" class="">PACKET_TYPE_RESPONSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="PACKET_TYPE_PLAIN_REQUEST-constant" class="">PACKET_TYPE_PLAIN_REQUEST =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span></pre></dd>
+      
+        <dt id="PACKET_TYPE_PLAIN_RESPONSE-constant" class="">PACKET_TYPE_PLAIN_RESPONSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>11</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_NONE-constant" class="">TLV_META_TYPE_NONE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>TLV Meta Types</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_STRING-constant" class="">TLV_META_TYPE_STRING =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>16</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_UINT-constant" class="">TLV_META_TYPE_UINT =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>17</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_RAW-constant" class="">TLV_META_TYPE_RAW =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>18</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_BOOL-constant" class="">TLV_META_TYPE_BOOL =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>19</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_QWORD-constant" class="">TLV_META_TYPE_QWORD =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>20</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_COMPRESSED-constant" class="">TLV_META_TYPE_COMPRESSED =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>29</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_GROUP-constant" class="">TLV_META_TYPE_GROUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>30</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_COMPLEX-constant" class="">TLV_META_TYPE_COMPLEX =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>31</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_MASK-constant" class="">TLV_META_MASK =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Exclude compressed from the mask since other meta types (e.g. RAW) can also be compressed</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span>
+  <span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span>
+  <span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span> <span class='op'>|</span>
+  <span class='const'><span class='object_link'><a href="#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span> <span class='op'>|</span>
+  <span class='const'><span class='object_link'><a href="#TLV_META_TYPE_BOOL-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_BOOL (constant)">TLV_META_TYPE_BOOL</a></span></span> <span class='op'>|</span>
+  <span class='const'><span class='object_link'><a href="#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span> <span class='op'>|</span>
+  <span class='const'><span class='object_link'><a href="#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span> <span class='op'>|</span>
+  <span class='const'><span class='object_link'><a href="#TLV_META_TYPE_COMPLEX-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_COMPLEX (constant)">TLV_META_TYPE_COMPLEX</a></span></span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_RESERVED-constant" class="">TLV_RESERVED =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>TLV base starting points</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="TLV_EXTENSIONS-constant" class="">TLV_EXTENSIONS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>20000</span></pre></dd>
+      
+        <dt id="TLV_USER-constant" class="">TLV_USER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>40000</span></pre></dd>
+      
+        <dt id="TLV_TEMP-constant" class="">TLV_TEMP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>60000</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ANY-constant" class="">TLV_TYPE_ANY =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>TLV Specific Types</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_NONE-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_NONE (constant)">TLV_META_TYPE_NONE</a></span></span>   <span class='op'>|</span>   <span class='int'>0</span></pre></dd>
+      
+        <dt id="TLV_TYPE_COMMAND_ID-constant" class="">TLV_TYPE_COMMAND_ID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span>   <span class='int'>1</span></pre></dd>
+      
+        <dt id="TLV_TYPE_REQUEST_ID-constant" class="">TLV_TYPE_REQUEST_ID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span>   <span class='int'>2</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXCEPTION-constant" class="">TLV_TYPE_EXCEPTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>  <span class='op'>|</span>   <span class='int'>3</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RESULT-constant" class="">TLV_TYPE_RESULT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span>   <span class='int'>4</span></pre></dd>
+      
+        <dt id="TLV_TYPE_STRING-constant" class="">TLV_TYPE_STRING =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span>  <span class='int'>10</span></pre></dd>
+      
+        <dt id="TLV_TYPE_UINT-constant" class="">TLV_TYPE_UINT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span>  <span class='int'>11</span></pre></dd>
+      
+        <dt id="TLV_TYPE_BOOL-constant" class="">TLV_TYPE_BOOL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_BOOL-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_BOOL (constant)">TLV_META_TYPE_BOOL</a></span></span>   <span class='op'>|</span>  <span class='int'>12</span></pre></dd>
+      
+        <dt id="TLV_TYPE_LENGTH-constant" class="">TLV_TYPE_LENGTH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span>  <span class='int'>25</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DATA-constant" class="">TLV_TYPE_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span>  <span class='int'>26</span></pre></dd>
+      
+        <dt id="TLV_TYPE_FLAGS-constant" class="">TLV_TYPE_FLAGS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span>  <span class='int'>27</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CHANNEL_ID-constant" class="">TLV_TYPE_CHANNEL_ID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span>  <span class='int'>50</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CHANNEL_TYPE-constant" class="">TLV_TYPE_CHANNEL_TYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span>  <span class='int'>51</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CHANNEL_DATA-constant" class="">TLV_TYPE_CHANNEL_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span>  <span class='int'>52</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CHANNEL_DATA_GROUP-constant" class="">TLV_TYPE_CHANNEL_DATA_GROUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>  <span class='op'>|</span>  <span class='int'>53</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CHANNEL_CLASS-constant" class="">TLV_TYPE_CHANNEL_CLASS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span>  <span class='int'>54</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CHANNEL_PARENTID-constant" class="">TLV_TYPE_CHANNEL_PARENTID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span>  <span class='int'>55</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SEEK_WHENCE-constant" class="">TLV_TYPE_SEEK_WHENCE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span>  <span class='int'>70</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SEEK_OFFSET-constant" class="">TLV_TYPE_SEEK_OFFSET =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span>  <span class='int'>71</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SEEK_POS-constant" class="">TLV_TYPE_SEEK_POS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span>  <span class='int'>72</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXCEPTION_CODE-constant" class="">TLV_TYPE_EXCEPTION_CODE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>300</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXCEPTION_STRING-constant" class="">TLV_TYPE_EXCEPTION_STRING =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>301</span></pre></dd>
+      
+        <dt id="TLV_TYPE_LIBRARY_PATH-constant" class="">TLV_TYPE_LIBRARY_PATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>400</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TARGET_PATH-constant" class="">TLV_TYPE_TARGET_PATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>401</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MIGRATE_PID-constant" class="">TLV_TYPE_MIGRATE_PID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>402</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MIGRATE_PAYLOAD-constant" class="">TLV_TYPE_MIGRATE_PAYLOAD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='int'>404</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MIGRATE_ARCH-constant" class="">TLV_TYPE_MIGRATE_ARCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>405</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MIGRATE_BASE_ADDR-constant" class="">TLV_TYPE_MIGRATE_BASE_ADDR =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>407</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MIGRATE_ENTRY_POINT-constant" class="">TLV_TYPE_MIGRATE_ENTRY_POINT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>408</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MIGRATE_SOCKET_PATH-constant" class="">TLV_TYPE_MIGRATE_SOCKET_PATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>409</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MIGRATE_STUB-constant" class="">TLV_TYPE_MIGRATE_STUB =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='int'>411</span></pre></dd>
+      
+        <dt id="TLV_TYPE_LIB_LOADER_NAME-constant" class="">TLV_TYPE_LIB_LOADER_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>412</span></pre></dd>
+      
+        <dt id="TLV_TYPE_LIB_LOADER_ORDINAL-constant" class="">TLV_TYPE_LIB_LOADER_ORDINAL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>413</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TRANS_TYPE-constant" class="">TLV_TYPE_TRANS_TYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>430</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TRANS_URL-constant" class="">TLV_TYPE_TRANS_URL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>431</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TRANS_UA-constant" class="">TLV_TYPE_TRANS_UA =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>432</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TRANS_COMM_TIMEOUT-constant" class="">TLV_TYPE_TRANS_COMM_TIMEOUT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>433</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TRANS_SESSION_EXP-constant" class="">TLV_TYPE_TRANS_SESSION_EXP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>434</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TRANS_CERT_HASH-constant" class="">TLV_TYPE_TRANS_CERT_HASH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='int'>435</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TRANS_PROXY_HOST-constant" class="">TLV_TYPE_TRANS_PROXY_HOST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>436</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TRANS_PROXY_USER-constant" class="">TLV_TYPE_TRANS_PROXY_USER =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>437</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TRANS_PROXY_PASS-constant" class="">TLV_TYPE_TRANS_PROXY_PASS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>438</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TRANS_RETRY_TOTAL-constant" class="">TLV_TYPE_TRANS_RETRY_TOTAL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>439</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TRANS_RETRY_WAIT-constant" class="">TLV_TYPE_TRANS_RETRY_WAIT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>440</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TRANS_HEADERS-constant" class="">TLV_TYPE_TRANS_HEADERS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>441</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TRANS_GROUP-constant" class="">TLV_TYPE_TRANS_GROUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>  <span class='op'>|</span> <span class='int'>442</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MACHINE_ID-constant" class="">TLV_TYPE_MACHINE_ID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>460</span></pre></dd>
+      
+        <dt id="TLV_TYPE_UUID-constant" class="">TLV_TYPE_UUID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='int'>461</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SESSION_GUID-constant" class="">TLV_TYPE_SESSION_GUID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='int'>462</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RSA_PUB_KEY-constant" class="">TLV_TYPE_RSA_PUB_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='int'>550</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SYM_KEY_TYPE-constant" class="">TLV_TYPE_SYM_KEY_TYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>551</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SYM_KEY-constant" class="">TLV_TYPE_SYM_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='int'>552</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ENC_SYM_KEY-constant" class="">TLV_TYPE_ENC_SYM_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='int'>553</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PIVOT_ID-constant" class="">TLV_TYPE_PIVOT_ID =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Pivots</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span>  <span class='int'>650</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PIVOT_STAGE_DATA-constant" class="">TLV_TYPE_PIVOT_STAGE_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span>  <span class='int'>651</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PIVOT_NAMED_PIPE_NAME-constant" class="">TLV_TYPE_PIVOT_NAMED_PIPE_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span>  <span class='int'>653</span></pre></dd>
+      
+        <dt id="LOAD_LIBRARY_FLAG_ON_DISK-constant" class="">LOAD_LIBRARY_FLAG_ON_DISK =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Core flags</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>0</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="LOAD_LIBRARY_FLAG_EXTENSION-constant" class="">LOAD_LIBRARY_FLAG_EXTENSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>1</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="LOAD_LIBRARY_FLAG_LOCAL-constant" class="">LOAD_LIBRARY_FLAG_LOCAL =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>2</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="GUID_SIZE-constant" class="">GUID_SIZE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Sane defaults</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>16</span></pre></dd>
+      
+        <dt id="NULL_GUID-constant" class="">NULL_GUID =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='const'><span class='object_link'><a href="#GUID_SIZE-constant" title="Rex::Post::Meterpreter::GUID_SIZE (constant)">GUID_SIZE</a></span></span></pre></dd>
+      
+        <dt id="CHANNEL_CLASS_STREAM-constant" class="">CHANNEL_CLASS_STREAM =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The various types of channels</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="CHANNEL_CLASS_DATAGRAM-constant" class="">CHANNEL_CLASS_DATAGRAM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="CHANNEL_CLASS_POOL-constant" class="">CHANNEL_CLASS_POOL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="CHANNEL_FLAG_SYNCHRONOUS-constant" class="">CHANNEL_FLAG_SYNCHRONOUS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The various flags that can affect how the channel operates</p>
+
+<pre class="code ruby"><code class="ruby">CHANNEL_FLAG_SYNCHRONOUS
+   Specifies that I/O requests on the channel are blocking.
+
+CHANNEL_FLAG_COMPRESS
+   Specifies that I/O requests on the channel have their data zlib compressed.
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>0</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="CHANNEL_FLAG_COMPRESS-constant" class="">CHANNEL_FLAG_COMPRESS =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>1</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="CHANNEL_DIO_READ-constant" class="">CHANNEL_DIO_READ =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The core types of direct I/O requests</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="CHANNEL_DIO_WRITE-constant" class="">CHANNEL_DIO_WRITE =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>write</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="CHANNEL_DIO_CLOSE-constant" class="">CHANNEL_DIO_CLOSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>close</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="COMMAND_ID_RANGE-constant" class="">COMMAND_ID_RANGE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Effectively maps to the number of commands an extension can have. Each extension ID starts at a range boundary and is used to identify extensions.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1000</span></pre></dd>
+      
+        <dt id="EXTENSION_ID_CORE-constant" class="">EXTENSION_ID_CORE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>ID for the extension (needs to be a multiple of 1000)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_CHANNEL_CLOSE-constant" class="">COMMAND_ID_CORE_CHANNEL_CLOSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>1</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_CHANNEL_EOF-constant" class="">COMMAND_ID_CORE_CHANNEL_EOF =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>2</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_CHANNEL_INTERACT-constant" class="">COMMAND_ID_CORE_CHANNEL_INTERACT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>3</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_CHANNEL_OPEN-constant" class="">COMMAND_ID_CORE_CHANNEL_OPEN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>4</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_CHANNEL_READ-constant" class="">COMMAND_ID_CORE_CHANNEL_READ =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>5</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_CHANNEL_SEEK-constant" class="">COMMAND_ID_CORE_CHANNEL_SEEK =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>6</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_CHANNEL_TELL-constant" class="">COMMAND_ID_CORE_CHANNEL_TELL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>7</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_CHANNEL_WRITE-constant" class="">COMMAND_ID_CORE_CHANNEL_WRITE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>8</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_CONSOLE_WRITE-constant" class="">COMMAND_ID_CORE_CONSOLE_WRITE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>9</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_ENUMEXTCMD-constant" class="">COMMAND_ID_CORE_ENUMEXTCMD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>10</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_GET_SESSION_GUID-constant" class="">COMMAND_ID_CORE_GET_SESSION_GUID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>11</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_LOADLIB-constant" class="">COMMAND_ID_CORE_LOADLIB =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>12</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_MACHINE_ID-constant" class="">COMMAND_ID_CORE_MACHINE_ID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>13</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_MIGRATE-constant" class="">COMMAND_ID_CORE_MIGRATE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>14</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_NATIVE_ARCH-constant" class="">COMMAND_ID_CORE_NATIVE_ARCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>15</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION-constant" class="">COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>16</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_PATCH_URL-constant" class="">COMMAND_ID_CORE_PATCH_URL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>17</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_PIVOT_ADD-constant" class="">COMMAND_ID_CORE_PIVOT_ADD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>18</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_PIVOT_REMOVE-constant" class="">COMMAND_ID_CORE_PIVOT_REMOVE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>19</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_PIVOT_SESSION_DIED-constant" class="">COMMAND_ID_CORE_PIVOT_SESSION_DIED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>20</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_SET_SESSION_GUID-constant" class="">COMMAND_ID_CORE_SET_SESSION_GUID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>21</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_SET_UUID-constant" class="">COMMAND_ID_CORE_SET_UUID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>22</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_SHUTDOWN-constant" class="">COMMAND_ID_CORE_SHUTDOWN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>23</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_TRANSPORT_ADD-constant" class="">COMMAND_ID_CORE_TRANSPORT_ADD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>24</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_TRANSPORT_CHANGE-constant" class="">COMMAND_ID_CORE_TRANSPORT_CHANGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>25</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_TRANSPORT_GETCERTHASH-constant" class="">COMMAND_ID_CORE_TRANSPORT_GETCERTHASH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>26</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_TRANSPORT_LIST-constant" class="">COMMAND_ID_CORE_TRANSPORT_LIST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>27</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_TRANSPORT_NEXT-constant" class="">COMMAND_ID_CORE_TRANSPORT_NEXT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>28</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_TRANSPORT_PREV-constant" class="">COMMAND_ID_CORE_TRANSPORT_PREV =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>29</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_TRANSPORT_REMOVE-constant" class="">COMMAND_ID_CORE_TRANSPORT_REMOVE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>30</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_TRANSPORT_SETCERTHASH-constant" class="">COMMAND_ID_CORE_TRANSPORT_SETCERTHASH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>31</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS-constant" class="">COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>32</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_TRANSPORT_SLEEP-constant" class="">COMMAND_ID_CORE_TRANSPORT_SLEEP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>33</span></pre></dd>
+      
+        <dt id="COMMAND_ID_CORE_PIVOT_SESSION_NEW-constant" class="">COMMAND_ID_CORE_PIVOT_SESSION_NEW =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='op'>+</span> <span class='int'>34</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_command_id_map_c-class_method" title="generate_command_id_map_c (class method)">.<strong>generate_command_id_map_c</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_command_id_map_csharp-class_method" title="generate_command_id_map_csharp (class method)">.<strong>generate_command_id_map_csharp</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_command_id_map_java-class_method" title="generate_command_id_map_java (class method)">.<strong>generate_command_id_map_java</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_command_id_map_php-class_method" title="generate_command_id_map_php (class method)">.<strong>generate_command_id_map_php</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_command_id_map_php_lib-class_method" title="generate_command_id_map_php_lib (class method)">.<strong>generate_command_id_map_php_lib</strong>(lib, id_map)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_command_id_map_python-class_method" title="generate_command_id_map_python (class method)">.<strong>generate_command_id_map_python</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_command_id_map_python_extension-class_method" title="generate_command_id_map_python_extension (class method)">.<strong>generate_command_id_map_python_extension</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="generate_command_id_map_c-class_method">
+  
+    .<strong>generate_command_id_map_c</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet.rb', line 138</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_generate_command_id_map_c'>generate_command_id_map_c</span>
+  <span class='id identifier rubyid_id_map'>id_map</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Meterpreter/CommandMapper.html" title="Rex::Post::Meterpreter::CommandMapper (class)">CommandMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_commands'><span class='object_link'><a href="Meterpreter/CommandMapper.html#get_commands-class_method" title="Rex::Post::Meterpreter::CommandMapper.get_commands (method)">get_commands</a></span></span><span class='lparen'>(</span><span class='op'>*</span><span class='qwords_beg'>%w{</span><span class='words_sep'>
+    </span><span class='tstring_content'>core</span><span class='words_sep'>
+    </span><span class='tstring_content'>stdapi</span><span class='words_sep'>
+    </span><span class='tstring_content'>priv</span><span class='words_sep'>
+    </span><span class='tstring_content'>extapi</span><span class='words_sep'>
+    </span><span class='tstring_content'>sniffer</span><span class='words_sep'>
+    </span><span class='tstring_content'>winpmem</span><span class='words_sep'>
+    </span><span class='tstring_content'>kiwi</span><span class='words_sep'>
+    </span><span class='tstring_content'>unhook</span><span class='words_sep'>
+    </span><span class='tstring_content'>espia</span><span class='words_sep'>
+    </span><span class='tstring_content'>incognito</span><span class='words_sep'>
+    </span><span class='tstring_content'>python</span><span class='words_sep'>
+    </span><span class='tstring_content'>powershell</span><span class='words_sep'>
+    </span><span class='tstring_content'>lanattacks</span><span class='words_sep'>
+    </span><span class='tstring_content'>peinjector</span><span class='words_sep'>
+  </span><span class='tstring_end'>}</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_command_ids'>command_ids</span> <span class='op'>=</span> <span class='id identifier rubyid_id_map'>id_map</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>#define COMMAND_ID_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_v'>v</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+/*!
+ * @file common_command_ids.h
+ * @brief Declarations of command ID values
+ * @description This file was generated </span><span class='embexpr_beg'>#{</span><span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='embexpr_end'>}</span><span class='tstring_content'>. Do not modify directly.
+ */
+#ifndef _METERPRETER_SOURCE_COMMON_COMMAND_IDS_H
+#define _METERPRETER_SOURCE_COMMON_COMMAND_IDS_H
+
+</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_command_ids'>command_ids</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+
+#endif
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_command_id_map_csharp-class_method">
+  
+    .<strong>generate_command_id_map_csharp</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet.rb', line 249</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_generate_command_id_map_csharp'>generate_command_id_map_csharp</span>
+  <span class='id identifier rubyid_id_map'>id_map</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Meterpreter/CommandMapper.html" title="Rex::Post::Meterpreter::CommandMapper (class)">CommandMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_commands'><span class='object_link'><a href="Meterpreter/CommandMapper.html#get_commands-class_method" title="Rex::Post::Meterpreter::CommandMapper.get_commands (method)">get_commands</a></span></span><span class='lparen'>(</span><span class='op'>*</span><span class='qwords_beg'>%w{</span><span class='words_sep'>
+    </span><span class='tstring_content'>core</span><span class='words_sep'>
+    </span><span class='tstring_content'>stdapi</span><span class='words_sep'>
+    </span><span class='tstring_content'>priv</span><span class='words_sep'>
+    </span><span class='tstring_content'>extapi</span><span class='words_sep'>
+    </span><span class='tstring_content'>sniffer</span><span class='words_sep'>
+    </span><span class='tstring_content'>winpmem</span><span class='words_sep'>
+    </span><span class='tstring_content'>kiwi</span><span class='words_sep'>
+    </span><span class='tstring_content'>unhook</span><span class='words_sep'>
+    </span><span class='tstring_content'>espia</span><span class='words_sep'>
+    </span><span class='tstring_content'>incognito</span><span class='words_sep'>
+    </span><span class='tstring_content'>python</span><span class='words_sep'>
+    </span><span class='tstring_content'>powershell</span><span class='words_sep'>
+    </span><span class='tstring_content'>lanattacks</span><span class='words_sep'>
+    </span><span class='tstring_content'>peinjector</span><span class='words_sep'>
+  </span><span class='tstring_end'>}</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_command_ids'>command_ids</span> <span class='op'>=</span> <span class='id identifier rubyid_id_map'>id_map</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:capitalize</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'> = </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_v'>v</span><span class='embexpr_end'>}</span><span class='tstring_content'>,</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+/// &lt;summary&gt;
+// This content was generated by a tool @ </span><span class='embexpr_beg'>#{</span><span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+/// &lt;/summary&gt;
+namespace MSF.Powershell.Meterpreter
+{
+    public enum CommandId
+    {
+        </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_command_ids'>command_ids</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n        </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    }
+}
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_command_id_map_java-class_method">
+  
+    .<strong>generate_command_id_map_java</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet.rb', line 172</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_generate_command_id_map_java'>generate_command_id_map_java</span>
+  <span class='id identifier rubyid_id_map'>id_map</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Meterpreter/CommandMapper.html" title="Rex::Post::Meterpreter::CommandMapper (class)">CommandMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_commands'><span class='object_link'><a href="Meterpreter/CommandMapper.html#get_commands-class_method" title="Rex::Post::Meterpreter::CommandMapper.get_commands (method)">get_commands</a></span></span><span class='lparen'>(</span><span class='op'>*</span><span class='qwords_beg'>%w{</span><span class='words_sep'> </span><span class='tstring_content'>core</span><span class='words_sep'> </span><span class='tstring_content'>stdapi</span><span class='words_sep'> </span><span class='tstring_end'>}</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_command_ids'>command_ids</span> <span class='op'>=</span> <span class='id identifier rubyid_id_map'>id_map</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>    public static final int </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='embexpr_end'>}</span><span class='tstring_content'> = </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_v'>v</span><span class='embexpr_end'>}</span><span class='tstring_content'>;</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+package com.metasploit.meterpreter.command;
+
+/**
+ * All supported Command Identifiers
+ *
+ * @author Generated by a tool @ </span><span class='embexpr_beg'>#{</span><span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+ */
+public interface CommandId {
+</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_command_ids'>command_ids</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+}
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_command_id_map_php-class_method">
+  
+    .<strong>generate_command_id_map_php</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+200
+201
+202
+203
+204
+205
+206</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet.rb', line 200</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_generate_command_id_map_php'>generate_command_id_map_php</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_generate_command_id_map_php_lib'>generate_command_id_map_php_lib</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>metsrv</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Meterpreter/CommandMapper.html" title="Rex::Post::Meterpreter::CommandMapper (class)">CommandMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_commands'><span class='object_link'><a href="Meterpreter/CommandMapper.html#get_commands-class_method" title="Rex::Post::Meterpreter::CommandMapper.get_commands (method)">get_commands</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+
+</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_generate_command_id_map_php_lib'>generate_command_id_map_php_lib</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Meterpreter/CommandMapper.html" title="Rex::Post::Meterpreter::CommandMapper (class)">CommandMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_commands'><span class='object_link'><a href="Meterpreter/CommandMapper.html#get_commands-class_method" title="Rex::Post::Meterpreter::CommandMapper.get_commands (method)">get_commands</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_command_id_map_php_lib-class_method">
+  
+    .<strong>generate_command_id_map_php_lib</strong>(lib, id_map)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet.rb', line 189</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_generate_command_id_map_php_lib'>generate_command_id_map_php_lib</span><span class='lparen'>(</span><span class='id identifier rubyid_lib'>lib</span><span class='comma'>,</span> <span class='id identifier rubyid_id_map'>id_map</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_command_ids'>command_ids</span> <span class='op'>=</span> <span class='id identifier rubyid_id_map'>id_map</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>define(&#39;COMMAND_ID_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_v'>v</span><span class='embexpr_end'>}</span><span class='tstring_content'>);</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+# ---------------------------------------------------------------
+# --- THIS CONTENT WAS GENERATED BY A TOOL @ </span><span class='embexpr_beg'>#{</span><span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+# IDs for </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_lib'>lib</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_command_ids'>command_ids</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+# ---------------------------------------------------------------
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_command_id_map_python-class_method">
+  
+    .<strong>generate_command_id_map_python</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet.rb', line 208</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_generate_command_id_map_python'>generate_command_id_map_python</span>
+  <span class='id identifier rubyid_id_map'>id_map</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Meterpreter/CommandMapper.html" title="Rex::Post::Meterpreter::CommandMapper (class)">CommandMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_commands'><span class='object_link'><a href="Meterpreter/CommandMapper.html#get_commands-class_method" title="Rex::Post::Meterpreter::CommandMapper.get_commands (method)">get_commands</a></span></span><span class='lparen'>(</span><span class='op'>*</span><span class='qwords_beg'>%w{</span><span class='words_sep'> </span><span class='tstring_content'>core</span><span class='words_sep'> </span><span class='tstring_content'>stdapi</span><span class='words_sep'> </span><span class='tstring_end'>}</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_command_ids'>command_ids</span> <span class='op'>=</span> <span class='id identifier rubyid_id_map'>id_map</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>    (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_v'>v</span><span class='embexpr_end'>}</span><span class='tstring_content'>, &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;),</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+# ---------------------------------------------------------------
+# --- THIS CONTENT WAS GENERATED BY A TOOL @ </span><span class='embexpr_beg'>#{</span><span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+COMMAND_IDS = (
+</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_command_ids'>command_ids</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+)
+# ---------------------------------------------------------------
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_command_id_map_python_extension-class_method">
+  
+    .<strong>generate_command_id_map_python_extension</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet.rb', line 221</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_generate_command_id_map_python_extension'>generate_command_id_map_python_extension</span>
+  <span class='id identifier rubyid_id_map'>id_map</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Meterpreter/CommandMapper.html" title="Rex::Post::Meterpreter::CommandMapper (class)">CommandMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_commands'><span class='object_link'><a href="Meterpreter/CommandMapper.html#get_commands-class_method" title="Rex::Post::Meterpreter::CommandMapper.get_commands (method)">get_commands</a></span></span><span class='lparen'>(</span><span class='op'>*</span><span class='qwords_beg'>%w{</span><span class='words_sep'>
+    </span><span class='tstring_content'>core</span><span class='words_sep'>
+    </span><span class='tstring_content'>stdapi</span><span class='words_sep'>
+    </span><span class='tstring_content'>priv</span><span class='words_sep'>
+    </span><span class='tstring_content'>extapi</span><span class='words_sep'>
+    </span><span class='tstring_content'>sniffer</span><span class='words_sep'>
+    </span><span class='tstring_content'>winpmem</span><span class='words_sep'>
+    </span><span class='tstring_content'>kiwi</span><span class='words_sep'>
+    </span><span class='tstring_content'>unhook</span><span class='words_sep'>
+    </span><span class='tstring_content'>espia</span><span class='words_sep'>
+    </span><span class='tstring_content'>incognito</span><span class='words_sep'>
+    </span><span class='tstring_content'>python</span><span class='words_sep'>
+    </span><span class='tstring_content'>powershell</span><span class='words_sep'>
+    </span><span class='tstring_content'>lanattacks</span><span class='words_sep'>
+    </span><span class='tstring_content'>peinjector</span><span class='words_sep'>
+  </span><span class='tstring_end'>}</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_command_ids'>command_ids</span> <span class='op'>=</span> <span class='id identifier rubyid_id_map'>id_map</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>COMMAND_ID_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='embexpr_end'>}</span><span class='tstring_content'> = </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_v'>v</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+# ---------------------------------------------------------------
+# --- THIS CONTENT WAS GENERATED BY A TOOL @ </span><span class='embexpr_beg'>#{</span><span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+
+</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_command_ids'>command_ids</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+
+# ---------------------------------------------------------------
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:48 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

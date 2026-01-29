@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::Kerberos::Crypto::Aes128CtsSha1
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Kerberos::Crypto::Aes128CtsSha1";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Crypto.html" title="Rex::Proto::Kerberos::Crypto (module)">Crypto</a></span></span>
+     &raquo; 
+    <span class="title">Aes128CtsSha1</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::Kerberos::Crypto::Aes128CtsSha1
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="AesBlockCipherBase.html" title="Rex::Proto::Kerberos::Crypto::AesBlockCipherBase (class)">AesBlockCipherBase</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="BlockCipherBase.html" title="Rex::Proto::Kerberos::Crypto::BlockCipherBase (class)">BlockCipherBase</a></span></li>
+          
+            <li class="next"><span class='object_link'><a href="AesBlockCipherBase.html" title="Rex::Proto::Kerberos::Crypto::AesBlockCipherBase (class)">AesBlockCipherBase</a></span></li>
+          
+            <li class="next">Rex::Proto::Kerberos::Crypto::Aes128CtsSha1</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/kerberos/crypto/aes128_cts_sha1.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Implementation of hmac-sha1-96-aes128 encryption type, per RFC 3962</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="SEED_SIZE-constant" class="">SEED_SIZE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>16</span></pre></dd>
+      
+        <dt id="ENCRYPT_CIPHER_NAME-constant" class="">ENCRYPT_CIPHER_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aes-128-cbc</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="DECRYPT_CIPHER_NAME-constant" class="">DECRYPT_CIPHER_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aes-128-ecb</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+  
+  
+  <h3 class="inherited">Constants inherited
+     from <span class='object_link'><a href="AesBlockCipherBase.html" title="Rex::Proto::Kerberos::Crypto::AesBlockCipherBase (class)">AesBlockCipherBase</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="AesBlockCipherBase.html#BLOCK_SIZE-constant" title="Rex::Proto::Kerberos::Crypto::AesBlockCipherBase::BLOCK_SIZE (constant)">Rex::Proto::Kerberos::Crypto::AesBlockCipherBase::BLOCK_SIZE</a></span>, <span class='object_link'><a href="AesBlockCipherBase.html#HASH_FUNCTION-constant" title="Rex::Proto::Kerberos::Crypto::AesBlockCipherBase::HASH_FUNCTION (constant)">Rex::Proto::Kerberos::Crypto::AesBlockCipherBase::HASH_FUNCTION</a></span>, <span class='object_link'><a href="AesBlockCipherBase.html#MAC_SIZE-constant" title="Rex::Proto::Kerberos::Crypto::AesBlockCipherBase::MAC_SIZE (constant)">Rex::Proto::Kerberos::Crypto::AesBlockCipherBase::MAC_SIZE</a></span>, <span class='object_link'><a href="AesBlockCipherBase.html#PADDING_SIZE-constant" title="Rex::Proto::Kerberos::Crypto::AesBlockCipherBase::PADDING_SIZE (constant)">Rex::Proto::Kerberos::Crypto::AesBlockCipherBase::PADDING_SIZE</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="GssNewEncryptionType.html" title="Rex::Proto::Kerberos::Crypto::GssNewEncryptionType (module)">GssNewEncryptionType</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="GssNewEncryptionType.html#GSS_ACCEPTOR_SUBKEY-constant" title="Rex::Proto::Kerberos::Crypto::GssNewEncryptionType::GSS_ACCEPTOR_SUBKEY (constant)">GssNewEncryptionType::GSS_ACCEPTOR_SUBKEY</a></span>, <span class='object_link'><a href="GssNewEncryptionType.html#GSS_HEADER_LEN-constant" title="Rex::Proto::Kerberos::Crypto::GssNewEncryptionType::GSS_HEADER_LEN (constant)">GssNewEncryptionType::GSS_HEADER_LEN</a></span>, <span class='object_link'><a href="GssNewEncryptionType.html#GSS_SEALED-constant" title="Rex::Proto::Kerberos::Crypto::GssNewEncryptionType::GSS_SEALED (constant)">GssNewEncryptionType::GSS_SEALED</a></span>, <span class='object_link'><a href="GssNewEncryptionType.html#GSS_SENT_BY_ACCEPTOR-constant" title="Rex::Proto::Kerberos::Crypto::GssNewEncryptionType::GSS_SENT_BY_ACCEPTOR (constant)">GssNewEncryptionType::GSS_SENT_BY_ACCEPTOR</a></span>, <span class='object_link'><a href="GssNewEncryptionType.html#TOK_ID_GSS_WRAP-constant" title="Rex::Proto::Kerberos::Crypto::GssNewEncryptionType::TOK_ID_GSS_WRAP (constant)">GssNewEncryptionType::TOK_ID_GSS_WRAP</a></span></p>
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  <h2>Method Summary</h2>
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="AesBlockCipherBase.html" title="Rex::Proto::Kerberos::Crypto::AesBlockCipherBase (class)">AesBlockCipherBase</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="AesBlockCipherBase.html#decrypt_basic-instance_method" title="Rex::Proto::Kerberos::Crypto::AesBlockCipherBase#decrypt_basic (method)">#decrypt_basic</a></span>, <span class='object_link'><a href="AesBlockCipherBase.html#encrypt_basic-instance_method" title="Rex::Proto::Kerberos::Crypto::AesBlockCipherBase#encrypt_basic (method)">#encrypt_basic</a></span>, <span class='object_link'><a href="AesBlockCipherBase.html#header_byte_count-instance_method" title="Rex::Proto::Kerberos::Crypto::AesBlockCipherBase#header_byte_count (method)">#header_byte_count</a></span>, <span class='object_link'><a href="AesBlockCipherBase.html#string_to_key-instance_method" title="Rex::Proto::Kerberos::Crypto::AesBlockCipherBase#string_to_key (method)">#string_to_key</a></span>, <span class='object_link'><a href="AesBlockCipherBase.html#trailing_byte_count-instance_method" title="Rex::Proto::Kerberos::Crypto::AesBlockCipherBase#trailing_byte_count (method)">#trailing_byte_count</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="GssNewEncryptionType.html" title="Rex::Proto::Kerberos::Crypto::GssNewEncryptionType (module)">GssNewEncryptionType</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="GssNewEncryptionType.html#calculate_encrypted_length-instance_method" title="Rex::Proto::Kerberos::Crypto::GssNewEncryptionType#calculate_encrypted_length (method)">#calculate_encrypted_length</a></span>, <span class='object_link'><a href="GssNewEncryptionType.html#gss_unwrap-instance_method" title="Rex::Proto::Kerberos::Crypto::GssNewEncryptionType#gss_unwrap (method)">#gss_unwrap</a></span>, <span class='object_link'><a href="GssNewEncryptionType.html#gss_wrap-instance_method" title="Rex::Proto::Kerberos::Crypto::GssNewEncryptionType#gss_wrap (method)">#gss_wrap</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Utils.html" title="Rex::Proto::Kerberos::Crypto::Utils (module)">Utils</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Utils.html#xor_bytes-instance_method" title="Rex::Proto::Kerberos::Crypto::Utils#xor_bytes (method)">#xor_bytes</a></span>, <span class='object_link'><a href="Utils.html#xor_strings-instance_method" title="Rex::Proto::Kerberos::Crypto::Utils#xor_strings (method)">#xor_strings</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="BlockCipherBase.html" title="Rex::Proto::Kerberos::Crypto::BlockCipherBase (class)">BlockCipherBase</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BlockCipherBase.html#add_ones_complement-instance_method" title="Rex::Proto::Kerberos::Crypto::BlockCipherBase#add_ones_complement (method)">#add_ones_complement</a></span>, <span class='object_link'><a href="BlockCipherBase.html#calculate_encrypted_length-instance_method" title="Rex::Proto::Kerberos::Crypto::BlockCipherBase#calculate_encrypted_length (method)">#calculate_encrypted_length</a></span>, <span class='object_link'><a href="BlockCipherBase.html#checksum-instance_method" title="Rex::Proto::Kerberos::Crypto::BlockCipherBase#checksum (method)">#checksum</a></span>, <span class='object_link'><a href="BlockCipherBase.html#decrypt-instance_method" title="Rex::Proto::Kerberos::Crypto::BlockCipherBase#decrypt (method)">#decrypt</a></span>, <span class='object_link'><a href="BlockCipherBase.html#encrypt-instance_method" title="Rex::Proto::Kerberos::Crypto::BlockCipherBase#encrypt (method)">#encrypt</a></span>, <span class='object_link'><a href="BlockCipherBase.html#gss_unwrap-instance_method" title="Rex::Proto::Kerberos::Crypto::BlockCipherBase#gss_unwrap (method)">#gss_unwrap</a></span>, <span class='object_link'><a href="BlockCipherBase.html#gss_wrap-instance_method" title="Rex::Proto::Kerberos::Crypto::BlockCipherBase#gss_wrap (method)">#gss_wrap</a></span>, <span class='object_link'><a href="BlockCipherBase.html#rotate_right-instance_method" title="Rex::Proto::Kerberos::Crypto::BlockCipherBase#rotate_right (method)">#rotate_right</a></span>, <span class='object_link'><a href="BlockCipherBase.html#string_to_key-instance_method" title="Rex::Proto::Kerberos::Crypto::BlockCipherBase#string_to_key (method)">#string_to_key</a></span></p>
+
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:43:18 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

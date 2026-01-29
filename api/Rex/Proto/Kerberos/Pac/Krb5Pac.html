@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::Kerberos::Pac::Krb5Pac
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Kerberos::Pac::Krb5Pac";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (K)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Pac.html" title="Rex::Proto::Kerberos::Pac (module)">Pac</a></span></span>
+     &raquo; 
+    <span class="title">Krb5Pac</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::Kerberos::Pac::Krb5Pac
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">BinData::Record</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">BinData::Record</li>
+          
+            <li class="next">Rex::Proto::Kerberos::Pac::Krb5Pac</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/kerberos/pac/krb5_pac.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#c_buffers-instance_method" title="#c_buffers (instance method)">#<strong>c_buffers</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pac_info_buffers-instance_method" title="#pac_info_buffers (instance method)">#<strong>pac_info_buffers</strong>  &#x21d2; Array&lt;Krb5PacInfoBuffer&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#version-instance_method" title="#version (instance method)">#<strong>version</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#assign-instance_method" title="#assign (instance method)">#<strong>assign</strong>(val)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#calculate_checksum-instance_method" title="#calculate_checksum (instance method)">#<strong>calculate_checksum</strong>(signature_type, key, data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#calculate_checksums!-instance_method" title="#calculate_checksums! (instance method)">#<strong>calculate_checksums!</strong>(service_key: nil, krbtgt_key: nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Calculates the checksums, can only be done after all other fields are set <a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/962edb93-fa3c-48ea-a0a6-062f760eb69c">learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/962edb93-fa3c-48ea-a0a6-062f760eb69c</a> <a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/37bf87b9-1d56-475a-b2b2-e3948b29194d">learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/37bf87b9-1d56-475a-b2b2-e3948b29194d</a>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#calculate_offsets!-instance_method" title="#calculate_offsets! (instance method)">#<strong>calculate_offsets!</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Calculates the offsets for pac_elements if they haven’t yet been set.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sign!-instance_method" title="#sign! (instance method)">#<strong>sign!</strong>(service_key: nil, krbtgt_key: nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Call this when you are done setting fields in the object in order to finalise the data.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="c_buffers=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="c_buffers-instance_method">
+  
+    #<strong>c_buffers</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+867</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 867</span>
+
+<span class='id identifier rubyid_uint32'>uint32</span> <span class='symbol'>:c_buffers</span><span class='comma'>,</span> <span class='label'>asserted_value:</span> <span class='tlambda'>-&gt;</span> <span class='tlambeg'>{</span> <span class='id identifier rubyid_pac_info_buffers'>pac_info_buffers</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='rbrace'>}</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="pac_info_buffers=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="pac_info_buffers-instance_method">
+  
+    #<strong>pac_info_buffers</strong>  &#x21d2; <tt>Array&lt;<span class='object_link'><a href="Krb5PacInfoBuffer.html" title="Rex::Proto::Kerberos::Pac::Krb5PacInfoBuffer (class)">Krb5PacInfoBuffer</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="Krb5PacInfoBuffer.html" title="Rex::Proto::Kerberos::Pac::Krb5PacInfoBuffer (class)">Krb5PacInfoBuffer</a></span>&gt;</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+875</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 875</span>
+
+<span class='id identifier rubyid_array'>array</span> <span class='symbol'>:pac_info_buffers</span><span class='comma'>,</span> <span class='label'>type:</span> <span class='symbol'>:krb5_pac_info_buffer</span><span class='comma'>,</span> <span class='label'>initial_length:</span> <span class='symbol'>:c_buffers</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="version-instance_method">
+  
+    #<strong>version</strong>  &#x21d2; <tt>Integer</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+871</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 871</span>
+
+<span class='id identifier rubyid_uint32'>uint32</span> <span class='symbol'>:version</span><span class='comma'>,</span> <span class='label'>asserted_value:</span> <span class='int'>0x00000000</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="assign-instance_method">
+  
+    #<strong>assign</strong>(val)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+877
+878
+879
+880
+881
+882
+883
+884
+885
+886
+887
+888</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 877</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_assign'>assign</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_val'>val</span>
+  <span class='kw'>when</span> <span class='const'>Hash</span>
+    <span class='id identifier rubyid_pac_infos'>pac_infos</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='lbracket'>[</span><span class='symbol'>:pac_elements</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pac_element'>pac_element</span><span class='op'>|</span>
+      <span class='lbrace'>{</span> <span class='label'>ul_type:</span> <span class='id identifier rubyid_pac_element'>pac_element</span><span class='period'>.</span><span class='id identifier rubyid_ul_type'>ul_type</span><span class='comma'>,</span> <span class='label'>buffer:</span> <span class='lbrace'>{</span> <span class='label'>pac_element:</span> <span class='id identifier rubyid_pac_element'>pac_element</span> <span class='rbrace'>}</span> <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_new_val'>new_val</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>pac_info_buffers:</span> <span class='id identifier rubyid_pac_infos'>pac_infos</span><span class='rparen'>)</span>
+    <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_new_val'>new_val</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='kw'>super</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="calculate_checksum-instance_method">
+  
+    #<strong>calculate_checksum</strong>(signature_type, key, data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+953
+954
+955
+956</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 953</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_calculate_checksum'>calculate_checksum</span><span class='lparen'>(</span><span class='id identifier rubyid_signature_type'>signature_type</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_checksummer'>checksummer</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Crypto.html" title="Rex::Proto::Kerberos::Crypto (module)">Crypto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Crypto/Checksum.html" title="Rex::Proto::Kerberos::Crypto::Checksum (module)">Checksum</a></span></span><span class='period'>.</span><span class='id identifier rubyid_from_checksum_type'><span class='object_link'><a href="../Crypto/Checksum.html#from_checksum_type-class_method" title="Rex::Proto::Kerberos::Crypto::Checksum.from_checksum_type (method)">from_checksum_type</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_signature_type'>signature_type</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_checksummer'>checksummer</span><span class='period'>.</span><span class='id identifier rubyid_checksum'>checksum</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Crypto.html" title="Rex::Proto::Kerberos::Crypto (module)">Crypto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Crypto/KeyUsage.html" title="Rex::Proto::Kerberos::Crypto::KeyUsage (module)">KeyUsage</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Crypto/KeyUsage.html#KERB_NON_KERB_CKSUM_SALT-constant" title="Rex::Proto::Kerberos::Crypto::KeyUsage::KERB_NON_KERB_CKSUM_SALT (constant)">KERB_NON_KERB_CKSUM_SALT</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="calculate_checksums!-instance_method">
+  
+    #<strong>calculate_checksums!</strong>(service_key: nil, krbtgt_key: nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Calculates the checksums, can only be done after all other fields are set <a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/962edb93-fa3c-48ea-a0a6-062f760eb69c">learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/962edb93-fa3c-48ea-a0a6-062f760eb69c</a> <a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/37bf87b9-1d56-475a-b2b2-e3948b29194d">learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/37bf87b9-1d56-475a-b2b2-e3948b29194d</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>service_key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Service key to calculate the server checksum</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>krbtgt_key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>key to calculate priv server (KDC) and full checksums with, if not specified ‘service_key` is used</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Error/MissingInfoBuffer.html" title="Rex::Proto::Kerberos::Pac::Error::MissingInfoBuffer (class)">Rex::Proto::Kerberos::Pac::Error::MissingInfoBuffer</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+896
+897
+898
+899
+900
+901
+902
+903
+904
+905
+906
+907
+908
+909
+910
+911
+912
+913
+914
+915
+916
+917
+918
+919
+920
+921
+922
+923
+924
+925
+926
+927
+928
+929
+930
+931
+932</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 896</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_calculate_checksums!'>calculate_checksums!</span><span class='lparen'>(</span><span class='label'>service_key:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>krbtgt_key:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_server_checksum'>server_checksum</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_priv_server_checksum'>priv_server_checksum</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_full_pac_checksum'>full_pac_checksum</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_pac_info_buffers'>pac_info_buffers</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_info_buffer'>info_buffer</span><span class='op'>|</span>
+    <span class='id identifier rubyid_pac_element'>pac_element</span> <span class='op'>=</span> <span class='id identifier rubyid_info_buffer'>info_buffer</span><span class='period'>.</span><span class='id identifier rubyid_buffer'>buffer</span><span class='period'>.</span><span class='id identifier rubyid_pac_element'>pac_element</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_pac_element'>pac_element</span><span class='period'>.</span><span class='id identifier rubyid_ul_type'>ul_type</span>
+    <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="Krb5PacElementType.html" title="Rex::Proto::Kerberos::Pac::Krb5PacElementType (module)">Krb5PacElementType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Krb5PacElementType.html#SERVER_CHECKSUM-constant" title="Rex::Proto::Kerberos::Pac::Krb5PacElementType::SERVER_CHECKSUM (constant)">SERVER_CHECKSUM</a></span></span>
+      <span class='id identifier rubyid_server_checksum'>server_checksum</span> <span class='op'>=</span> <span class='id identifier rubyid_pac_element'>pac_element</span>
+    <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="Krb5PacElementType.html" title="Rex::Proto::Kerberos::Pac::Krb5PacElementType (module)">Krb5PacElementType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Krb5PacElementType.html#PRIVILEGE_SERVER_CHECKSUM-constant" title="Rex::Proto::Kerberos::Pac::Krb5PacElementType::PRIVILEGE_SERVER_CHECKSUM (constant)">PRIVILEGE_SERVER_CHECKSUM</a></span></span>
+      <span class='id identifier rubyid_priv_server_checksum'>priv_server_checksum</span> <span class='op'>=</span> <span class='id identifier rubyid_pac_element'>pac_element</span>
+    <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="Krb5PacElementType.html" title="Rex::Proto::Kerberos::Pac::Krb5PacElementType (module)">Krb5PacElementType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Krb5PacElementType.html#FULL_PAC_CHECKSUM-constant" title="Rex::Proto::Kerberos::Pac::Krb5PacElementType::FULL_PAC_CHECKSUM (constant)">FULL_PAC_CHECKSUM</a></span></span>
+      <span class='id identifier rubyid_full_pac_checksum'>full_pac_checksum</span> <span class='op'>=</span> <span class='id identifier rubyid_pac_element'>pac_element</span>
+    <span class='kw'>else</span>
+      <span class='kw'>next</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_missing_checksums'>missing_checksums</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_missing_checksums'>missing_checksums</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="Krb5PacElementType.html" title="Rex::Proto::Kerberos::Pac::Krb5PacElementType (module)">Krb5PacElementType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Krb5PacElementType.html#SERVER_CHECKSUM-constant" title="Rex::Proto::Kerberos::Pac::Krb5PacElementType::SERVER_CHECKSUM (constant)">SERVER_CHECKSUM</a></span></span> <span class='kw'>if</span> <span class='id identifier rubyid_server_checksum'>server_checksum</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_missing_checksums'>missing_checksums</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="Krb5PacElementType.html" title="Rex::Proto::Kerberos::Pac::Krb5PacElementType (module)">Krb5PacElementType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Krb5PacElementType.html#PRIVILEGE_SERVER_CHECKSUM-constant" title="Rex::Proto::Kerberos::Pac::Krb5PacElementType::PRIVILEGE_SERVER_CHECKSUM (constant)">PRIVILEGE_SERVER_CHECKSUM</a></span></span> <span class='kw'>if</span> <span class='id identifier rubyid_priv_server_checksum'>priv_server_checksum</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Pac.html" title="Rex::Proto::Kerberos::Pac (module)">Pac</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Error.html" title="Rex::Proto::Kerberos::Pac::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Error/MissingInfoBuffer.html" title="Rex::Proto::Kerberos::Pac::Error::MissingInfoBuffer (class)">MissingInfoBuffer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Error/MissingInfoBuffer.html#initialize-instance_method" title="Rex::Proto::Kerberos::Pac::Error::MissingInfoBuffer#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>ul_types:</span> <span class='id identifier rubyid_missing_checksums'>missing_checksums</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_missing_checksums'>missing_checksums</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_krbtgt_key'>krbtgt_key</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_krbtgt_key'>krbtgt_key</span> <span class='op'>=</span> <span class='id identifier rubyid_service_key'>service_key</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># https://bugzilla.samba.org/show_bug.cgi?id=15231
+</span>  <span class='comment'># https://i.blackhat.com/EU-22/Thursday-Briefings/EU-22-Tervoort-Breaking-Kerberos-RC4-Cipher-and-Spoofing-Windows-PACs-wp.pdf
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_full_pac_checksum'>full_pac_checksum</span>
+    <span class='id identifier rubyid_full_pac_checksum'>full_pac_checksum</span><span class='period'>.</span><span class='id identifier rubyid_signature'>signature</span> <span class='op'>=</span> <span class='id identifier rubyid_calculate_checksum'>calculate_checksum</span><span class='lparen'>(</span><span class='id identifier rubyid_full_pac_checksum'>full_pac_checksum</span><span class='period'>.</span><span class='id identifier rubyid_signature_type'>signature_type</span><span class='comma'>,</span> <span class='id identifier rubyid_krbtgt_key'>krbtgt_key</span><span class='comma'>,</span> <span class='id identifier rubyid_to_binary_s'>to_binary_s</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_server_checksum'>server_checksum</span><span class='period'>.</span><span class='id identifier rubyid_signature'>signature</span> <span class='op'>=</span> <span class='id identifier rubyid_calculate_checksum'>calculate_checksum</span><span class='lparen'>(</span><span class='id identifier rubyid_server_checksum'>server_checksum</span><span class='period'>.</span><span class='id identifier rubyid_signature_type'>signature_type</span><span class='comma'>,</span> <span class='id identifier rubyid_service_key'>service_key</span><span class='comma'>,</span> <span class='id identifier rubyid_to_binary_s'>to_binary_s</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_priv_server_checksum'>priv_server_checksum</span><span class='period'>.</span><span class='id identifier rubyid_signature'>signature</span> <span class='op'>=</span> <span class='id identifier rubyid_calculate_checksum'>calculate_checksum</span><span class='lparen'>(</span><span class='id identifier rubyid_priv_server_checksum'>priv_server_checksum</span><span class='period'>.</span><span class='id identifier rubyid_signature_type'>signature_type</span><span class='comma'>,</span> <span class='id identifier rubyid_krbtgt_key'>krbtgt_key</span><span class='comma'>,</span> <span class='id identifier rubyid_server_checksum'>server_checksum</span><span class='period'>.</span><span class='id identifier rubyid_signature'>signature</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="calculate_offsets!-instance_method">
+  
+    #<strong>calculate_offsets!</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Calculates the offsets for pac_elements if they haven’t yet been set</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+935
+936
+937
+938
+939
+940
+941
+942
+943
+944</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 935</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_calculate_offsets!'>calculate_offsets!</span>
+  <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='id identifier rubyid_pac_info_buffers'>pac_info_buffers</span><span class='period'>.</span><span class='id identifier rubyid_abs_offset'>abs_offset</span> <span class='op'>+</span> <span class='id identifier rubyid_pac_info_buffers'>pac_info_buffers</span><span class='period'>.</span><span class='id identifier rubyid_num_bytes'>num_bytes</span>
+  <span class='id identifier rubyid_pac_info_buffers'>pac_info_buffers</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pac_info'>pac_info</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_pac_info'>pac_info</span><span class='period'>.</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>==</span> <span class='int'>0</span>
+
+    <span class='id identifier rubyid_pac_info'>pac_info</span><span class='period'>.</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='id identifier rubyid_offset'>offset</span>
+    <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='id identifier rubyid_pac_info'>pac_info</span><span class='period'>.</span><span class='id identifier rubyid_cb_buffer_size'>cb_buffer_size</span>
+    <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='id identifier rubyid_num_bytes_to_align'>num_bytes_to_align</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sign!-instance_method">
+  
+    #<strong>sign!</strong>(service_key: nil, krbtgt_key: nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Call this when you are done setting fields in the object in order to finalise the data</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+948
+949
+950
+951</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 948</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sign!'>sign!</span><span class='lparen'>(</span><span class='label'>service_key:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>krbtgt_key:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_calculate_offsets!'>calculate_offsets!</span>
+  <span class='id identifier rubyid_calculate_checksums!'>calculate_checksums!</span><span class='lparen'>(</span><span class='label'>service_key:</span> <span class='id identifier rubyid_service_key'>service_key</span><span class='comma'>,</span> <span class='label'>krbtgt_key:</span> <span class='id identifier rubyid_krbtgt_key'>krbtgt_key</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:43:14 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

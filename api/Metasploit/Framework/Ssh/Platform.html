@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Metasploit::Framework::Ssh::Platform
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::Ssh::Platform";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Ssh.html" title="Metasploit::Framework::Ssh (module)">Ssh</a></span></span>
+     &raquo; 
+    <span class="title">Platform</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Metasploit::Framework::Ssh::Platform
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/ssh/platform.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_platform-class_method" title="get_platform (class method)">.<strong>get_platform</strong>(ssh_socket)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_platform_from_info-class_method" title="get_platform_from_info (class method)">.<strong>get_platform_from_info</strong>(info)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_platform_info-class_method" title="get_platform_info (class method)">.<strong>get_platform_info</strong>(ssh_socket, timeout: 10)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_posix-class_method" title="is_posix (class method)">.<strong>is_posix</strong>(platform)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="get_platform-class_method">
+  
+    .<strong>get_platform</strong>(ssh_socket)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+5
+6
+7
+8</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/ssh/platform.rb', line 5</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_platform'>get_platform</span><span class='lparen'>(</span><span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_get_platform_info'>get_platform_info</span><span class='lparen'>(</span><span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='comma'>,</span> <span class='label'>timeout:</span> <span class='int'>10</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get_platform_from_info'>get_platform_from_info</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_platform_from_info-class_method">
+  
+    .<strong>get_platform_from_info</strong>(info)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/ssh/platform.rb', line 101</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_platform_from_info'>get_platform_from_info</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_info'>info</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>unifi\.version|UniFiSecurityGateway</span><span class='regexp_end'>/i</span></span> <span class='comment'># Ubiquiti Unifi.  uname -a is left in, so we got to pull before Linux
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unifi</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Linux</span><span class='regexp_end'>/i</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>linux</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>VMware ESXi</span><span class='regexp_end'>/i</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>linux</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Darwin</span><span class='regexp_end'>/i</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>osx</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>SunOS</span><span class='regexp_end'>/i</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>solaris</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>BSD</span><span class='regexp_end'>/i</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bsd</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>HP-UX</span><span class='regexp_end'>/i</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hpux</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>AIX</span><span class='regexp_end'>/i</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aix</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>MSYS_NT|cygwin|Win32|Windows|Microsoft</span><span class='regexp_end'>/i</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>windows</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Unknown command or computer name|Line has invalid autocommand</span><span class='regexp_end'>/i</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cisco-ios</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>unknown keyword</span><span class='regexp_end'>/i</span></span> <span class='comment'># ScreenOS
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>juniper</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>JUNOS Base OS</span><span class='regexp_end'>/i</span></span> <span class='comment'># JunOS
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>juniper</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>MikroTik</span><span class='regexp_end'>/i</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mikrotik</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Arista</span><span class='regexp_end'>/i</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>arista</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>VMware vCenter Server</span><span class='regexp_end'>/i</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vcenter</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>else</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unknown</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_platform_info-class_method">
+  
+    .<strong>get_platform_info</strong>(ssh_socket, timeout: 10)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/ssh/platform.rb', line 10</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_platform_info'>get_platform_info</span><span class='lparen'>(</span><span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='comma'>,</span> <span class='label'>timeout:</span> <span class='int'>10</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>begin</span>
+    <span class='const'>Timeout</span><span class='period'>.</span><span class='id identifier rubyid_timeout'>timeout</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>id\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>id=</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_info'>info</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>uname -a\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+        <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>JUNOS </span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+          <span class='comment'># We&#39;re in the SSH shell for a Juniper JunOS, we can pull the version from the cli
+</span>          <span class='comment'># line 2 is hostname, 3 is model, 4 is the Base OS version
+</span>          <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cli show version\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>2</span><span class='op'>..</span><span class='int'>4</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+        <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Linux USG </span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+          <span class='comment'># Ubiquiti Unifi USG
+</span>          <span class='id identifier rubyid_info'>info</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cat /etc/version\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_rstrip'>rstrip</span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_temp_proof'>temp_proof</span> <span class='op'>=</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>grep unifi.version /tmp/system.cfg\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_rstrip'>rstrip</span>
+        <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_temp_proof'>temp_proof</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>unifi\.version</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_info'>info</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_temp_proof'>temp_proof</span>
+          <span class='comment'># Ubiquiti Unifi device (non-USG), possibly a switch.  Tested on US-24, UAP-nanoHD
+</span>          <span class='comment'># The /tmp/*.cfg files don&#39;t give us device info, however the info command does
+</span>          <span class='comment'># we dont call it originally since it doesnt say unifi/ubiquiti in it and info
+</span>          <span class='comment'># is a linux command as well
+</span>          <span class='id identifier rubyid_info'>info</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>grep board.name /etc/board.info\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_rstrip'>rstrip</span>
+        <span class='kw'>end</span>
+      <span class='kw'>elsif</span> <span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Unknown command or computer name</span><span class='regexp_end'>/</span></span>
+        <span class='comment'># Cisco IOS
+</span>        <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ver\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+        <span class='comment'># Juniper ScreenOS
+</span>      <span class='kw'>elsif</span> <span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>unknown keyword</span><span class='regexp_end'>/</span></span>
+        <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>get chassis\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+        <span class='comment'># Juniper JunOS CLI
+</span>      <span class='kw'>elsif</span> <span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>unknown command: id</span><span class='regexp_end'>/</span></span>
+        <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>show version\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>2</span><span class='op'>..</span><span class='int'>4</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+        <span class='comment'># Brocade CLI
+</span>      <span class='kw'>elsif</span> <span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Invalid input -&gt; id</span><span class='regexp_end'>/</span></span> <span class='op'>||</span> <span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Protocol error, doesn&#39;t start with scp!</span><span class='regexp_end'>/</span></span>
+        <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>show version\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Version:(?&lt;os_version&gt;.+).+HW: (?&lt;hardware&gt;)</span><span class='regexp_end'>/mi</span></span>
+          <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Model: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hardware'>hardware</span><span class='embexpr_end'>}</span><span class='tstring_content'>, OS: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_os_version'>os_version</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+        <span class='comment'># Arista
+</span>      <span class='kw'>elsif</span> <span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>% Invalid input at line 1</span><span class='regexp_end'>/</span></span>
+        <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>show version\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='int'>1</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_item'>item</span><span class='op'>|</span> <span class='id identifier rubyid_item'>item</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span> <span class='rbrace'>}</span>
+        <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+        <span class='comment'># Windows
+</span>      <span class='kw'>elsif</span> <span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>command not found|is not recognized as an internal or external command|is not recognized as the name of a cmdlet, function, script file, or operable</span><span class='regexp_end'>/</span></span>
+        <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>systeminfo\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+        <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>OS Name:\s+(?&lt;os_name&gt;.+)$</span><span class='regexp_end'>/</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_info'>info</span>
+        <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>OS Version:\s+(?&lt;os_num&gt;.+)$</span><span class='regexp_end'>/</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_info'>info</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_os_num'>os_num</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_os_name'>os_name</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+          <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_os_name'>os_name</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_os_num'>os_num</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ver\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+        <span class='kw'>end</span>
+        <span class='comment'># mikrotik
+</span>      <span class='kw'>elsif</span> <span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>bad command name id \(line 1 column 1\)</span><span class='regexp_end'>/</span></span>
+        <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/ system resource print\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+        <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>platform:\s+(?&lt;platform&gt;.+)$</span><span class='regexp_end'>/</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_info'>info</span>
+        <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>board-name:\s+(?&lt;board&gt;.+)$</span><span class='regexp_end'>/</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_info'>info</span>
+        <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>version:\s+(?&lt;version&gt;.+)$</span><span class='regexp_end'>/</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_info'>info</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_version'>version</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_platform'>platform</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_board'>board</span>
+          <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_platform'>platform</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_board'>board</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_version'>version</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+        <span class='comment'># esxi 6.7
+</span>      <span class='kw'>elsif</span> <span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>sh: id: not found</span><span class='regexp_end'>/</span></span>
+        <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>vmware -v\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+        <span class='comment'># vcenter 6.7 (photon)
+</span>        <span class='comment'># VMware vCenter Server 8.0.0.10000
+</span>        <span class='comment'># VMware VirtualCenter 6.7.0 build-19299595
+</span>      <span class='kw'>elsif</span> <span class='id identifier rubyid_info'>info</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Unknown command: `id&#39;</span><span class='regexp_end'>/</span></span>
+        <span class='comment'># eventually we&#39;ll want to try to shell in via &#39;shell&#39;. On failure you see: &quot;User &#39;user_operator&#39; is not authorized to run this command&quot;
+</span>        <span class='comment'># on succeess: &quot;Shell access is granted to &lt;username&gt;&quot;
+</span>        <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>api com.vmware.appliance.version1.system.version.get\n\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+        <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Product:\s+(?&lt;product&gt;.+)$</span><span class='regexp_end'>/</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_info'>info</span>
+        <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Version:\s+(?&lt;version&gt;[\d\.]+)$</span><span class='regexp_end'>/</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_info'>info</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_version'>version</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_product'>product</span>
+          <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_product'>product</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_version'>version</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_info'>info</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span><span class='period'>.</span><span class='id identifier rubyid_exec!'>exec!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>help\n?\n\n\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='const'>Timeout</span><span class='op'>::</span><span class='const'>Error</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_info'>info</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_posix-class_method">
+  
+    .<strong>is_posix</strong>(platform)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+97
+98
+99</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/ssh/platform.rb', line 97</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_posix'>is_posix</span><span class='lparen'>(</span><span class='id identifier rubyid_platform'>platform</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unifi</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>linux</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>osx</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>solaris</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bsd</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hpux</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aix</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_platform'>platform</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:35 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::DNS::UpstreamRule
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::DNS::UpstreamRule";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../DNS.html" title="Rex::Proto::DNS (module)">DNS</a></span></span>
+     &raquo; 
+    <span class="title">UpstreamRule</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::DNS::UpstreamRule
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Proto::DNS::UpstreamRule</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/dns/upstream_rule.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This represents a configuration rule for how names should be resolved. It matches a single wildcard which acts as a matching condition and maps it to 0 or more resolvers to use for lookups.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#comm-instance_method" title="#comm (instance method)">#<strong>comm</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute comm.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resolvers-instance_method" title="#resolvers (instance method)">#<strong>resolvers</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute resolvers.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wildcard-instance_method" title="#wildcard (instance method)">#<strong>wildcard</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute wildcard.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#spell_check_resolver-class_method" title="spell_check_resolver (class method)">.<strong>spell_check_resolver</strong>(resolver)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Perform a spell check on resolver to suggest corrections.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#valid_resolver%3F-class_method" title="valid_resolver? (class method)">.<strong>valid_resolver?</strong>(resolver)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Check whether or not the defined resolver is valid.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#valid_wildcard%3F-class_method" title="valid_wildcard? (class method)">.<strong>valid_wildcard?</strong>(wildcard)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Check whether or not the defined wildcard is a valid pattern.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#eql%3F-instance_method" title="#eql? (instance method)">#<strong>eql?</strong>(other)  &#x21d2; Boolean </a>
+    
+
+    
+      (also: #==)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(wildcard: &#39;*&#39;, resolvers: [], comm: nil)  &#x21d2; UpstreamRule </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of UpstreamRule.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#matches_all%3F-instance_method" title="#matches_all? (instance method)">#<strong>matches_all?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Check whether or not the currently configured wildcard pattern will match all names.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#matches_name%3F-instance_method" title="#matches_name? (instance method)">#<strong>matches_name?</strong>(name)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Check whether or not the specified name matches the currently configured wildcard pattern.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(wildcard: &#39;*&#39;, resolvers: [], comm: nil)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Proto::DNS::UpstreamRule (class)">UpstreamRule</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of UpstreamRule.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>wildcard</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;*&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The wildcard pattern to use for conditionally matching hostnames.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>resolvers</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>[]</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The resolvers to use when this rule is applied.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>comm</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Msf/Session/Comm.html" title="Msf::Session::Comm (module)">Msf::Session::Comm</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The communication channel to use when creating network connections.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/upstream_rule.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>wildcard:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>*</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>resolvers:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>comm:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='op'>::</span><span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid wildcard text: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_wildcard'>wildcard</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_valid_wildcard?'>valid_wildcard?</span><span class='lparen'>(</span><span class='id identifier rubyid_wildcard'>wildcard</span><span class='rparen'>)</span>
+  <span class='ivar'>@wildcard</span> <span class='op'>=</span> <span class='id identifier rubyid_wildcard'>wildcard</span>
+  <span class='id identifier rubyid_socket_options'>socket_options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_socket_options'>socket_options</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Comm</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_comm'>comm</span> <span class='kw'>unless</span> <span class='id identifier rubyid_comm'>comm</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='ivar'>@resolvers</span> <span class='op'>=</span> <span class='id identifier rubyid_resolvers'>resolvers</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_resolver'>resolver</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_resolver'>resolver</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>String</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_is_ip_addr?'>is_ip_addr?</span><span class='lparen'>(</span><span class='id identifier rubyid_resolver'>resolver</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_resolver'>resolver</span> <span class='op'>=</span> <span class='id identifier rubyid_resolver'>resolver</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>case</span> <span class='id identifier rubyid_resolver'>resolver</span>
+    <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span>
+      <span class='id identifier rubyid_resolver'>resolver</span>
+    <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html" title="Rex::Proto::DNS::UpstreamResolver::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html#BLACK_HOLE-constant" title="Rex::Proto::DNS::UpstreamResolver::Type::BLACK_HOLE (constant)">BLACK_HOLE</a></span></span>
+      <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_black_hole'><span class='object_link'><a href="UpstreamResolver.html#create_black_hole-class_method" title="Rex::Proto::DNS::UpstreamResolver.create_black_hole (method)">create_black_hole</a></span></span>
+    <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html" title="Rex::Proto::DNS::UpstreamResolver::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html#STATIC-constant" title="Rex::Proto::DNS::UpstreamResolver::Type::STATIC (constant)">STATIC</a></span></span>
+      <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_static'><span class='object_link'><a href="UpstreamResolver.html#create_static-class_method" title="Rex::Proto::DNS::UpstreamResolver.create_static (method)">create_static</a></span></span>
+    <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html" title="Rex::Proto::DNS::UpstreamResolver::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html#SYSTEM-constant" title="Rex::Proto::DNS::UpstreamResolver::Type::SYSTEM (constant)">SYSTEM</a></span></span>
+      <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_system'><span class='object_link'><a href="UpstreamResolver.html#create_system-class_method" title="Rex::Proto::DNS::UpstreamResolver.create_system (method)">create_system</a></span></span>
+    <span class='kw'>else</span>
+      <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_is_ip_addr?'>is_ip_addr?</span><span class='lparen'>(</span><span class='id identifier rubyid_resolver'>resolver</span><span class='rparen'>)</span>
+        <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_dns_server'><span class='object_link'><a href="UpstreamResolver.html#create_dns_server-class_method" title="Rex::Proto::DNS::UpstreamResolver.create_dns_server (method)">create_dns_server</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_resolver'>resolver</span><span class='comma'>,</span> <span class='label'>socket_options:</span> <span class='id identifier rubyid_socket_options'>socket_options</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid upstream DNS resolver: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_resolver'>resolver</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@comm</span> <span class='op'>=</span> <span class='id identifier rubyid_comm'>comm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="comm-instance_method">
+  
+    #<strong>comm</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute comm.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/upstream_rule.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_comm'>comm</span>
+  <span class='ivar'>@comm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="resolvers-instance_method">
+  
+    #<strong>resolvers</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute resolvers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/upstream_rule.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_resolvers'>resolvers</span>
+  <span class='ivar'>@resolvers</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="wildcard-instance_method">
+  
+    #<strong>wildcard</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute wildcard.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/upstream_rule.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wildcard'>wildcard</span>
+  <span class='ivar'>@wildcard</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="spell_check_resolver-class_method">
+  
+    .<strong>spell_check_resolver</strong>(resolver)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Perform a spell check on resolver to suggest corrections.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resolver</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The resolver string to check.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/upstream_rule.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_spell_check_resolver'>spell_check_resolver</span><span class='lparen'>(</span><span class='id identifier rubyid_resolver'>resolver</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_is_ip_addr?'>is_ip_addr?</span><span class='lparen'>(</span><span class='id identifier rubyid_resolver'>resolver</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_suggestions'>suggestions</span> <span class='op'>=</span> <span class='const'>DidYouMean</span><span class='op'>::</span><span class='const'>SpellChecker</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>dictionary:</span> <span class='lbracket'>[</span>
+    <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html" title="Rex::Proto::DNS::UpstreamResolver::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html#BLACK_HOLE-constant" title="Rex::Proto::DNS::UpstreamResolver::Type::BLACK_HOLE (constant)">BLACK_HOLE</a></span></span><span class='comma'>,</span>
+    <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html" title="Rex::Proto::DNS::UpstreamResolver::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html#STATIC-constant" title="Rex::Proto::DNS::UpstreamResolver::Type::STATIC (constant)">STATIC</a></span></span><span class='comma'>,</span>
+    <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html" title="Rex::Proto::DNS::UpstreamResolver::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html#SYSTEM-constant" title="Rex::Proto::DNS::UpstreamResolver::Type::SYSTEM (constant)">SYSTEM</a></span></span>
+  <span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_correct'>correct</span><span class='lparen'>(</span><span class='id identifier rubyid_resolver'>resolver</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_s</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_suggestions'>suggestions</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='id identifier rubyid_suggestions'>suggestions</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="valid_resolver?-class_method">
+  
+    .<strong>valid_resolver?</strong>(resolver)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Check whether or not the defined resolver is valid.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resolver</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The resolver string to check.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/upstream_rule.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_valid_resolver?'>valid_resolver?</span><span class='lparen'>(</span><span class='id identifier rubyid_resolver'>resolver</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_is_ip_addr?'>is_ip_addr?</span><span class='lparen'>(</span><span class='id identifier rubyid_resolver'>resolver</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_resolver'>resolver</span> <span class='op'>=</span> <span class='id identifier rubyid_resolver'>resolver</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
+  <span class='lbracket'>[</span>
+    <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html" title="Rex::Proto::DNS::UpstreamResolver::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html#BLACK_HOLE-constant" title="Rex::Proto::DNS::UpstreamResolver::Type::BLACK_HOLE (constant)">BLACK_HOLE</a></span></span><span class='comma'>,</span>
+    <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html" title="Rex::Proto::DNS::UpstreamResolver::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html#STATIC-constant" title="Rex::Proto::DNS::UpstreamResolver::Type::STATIC (constant)">STATIC</a></span></span><span class='comma'>,</span>
+    <span class='const'><span class='object_link'><a href="UpstreamResolver.html" title="Rex::Proto::DNS::UpstreamResolver (class)">UpstreamResolver</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html" title="Rex::Proto::DNS::UpstreamResolver::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UpstreamResolver/Type.html#SYSTEM-constant" title="Rex::Proto::DNS::UpstreamResolver::Type::SYSTEM (constant)">SYSTEM</a></span></span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_resolver'>resolver</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="valid_wildcard?-class_method">
+  
+    .<strong>valid_wildcard?</strong>(wildcard)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Check whether or not the defined wildcard is a valid pattern.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>wildcard</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The wildcard text to check.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+85
+86
+87</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/upstream_rule.rb', line 85</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_valid_wildcard?'>valid_wildcard?</span><span class='lparen'>(</span><span class='id identifier rubyid_wildcard'>wildcard</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_wildcard'>wildcard</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>*</span><span class='tstring_end'>&#39;</span></span> <span class='op'>||</span> <span class='id identifier rubyid_wildcard'>wildcard</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(\*\.)?([a-z\d][a-z\d-]*[a-z\d]\.)+[a-z]+$</span><span class='regexp_end'>/</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="eql?-instance_method">
+  
+    #<strong>eql?</strong>(other)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='==-instance_method'>==</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+109
+110
+111
+112
+113
+114
+115</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/upstream_rule.rb', line 109</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_eql?'>eql?</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_wildcard'>wildcard</span> <span class='op'>==</span> <span class='id identifier rubyid_wildcard'>wildcard</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_resolvers'>resolvers</span> <span class='op'>==</span> <span class='id identifier rubyid_resolvers'>resolvers</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_comm'>comm</span> <span class='op'>==</span> <span class='id identifier rubyid_comm'>comm</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="matches_all?-instance_method">
+  
+    #<strong>matches_all?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Check whether or not the currently configured wildcard pattern will match all names.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+92
+93
+94</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/upstream_rule.rb', line 92</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_matches_all?'>matches_all?</span>
+  <span class='id identifier rubyid_wildcard'>wildcard</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>*</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="matches_name?-instance_method">
+  
+    #<strong>matches_name?</strong>(name)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Check whether or not the specified name matches the currently configured wildcard pattern.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+99
+100
+101
+102
+103
+104
+105
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/upstream_rule.rb', line 99</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_matches_name?'>matches_name?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_matches_all?'>matches_all?</span>
+    <span class='kw'>true</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_wildcard'>wildcard</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>*.</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='period'>.</span><span class='id identifier rubyid_end_with?'>end_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_wildcard'>wildcard</span><span class='lbracket'>[</span><span class='int'>1</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_casecmp?'>casecmp?</span><span class='lparen'>(</span><span class='id identifier rubyid_wildcard'>wildcard</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:43:10 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::WindowsVersion
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::WindowsVersion";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (W)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span>
+     &raquo; 
+    <span class="title">WindowsVersion</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::WindowsVersion
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::WindowsVersion</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html" title="Msf::WindowsVersion::ServerSpecificVersions (module)">ServerSpecificVersions</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html" title="Msf::WindowsVersion::WorkstationSpecificVersions (module)">WorkstationSpecificVersions</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/windows_version.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Represents the version of a Windows operating system</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="WindowsVersion/MajorRelease.html" title="Msf::WindowsVersion::MajorRelease (module)">MajorRelease</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html" title="Msf::WindowsVersion::ServerSpecificVersions (module)">ServerSpecificVersions</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html" title="Msf::WindowsVersion::WorkstationSpecificVersions (module)">WorkstationSpecificVersions</a></span>
+    
+  
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="VER_NT_WORKSTATION-constant" class="">VER_NT_WORKSTATION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="VER_NT_DOMAIN_CONTROLLER-constant" class="">VER_NT_DOMAIN_CONTROLLER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="VER_NT_SERVER-constant" class="">VER_NT_SERVER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="ServerNameMapping-constant" class="">ServerNameMapping =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='symbol'>:Server2003_SP0</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2003</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2003_SP1</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2003 Service Pack 1</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2003_SP2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2003 Service Pack 2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2008_SP0</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2008</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2008_SP1</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2008 Service Pack 1</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2008_SP2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2008 Service Pack 2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2008_SP2_Update</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2008 Service Pack 2 Update</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2008_R2_SP0</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2008 R2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2008_R2_SP1</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2008 R2 Service Pack 1</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2012</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2012 R2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2012_R2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2012 R2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2016</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2016</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2019</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2019</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2022</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2022</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2022_23H2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2022 version 23H2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Server2025</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Server 2025</span><span class='tstring_end'>&quot;</span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="WorkstationNameMapping-constant" class="">WorkstationNameMapping =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='symbol'>:Win2000</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 2000</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:XP_SP0</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows XP</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:XP_SP1</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows XP Service Pack 1</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:XP_SP2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows XP Service Pack 2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:XP_SP3</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows XP Service Pack 3</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Vista_SP0</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Vista</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Vista_SP1</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Vista Service Pack 1</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Vista_SP2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows Vista Service Pack 2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win7_SP0</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 7</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win7_SP1</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 7 Service Pack 1</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win8</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 8</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win81</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 8.1</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_1507</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 1507</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_1511</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 1511</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_1607</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 1607</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_1703</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 1703</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_1709</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 1709</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_1803</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 1803</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_1809</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 1809</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_1903</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 1903</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_1909</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 1909</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_2004</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 2004</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_20H2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 20H2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_21H1</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 21H1</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_21H2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 21H2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win10_22H2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 10 version 22H2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win11_21H2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 11 version 21H2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win11_22H2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 11 version 22H2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win11_23H2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 11 version 23H2</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:Win11_24H2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows 11 version 24H2</span><span class='tstring_end'>&quot;</span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="Win10_InitialRelease-constant" class="">Win10_InitialRelease =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_1507-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_1507 (constant)">Win10_1507</a></span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html" title="Msf::WindowsVersion::ServerSpecificVersions (module)">ServerSpecificVersions</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2003_SP0-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2003_SP0 (constant)">ServerSpecificVersions::Server2003_SP0</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2003_SP1-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2003_SP1 (constant)">ServerSpecificVersions::Server2003_SP1</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2003_SP2-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2003_SP2 (constant)">ServerSpecificVersions::Server2003_SP2</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2008_R2_SP0-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2008_R2_SP0 (constant)">ServerSpecificVersions::Server2008_R2_SP0</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2008_R2_SP1-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2008_R2_SP1 (constant)">ServerSpecificVersions::Server2008_R2_SP1</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2008_SP0-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2008_SP0 (constant)">ServerSpecificVersions::Server2008_SP0</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2008_SP1-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2008_SP1 (constant)">ServerSpecificVersions::Server2008_SP1</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2008_SP2-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2008_SP2 (constant)">ServerSpecificVersions::Server2008_SP2</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2008_SP2_Update-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2008_SP2_Update (constant)">ServerSpecificVersions::Server2008_SP2_Update</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2012-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2012 (constant)">ServerSpecificVersions::Server2012</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2012_R2-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2012_R2 (constant)">ServerSpecificVersions::Server2012_R2</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2016-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2016 (constant)">ServerSpecificVersions::Server2016</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2019-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2019 (constant)">ServerSpecificVersions::Server2019</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2022-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2022 (constant)">ServerSpecificVersions::Server2022</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2022_23H2-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2022_23H2 (constant)">ServerSpecificVersions::Server2022_23H2</a></span>, <span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2025-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2025 (constant)">ServerSpecificVersions::Server2025</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html" title="Msf::WindowsVersion::WorkstationSpecificVersions (module)">WorkstationSpecificVersions</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Vista_SP0-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Vista_SP0 (constant)">WorkstationSpecificVersions::Vista_SP0</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Vista_SP1-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Vista_SP1 (constant)">WorkstationSpecificVersions::Vista_SP1</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Vista_SP2-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Vista_SP2 (constant)">WorkstationSpecificVersions::Vista_SP2</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_1507-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_1507 (constant)">WorkstationSpecificVersions::Win10_1507</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_1511-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_1511 (constant)">WorkstationSpecificVersions::Win10_1511</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_1607-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_1607 (constant)">WorkstationSpecificVersions::Win10_1607</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_1703-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_1703 (constant)">WorkstationSpecificVersions::Win10_1703</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_1709-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_1709 (constant)">WorkstationSpecificVersions::Win10_1709</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_1803-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_1803 (constant)">WorkstationSpecificVersions::Win10_1803</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_1809-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_1809 (constant)">WorkstationSpecificVersions::Win10_1809</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_1903-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_1903 (constant)">WorkstationSpecificVersions::Win10_1903</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_1909-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_1909 (constant)">WorkstationSpecificVersions::Win10_1909</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_2004-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_2004 (constant)">WorkstationSpecificVersions::Win10_2004</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_20H2-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_20H2 (constant)">WorkstationSpecificVersions::Win10_20H2</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_21H1-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_21H1 (constant)">WorkstationSpecificVersions::Win10_21H1</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_21H2-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_21H2 (constant)">WorkstationSpecificVersions::Win10_21H2</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win10_22H2-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win10_22H2 (constant)">WorkstationSpecificVersions::Win10_22H2</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win11_21H2-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win11_21H2 (constant)">WorkstationSpecificVersions::Win11_21H2</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win11_22H2-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win11_22H2 (constant)">WorkstationSpecificVersions::Win11_22H2</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win11_23H2-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win11_23H2 (constant)">WorkstationSpecificVersions::Win11_23H2</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win11_24H2-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win11_24H2 (constant)">WorkstationSpecificVersions::Win11_24H2</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win2000-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win2000 (constant)">WorkstationSpecificVersions::Win2000</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win7_SP0-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win7_SP0 (constant)">WorkstationSpecificVersions::Win7_SP0</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win7_SP1-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win7_SP1 (constant)">WorkstationSpecificVersions::Win7_SP1</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win8-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win8 (constant)">WorkstationSpecificVersions::Win8</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win81-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win81 (constant)">WorkstationSpecificVersions::Win81</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#XP_SP0-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::XP_SP0 (constant)">WorkstationSpecificVersions::XP_SP0</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#XP_SP1-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::XP_SP1 (constant)">WorkstationSpecificVersions::XP_SP1</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#XP_SP2-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::XP_SP2 (constant)">WorkstationSpecificVersions::XP_SP2</a></span>, <span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#XP_SP3-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::XP_SP3 (constant)">WorkstationSpecificVersions::XP_SP3</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#from_ntlm_os_version-class_method" title="from_ntlm_os_version (class method)">.<strong>from_ntlm_os_version</strong>(major, minor, build)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the string representation of the OS, given a major, minor and build number (as reported by an NTLM handshake).</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_number-instance_method" title="#build_number (instance method)">#<strong>build_number</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The specific build number of this version (major.minor.build.service_pack).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#domain_controller%3F-instance_method" title="#domain_controller? (instance method)">#<strong>domain_controller?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This Windows Server has been promoted to a DC.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(major, minor, build, service_pack, revision, product_type)  &#x21d2; WindowsVersion </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of WindowsVersion.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#product_name-instance_method" title="#product_name (instance method)">#<strong>product_name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The name of the OS, as it is most commonly rendered.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#revision_number-instance_method" title="#revision_number (instance method)">#<strong>revision_number</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The specific revision number of this version This is mainly going to be present on Windows 10+, wherein it’s easy to get it from the registry.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s-instance_method" title="#to_s (instance method)">#<strong>to_s</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vista_or_2008%3F-instance_method" title="#vista_or_2008? (instance method)">#<strong>vista_or_2008?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Is this version number from the Vista/Server 2008 generation of Windows OSes.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#win7_or_2008r2%3F-instance_method" title="#win7_or_2008r2? (instance method)">#<strong>win7_or_2008r2?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Is this version number from the Windows 7/Server 2008 R2 generation of Windows OSes.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#windows_server%3F-instance_method" title="#windows_server? (instance method)">#<strong>windows_server?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Is this OS a Windows Server instance?.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#workstation%3F-instance_method" title="#workstation? (instance method)">#<strong>workstation?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Is this a Workstation build?.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#xp_or_2003%3F-instance_method" title="#xp_or_2003? (instance method)">#<strong>xp_or_2003?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Is this version number from the XP/Server 2003 generation of Windows OSes.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(major, minor, build, service_pack, revision, product_type)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::WindowsVersion (class)">WindowsVersion</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of WindowsVersion.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+148
+149
+150
+151
+152
+153
+154
+155</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/windows_version.rb', line 148</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_major'>major</span><span class='comma'>,</span> <span class='id identifier rubyid_minor'>minor</span><span class='comma'>,</span> <span class='id identifier rubyid_build'>build</span><span class='comma'>,</span> <span class='id identifier rubyid_service_pack'>service_pack</span><span class='comma'>,</span> <span class='id identifier rubyid_revision'>revision</span><span class='comma'>,</span> <span class='id identifier rubyid_product_type'>product_type</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid__major'>_major</span> <span class='op'>=</span> <span class='id identifier rubyid_major'>major</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid__minor'>_minor</span> <span class='op'>=</span> <span class='id identifier rubyid_minor'>minor</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid__build'>_build</span> <span class='op'>=</span> <span class='id identifier rubyid_build'>build</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid__service_pack'>_service_pack</span> <span class='op'>=</span> <span class='id identifier rubyid_service_pack'>service_pack</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid__revision'>_revision</span> <span class='op'>=</span> <span class='id identifier rubyid_revision'>revision</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_product_type'>product_type</span> <span class='op'>=</span> <span class='id identifier rubyid_product_type'>product_type</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="from_ntlm_os_version-class_method">
+  
+    .<strong>from_ntlm_os_version</strong>(major, minor, build)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the string representation of the OS, given a major, minor and build number (as reported by an NTLM handshake). The NTLM structure makes no guarantee that the underlying OS of the server is actually Windows, so if we don’t find a precise match, return nil</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>major</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The major build number reported in the NTLM handshake</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>minor</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The minor build number reported in the NTLM handshake</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>build</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The build build number reported in the NTLM handshake</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The possible matching OS versions, or nil if no corresponding match can be found</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/windows_version.rb', line 234</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_from_ntlm_os_version'>from_ntlm_os_version</span><span class='lparen'>(</span><span class='id identifier rubyid_major'>major</span><span class='comma'>,</span> <span class='id identifier rubyid_minor'>minor</span><span class='comma'>,</span> <span class='id identifier rubyid_build'>build</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_workstation_string'>workstation_string</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_version_string'>version_string</span><span class='lparen'>(</span><span class='id identifier rubyid_major'>major</span><span class='comma'>,</span> <span class='id identifier rubyid_minor'>minor</span><span class='comma'>,</span> <span class='id identifier rubyid_build'>build</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html" title="Msf::WindowsVersion::WorkstationSpecificVersions (module)">WorkstationSpecificVersions</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#WorkstationNameMapping-constant" title="Msf::WindowsVersion::WorkstationNameMapping (constant)">WorkstationNameMapping</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_server_string'>server_string</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_version_string'>version_string</span><span class='lparen'>(</span><span class='id identifier rubyid_major'>major</span><span class='comma'>,</span> <span class='id identifier rubyid_minor'>minor</span><span class='comma'>,</span> <span class='id identifier rubyid_build'>build</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html" title="Msf::WindowsVersion::ServerSpecificVersions (module)">ServerSpecificVersions</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#ServerNameMapping-constant" title="Msf::WindowsVersion::ServerNameMapping (constant)">ServerNameMapping</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_version_strings'>version_strings</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_version_strings'>version_strings</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span><span class='lparen'>(</span><span class='id identifier rubyid_workstation_string'>workstation_string</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_workstation_string'>workstation_string</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_version_strings'>version_strings</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span><span class='lparen'>(</span><span class='id identifier rubyid_server_string'>server_string</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_server_string'>server_string</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_version_strings'>version_strings</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_version_strings'>version_strings</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="build_number-instance_method">
+  
+    #<strong>build_number</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The specific build number of this version (major.minor.build.service_pack)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+164
+165
+166</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/windows_version.rb', line 164</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_number'>build_number</span>
+  <span class='const'><span class='object_link'><a href="../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Rex/Version.html" title="Rex::Version (class)">Version</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Rex/Version.html#initialize-instance_method" title="Rex::Version#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__major'>_major</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__minor'>_minor</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__build'>_build</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__service_pack'>_service_pack</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="domain_controller?-instance_method">
+  
+    #<strong>domain_controller?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This Windows Server has been promoted to a DC</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+182
+183
+184</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/windows_version.rb', line 182</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_domain_controller?'>domain_controller?</span>
+  <span class='id identifier rubyid_product_type'>product_type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="#VER_NT_DOMAIN_CONTROLLER-constant" title="Msf::WindowsVersion::VER_NT_DOMAIN_CONTROLLER (constant)">VER_NT_DOMAIN_CONTROLLER</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="product_name-instance_method">
+  
+    #<strong>product_name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The name of the OS, as it is most commonly rendered. Includes Service Pack if present, or build number if Win10 or higher.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/windows_version.rb', line 187</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_product_name'>product_name</span>
+  <span class='comment'># First check if there&#39;s a specific, known version we have a string for
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_windows_server?'>windows_server?</span>
+    <span class='id identifier rubyid_known_version'>known_version</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_version_string'>version_string</span><span class='lparen'>(</span><span class='id identifier rubyid__major'>_major</span><span class='comma'>,</span> <span class='id identifier rubyid__minor'>_minor</span><span class='comma'>,</span> <span class='id identifier rubyid__build'>_build</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html" title="Msf::WindowsVersion::ServerSpecificVersions (module)">ServerSpecificVersions</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#ServerNameMapping-constant" title="Msf::WindowsVersion::ServerNameMapping (constant)">ServerNameMapping</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_known_version'>known_version</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_version_string'>version_string</span><span class='lparen'>(</span><span class='id identifier rubyid__major'>_major</span><span class='comma'>,</span> <span class='id identifier rubyid__minor'>_minor</span><span class='comma'>,</span> <span class='id identifier rubyid__build'>_build</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html" title="Msf::WindowsVersion::WorkstationSpecificVersions (module)">WorkstationSpecificVersions</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#WorkstationNameMapping-constant" title="Msf::WindowsVersion::WorkstationNameMapping (constant)">WorkstationNameMapping</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_known_version'>known_version</span> <span class='kw'>unless</span> <span class='id identifier rubyid_known_version'>known_version</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='comment'># Otherwise, build it up from version numbers, to the best of our ability
+</span>  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown Windows version: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__major'>_major</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__minor'>_minor</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__build'>_build</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_major_release_name'>major_release_name</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span> <span class='kw'>unless</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_result'>result</span><span class='embexpr_end'>}</span><span class='tstring_content'> Service Pack </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__service_pack'>_service_pack</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid__service_pack'>_service_pack</span> <span class='op'>!=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_result'>result</span><span class='embexpr_end'>}</span><span class='tstring_content'> Build </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__build'>_build</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_build_number'>build_number</span> <span class='op'>&gt;=</span> <span class='const'><span class='object_link'><a href="#Win10_InitialRelease-constant" title="Msf::WindowsVersion::Win10_InitialRelease (constant)">Win10_InitialRelease</a></span></span>
+
+  <span class='id identifier rubyid_result'>result</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="revision_number-instance_method">
+  
+    #<strong>revision_number</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The specific revision number of this version This is mainly going to be present on Windows 10+, wherein it’s easy to get it from the registry.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+159
+160
+161</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/windows_version.rb', line 159</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_revision_number'>revision_number</span>
+  <span class='id identifier rubyid__revision'>_revision</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s-instance_method">
+  
+    #<strong>to_s</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+206
+207
+208</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/windows_version.rb', line 206</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='id identifier rubyid_product_name'>product_name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="vista_or_2008?-instance_method">
+  
+    #<strong>vista_or_2008?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Is this version number from the Vista/Server 2008 generation of Windows OSes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+211
+212
+213</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/windows_version.rb', line 211</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vista_or_2008?'>vista_or_2008?</span>
+  <span class='id identifier rubyid_build_number'>build_number</span><span class='period'>.</span><span class='id identifier rubyid_between?'>between?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Vista_SP0-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Vista_SP0 (constant)">Vista_SP0</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Vista_SP2-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Vista_SP2 (constant)">Vista_SP2</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="win7_or_2008r2?-instance_method">
+  
+    #<strong>win7_or_2008r2?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Is this version number from the Windows 7/Server 2008 R2 generation of Windows OSes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+216
+217
+218</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/windows_version.rb', line 216</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_win7_or_2008r2?'>win7_or_2008r2?</span>
+  <span class='id identifier rubyid_build_number'>build_number</span><span class='period'>.</span><span class='id identifier rubyid_between?'>between?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win7_SP0-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win7_SP0 (constant)">Win7_SP0</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#Win7_SP1-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::Win7_SP1 (constant)">Win7_SP1</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="windows_server?-instance_method">
+  
+    #<strong>windows_server?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Is this OS a Windows Server instance?</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+169
+170
+171
+172
+173
+174</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/windows_version.rb', line 169</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_windows_server?'>windows_server?</span>
+  <span class='comment'># There are other types than just workstation/server/DC, but Microsoft&#39;s own documentation says
+</span>  <span class='comment'># &quot;If it&#39;s not Workstation, then it&#39;s Server&quot;
+</span>  <span class='comment'># https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-osversioninfoexa
+</span>  <span class='id identifier rubyid_product_type'>product_type</span> <span class='op'>!=</span> <span class='const'><span class='object_link'><a href="#VER_NT_WORKSTATION-constant" title="Msf::WindowsVersion::VER_NT_WORKSTATION (constant)">VER_NT_WORKSTATION</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="workstation?-instance_method">
+  
+    #<strong>workstation?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Is this a Workstation build?</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+177
+178
+179</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/windows_version.rb', line 177</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_workstation?'>workstation?</span>
+  <span class='id identifier rubyid_product_type'>product_type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="#VER_NT_WORKSTATION-constant" title="Msf::WindowsVersion::VER_NT_WORKSTATION (constant)">VER_NT_WORKSTATION</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="xp_or_2003?-instance_method">
+  
+    #<strong>xp_or_2003?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Is this version number from the XP/Server 2003 generation of Windows OSes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+221
+222
+223</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/windows_version.rb', line 221</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_xp_or_2003?'>xp_or_2003?</span>
+  <span class='id identifier rubyid_build_number'>build_number</span><span class='period'>.</span><span class='id identifier rubyid_between?'>between?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="WindowsVersion/WorkstationSpecificVersions.html#XP_SP0-constant" title="Msf::WindowsVersion::WorkstationSpecificVersions::XP_SP0 (constant)">XP_SP0</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="WindowsVersion/ServerSpecificVersions.html#Server2003_SP2-constant" title="Msf::WindowsVersion::ServerSpecificVersions::Server2003_SP2 (constant)">Server2003_SP2</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:42:07 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

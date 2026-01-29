@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Proto::MSSQL::ClientMixin::ENVCHANGE
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::MSSQL::ClientMixin::ENVCHANGE";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../MSSQL.html" title="Rex::Proto::MSSQL (module)">MSSQL</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../ClientMixin.html" title="Rex::Proto::MSSQL::ClientMixin (module)">ClientMixin</a></span></span>
+     &raquo; 
+    <span class="title">ENVCHANGE</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Proto::MSSQL::ClientMixin::ENVCHANGE
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/mssql/client_mixin.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Mappings for ENVCHANGE types See the TDS Specification here: <a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/2b3eb7e5-d43d-4d1b-bf4d-76b9e3afc791">learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/2b3eb7e5-d43d-4d1b-bf4d-76b9e3afc791</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="DATABASE-constant" class="">DATABASE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="LANGUAGE-constant" class="">LANGUAGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="CHARACTER_SET-constant" class="">CHARACTER_SET =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="PACKET_SIZE-constant" class="">PACKET_SIZE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="UNICODE_LOCAL_ID-constant" class="">UNICODE_LOCAL_ID =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="UNICODE_COMPARISON_FLAGS-constant" class="">UNICODE_COMPARISON_FLAGS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+        <dt id="SQL_COLLATION-constant" class="">SQL_COLLATION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>7</span></pre></dd>
+      
+        <dt id="BEGIN_TRANSACTION-constant" class="">BEGIN_TRANSACTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>8</span></pre></dd>
+      
+        <dt id="COMMIT_TRANSACTION-constant" class="">COMMIT_TRANSACTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>9</span></pre></dd>
+      
+        <dt id="ROLLBACK_TRANSACTION-constant" class="">ROLLBACK_TRANSACTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span></pre></dd>
+      
+        <dt id="ENLIST_DTC_TRANSACTION-constant" class="">ENLIST_DTC_TRANSACTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>11</span></pre></dd>
+      
+        <dt id="DEFECT_TRANSACTION-constant" class="">DEFECT_TRANSACTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>12</span></pre></dd>
+      
+        <dt id="REAL_TIME_LOG_SHIPPING-constant" class="">REAL_TIME_LOG_SHIPPING =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>13</span></pre></dd>
+      
+        <dt id="PROMOTE_TRANSACTION-constant" class="">PROMOTE_TRANSACTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>15</span></pre></dd>
+      
+        <dt id="TRANSACTION_MANAGER_ADDRESS-constant" class="">TRANSACTION_MANAGER_ADDRESS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>16</span></pre></dd>
+      
+        <dt id="TRANSACTION_ENDED-constant" class="">TRANSACTION_ENDED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>17</span></pre></dd>
+      
+        <dt id="COMPLETION_ACKNOWLEDGEMENT-constant" class="">COMPLETION_ACKNOWLEDGEMENT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>18</span></pre></dd>
+      
+        <dt id="NAME_OF_USER_INSTANCE-constant" class="">NAME_OF_USER_INSTANCE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>19</span></pre></dd>
+      
+        <dt id="ROUTING_INFORMATION-constant" class="">ROUTING_INFORMATION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>20</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:49 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

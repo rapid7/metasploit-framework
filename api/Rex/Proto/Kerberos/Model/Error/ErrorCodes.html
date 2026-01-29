@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Proto::Kerberos::Model::Error::ErrorCodes
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Kerberos::Model::Error::ErrorCodes";
+  relpath = '../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Error.html" title="Rex::Proto::Kerberos::Model::Error (module)">Error</a></span></span>
+     &raquo; 
+    <span class="title">ErrorCodes</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Proto::Kerberos::Model::Error::ErrorCodes
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/kerberos/model/error.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Core Kerberos specification and errors: <a href="https://datatracker.ietf.org/doc/html/rfc4120#section-7.5.9">datatracker.ietf.org/doc/html/rfc4120#section-7.5.9</a> <a href="https://docs.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4768#table-2-kerberos-ticket-flags">docs.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4768#table-2-kerberos-ticket-flags</a></p>
+
+<p>Additional errors added by PKINIT: <a href="https://www.rfc-editor.org/rfc/rfc4556#section-3.1.3">www.rfc-editor.org/rfc/rfc4556#section-3.1.3</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="KDC_ERR_NONE-constant" class="">KDC_ERR_NONE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_NONE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No error</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_NAME_EXP-constant" class="">KDC_ERR_NAME_EXP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_NAME_EXP</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>1</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Client&#39;s entry in database has expired</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_SERVICE_EXP-constant" class="">KDC_ERR_SERVICE_EXP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_SERVICE_EXP</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Server&#39;s entry in database has expired</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_BAD_PVNO-constant" class="">KDC_ERR_BAD_PVNO =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_BAD_PVNO</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>3</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Requested protocol version number not supported</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_C_OLD_MAST_KVNO-constant" class="">KDC_ERR_C_OLD_MAST_KVNO =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_C_OLD_MAST_KVNO</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>4</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Client&#39;s key encrypted in old master key</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_S_OLD_MAST_KVNO-constant" class="">KDC_ERR_S_OLD_MAST_KVNO =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_S_OLD_MAST_KVNO</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>5</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Server&#39;s key encrypted in old master key</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_C_PRINCIPAL_UNKNOWN-constant" class="">KDC_ERR_C_PRINCIPAL_UNKNOWN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_C_PRINCIPAL_UNKNOWN</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>6</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Client not found in Kerberos database</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_S_PRINCIPAL_UNKNOWN-constant" class="">KDC_ERR_S_PRINCIPAL_UNKNOWN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_S_PRINCIPAL_UNKNOWN</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>7</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Server not found in Kerberos database</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_PRINCIPAL_NOT_UNIQUE-constant" class="">KDC_ERR_PRINCIPAL_NOT_UNIQUE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_PRINCIPAL_NOT_UNIQUE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>8</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Multiple principal entries in database</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_NULL_KEY-constant" class="">KDC_ERR_NULL_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_NULL_KEY</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>9</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The client or server has a null key</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_CANNOT_POSTDATE-constant" class="">KDC_ERR_CANNOT_POSTDATE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_CANNOT_POSTDATE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>10</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Ticket not eligible for postdating</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_NEVER_VALID-constant" class="">KDC_ERR_NEVER_VALID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_NEVER_VALID</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>11</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Requested start time is later than end time</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_POLICY-constant" class="">KDC_ERR_POLICY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_POLICY</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>12</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC policy rejects request</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_BADOPTION-constant" class="">KDC_ERR_BADOPTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_BADOPTION</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>13</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC cannot accommodate requested option</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_ETYPE_NOSUPP-constant" class="">KDC_ERR_ETYPE_NOSUPP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_ETYPE_NOSUPP</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>14</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC has no support for encryption type</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_SUMTYPE_NOSUPP-constant" class="">KDC_ERR_SUMTYPE_NOSUPP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_SUMTYPE_NOSUPP</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>15</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC has no support for checksum type</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_PADATA_TYPE_NOSUPP-constant" class="">KDC_ERR_PADATA_TYPE_NOSUPP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_PADATA_TYPE_NOSUPP</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>16</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC has no support for padata type</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_TRTYPE_NOSUPP-constant" class="">KDC_ERR_TRTYPE_NOSUPP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_TRTYPE_NOSUPP</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>17</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC has no support for transited type</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_CLIENT_REVOKED-constant" class="">KDC_ERR_CLIENT_REVOKED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_CLIENT_REVOKED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>18</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Clients credentials have been revoked</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_SERVICE_REVOKED-constant" class="">KDC_ERR_SERVICE_REVOKED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_SERVICE_REVOKED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>19</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Credentials for server have been revoked</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_TGT_REVOKED-constant" class="">KDC_ERR_TGT_REVOKED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_TGT_REVOKED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>20</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>TGT has been revoked</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_CLIENT_NOTYET-constant" class="">KDC_ERR_CLIENT_NOTYET =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_CLIENT_NOTYET</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>21</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Client not yet valid - try again later</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_SERVICE_NOTYET-constant" class="">KDC_ERR_SERVICE_NOTYET =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_SERVICE_NOTYET</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>22</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Server not yet valid - try again later</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_KEY_EXPIRED-constant" class="">KDC_ERR_KEY_EXPIRED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_KEY_EXPIRED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>23</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Password has expired - change password to reset</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_PREAUTH_FAILED-constant" class="">KDC_ERR_PREAUTH_FAILED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_PREAUTH_FAILED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>24</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Pre-authentication information was invalid</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_PREAUTH_REQUIRED-constant" class="">KDC_ERR_PREAUTH_REQUIRED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_PREAUTH_REQUIRED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>25</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Additional pre-authentication required</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_SERVER_NOMATCH-constant" class="">KDC_ERR_SERVER_NOMATCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_SERVER_NOMATCH</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>26</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Requested server and ticket don&#39;t match</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_MUST_USE_USER2USER-constant" class="">KDC_ERR_MUST_USE_USER2USER =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_MUST_USE_USER2USER</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>27</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Server principal valid for user2user only</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_PATH_NOT_ACCEPTED-constant" class="">KDC_ERR_PATH_NOT_ACCEPTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_PATH_NOT_ACCEPTED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>28</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC Policy rejects transited path</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_SVC_UNAVAILABLE-constant" class="">KDC_ERR_SVC_UNAVAILABLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_SVC_UNAVAILABLE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>29</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>A service is not available</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_BAD_INTEGRITY-constant" class="">KRB_AP_ERR_BAD_INTEGRITY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_BAD_INTEGRITY</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>31</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Integrity check on decrypted field failed</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_TKT_EXPIRED-constant" class="">KRB_AP_ERR_TKT_EXPIRED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_TKT_EXPIRED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>32</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Ticket expired</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_TKT_NYV-constant" class="">KRB_AP_ERR_TKT_NYV =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_TKT_NYV</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>33</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Ticket not yet valid</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_REPEAT-constant" class="">KRB_AP_ERR_REPEAT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_REPEAT</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>34</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Request is a replay</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_NOT_US-constant" class="">KRB_AP_ERR_NOT_US =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_NOT_US</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>35</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The ticket isn&#39;t for us</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_BADMATCH-constant" class="">KRB_AP_ERR_BADMATCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_BADMATCH</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>36</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Ticket and authenticator don&#39;t match</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_SKEW-constant" class="">KRB_AP_ERR_SKEW =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_SKEW</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>37</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Clock skew too great</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_BADADDR-constant" class="">KRB_AP_ERR_BADADDR =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_BADADDR</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>38</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Incorrect net address</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_BADVERSION-constant" class="">KRB_AP_ERR_BADVERSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_BADVERSION</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>39</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Protocol version mismatch</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_MSG_TYPE-constant" class="">KRB_AP_ERR_MSG_TYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_MSG_TYPE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>40</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Invalid msg type</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_MODIFIED-constant" class="">KRB_AP_ERR_MODIFIED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_MODIFIED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>41</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Message stream modified</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_BADORDER-constant" class="">KRB_AP_ERR_BADORDER =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_BADORDER</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>42</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Message out of order</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_BADKEYVER-constant" class="">KRB_AP_ERR_BADKEYVER =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_BADKEYVER</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>44</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Specified version of key is not available</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_NOKEY-constant" class="">KRB_AP_ERR_NOKEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_NOKEY</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>45</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Service key not available</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_MUT_FAIL-constant" class="">KRB_AP_ERR_MUT_FAIL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_MUT_FAIL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>46</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Mutual authentication failed</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_BADDIRECTION-constant" class="">KRB_AP_ERR_BADDIRECTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_BADDIRECTION</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>47</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Incorrect message direction</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_METHOD-constant" class="">KRB_AP_ERR_METHOD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_METHOD</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>48</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Alternative authentication method required</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_BADSEQ-constant" class="">KRB_AP_ERR_BADSEQ =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_BADSEQ</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>49</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Incorrect sequence number in message</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_INAPP_CKSUM-constant" class="">KRB_AP_ERR_INAPP_CKSUM =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_INAPP_CKSUM</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>50</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Inappropriate type of checksum in message</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_PATH_NOT_ACCEPTED-constant" class="">KRB_AP_PATH_NOT_ACCEPTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_PATH_NOT_ACCEPTED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>51</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Policy rejects transited path</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_ERR_RESPONSE_TOO_BIG-constant" class="">KRB_ERR_RESPONSE_TOO_BIG =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_ERR_RESPONSE_TOO_BIG</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>52</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Response too big for UDP; retry with TCP</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_ERR_GENERIC-constant" class="">KRB_ERR_GENERIC =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_ERR_GENERIC</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>60</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Generic error</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_ERR_FIELD_TOOLONG-constant" class="">KRB_ERR_FIELD_TOOLONG =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_ERR_FIELD_TOOLONG</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>61</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Field is too long for this implementation</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_CLIENT_NOT_TRUSTED-constant" class="">KDC_ERR_CLIENT_NOT_TRUSTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_CLIENT_NOT_TRUSTED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>62</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_CLIENT_NOT_TRUSTED</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_KDC_NOT_TRUSTED-constant" class="">KDC_ERR_KDC_NOT_TRUSTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_KDC_NOT_TRUSTED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>63</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_KDC_NOT_TRUSTED</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_INVALID_SIG-constant" class="">KDC_ERR_INVALID_SIG =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_INVALID_SIG</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>64</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_INVALID_SIG</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_DH_KEY_PARAMETERS_NOT_ACCEPTED-constant" class="">KDC_ERR_DH_KEY_PARAMETERS_NOT_ACCEPTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_DH_KEY_PARAMETERS_NOT_ACCEPTED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>65</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_DH_KEY_PARAMETERS_NOT_ACCEPTED</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_CERTIFICATE_MISMATCH-constant" class="">KDC_ERR_CERTIFICATE_MISMATCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_CERTIFICATE_MISMATCH</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>66</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_CERTIFICATE_MISMATCH</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_NO_TGT-constant" class="">KRB_AP_ERR_NO_TGT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_NO_TGT</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>67</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No TGT available to validate USER-TO-USER</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_WRONG_REALM-constant" class="">KDC_ERR_WRONG_REALM =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_WRONG_REALM</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>68</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Wrong Realm / domain</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KRB_AP_ERR_USER_TO_USER_REQUIRED-constant" class="">KRB_AP_ERR_USER_TO_USER_REQUIRED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KRB_AP_ERR_USER_TO_USER_REQUIRED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>69</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Ticket must be for USER-TO-USER</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_CANT_VERIFY_CERTIFICATE-constant" class="">KDC_ERR_CANT_VERIFY_CERTIFICATE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_CANT_VERIFY_CERTIFICATE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>70</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_CANT_VERIFY_CERTIFICATE</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_INVALID_CERTIFICATE-constant" class="">KDC_ERR_INVALID_CERTIFICATE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_INVALID_CERTIFICATE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>71</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_INVALID_CERTIFICATE</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_REVOKED_CERTIFICATE-constant" class="">KDC_ERR_REVOKED_CERTIFICATE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_REVOKED_CERTIFICATE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>72</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_REVOKED_CERTIFICATE</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_REVOCATION_STATUS_UNKNOWN-constant" class="">KDC_ERR_REVOCATION_STATUS_UNKNOWN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_REVOCATION_STATUS_UNKNOWN</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>73</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_REVOCATION_STATUS_UNKNOWN</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_REVOCATION_STATUS_UNAVAILABLE-constant" class="">KDC_ERR_REVOCATION_STATUS_UNAVAILABLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_REVOCATION_STATUS_UNAVAILABLE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>74</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_REVOCATION_STATUS_UNAVAILABLE</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_CLIENT_NAME_MISMATCH-constant" class="">KDC_ERR_CLIENT_NAME_MISMATCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_CLIENT_NAME_MISMATCH</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>75</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_CLIENT_NAME_MISMATCH</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_KDC_NAME_MISMATCH-constant" class="">KDC_ERR_KDC_NAME_MISMATCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_KDC_NAME_MISMATCH</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>76</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_KDC_NAME_MISMATCH</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_INCONSISTENT_KEY_PURPOSE-constant" class="">KDC_ERR_INCONSISTENT_KEY_PURPOSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_INCONSISTENT_KEY_PURPOSE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>77</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_INCONSISTENT_KEY_PURPOSE</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_DIGEST_IN_CERT_NOT_ACCEPTED-constant" class="">KDC_ERR_DIGEST_IN_CERT_NOT_ACCEPTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_DIGEST_IN_CERT_NOT_ACCEPTED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>78</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_DIGEST_IN_CERT_NOT_ACCEPTED</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_PA_CHECKSUM_MUST_BE_INCLUDED-constant" class="">KDC_ERR_PA_CHECKSUM_MUST_BE_INCLUDED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_PA_CHECKSUM_MUST_BE_INCLUDED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>79</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_PA_CHECKSUM_MUST_BE_INCLUDED</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_DIGEST_IN_SIGNED_DATA_NOT_ACCEPTED-constant" class="">KDC_ERR_DIGEST_IN_SIGNED_DATA_NOT_ACCEPTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_DIGEST_IN_SIGNED_DATA_NOT_ACCEPTED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>80</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_DIGEST_IN_SIGNED_DATA_NOT_ACCEPTED</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="KDC_ERR_PUBLIC_KEY_ENCRYPTION_NOT_SUPPORTED-constant" class="">KDC_ERR_PUBLIC_KEY_ENCRYPTION_NOT_SUPPORTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="ErrorCode.html" title="Rex::Proto::Kerberos::Model::Error::ErrorCode (class)">ErrorCode</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ErrorCode.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Error::ErrorCode#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KDC_ERR_PUBLIC_KEY_ENCRYPTION_NOT_SUPPORTED</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>81</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PKINIT - KDC_ERR_PUBLIC_KEY_ENCRYPTION_NOT_SUPPORTED</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="ERROR_MAP-constant" class="">ERROR_MAP =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Allow lookup of errors via numerical value</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'>ErrorCodes</span><span class='period'>.</span><span class='id identifier rubyid_constants'>constants</span><span class='period'>.</span><span class='id identifier rubyid_each_with_object'>each_with_object</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_const'>const</span><span class='comma'>,</span> <span class='id identifier rubyid_map'>map</span><span class='op'>|</span>
+  <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_const'>const</span> <span class='op'>==</span> <span class='symbol'>:ERROR_MAP</span>
+
+  <span class='id identifier rubyid_error_code'>error_code</span> <span class='op'>=</span> <span class='const'>ErrorCodes</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_const'>const</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_map'>map</span><span class='lbracket'>[</span><span class='id identifier rubyid_error_code'>error_code</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_error_code'>error_code</span>
+<span class='kw'>end</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:49 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

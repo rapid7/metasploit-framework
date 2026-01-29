@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Adapter::Fetch::SMB
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Adapter::Fetch::SMB";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Adapter.html" title="Msf::Payload::Adapter (module)">Adapter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Fetch.html" title="Msf::Payload::Adapter::Fetch (module)">Fetch</a></span></span>
+     &raquo; 
+    <span class="title">SMB</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Adapter::Fetch::SMB
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../../Exploit/EXE.html" title="Msf::Exploit::EXE (module)">Exploit::EXE</a></span>, <span class='object_link'><a href="../../Adapter.html" title="Msf::Payload::Adapter (module)">Msf::Payload::Adapter</a></span>, <span class='object_link'><a href="../Fetch.html" title="Msf::Payload::Adapter::Fetch (module)">Msf::Payload::Adapter::Fetch</a></span>, Msf::Payload::Adapter::Fetch::Server::SMB</dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/adapter/fetch/smb.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../Adapter.html" title="Msf::Payload::Adapter (module)">Msf::Payload::Adapter</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Adapter.html#CachedSize-constant" title="Msf::Payload::Adapter::CachedSize (constant)">CachedSize</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup_handler-instance_method" title="#cleanup_handler (instance method)">#<strong>cleanup_handler</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fetch_protocol-instance_method" title="#fetch_protocol (instance method)">#<strong>fetch_protocol</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup_handler-instance_method" title="#setup_handler (instance method)">#<strong>setup_handler</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unc-instance_method" title="#unc (instance method)">#<strong>unc</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Fetch.html" title="Msf::Payload::Adapter::Fetch (module)">Msf::Payload::Adapter::Fetch</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Fetch.html#_check_tftp_file-instance_method" title="Msf::Payload::Adapter::Fetch#_check_tftp_file (method)">#_check_tftp_file</a></span>, <span class='object_link'><a href="../Fetch.html#_check_tftp_port-instance_method" title="Msf::Payload::Adapter::Fetch#_check_tftp_port (method)">#_check_tftp_port</a></span>, <span class='object_link'><a href="../Fetch.html#_determine_server_comm-instance_method" title="Msf::Payload::Adapter::Fetch#_determine_server_comm (method)">#_determine_server_comm</a></span>, <span class='object_link'><a href="../Fetch.html#_download_pipe-instance_method" title="Msf::Payload::Adapter::Fetch#_download_pipe (method)">#_download_pipe</a></span>, <span class='object_link'><a href="../Fetch.html#_execute_add-instance_method" title="Msf::Payload::Adapter::Fetch#_execute_add (method)">#_execute_add</a></span>, <span class='object_link'><a href="../Fetch.html#_execute_nix-instance_method" title="Msf::Payload::Adapter::Fetch#_execute_nix (method)">#_execute_nix</a></span>, <span class='object_link'><a href="../Fetch.html#_execute_win-instance_method" title="Msf::Payload::Adapter::Fetch#_execute_win (method)">#_execute_win</a></span>, <span class='object_link'><a href="../Fetch.html#_generate_certutil_command-instance_method" title="Msf::Payload::Adapter::Fetch#_generate_certutil_command (method)">#_generate_certutil_command</a></span>, <span class='object_link'><a href="../Fetch.html#_generate_curl_command-instance_method" title="Msf::Payload::Adapter::Fetch#_generate_curl_command (method)">#_generate_curl_command</a></span>, <span class='object_link'><a href="../Fetch.html#_generate_curl_pipe-instance_method" title="Msf::Payload::Adapter::Fetch#_generate_curl_pipe (method)">#_generate_curl_pipe</a></span>, <span class='object_link'><a href="../Fetch.html#_generate_ftp_command-instance_method" title="Msf::Payload::Adapter::Fetch#_generate_ftp_command (method)">#_generate_ftp_command</a></span>, <span class='object_link'><a href="../Fetch.html#_generate_get_command-instance_method" title="Msf::Payload::Adapter::Fetch#_generate_get_command (method)">#_generate_get_command</a></span>, <span class='object_link'><a href="../Fetch.html#_generate_get_pipe-instance_method" title="Msf::Payload::Adapter::Fetch#_generate_get_pipe (method)">#_generate_get_pipe</a></span>, <span class='object_link'><a href="../Fetch.html#_generate_tftp_command-instance_method" title="Msf::Payload::Adapter::Fetch#_generate_tftp_command (method)">#_generate_tftp_command</a></span>, <span class='object_link'><a href="../Fetch.html#_generate_tnftp_command-instance_method" title="Msf::Payload::Adapter::Fetch#_generate_tnftp_command (method)">#_generate_tnftp_command</a></span>, <span class='object_link'><a href="../Fetch.html#_generate_wget_command-instance_method" title="Msf::Payload::Adapter::Fetch#_generate_wget_command (method)">#_generate_wget_command</a></span>, <span class='object_link'><a href="../Fetch.html#_generate_wget_pipe-instance_method" title="Msf::Payload::Adapter::Fetch#_generate_wget_pipe (method)">#_generate_wget_pipe</a></span>, <span class='object_link'><a href="../Fetch.html#_remote_destination-instance_method" title="Msf::Payload::Adapter::Fetch#_remote_destination (method)">#_remote_destination</a></span>, <span class='object_link'><a href="../Fetch.html#_remote_destination_nix-instance_method" title="Msf::Payload::Adapter::Fetch#_remote_destination_nix (method)">#_remote_destination_nix</a></span>, <span class='object_link'><a href="../Fetch.html#_remote_destination_win-instance_method" title="Msf::Payload::Adapter::Fetch#_remote_destination_win (method)">#_remote_destination_win</a></span>, <span class='object_link'><a href="../Fetch.html#default_srvuri-instance_method" title="Msf::Payload::Adapter::Fetch#default_srvuri (method)">#default_srvuri</a></span>, <span class='object_link'><a href="../Fetch.html#download_uri-instance_method" title="Msf::Payload::Adapter::Fetch#download_uri (method)">#download_uri</a></span>, <span class='object_link'><a href="../Fetch.html#fetch_bindhost-instance_method" title="Msf::Payload::Adapter::Fetch#fetch_bindhost (method)">#fetch_bindhost</a></span>, <span class='object_link'><a href="../Fetch.html#fetch_bindnetloc-instance_method" title="Msf::Payload::Adapter::Fetch#fetch_bindnetloc (method)">#fetch_bindnetloc</a></span>, <span class='object_link'><a href="../Fetch.html#fetch_bindport-instance_method" title="Msf::Payload::Adapter::Fetch#fetch_bindport (method)">#fetch_bindport</a></span>, <span class='object_link'><a href="../Fetch.html#generate-instance_method" title="Msf::Payload::Adapter::Fetch#generate (method)">#generate</a></span>, <span class='object_link'><a href="../Fetch.html#generate_fetch_commands-instance_method" title="Msf::Payload::Adapter::Fetch#generate_fetch_commands (method)">#generate_fetch_commands</a></span>, <span class='object_link'><a href="../Fetch.html#generate_payload_uuid-instance_method" title="Msf::Payload::Adapter::Fetch#generate_payload_uuid (method)">#generate_payload_uuid</a></span>, <span class='object_link'><a href="../Fetch.html#generate_pipe_command-instance_method" title="Msf::Payload::Adapter::Fetch#generate_pipe_command (method)">#generate_pipe_command</a></span>, <span class='object_link'><a href="../Fetch.html#generate_stage-instance_method" title="Msf::Payload::Adapter::Fetch#generate_stage (method)">#generate_stage</a></span>, <span class='object_link'><a href="../Fetch.html#handle_connection-instance_method" title="Msf::Payload::Adapter::Fetch#handle_connection (method)">#handle_connection</a></span>, <span class='object_link'><a href="../Fetch.html#linux%3F-instance_method" title="Msf::Payload::Adapter::Fetch#linux? (method)">#linux?</a></span>, <span class='object_link'><a href="../Fetch.html#pipe_srvuri-instance_method" title="Msf::Payload::Adapter::Fetch#pipe_srvuri (method)">#pipe_srvuri</a></span>, <span class='object_link'><a href="../Fetch.html#pipe_supported_binaries-instance_method" title="Msf::Payload::Adapter::Fetch#pipe_supported_binaries (method)">#pipe_supported_binaries</a></span>, <span class='object_link'><a href="../Fetch.html#srvhost-instance_method" title="Msf::Payload::Adapter::Fetch#srvhost (method)">#srvhost</a></span>, <span class='object_link'><a href="../Fetch.html#srvnetloc-instance_method" title="Msf::Payload::Adapter::Fetch#srvnetloc (method)">#srvnetloc</a></span>, <span class='object_link'><a href="../Fetch.html#srvport-instance_method" title="Msf::Payload::Adapter::Fetch#srvport (method)">#srvport</a></span>, <span class='object_link'><a href="../Fetch.html#srvuri-instance_method" title="Msf::Payload::Adapter::Fetch#srvuri (method)">#srvuri</a></span>, <span class='object_link'><a href="../Fetch.html#windows%3F-instance_method" title="Msf::Payload::Adapter::Fetch#windows? (method)">#windows?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Fileless.html" title="Msf::Payload::Adapter::Fetch::Fileless (module)">Fileless</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Fileless.html#_generate_fileless_bash_search-instance_method" title="Msf::Payload::Adapter::Fetch::Fileless#_generate_fileless_bash_search (method)">#_generate_fileless_bash_search</a></span>, <span class='object_link'><a href="Fileless.html#_generate_fileless_python-instance_method" title="Msf::Payload::Adapter::Fetch::Fileless#_generate_fileless_python (method)">#_generate_fileless_python</a></span>, <span class='object_link'><a href="Fileless.html#_generate_fileless_shell-instance_method" title="Msf::Payload::Adapter::Fetch::Fileless#_generate_fileless_shell (method)">#_generate_fileless_shell</a></span>, <span class='object_link'><a href="Fileless.html#_generate_first_stage_shellcode-instance_method" title="Msf::Payload::Adapter::Fetch::Fileless#_generate_first_stage_shellcode (method)">#_generate_first_stage_shellcode</a></span>, <span class='object_link'><a href="Fileless.html#_generate_jmp_instruction-instance_method" title="Msf::Payload::Adapter::Fetch::Fileless#_generate_jmp_instruction (method)">#_generate_jmp_instruction</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Adapter.html" title="Msf::Payload::Adapter (module)">Msf::Payload::Adapter</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Adapter.html#compatible%3F-instance_method" title="Msf::Payload::Adapter#compatible? (method)">#compatible?</a></span>, <span class='object_link'><a href="../../Adapter.html#merge_info_adapted-instance_method" title="Msf::Payload::Adapter#merge_info_adapted (method)">#merge_info_adapted</a></span>, <span class='object_link'><a href="../../Adapter.html#merge_info_arch-instance_method" title="Msf::Payload::Adapter#merge_info_arch (method)">#merge_info_arch</a></span>, <span class='object_link'><a href="../../Adapter.html#merge_info_platform-instance_method" title="Msf::Payload::Adapter#merge_info_platform (method)">#merge_info_platform</a></span>, <span class='object_link'><a href="../../Adapter.html#payload_type-instance_method" title="Msf::Payload::Adapter#payload_type (method)">#payload_type</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../Exploit/EXE.html" title="Msf::Exploit::EXE (module)">Exploit::EXE</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Exploit/EXE.html#exe_init_options-instance_method" title="Msf::Exploit::EXE#exe_init_options (method)">#exe_init_options</a></span>, <span class='object_link'><a href="../../../Exploit/EXE.html#exe_post_generation-instance_method" title="Msf::Exploit::EXE#exe_post_generation (method)">#exe_post_generation</a></span>, <span class='object_link'><a href="../../../Exploit/EXE.html#generate_payload_dccw_gdiplus_dll-instance_method" title="Msf::Exploit::EXE#generate_payload_dccw_gdiplus_dll (method)">#generate_payload_dccw_gdiplus_dll</a></span>, <span class='object_link'><a href="../../../Exploit/EXE.html#generate_payload_dll-instance_method" title="Msf::Exploit::EXE#generate_payload_dll (method)">#generate_payload_dll</a></span>, <span class='object_link'><a href="../../../Exploit/EXE.html#generate_payload_exe-instance_method" title="Msf::Exploit::EXE#generate_payload_exe (method)">#generate_payload_exe</a></span>, <span class='object_link'><a href="../../../Exploit/EXE.html#generate_payload_exe_service-instance_method" title="Msf::Exploit::EXE#generate_payload_exe_service (method)">#generate_payload_exe_service</a></span>, <span class='object_link'><a href="../../../Exploit/EXE.html#generate_payload_msi-instance_method" title="Msf::Exploit::EXE#generate_payload_msi (method)">#generate_payload_msi</a></span>, <span class='object_link'><a href="../../../Exploit/EXE.html#get_custom_exe-instance_method" title="Msf::Exploit::EXE#get_custom_exe (method)">#get_custom_exe</a></span>, <span class='object_link'><a href="../../../Exploit/EXE.html#get_eicar_exe-instance_method" title="Msf::Exploit::EXE#get_eicar_exe (method)">#get_eicar_exe</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cleanup_handler-instance_method">
+  
+    #<strong>cleanup_handler</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24
+25
+26
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/smb.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup_handler'>cleanup_handler</span>
+  <span class='kw'>if</span> <span class='ivar'>@fetch_service</span>
+    <span class='id identifier rubyid_cleanup_smb_fetch_service'>cleanup_smb_fetch_service</span><span class='lparen'>(</span><span class='ivar'>@fetch_service</span><span class='rparen'>)</span>
+    <span class='ivar'>@fetch_service</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fetch_protocol-instance_method">
+  
+    #<strong>fetch_protocol</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/smb.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fetch_protocol'>fetch_protocol</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11
+12
+13
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/smb.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+  <span class='id identifier rubyid_register_options'>register_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FETCH_FILENAME</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Payload file name to fetch; cannot contain spaces or slashes.</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>test.dll</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>regex:</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^[^\s\/\\]*$</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup_handler-instance_method">
+  
+    #<strong>setup_handler</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/smb.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_setup_handler'>setup_handler</span>
+  <span class='ivar'>@fetch_service</span> <span class='op'>=</span> <span class='id identifier rubyid_start_smb_fetch_handler'>start_smb_fetch_handler</span><span class='lparen'>(</span><span class='id identifier rubyid_fetch_bindport'>fetch_bindport</span><span class='comma'>,</span> <span class='id identifier rubyid_fetch_bindhost'>fetch_bindhost</span><span class='comma'>,</span> <span class='id identifier rubyid_srvuri'>srvuri</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FETCH_FILENAME</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='ivar'>@srvexe</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="unc-instance_method">
+  
+    #<strong>unc</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/smb.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_unc'>unc</span>
+  <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_srvhost'>srvhost</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_path'>path</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_srvuri'>srvuri</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_path'>path</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FETCH_FILENAME</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FETCH_FILENAME</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+  <span class='id identifier rubyid_path'>path</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:40:29 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,2590 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::Amqp::Version091::Client
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Amqp::Version091::Client";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Amqp.html" title="Rex::Proto::Amqp (module)">Amqp</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span>
+     &raquo; 
+    <span class="title">Client</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::Amqp::Version091::Client
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Proto::Amqp::Version091::Client</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../Amqp.html" title="Rex::Proto::Amqp (module)">Rex::Proto::Amqp</a></span>, <span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Rex::Proto::Amqp::Version091</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/amqp/version_0_9_1/client.rb<span class="defines">,<br />
+  lib/rex/proto/amqp/version_0_9_1/client/channel.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Client/Channel.html" title="Rex::Proto::Amqp::Version091::Client::Channel (class)">Channel</a></span>
+    
+  
+</p>
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#comm-instance_method" title="#comm (instance method)">#<strong>comm</strong>  &#x21d2; Rex::Socket::Comm </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>An optional, explicit object to use for creating the connection.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#host-instance_method" title="#host (instance method)">#<strong>host</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The AMQP server host.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#port-instance_method" title="#port (instance method)">#<strong>port</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The AMQP server port.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#server_info-instance_method" title="#server_info (instance method)">#<strong>server_info</strong>  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A hash containing server information.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ssl-instance_method" title="#ssl (instance method)">#<strong>ssl</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Whether or not SSL is used for the connection.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#timeout-instance_method" title="#timeout (instance method)">#<strong>timeout</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The communication timeout in seconds.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#channel_close-instance_method" title="#channel_close (instance method)">#<strong>channel_close</strong>(channel)  &#x21d2; NilClass </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Close an established channel.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#channel_open-instance_method" title="#channel_open (instance method)">#<strong>channel_open</strong>  &#x21d2; Channel </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Open a new channel.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#close-instance_method" title="#close (instance method)">#<strong>close</strong>  &#x21d2; NilClass </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Close the connection to the remote server.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#connect-instance_method" title="#connect (instance method)">#<strong>connect</strong>(t = -1))  &#x21d2; NilClass </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Establish the connection to the remote server.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#connection_close-instance_method" title="#connection_close (instance method)">#<strong>connection_close</strong>  &#x21d2; NilClass </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Close the established connection by performing the necessary handshake.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#connection_open-instance_method" title="#connection_open (instance method)">#<strong>connection_open</strong>(vhost)  &#x21d2; NilClass </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Open a connection by performing the necessary handshake.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#connection_start-instance_method" title="#connection_start (instance method)">#<strong>connection_start</strong>(username, password)  &#x21d2; NilClass </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Start a connection by performing the necessary handshake.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(host, port: nil, context: {}, ssl: true, ssl_version: nil, comm: nil, timeout: 10)  &#x21d2; Client </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Client.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#login-instance_method" title="#login (instance method)">#<strong>login</strong>(username, password, vhost: &#39;/&#39;)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Login to the remote server.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recv_connection_close_ok-instance_method" title="#recv_connection_close_ok (instance method)">#<strong>recv_connection_close_ok</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recv_connection_open_ok-instance_method" title="#recv_connection_open_ok (instance method)">#<strong>recv_connection_open_ok</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recv_connection_start-instance_method" title="#recv_connection_start (instance method)">#<strong>recv_connection_start</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recv_frame-instance_method" title="#recv_frame (instance method)">#<strong>recv_frame</strong>  &#x21d2; BinData::Record </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Receive a frame from the connected peer with a timeout.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_connection_close-instance_method" title="#send_connection_close (instance method)">#<strong>send_connection_close</strong>(arguments = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_connection_open-instance_method" title="#send_connection_open (instance method)">#<strong>send_connection_open</strong>(arguments = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_connection_start_ok-instance_method" title="#send_connection_start_ok (instance method)">#<strong>send_connection_start_ok</strong>(arguments = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_frame-instance_method" title="#send_frame (instance method)">#<strong>send_frame</strong>(frame)  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Send a frame to the connected peer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_protocol_header-instance_method" title="#send_protocol_header (instance method)">#<strong>send_protocol_header</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(host, port: nil, context: {}, ssl: true, ssl_version: nil, comm: nil, timeout: 10)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Proto::Amqp::Version091::Client (class)">Client</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Client.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>host</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The AMQP server host.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>port</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>, <tt>NilClass</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The AMQP server port or nil for automatic based on ssl.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>ssl</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>true</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Whether or not SSL is used for the connection.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>ssl_version</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The SSL version to use.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>comm</span>
+      
+      
+        <span class='type'>(<tt>Rex::Socket::Comm</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An optional, explicit object to use for creating the connection.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>timeout</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>10</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The communication timeout in seconds.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='label'>port:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>context:</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>ssl:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>ssl_version:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>comm:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>timeout:</span> <span class='int'>10</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_port'>port</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_port'>port</span> <span class='op'>=</span> <span class='id identifier rubyid_ssl'>ssl</span> <span class='op'>?</span> <span class='int'>5671</span> <span class='op'>:</span> <span class='int'>5672</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@host</span> <span class='op'>=</span> <span class='id identifier rubyid_host'>host</span>
+  <span class='ivar'>@port</span> <span class='op'>=</span> <span class='id identifier rubyid_port'>port</span>
+  <span class='ivar'>@context</span> <span class='op'>=</span> <span class='id identifier rubyid_context'>context</span>
+  <span class='ivar'>@ssl</span> <span class='op'>=</span> <span class='id identifier rubyid_ssl'>ssl</span>
+  <span class='ivar'>@ssl_version</span> <span class='op'>=</span> <span class='id identifier rubyid_ssl_version'>ssl_version</span>
+  <span class='ivar'>@comm</span> <span class='op'>=</span> <span class='id identifier rubyid_comm'>comm</span>
+  <span class='ivar'>@server_info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='ivar'>@channels</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='ivar'>@frame_queue</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@next_channel_id</span> <span class='op'>=</span> <span class='int'>1</span>
+  <span class='ivar'>@timeout</span> <span class='op'>=</span> <span class='id identifier rubyid_timeout'>timeout</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="comm-instance_method">
+  
+    #<strong>comm</strong>  &#x21d2; <tt>Rex::Socket::Comm</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns An optional, explicit object to use for creating the connection.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Rex::Socket::Comm</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An optional, explicit object to use for creating the connection.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_comm'>comm</span>
+  <span class='ivar'>@comm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="host-instance_method">
+  
+    #<strong>host</strong>  &#x21d2; <tt>String</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns The AMQP server host.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The AMQP server host.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_host'>host</span>
+  <span class='ivar'>@host</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="port-instance_method">
+  
+    #<strong>port</strong>  &#x21d2; <tt>Integer</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns The AMQP server port.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The AMQP server port.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_port'>port</span>
+  <span class='ivar'>@port</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="server_info-instance_method">
+  
+    #<strong>server_info</strong>  &#x21d2; <tt>Hash</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns A hash containing server information.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash containing server information.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_server_info'>server_info</span>
+  <span class='ivar'>@server_info</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="ssl-instance_method">
+  
+    #<strong>ssl</strong>  &#x21d2; <tt>Boolean</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Whether or not SSL is used for the connection.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Whether or not SSL is used for the connection.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ssl'>ssl</span>
+  <span class='ivar'>@ssl</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="timeout=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="timeout-instance_method">
+  
+    #<strong>timeout</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns The communication timeout in seconds.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The communication timeout in seconds.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_timeout'>timeout</span>
+  <span class='ivar'>@timeout</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="channel_close-instance_method">
+  
+    #<strong>channel_close</strong>(channel)  &#x21d2; <tt>NilClass</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Close an established channel.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>channel</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Client/Channel.html" title="Rex::Proto::Amqp::Version091::Client::Channel (class)">Channel</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The channel object to close.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NilClass</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 188</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_channel_close'>channel_close</span><span class='lparen'>(</span><span class='id identifier rubyid_channel'>channel</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ch_close'>ch_close</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/AmqpVersion091MethodFrame.html" title="Rex::Proto::Amqp::Version091::Frames::AmqpVersion091MethodFrame (class)">AmqpVersion091MethodFrame</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_ch_close'>ch_close</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_frame_channel'>frame_channel</span> <span class='op'>=</span> <span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span>
+  <span class='id identifier rubyid_ch_close'>ch_close</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments (module)">MethodArguments</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments/AmqpVersion091ChannelClose.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments::AmqpVersion091ChannelClose (class)">AmqpVersion091ChannelClose</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_send_frame'>send_frame</span><span class='lparen'>(</span><span class='id identifier rubyid_ch_close'>ch_close</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_recv_frame'>recv_frame</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_is_method_frame?'>is_method_frame?</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments (module)">MethodArguments</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments/AmqpVersion091ChannelCloseOk.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments::AmqpVersion091ChannelCloseOk (class)">AmqpVersion091ChannelCloseOk</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../Error.html" title="Rex::Proto::Amqp::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Error/UnexpectedReplyError.html" title="Rex::Proto::Amqp::Error::UnexpectedReplyError (class)">UnexpectedReplyError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Error/UnexpectedReplyError.html#initialize-instance_method" title="Rex::Proto::Amqp::Error::UnexpectedReplyError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@channels</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="channel_open-instance_method">
+  
+    #<strong>channel_open</strong>  &#x21d2; <tt><span class='object_link'><a href="Client/Channel.html" title="Rex::Proto::Amqp::Version091::Client::Channel (class)">Channel</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Open a new channel.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Client/Channel.html" title="Rex::Proto::Amqp::Version091::Client::Channel (class)">Channel</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The newly opened channel.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 169</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_channel_open'>channel_open</span>
+  <span class='id identifier rubyid_ch_open'>ch_open</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/AmqpVersion091MethodFrame.html" title="Rex::Proto::Amqp::Version091::Frames::AmqpVersion091MethodFrame (class)">AmqpVersion091MethodFrame</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_ch_open'>ch_open</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_frame_channel'>frame_channel</span> <span class='op'>=</span> <span class='id identifier rubyid_cid'>cid</span> <span class='op'>=</span> <span class='ivar'>@next_channel_id</span>
+  <span class='id identifier rubyid_ch_open'>ch_open</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments (module)">MethodArguments</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments/AmqpVersion091ChannelOpen.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments::AmqpVersion091ChannelOpen (class)">AmqpVersion091ChannelOpen</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_send_frame'>send_frame</span><span class='lparen'>(</span><span class='id identifier rubyid_ch_open'>ch_open</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_recv_frame'>recv_frame</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_is_method_frame?'>is_method_frame?</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments (module)">MethodArguments</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments/AmqpVersion091ChannelOpenOk.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments::AmqpVersion091ChannelOpenOk (class)">AmqpVersion091ChannelOpenOk</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../Error.html" title="Rex::Proto::Amqp::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Error/UnexpectedReplyError.html" title="Rex::Proto::Amqp::Error::UnexpectedReplyError (class)">UnexpectedReplyError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Error/UnexpectedReplyError.html#initialize-instance_method" title="Rex::Proto::Amqp::Error::UnexpectedReplyError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@next_channel_id</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='ivar'>@channels</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Client/Channel.html" title="Rex::Proto::Amqp::Version091::Client::Channel (class)">Channel</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Client/Channel.html#initialize-instance_method" title="Rex::Proto::Amqp::Version091::Client::Channel#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_cid'>cid</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="close-instance_method">
+  
+    #<strong>close</strong>  &#x21d2; <tt>NilClass</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Close the connection to the remote server.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NilClass</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+76
+77
+78
+79
+80
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 76</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>if</span> <span class='ivar'>@conn</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='ivar'>@conn</span><span class='period'>.</span><span class='id identifier rubyid_closed?'>closed?</span>
+    <span class='ivar'>@conn</span><span class='period'>.</span><span class='id identifier rubyid_shutdown'>shutdown</span>
+    <span class='ivar'>@conn</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@conn</span> <span class='op'>=</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="connect-instance_method">
+  
+    #<strong>connect</strong>(t = -1))  &#x21d2; <tt>NilClass</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Establish the connection to the remote server.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>t</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>-1)</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An explicit timeout to use for the connection otherwise the default will be used.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NilClass</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 57</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_connect'>connect</span><span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span> <span class='op'>=</span> <span class='op'>-</span><span class='int'>1</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_timeout'>timeout</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>or</span> <span class='id identifier rubyid_t'>t</span> <span class='op'>==</span> <span class='op'>-</span><span class='int'>1</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='ivar'>@timeout</span> <span class='op'>:</span> <span class='id identifier rubyid_t'>t</span>
+
+  <span class='ivar'>@conn</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>Tcp</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PeerHost</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='ivar'>@host</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PeerPort</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='ivar'>@port</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Context</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='ivar'>@context</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SSL</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span> <span class='ivar'>@ssl</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SSLVersion</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='ivar'>@ssl_version</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Timeout</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Comm</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='ivar'>@comm</span>
+  <span class='rparen'>)</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="connection_close-instance_method">
+  
+    #<strong>connection_close</strong>  &#x21d2; <tt>NilClass</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Close the established connection by performing the necessary handshake.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NilClass</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+206
+207
+208
+209
+210
+211</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 206</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_connection_close'>connection_close</span>
+  <span class='id identifier rubyid_send_connection_close'>send_connection_close</span>
+  <span class='id identifier rubyid_recv_connection_close_ok'>recv_connection_close_ok</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="connection_open-instance_method">
+  
+    #<strong>connection_open</strong>(vhost)  &#x21d2; <tt>NilClass</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Open a connection by performing the necessary handshake.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>vhost</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The virtual host to connect to.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NilClass</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+217
+218
+219
+220
+221
+222</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 217</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_connection_open'>connection_open</span><span class='lparen'>(</span><span class='id identifier rubyid_vhost'>vhost</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_send_connection_open'>send_connection_open</span><span class='lparen'>(</span><span class='label'>virtual_host:</span> <span class='id identifier rubyid_vhost'>vhost</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_recv_connection_open_ok'>recv_connection_open_ok</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="connection_start-instance_method">
+  
+    #<strong>connection_start</strong>(username, password)  &#x21d2; <tt>NilClass</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Start a connection by performing the necessary handshake. The caller needs to validate the response to ensure authentication succeeded.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>username</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The username to authenticate with.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>password</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The password to authenticate with.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NilClass</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 230</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_connection_start'>connection_start</span><span class='lparen'>(</span><span class='id identifier rubyid_username'>username</span><span class='comma'>,</span> <span class='id identifier rubyid_password'>password</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_recv_connection_start'>recv_connection_start</span>
+
+  <span class='kw'>unless</span> <span class='ivar'>@server_info</span><span class='lbracket'>[</span><span class='symbol'>:security_mechanisms</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PLAIN</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='comment'># PLAIN is supported by default, others can be added via plugins
+</span>    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../Error.html" title="Rex::Proto::Amqp::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Error/NegotiationError.html" title="Rex::Proto::Amqp::Error::NegotiationError (class)">NegotiationError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Error/NegotiationError.html#initialize-instance_method" title="Rex::Proto::Amqp::Error::NegotiationError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>There are no mutually supported authentication mechanisms.</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># prefer en_US if it&#39;s available, otherwise select one at random
+</span>  <span class='kw'>if</span> <span class='ivar'>@server_info</span><span class='lbracket'>[</span><span class='symbol'>:locales</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en_US</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_locale'>locale</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en_US</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_locale'>locale</span> <span class='op'>=</span> <span class='ivar'>@server_info</span><span class='lbracket'>[</span><span class='symbol'>:locales</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_sample'>sample</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_send_connection_start_ok'>send_connection_start_ok</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+    <span class='comment'># Per the spec, these properties &quot;should&quot; contain: product, version, platform, copyright, and information
+</span>    <span class='label'>client_properties:</span> <span class='lbracket'>[</span>
+      <span class='lbrace'>{</span> <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>capabilities</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>data:</span> <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>F</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='lbracket'>[</span>
+        <span class='lbrace'>{</span> <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>authentication_failure_close</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>data:</span> <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>t</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='kw'>true</span> <span class='rbrace'>}</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+        <span class='lbrace'>{</span> <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>basic.nack</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>data:</span> <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>t</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='kw'>true</span> <span class='rbrace'>}</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+        <span class='lbrace'>{</span> <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>connection.blocked</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>data:</span> <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>t</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='kw'>true</span> <span class='rbrace'>}</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+        <span class='lbrace'>{</span> <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>consumer_cancel_notify</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>data:</span> <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>t</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='kw'>true</span> <span class='rbrace'>}</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+        <span class='lbrace'>{</span> <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>publisher_confirms</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>data:</span> <span class='lbrace'>{</span> <span class='label'>data_type:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>t</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='kw'>true</span> <span class='rbrace'>}</span> <span class='rbrace'>}</span>
+      <span class='rbracket'>]</span> <span class='rbrace'>}</span> <span class='rbrace'>}</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='comment'># https://www.rabbitmq.com/access-control.html#mechanisms
+</span>    <span class='label'>mechanism:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PLAIN</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='label'>response:</span> <span class='id identifier rubyid_build_sasl_response_plain'>build_sasl_response_plain</span><span class='lparen'>(</span><span class='id identifier rubyid_username'>username</span><span class='comma'>,</span> <span class='id identifier rubyid_password'>password</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>locale:</span> <span class='id identifier rubyid_locale'>locale</span>
+  <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="login-instance_method">
+  
+    #<strong>login</strong>(username, password, vhost: &#39;/&#39;)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Login to the remote server. The connection will be started automatically if it has not already been established.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>username</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The username to authenticate with.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>password</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The password to authenticate with.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>vhost</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;/&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The virtual host to connect to.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Whether or not authentication was successful.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_login'>login</span><span class='lparen'>(</span><span class='id identifier rubyid_username'>username</span><span class='comma'>,</span> <span class='id identifier rubyid_password'>password</span><span class='comma'>,</span> <span class='label'>vhost:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_connect'>connect</span> <span class='kw'>if</span> <span class='ivar'>@conn</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_send_protocol_header'>send_protocol_header</span>
+  <span class='id identifier rubyid_connection_start'>connection_start</span><span class='lparen'>(</span><span class='id identifier rubyid_username'>username</span><span class='comma'>,</span> <span class='id identifier rubyid_password'>password</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_recv_frame'>recv_frame</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_is_method_frame?'>is_method_frame?</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments (module)">MethodArguments</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments/AmqpVersion091ConnectionClose.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments::AmqpVersion091ConnectionClose (class)">AmqpVersion091ConnectionClose</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_is_method_frame?'>is_method_frame?</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments (module)">MethodArguments</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments/AmqpVersion091ConnectionTune.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments::AmqpVersion091ConnectionTune (class)">AmqpVersion091ConnectionTune</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../Error.html" title="Rex::Proto::Amqp::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Error/UnexpectedReplyError.html" title="Rex::Proto::Amqp::Error::UnexpectedReplyError (class)">UnexpectedReplyError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Error/UnexpectedReplyError.html#initialize-instance_method" title="Rex::Proto::Amqp::Error::UnexpectedReplyError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@server_info</span><span class='lbracket'>[</span><span class='symbol'>:tuning</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span><span class='period'>.</span><span class='id identifier rubyid_snapshot'>snapshot</span>
+  <span class='id identifier rubyid_connection_tune_ok'>connection_tune_ok</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/AmqpVersion091MethodFrame.html" title="Rex::Proto::Amqp::Version091::Frames::AmqpVersion091MethodFrame (class)">AmqpVersion091MethodFrame</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_connection_tune_ok'>connection_tune_ok</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments (module)">MethodArguments</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments/AmqpVersion091ConnectionTuneOk.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments::AmqpVersion091ConnectionTuneOk (class)">AmqpVersion091ConnectionTuneOk</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span><span class='period'>.</span><span class='id identifier rubyid_snapshot'>snapshot</span>
+  <span class='rparen'>)</span>
+  <span class='id identifier rubyid_send_frame'>send_frame</span><span class='lparen'>(</span><span class='id identifier rubyid_connection_tune_ok'>connection_tune_ok</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_connection_open'>connection_open</span><span class='lparen'>(</span><span class='id identifier rubyid_vhost'>vhost</span><span class='rparen'>)</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="recv_connection_close_ok-instance_method">
+  
+    #<strong>recv_connection_close_ok</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+263
+264
+265
+266
+267
+268
+269
+270</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 263</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_recv_connection_close_ok'>recv_connection_close_ok</span>
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_recv_frame'>recv_frame</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_is_method_frame?'>is_method_frame?</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments (module)">MethodArguments</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments/AmqpVersion091ConnectionCloseOk.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments::AmqpVersion091ConnectionCloseOk (class)">AmqpVersion091ConnectionCloseOk</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../Error.html" title="Rex::Proto::Amqp::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Error/UnexpectedReplyError.html" title="Rex::Proto::Amqp::Error::UnexpectedReplyError (class)">UnexpectedReplyError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Error/UnexpectedReplyError.html#initialize-instance_method" title="Rex::Proto::Amqp::Error::UnexpectedReplyError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_resp'>resp</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="recv_connection_open_ok-instance_method">
+  
+    #<strong>recv_connection_open_ok</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+272
+273
+274
+275
+276
+277
+278
+279</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 272</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_recv_connection_open_ok'>recv_connection_open_ok</span>
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_recv_frame'>recv_frame</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_is_method_frame?'>is_method_frame?</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments (module)">MethodArguments</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments/AmqpVersion091ConnectionOpenOk.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments::AmqpVersion091ConnectionOpenOk (class)">AmqpVersion091ConnectionOpenOk</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../Error.html" title="Rex::Proto::Amqp::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Error/UnexpectedReplyError.html" title="Rex::Proto::Amqp::Error::UnexpectedReplyError (class)">UnexpectedReplyError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Error/UnexpectedReplyError.html#initialize-instance_method" title="Rex::Proto::Amqp::Error::UnexpectedReplyError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_resp'>resp</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="recv_connection_start-instance_method">
+  
+    #<strong>recv_connection_start</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 281</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_recv_connection_start'>recv_connection_start</span>
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_recv_frame'>recv_frame</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_is_method_frame?'>is_method_frame?</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments (module)">MethodArguments</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments/AmqpVersion091ConnectionStart.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments::AmqpVersion091ConnectionStart (class)">AmqpVersion091ConnectionStart</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../Error.html" title="Rex::Proto::Amqp::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Error/UnexpectedReplyError.html" title="Rex::Proto::Amqp::Error::UnexpectedReplyError (class)">UnexpectedReplyError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Error/UnexpectedReplyError.html#initialize-instance_method" title="Rex::Proto::Amqp::Error::UnexpectedReplyError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@server_info</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>properties:</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span><span class='period'>.</span><span class='id identifier rubyid_server_properties'>server_properties</span><span class='period'>.</span><span class='id identifier rubyid_coerce'>coerce</span><span class='comma'>,</span>
+    <span class='label'>security_mechanisms:</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span><span class='period'>.</span><span class='id identifier rubyid_mechanisms'>mechanisms</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>locales:</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span><span class='period'>.</span><span class='id identifier rubyid_locales'>locales</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_resp'>resp</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="recv_frame-instance_method">
+  
+    #<strong>recv_frame</strong>  &#x21d2; <tt>BinData::Record</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Receive a frame from the connected peer with a timeout.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Record</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The frame that was received.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 128</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_recv_frame'>recv_frame</span>
+  <span class='id identifier rubyid_remaining'>remaining</span> <span class='op'>=</span> <span class='ivar'>@timeout</span>
+  <span class='id identifier rubyid_header_raw'>header_raw</span><span class='comma'>,</span> <span class='id identifier rubyid_elapsed_time'>elapsed_time</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Stopwatch</span><span class='period'>.</span><span class='id identifier rubyid_elapsed_time'>elapsed_time</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_num_bytes'>num_bytes</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/AmqpVersion091FrameHeader.html" title="Rex::Proto::Amqp::Version091::Frames::AmqpVersion091FrameHeader (class)">AmqpVersion091FrameHeader</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_num_bytes'>num_bytes</span>
+    <span class='ivar'>@conn</span><span class='period'>.</span><span class='id identifier rubyid_get_once'>get_once</span><span class='lparen'>(</span><span class='id identifier rubyid_num_bytes'>num_bytes</span><span class='comma'>,</span> <span class='id identifier rubyid_remaining'>remaining</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_remaining'>remaining</span> <span class='op'>-=</span> <span class='id identifier rubyid_elapsed_time'>elapsed_time</span>
+
+  <span class='id identifier rubyid_header'>header</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/AmqpVersion091FrameHeader.html" title="Rex::Proto::Amqp::Version091::Frames::AmqpVersion091FrameHeader (class)">AmqpVersion091FrameHeader</a></span></span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_header_raw'>header_raw</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_body'>body</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&lt;</span> <span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_frame_size'>frame_size</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_remaining'>remaining</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_chunk'>chunk</span><span class='comma'>,</span> <span class='id identifier rubyid_elapsed_time'>elapsed_time</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Stopwatch</span><span class='period'>.</span><span class='id identifier rubyid_elapsed_time'>elapsed_time</span> <span class='kw'>do</span>
+      <span class='ivar'>@conn</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_frame_size'>frame_size</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='op'>-</span> <span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='comma'>,</span> <span class='id identifier rubyid_remaining'>remaining</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_remaining'>remaining</span> <span class='op'>-=</span> <span class='id identifier rubyid_elapsed_time'>elapsed_time</span>
+    <span class='id identifier rubyid_body'>body</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_chunk'>chunk</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>==</span> <span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_frame_size'>frame_size</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_remaining'>remaining</span> <span class='op'>&lt;=</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>TimeoutError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Failed to read the response data due to timeout.</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='const'><span class='object_link'><a href="../Error.html" title="Rex::Proto::Amqp::Error (module)">Error</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Error/InvalidFrameError.html" title="Rex::Proto::Amqp::Error::InvalidFrameError (class)">InvalidFrameError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Error/InvalidFrameError.html#initialize-instance_method" title="Rex::Proto::Amqp::Error::InvalidFrameError#initialize (method)">new</a></span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_frame_type'>frame_type</span>
+  <span class='kw'>when</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_frame'>frame</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/AmqpVersion091MethodFrame.html" title="Rex::Proto::Amqp::Version091::Frames::AmqpVersion091MethodFrame (class)">AmqpVersion091MethodFrame</a></span></span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_to_binary_s'>to_binary_s</span> <span class='op'>+</span> <span class='id identifier rubyid_body'>body</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='int'>2</span>
+    <span class='id identifier rubyid_frame'>frame</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/AmqpVersion091ContentHeaderFrame.html" title="Rex::Proto::Amqp::Version091::Frames::AmqpVersion091ContentHeaderFrame (class)">AmqpVersion091ContentHeaderFrame</a></span></span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_to_binary_s'>to_binary_s</span> <span class='op'>+</span> <span class='id identifier rubyid_body'>body</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='int'>3</span>
+    <span class='id identifier rubyid_frame'>frame</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/AmqpVersion091ContentBodyFrame.html" title="Rex::Proto::Amqp::Version091::Frames::AmqpVersion091ContentBodyFrame (class)">AmqpVersion091ContentBodyFrame</a></span></span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_to_binary_s'>to_binary_s</span> <span class='op'>+</span> <span class='id identifier rubyid_body'>body</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_frame'>frame</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_connection_close-instance_method">
+  
+    #<strong>send_connection_close</strong>(arguments = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+296
+297
+298
+299
+300
+301
+302</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 296</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_connection_close'>send_connection_close</span><span class='lparen'>(</span><span class='id identifier rubyid_arguments'>arguments</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_conn_close'>conn_close</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/AmqpVersion091MethodFrame.html" title="Rex::Proto::Amqp::Version091::Frames::AmqpVersion091MethodFrame (class)">AmqpVersion091MethodFrame</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_conn_close'>conn_close</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments (module)">MethodArguments</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments/AmqpVersion091ConnectionClose.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments::AmqpVersion091ConnectionClose (class)">AmqpVersion091ConnectionClose</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_arguments'>arguments</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_send_frame'>send_frame</span><span class='lparen'>(</span><span class='id identifier rubyid_conn_close'>conn_close</span><span class='rparen'>)</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_connection_open-instance_method">
+  
+    #<strong>send_connection_open</strong>(arguments = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+304
+305
+306
+307
+308
+309
+310</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 304</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_connection_open'>send_connection_open</span><span class='lparen'>(</span><span class='id identifier rubyid_arguments'>arguments</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_connection_open'>connection_open</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/AmqpVersion091MethodFrame.html" title="Rex::Proto::Amqp::Version091::Frames::AmqpVersion091MethodFrame (class)">AmqpVersion091MethodFrame</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_connection_open'>connection_open</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments (module)">MethodArguments</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments/AmqpVersion091ConnectionOpen.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments::AmqpVersion091ConnectionOpen (class)">AmqpVersion091ConnectionOpen</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_arguments'>arguments</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_send_frame'>send_frame</span><span class='lparen'>(</span><span class='id identifier rubyid_connection_open'>connection_open</span><span class='rparen'>)</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_connection_start_ok-instance_method">
+  
+    #<strong>send_connection_start_ok</strong>(arguments = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+312
+313
+314
+315
+316
+317
+318</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 312</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_connection_start_ok'>send_connection_start_ok</span><span class='lparen'>(</span><span class='id identifier rubyid_arguments'>arguments</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_connection_start_ok'>connection_start_ok</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/AmqpVersion091MethodFrame.html" title="Rex::Proto::Amqp::Version091::Frames::AmqpVersion091MethodFrame (class)">AmqpVersion091MethodFrame</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_connection_start_ok'>connection_start_ok</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments (module)">MethodArguments</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/MethodArguments/AmqpVersion091ConnectionStartOk.html" title="Rex::Proto::Amqp::Version091::Frames::MethodArguments::AmqpVersion091ConnectionStartOk (class)">AmqpVersion091ConnectionStartOk</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_arguments'>arguments</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_send_frame'>send_frame</span><span class='lparen'>(</span><span class='id identifier rubyid_connection_start_ok'>connection_start_ok</span><span class='rparen'>)</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_frame-instance_method">
+  
+    #<strong>send_frame</strong>(frame)  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Send a frame to the connected peer.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>frame</span>
+      
+      
+        <span class='type'>(<tt>#to_binary_s</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The frame to send.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The number of bytes written.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+121
+122
+123</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 121</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_frame'>send_frame</span><span class='lparen'>(</span><span class='id identifier rubyid_frame'>frame</span><span class='rparen'>)</span>
+  <span class='ivar'>@conn</span><span class='period'>.</span><span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='id identifier rubyid_frame'>frame</span><span class='period'>.</span><span class='id identifier rubyid_to_binary_s'>to_binary_s</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_protocol_header-instance_method">
+  
+    #<strong>send_protocol_header</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+320
+321
+322
+323
+324</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/amqp/version_0_9_1/client.rb', line 320</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_protocol_header'>send_protocol_header</span>
+  <span class='id identifier rubyid_send_frame'>send_frame</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Version091.html" title="Rex::Proto::Amqp::Version091 (module)">Version091</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames.html" title="Rex::Proto::Amqp::Version091::Frames (module)">Frames</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Frames/AmqpVersion091ProtocolHeader.html" title="Rex::Proto::Amqp::Version091::Frames::AmqpVersion091ProtocolHeader (class)">AmqpVersion091ProtocolHeader</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='rparen'>)</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:43:16 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

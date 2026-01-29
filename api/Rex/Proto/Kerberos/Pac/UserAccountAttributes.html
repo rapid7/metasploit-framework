@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::Kerberos::Pac::UserAccountAttributes
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Kerberos::Pac::UserAccountAttributes";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Pac.html" title="Rex::Proto::Kerberos::Pac (module)">Pac</a></span></span>
+     &raquo; 
+    <span class="title">UserAccountAttributes</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::Kerberos::Pac::UserAccountAttributes
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">BinData::Record</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">BinData::Record</li>
+          
+            <li class="next">Rex::Proto::Kerberos::Pac::UserAccountAttributes</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/kerberos/pac/krb5_pac.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p><a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/b10cfda1-f24f-441b-8f43-80cb93e786ec">learn.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/b10cfda1-f24f-441b-8f43-80cb93e786ec</a></p>
+<dl class="rdoc-list label-list"><dt>RFC4120</dt>
+<dd>
+<p><a href="https://www.rfc-editor.org/rfc/rfc4120">www.rfc-editor.org/rfc/rfc4120</a></p>
+</dd><dt>RFC3961</dt>
+<dd>
+<p><a href="https://www.ietf.org/rfc/rfc3961.txt">www.ietf.org/rfc/rfc3961.txt</a></p>
+</dd><dt>MS-KILE</dt>
+<dd>
+<p><a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/2a32282e-dd48-4ad9-a542-609804b02cc9">learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/2a32282e-dd48-4ad9-a542-609804b02cc9</a></p>
+</dd><dt>MS-LSAD</dt>
+<dd>
+<p><a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lsad/1b5471ef-4c33-4a91-b079-dfcbb82f05cc">learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lsad/1b5471ef-4c33-4a91-b079-dfcbb82f05cc</a></p>
+</dd></dl>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#account_auto_lock-instance_method" title="#account_auto_lock (instance method)">#<strong>account_auto_lock</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specifies that the account has been locked out.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#account_disabled-instance_method" title="#account_disabled (instance method)">#<strong>account_disabled</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specifies that the account is not enabled for authentication.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dont_expire_password-instance_method" title="#dont_expire_password (instance method)">#<strong>dont_expire_password</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specifies that the maximum-password-age policy does not apply to this user.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dont_require_preauth-instance_method" title="#dont_require_preauth (instance method)">#<strong>dont_require_preauth</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This bit is used by the Kerberos protocol.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encrypted_test_password_allowed-instance_method" title="#encrypted_test_password_allowed (instance method)">#<strong>encrypted_test_password_allowed</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specifies that the cleartext password is to be persisted.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#home_directory_required-instance_method" title="#home_directory_required (instance method)">#<strong>home_directory_required</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specifies that the homeDirectory attribute is required.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#interdomain_trust_account-instance_method" title="#interdomain_trust_account (instance method)">#<strong>interdomain_trust_account</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specifies that the object represents a trust object.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mns_logon_account-instance_method" title="#mns_logon_account (instance method)">#<strong>mns_logon_account</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This bit is ignored by clients and servers.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#no_auth_data_required-instance_method" title="#no_auth_data_required (instance method)">#<strong>no_auth_data_required</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This bit is used by the Kerberos protocol.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#normal_account-instance_method" title="#normal_account (instance method)">#<strong>normal_account</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specifies that the user is not a computer object.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#not_delegated-instance_method" title="#not_delegated (instance method)">#<strong>not_delegated</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This bit is used by the Kerberos protocol.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#partial_secrets_account-instance_method" title="#partial_secrets_account (instance method)">#<strong>partial_secrets_account</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specifies that the object is a read-only domain controller (RODC).</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#password_expired-instance_method" title="#password_expired (instance method)">#<strong>password_expired</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specifies that the password age on the user has exceeded the maximum password age policy.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#password_not_required-instance_method" title="#password_not_required (instance method)">#<strong>password_not_required</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specifies that the password-length policy does not apply to this user.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#server_trust_account-instance_method" title="#server_trust_account (instance method)">#<strong>server_trust_account</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specifies that the object is a DC.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#smartcard_required-instance_method" title="#smartcard_required (instance method)">#<strong>smartcard_required</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specifies that the user can authenticate only with a smart card.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#temp_duplicate_account-instance_method" title="#temp_duplicate_account (instance method)">#<strong>temp_duplicate_account</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This bit is ignored by clients and servers.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#trusted_for_delegation-instance_method" title="#trusted_for_delegation (instance method)">#<strong>trusted_for_delegation</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This bit is used by the Kerberos protocol.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#trusted_to_authenticate_for_delegation-instance_method" title="#trusted_to_authenticate_for_delegation (instance method)">#<strong>trusted_to_authenticate_for_delegation</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This bit is used by the Kerberos protocol, as specified in [MS-KILE] section 3.3.1.1.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#use_aes_keys-instance_method" title="#use_aes_keys (instance method)">#<strong>use_aes_keys</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This bit is ignored by clients and servers.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#use_des_key_only-instance_method" title="#use_des_key_only (instance method)">#<strong>use_des_key_only</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This bit is used by the Kerberos protocol.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#workstation_trust_account-instance_method" title="#workstation_trust_account (instance method)">#<strong>workstation_trust_account</strong>  &#x21d2; BinData::Bit1 </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specifies that the object is a member workstation or server.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+
+  
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="account_auto_lock=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="account_auto_lock-instance_method">
+  
+    #<strong>account_auto_lock</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Specifies that the account has been locked out.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specifies that the account has been locked out.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+201</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 201</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:account_auto_lock</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="account_disabled=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="account_disabled-instance_method">
+  
+    #<strong>account_disabled</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Specifies that the account is not enabled for authentication.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specifies that the account is not enabled for authentication.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+241</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 241</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:account_disabled</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="dont_expire_password=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="dont_expire_password-instance_method">
+  
+    #<strong>dont_expire_password</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Specifies that the maximum-password-age policy does not apply to this user.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specifies that the maximum-password-age policy does not apply to this user.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+205</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 205</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:dont_expire_password</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="dont_require_preauth=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="dont_require_preauth-instance_method">
+  
+    #<strong>dont_require_preauth</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns This bit is used by the Kerberos protocol. It indicates that the account is not required to present valid preauthentication data, as described in [RFC4120] section 7.5.2.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>This bit is used by the Kerberos protocol. It indicates that the account is not required to present valid preauthentication data, as described in [RFC4120] section 7.5.2.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+177</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 177</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:dont_require_preauth</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="encrypted_test_password_allowed=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="encrypted_test_password_allowed-instance_method">
+  
+    #<strong>encrypted_test_password_allowed</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Specifies that the cleartext password is to be persisted.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specifies that the cleartext password is to be persisted.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+197</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 197</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:encrypted_test_password_allowed</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="home_directory_required=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="home_directory_required-instance_method">
+  
+    #<strong>home_directory_required</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Specifies that the homeDirectory attribute is required.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specifies that the homeDirectory attribute is required.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+237</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 237</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:home_directory_required</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="interdomain_trust_account=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="interdomain_trust_account-instance_method">
+  
+    #<strong>interdomain_trust_account</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Specifies that the object represents a trust object. For more information about trust objects, see [MS-LSAD].</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specifies that the object represents a trust object. For more information about trust objects, see [MS-LSAD].</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+217</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 217</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:interdomain_trust_account</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="mns_logon_account=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="mns_logon_account-instance_method">
+  
+    #<strong>mns_logon_account</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns This bit is ignored by clients and servers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>This bit is ignored by clients and servers.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+221</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 221</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:mns_logon_account</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="no_auth_data_required=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="no_auth_data_required-instance_method">
+  
+    #<strong>no_auth_data_required</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns This bit is used by the Kerberos protocol. It indicates that when the key distribution center (KDC) is issuing a service ticket for this account, the privilege attribute certificate (PAC) is not to be included. For more information, see [RFC4120].</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>This bit is used by the Kerberos protocol. It indicates that when the key distribution center (KDC) is issuing a service ticket for this account, the privilege attribute certificate (PAC) is not to be included. For more information, see [RFC4120].</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+165</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 165</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:no_auth_data_required</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="normal_account=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="normal_account-instance_method">
+  
+    #<strong>normal_account</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Specifies that the user is not a computer object.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specifies that the user is not a computer object.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+225</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 225</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:normal_account</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="not_delegated=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="not_delegated-instance_method">
+  
+    #<strong>not_delegated</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns This bit is used by the Kerberos protocol. It indicates that the ticket-granting tickets (TGTs) of this account and the service tickets obtained by this account are not marked as forwardable or proxiable when the forwardable or proxiable ticket flags are requestedFor more information, see [RFC4120].</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>This bit is used by the Kerberos protocol. It indicates that the ticket-granting tickets (TGTs) of this account and the service tickets obtained by this account are not marked as forwardable or proxiable when the forwardable or proxiable ticket flags are requestedFor more information, see [RFC4120].</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+185</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 185</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:not_delegated</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="partial_secrets_account=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="partial_secrets_account-instance_method">
+  
+    #<strong>partial_secrets_account</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Specifies that the object is a read-only domain controller (RODC).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specifies that the object is a read-only domain controller (RODC).</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+161</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 161</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:partial_secrets_account</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="password_expired=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="password_expired-instance_method">
+  
+    #<strong>password_expired</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Specifies that the password age on the user has exceeded the maximum password age policy.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specifies that the password age on the user has exceeded the maximum password age policy.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+173</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 173</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:password_expired</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="password_not_required=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="password_not_required-instance_method">
+  
+    #<strong>password_not_required</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Specifies that the password-length policy does not apply to this user.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specifies that the password-length policy does not apply to this user.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+233</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 233</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:password_not_required</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="server_trust_account=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="server_trust_account-instance_method">
+  
+    #<strong>server_trust_account</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Specifies that the object is a DC.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specifies that the object is a DC.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+209</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 209</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:server_trust_account</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="smartcard_required=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="smartcard_required-instance_method">
+  
+    #<strong>smartcard_required</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Specifies that the user can authenticate only with a smart card.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specifies that the user can authenticate only with a smart card.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+193</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 193</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:smartcard_required</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="temp_duplicate_account=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="temp_duplicate_account-instance_method">
+  
+    #<strong>temp_duplicate_account</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns This bit is ignored by clients and servers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>This bit is ignored by clients and servers.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+229</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 229</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:temp_duplicate_account</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="trusted_for_delegation=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="trusted_for_delegation-instance_method">
+  
+    #<strong>trusted_for_delegation</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns This bit is used by the Kerberos protocol. It indicates that the “OK as Delegate” ticket flag (described <a href="RFC4120">in</a> section 2.8) is to be set.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>This bit is used by the Kerberos protocol. It indicates that the “OK as Delegate” ticket flag (described <a href="RFC4120">in</a> section 2.8) is to be set.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+189</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 189</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:trusted_for_delegation</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="trusted_to_authenticate_for_delegation=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="trusted_to_authenticate_for_delegation-instance_method">
+  
+    #<strong>trusted_to_authenticate_for_delegation</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns This bit is used by the Kerberos protocol, as specified in [MS-KILE] section 3.3.1.1.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>This bit is used by the Kerberos protocol, as specified in [MS-KILE] section 3.3.1.1.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+169</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 169</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:trusted_to_authenticate_for_delegation</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="use_aes_keys=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="use_aes_keys-instance_method">
+  
+    #<strong>use_aes_keys</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns This bit is ignored by clients and servers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>This bit is ignored by clients and servers.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+157</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 157</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:use_aes_keys</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="use_des_key_only=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="use_des_key_only-instance_method">
+  
+    #<strong>use_des_key_only</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns This bit is used by the Kerberos protocol. It indicates that only des-cbc-md5 or des-cbc-crc keys (as defined in [RFC3961]) are used in the Kerberos protocol for this account.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>This bit is used by the Kerberos protocol. It indicates that only des-cbc-md5 or des-cbc-crc keys (as defined in [RFC3961]) are used in the Kerberos protocol for this account.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+181</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 181</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:use_des_key_only</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="workstation_trust_account=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="workstation_trust_account-instance_method">
+  
+    #<strong>workstation_trust_account</strong>  &#x21d2; <tt>BinData::Bit1</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Specifies that the object is a member workstation or server.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>BinData::Bit1</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specifies that the object is a member workstation or server.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+213</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 213</span>
+
+<span class='id identifier rubyid_bit1'>bit1</span> <span class='symbol'>:workstation_trust_account</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:43:13 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

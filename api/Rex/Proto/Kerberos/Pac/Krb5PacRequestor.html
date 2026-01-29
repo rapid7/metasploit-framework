@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::Kerberos::Pac::Krb5PacRequestor
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Kerberos::Pac::Krb5PacRequestor";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (K)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Pac.html" title="Rex::Proto::Kerberos::Pac (module)">Pac</a></span></span>
+     &raquo; 
+    <span class="title">Krb5PacRequestor</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::Kerberos::Pac::Krb5PacRequestor
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">BinData::Record</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">BinData::Record</li>
+          
+            <li class="next">Rex::Proto::Kerberos::Pac::Krb5PacRequestor</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/kerberos/pac/krb5_pac.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p><a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/c34adc61-80e1-4920-8923-22ef5054c4b2">learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/c34adc61-80e1-4920-8923-22ef5054c4b2</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ul_type-instance_method" title="#ul_type (instance method)">#<strong>ul_type</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Describes the type of data present in the buffer.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#user_sid-instance_method" title="#user_sid (instance method)">#<strong>user_sid</strong>  &#x21d2; RPC_SID </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>SID of the requesting user.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+
+  
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="ul_type-instance_method">
+  
+    #<strong>ul_type</strong>  &#x21d2; <tt>Integer</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Describes the type of data present in the buffer.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Describes the type of data present in the buffer</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+294</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 294</span>
+
+<span class='id identifier rubyid_virtual'>virtual</span> <span class='symbol'>:ul_type</span><span class='comma'>,</span> <span class='label'>value:</span> <span class='const'><span class='object_link'><a href="Krb5PacElementType.html" title="Rex::Proto::Kerberos::Pac::Krb5PacElementType (module)">Krb5PacElementType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Krb5PacElementType.html#PAC_REQUESTOR-constant" title="Rex::Proto::Kerberos::Pac::Krb5PacElementType::PAC_REQUESTOR (constant)">PAC_REQUESTOR</a></span></span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="user_sid=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="user_sid-instance_method">
+  
+    #<strong>user_sid</strong>  &#x21d2; <tt>RPC_SID</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns SID of the requesting user.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>RPC_SID</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>SID of the requesting user</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+298</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/pac/krb5_pac.rb', line 298</span>
+
+<span class='id identifier rubyid_ms_dtyp_sid'>ms_dtyp_sid</span> <span class='symbol'>:user_sid</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:43:13 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

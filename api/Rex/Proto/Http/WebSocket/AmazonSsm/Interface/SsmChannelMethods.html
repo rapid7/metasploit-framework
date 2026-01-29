@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Proto::Http::WebSocket::AmazonSsm::Interface::SsmChannelMethods
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Http::WebSocket::AmazonSsm::Interface::SsmChannelMethods";
+  relpath = '../../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Http.html" title="Rex::Proto::Http (module)">Http</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../WebSocket.html" title="Rex::Proto::Http::WebSocket (module)">WebSocket</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../AmazonSsm.html" title="Rex::Proto::Http::WebSocket::AmazonSsm (module)">AmazonSsm</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Interface.html" title="Rex::Proto::Http::WebSocket::AmazonSsm::Interface (module)">Interface</a></span></span>
+     &raquo; 
+    <span class="title">SsmChannelMethods</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Proto::Http::WebSocket::AmazonSsm::Interface::SsmChannelMethods
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="SsmChannel.html" title="Rex::Proto::Http::WebSocket::AmazonSsm::Interface::SsmChannel (class)">SsmChannel</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/http/web_socket/amazon_ssm.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cols-instance_method" title="#cols (instance method)">#<strong>cols</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute cols.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rows-instance_method" title="#rows (instance method)">#<strong>rows</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute rows.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_start_ssm_keepalive-instance_method" title="#_start_ssm_keepalive (instance method)">#<strong>_start_ssm_keepalive</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#acknowledge_output-instance_method" title="#acknowledge_output (instance method)">#<strong>acknowledge_output</strong>(output_frame)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#close-instance_method" title="#close (instance method)">#<strong>close</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handle_acknowledge-instance_method" title="#handle_acknowledge (instance method)">#<strong>handle_acknowledge</strong>(ack_frame)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handle_output_data-instance_method" title="#handle_output_data (instance method)">#<strong>handle_output_data</strong>(output_frame)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pause_publication-instance_method" title="#pause_publication (instance method)">#<strong>pause_publication</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_term_size-instance_method" title="#set_term_size (instance method)">#<strong>set_term_size</strong>(cols, rows)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start_publication-instance_method" title="#start_publication (instance method)">#<strong>start_publication</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_term_size-instance_method" title="#update_term_size (instance method)">#<strong>update_term_size</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="cols=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="cols-instance_method">
+  
+    #<strong>cols</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute cols.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+65
+66
+67</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/web_socket/amazon_ssm.rb', line 65</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cols'>cols</span>
+  <span class='ivar'>@cols</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="rows=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="rows-instance_method">
+  
+    #<strong>rows</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute rows.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/web_socket/amazon_ssm.rb', line 64</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rows'>rows</span>
+  <span class='ivar'>@rows</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_start_ssm_keepalive-instance_method">
+  
+    #<strong>_start_ssm_keepalive</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/web_socket/amazon_ssm.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__start_ssm_keepalive'>_start_ssm_keepalive</span>
+  <span class='ivar'>@keepalive_thread</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../ThreadFactory.html" title="Rex::ThreadFactory (class)">ThreadFactory</a></span></span><span class='period'>.</span><span class='id identifier rubyid_spawn'><span class='object_link'><a href="../../../../../ThreadFactory.html#spawn-class_method" title="Rex::ThreadFactory.spawn (method)">spawn</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SsmChannel-Keepalive</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='kw'>while</span> <span class='kw'>not</span> <span class='id identifier rubyid_closed?'>closed?</span> <span class='kw'>or</span> <span class='ivar'>@websocket</span><span class='period'>.</span><span class='id identifier rubyid_closed?'>closed?</span>
+      <span class='id identifier rubyid_write'>write</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+      <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ThreadSafe</span><span class='period'>.</span><span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Random</span><span class='period'>.</span><span class='id identifier rubyid_rand'>rand</span> <span class='op'>*</span> <span class='int'>10</span> <span class='op'>+</span> <span class='int'>15</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='ivar'>@keepalive_thread</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="acknowledge_output-instance_method">
+  
+    #<strong>acknowledge_output</strong>(output_frame)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+83
+84
+85
+86
+87
+88
+89</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/web_socket/amazon_ssm.rb', line 83</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_acknowledge_output'>acknowledge_output</span><span class='lparen'>(</span><span class='id identifier rubyid_output_frame'>output_frame</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ack'>ack</span> <span class='op'>=</span> <span class='id identifier rubyid_output_frame'>output_frame</span><span class='period'>.</span><span class='id identifier rubyid_to_ack'>to_ack</span>
+  <span class='comment'># ack.header.sequence_number = @out_seq_num
+</span>  <span class='ivar'>@websocket</span><span class='period'>.</span><span class='id identifier rubyid_put_wsbinary'>put_wsbinary</span><span class='lparen'>(</span><span class='id identifier rubyid_ack'>ack</span><span class='period'>.</span><span class='id identifier rubyid_to_binary_s'>to_binary_s</span><span class='rparen'>)</span>
+  <span class='comment'># wlog(&quot;SsmChannel: acknowledge output #{output_frame.uuid}&quot;)
+</span>  <span class='id identifier rubyid_output_frame'>output_frame</span><span class='period'>.</span><span class='id identifier rubyid_uuid'>uuid</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="close-instance_method">
+  
+    #<strong>close</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79
+80
+81</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/web_socket/amazon_ssm.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
+  <span class='ivar'>@keepalive_thread</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span> <span class='kw'>if</span> <span class='ivar'>@keepalive_thread</span>
+  <span class='ivar'>@keepalive_thread</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_acknowledge-instance_method">
+  
+    #<strong>handle_acknowledge</strong>(ack_frame)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/web_socket/amazon_ssm.rb', line 116</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_acknowledge'>handle_acknowledge</span><span class='lparen'>(</span><span class='id identifier rubyid_ack_frame'>ack_frame</span><span class='rparen'>)</span>
+  <span class='comment'># wlog(&quot;SsmChannel: got acknowledge message #{ack_frame.uuid}&quot;)
+</span>  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_seq_num'>seq_num</span> <span class='op'>=</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_ack_frame'>ack_frame</span><span class='period'>.</span><span class='id identifier rubyid_payload_data'>payload_data</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AcknowledgedMessageSequenceNumber</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='ivar'>@ack_seq_num</span> <span class='op'>=</span> <span class='id identifier rubyid_seq_num'>seq_num</span> <span class='kw'>if</span> <span class='id identifier rubyid_seq_num'>seq_num</span> <span class='op'>&gt;</span> <span class='ivar'>@ack_seq_num</span>
+  <span class='kw'>rescue</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SsmChannel failed to parse ack JSON </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ack_frame'>ack_frame</span><span class='period'>.</span><span class='id identifier rubyid_payload_data'>payload_data</span><span class='embexpr_end'>}</span><span class='tstring_content'> due to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_content'>!</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_output_data-instance_method">
+  
+    #<strong>handle_output_data</strong>(output_frame)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/web_socket/amazon_ssm.rb', line 103</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_output_data'>handle_output_data</span><span class='lparen'>(</span><span class='id identifier rubyid_output_frame'>output_frame</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='ivar'>@ack_message</span> <span class='op'>==</span> <span class='id identifier rubyid_output_frame'>output_frame</span><span class='period'>.</span><span class='id identifier rubyid_uuid'>uuid</span>
+
+  <span class='ivar'>@ack_message</span> <span class='op'>=</span> <span class='id identifier rubyid_acknowledge_output'>acknowledge_output</span><span class='lparen'>(</span><span class='id identifier rubyid_output_frame'>output_frame</span><span class='rparen'>)</span>
+  <span class='comment'># TODO: handle Payload::* types
+</span>  <span class='kw'>if</span> <span class='op'>!</span><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="../PayloadType.html" title="Rex::Proto::Http::WebSocket::AmazonSsm::PayloadType (module)">PayloadType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../PayloadType.html#Output-constant" title="Rex::Proto::Http::WebSocket::AmazonSsm::PayloadType::Output (constant)">Output</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../PayloadType.html" title="Rex::Proto::Http::WebSocket::AmazonSsm::PayloadType (module)">PayloadType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../PayloadType.html#Error-constant" title="Rex::Proto::Http::WebSocket::AmazonSsm::PayloadType::Error (constant)">Error</a></span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span> <span class='id identifier rubyid_e'>e</span> <span class='op'>==</span> <span class='id identifier rubyid_output_frame'>output_frame</span><span class='period'>.</span><span class='id identifier rubyid_payload_type'>payload_type</span> <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../../../../../../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SsmChannel got unhandled output payload type: </span><span class='embexpr_beg'>#{</span><span class='const'>Payload</span><span class='period'>.</span><span class='id identifier rubyid_from_val'>from_val</span><span class='lparen'>(</span><span class='id identifier rubyid_output_frame'>output_frame</span><span class='period'>.</span><span class='id identifier rubyid_payload_type'>payload_type</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_output_frame'>output_frame</span><span class='period'>.</span><span class='id identifier rubyid_payload_data'>payload_data</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pause_publication-instance_method">
+  
+    #<strong>pause_publication</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93
+94
+95</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/web_socket/amazon_ssm.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pause_publication'>pause_publication</span>
+  <span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../SsmFrame.html" title="Rex::Proto::Http::WebSocket::AmazonSsm::SsmFrame (class)">SsmFrame</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_pause_pub'><span class='object_link'><a href="../SsmFrame.html#create_pause_pub-class_method" title="Rex::Proto::Http::WebSocket::AmazonSsm::SsmFrame.create_pause_pub (method)">create_pause_pub</a></span></span>
+  <span class='ivar'>@publication</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='ivar'>@websocket</span><span class='period'>.</span><span class='id identifier rubyid_put_wsbinary'>put_wsbinary</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='period'>.</span><span class='id identifier rubyid_to_binary_s'>to_binary_s</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_term_size-instance_method">
+  
+    #<strong>set_term_size</strong>(cols, rows)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+138
+139
+140
+141
+142
+143</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/web_socket/amazon_ssm.rb', line 138</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_term_size'>set_term_size</span><span class='lparen'>(</span><span class='id identifier rubyid_cols'>cols</span><span class='comma'>,</span> <span class='id identifier rubyid_rows'>rows</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>cols:</span> <span class='id identifier rubyid_cols'>cols</span><span class='comma'>,</span> <span class='label'>rows:</span> <span class='id identifier rubyid_rows'>rows</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_frame'>frame</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../SsmFrame.html" title="Rex::Proto::Http::WebSocket::AmazonSsm::SsmFrame (class)">SsmFrame</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'><span class='object_link'><a href="../SsmFrame.html#create-class_method" title="Rex::Proto::Http::WebSocket::AmazonSsm::SsmFrame.create (method)">create</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_frame'>frame</span><span class='period'>.</span><span class='id identifier rubyid_payload_type'>payload_type</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../PayloadType.html" title="Rex::Proto::Http::WebSocket::AmazonSsm::PayloadType (module)">PayloadType</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../PayloadType.html#Size-constant" title="Rex::Proto::Http::WebSocket::AmazonSsm::PayloadType::Size (constant)">Size</a></span></span>
+  <span class='ivar'>@websocket</span><span class='period'>.</span><span class='id identifier rubyid_put_wsbinary'>put_wsbinary</span><span class='lparen'>(</span><span class='id identifier rubyid_frame'>frame</span><span class='period'>.</span><span class='id identifier rubyid_to_binary_s'>to_binary_s</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start_publication-instance_method">
+  
+    #<strong>start_publication</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+97
+98
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/web_socket/amazon_ssm.rb', line 97</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start_publication'>start_publication</span>
+  <span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../SsmFrame.html" title="Rex::Proto::Http::WebSocket::AmazonSsm::SsmFrame (class)">SsmFrame</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_start_pub'><span class='object_link'><a href="../SsmFrame.html#create_start_pub-class_method" title="Rex::Proto::Http::WebSocket::AmazonSsm::SsmFrame.create_start_pub (method)">create_start_pub</a></span></span>
+  <span class='ivar'>@publication</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='ivar'>@websocket</span><span class='period'>.</span><span class='id identifier rubyid_put_wsbinary'>put_wsbinary</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='period'>.</span><span class='id identifier rubyid_to_binary_s'>to_binary_s</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_term_size-instance_method">
+  
+    #<strong>update_term_size</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/web_socket/amazon_ssm.rb', line 127</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_term_size'>update_term_size</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_console'>console</span>
+
+  <span class='id identifier rubyid_rows'>rows</span><span class='comma'>,</span> <span class='id identifier rubyid_cols'>cols</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_winsize'>winsize</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_rows'>rows</span> <span class='op'>==</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rows'>rows</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_cols'>cols</span> <span class='op'>==</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_cols'>cols</span>
+    <span class='id identifier rubyid_set_term_size'>set_term_size</span><span class='lparen'>(</span><span class='id identifier rubyid_cols'>cols</span><span class='comma'>,</span> <span class='id identifier rubyid_rows'>rows</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rows'>rows</span> <span class='op'>=</span> <span class='id identifier rubyid_rows'>rows</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_cols'>cols</span> <span class='op'>=</span> <span class='id identifier rubyid_cols'>cols</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:41:49 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

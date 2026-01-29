@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::Http::AuthDigest
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Http::AuthDigest";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Http.html" title="Rex::Proto::Http (module)">Http</a></span></span>
+     &raquo; 
+    <span class="title">AuthDigest</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::Http::AuthDigest
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Proto::Http::AuthDigest</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/http/auth_digest.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#digest-instance_method" title="#digest (instance method)">#<strong>digest</strong>(digest_user, digest_password, method, path, parameters, iis = false)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_cnonce-instance_method" title="#make_cnonce (instance method)">#<strong>make_cnonce</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="digest-instance_method">
+  
+    #<strong>digest</strong>(digest_user, digest_password, method, path, parameters, iis = false)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/auth_digest.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='id identifier rubyid_digest_user'>digest_user</span><span class='comma'>,</span> <span class='id identifier rubyid_digest_password'>digest_password</span><span class='comma'>,</span> <span class='id identifier rubyid_method'>method</span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_parameters'>parameters</span><span class='comma'>,</span> <span class='id identifier rubyid_iis'>iis</span> <span class='op'>=</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cnonce'>cnonce</span> <span class='op'>=</span> <span class='id identifier rubyid_make_cnonce'>make_cnonce</span>
+  <span class='id identifier rubyid_nonce_count'>nonce_count</span> <span class='op'>=</span> <span class='int'>1</span>
+
+  <span class='id identifier rubyid_qop'>qop</span> <span class='op'>=</span> <span class='id identifier rubyid_parameters'>parameters</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>qop</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_parameters'>parameters</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>algorithm</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(.*?)(-sess)?$</span><span class='regexp_end'>/</span></span>
+    <span class='id identifier rubyid_algorithm'>algorithm</span> <span class='op'>=</span> <span class='kw'>case</span> <span class='op'>::</span><span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_last_match'>last_match</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span>
+                <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>MD5</span>
+                <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD-5</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>MD5</span>
+                <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA1</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA1</span>
+                <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA-1</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA1</span>
+                <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA2</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA2</span>
+                <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA-2</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA2</span>
+                <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA256</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA256</span>
+                <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA-256</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA256</span>
+                <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA384</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA384</span>
+                <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA-384</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA384</span>
+                <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA512</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA512</span>
+                <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA-512</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA512</span>
+                <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RMD160</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>RMD160</span>
+                <span class='kw'>else</span> <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown algorithm \&quot;</span><span class='embexpr_beg'>#{</span><span class='op'>::</span><span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_last_match'>last_match</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span>
+                <span class='kw'>end</span>
+    <span class='id identifier rubyid_algstr'>algstr</span> <span class='op'>=</span> <span class='id identifier rubyid_parameters'>parameters</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>algorithm</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_sess'>sess</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_last_match'>last_match</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_algorithm'>algorithm</span> <span class='op'>=</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>MD5</span>
+    <span class='id identifier rubyid_algstr'>algstr</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MD5</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_sess'>sess</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_a1'>a1</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='id identifier rubyid_sess'>sess</span>
+         <span class='lbracket'>[</span>
+           <span class='id identifier rubyid_algorithm'>algorithm</span><span class='period'>.</span><span class='id identifier rubyid_hexdigest'>hexdigest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_digest_user'>digest_user</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_parameters'>parameters</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>realm</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_digest_password'>digest_password</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+           <span class='id identifier rubyid_parameters'>parameters</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nonce</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+           <span class='id identifier rubyid_cnonce'>cnonce</span>
+         <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span>
+       <span class='kw'>else</span>
+         <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_digest_user'>digest_user</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_parameters'>parameters</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>realm</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_digest_password'>digest_password</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+       <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_ha1'>ha1</span> <span class='op'>=</span> <span class='id identifier rubyid_algorithm'>algorithm</span><span class='period'>.</span><span class='id identifier rubyid_hexdigest'>hexdigest</span><span class='lparen'>(</span><span class='id identifier rubyid_a1'>a1</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ha2'>ha2</span> <span class='op'>=</span> <span class='id identifier rubyid_algorithm'>algorithm</span><span class='period'>.</span><span class='id identifier rubyid_hexdigest'>hexdigest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_method'>method</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request_digest'>request_digest</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_ha1'>ha1</span><span class='comma'>,</span> <span class='id identifier rubyid_parameters'>parameters</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nonce</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_request_digest'>request_digest</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%08x</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_nonce_count'>nonce_count</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_cnonce'>cnonce</span><span class='comma'>,</span> <span class='id identifier rubyid_qop'>qop</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_qop'>qop</span>
+  <span class='id identifier rubyid_request_digest'>request_digest</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ha2'>ha2</span>
+  <span class='id identifier rubyid_request_digest'>request_digest</span> <span class='op'>=</span> <span class='id identifier rubyid_request_digest'>request_digest</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span>
+  <span class='comment'># Same order as IE7
+</span>  <span class='kw'>return</span> <span class='lbracket'>[</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Digest username=\&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_digest_user'>digest_user</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>realm=\&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_parameters'>parameters</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>realm</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>nonce=\&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_parameters'>parameters</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nonce</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>uri=\&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cnonce=\&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cnonce'>cnonce</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>nc=</span><span class='embexpr_beg'>#{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%08x</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_nonce_count'>nonce_count</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>algorithm=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_algstr'>algstr</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>response=\&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_algorithm'>algorithm</span><span class='period'>.</span><span class='id identifier rubyid_hexdigest'>hexdigest</span><span class='lparen'>(</span><span class='id identifier rubyid_request_digest'>request_digest</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='comment'># The spec says the qop value shouldn&#39;t be enclosed in quotes, but
+</span>    <span class='comment'># some versions of IIS require it and Apache accepts it.  Chrome
+</span>    <span class='comment'># and Firefox both send it without quotes but IE does it this way.
+</span>    <span class='comment'># Use the non-compliant-but-everybody-does-it to be as compatible
+</span>    <span class='comment'># as possible by default.  The user can override if they don&#39;t like
+</span>    <span class='comment'># it.
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_iis'>iis</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>qop=\&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_qop'>qop</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>else</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>qop=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_qop'>qop</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span><span class='comma'>,</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_parameters'>parameters</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>opaque</span><span class='tstring_end'>&#39;</span></span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>opaque=\&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_parameters'>parameters</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>opaque</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_cnonce-instance_method">
+  
+    #<strong>make_cnonce</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/auth_digest.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_make_cnonce'>make_cnonce</span>
+  <span class='const'>Digest</span><span class='op'>::</span><span class='const'>MD5</span><span class='period'>.</span><span class='id identifier rubyid_hexdigest'>hexdigest</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%x</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='lparen'>(</span><span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>+</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>65535</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:43:09 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

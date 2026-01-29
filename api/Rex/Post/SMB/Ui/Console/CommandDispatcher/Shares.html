@@ -1,0 +1,2934 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::SMB::Ui::Console::CommandDispatcher::Shares
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::SMB::Ui::Console::CommandDispatcher::Shares";
+  relpath = '../../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../SMB.html" title="Rex::Post::SMB (module)">SMB</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Ui.html" title="Rex::Post::SMB::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Console.html" title="Rex::Post::SMB::Ui::Console (class)">Console</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../CommandDispatcher.html" title="Rex::Post::SMB::Ui::Console::CommandDispatcher (module)">CommandDispatcher</a></span></span>
+     &raquo; 
+    <span class="title">Shares</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::SMB::Ui::Console::CommandDispatcher::Shares
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Post::SMB::Ui::Console::CommandDispatcher::Shares</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../CommandDispatcher.html" title="Rex::Post::SMB::Ui::Console::CommandDispatcher (module)">Rex::Post::SMB::Ui::Console::CommandDispatcher</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/smb/ui/console/command_dispatcher/shares.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Core SMB client commands</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="shares_opts-classvariable" class="">@@shares_opts =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../../../Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Help menu</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-l</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--list</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>List all shares</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-i</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--interact</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Interact with the supplied share ID</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>&lt;id&gt;</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="ls_opts-classvariable" class="">@@ls_opts =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../../../Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Help menu</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="pwd_opts-classvariable" class="">@@pwd_opts =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../../../Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Help menu</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="cd_opts-classvariable" class="">@@cd_opts =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../../../Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Help menu</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="cat_opts-classvariable" class="">@@cat_opts =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../../../Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Help menu</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="upload_opts-classvariable" class="">@@upload_opts =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../../../Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Help menu</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="download_opts-classvariable" class="">@@download_opts =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../../../Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Help menu</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="delete_opts-classvariable" class="">@@delete_opts =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../../../Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Help menu</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="mkdir_opts-classvariable" class="">@@mkdir_opts =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../../../Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Help menu</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="rmdir_opts-classvariable" class="">@@rmdir_opts =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../../../Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Help menu</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#shell-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#shell (method)">#shell</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_items-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_items (method)">#tab_complete_items</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_cat-instance_method" title="#cmd_cat (instance method)">#<strong>cmd_cat</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Print the contents of a file.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_cat_help-instance_method" title="#cmd_cat_help (instance method)">#<strong>cmd_cat_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_cd-instance_method" title="#cmd_cd (instance method)">#<strong>cmd_cd</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Change directory.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_cd_help-instance_method" title="#cmd_cd_help (instance method)">#<strong>cmd_cd_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_cd_tabs-instance_method" title="#cmd_cd_tabs (instance method)">#<strong>cmd_cd_tabs</strong>(_str, words)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_delete-instance_method" title="#cmd_delete (instance method)">#<strong>cmd_delete</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_delete_help-instance_method" title="#cmd_delete_help (instance method)">#<strong>cmd_delete_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_download-instance_method" title="#cmd_download (instance method)">#<strong>cmd_download</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_download_help-instance_method" title="#cmd_download_help (instance method)">#<strong>cmd_download_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_ls-instance_method" title="#cmd_ls (instance method)">#<strong>cmd_ls</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+      (also: #cmd_dir)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Display the contents of your current working directory.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_ls_help-instance_method" title="#cmd_ls_help (instance method)">#<strong>cmd_ls_help</strong>  &#x21d2; Object </a>
+    
+
+    
+      (also: #cmd_dir_help)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_ls_tabs-instance_method" title="#cmd_ls_tabs (instance method)">#<strong>cmd_ls_tabs</strong>(_str, words)  &#x21d2; Object </a>
+    
+
+    
+      (also: #cmd_dir_tabs)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_mkdir-instance_method" title="#cmd_mkdir (instance method)">#<strong>cmd_mkdir</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_mkdir_help-instance_method" title="#cmd_mkdir_help (instance method)">#<strong>cmd_mkdir_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_pwd-instance_method" title="#cmd_pwd (instance method)">#<strong>cmd_pwd</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Print the current working directory.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_pwd_help-instance_method" title="#cmd_pwd_help (instance method)">#<strong>cmd_pwd_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_pwd_tabs-instance_method" title="#cmd_pwd_tabs (instance method)">#<strong>cmd_pwd_tabs</strong>(_str, words)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_rmdir-instance_method" title="#cmd_rmdir (instance method)">#<strong>cmd_rmdir</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_rmdir_help-instance_method" title="#cmd_rmdir_help (instance method)">#<strong>cmd_rmdir_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_shares-instance_method" title="#cmd_shares (instance method)">#<strong>cmd_shares</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>View and interact with shares.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_shares_help-instance_method" title="#cmd_shares_help (instance method)">#<strong>cmd_shares_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_shares_tabs-instance_method" title="#cmd_shares_tabs (instance method)">#<strong>cmd_shares_tabs</strong>(_str, words)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_upload-instance_method" title="#cmd_upload (instance method)">#<strong>cmd_upload</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_upload_help-instance_method" title="#cmd_upload_help (instance method)">#<strong>cmd_upload_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_upload_tabs-instance_method" title="#cmd_upload_tabs (instance method)">#<strong>cmd_upload_tabs</strong>(str, words)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#commands-instance_method" title="#commands (instance method)">#<strong>commands</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>List of supported commands.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#download_file-instance_method" title="#download_file (instance method)">#<strong>download_file</strong>(dest_file, src_file)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Download a remote file from the target.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(console)  &#x21d2; Shares </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes an instance of the shares command set using the supplied console for interactivity.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">#<strong>name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Shares.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#print_no_share_selected-instance_method" title="#print_no_share_selected (instance method)">#<strong>print_no_share_selected</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#upload_file-instance_method" title="#upload_file (instance method)">#<strong>upload_file</strong>(dest_file, src_file)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Upload a local file to the target.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../CommandDispatcher.html" title="Rex::Post::SMB::Ui::Console::CommandDispatcher (module)">Rex::Post::SMB::Ui::Console::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../CommandDispatcher.html#active_share-instance_method" title="Rex::Post::SMB::Ui::Console::CommandDispatcher#active_share (method)">#active_share</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#client-instance_method" title="Rex::Post::SMB::Ui::Console::CommandDispatcher#client (method)">#client</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#docs_dir-instance_method" title="Rex::Post::SMB::Ui::Console::CommandDispatcher#docs_dir (method)">#docs_dir</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#filter_commands-instance_method" title="Rex::Post::SMB::Ui::Console::CommandDispatcher#filter_commands (method)">#filter_commands</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#log_error-instance_method" title="Rex::Post::SMB::Ui::Console::CommandDispatcher#log_error (method)">#log_error</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#msf_loaded%3F-instance_method" title="Rex::Post::SMB::Ui::Console::CommandDispatcher#msf_loaded? (method)">#msf_loaded?</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#session-instance_method" title="Rex::Post::SMB::Ui::Console::CommandDispatcher#session (method)">#session</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#simple_client-instance_method" title="Rex::Post::SMB::Ui::Console::CommandDispatcher#simple_client (method)">#simple_client</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#unknown_command-instance_method" title="Rex::Post::SMB::Ui::Console::CommandDispatcher#unknown_command (method)">#unknown_command</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html" title="Msf::Ui::Console::CommandDispatcher::Session (module)">Msf::Ui::Console::CommandDispatcher::Session</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html#cmd_background-instance_method" title="Msf::Ui::Console::CommandDispatcher::Session#cmd_background (method)">#cmd_background</a></span>, <span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html#cmd_background_help-instance_method" title="Msf::Ui::Console::CommandDispatcher::Session#cmd_background_help (method)">#cmd_background_help</a></span>, <span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html#cmd_exit-instance_method" title="Msf::Ui::Console::CommandDispatcher::Session#cmd_exit (method)">#cmd_exit</a></span>, <span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html#cmd_irb-instance_method" title="Msf::Ui::Console::CommandDispatcher::Session#cmd_irb (method)">#cmd_irb</a></span>, <span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html#cmd_irb_help-instance_method" title="Msf::Ui::Console::CommandDispatcher::Session#cmd_irb_help (method)">#cmd_irb_help</a></span>, <span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html#cmd_irb_tabs-instance_method" title="Msf::Ui::Console::CommandDispatcher::Session#cmd_irb_tabs (method)">#cmd_irb_tabs</a></span>, <span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html#cmd_pry-instance_method" title="Msf::Ui::Console::CommandDispatcher::Session#cmd_pry (method)">#cmd_pry</a></span>, <span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html#cmd_pry_help-instance_method" title="Msf::Ui::Console::CommandDispatcher::Session#cmd_pry_help (method)">#cmd_pry_help</a></span>, <span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html#cmd_resource-instance_method" title="Msf::Ui::Console::CommandDispatcher::Session#cmd_resource (method)">#cmd_resource</a></span>, <span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html#cmd_resource_help-instance_method" title="Msf::Ui::Console::CommandDispatcher::Session#cmd_resource_help (method)">#cmd_resource_help</a></span>, <span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html#cmd_resource_tabs-instance_method" title="Msf::Ui::Console::CommandDispatcher::Session#cmd_resource_tabs (method)">#cmd_resource_tabs</a></span>, <span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html#cmd_sessions-instance_method" title="Msf::Ui::Console::CommandDispatcher::Session#cmd_sessions (method)">#cmd_sessions</a></span>, <span class='object_link'><a href="../../../../../../Msf/Ui/Console/CommandDispatcher/Session.html#cmd_sessions_help-instance_method" title="Msf::Ui::Console::CommandDispatcher::Session#cmd_sessions_help (method)">#cmd_sessions_help</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help (method)">#cmd_help</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_help (method)">#cmd_help_help</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_tabs-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_tabs (method)">#cmd_help_tabs</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_cmd-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_cmd (method)">#deprecated_cmd</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_commands-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_commands (method)">#deprecated_commands</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_help (method)">#deprecated_help</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#docs_dir-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#docs_dir (method)">#docs_dir</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#help_to_s-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#help_to_s (method)">#help_to_s</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#included-class_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher.included (method)">included</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print (method)">#print</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_error-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_good-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_line-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_status-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_warning-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_warning (method)">#print_warning</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_directory-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_directory (method)">#tab_complete_directory</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_filenames-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_filenames (method)">#tab_complete_filenames</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_generic-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_generic (method)">#tab_complete_generic</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_source_address-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_source_address (method)">#tab_complete_source_address</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#unknown_command-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#unknown_command (method)">#unknown_command</a></span>, <span class='object_link'><a href="../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#update_prompt-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#update_prompt (method)">#update_prompt</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(console)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::SMB::Ui::Console::CommandDispatcher::Shares (class)">Shares</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes an instance of the shares command set using the supplied console for interactivity.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>console</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Console.html" title="Rex::Post::SMB::Ui::Console (class)">Rex::Post::SMB::Ui::Console</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_console'>console</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='ivar'>@share_search_results</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cmd_cat-instance_method">
+  
+    #<strong>cmd_cat</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Print the contents of a file</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 335</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_cat'>cmd_cat</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>!=</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_cmd_cd_help'>cmd_cd_help</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_print_no_share_selected'>print_no_share_selected</span> <span class='kw'>unless</span> <span class='id identifier rubyid_active_share'>active_share</span>
+
+  <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_new_path'>new_path</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Ntpath.html" title="Rex::Ntpath (module)">Ntpath</a></span></span><span class='period'>.</span><span class='id identifier rubyid_as_ntpath'><span class='object_link'><a href="../../../../../Ntpath.html#as_ntpath-class_method" title="Rex::Ntpath.as_ntpath (method)">as_ntpath</a></span></span><span class='lparen'>(</span><span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_cwd'>cwd</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_file'>file</span> <span class='op'>=</span> <span class='id identifier rubyid_simple_client'>simple_client</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_new_path'>new_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>o</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span>
+    <span class='id identifier rubyid_print_line'>print_line</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>ensure</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>if</span> <span class='id identifier rubyid_file'>file</span>
+    <span class='kw'>rescue</span> <span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_cat_help-instance_method">
+  
+    #<strong>cmd_cat_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+325
+326
+327
+328
+329
+330</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 325</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_cat_help'>cmd_cat_help</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: cat &lt;path&gt;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Read the file at the given path.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_cd-instance_method">
+  
+    #<strong>cmd_cd</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Change directory</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 291</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_cd'>cmd_cd</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>!=</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_cmd_cd_help'>cmd_cd_help</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_print_no_share_selected'>print_no_share_selected</span> <span class='kw'>unless</span> <span class='id identifier rubyid_active_share'>active_share</span>
+
+  <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_native_path'>native_path</span> <span class='op'>=</span> <span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_cwd'>cwd</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='id identifier rubyid_new_path'>new_path</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Ntpath.html" title="Rex::Ntpath (module)">Ntpath</a></span></span><span class='period'>.</span><span class='id identifier rubyid_as_ntpath'><span class='object_link'><a href="../../../../../Ntpath.html#as_ntpath-class_method" title="Rex::Ntpath.as_ntpath (method)">as_ntpath</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_native_path'>native_path</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_active_share'>active_share</span><span class='period'>.</span><span class='id identifier rubyid_open_directory'>open_directory</span><span class='lparen'>(</span><span class='label'>directory:</span> <span class='id identifier rubyid_new_path'>new_path</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_directory'>directory</span> <span class='op'>=</span> <span class='const'>RubySMB</span><span class='op'>::</span><span class='const'>SMB2</span><span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='id identifier rubyid_new_path'>new_path</span><span class='comma'>,</span> <span class='label'>tree:</span> <span class='id identifier rubyid_active_share'>active_share</span><span class='comma'>,</span> <span class='label'>response:</span> <span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='label'>encrypt:</span> <span class='ivar'>@tree_connect_encrypt_data</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>RubySMB</span><span class='op'>::</span><span class='const'>Error</span><span class='op'>::</span><span class='const'>UnexpectedStatusCode</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='comment'># Special case this error to provide better feedback to the user
+</span>    <span class='comment'># since I think trying to `cd` to a non-existent directory is pretty likely to accidentally happen
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_status_code'>status_code</span> <span class='op'>==</span> <span class='const'>WindowsError</span><span class='op'>::</span><span class='const'>NTStatus</span><span class='op'>::</span><span class='const'>STATUS_OBJECT_NAME_NOT_FOUND</span>
+      <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The path `</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_new_path'>new_path</span><span class='embexpr_end'>}</span><span class='tstring_content'>` is not a valid directory</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>rescue</span> <span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Unknown error occurred while trying to change directory</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>ensure</span>
+    <span class='id identifier rubyid_directory'>directory</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>if</span> <span class='id identifier rubyid_directory'>directory</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_cwd'>cwd</span> <span class='op'>=</span> <span class='id identifier rubyid_native_path'>native_path</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_cd_help-instance_method">
+  
+    #<strong>cmd_cd_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+281
+282
+283
+284
+285
+286</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 281</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_cd_help'>cmd_cd_help</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: cd &lt;path&gt;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Change the current remote working directory.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_cd_tabs-instance_method">
+  
+    #<strong>cmd_cd_tabs</strong>(_str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+363
+364
+365
+366
+367</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 363</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_cd_tabs'>cmd_cd_tabs</span><span class='lparen'>(</span><span class='id identifier rubyid__str'>_str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>1</span>
+
+  <span class='cvar'>@@cd_opts</span><span class='period'>.</span><span class='id identifier rubyid_option_keys'>option_keys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_delete-instance_method">
+  
+    #<strong>cmd_delete</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 461</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_delete'>cmd_delete</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cmd_delete_help'>cmd_delete_help</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_remote_path'>remote_path</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='cvar'>@@delete_opts</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid__opt'>_opt</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_idx'>idx</span>
+    <span class='kw'>when</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_remote_path'>remote_path</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_warning'>print_warning</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Too many parameters</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_cmd_delete_help'>cmd_delete_help</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_full_path'>full_path</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Ntpath.html" title="Rex::Ntpath (module)">Ntpath</a></span></span><span class='period'>.</span><span class='id identifier rubyid_as_ntpath'><span class='object_link'><a href="../../../../../Ntpath.html#as_ntpath-class_method" title="Rex::Ntpath.as_ntpath (method)">as_ntpath</a></span></span><span class='lparen'>(</span><span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_cwd'>cwd</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_remote_path'>remote_path</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_fd'>fd</span> <span class='op'>=</span> <span class='id identifier rubyid_simple_client'>simple_client</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_full_path'>full_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>o</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span>
+  <span class='id identifier rubyid_print_good'>print_good</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Deleted </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_full_path'>full_path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_delete_help-instance_method">
+  
+    #<strong>cmd_delete_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+485
+486
+487
+488
+489
+490</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 485</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_delete_help'>cmd_delete_help</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: delete &lt;remote_path&gt;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Delete a file from the remote target.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print'>print</span> <span class='cvar'>@@delete_opts</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_download-instance_method">
+  
+    #<strong>cmd_download</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 417</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_download'>cmd_download</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cmd_download_help'>cmd_download_help</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_print_no_share_selected'>print_no_share_selected</span> <span class='kw'>unless</span> <span class='id identifier rubyid_active_share'>active_share</span>
+
+  <span class='id identifier rubyid_remote_path'>remote_path</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_local_path'>local_path</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='cvar'>@@download_opts</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid__opt'>_opt</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_idx'>idx</span>
+    <span class='kw'>when</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_remote_path'>remote_path</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>when</span> <span class='int'>1</span>
+      <span class='id identifier rubyid_local_path'>local_path</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_warning'>print_warning</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Too many parameters</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_cmd_download_help'>cmd_download_help</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_remote_path'>remote_path</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No remote path given</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_local_path'>local_path</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../File.html" title="Rex::Post::File (module)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_basename'><span class='object_link'><a href="../../../../File.html#basename-class_method" title="Rex::Post::File.basename (method)">basename</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_remote_path'>remote_path</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_local_path'>local_path</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_full_path'>full_path</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Ntpath.html" title="Rex::Ntpath (module)">Ntpath</a></span></span><span class='period'>.</span><span class='id identifier rubyid_as_ntpath'><span class='object_link'><a href="../../../../../Ntpath.html#as_ntpath-class_method" title="Rex::Ntpath.as_ntpath (method)">as_ntpath</a></span></span><span class='lparen'>(</span><span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_cwd'>cwd</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_remote_path'>remote_path</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_download_file'>download_file</span><span class='lparen'>(</span><span class='id identifier rubyid_local_path'>local_path</span><span class='comma'>,</span> <span class='id identifier rubyid_full_path'>full_path</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_print_good'>print_good</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Downloaded </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_full_path'>full_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_local_path'>local_path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_download_help-instance_method">
+  
+    #<strong>cmd_download_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+454
+455
+456
+457
+458
+459</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 454</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_download_help'>cmd_download_help</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: download &lt;remote_path&gt; &lt;local_path&gt;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Download a file from the remote target.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print'>print</span> <span class='cvar'>@@download_opts</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_ls-instance_method">
+  
+    #<strong>cmd_ls</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='cmd_dir-instance_method'>cmd_dir</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Display the contents of your current working directory</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 179</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_ls'>cmd_ls</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cmd_ls_help'>cmd_ls_help</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_print_no_share_selected'>print_no_share_selected</span> <span class='kw'>unless</span> <span class='id identifier rubyid_active_share'>active_share</span>
+
+  <span class='id identifier rubyid_remote_path'>remote_path</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='cvar'>@@delete_opts</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid__opt'>_opt</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_idx'>idx</span>
+    <span class='kw'>when</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_remote_path'>remote_path</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_warning'>print_warning</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Too many parameters</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_cmd_ls_help'>cmd_ls_help</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_full_path'>full_path</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Ntpath.html" title="Rex::Ntpath (module)">Ntpath</a></span></span><span class='period'>.</span><span class='id identifier rubyid_as_ntpath'><span class='object_link'><a href="../../../../../Ntpath.html#as_ntpath-class_method" title="Rex::Ntpath.as_ntpath (method)">as_ntpath</a></span></span><span class='lparen'>(</span><span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_cwd'>cwd</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_remote_path'>remote_path</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_files'>files</span> <span class='op'>=</span> <span class='id identifier rubyid_active_share'>active_share</span><span class='period'>.</span><span class='id identifier rubyid_list'>list</span><span class='lparen'>(</span><span class='label'>directory:</span> <span class='id identifier rubyid_full_path'>full_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_table'>table</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Table</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Header</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ls </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_full_path'>full_path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Indent</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='int'>4</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Columns</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>#</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Type</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Name</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Created</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Accessed</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Written</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Changed</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Size</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Rows</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='period'>.</span><span class='id identifier rubyid_with_index'>with_index</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_file'>file</span><span class='comma'>,</span> <span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+      <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_file_name'>file_name</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>UTF-8</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_create_time'>create_time</span> <span class='op'>=</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_create_time'>create_time</span><span class='period'>.</span><span class='id identifier rubyid_to_datetime'>to_datetime</span>
+      <span class='id identifier rubyid_last_access'>last_access</span> <span class='op'>=</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_last_access'>last_access</span><span class='period'>.</span><span class='id identifier rubyid_to_datetime'>to_datetime</span>
+      <span class='id identifier rubyid_last_write'>last_write</span> <span class='op'>=</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_last_write'>last_write</span><span class='period'>.</span><span class='id identifier rubyid_to_datetime'>to_datetime</span>
+      <span class='id identifier rubyid_last_change'>last_change</span> <span class='op'>=</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_last_change'>last_change</span><span class='period'>.</span><span class='id identifier rubyid_to_datetime'>to_datetime</span>
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='lbracket'>[</span><span class='symbol'>:file_attributes</span><span class='rbracket'>]</span><span class='op'>&amp;.</span><span class='id identifier rubyid_directory'>directory</span> <span class='op'>==</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='lbracket'>[</span><span class='symbol'>:ext_file_attributes</span><span class='rbracket'>]</span><span class='op'>&amp;.</span><span class='id identifier rubyid_directory'>directory</span> <span class='op'>==</span> <span class='int'>1</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DIR</span><span class='tstring_end'>&#39;</span></span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FILE</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_size'>size</span> <span class='op'>=</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_end_of_file'>end_of_file</span>
+      <span class='kw'>end</span>
+
+      <span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Unknown</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_create_time'>create_time</span><span class='comma'>,</span> <span class='id identifier rubyid_last_access'>last_access</span><span class='comma'>,</span> <span class='id identifier rubyid_last_write'>last_write</span><span class='comma'>,</span> <span class='id identifier rubyid_last_change'>last_change</span><span class='comma'>,</span> <span class='id identifier rubyid_size'>size</span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='id identifier rubyid_table'>table</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_ls_help-instance_method">
+  
+    #<strong>cmd_ls_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='cmd_dir_help-instance_method'>cmd_dir_help</span></span>
+    </span>
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 227</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_ls_help'>cmd_ls_help</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage:</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ls [options] [path]</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>COMMAND ALIASES:</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>    dir</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Lists contents of directory or file info</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='cvar'>@@ls_opts</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_ls_tabs-instance_method">
+  
+    #<strong>cmd_ls_tabs</strong>(_str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='cmd_dir_tabs-instance_method'>cmd_dir_tabs</span></span>
+    </span>
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+239
+240
+241
+242
+243</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 239</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_ls_tabs'>cmd_ls_tabs</span><span class='lparen'>(</span><span class='id identifier rubyid__str'>_str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>1</span>
+
+  <span class='cvar'>@@ls_opts</span><span class='period'>.</span><span class='id identifier rubyid_option_keys'>option_keys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_mkdir-instance_method">
+  
+    #<strong>cmd_mkdir</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 492</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_mkdir'>cmd_mkdir</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cmd_mkdir_help'>cmd_mkdir_help</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_print_no_share_selected'>print_no_share_selected</span> <span class='kw'>unless</span> <span class='id identifier rubyid_active_share'>active_share</span>
+
+  <span class='id identifier rubyid_remote_path'>remote_path</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='cvar'>@@mkdir_opts</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid__opt'>_opt</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_idx'>idx</span>
+    <span class='kw'>when</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_remote_path'>remote_path</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_warning'>print_warning</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Too many parameters</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_cmd_mkdir_help'>cmd_mkdir_help</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_full_path'>full_path</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Ntpath.html" title="Rex::Ntpath (module)">Ntpath</a></span></span><span class='period'>.</span><span class='id identifier rubyid_as_ntpath'><span class='object_link'><a href="../../../../../Ntpath.html#as_ntpath-class_method" title="Rex::Ntpath.as_ntpath (method)">as_ntpath</a></span></span><span class='lparen'>(</span><span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_cwd'>cwd</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_remote_path'>remote_path</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_active_share'>active_share</span><span class='period'>.</span><span class='id identifier rubyid_open_directory'>open_directory</span><span class='lparen'>(</span><span class='label'>directory:</span> <span class='id identifier rubyid_full_path'>full_path</span><span class='comma'>,</span> <span class='label'>disposition:</span> <span class='const'>RubySMB</span><span class='op'>::</span><span class='const'>Dispositions</span><span class='op'>::</span><span class='const'>FILE_CREATE</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_directory'>directory</span> <span class='op'>=</span> <span class='const'>RubySMB</span><span class='op'>::</span><span class='const'>SMB2</span><span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='id identifier rubyid_full_path'>full_path</span><span class='comma'>,</span> <span class='label'>tree:</span> <span class='id identifier rubyid_active_share'>active_share</span><span class='comma'>,</span> <span class='label'>response:</span> <span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='label'>encrypt:</span> <span class='ivar'>@tree_connect_encrypt_data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_good'>print_good</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Directory </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_full_path'>full_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> created</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>ensure</span>
+  <span class='id identifier rubyid_directory'>directory</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>if</span> <span class='id identifier rubyid_directory'>directory</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_mkdir_help-instance_method">
+  
+    #<strong>cmd_mkdir_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+522
+523
+524
+525
+526
+527</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 522</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_mkdir_help'>cmd_mkdir_help</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: mkdir &lt;remote_path&gt;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Create a directory on the remote target.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print'>print</span> <span class='cvar'>@@mkdir_opts</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_pwd-instance_method">
+  
+    #<strong>cmd_pwd</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Print the current working directory</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 262</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_pwd'>cmd_pwd</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cmd_pwd_help'>cmd_pwd_help</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_print_no_share_selected'>print_no_share_selected</span> <span class='kw'>unless</span> <span class='id identifier rubyid_active_share'>active_share</span>
+
+  <span class='id identifier rubyid_share_name'>share_name</span> <span class='op'>=</span> <span class='id identifier rubyid_active_share'>active_share</span><span class='period'>.</span><span class='id identifier rubyid_share'>share</span><span class='lbracket'>[</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[^\\].*$</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_cwd'>cwd</span> <span class='op'>=</span> <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_cwd'>cwd</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_cwd'>cwd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Current directory is \\\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_share_name'>share_name</span><span class='embexpr_end'>}</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cwd'>cwd</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_pwd_help-instance_method">
+  
+    #<strong>cmd_pwd_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+252
+253
+254
+255
+256
+257</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 252</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_pwd_help'>cmd_pwd_help</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: pwd</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Print the current remote working directory.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_pwd_tabs-instance_method">
+  
+    #<strong>cmd_pwd_tabs</strong>(_str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+275
+276
+277
+278
+279</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 275</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_pwd_tabs'>cmd_pwd_tabs</span><span class='lparen'>(</span><span class='id identifier rubyid__str'>_str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>1</span>
+
+  <span class='cvar'>@@pwd_opts</span><span class='period'>.</span><span class='id identifier rubyid_option_keys'>option_keys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_rmdir-instance_method">
+  
+    #<strong>cmd_rmdir</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 529</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_rmdir'>cmd_rmdir</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cmd_rmdir_help'>cmd_rmdir_help</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_print_no_share_selected'>print_no_share_selected</span> <span class='kw'>unless</span> <span class='id identifier rubyid_active_share'>active_share</span>
+
+  <span class='id identifier rubyid_remote_path'>remote_path</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='cvar'>@@rmdir_opts</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid__opt'>_opt</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_idx'>idx</span>
+    <span class='kw'>when</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_remote_path'>remote_path</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_warning'>print_warning</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Too many parameters</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_cmd_rmdir_help'>cmd_rmdir_help</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_full_path'>full_path</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Ntpath.html" title="Rex::Ntpath (module)">Ntpath</a></span></span><span class='period'>.</span><span class='id identifier rubyid_as_ntpath'><span class='object_link'><a href="../../../../../Ntpath.html#as_ntpath-class_method" title="Rex::Ntpath.as_ntpath (method)">as_ntpath</a></span></span><span class='lparen'>(</span><span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_cwd'>cwd</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_remote_path'>remote_path</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_active_share'>active_share</span><span class='period'>.</span><span class='id identifier rubyid_open_directory'>open_directory</span><span class='lparen'>(</span><span class='label'>directory:</span> <span class='id identifier rubyid_full_path'>full_path</span><span class='comma'>,</span> <span class='label'>write:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>delete:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>desired_delete:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_directory'>directory</span> <span class='op'>=</span> <span class='const'>RubySMB</span><span class='op'>::</span><span class='const'>SMB2</span><span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='id identifier rubyid_full_path'>full_path</span><span class='comma'>,</span> <span class='label'>tree:</span> <span class='id identifier rubyid_active_share'>active_share</span><span class='comma'>,</span> <span class='label'>response:</span> <span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='label'>encrypt:</span> <span class='ivar'>@tree_connect_encrypt_data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_status'>status</span> <span class='op'>=</span> <span class='id identifier rubyid_directory'>directory</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_status'>status</span> <span class='op'>==</span> <span class='const'>WindowsError</span><span class='op'>::</span><span class='const'>NTStatus</span><span class='op'>::</span><span class='const'>STATUS_SUCCESS</span>
+    <span class='id identifier rubyid_print_good'>print_good</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Deleted </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_full_path'>full_path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error deleting </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_full_path'>full_path</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_status'>status</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_status'>status</span><span class='period'>.</span><span class='id identifier rubyid_description'>description</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>ensure</span>
+  <span class='id identifier rubyid_directory'>directory</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>if</span> <span class='id identifier rubyid_directory'>directory</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_rmdir_help-instance_method">
+  
+    #<strong>cmd_rmdir_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+564
+565
+566
+567
+568
+569</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 564</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_rmdir_help'>cmd_rmdir_help</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: rmdir &lt;remote_path&gt;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Delete a directory from the remote target.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print'>print</span> <span class='cvar'>@@rmdir_opts</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_shares-instance_method">
+  
+    #<strong>cmd_shares</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>View and interact with shares</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 106</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_shares'>cmd_shares</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cmd_shares_help'>cmd_shares_help</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_method'>method</span> <span class='op'>=</span> <span class='symbol'>:list</span>
+  <span class='id identifier rubyid_share_name'>share_name</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># Parse options
+</span>  <span class='cvar'>@@shares_opts</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_opt'>opt</span><span class='comma'>,</span> <span class='id identifier rubyid__idx'>_idx</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_opt'>opt</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-l</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--list</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-i</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--interact</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_share_name'>share_name</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+      <span class='id identifier rubyid_method'>method</span> <span class='op'>=</span> <span class='symbol'>:interact</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Perform action
+</span>  <span class='kw'>case</span> <span class='id identifier rubyid_method'>method</span>
+  <span class='kw'>when</span> <span class='symbol'>:list</span>
+    <span class='id identifier rubyid_populate_shares'>populate_shares</span>
+
+    <span class='id identifier rubyid_table'>table</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Table</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Header</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Shares</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Indent</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='int'>4</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Columns</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>#</span><span class='words_sep'> </span><span class='tstring_content'>Name</span><span class='words_sep'> </span><span class='tstring_content'>Type</span><span class='words_sep'> </span><span class='tstring_content'>comment</span><span class='tstring_end'>]</span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Rows</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='ivar'>@share_search_results</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='period'>.</span><span class='id identifier rubyid_with_index'>with_index</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_share'>share</span><span class='comma'>,</span> <span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+        <span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='comma'>,</span> <span class='id identifier rubyid_share'>share</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_share'>share</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_share'>share</span><span class='lbracket'>[</span><span class='symbol'>:comment</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+    <span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_print_line'>print_line</span> <span class='id identifier rubyid_table'>table</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>when</span> <span class='symbol'>:interact</span>
+    <span class='id identifier rubyid_populate_shares'>populate_shares</span> <span class='kw'>if</span> <span class='ivar'>@valid_share_names</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='comment'># Share names can be comprised only of digits so prioritise a share name over the share index
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_share_name'>share_name</span><span class='period'>.</span><span class='id identifier rubyid_match?'>match?</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\A\d+\z</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='ivar'>@valid_share_names</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_share_name'>share_name</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_share_name'>share_name</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='ivar'>@share_search_results</span><span class='lbracket'>[</span><span class='id identifier rubyid_share_name'>share_name</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_share_name'>share_name</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Invalid share name</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_address'>address</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_share_name'>share_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_active_share'>active_share</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_tree_connect'>tree_connect</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_cwd'>cwd</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_print_good'>print_good</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Successfully connected to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_share_name'>share_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>rescue</span> <span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_log_error'>log_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error running action </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_method'>method</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_shares_help-instance_method">
+  
+    #<strong>cmd_shares_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+169
+170
+171
+172
+173
+174</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 169</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_shares_help'>cmd_shares_help</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: shares</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>View the shares available on the remote target.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print'>print</span> <span class='cvar'>@@shares_opts</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_shares_tabs-instance_method">
+  
+    #<strong>cmd_shares_tabs</strong>(_str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+163
+164
+165
+166
+167</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 163</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_shares_tabs'>cmd_shares_tabs</span><span class='lparen'>(</span><span class='id identifier rubyid__str'>_str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>1</span>
+
+  <span class='cvar'>@@shares_opts</span><span class='period'>.</span><span class='id identifier rubyid_option_keys'>option_keys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_upload-instance_method">
+  
+    #<strong>cmd_upload</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 369</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_upload'>cmd_upload</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cmd_upload_help'>cmd_upload_help</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_print_no_share_selected'>print_no_share_selected</span> <span class='kw'>unless</span> <span class='id identifier rubyid_active_share'>active_share</span>
+
+  <span class='id identifier rubyid_local_path'>local_path</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_remote_path'>remote_path</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='cvar'>@@upload_opts</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid__opt'>_opt</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_idx'>idx</span>
+    <span class='kw'>when</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_local_path'>local_path</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>when</span> <span class='int'>1</span>
+      <span class='id identifier rubyid_remote_path'>remote_path</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_warning'>print_warning</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Too many parameters</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_cmd_upload_help'>cmd_upload_help</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_local_path'>local_path</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No local path given</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_remote_path'>remote_path</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../File.html" title="Rex::Post::File (module)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_basename'><span class='object_link'><a href="../../../../File.html#basename-class_method" title="Rex::Post::File.basename (method)">basename</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_local_path'>local_path</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_remote_path'>remote_path</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_full_path'>full_path</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Ntpath.html" title="Rex::Ntpath (module)">Ntpath</a></span></span><span class='period'>.</span><span class='id identifier rubyid_as_ntpath'><span class='object_link'><a href="../../../../../Ntpath.html#as_ntpath-class_method" title="Rex::Ntpath.as_ntpath (method)">as_ntpath</a></span></span><span class='lparen'>(</span><span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_cwd'>cwd</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_remote_path'>remote_path</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_upload_file'>upload_file</span><span class='lparen'>(</span><span class='id identifier rubyid_full_path'>full_path</span><span class='comma'>,</span> <span class='id identifier rubyid_local_path'>local_path</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_print_good'>print_good</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_local_path'>local_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> uploaded to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_full_path'>full_path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_upload_help-instance_method">
+  
+    #<strong>cmd_upload_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+410
+411
+412
+413
+414
+415</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 410</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_upload_help'>cmd_upload_help</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: upload &lt;local_path&gt; &lt;remote_path&gt;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'>print_line</span>
+  <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Upload a file to the remote target.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print'>print</span> <span class='cvar'>@@upload_opts</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_upload_tabs-instance_method">
+  
+    #<strong>cmd_upload_tabs</strong>(str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+406
+407
+408</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 406</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_upload_tabs'>cmd_upload_tabs</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_tab_complete_filenames'>tab_complete_filenames</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="commands-instance_method">
+  
+    #<strong>commands</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>List of supported commands.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 76</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_commands'>commands</span>
+  <span class='id identifier rubyid_cmds'>cmds</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>shares</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>View the available shares and interact with one</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ls</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>List all files in the current directory</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dir</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>List all files in the current directory (alias for ls)</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pwd</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Print the current remote working directory</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cd</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Change the current remote working directory</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cat</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Read the file at the given path</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>upload</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Upload a file</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>download</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Download a file</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>delete</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Delete a file</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mkdir</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Make a new directory</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rmdir</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Delete a directory</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_reqs'>reqs</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_filter_commands'>filter_commands</span><span class='lparen'>(</span><span class='id identifier rubyid_cmds'>cmds</span><span class='comma'>,</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="download_file-instance_method">
+  
+    #<strong>download_file</strong>(dest_file, src_file)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Download a remote file from the target</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>dest_file</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The path for the destination file</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>src_file</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The path for the source file</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 604</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_download_file'>download_file</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_buf_size'>buf_size</span> <span class='op'>=</span> <span class='int'>8</span> <span class='op'>*</span> <span class='int'>1024</span> <span class='op'>*</span> <span class='int'>1024</span>
+  <span class='id identifier rubyid_src_fd'>src_fd</span> <span class='op'>=</span> <span class='id identifier rubyid_simple_client'>simple_client</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>o</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='comment'># Make the destination path if necessary
+</span>  <span class='id identifier rubyid_dir'>dir</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_dirname'>dirname</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span>
+  <span class='op'>::</span><span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_mkdir_p'>mkdir_p</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_dir'>dir</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_directory?'>directory?</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dst_fd'>dst_fd</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_src_size'>src_size</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_open_files'>open_files</span><span class='lbracket'>[</span><span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_file_id'>file_id</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+  <span class='kw'>begin</span>
+    <span class='kw'>while</span> <span class='id identifier rubyid_offset'>offset</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_src_size'>src_size</span>
+      <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_buf_size'>buf_size</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+      <span class='id identifier rubyid_percent'>percent</span> <span class='op'>=</span> <span class='id identifier rubyid_offset'>offset</span> <span class='op'>/</span> <span class='id identifier rubyid_src_size'>src_size</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>*</span> <span class='float'>100.0</span>
+      <span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Downloaded </span><span class='embexpr_beg'>#{</span><span class='const'>Filesize</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pretty'>pretty</span><span class='embexpr_end'>}</span><span class='tstring_content'> of </span><span class='tstring_end'>&quot;</span></span> \
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'>Filesize</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_src_size'>src_size</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pretty'>pretty</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_percent'>percent</span><span class='period'>.</span><span class='id identifier rubyid_round'>round</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>%)</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>ensure</span>
+    <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>unless</span> <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>unless</span> <span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    #<strong>name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Shares</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 99</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Shares</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_no_share_selected-instance_method">
+  
+    #<strong>print_no_share_selected</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+573
+574
+575
+576</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 573</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_no_share_selected'>print_no_share_selected</span>
+  <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No active share selected. Use the %grnshares%clr command to view available shares, and %grnshares -i &lt;id&gt;%clr to interact with one</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="upload_file-instance_method">
+  
+    #<strong>upload_file</strong>(dest_file, src_file)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Upload a local file to the target</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>dest_file</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The path for the destination file</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>src_file</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The path for the source file</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/smb/ui/console/command_dispatcher/shares.rb', line 581</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_upload_file'>upload_file</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_buf_size'>buf_size</span> <span class='op'>=</span> <span class='int'>8</span> <span class='op'>*</span> <span class='int'>1024</span> <span class='op'>*</span> <span class='int'>1024</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_dest_fd'>dest_fd</span> <span class='op'>=</span> <span class='id identifier rubyid_simple_client'>simple_client</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wct</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>write:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_src_fd'>src_fd</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_src_size'>src_size</span> <span class='op'>=</span> <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+    <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_buf_size'>buf_size</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='id identifier rubyid_dest_fd'>dest_fd</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_percent'>percent</span> <span class='op'>=</span> <span class='id identifier rubyid_offset'>offset</span> <span class='op'>/</span> <span class='id identifier rubyid_src_size'>src_size</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>*</span> <span class='float'>100.0</span>
+      <span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Uploaded </span><span class='embexpr_beg'>#{</span><span class='const'>Filesize</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pretty'>pretty</span><span class='embexpr_end'>}</span><span class='tstring_content'> of </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'>Filesize</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_src_size'>src_size</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pretty'>pretty</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_percent'>percent</span><span class='period'>.</span><span class='id identifier rubyid_round'>round</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>%)</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>ensure</span>
+    <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>unless</span> <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_dest_fd'>dest_fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>unless</span> <span class='id identifier rubyid_dest_fd'>dest_fd</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:43:22 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

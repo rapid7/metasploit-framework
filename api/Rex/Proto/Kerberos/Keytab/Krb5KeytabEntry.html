@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::Kerberos::Keytab::Krb5KeytabEntry
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Kerberos::Keytab::Krb5KeytabEntry";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (K)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Keytab.html" title="Rex::Proto::Kerberos::Keytab (module)">Keytab</a></span></span>
+     &raquo; 
+    <span class="title">Krb5KeytabEntry</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::Kerberos::Keytab::Krb5KeytabEntry
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">BinData::Record</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">BinData::Record</li>
+          
+            <li class="next">Rex::Proto::Kerberos::Keytab::Krb5KeytabEntry</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/kerberos/keytab/krb5_keytab.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="LEN_FIELD_BYTE_SIZE-constant" class="">LEN_FIELD_BYTE_SIZE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Returns The number of bytes for the len field.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The number of bytes for the len field</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#components-instance_method" title="#components (instance method)">#<strong>components</strong>  &#x21d2; Array&lt;CountedOctetString&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The components in the principal name, which can be joined by slashes to represent the SPN.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#count_of_components-instance_method" title="#count_of_components (instance method)">#<strong>count_of_components</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#flags-instance_method" title="#flags (instance method)">#<strong>flags</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#keyblock-instance_method" title="#keyblock (instance method)">#<strong>keyblock</strong>  &#x21d2; KeytabKeyBlock </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#len-instance_method" title="#len (instance method)">#<strong>len</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The number of remaining bytes for this record.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name_type-instance_method" title="#name_type (instance method)">#<strong>name_type</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#realm%23-instance_method" title="#realm# (instance method)">#<strong>realm#</strong>  &#x21d2; CountedOctetString </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#timestamp-instance_method" title="#timestamp (instance method)">#<strong>timestamp</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The time the key entry was created; Can be 0 for keytabs generated by ktpass.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vno-instance_method" title="#vno (instance method)">#<strong>vno</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vno8-instance_method" title="#vno8 (instance method)">#<strong>vno8</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The lower 8 bits of the version number of the key.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#principal-instance_method" title="#principal (instance method)">#<strong>principal</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The principal associated with this key tab entry.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="components=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="components-instance_method">
+  
+    #<strong>components</strong>  &#x21d2; <tt>Array&lt;CountedOctetString&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns The components in the principal name, which can be joined by slashes to represent the SPN.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;CountedOctetString&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The components in the principal name, which can be joined by slashes to represent the SPN</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/keytab/krb5_keytab.rb', line 95</span>
+
+<span class='id identifier rubyid_array'>array</span> <span class='symbol'>:components</span><span class='comma'>,</span> <span class='label'>initial_length:</span> <span class='symbol'>:count_of_components</span><span class='comma'>,</span> <span class='label'>type:</span> <span class='symbol'>:counted_octet_string</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="count_of_components=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="count_of_components-instance_method">
+  
+    #<strong>count_of_components</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+86</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/keytab/krb5_keytab.rb', line 86</span>
+
+<span class='id identifier rubyid_uint16'>uint16</span> <span class='symbol'>:count_of_components</span><span class='comma'>,</span> <span class='label'>value:</span> <span class='tlambda'>-&gt;</span> <span class='tlambeg'>{</span> <span class='id identifier rubyid_components'>components</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='rbrace'>}</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="flags=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="flags-instance_method">
+  
+    #<strong>flags</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+123
+124
+125</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/keytab/krb5_keytab.rb', line 123</span>
+
+<span class='id identifier rubyid_uint32'>uint32</span> <span class='symbol'>:flags</span><span class='comma'>,</span>
+<span class='comment'># only present if &gt;= 4 bytes left in entry
+</span><span class='label'>onlyif:</span> <span class='tlambda'>-&gt;</span> <span class='tlambeg'>{</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="#LEN_FIELD_BYTE_SIZE-constant" title="Rex::Proto::Kerberos::Keytab::Krb5KeytabEntry::LEN_FIELD_BYTE_SIZE (constant)">LEN_FIELD_BYTE_SIZE</a></span></span><span class='rparen'>)</span> <span class='op'>-</span> <span class='id identifier rubyid_flags'>flags</span><span class='period'>.</span><span class='id identifier rubyid_rel_offset'>rel_offset</span><span class='rparen'>)</span> <span class='op'>&gt;=</span> <span class='int'>4</span> <span class='rbrace'>}</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="keyblock=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="keyblock-instance_method">
+  
+    #<strong>keyblock</strong>  &#x21d2; <tt>KeytabKeyBlock</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>KeytabKeyBlock</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+112</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/keytab/krb5_keytab.rb', line 112</span>
+
+<span class='id identifier rubyid_keyblock'>keyblock</span> <span class='symbol'>:keyblock</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="len=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="len-instance_method">
+  
+    #<strong>len</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns The number of remaining bytes for this record. The length does not include the 4 bytes for this field.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The number of remaining bytes for this record. The length does not include the 4 bytes for this field</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/keytab/krb5_keytab.rb', line 67</span>
+
+<span class='id identifier rubyid_int32'>int32</span> <span class='symbol'>:len</span><span class='comma'>,</span>
+ <span class='label'>value:</span> <span class='tlambda'>-&gt;</span> <span class='tlambeg'>{</span>
+   <span class='id identifier rubyid_size'>size</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+     <span class='id identifier rubyid_count_of_components'>count_of_components</span><span class='comma'>,</span>
+     <span class='id identifier rubyid_realm'>realm</span><span class='comma'>,</span>
+     <span class='id identifier rubyid_components'>components</span><span class='comma'>,</span>
+     <span class='id identifier rubyid_name_type'>name_type</span><span class='comma'>,</span>
+     <span class='id identifier rubyid_timestamp'>timestamp</span><span class='comma'>,</span>
+     <span class='id identifier rubyid_vno8'>vno8</span><span class='comma'>,</span>
+     <span class='id identifier rubyid_keyblock'>keyblock</span><span class='comma'>,</span>
+     <span class='id identifier rubyid_vno'>vno</span><span class='comma'>,</span>
+     <span class='id identifier rubyid_flags'>flags</span>
+   <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_sum'>sum</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_field'>field</span><span class='op'>|</span> <span class='id identifier rubyid_field'>field</span><span class='period'>.</span><span class='id identifier rubyid_to_binary_s'>to_binary_s</span><span class='period'>.</span><span class='id identifier rubyid_bytes'>bytes</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='rbrace'>}</span>
+
+   <span class='id identifier rubyid_size'>size</span>
+<span class='rbrace'>}</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="name_type=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="name_type-instance_method">
+  
+    #<strong>name_type</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/keytab/krb5_keytab.rb', line 100</span>
+
+<span class='id identifier rubyid_uint32'>uint32</span> <span class='symbol'>:name_type</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="realm#=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="realm#-instance_method">
+  
+    #<strong>realm#</strong>  &#x21d2; <tt>CountedOctetString</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>CountedOctetString</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+90</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/keytab/krb5_keytab.rb', line 90</span>
+
+<span class='id identifier rubyid_counted_octet_string'>counted_octet_string</span> <span class='symbol'>:realm</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="timestamp=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="timestamp-instance_method">
+  
+    #<strong>timestamp</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns The time the key entry was created; Can be 0 for keytabs generated by ktpass.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The time the key entry was created; Can be 0 for keytabs generated by ktpass</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+104</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/keytab/krb5_keytab.rb', line 104</span>
+
+<span class='id identifier rubyid_epoch'>epoch</span> <span class='symbol'>:timestamp</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="vno=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="vno-instance_method">
+  
+    #<strong>vno</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+116
+117
+118
+119</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/keytab/krb5_keytab.rb', line 116</span>
+
+<span class='id identifier rubyid_uint32'>uint32</span> <span class='symbol'>:vno</span><span class='comma'>,</span>
+<span class='label'>initial_value:</span> <span class='tlambda'>-&gt;</span> <span class='tlambeg'>{</span> <span class='id identifier rubyid_vno8'>vno8</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+<span class='comment'># only present if &gt;= 4 bytes left in entry
+</span><span class='label'>onlyif:</span> <span class='tlambda'>-&gt;</span> <span class='tlambeg'>{</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="#LEN_FIELD_BYTE_SIZE-constant" title="Rex::Proto::Kerberos::Keytab::Krb5KeytabEntry::LEN_FIELD_BYTE_SIZE (constant)">LEN_FIELD_BYTE_SIZE</a></span></span><span class='rparen'>)</span> <span class='op'>-</span> <span class='id identifier rubyid_vno'>vno</span><span class='period'>.</span><span class='id identifier rubyid_rel_offset'>rel_offset</span><span class='rparen'>)</span> <span class='op'>&gt;=</span> <span class='int'>4</span> <span class='rbrace'>}</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="vno8=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="vno8-instance_method">
+  
+    #<strong>vno8</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns The lower 8 bits of the version number of the key.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The lower 8 bits of the version number of the key</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+108</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/keytab/krb5_keytab.rb', line 108</span>
+
+<span class='id identifier rubyid_uint8'>uint8</span> <span class='symbol'>:vno8</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="principal-instance_method">
+  
+    #<strong>principal</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns The principal associated with this key tab entry.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The principal associated with this key tab entry</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+128
+129
+130</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/keytab/krb5_keytab.rb', line 128</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_principal'>principal</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_components'>components</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>@</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_realm'>realm</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jan 29 04:43:17 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>
