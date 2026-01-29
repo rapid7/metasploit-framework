@@ -75,6 +75,13 @@ module_edits:
       authentication_out:
         - plaintext
 
+  auxiliary/gather/ldap_passwords:
+    add:
+      authentication_out:
+        - plaintext
+        - hash/ntlm
+        - kerberos/keys
+
   auxiliary/gather/windows_secrets_dump:
     add:
       authentication_out:

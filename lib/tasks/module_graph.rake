@@ -104,6 +104,13 @@ end
 def session_out_property(mod_ins)
   result = Set.new
 
+  unless ENV['NEED_SPEED'].nil? # mock this data while testing to speed things way up
+    return %w[
+      windows/meterpreter
+      linux/meterpreter
+    ]
+  end
+
   loop do
     mod_ins.compatible_payloads.each do |ref_name, klass|
       payload_mod_ins = klass.new
@@ -295,7 +302,7 @@ namespace :module_graph do
     end
   end
 
-  desc "Build requirement node model with typed nodes (Session, Credential, Information, State)"
+  desc "Build requirement node model with typed nodes (Access, Trigger)"
   task :build_requirement_model do
     puts "Building requirement model..."
     graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
@@ -454,6 +461,182 @@ namespace :module_graph do
       end
 
       puts
+    ensure
+      graph.close
+    end
+  end
+
+  # =========================================================================
+  # ATTACK CHAIN QUERIES
+  # =========================================================================
+
+  desc "Find chains from unauthenticated modules to a target access type (e.g., TARGET=session/windows/meterpreter)"
+  task :chains_to do
+    target = ENV['TARGET']
+    max_depth = (ENV['DEPTH'] || 4).to_i
+    limit = (ENV['LIMIT'] || 50).to_i
+    abort "Usage: rake module_graph:chains_to TARGET=session/windows/meterpreter [DEPTH=4] [LIMIT=50]" unless target
+
+    graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
+    begin
+      results = graph.find_unauthenticated_chains_to(target, max_depth: max_depth, limit: limit)
+
+      puts "\n" + "=" * 80
+      puts "UNAUTHENTICATED CHAINS TO: #{target}"
+      puts "=" * 80
+
+      if results.empty?
+        puts "No chains found (try increasing DEPTH)"
+      else
+        results.each_with_index do |chain, i|
+          puts "\nChain #{i + 1} (#{chain[:chain_length]} modules):"
+          chain[:chain].each_with_index do |mod, j|
+            pivot = chain[:access_pivots][j]
+            if pivot
+              puts "  #{mod}  --[#{pivot}]-->"
+            else
+              puts "  #{mod}"
+            end
+          end
+        end
+        puts "\n#{results.size} chains found"
+      end
+    ensure
+      graph.close
+    end
+  end
+
+  desc "Find credential/access escalation paths (e.g., FROM=authentication/hash/ntlm TO=authentication/kerberos)"
+  task :escalate do
+    from = ENV['FROM']
+    to = ENV['TO']
+    max_depth = (ENV['DEPTH'] || 4).to_i
+    limit = (ENV['LIMIT'] || 50).to_i
+    abort "Usage: rake module_graph:escalate FROM=authentication/hash/ntlm TO=authentication/kerberos [DEPTH=4] [LIMIT=50]" unless from && to
+
+    graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
+    begin
+      results = graph.find_access_escalation(from, to, max_depth: max_depth, limit: limit)
+
+      puts "\n" + "=" * 80
+      puts "ACCESS ESCALATION: #{from} -> #{to}"
+      puts "=" * 80
+
+      if results.empty?
+        puts "No escalation paths found (try increasing DEPTH)"
+      else
+        results.each_with_index do |chain, i|
+          puts "\nPath #{i + 1} (#{chain[:chain_length]} modules):"
+          chain[:chain].each_with_index do |mod, j|
+            pivot = chain[:access_pivots][j]
+            if pivot
+              puts "  #{mod}  --[#{pivot}]-->"
+            else
+              puts "  #{mod}"
+            end
+          end
+        end
+        puts "\n#{results.size} paths found"
+      end
+    ensure
+      graph.close
+    end
+  end
+
+  desc "Find what credentials/sessions a coercion type yields (e.g., COERCION=coercion/smb)"
+  task :coercion_chains do
+    coercion = ENV['COERCION'] || 'coercion/smb'
+
+    graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
+    begin
+      results = graph.find_coercion_chains(coercion)
+
+      puts "\n" + "=" * 80
+      puts "COERCION CHAINS FROM: #{coercion}"
+      puts "=" * 80
+
+      if results.empty?
+        puts "No modules consume this coercion type"
+      else
+        results.each do |entry|
+          puts "\n  #{entry[:module_id]} (#{entry[:module_type]})"
+          entry[:produces_access].each do |access|
+            puts "    -> #{access}"
+          end
+        end
+        puts "\n#{results.size} modules found"
+      end
+    ensure
+      graph.close
+    end
+  end
+
+  desc "Find full attack paths (coercion/exploit -> post) [PLATFORM=windows] [DEPTH=6] [LIMIT=25]"
+  task :full_paths do
+    platform = ENV['PLATFORM']
+    max_depth = (ENV['DEPTH'] || 6).to_i
+    limit = (ENV['LIMIT'] || 25).to_i
+
+    graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
+    begin
+      results = graph.find_full_attack_paths(max_depth: max_depth, platform: platform, limit: limit)
+
+      puts "\n" + "=" * 80
+      puts "FULL ATTACK PATHS#{platform ? " (platform: #{platform})" : ''}"
+      puts "=" * 80
+
+      if results.empty?
+        puts "No paths found (try increasing DEPTH or removing PLATFORM filter)"
+      else
+        results.each_with_index do |path, i|
+          puts "\nPath #{i + 1} (#{path[:chain_length]} modules):"
+          path[:chain].each_with_index do |mod, j|
+            type = path[:module_types][j]
+            req = path[:requirements_used][j]
+            prefix = "  [#{type}]".ljust(14)
+            if req
+              puts "#{prefix} #{mod}  --[#{req}]-->"
+            else
+              puts "#{prefix} #{mod}"
+            end
+          end
+        end
+        puts "\n#{results.size} paths found"
+      end
+    ensure
+      graph.close
+    end
+  end
+
+  desc "Find all modules reachable from an access type (e.g., ACCESS=authentication/hash/ntlm) [DEPTH=3] [LIMIT=50]"
+  task :reachable do
+    access = ENV['ACCESS']
+    max_depth = (ENV['DEPTH'] || 3).to_i
+    limit = (ENV['LIMIT'] || 50).to_i
+    abort "Usage: rake module_graph:reachable ACCESS=authentication/hash/ntlm [DEPTH=3] [LIMIT=50]" unless access
+
+    graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
+    begin
+      results = graph.find_reachable_from(access, max_depth: max_depth, limit: limit)
+
+      puts "\n" + "=" * 80
+      puts "MODULES REACHABLE FROM: #{access}"
+      puts "=" * 80
+
+      if results.empty?
+        puts "No modules reachable from this access type"
+      else
+        current_distance = nil
+        results.each do |entry|
+          if entry[:distance] != current_distance
+            current_distance = entry[:distance]
+            puts "\n  --- Distance #{current_distance} ---"
+          end
+          produces = entry[:produces].empty? ? '' : "  -> #{entry[:produces].join(', ')}"
+          puts "  [#{entry[:module_type]}] #{entry[:module_id]}#{produces}"
+        end
+        puts "\n#{results.size} modules reachable"
+      end
     ensure
       graph.close
     end
