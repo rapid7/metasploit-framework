@@ -85,6 +85,9 @@ module Msf
         end
       end
 
+      # Extract target_index for composite MERGE key (defaults to -1 for non-exploit modules)
+      target_index = neo4j_props.delete('target_index') || -1
+
       # Build property string for Cypher query to avoid driver serialization issues
       props_str = neo4j_props.map do |key, value|
         cypher_value = case value
@@ -101,9 +104,9 @@ module Msf
       end.join(", ")
 
       session do |session|
-        # Use inline values instead of parameters to avoid Ruby 3.x driver issues
+        # Use composite key (id + target_index) to support per-target exploit nodes
         session.run(
-          "MERGE (n:Module {id: #{escape_cypher_string(module_id.to_s)}}) SET n += {#{props_str}}"
+          "MERGE (n:Module {id: #{escape_cypher_string(module_id.to_s)}, target_index: #{target_index.to_i}}) SET n += {#{props_str}}"
         )
       end
       #puts "Created module: #{module_id}"
@@ -280,47 +283,6 @@ module Msf
           end
         end
       end
-    end
-
-    def create_authentication_relationships
-      # Create relationships between modules where one's auth output enables another's auth input
-      session do |session|
-        session.run(<<~CYPHER)
-          MATCH (provider:Module), (consumer:Module)
-          WHERE provider.authentication_out IS NOT NULL
-            AND consumer.authentication_in IS NOT NULL
-            AND any(auth_out IN provider.authentication_out
-                WHERE auth_out IN consumer.authentication_in)
-          WITH provider, consumer,
-               [auth IN provider.authentication_out WHERE auth IN consumer.authentication_in] as shared_auth
-          MERGE (provider)-[r:PROVIDES_AUTHENTICATION]->(consumer)
-          SET r.auth_types = shared_auth
-        CYPHER
-      end
-      puts "Created authentication flow relationships"
-    end
-
-    def create_session_relationships
-      # Create relationships between modules where one creates sessions that another can use
-      session do |session|
-        session.run(<<~CYPHER)
-          MATCH (provider:Module), (consumer:Module)
-          WHERE provider.session_out IS NOT NULL
-            AND consumer.session_in IS NOT NULL
-            AND any(session_out IN provider.session_out
-                WHERE session_out IN consumer.session_in)
-          WITH provider, consumer,
-               [session_type IN provider.session_out WHERE session_type IN consumer.session_in] as shared_sessions
-          MERGE (provider)-[r:PROVIDES_SESSION_TYPE]->(consumer)
-          SET r.session_types = shared_sessions
-        CYPHER
-      end
-      puts "Created session flow relationships"
-    end
-
-    def create_all_relationships
-      create_authentication_relationships
-      create_session_relationships
     end
 
     # =========================================================================
@@ -565,6 +527,20 @@ module Msf
     def create_requirement_indexes
       puts "Creating indexes..."
       session do |session|
+        # Composite index on Module (id + target_index) for unique lookups
+        begin
+          session.run('CREATE INDEX module_id_target IF NOT EXISTS FOR (m:Module) ON (m.id, m.target_index)')
+        rescue StandardError => e
+          puts "  Note: #{e.message}" if e.message.include?('already exists')
+        end
+
+        # Index on Module id for queries across all targets of a module
+        begin
+          session.run('CREATE INDEX module_id IF NOT EXISTS FOR (m:Module) ON (m.id)')
+        rescue StandardError => e
+          puts "  Note: #{e.message}" if e.message.include?('already exists')
+        end
+
         # Index on Requirement id
         begin
           session.run('CREATE INDEX requirement_id IF NOT EXISTS FOR (r:Requirement) ON (r.id)')
@@ -800,6 +776,7 @@ module Msf
         chain_pattern += '(goal)'
 
         modules_return = '[' + module_names.map { |m| "#{m}.id" }.join(', ') + ']'
+        targets_return = '[' + module_names.map { |m| "#{m}.target_name" }.join(', ') + ']'
         reqs_return = if req_names.empty?
                         '[goal.id]'
                       else
@@ -814,6 +791,7 @@ module Msf
             WHERE goal.id CONTAINS $target
             MATCH #{chain_pattern}
             RETURN #{modules_return} AS chain,
+                   #{targets_return} AS target_names,
                    #{reqs_return} AS access_pivots,
                    goal.id AS target,
                    #{depth} AS chain_length
@@ -823,6 +801,7 @@ module Msf
           result.each do |record|
             results << {
               chain: record['chain'],
+              target_names: record['target_names'],
               access_pivots: record['access_pivots'],
               target: record['target'],
               chain_length: record['chain_length']
@@ -858,6 +837,7 @@ module Msf
 
         last_mod = module_names.last
         modules_return = '[' + module_names.map { |m| "#{m}.id" }.join(', ') + ']'
+        targets_return = '[' + module_names.map { |m| "#{m}.target_name" }.join(', ') + ']'
         reqs_return = if req_names.empty?
                         '[end_req.id]'
                       else
@@ -871,6 +851,7 @@ module Msf
             MATCH (first:Module)-[:REQUIRES]->(start_req)
             MATCH #{chain_pattern}
             RETURN #{modules_return} AS chain,
+                   #{targets_return} AS target_names,
                    #{reqs_return} AS access_pivots,
                    $from AS from_access,
                    $to AS to_access,
@@ -881,6 +862,7 @@ module Msf
           result.each do |record|
             results << {
               chain: record['chain'],
+              target_names: record['target_names'],
               access_pivots: record['access_pivots'],
               from_access: record['from_access'],
               to_access: record['to_access'],
@@ -911,6 +893,7 @@ module Msf
 
           RETURN relay.id AS module_id,
                  relay.type AS module_type,
+                 relay.target_name AS target_name,
                  collect(DISTINCT access.id) AS produces_access
           ORDER BY module_id
         CYPHER
@@ -919,6 +902,7 @@ module Msf
           results << {
             module_id: record['module_id'],
             module_type: record['module_type'],
+            target_name: record['target_name'],
             produces_access: record['produces_access']
           }
         end
@@ -953,6 +937,7 @@ module Msf
 
         modules_return = '[' + module_names.map { |m| "#{m}.id" }.join(', ') + ']'
         types_return = '[' + module_names.map { |m| "#{m}.type" }.join(', ') + ']'
+        targets_return = '[' + module_names.map { |m| "#{m}.target_name" }.join(', ') + ']'
         reqs_return = '[' + req_names.map { |r| "#{r}.id" }.join(', ') + ']'
 
         platform_clause = platform ? "WHERE any(req_id IN #{reqs_return} WHERE req_id CONTAINS '#{platform}')" : ""
@@ -966,6 +951,7 @@ module Msf
             #{platform_clause}
             RETURN #{modules_return} AS chain,
                    #{types_return} AS module_types,
+                   #{targets_return} AS target_names,
                    #{reqs_return} AS requirements_used,
                    #{depth} AS chain_length
             LIMIT #{limit}
@@ -975,6 +961,7 @@ module Msf
             results << {
               chain: record['chain'],
               module_types: record['module_types'],
+              target_names: record['target_names'],
               requirements_used: record['requirements_used'],
               chain_length: record['chain_length']
             }
@@ -1015,6 +1002,7 @@ module Msf
             OPTIONAL MATCH (reached)-[:PRODUCES]->(product:Requirement)
             RETURN reached.id AS module_id,
                    reached.type AS module_type,
+                   reached.target_name AS target_name,
                    #{depth} AS distance,
                    collect(DISTINCT product.id) AS produces
             ORDER BY module_id
@@ -1028,6 +1016,7 @@ module Msf
             results << {
               module_id: record['module_id'],
               module_type: record['module_type'],
+              target_name: record['target_name'],
               distance: record['distance'],
               produces: record['produces']
             }
