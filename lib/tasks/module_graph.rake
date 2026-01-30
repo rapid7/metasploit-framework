@@ -116,8 +116,9 @@ def session_out_property(mod_ins)
 
   mod_ins.compatible_payloads.each do |ref_name, klass|
     payload_mod_ins = klass.new
-    next unless payload_mod_ins.session
     next unless payload_mod_ins.platform
+    next unless payload_mod_ins.session
+    next unless payload_mod_ins.session.type.end_with?('shell') || payload_mod_ins.session.type == 'meterpreter'
 
     result.merge(payload_mod_ins.platform.names.reject(&:empty?).map(&:downcase).product([payload_mod_ins.session.type]).map { _1.join('/') })
   end
