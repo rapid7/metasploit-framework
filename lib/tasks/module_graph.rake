@@ -20,8 +20,10 @@ def load_platform_mappings(transforms)
 end
 
 def platform_property(mod_ins)
+  # Use target-specific platform if available, otherwise fall back to module-level
+  platform_list = (mod_ins.respond_to?(:target) && mod_ins.target&.platform) || mod_ins.platform
   result = Set.new
-  mod_ins.platform.names.each do |platform|
+  platform_list.names.each do |platform|
     platform_str = platform.to_s.downcase
     if PLATFORM_MAPPING.key?(platform_str)
       # Platform maps to multiple platforms (e.g., java -> windows, linux, osx)
@@ -100,7 +102,8 @@ def session_in_property(mod_ins)
   result.empty? ? nil : result.to_a
 end
 
-# todo: this is going to be horrifically slow, we're initializing every payload exploit permutation that is compatible
+# Returns the session types produced by the currently selected target of an exploit module.
+# The caller is responsible for setting datastore['TARGET'] before calling this.
 def session_out_property(mod_ins)
   result = Set.new
 
@@ -111,18 +114,12 @@ def session_out_property(mod_ins)
     ]
   end
 
-  loop do
-    mod_ins.compatible_payloads.each do |ref_name, klass|
-      payload_mod_ins = klass.new
-      next unless payload_mod_ins.session
-      next unless payload_mod_ins.platform
+  mod_ins.compatible_payloads.each do |ref_name, klass|
+    payload_mod_ins = klass.new
+    next unless payload_mod_ins.session
+    next unless payload_mod_ins.platform
 
-      result.merge(payload_mod_ins.platform.names.reject(&:empty?).map(&:downcase).product([payload_mod_ins.session.type]).map { _1.join('/') })
-    end
-
-    break if mod_ins.target == mod_ins.targets.last
-
-    mod_ins.datastore['TARGET'] = mod_ins.datastore['TARGET'].to_i + 1
+    result.merge(payload_mod_ins.platform.names.reject(&:empty?).map(&:downcase).product([payload_mod_ins.session.type]).map { _1.join('/') })
   end
 
   result.empty? ? nil : result.to_a
@@ -147,34 +144,39 @@ class ModuleImporter
   end
 
   def import_module(graph, mod_cls)
-    # Module missing data:
-    # exploit:
-    #   session types they can open
     mod_ins = mod_cls.new
-
-    properties = {
-      type: mod_cls.type
-    }
 
     case mod_cls.type
     when ::Msf::MODULE_AUX
-      properties[:authentication_in] = authentication_in_property(mod_ins)
+      properties = {
+        type: mod_cls.type,
+        target_index: -1,
+        authentication_in: authentication_in_property(mod_ins)
+      }
+      graph.create_module(mod_cls.fullname, **properties)
     when ::Msf::MODULE_EXPLOIT
-      properties[:authentication_in] = authentication_in_property(mod_ins)
-      properties[:platform] = platform_property(mod_ins)
-      properties[:session_in] = session_in_property(mod_ins)
-      # todo: this should be updated to be more accurately reflect the types of sessions a module can open
-      #properties[:session_out] = properties[:platform].product(%w[ shell meterpreter ]).map { _1.join('/') }
-      properties[:session_out] = session_out_property(mod_ins)
+      mod_ins.targets.each_with_index do |target, idx|
+        mod_ins.datastore['TARGET'] = idx
+        properties = {
+          type: mod_cls.type,
+          target_index: idx,
+          target_name: target.name,
+          authentication_in: authentication_in_property(mod_ins),
+          platform: platform_property(mod_ins),
+          session_in: session_in_property(mod_ins),
+          session_out: session_out_property(mod_ins)
+        }
+        graph.create_module(mod_cls.fullname, **properties)
+      end
     when ::Msf::MODULE_POST
-      properties[:platform] = platform_property(mod_ins)
-      properties[:session_in] = session_in_property(mod_ins)
+      properties = {
+        type: mod_cls.type,
+        target_index: -1,
+        platform: platform_property(mod_ins),
+        session_in: session_in_property(mod_ins)
+      }
+      graph.create_module(mod_cls.fullname, **properties)
     end
-
-    graph.create_module(
-      mod_cls.fullname,
-      **properties
-    )
   end
 end
 
@@ -188,9 +190,9 @@ namespace :module_graph do
     puts "Done!"
   end
 
-  desc "Populate module graph with your application data"
-  task :populate do
-    puts "Populating module graph..."
+  desc "Generate module graph (import modules, apply edits, build requirement model)"
+  task :generate do
+    puts "Generating module graph..."
     graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
 
     begin
@@ -254,7 +256,12 @@ namespace :module_graph do
       end
       puts "Phase 2: Completed.\n"
 
-      puts "Population complete!"
+      # Phase 3: Build requirement node model
+      puts "Phase 3: Building requirement model..."
+      graph.build_requirement_model
+      puts "Phase 3: Completed.\n"
+
+      puts "Generation complete!"
       puts "View at http://localhost:7474"
     ensure
       graph.close
@@ -284,45 +291,6 @@ namespace :module_graph do
       
       puts "=" * 60
 
-    ensure
-      graph.close
-    end
-  end
-
-  desc "Build authentication and session flow relationships (direct module-to-module)"
-  task :build_relationships do
-    puts "Building relationships..."
-    graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
-
-    begin
-      graph.create_all_relationships
-      puts "Done!"
-    ensure
-      graph.close
-    end
-  end
-
-  desc "Build requirement node model with typed nodes (Access, Trigger)"
-  task :build_requirement_model do
-    puts "Building requirement model..."
-    graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
-
-    begin
-      graph.build_requirement_model
-      puts "Done!"
-    ensure
-      graph.close
-    end
-  end
-
-  desc "Clear requirement nodes and their relationships (preserves Module nodes)"
-  task :clear_requirement_model do
-    puts "Clearing requirement model..."
-    graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
-
-    begin
-      graph.clear_requirement_model
-      puts "Done!"
     ensure
       graph.close
     end
@@ -361,11 +329,8 @@ namespace :module_graph do
     end
   end
 
-  desc "Reset module graph (clear + populate)"
-  task :reset => [:clean, :populate]
-
-  desc "Reset module graph and build requirement model"
-  task :reset_with_requirements => [:reset, :build_requirement_model]
+  desc "Regenerate module graph (clean + generate)"
+  task :regenerate => [:clean, :generate]
 
   desc "List all requirement nodes in a table format to help spot typos and modeling errors"
   task :list_requirements do
@@ -470,6 +435,11 @@ namespace :module_graph do
   # ATTACK CHAIN QUERIES
   # =========================================================================
 
+  # Format a module name with its target for display
+  def format_module(mod_id, target_name)
+    target_name ? "#{mod_id} (target: #{target_name})" : mod_id.to_s
+  end
+
   desc "Find chains from unauthenticated modules to a target access type (e.g., TARGET=session/windows/meterpreter)"
   task :chains_to do
     target = ENV['TARGET']
@@ -491,11 +461,12 @@ namespace :module_graph do
         results.each_with_index do |chain, i|
           puts "\nChain #{i + 1} (#{chain[:chain_length]} modules):"
           chain[:chain].each_with_index do |mod, j|
+            label = format_module(mod, chain[:target_names][j])
             pivot = chain[:access_pivots][j]
             if pivot
-              puts "  #{mod}  --[#{pivot}]-->"
+              puts "  #{label}  --[#{pivot}]-->"
             else
-              puts "  #{mod}"
+              puts "  #{label}"
             end
           end
         end
@@ -528,11 +499,12 @@ namespace :module_graph do
         results.each_with_index do |chain, i|
           puts "\nPath #{i + 1} (#{chain[:chain_length]} modules):"
           chain[:chain].each_with_index do |mod, j|
+            label = format_module(mod, chain[:target_names][j])
             pivot = chain[:access_pivots][j]
             if pivot
-              puts "  #{mod}  --[#{pivot}]-->"
+              puts "  #{label}  --[#{pivot}]-->"
             else
-              puts "  #{mod}"
+              puts "  #{label}"
             end
           end
         end
@@ -559,7 +531,8 @@ namespace :module_graph do
         puts "No modules consume this coercion type"
       else
         results.each do |entry|
-          puts "\n  #{entry[:module_id]} (#{entry[:module_type]})"
+          label = format_module(entry[:module_id], entry[:target_name])
+          puts "\n  #{label} (#{entry[:module_type]})"
           entry[:produces_access].each do |access|
             puts "    -> #{access}"
           end
@@ -591,13 +564,14 @@ namespace :module_graph do
         results.each_with_index do |path, i|
           puts "\nPath #{i + 1} (#{path[:chain_length]} modules):"
           path[:chain].each_with_index do |mod, j|
+            label = format_module(mod, path[:target_names][j])
             type = path[:module_types][j]
             req = path[:requirements_used][j]
             prefix = "  [#{type}]".ljust(14)
             if req
-              puts "#{prefix} #{mod}  --[#{req}]-->"
+              puts "#{prefix} #{label}  --[#{req}]-->"
             else
-              puts "#{prefix} #{mod}"
+              puts "#{prefix} #{label}"
             end
           end
         end
@@ -632,8 +606,9 @@ namespace :module_graph do
             current_distance = entry[:distance]
             puts "\n  --- Distance #{current_distance} ---"
           end
+          label = format_module(entry[:module_id], entry[:target_name])
           produces = entry[:produces].empty? ? '' : "  -> #{entry[:produces].join(', ')}"
-          puts "  [#{entry[:module_type]}] #{entry[:module_id]}#{produces}"
+          puts "  [#{entry[:module_type]}] #{label}#{produces}"
         end
         puts "\n#{results.size} modules reachable"
       end
