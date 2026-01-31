@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'metasploit/framework/obfuscation/assembly_obfuscator'
 module Msf
 
 
@@ -50,6 +51,10 @@ module Payload::Linux::X64::ReverseTcp
   #
   def generate_reverse_tcp(opts={})
     asm = asm_reverse_tcp(opts)
+    # puts "DEBUG: Generated assembly before obfuscation:\n#{asm}"
+    # obfuscator = Metasploit::Framework::Obfuscation::AssemblyObfuscator.new(asm, arch: 'x64')
+    # asm = obfuscator.obfuscate(1)
+    # puts "DEBUG: Generated assembly after obfuscation:\n#{asm}"
     Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
   end
 
