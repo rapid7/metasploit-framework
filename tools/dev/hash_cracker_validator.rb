@@ -56,6 +56,9 @@ OptionParser.new do |opts|
   end
 end.parse!
 
+# expose options to methods
+$options = options
+
 # colors and puts templates from msftidy.rb
 
 class String
@@ -184,6 +187,8 @@ def windows_hashes_and_regex_john_compat
   creds_expected_output_regex << /mscash2-hashcat\s+\$DCC2\$10240\#tom\#e4e938d12fe5974dc42a90120bd9c90f\s+Nonreplayable hash\s+mscash2\s+hashcat$/
   creds_command << ' creds add user:krb5asrep hash:\$krb5asrep\$23\$user@domain.com:3e156ada591263b8aab0965f5aebd837\$007497cb51b6c8116d6407a782ea0e1c5402b17db7afa6b05a6d30ed164a9933c754d720e279c6c573679bd27128fe77e5fea1f72334c1193c8ff0b370fadc6368bf2d49bbfdba4c5dccab95e8c8ebfdc75f438a0797dbfb2f8a1a5f4c423f9bfc1fea483342a11bd56a216f4d5158ccc4b224b52894fadfba3957dfe4b6b8f5f9f9fe422811a314768673e0c924340b8ccb84775ce9defaa3baa0910b676ad0036d13032b0dd94e3b13903cc738a7b6d00b0b3c210d1f972a6c7cae9bd3c959acf7565be528fc179118f28c679f6deeee1456f0781eb8154e18e49cb27b64bf74cd7112a0ebae2102ac jtr:krb5asrep;'
   creds_expected_output_regex << /krb5asrep\s+\$krb5asrep\$23\$user@domain.com:3e156ada591263b8aab0965f5aebd837\$007497cb51b6c \(TRUNCATED\)\s+Nonreplayable hash\s+krb5asrep\s+hashcat$/
+  creds_command << ' creds add user:krb5tgs hash:\$krb5tgs\$23\$*svc_test\$MSFLAB.LOCAL\$MSSQLSvc/sql01.msflab.local:1433*\$cd5188391bf0e980a2cc48fddfcdb6c9$838309d0fe47fe1452faa663a378b37b5b69a170ee564ef4197f7f7ac918923e39dc0fe17b3beb9a963af47929d506d9d798fefb6038fe6447401cf23212a27aca5f05b8248aed48190d4b6b41405e796a960cc8c02bacb5c5e9869226e039f2581d98cd4d0defe15fd131d48a38ce95d69e28d8ae5f5fcfd371bdab8a68cd044c71a1b1cd46a0fb35eea7043bc7c3703186a9a0dcf6e8b688fdde20603de5daa7d428cf2923c0ba59a12c855ba396e080055e6d340231ba4822db632d12ba19eec436815fc28c88d8852601d58217019566c7c601ed37bb96920bbef4bf357b8e73549dbb70a5f4c53609c008e55d093b409572699b86fc8bd8cc395d6ec2de5fb2f64c56b7f6dd85ab89094883df99f3fd24db442b6da46c8998b3a5bd407fcb6fb2b65faded0b37034b54fa398d604c7030f52db4826ba09698a9a56a2f57a93f5299033cdcd641b4678926df5d8730b6b923c663fa2f9f2fa5f225a4108380f2b7bb9d75620478d1b912949a346bf19688877fcdf92231387b4c1d9ae83420abd38215802859c535205f8673125e0a559aa646663f4e41e97e5339be48972cafb501d01d3ec0f13bcc578b431b74eb285084d167d307ef5b5e2a2fa7cae7b221a6f5a0ce6a45883e6ccbdedcec7cfbc1dec3cad4b53d2db01750e087906747f3e5ed6d3e776a8844f578ff2072325d3d8122fd08342a18d5a637275aa1c534a78e9f798eb61dc2ca4a3cab0ea5b20bf67739763298cee85cc51443ba4faaf069593639fd474c69f31a5f6f29eb1ef20692091eb9eed5aa729dc84af1dde99ccbc978f2334fb1906d224101c425e088d98608ea05b7d4dccdee207d5a3e672829f35e3be751e2b395002619a6e0863e41b10efc321f2ae57fed86b5ed90b5a641e6d3488335ea4e8d8bea397ce35fa0113cf05b4c0c38ee0140d4be3bd490b461dc4fb41b4fc2c50bee160d379934f4043fec940f1549aee56543f7ba6c9c309805fe7397374bed469f1e1dabb6cdad02c9f663b17c64e6bb5a248f1389c2032b15e96d46172526329c29acf04ff537049420efc71aba58f29bac5b6a09522aa893d97ca59de9cc6d13789617859c0db170443e943e58ec7604745e475d1b16057aa8975b0b668fffc9a32f8b26452fa4a95129c53f8cf9a0191898dd8694ad9f0e106d7866b3e3116f92c2921e6ed6fc03a12a2aed56d73d6f9eee8eccad27839f55aef53942c2d7efc0e765621ba72d2280c21df512628011a56fc1aae3a6e62dc87cdd0a4c0c5a179b8ae233ce785293e7eca0b76a6418b0cf798be1eaf7a33f220dbdbb5166a529f129582b5a57b01b90c5c7c48b4d7c8e8aac1677704af319bd73816bbfa344cb10f070426746f162a4fc5809a5c37d566c45043b77e53e6cfb703e511ec1e6d14200d9b859fad51fb93b2477b61435ddcbea97ebf7c4b3dacbec3f8158c5c1d317887b7233199d20d7536febb8dd255aab jtr:krb5tgs;'
+  creds_expected_output_regex << %r{krb5tgs\s+\$krb5tgs\$23\$\*svc_test\$MSFLAB\.LOCAL\$MSSQLSvc/sql01.msflab.local:1433\*\$cd51883 \(TRUNCATED\)\s+Nonreplayable hash\s+krb5tgs\s+Password1!$}
   return creds_command, creds_expected_output_regex
 end
 
@@ -273,6 +278,49 @@ def run_msfconsole(command, expected_output_regexes)
   end
 end
 
+# return the common setg base settings string
+def base_settings(wordlist: true)
+  s = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; '
+  s << 'setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; '
+  s << (wordlist ? 'setg WORDLIST true; ' : 'setg WORDLIST false; ')
+  s << 'setg verbose true;'
+  s
+end
+
+# Run a test section using the provided creds proc and analyzer.
+# creds_proc should return [creds_command, creds_expected_output_regex]
+def run_section(desc:, creds_proc:, analyzer:, use_wordlist: true, action: nil, pot_path: nil, skip_base_settings: false)
+  info desc
+  tempfile = nil
+  begin
+    tempfile = Tempfile.new('john_pot') unless pot_path
+    creds_expected_output_regex = []
+    creds_command = skip_base_settings ? '' : base_settings(wordlist: use_wordlist)
+
+    cred_temp, regex_temp = creds_proc.call
+    creds_command << cred_temp
+    creds_expected_output_regex += regex_temp
+
+    creds_command << " use #{analyzer};"
+    creds_command << " set CUSTOM_WORDLIST #{$wordlist.path};" if use_wordlist
+    creds_command << " set POT #{pot_path || tempfile.path};"
+    creds_command << " set action #{action};" if action
+    creds_command << ' run; creds -d; exit;'
+
+    info "Run Command: #{creds_command}" if $options[:verbose]
+    success = run_msfconsole(creds_command, creds_expected_output_regex)
+    unless success
+      error 'Credential verification failed. Exiting.'
+      exit 1
+    end
+  ensure
+    if tempfile
+      tempfile.close!
+      tempfile.unlink
+    end
+  end
+end
+
 if options[:test] == 'all' || options[:test].include?(1)
   info '[1/24] Checking Metasploit database connection...'
   db_status_command = 'db_status; exit'
@@ -288,555 +336,262 @@ wordlist = Tempfile.new('wordlist')
 File.open(wordlist, 'w') { |file| file.write("password\nhashcat\ntest1\ntoto\nfoo\nPassword1!\nprobe\ntere\na\nTHALES\nepsilon\n1234\nTestPass123#\npasswor\nd\n") }
 info "Wordlist file created at: #{wordlist.path}"
 
+# expose the wordlist to methods (methods don't capture local variables)
+$wordlist = wordlist
+
+# Create a john pot tempfile used by the pot-mode tests
+pot_file = Tempfile.new('john_pot')
+info "Pot file created at: #{pot_file.path}"
+
 if options[:test] == 'all' || options[:test].include?(2)
-  info '[2/24] Running *nix hashes in john wordlist mode...'
-  tempfile = Tempfile.new('john_pot')
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST true; setg verbose true;'
-  cred_temp, regex_temp = nix_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_linux;'
-  creds_command << " set CUSTOM_WORDLIST #{wordlist.path};"
-  creds_command << " set POT #{tempfile.path};"
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    tempfile.close!
-    tempfile.unlink
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    exit 1
-  end
-  tempfile.close!
-  tempfile.unlink
+  run_section(
+    desc: '[2/24] Running *nix hashes in john wordlist mode...',
+    creds_proc: method(:nix_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_linux',
+    use_wordlist: true
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(3)
-  info '[3/24] Running windows hashes in john wordlist mode...'
-  tempfile = Tempfile.new('john_pot')
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST true; setg verbose true;'
-  cred_temp, regex_temp = windows_hashes_and_regex_john_compat
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_windows;'
-  creds_command << " set CUSTOM_WORDLIST #{wordlist.path};"
-  creds_command << " set POT #{tempfile.path};"
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    tempfile.close!
-    tempfile.unlink
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    exit 1
-  end
-  tempfile.close!
-  tempfile.unlink
+  run_section(
+    desc: '[3/24] Running windows hashes in john wordlist mode...',
+    creds_proc: method(:windows_hashes_and_regex_john_compat),
+    analyzer: 'auxiliary/analyze/crack_windows',
+    use_wordlist: true
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(4)
-  info '[4/24] Running sql hashes in john wordlist mode...'
-  tempfile = Tempfile.new('john_pot')
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST true; setg verbose true;'
-  cred_temp, regex_temp = sql_hashes_and_regex_john_compat
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-
-  creds_command << ' use auxiliary/analyze/crack_databases;'
-  creds_command << " set CUSTOM_WORDLIST #{wordlist.path};"
-  creds_command << " set POT #{tempfile.path};"
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    tempfile.close!
-    tempfile.unlink
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    exit 1
-  end
-  tempfile.close!
-  tempfile.unlink
+  run_section(
+    desc: '[4/24] Running sql hashes in john wordlist mode...',
+    creds_proc: method(:sql_hashes_and_regex_john_compat),
+    analyzer: 'auxiliary/analyze/crack_databases',
+    use_wordlist: true
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(5)
-  info '[5/24] Running osx hashes in john wordlist mode...'
-  tempfile = Tempfile.new('john_pot')
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST true; setg verbose true;'
-  cred_temp, regex_temp = osx_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_osx;'
-  creds_command << " set CUSTOM_WORDLIST #{wordlist.path};"
-  creds_command << " set POT #{tempfile.path};"
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    tempfile.close!
-    tempfile.unlink
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    exit 1
-  end
-  tempfile.close!
-  tempfile.unlink
+  run_section(
+    desc: '[5/24] Running osx hashes in john wordlist mode...',
+    creds_proc: method(:osx_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_osx',
+    use_wordlist: true
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(6)
-  info '[6/24] Running webapp hashes in john wordlist mode...'
-  tempfile = Tempfile.new('john_pot')
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST true; setg verbose true;'
-  cred_temp, regex_temp = webapp_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_webapps;'
-  creds_command << " set CUSTOM_WORDLIST #{wordlist.path};"
-  creds_command << " set POT #{tempfile.path};"
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    tempfile.close!
-    tempfile.unlink
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    exit 1
-  end
-  tempfile.close!
-  tempfile.unlink
+  run_section(
+    desc: '[6/24] Running webapp hashes in john wordlist mode...',
+    creds_proc: method(:webapp_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_webapps',
+    use_wordlist: true
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(7)
-  info '[7/24] Running *nix hashes in hashcat wordlist mode...'
-  tempfile = Tempfile.new('john_pot')
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST true; setg verbose true;'
-  cred_temp, regex_temp = nix_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_linux;'
-  creds_command << " set CUSTOM_WORDLIST #{wordlist.path};"
-  creds_command << " set POT #{tempfile.path};"
-  creds_command << ' set action hashcat;'
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    tempfile.close!
-    tempfile.unlink
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    exit 1
-  end
-  tempfile.close!
-  tempfile.unlink
+  run_section(
+    desc: '[7/24] Running *nix hashes in hashcat wordlist mode...',
+    creds_proc: method(:nix_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_linux',
+    use_wordlist: true,
+    action: 'hashcat'
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(8)
-  info '[8/24] Running windows hashes in hashcat wordlist mode...'
-  tempfile = Tempfile.new('john_pot')
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST true; setg verbose true;'
-  cred_temp, regex_temp = windows_hashes_and_regex_hashcat_compat
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_windows;'
-  creds_command << " set CUSTOM_WORDLIST #{wordlist.path};"
-  creds_command << " set POT #{tempfile.path};"
-  creds_command << ' set action hashcat;'
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    tempfile.close!
-    tempfile.unlink
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    exit 1
-  end
-  tempfile.close!
-  tempfile.unlink
+  run_section(
+    desc: '[8/24] Running windows hashes in hashcat wordlist mode...',
+    creds_proc: method(:windows_hashes_and_regex_hashcat_compat),
+    analyzer: 'auxiliary/analyze/crack_windows',
+    use_wordlist: true,
+    action: 'hashcat'
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(9)
-  info '[9/24] Running sql hashes in hashcat wordlist mode...'
-  tempfile = Tempfile.new('john_pot')
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST true; setg verbose true;'
-  cred_temp, regex_temp = sql_hashes_and_regex_hashcat_compat
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-
-  creds_command << ' use auxiliary/analyze/crack_databases;'
-  creds_command << " set CUSTOM_WORDLIST #{wordlist.path};"
-  creds_command << " set POT #{tempfile.path};"
-  creds_command << ' set action hashcat;'
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    tempfile.close!
-    tempfile.unlink
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    exit 1
-  end
-  tempfile.close!
-  tempfile.unlink
+  run_section(
+    desc: '[9/24] Running sql hashes in hashcat wordlist mode...',
+    creds_proc: method(:sql_hashes_and_regex_hashcat_compat),
+    analyzer: 'auxiliary/analyze/crack_databases',
+    use_wordlist: true,
+    action: 'hashcat'
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(10)
-  info '[10/24] Running mobile hashes in hashcat wordlist mode...'
-  tempfile = Tempfile.new('john_pot')
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST true; setg verbose true;'
-  cred_temp, regex_temp = mobile_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_mobile;'
-  creds_command << " set CUSTOM_WORDLIST #{wordlist.path};"
-  creds_command << " set POT #{tempfile.path};"
-  creds_command << ' set action hashcat;'
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    tempfile.close!
-    tempfile.unlink
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    exit 1
-  end
-  tempfile.close!
-  tempfile.unlink
+  run_section(
+    desc: '[10/24] Running mobile hashes in hashcat wordlist mode...',
+    creds_proc: method(:mobile_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_mobile',
+    use_wordlist: true,
+    action: 'hashcat'
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(11)
-  info '[11/24] Running osx hashes in hashcat wordlist mode...'
-  tempfile = Tempfile.new('john_pot')
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST true; setg verbose true;'
-  cred_temp, regex_temp = osx_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_osx;'
-  creds_command << " set CUSTOM_WORDLIST #{wordlist.path};"
-  creds_command << " set POT #{tempfile.path};"
-  creds_command << ' set action hashcat;'
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    tempfile.close!
-    tempfile.unlink
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    exit 1
-  end
-  tempfile.close!
-  tempfile.unlink
+  run_section(
+    desc: '[11/24] Running osx hashes in hashcat wordlist mode...',
+    creds_proc: method(:osx_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_osx',
+    use_wordlist: true,
+    action: 'hashcat'
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(12)
-  info '[12/24] Running webapp hashes in hashcat wordlist mode...'
-  tempfile = Tempfile.new('john_pot')
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST true; setg verbose true;'
-  cred_temp, regex_temp = webapp_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_webapps;'
-  creds_command << " set CUSTOM_WORDLIST #{wordlist.path};"
-  creds_command << " set POT #{tempfile.path};"
-  creds_command << ' set action hashcat;'
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    tempfile.close!
-    tempfile.unlink
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    exit 1
-  end
-  tempfile.close!
-  tempfile.unlink
-end
-
-wordlist.close!
-wordlist.unlink
-
-pot_file = Tempfile.new('john_pot')
-File.open(pot_file, 'w') { |file| file.write("$1$O3JMY.Tw$AdLnLjQ/5jXF9.MTp3gHv/:password\nrEK1ecacw.7.c:password\n_J9..K0AyUubDrfOgO4s:password\n$2a$05$bvIG6Nmid91Mu9RcmmWZfO5HJIMCT8riNW0hEp8f6/FuA2/mHZFpe:password\n$5$MnfsQ4iN$ZMTppKN16y/tIsUYs/obHlhdP.Os80yXhTurpBMUbA5:password\n$6$zWwwXKNj$gLAOoZCjcr8p/.VgV/FkGC3NX7BsXys3KHYePfuIGMNjY83dVxugPYlxVg/evpcVEJLT/rSwZcDMlVVf/bhf.1:password\n$LM$4a3b108f3fa6cb6d:D\n$LM$e52cac67419a9a22:PASSWOR\n$NT$8846f7eaee8fb117ad06bdd830b7586c:password\nM$test1#64cd29e36a8431a2b111378564a10631:test1\n$DCC2$10240#tom#e4e938d12fe5974dc42a90120bd9c90f:hashcat\n$NETNTLM$cb8086049ec4736c338d08f8e26de933$9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41:hashcat\n$NETNTLMv2$ADMINN46iSNekpT$08ca45b7d7ea58ee$88dcbe4446168966a153a0064958dac6$5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030:hashcat\n0x0100A607BA7C54A24D17B565C59F1743776A10250F581D482DA8B6D6261460D3F53B279CC6913CE747006A2E3254:FOO\n0x01004086CEB6BF932BC4151A1AF1F13CD17301D70816A8886908:toto\n0x0200F733058A07892C5CACE899768F89965F6BD1DED7955FE89E1C9A10E27849B0B213B5CE92CC9347ECCB34C3EFADAF2FD99BFFECD8D9150DD6AACB5D409A9D2652A4E0AF16:Password1!\n445ff82636a7ba59:probe\n*5AD8F88516BD021DD43F171E2C785C69F8E54ADB:tere\nO$SIMON#4f8bc1809cb2af77:A\nO$SYSTEM#9eedfa0ad26c6d52:THALES\n9860a48ca459d054f3fef0f8518cf6872923dae2:81fcb23bcadd6c5:1234\nd1b19a90b87fc10c304e657f37162445dae27d16:a006983800cc3dd1:1234\n1c0a0fdb673fba36beaeb078322c7393:81fcb23bcadd6c5:1234\n1430823483D07626EF8BE3FDA2FF056D0DFD818DBFE47683:hashcat\n$LION$648742485c9b0acd786a233b2330197223118111b481abfa0ab8b3e8ede5f014fc7c523991c007db6882680b09962d16fd9c45568260531bdb34804a5e31c22b4cfeb32d:hashcat\n$pbkdf2-hmac-sha512$35460.93a94bd24b5de64d79a5e49fa372827e739f4d7b6975c752c9a0ff1e5cf72e05.752351df64dd2ce9dc9c64a72ad91de6581a15c19176266b44d98919dfa81f0f96cbcb20a1ffb400718c20382030f637892f776627d34e021bad4f81b7de8222:hashcat\n$pbkdf2-hmac-sha1$10000$37323237333437363735323036323731$d0c38acef03f149b4b37c5a8319feeefcbd34912127ba96f3dfa5c22f49bbc1a:hashcat\n$H$984478476IagS59wHZvyQMArzfx58u.:hashcat\n$P$984478476IagS59wHZvyQMArzfx58u.:hashcat\n$B$56668501$0ce106caa70af57fd525aeaf80ef2898:hashcat\ne52cac67419a9a22:PASSWOR\n4a3b108f3fa6cb6d:D\n8846f7eaee8fb117ad06bdd830b7586c:password\n64cd29e36a8431a2b111378564a10631:test1:test1\nu4-netntlm::kNS:338d08f8e26de93300000000000000000000000000000000:9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41:cb8086049ec4736c:hashcat\nADMIN::N46iSNekpT:08ca45b7d7ea58ee:88dcbe4446168966a153a0064958dac6:5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030:hashcat\n5ad8f88516bd021dd43f171e2c785c69f8e54adb:tere\n648742485c9b0acd786a233b2330197223118111b481abfa0ab8b3e8ede5f014fc7c523991c007db6882680b09962d16fd9c45568260531bdb34804a5e31c22b4cfeb32d:hashcat\n$ml$35460$93a94bd24b5de64d79a5e49fa372827e739f4d7b6975c752c9a0ff1e5cf72e05$752351df64dd2ce9dc9c64a72ad91de6581a15c19176266b44d98919dfa81f0f96cbcb20a1ffb400718c20382030f637892f776627d34e021bad4f81b7de8222:hashcat\n{PKCS5S2}NzIyNzM0NzY3NTIwNjI3MdDDis7wPxSbSzfFqDGf7u/L00kSEnupbz36XCL0m7wa:hashcat\n") }
-info "john.pot file created at: #{pot_file.path}"
-
-if options[:test] == 'all' || options[:test].include?(13)
-  info '[13/24] Running *nix hashes in john pot mode...'
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST false; setg verbose true;'
-  cred_temp, regex_temp = nix_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_linux;'
-  creds_command << " set POT #{pot_file.path};"
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    pot_file.close!
-    pot_file.unlink
-    exit 1
-  end
+  run_section(
+    desc: '[12/24] Running webapp hashes in hashcat wordlist mode...',
+    creds_proc: method(:webapp_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_webapps',
+    use_wordlist: true,
+    action: 'hashcat'
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(14)
-  info '[14/24] Running windows hashes in john pot mode...'
+  run_section(
+    desc: '[14/24] Running windows hashes in john pot mode...',
+    creds_proc: method(:windows_hashes_and_regex_john_compat),
+    analyzer: 'auxiliary/analyze/crack_windows',
+    use_wordlist: false,
+    pot_path: pot_file.path
+  )
+end
 
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST false; setg verbose true;'
-  cred_temp, regex_temp = windows_hashes_and_regex_john_compat
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_windows;'
-  creds_command << " set POT #{pot_file.path};"
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    pot_file.close!
-    pot_file.unlink
-    exit 1
-  end
+if options[:test] == 'all' || options[:test].include?(13)
+  run_section(
+    desc: '[13/24] Running *nix hashes in john pot mode...',
+    creds_proc: method(:nix_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_linux',
+    use_wordlist: false,
+    pot_path: pot_file.path
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(15)
-  info '[15/24] Running sql hashes in john pot mode...'
-
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST false; setg verbose true;'
-  cred_temp, regex_temp = sql_hashes_and_regex_john_compat
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-
-  creds_command << ' use auxiliary/analyze/crack_databases;'
-  creds_command << " set CUSTOM_WORDLIST #{wordlist.path};"
-  creds_command << " set POT #{pot_file.path};"
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    pot_file.close!
-    pot_file.unlink
-    exit 1
-  end
+  run_section(
+    desc: '[15/24] Running sql hashes in john pot mode...',
+    creds_proc: method(:sql_hashes_and_regex_john_compat),
+    analyzer: 'auxiliary/analyze/crack_databases',
+    use_wordlist: false,
+    pot_path: pot_file.path
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(16)
-  info '[16/24] Running osx hashes in john pot mode...'
-
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST false; setg verbose true;'
-  cred_temp, regex_temp = osx_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_osx;'
-  creds_command << " set POT #{pot_file.path};"
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    pot_file.close!
-    pot_file.unlink
-    exit 1
-  end
+  run_section(
+    desc: '[16/24] Running osx hashes in john pot mode...',
+    creds_proc: method(:osx_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_osx',
+    use_wordlist: false,
+    pot_path: pot_file.path
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(17)
-  info '[17/24] Running webapp hashes in john pot mode...'
-
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST false; setg verbose true;'
-  cred_temp, regex_temp = webapp_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_webapps;'
-  creds_command << " set POT #{pot_file.path};"
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    pot_file.close!
-    pot_file.unlink
-    exit 1
-  end
+  run_section(
+    desc: '[17/24] Running webapp hashes in john pot mode...',
+    creds_proc: method(:webapp_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_webapps',
+    use_wordlist: false,
+    pot_path: pot_file.path
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(18)
-  info '[18/24] Running *nix hashes in hashcat pot mode...'
-
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST false; setg verbose true;'
-  cred_temp, regex_temp = nix_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_linux;'
-  creds_command << " set POT #{pot_file.path};"
-  creds_command << ' set action hashcat;'
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    pot_file.close!
-    pot_file.unlink
-    exit 1
-  end
+  run_section(
+    desc: '[18/24] Running *nix hashes in hashcat pot mode...',
+    creds_proc: method(:nix_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_linux',
+    use_wordlist: false,
+    action: 'hashcat',
+    pot_path: pot_file.path
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(19)
-  info '[19/24] Running windows hashes in hashcat pot mode...'
-
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST false; setg verbose true;'
-  cred_temp, regex_temp = windows_hashes_and_regex_hashcat_compat
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_windows;'
-  creds_command << " set POT #{pot_file.path};"
-  creds_command << ' set action hashcat;'
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    pot_file.close!
-    pot_file.unlink
-    exit 1
-  end
+  run_section(
+    desc: '[19/24] Running windows hashes in hashcat pot mode...',
+    creds_proc: method(:windows_hashes_and_regex_hashcat_compat),
+    analyzer: 'auxiliary/analyze/crack_windows',
+    use_wordlist: false,
+    action: 'hashcat',
+    pot_path: pot_file.path
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(20)
-  info '[20/24] Running sql hashes in hashcat pot mode...'
-
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST false; setg verbose true;'
-  cred_temp, regex_temp = sql_hashes_and_regex_hashcat_compat
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-
-  creds_command << ' use auxiliary/analyze/crack_databases;'
-  creds_command << " set POT #{pot_file.path};"
-  creds_command << ' set action hashcat;'
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    pot_file.close!
-    pot_file.unlink
-    exit 1
-  end
+  run_section(
+    desc: '[20/24] Running sql hashes in hashcat pot mode...',
+    creds_proc: method(:sql_hashes_and_regex_hashcat_compat),
+    analyzer: 'auxiliary/analyze/crack_databases',
+    use_wordlist: false,
+    action: 'hashcat',
+    pot_path: pot_file.path
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(21)
-  info '[21/24] Running mobile hashes in hashcat pot mode...'
-
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST false; setg verbose true;'
-  cred_temp, regex_temp = mobile_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_mobile;'
-  creds_command << " set POT #{pot_file.path};"
-  creds_command << ' set action hashcat;'
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    pot_file.close!
-    pot_file.unlink
-    exit 1
-  end
+  run_section(
+    desc: '[21/24] Running mobile hashes in hashcat pot mode...',
+    creds_proc: method(:mobile_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_mobile',
+    use_wordlist: false,
+    action: 'hashcat',
+    pot_path: pot_file.path
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(22)
-  info '[22/24] Running osx hashes in hashcat pot mode...'
-
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST false; setg verbose true;'
-  cred_temp, regex_temp = osx_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_osx;'
-  creds_command << " set POT #{pot_file.path};"
-  creds_command << ' set action hashcat;'
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    pot_file.close!
-    pot_file.unlink
-    exit 1
-  end
+  run_section(
+    desc: '[22/24] Running osx hashes in hashcat pot mode...',
+    creds_proc: method(:osx_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_osx',
+    use_wordlist: false,
+    action: 'hashcat',
+    pot_path: pot_file.path
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(23)
-  info '[23/24] Running webapp hashes in hashcat pot mode...'
-
-  creds_expected_output_regex = []
-  creds_command = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; setg WORDLIST false; setg verbose true;'
-  cred_temp, regex_temp = webapp_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/crack_webapps;'
-  creds_command << " set POT #{pot_file.path};"
-  creds_command << ' set action hashcat;'
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    pot_file.close!
-    pot_file.unlink
-    exit 1
-  end
+  run_section(
+    desc: '[23/24] Running webapp hashes in hashcat pot mode...',
+    creds_proc: method(:webapp_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_webapps',
+    use_wordlist: false,
+    action: 'hashcat',
+    pot_path: pot_file.path
+  )
 end
 
 if options[:test] == 'all' || options[:test].include?(24)
-  info '[24/24] Running all hashes in john apply_pot mode...'
-
-  creds_expected_output_regex = []
-  creds_command = 'setg verbose true;'
-  cred_temp, regex_temp = nix_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  cred_temp, regex_temp = windows_hashes_and_regex_john_compat
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  cred_temp, regex_temp = sql_hashes_and_regex_john_compat
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  cred_temp, regex_temp = osx_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  cred_temp, regex_temp = webapp_hashes_and_regex
-  creds_command << cred_temp
-  creds_expected_output_regex += regex_temp
-  creds_command << ' use auxiliary/analyze/apply_pot;'
-  creds_command << " set POT #{pot_file.path};"
-  creds_command << ' run; creds -d; exit;'
-  info "Run Command: #{creds_command}" if options[:verbose]
-  unless run_msfconsole(creds_command, creds_expected_output_regex)
-    puts '-------------------------------'
-    error 'Credential verification failed. Exiting.'
-    pot_file.close!
-    pot_file.unlink
-    exit 1
-  end
+  run_section(
+    desc: '[24/24] Running all hashes in john apply_pot mode...',
+    creds_proc: proc {
+      creds_command = 'setg verbose true;'
+      creds_expected_output_regex = []
+      cred_temp, regex_temp = nix_hashes_and_regex
+      creds_command << cred_temp
+      creds_expected_output_regex += regex_temp
+      cred_temp, regex_temp = windows_hashes_and_regex_john_compat
+      creds_command << cred_temp
+      creds_expected_output_regex += regex_temp
+      cred_temp, regex_temp = sql_hashes_and_regex_john_compat
+      creds_command << cred_temp
+      creds_expected_output_regex += regex_temp
+      cred_temp, regex_temp = osx_hashes_and_regex
+      creds_command << cred_temp
+      creds_expected_output_regex += regex_temp
+      cred_temp, regex_temp = webapp_hashes_and_regex
+      creds_command << cred_temp
+      creds_expected_output_regex += regex_temp
+      [creds_command, creds_expected_output_regex]
+    },
+    analyzer: 'auxiliary/analyze/apply_pot',
+    use_wordlist: false,
+    pot_path: pot_file.path,
+    skip_base_settings: true
+  )
 end
 
 pot_file.close!
