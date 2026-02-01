@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
         next unless fields.count >= 2 # krb5asrep and similar kerberoast fields have 2 fields only
 
         case hash_type
-        when 'krb5asrep'
+        when 'krb5asrep', 'krb5tgs'
           cred['core_id'] = fields.shift
           cred['password'] = fields.pop
         when 'mscash', 'mscash2', 'netntlm', 'netntlmv2'
