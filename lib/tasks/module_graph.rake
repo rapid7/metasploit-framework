@@ -219,15 +219,62 @@ namespace :module_graph do
       puts "Phase 1: Completed importing #{modules_imported} modules.\n"
 
       # Phase 2: Apply artisanal properties from transforms file
+      # Array entries can be plain strings (normal weight) or single-key hashes
+      # for weighted values, e.g.:
+      #   authentication_out:
+      #     - plaintext
+      #     - kerberos: highest
       puts "Phase 2: Applying module edits..."
       module_edits = TRANSFORMS_CONFIG['module_edits'] || {}
+      weight_edits = {}
+      weight_errors = []
 
       if module_edits.any?
         artisanal_count = 0
         errors = []
 
+        # Map output property names to requirement ID prefixes for weight tracking
+        output_prefixes = {
+          'authentication_out' => 'authentication/',
+          'session_out' => 'session/',
+          'trigger_out' => ''
+        }
+
         module_edits.each do |module_name, modifications|
-          additions = modifications['add'] || {}
+          additions = {}
+          (modifications['add'] || {}).each do |property, values|
+            next unless values.is_a?(Array)
+
+            plain_values = []
+            values.each do |entry|
+              if entry.is_a?(Hash)
+                # Weighted entry: { 'kerberos' => 'highest' }
+                entry.each do |value, level|
+                  plain_values << value.to_s
+
+                  prefix = output_prefixes[property]
+                  if prefix.nil?
+                    weight_errors << "#{module_name}: weights are not supported on '#{property}' (only #{output_prefixes.keys.join(', ')})"
+                    next
+                  end
+
+                  level_str = level.to_s.downcase
+                  unless Msf::Neo4j::Graph::WEIGHT_LEVELS.key?(level_str)
+                    weight_errors << "#{module_name}: unknown weight level '#{level}' for #{value} (expected: #{Msf::Neo4j::Graph::WEIGHT_LEVELS.keys.join(', ')})"
+                    next
+                  end
+
+                  req_id = "#{prefix}#{value}"
+                  weight_edits[module_name] ||= {}
+                  weight_edits[module_name][req_id] = Msf::Neo4j::Graph::WEIGHT_LEVELS[level_str]
+                end
+              else
+                plain_values << entry.to_s
+              end
+            end
+            additions[property] = plain_values
+          end
+
           removals = modifications['remove'] || {}
 
           unless additions.empty? && removals.empty?
@@ -255,12 +302,25 @@ namespace :module_graph do
       else
         puts "No module edits found in #{TRANSFORMS_FILE}"
       end
+
+      unless weight_errors.empty?
+        puts "\nWeight configuration errors:"
+        weight_errors.each { |error| puts "  - #{error}" }
+        raise "Weight configuration failed. Fix the errors above in #{TRANSFORMS_FILE}"
+      end
       puts "Phase 2: Completed.\n"
 
       # Phase 3: Build requirement node model
       puts "Phase 3: Building requirement model..."
       graph.build_requirement_model
       puts "Phase 3: Completed.\n"
+
+      # Phase 4: Apply PRODUCES relationship weights extracted from Phase 2
+      if weight_edits.any?
+        puts "Phase 4: Applying PRODUCES relationship weights..."
+        graph.apply_produces_weights(weight_edits)
+        puts "Phase 4: Completed.\n"
+      end
 
       puts "Generation complete!"
       puts "View at http://localhost:7474"
@@ -498,7 +558,8 @@ namespace :module_graph do
         puts "No escalation paths found (try increasing DEPTH)"
       else
         results.each_with_index do |chain, i|
-          puts "\nPath #{i + 1} (#{chain[:chain_length]} modules):"
+          weight_label = chain[:total_weight] != 0 ? " | weight: #{chain[:total_weight]}" : ""
+          puts "\nPath #{i + 1} (#{chain[:chain_length]} modules#{weight_label}):"
           chain[:chain].each_with_index do |mod, j|
             label = format_module(mod, chain[:target_names][j])
             pivot = chain[:access_pivots][j]
@@ -510,6 +571,51 @@ namespace :module_graph do
           end
         end
         puts "\n#{results.size} paths found"
+      end
+    ensure
+      graph.close
+    end
+  end
+
+  desc "Find paths from an access type to run a specific module (e.g., FROM=authentication/hash/ntlm MODULE=post/windows/gather/hashdump)"
+  task :reach_module do
+    from = ENV['FROM']
+    target_module = ENV['MODULE']
+    max_depth = (ENV['DEPTH'] || 4).to_i
+    limit = (ENV['LIMIT'] || 50).to_i
+    abort "Usage: rake module_graph:reach_module FROM=authentication/hash/ntlm MODULE=post/windows/gather/hashdump [DEPTH=4] [LIMIT=50]" unless from && target_module
+
+    graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
+    begin
+      result = graph.find_paths_to_module(from, target_module, max_depth: max_depth, limit: limit)
+
+      puts "\n" + "=" * 80
+      puts "PATHS TO MODULE: #{target_module}"
+      puts "STARTING FROM:   #{from}"
+      puts "=" * 80
+
+      if result[:target_requirements].any?
+        puts "\nTarget module requires: #{result[:target_requirements].join(', ')}"
+      end
+
+      if result[:paths].empty?
+        puts "\nNo paths found (try increasing DEPTH)"
+      else
+        result[:paths].each_with_index do |path, i|
+          weight_label = path[:total_weight] != 0 ? " | weight: #{path[:total_weight]}" : ""
+          puts "\nPath #{i + 1} (#{path[:chain_length]} intermediate modules#{weight_label}):"
+          path[:chain].each_with_index do |mod, j|
+            label = format_module(mod, path[:target_names][j])
+            req = path[:requirements_used][j]
+            if req
+              puts "  #{label}  --[#{req}]-->"
+            else
+              puts "  #{label}"
+            end
+          end
+          puts "  #{target_module}  (target)"
+        end
+        puts "\n#{result[:paths].size} paths found"
       end
     ensure
       graph.close

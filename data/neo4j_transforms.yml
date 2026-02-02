@@ -47,14 +47,14 @@ module_edits:
   auxiliary/admin/dcerpc/icpr_cert:
     add:
       authentication_out:
-        - certificate
+        - certificate: highest
 
   auxiliary/admin/kerberos/forge_ticket:
     add:
       authentication_in:
         - kerberos/keys
       authentication_out:
-        - kerberos
+        - kerberos: highest
 
   auxiliary/admin/kerberos/get_ticket:
     add:
@@ -62,7 +62,7 @@ module_edits:
         - plaintext
         - certificate
       authentication_out:
-        - kerberos
+        - kerberos: highest
 
   auxiliary/admin/ldap/bad_successor:
     remove:
@@ -78,9 +78,9 @@ module_edits:
   auxiliary/gather/ldap_passwords:
     add:
       authentication_out:
-        - plaintext
+        - plaintext: high
         - hash/ntlm
-        - kerberos/keys
+        - kerberos/keys: low
 
   auxiliary/gather/windows_secrets_dump:
     add:
@@ -276,8 +276,8 @@ module_edits:
   exploit/windows/smb/smb_relay:
     add:
       authentication_out:
-        - hash/net-ntlm
-        - session/smb
+        - hash/net-ntlm: high
+        - session/smb: low
       session_out:
         - smb
       trigger_in:

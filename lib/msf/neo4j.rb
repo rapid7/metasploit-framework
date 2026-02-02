@@ -41,6 +41,17 @@ module Msf
     # Base session types (without platform qualification)
     SESSION_TYPES = %w[shell meterpreter powershell cmd].freeze
 
+    # Named weight levels for PRODUCES relationships.
+    # Positive values boost a path, negative values penalize it.
+    # Default (unweighted) relationships have weight 0.
+    WEIGHT_LEVELS = {
+      'highest' => 2.0,
+      'high'    => 1.0,
+      'normal'  => 0.0,
+      'low'     => -1.0,
+      'lowest'  => -2.0
+    }.freeze
+
     # Default batch size for relationship building
     DEFAULT_BATCH_SIZE = 500
 
@@ -405,6 +416,7 @@ module Msf
 
     # Create PRODUCES relationships from modules to requirement nodes (batched)
     # Session relationships use platform-qualified IDs: session/{platform}/{session_type}
+    # All PRODUCES relationships get a default weight of 0.
     def create_produces_relationships(batch_size: DEFAULT_BATCH_SIZE)
       puts "Creating PRODUCES relationships..."
 
@@ -417,7 +429,7 @@ module Msf
             UNWIND m.session_out AS sess_value
             WITH m, 'session/' + sess_value AS qualified_id
             MATCH (r:Requirement {id: qualified_id})
-            MERGE (m)-[:PRODUCES {type: 'access'}]->(r)
+            MERGE (m)-[:PRODUCES {type: 'access', weight: 0}]->(r)
           } IN TRANSACTIONS OF #{batch_size} ROWS
         CYPHER
       end
@@ -431,7 +443,7 @@ module Msf
             UNWIND m.authentication_out AS auth_type
             WITH m, CASE WHEN auth_type STARTS WITH 'session/' THEN auth_type ELSE 'authentication/' + auth_type END AS qualified_id
             MATCH (r:Requirement {id: qualified_id})
-            MERGE (m)-[:PRODUCES {type: 'access'}]->(r)
+            MERGE (m)-[:PRODUCES {type: 'access', weight: 0}]->(r)
           } IN TRANSACTIONS OF #{batch_size} ROWS
         CYPHER
       end
@@ -445,11 +457,37 @@ module Msf
             WHERE m.trigger_out IS NOT NULL
             UNWIND m.trigger_out AS trigger_type
             MATCH (r:Requirement {id: trigger_type})
-            MERGE (m)-[:PRODUCES {type: 'trigger'}]->(r)
+            MERGE (m)-[:PRODUCES {type: 'trigger', weight: 0}]->(r)
           } IN TRANSACTIONS OF #{batch_size} ROWS
         CYPHER
       end
       puts "  Created trigger PRODUCES relationships"
+    end
+
+    # Apply weight overrides to specific PRODUCES relationships.
+    # weight_edits is a hash of module_id => { requirement_id => weight }
+    # e.g., { 'auxiliary/admin/kerberos/get_ticket' => { 'authentication/kerberos' => 0.1 } }
+    def apply_produces_weights(weight_edits)
+      puts "Applying PRODUCES relationship weights..."
+      count = 0
+      weight_edits.each do |module_id, req_weights|
+        req_weights.each do |req_id, weight|
+          session do |session|
+            result = session.run(<<~CYPHER, module_id: module_id, req_id: req_id, weight: weight.to_f)
+              MATCH (m:Module {id: $module_id})-[p:PRODUCES]->(r:Requirement {id: $req_id})
+              SET p.weight = $weight
+              RETURN count(p) AS updated
+            CYPHER
+            record = result.first
+            if record && record['updated'] > 0
+              count += record['updated']
+            else
+              $stderr.puts "  WARNING: No PRODUCES relationship found for #{module_id} -> #{req_id}"
+            end
+          end
+        end
+      end
+      puts "  Updated #{count} PRODUCES relationship weights"
     end
 
     # Create REQUIRES relationships from modules to requirement nodes (batched)
@@ -821,21 +859,24 @@ module Msf
     def find_access_escalation(from_access, to_access, max_depth: 4, limit: 50)
       results = []
       (1..max_depth).each do |depth|
-        # Build: (first)-[:PRODUCES]->...<-[:REQUIRES]-(last)-[:PRODUCES]->(end_req)
+        # Build: (first)-[p1:PRODUCES]->...<-[:REQUIRES]-(last)-[pN:PRODUCES]->(end_req)
         # where first REQUIRES start_req
-        chain_pattern = '(first)-[:PRODUCES]->'
+        # Name each PRODUCES relationship to capture weights.
+        produces_names = ['p1']
+        chain_pattern = '(first)-[p1:PRODUCES]->'
         module_names = ['first']
         req_names = []
         (1...depth).each do |i|
           req_name = "r#{i}"
           mod_name = "m#{i + 1}"
+          prod_name = "p#{i + 1}"
           req_names << req_name
           module_names << mod_name
-          chain_pattern += "(#{req_name}:Requirement)<-[:REQUIRES]-(#{mod_name}:Module)-[:PRODUCES]->"
+          produces_names << prod_name
+          chain_pattern += "(#{req_name}:Requirement)<-[:REQUIRES]-(#{mod_name}:Module)-[#{prod_name}:PRODUCES]->"
         end
         chain_pattern += '(end_req)'
 
-        last_mod = module_names.last
         modules_return = '[' + module_names.map { |m| "#{m}.id" }.join(', ') + ']'
         targets_return = '[' + module_names.map { |m| "#{m}.target_name" }.join(', ') + ']'
         reqs_return = if req_names.empty?
@@ -843,6 +884,7 @@ module Msf
                       else
                         '[' + req_names.map { |r| "#{r}.id" }.join(', ') + ', end_req.id]'
                       end
+        weight_sum = produces_names.map { |p| "#{p}.weight" }.join(' + ')
 
         session do |session|
           result = session.run(<<~CYPHER, from: from_access, to: to_access)
@@ -855,7 +897,9 @@ module Msf
                    #{reqs_return} AS access_pivots,
                    $from AS from_access,
                    $to AS to_access,
-                   #{depth} AS chain_length
+                   #{depth} AS chain_length,
+                   #{weight_sum} AS total_weight
+            ORDER BY #{weight_sum} DESC
             LIMIT #{limit}
           CYPHER
 
@@ -866,12 +910,96 @@ module Msf
               access_pivots: record['access_pivots'],
               from_access: record['from_access'],
               to_access: record['to_access'],
-              chain_length: record['chain_length']
+              chain_length: record['chain_length'],
+              total_weight: record['total_weight']
             }
           end
         end
       end
-      results.sort_by { |r| r[:chain_length] }
+      results.sort_by { |r| [r[:chain_length], -r[:total_weight]] }
+    end
+
+    # Find paths from a given access type to satisfy the requirements of a target module.
+    # Useful for answering: "I have an NTLM hash, how do I run module X?"
+    #
+    # from_access: starting Access requirement ID (e.g., 'authentication/hash/ntlm')
+    # target_module: the module ID to reach (e.g., 'post/windows/gather/hashdump')
+    # max_depth: maximum number of intermediate modules in the chain (not counting the target)
+    def find_paths_to_module(from_access, target_module, max_depth: 4, limit: 50)
+      results = []
+
+      # First, look up what the target module requires so we can display it
+      target_requirements = []
+      session do |session|
+        result = session.run(<<~CYPHER, target_id: target_module)
+          MATCH (target:Module {id: $target_id})-[:REQUIRES]->(req:Requirement)
+          RETURN collect(DISTINCT req.id) AS requirements
+        CYPHER
+        record = result.first
+        target_requirements = record['requirements'] if record
+      end
+
+      (1..max_depth).each do |depth|
+        # Build chain: (first)-[p1:PRODUCES]->...<-[:REQUIRES]-(target)
+        # Depth 1: (first)-[p1:PRODUCES]->(r1)<-[:REQUIRES]-(target)
+        # Depth 2: (first)-[p1:PRODUCES]->(r1)<-[:REQUIRES]-(m2)-[p2:PRODUCES]->(r2)<-[:REQUIRES]-(target)
+        # Name each PRODUCES relationship to capture weights.
+        produces_names = ['p1']
+        chain_pattern = '(first)-[p1:PRODUCES]->'
+        module_names = ['first']
+        req_names = []
+
+        (1..depth).each do |i|
+          req_name = "r#{i}"
+          req_names << req_name
+          if i < depth
+            mod_name = "m#{i + 1}"
+            prod_name = "p#{i + 1}"
+            module_names << mod_name
+            produces_names << prod_name
+            chain_pattern += "(#{req_name}:Requirement)<-[:REQUIRES]-(#{mod_name}:Module)-[#{prod_name}:PRODUCES]->"
+          else
+            chain_pattern += "(#{req_name}:Requirement)<-[:REQUIRES]-(target)"
+          end
+        end
+
+        modules_return = '[' + module_names.map { |m| "#{m}.id" }.join(', ') + ']'
+        targets_return = '[' + module_names.map { |m| "#{m}.target_name" }.join(', ') + ']'
+        reqs_return = '[' + req_names.map { |r| "#{r}.id" }.join(', ') + ']'
+        weight_sum = produces_names.map { |p| "#{p}.weight" }.join(' + ')
+
+        session do |session|
+          result = session.run(<<~CYPHER, from: from_access, target_id: target_module)
+            MATCH (start_req:Access {id: $from})
+            MATCH (target:Module {id: $target_id})
+            MATCH (first:Module)-[:REQUIRES]->(start_req)
+            MATCH #{chain_pattern}
+            WHERE first <> target
+            RETURN #{modules_return} AS chain,
+                   #{targets_return} AS target_names,
+                   #{reqs_return} AS requirements_used,
+                   #{depth} AS chain_length,
+                   #{weight_sum} AS total_weight
+            ORDER BY #{weight_sum} DESC
+            LIMIT #{limit}
+          CYPHER
+
+          result.each do |record|
+            results << {
+              chain: record['chain'],
+              target_names: record['target_names'],
+              requirements_used: record['requirements_used'],
+              chain_length: record['chain_length'],
+              total_weight: record['total_weight']
+            }
+          end
+        end
+      end
+      {
+        target_module: target_module,
+        target_requirements: target_requirements,
+        paths: results.sort_by { |r| [r[:chain_length], -r[:total_weight]] }
+      }
     end
 
     # Find coercion-to-credential chains: trigger → capture/relay → access.
