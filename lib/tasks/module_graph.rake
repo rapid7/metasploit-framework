@@ -219,94 +219,25 @@ namespace :module_graph do
       puts "Phase 1: Completed importing #{modules_imported} modules.\n"
 
       # Phase 2: Apply artisanal properties from transforms file
-      # Array entries can be plain strings (normal weight) or single-key hashes
-      # for weighted values, e.g.:
-      #   authentication_out:
-      #     - plaintext
-      #     - kerberos: highest
       puts "Phase 2: Applying module edits..."
       module_edits = TRANSFORMS_CONFIG['module_edits'] || {}
-      weight_edits = {}
-      weight_errors = []
 
       if module_edits.any?
-        artisanal_count = 0
-        errors = []
+        result = apply_module_edits(graph, module_edits)
 
-        # Map output property names to requirement ID prefixes for weight tracking
-        output_prefixes = {
-          'authentication_out' => 'authentication/',
-          'session_out' => 'session/',
-          'trigger_out' => ''
-        }
-
-        module_edits.each do |module_name, modifications|
-          additions = {}
-          (modifications['add'] || {}).each do |property, values|
-            next unless values.is_a?(Array)
-
-            plain_values = []
-            values.each do |entry|
-              if entry.is_a?(Hash)
-                # Weighted entry: { 'kerberos' => 'highest' }
-                entry.each do |value, level|
-                  plain_values << value.to_s
-
-                  prefix = output_prefixes[property]
-                  if prefix.nil?
-                    weight_errors << "#{module_name}: weights are not supported on '#{property}' (only #{output_prefixes.keys.join(', ')})"
-                    next
-                  end
-
-                  level_str = level.to_s.downcase
-                  unless Msf::Neo4j::Graph::WEIGHT_LEVELS.key?(level_str)
-                    weight_errors << "#{module_name}: unknown weight level '#{level}' for #{value} (expected: #{Msf::Neo4j::Graph::WEIGHT_LEVELS.keys.join(', ')})"
-                    next
-                  end
-
-                  req_id = "#{prefix}#{value}"
-                  weight_edits[module_name] ||= {}
-                  weight_edits[module_name][req_id] = Msf::Neo4j::Graph::WEIGHT_LEVELS[level_str]
-                end
-              else
-                plain_values << entry.to_s
-              end
-            end
-            additions[property] = plain_values
-          end
-
-          removals = modifications['remove'] || {}
-
-          unless additions.empty? && removals.empty?
-            begin
-              graph.update_module_properties(
-                module_name,
-                additions: additions,
-                removals: removals
-              )
-              artisanal_count += 1
-              puts "  Updated: #{module_name}"
-            rescue ArgumentError => e
-              errors << "#{module_name}: #{e.message}"
-              $stderr.puts "  ERROR - #{module_name}: #{e.message}"
-            end
-          end
-        end
-
-        puts "Phase 2: Applied module edits to #{artisanal_count} modules."
-        unless errors.empty?
+        puts "Phase 2: Applied module edits to #{result[:artisanal_count]} modules."
+        unless result[:edit_errors].empty?
           puts "\nErrors encountered:"
-          errors.each { |error| puts "  - #{error}" }
+          result[:edit_errors].each { |error| puts "  - #{error}" }
           raise "Module edits validation failed. Fix the errors above in #{TRANSFORMS_FILE}"
+        end
+        unless result[:weight_errors].empty?
+          puts "\nWeight configuration errors:"
+          result[:weight_errors].each { |error| puts "  - #{error}" }
+          raise "Weight configuration failed. Fix the errors above in #{TRANSFORMS_FILE}"
         end
       else
         puts "No module edits found in #{TRANSFORMS_FILE}"
-      end
-
-      unless weight_errors.empty?
-        puts "\nWeight configuration errors:"
-        weight_errors.each { |error| puts "  - #{error}" }
-        raise "Weight configuration failed. Fix the errors above in #{TRANSFORMS_FILE}"
       end
       puts "Phase 2: Completed.\n"
 
@@ -316,9 +247,9 @@ namespace :module_graph do
       puts "Phase 3: Completed.\n"
 
       # Phase 4: Apply PRODUCES relationship weights extracted from Phase 2
-      if weight_edits.any?
+      if module_edits.any? && result[:weight_edits].any?
         puts "Phase 4: Applying PRODUCES relationship weights..."
-        graph.apply_produces_weights(weight_edits)
+        graph.apply_produces_weights(result[:weight_edits])
         puts "Phase 4: Completed.\n"
       end
 
@@ -392,6 +323,51 @@ namespace :module_graph do
 
   desc "Regenerate module graph (clean + generate)"
   task :regenerate => [:clean, :generate]
+
+  desc "Re-apply module edits and rebuild the requirement model without re-importing modules"
+  task :reapply_transforms do
+    graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
+    begin
+      # Step 1: Clear existing requirement model
+      puts "Clearing requirement model..."
+      graph.clear_requirement_model
+
+      # Step 2: Re-apply module edits from transforms
+      puts "\nApplying module edits..."
+      module_edits = TRANSFORMS_CONFIG['module_edits'] || {}
+
+      if module_edits.any?
+        result = apply_module_edits(graph, module_edits)
+
+        puts "Applied module edits to #{result[:artisanal_count]} modules."
+        unless result[:edit_errors].empty?
+          puts "\nErrors encountered:"
+          result[:edit_errors].each { |error| puts "  - #{error}" }
+          raise "Module edits validation failed. Fix the errors above in #{TRANSFORMS_FILE}"
+        end
+        unless result[:weight_errors].empty?
+          puts "\nWeight configuration errors:"
+          result[:weight_errors].each { |error| puts "  - #{error}" }
+          raise "Weight configuration failed. Fix the errors above in #{TRANSFORMS_FILE}"
+        end
+      end
+
+      # Step 3: Rebuild requirement model
+      puts "\nRebuilding requirement model..."
+      graph.build_requirement_model
+
+      # Step 4: Apply weights
+      if module_edits.any? && result[:weight_edits].any?
+        puts "\nApplying PRODUCES relationship weights..."
+        graph.apply_produces_weights(result[:weight_edits])
+      end
+
+      puts "\nRefresh complete!"
+      puts "View at http://localhost:7474"
+    ensure
+      graph.close
+    end
+  end
 
   desc "List all requirement nodes in a table format to help spot typos and modeling errors"
   task :list_requirements do
@@ -499,6 +475,80 @@ namespace :module_graph do
   # Format a module name with its target for display
   def format_module(mod_id, target_name)
     target_name ? "#{mod_id} (target: #{target_name})" : mod_id.to_s
+  end
+
+  # Map output property names to requirement ID prefixes
+  OUTPUT_PREFIXES = {
+    'authentication_out' => 'authentication/',
+    'session_out' => 'session/',
+    'trigger_out' => ''
+  }.freeze
+
+  # Parse module edits from the transforms config, separating plain property values
+  # from weight overrides. Array entries can be plain strings or single-key hashes:
+  #   - plaintext          => plain value, normal weight
+  #   - kerberos: highest  => plain value "kerberos" with weight override
+  #
+  # Returns { additions: Hash, removals: Hash, weight_edits: Hash, errors: Array }
+  def apply_module_edits(graph, module_edits)
+    weight_edits = {}
+    edit_errors = []
+    weight_errors = []
+    artisanal_count = 0
+
+    module_edits.each do |module_name, modifications|
+      additions = {}
+      (modifications['add'] || {}).each do |property, values|
+        next unless values.is_a?(Array)
+
+        plain_values = []
+        values.each do |entry|
+          if entry.is_a?(Hash)
+            entry.each do |value, level|
+              plain_values << value.to_s
+
+              prefix = OUTPUT_PREFIXES[property]
+              if prefix.nil?
+                weight_errors << "#{module_name}: weights are not supported on '#{property}' (only #{OUTPUT_PREFIXES.keys.join(', ')})"
+                next
+              end
+
+              level_str = level.to_s.downcase
+              unless Msf::Neo4j::Graph::WEIGHT_LEVELS.key?(level_str)
+                weight_errors << "#{module_name}: unknown weight level '#{level}' for #{value} (expected: #{Msf::Neo4j::Graph::WEIGHT_LEVELS.keys.join(', ')})"
+                next
+              end
+
+              req_id = "#{prefix}#{value}"
+              weight_edits[module_name] ||= {}
+              weight_edits[module_name][req_id] = Msf::Neo4j::Graph::WEIGHT_LEVELS[level_str]
+            end
+          else
+            plain_values << entry.to_s
+          end
+        end
+        additions[property] = plain_values
+      end
+
+      removals = modifications['remove'] || {}
+
+      unless additions.empty? && removals.empty?
+        begin
+          graph.update_module_properties(
+            module_name,
+            additions: additions,
+            removals: removals
+          )
+          artisanal_count += 1
+          puts "  Updated: #{module_name}"
+        rescue ArgumentError => e
+          edit_errors << "#{module_name}: #{e.message}"
+          $stderr.puts "  ERROR - #{module_name}: #{e.message}"
+        end
+      end
+    end
+
+    { artisanal_count: artisanal_count, weight_edits: weight_edits, edit_errors: edit_errors, weight_errors: weight_errors }
   end
 
   desc "Find chains from unauthenticated modules to a target access type (e.g., TARGET=session/windows/meterpreter)"
