@@ -65,6 +65,24 @@ module Msf
       puts "Connection closed"
     end
 
+    # Delete only Requirement nodes and their relationships, keeping Module nodes intact.
+    def clear_requirement_model(batch_size: DEFAULT_BATCH_SIZE)
+      loop do
+        deleted = 0
+        session do |sess|
+          result = sess.run(<<~CYPHER)
+            MATCH (r:Requirement)
+            WITH r LIMIT #{batch_size}
+            DETACH DELETE r
+            RETURN count(*) AS deleted
+          CYPHER
+          deleted = result.first&.[]('deleted') || 0
+        end
+        break if deleted == 0
+      end
+      puts "Requirement model cleared"
+    end
+
     def clear_database(batch_size: DEFAULT_BATCH_SIZE)
       # Delete in batches to avoid transaction memory limits
       loop do

@@ -1,4 +1,4 @@
-# Neo4j Hypergraph Transforms Configuration
+# Neo4j Module Graph Transforms Configuration
 #
 # This file contains platform mappings and artisanal module property modifications
 
@@ -272,6 +272,22 @@ module_edits:
     add:
       trigger_out:
         - coercion
+
+  exploit/multi/ssh/sshexec:
+    add:
+      # todo: this is probably missing a "highest" ranking for the SSH interactive shell
+      session_out:
+        - linux/meterpreter: high
+        - linux/shell: high
+        - osx/meterpreter: high
+        - osx/shell: high
+
+  exploit/windows/smb/psexec:
+    add:
+      # mark these as high because psexec is a generally reliable technique given it is not dependent on any vulnerability
+      session_out:
+        - windows/meterpreter: high
+        - windows/shell: high
 
   exploit/windows/smb/smb_relay:
     add:
