@@ -29,10 +29,15 @@ we would expect there to be support for different levels of logging, ex: print o
 
 
 Mentors: @jheysel-r7, @zeroSteiner
+
 Size: 175 hrs
+
 Difficulty: Medium
+
 Required Skills: Understanding of how Kerberos and certificate-based authentication work; ability to write and deliver Ruby code.
+
 Preferred Skills: Experience working with or using Kerberos and/or certificate-based authentication.
+
 
 ### Automated Vulnerable Environment Provisioning (build_vuln)
 
@@ -53,10 +58,15 @@ popular modules that lack them today.
 
 
 Mentors: @jheysel-r7, @h00die
+
 Size: 360 hrs
+
 Difficulty: Medium
+
 Required Skills: Understanding of how containers work in the context of the Open Container Initiative; ability to write and deliver Ruby code.
+
 Preferred Skills: Experience using containers; understanding of container definitions and best practices.
+
 
 ## Submit your own
 

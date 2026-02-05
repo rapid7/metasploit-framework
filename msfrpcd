@@ -100,6 +100,15 @@ def start_rpc_service(opts, frameworkOpts, foreground)
   # Create an instance of the framework
   $framework = Msf::Simple::Framework.create(frameworkOpts)
 
+  if !$framework.db || !$framework.db.active
+    if $framework.db.error == "disabled"
+      $stderr.puts "Database support has been disabled"
+    else
+      error_msg = "#{$framework.db.error.class.is_a?(String) ? "#{$framework.db.error.class} " : nil}#{$framework.db.error}"
+      $stderr.puts "No database support: #{error_msg}"
+    end
+  end
+
   # Run the plugin instance in the foreground.
   begin
     $framework.plugins.load("#{RPC_TYPE.downcase}rpc", opts).run

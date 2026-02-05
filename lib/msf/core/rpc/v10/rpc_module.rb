@@ -221,7 +221,7 @@ class RPC_Module < RPC_Base
     res['license'] = m.license
     res['filepath'] = m.file_path
     res['arch'] = m.arch.map { |x| x.to_s }
-    res['platform'] = m.platform.platforms.map { |x| x.to_s }
+    res['platform'] = m.platform.platforms.map { |x| x.respond_to?(:realname) ? x.realname : x.to_s }
     res['authors'] = m.author.map { |a| a.to_s }
     res['privileged'] = m.privileged?
     res['check'] = m.has_check?
@@ -279,16 +279,17 @@ class RPC_Module < RPC_Base
     res
   end
 
-  def module_short_info(m)
-    res = {}
-    res['type'] = m.type
-    res['name'] = m.name
-    res['fullname'] = m.fullname
-    res['rank'] = RankingName[m.rank].to_s
-    res['disclosuredate'] = m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d")
-    res
-  end
-
+  # returns a list of module names that match the search string.
+  #
+  # @param match [string] the search string.
+  # @return [hash] a list of modules. it contains the following key:
+  #  * 'type' [string] The module type (exploit, auxiliary, post, payload, etc.)
+  #  * 'name' [string] The module name
+  #  * 'fullname' [string] The full module path
+  #  * 'rank' [string] The module rank (excellent, great, good, normal, etc.)
+  #  * 'disclosuredate' [string] The module disclosure date (YYYY-MM-DD)
+  # @example here's how you would use this from the client:
+  #  rpc.call('module.search', 'smb type:exploit')
   def rpc_search(match)
     matches = []
     self.framework.search(match).each do |m|
@@ -852,6 +853,17 @@ private
       error(500, "failed to generate: #{e.message}")
     end
   end
+
+  def module_short_info(m)
+    res = {}
+    res['type'] = m.type
+    res['name'] = m.name
+    res['fullname'] = m.fullname
+    res['rank'] = RankingName[m.rank].to_s
+    res['disclosuredate'] = m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d")
+    res
+  end
+
 
 
 end
