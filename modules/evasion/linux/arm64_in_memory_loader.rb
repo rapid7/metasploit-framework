@@ -50,9 +50,6 @@ class MetasploitModule < Msf::Evasion
   end
 
   def run
-    print_status("=" * 60)
-    print_status("ARM64 RC4 Packer - Metasploit Evasion Module")
-    print_status("=" * 60)
     
     raw_payload = payload.encoded
     unless raw_payload && raw_payload.length > 0
