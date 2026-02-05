@@ -217,20 +217,6 @@ module Metasploit::Framework::Obfuscation
             valid_obfuscations
         end
 
-        def replace_placeholder(placeholder, line)
-            case placeholder
-            when '{src}'
-                
-            when '{dest}'
-                # logic to replace destination operand
-            when '{sp}'
-                # logic to replace stack pointer
-            when '{arch_val}'
-                # logic to replace architecture value
-            when '{random}'
-                # logic to replace with random value
-            end
-        end
 
         def get_sp
             @arch == 'x64' ? 'rsp' : 'esp'
