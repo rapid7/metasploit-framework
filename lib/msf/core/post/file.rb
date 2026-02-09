@@ -117,13 +117,45 @@ module Msf::Post::File
 
   alias ls dir
 
+  def meterpreter_parent_directory(path)
+    separator = session.fs.file.separator
+    normalized_path = path.tr('\\', '/')
+    parent_path = ::File.dirname(normalized_path)
+
+    return nil if parent_path == '.'
+
+    if parent_path.match?(/^[a-zA-Z]:$/)
+      return "#{parent_path}#{separator}"
+    end
+
+    parent_path.tr('/', separator)
+  end
+
+  def meterpreter_mkdir_p(path)
+    return nil if directory?(path)
+
+    begin
+      return session.fs.dir.mkdir(path)
+    rescue StandardError
+      parent_path = meterpreter_parent_directory(path)
+
+      if parent_path && parent_path != path && !directory?(parent_path)
+        meterpreter_mkdir_p(parent_path)
+      end
+
+      return session.fs.dir.mkdir(path) unless directory?(path)
+    end
+
+    nil
+  end
+
   # create and mark directory for cleanup
   def mkdir(path)
     result = nil
     vprint_status("Creating directory #{path}")
     if session.type == 'meterpreter'
       # behave like mkdir -p and don't throw an error if the directory exists
-      result = session.fs.dir.mkdir(path) unless directory?(path)
+      result = meterpreter_mkdir_p(path)
     elsif session.type == 'powershell'
       result = cmd_exec("New-Item \"#{path}\" -itemtype directory")
     elsif session.platform == 'windows'
