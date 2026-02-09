@@ -67,6 +67,13 @@ class MetasploitModule < Msf::Post
       ret
     end
 
+    it 'should create intermediary directories' do
+      nested_path = [datastore['BaseDirectoryName'], 'parent', 'child'].join(fs_sep)
+      mkdir(nested_path)
+
+      directory?(nested_path)
+    end
+    
     it 'should list the directory we just made' do
       dents = dir(datastore['BaseDirectoryName'])
       dents.include?('file') && dents.include?('directory')
