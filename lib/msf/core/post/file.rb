@@ -117,37 +117,35 @@ module Msf::Post::File
 
   alias ls dir
 
-  def meterpreter_parent_directory(path)
-    separator = session.fs.file.separator
-    normalized_path = path.tr('\\', '/')
-    parent_path = ::File.dirname(normalized_path)
+def meterpreter_mkdir_p(path)
+  return nil if directory?(path)
 
-    return nil if parent_path == '.'
+  separator = session.fs.file.separator
+  normalized = path.tr('\\/', separator)
+  directories = normalized.split(separator)
+  current_path = ''
 
-    if parent_path.match?(/^[a-zA-Z]:$/)
-      return "#{parent_path}#{separator}"
-    end
-
-    parent_path.tr('/', separator)
+  if normalized.match?(/\A[a-zA-Z]:#{Regexp.escape(separator)}?/)
+    current_path = "#{directories.shift}#{separator}"
+  elsif normalized.start_with?(separator)
+    current_path = separator
   end
 
-  def meterpreter_mkdir_p(path)
-    return nil if directory?(path)
+  directories.each do |dir|
+    next if dir.empty?
 
-    begin
-      return session.fs.dir.mkdir(path)
-    rescue StandardError
-      parent_path = meterpreter_parent_directory(path)
-
-      if parent_path && parent_path != path && !directory?(parent_path)
-        meterpreter_mkdir_p(parent_path)
+    current_path =
+      if current_path.end_with?(separator) || current_path.empty?
+        "#{current_path}#{dir}"
+      else
+        "#{current_path}#{separator}#{dir}"
       end
 
-      return session.fs.dir.mkdir(path) unless directory?(path)
-    end
-
-    nil
+    session.fs.dir.mkdir(current_path) unless directory?(current_path)
   end
+
+  nil
+end
 
   # create and mark directory for cleanup
   def mkdir(path)
