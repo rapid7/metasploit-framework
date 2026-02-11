@@ -145,7 +145,7 @@ module SingleCommandShell
 
     # Send the command to the session's stdin.
     delimiter = "echo #{token}"
-    if cmd.strip.end_with?(command_separator)
+    if cmd.match?(/\r?\n\z/) || cmd.strip.end_with?(command_separator)
       # This command already ends with a delimiter - don't need to add another one
       shell_data = cmd + "#{delimiter}#{command_termination}"
     else

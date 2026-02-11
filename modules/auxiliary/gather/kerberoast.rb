@@ -30,7 +30,8 @@ class MetasploitModule < Msf::Auxiliary
           'smashery', # MSF Module
         ],
         'References' => [
-          ['URL', 'https://github.com/CoreSecurity/impacket/blob/master/examples/GetUserSPNs.py']
+          ['URL', 'https://github.com/CoreSecurity/impacket/blob/master/examples/GetUserSPNs.py'],
+          ['ATT&CK', Mitre::Attack::Technique::T1558_003_KERBEROASTING]
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],

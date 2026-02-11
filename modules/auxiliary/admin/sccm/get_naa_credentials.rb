@@ -25,7 +25,8 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://blog.xpnsec.com/unobfuscating-network-access-accounts/'],
           ['URL', 'https://github.com/subat0mik/Misconfiguration-Manager/blob/main/attack-techniques/CRED/CRED-2/cred-2_description.md'],
           ['URL', 'https://github.com/Mayyhem/SharpSCCM'],
-          ['URL', 'https://github.com/garrettfoster13/sccmhunter']
+          ['URL', 'https://github.com/garrettfoster13/sccmhunter'],
+          ['ATT&CK', Mitre::Attack::Technique::T1552_001_CREDENTIALS_IN_FILES]
         ],
         'License' => MSF_LICENSE,
         'Notes' => {

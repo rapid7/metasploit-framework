@@ -21,6 +21,10 @@ class MetasploitModule < Msf::Auxiliary
         'jhicks-r7', # query for available certs
         'Spencer McIntyre'
       ],
+      'References' => [
+        ['ATT&CK', Mitre::Attack::Technique::T1557_ADVERSARY_IN_THE_MIDDLE],
+        ['ATT&CK', Mitre::Attack::Technique::T1649_STEAL_OR_FORGE_AUTHENTICATION_CERTIFICATES]
+      ],
       'License' => MSF_LICENSE,
       'Actions' => [[ 'Relay', { 'Description' => 'Run SMB ESC8 relay server' } ]],
       'PassiveActions' => [ 'Relay' ],

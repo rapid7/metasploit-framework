@@ -31,8 +31,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '50438' ],
           [ 'EDB', '50478' ],
           [ 'URL', 'https://github.com/ColdFusionX/CVE-2021-34429' ],
-          [ 'URL', 'https://github.com/eclipse/jetty.project/security/advisories/GHSA-vjv5-gp2w-65vm' ], # CVE-2021-34429
-          [ 'URL', 'https://github.com/eclipse/jetty.project/security/advisories/GHSA-v7ff-8wcx-gmc5' ], # CVE-2021-28164
+          [ 'GHSA', 'vjv5-gp2w-65vm', 'jetty/jetty.project' ], # CVE-2021-34429
+          [ 'GHSA', 'v7ff-8wcx-gmc5', 'jetty/jetty.project' ], # CVE-2021-28164
           [ 'CVE', '2021-34429' ],
           [ 'CVE', '2021-28164' ]
         ],

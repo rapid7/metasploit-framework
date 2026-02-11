@@ -24,6 +24,8 @@ def types
     'ZDI',
     'WPVDB',
     'PACKETSTORM',
+    'GHSA',
+    'OSV',
     'URL'
   ]
 end

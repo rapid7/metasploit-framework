@@ -91,6 +91,8 @@ module ModuleValidation
       BID
       MSB
       EDB
+      GHSA
+      OSV
       US-CERT-VU
       ZDI
       URL
@@ -126,7 +128,7 @@ module ModuleValidation
     end
 
     def validate_reference_ctx_id
-      references_ctx_id_list = references.map(&:ctx_id)
+      references_ctx_id_list = references.select { |ref| ref.respond_to?(:ctx_id) }.map(&:ctx_id)
       invalid_references = references_ctx_id_list - VALID_REFERENCE_CTX_ID_VALUES
 
       invalid_references.each do |ref|

@@ -29,7 +29,9 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['URL', 'https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/resource-based-constrained-delegation-ad-computer-object-take-over-and-privilged-code-execution'],
           ['URL', 'https://www.thehacker.recipes/ad/movement/kerberos/delegations/rbcd'],
-          ['URL', 'https://github.com/SecureAuthCorp/impacket/blob/3c6713e309cae871d685fa443d3e21b7026a2155/examples/rbcd.py']
+          ['URL', 'https://github.com/SecureAuthCorp/impacket/blob/3c6713e309cae871d685fa443d3e21b7026a2155/examples/rbcd.py'],
+          ['ATT&CK', Mitre::Attack::Technique::T1098_ACCOUNT_MANIPULATION],
+          ['ATT&CK', Mitre::Attack::Technique::T1558_STEAL_OR_FORGE_KERBEROS_TICKETS]
         ],
         'License' => MSF_LICENSE,
         'Actions' => [

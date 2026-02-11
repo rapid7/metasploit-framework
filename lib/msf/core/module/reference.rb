@@ -77,11 +77,14 @@ class Msf::Module::SiteReference < Msf::Module::Reference
   #
   # Initializes a site reference from an array.  ary[0] is the site and
   # ary[1] is the site context identifier, such as CVE.
+  # ary[2] is optional and can be used for additional context (e.g., repo for GHSA)
   #
   def self.from_a(ary)
     return nil if (ary.length < 2)
+    # Reject if first element is an array (nested array structure)
+    return nil if ary[0].kind_of?(Array)
 
-    self.new(ary[0], ary[1])
+    self.new(ary[0], ary[1], ary[2])
   end
 
   #
@@ -90,9 +93,14 @@ class Msf::Module::SiteReference < Msf::Module::Reference
   # * tools/module_reference.rb
   # * https://docs.metasploit.com/docs/development/developing-modules/module-metadata/module-reference-identifiers.html
   #
-  def initialize(in_ctx_id = 'Unknown', in_ctx_val = '')
+  def initialize(in_ctx_id = 'Unknown', in_ctx_val = '', in_ctx_repo = nil)
+    # Ensure ctx_id and ctx_val are strings (handle constants like ATT&CK techniques)
+    in_ctx_id = in_ctx_id.to_s if in_ctx_id.respond_to?(:to_s) && !in_ctx_id.is_a?(String)
+    in_ctx_val = in_ctx_val.to_s if in_ctx_val.respond_to?(:to_s) && !in_ctx_val.is_a?(String)
+    
     self.ctx_id  = in_ctx_id
     self.ctx_val = in_ctx_val
+    self.ctx_repo = in_ctx_repo
 
     if in_ctx_id == 'CVE'
       self.site = "https://nvd.nist.gov/vuln/detail/CVE-#{in_ctx_val}"
@@ -114,6 +122,17 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       self.site = "https://wpscan.com/vulnerability/#{in_ctx_val}"
     elsif in_ctx_id == 'PACKETSTORM'
       self.site = "https://packetstormsecurity.com/files/#{in_ctx_val}"
+    elsif in_ctx_id == 'GHSA'
+      # Handle both formats: with or without GHSA- prefix
+      ghsa_id = in_ctx_val.start_with?('GHSA-') ? in_ctx_val : "GHSA-#{in_ctx_val}"
+      # Use repo-specific URL if repo is provided, otherwise use global format
+      if in_ctx_repo && !in_ctx_repo.empty?
+        self.site = "https://github.com/#{in_ctx_repo}/security/advisories/#{ghsa_id}"
+      else
+        self.site = "https://github.com/advisories/#{ghsa_id}"
+      end
+    elsif in_ctx_id == 'OSV'
+      self.site = "https://osv.dev/vulnerability/#{in_ctx_val}"
     elsif in_ctx_id == 'URL'
       self.site = in_ctx_val.to_s
     elsif in_ctx_id == 'LOGO'
@@ -165,9 +184,13 @@ class Msf::Module::SiteReference < Msf::Module::Reference
   # The context value of the reference, such as MS02-039
   #
   attr_reader :ctx_val
+  #
+  # The context repository for GHSA references (optional)
+  #
+  attr_reader :ctx_repo
 
 protected
 
-  attr_writer :site, :ctx_id, :ctx_val
+  attr_writer :site, :ctx_id, :ctx_val, :ctx_repo
 
 end

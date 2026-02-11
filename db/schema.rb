@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_21_114306) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -521,6 +521,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.string "netmask"
   end
 
+  create_table "service_links", force: :cascade do |t|
+    t.bigint "parent_id", null: false
+    t.bigint "child_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["child_id"], name: "index_service_links_on_child_id"
+    t.index ["parent_id", "child_id"], name: "index_service_links_on_parent_id_and_child_id", unique: true
+    t.index ["parent_id"], name: "index_service_links_on_parent_id"
+  end
+
   create_table "services", id: :serial, force: :cascade do |t|
     t.integer "host_id"
     t.datetime "created_at", precision: nil
@@ -530,7 +540,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.string "name"
     t.datetime "updated_at", precision: nil
     t.text "info"
-    t.index ["host_id", "port", "proto"], name: "index_services_on_host_id_and_port_and_proto", unique: true
+    t.jsonb "resource", default: {}, null: false
+    t.index ["host_id", "port", "proto", "name", "resource"], name: "index_services_on_5_columns", unique: true
     t.index ["name"], name: "index_services_on_name"
     t.index ["port"], name: "index_services_on_port"
     t.index ["proto"], name: "index_services_on_proto"
@@ -686,6 +697,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.integer "vuln_attempt_count", default: 0
     t.integer "origin_id"
     t.string "origin_type"
+    t.jsonb "resource", default: {}, null: false
     t.index ["name"], name: "index_vulns_on_name"
     t.index ["origin_id"], name: "index_vulns_on_origin_id"
   end
@@ -803,4 +815,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.boolean "limit_to_network", default: false, null: false
     t.boolean "import_fingerprint", default: false
   end
+
+  add_foreign_key "service_links", "services", column: "child_id"
+  add_foreign_key "service_links", "services", column: "parent_id"
 end

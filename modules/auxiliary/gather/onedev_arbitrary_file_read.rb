@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['CVE', '2024-45309'],
-          ['URL', 'https://github.com/theonedev/onedev/security/advisories/GHSA-7wg5-6864-v489']
+          ['GHSA', '7wg5-6864-v489', 'theonedev/onedev']
         ],
         'DisclosureDate' => '2024-10-19',
         'Notes' => {

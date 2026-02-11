@@ -78,7 +78,9 @@ class MetasploitModule < Msf::Auxiliary
           'Spencer McIntyre', # ESC13 and ESC15 updates
           'jheysel-r7' # ESC4, ESC9 and ESC10 update
         ],
-        'References' => REFERENCES.values.flatten.map { |r| [ r.ctx_id, r.ctx_val ] }.uniq,
+        'References' => (REFERENCES.values.flatten.map { |r| [ r.ctx_id, r.ctx_val ] }.uniq + [
+          ['ATT&CK', Mitre::Attack::Technique::T1649_STEAL_OR_FORGE_AUTHENTICATION_CERTIFICATES]
+        ]).uniq,
         'DisclosureDate' => '2021-06-17',
         'License' => MSF_LICENSE,
         'DefaultOptions' => {
