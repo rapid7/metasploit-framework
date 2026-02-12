@@ -1809,23 +1809,28 @@ class Core
         end
       end
     when 'upexec'
-      print_status("Executing 'post/multi/manage/shell_to_meterpreter' on " +
-                    "session(s): #{session_list}")
       session_list.each do |sess_id|
         session = verify_session(sess_id)
-        if session
-          if session.respond_to?(:response_timeout)
-            last_known_timeout = session.response_timeout
-            session.response_timeout = response_timeout
-          end
-          begin
-            session.init_ui(driver.input, driver.output)
-            session.execute_script('post/multi/manage/shell_to_meterpreter')
-            session.reset_ui
-          ensure
-            if session.respond_to?(:response_timeout) && last_known_timeout
-              session.response_timeout = last_known_timeout
-            end
+        next unless session
+
+        module_name = if session.type == 'postgresql'
+                        'post/multi/manage/sql_to_meterpreter'
+                      else
+                        'post/multi/manage/shell_to_meterpreter'
+                      end
+
+        print_status("Executing '#{module_name}' on session #{sess_id}")
+        if session.respond_to?(:response_timeout)
+          last_known_timeout = session.response_timeout
+          session.response_timeout = response_timeout
+        end
+        begin
+          session.init_ui(driver.input, driver.output)
+          session.execute_script(module_name)
+          session.reset_ui
+        ensure
+          if session.respond_to?(:response_timeout) && last_known_timeout
+            session.response_timeout = last_known_timeout
           end
         end
 
