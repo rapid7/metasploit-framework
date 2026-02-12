@@ -50,7 +50,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2020-1472' ],
           [ 'URL', 'https://www.secura.com/blog/zero-logon' ],
           [ 'URL', 'https://github.com/SecuraBV/CVE-2020-1472/blob/master/zerologon_tester.py' ],
-          [ 'URL', 'https://github.com/dirkjanm/CVE-2020-1472/blob/master/restorepassword.py' ]
+          [ 'URL', 'https://github.com/dirkjanm/CVE-2020-1472/blob/master/restorepassword.py' ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1068_EXPLOITATION_FOR_PRIVILEGE_ESCALATION ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1078_VALID_ACCOUNTS ]
         ]
       )
     )

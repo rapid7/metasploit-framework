@@ -26,6 +26,9 @@ class MetasploitModule < Msf::Auxiliary
         'hdm',
         'h00die' # hashcat integration
       ],
+      'References' => [
+        [ 'ATT&CK', Mitre::Attack::Technique::T1110_002_PASSWORD_CRACKING ]
+      ],
       'License' => MSF_LICENSE, # JtR itself is GPLv2, but this wrapper is MSF (BSD)
       'Actions' => [
         ['john', { 'Description' => 'Use John the Ripper' }],

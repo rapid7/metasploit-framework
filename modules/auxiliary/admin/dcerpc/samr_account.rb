@@ -34,6 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['URL', 'https://github.com/SecureAuthCorp/impacket/blob/master/examples/addcomputer.py'],
+          ['ATT&CK', Mitre::Attack::Technique::T1136_002_DOMAIN_ACCOUNT]
         ],
         'Notes' => {
           'Reliability' => [],

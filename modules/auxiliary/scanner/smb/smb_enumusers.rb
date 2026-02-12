@@ -16,6 +16,9 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => 'Determine what users exist via the SAM RPC service',
       'Author' => 'hdm',
       'License' => MSF_LICENSE,
+      'References' => [
+        [ 'ATT&CK', Mitre::Attack::Technique::T1087_ACCOUNT_DISCOVERY ]
+      ],
       'DefaultOptions' => {
         'DCERPC::fake_bind_multi' => false
       },
