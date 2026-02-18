@@ -25,6 +25,7 @@ def platform_property(mod_ins)
   result = Set.new
   platform_list.names.each do |platform|
     platform_str = platform.to_s.downcase
+    # todo: clean up the platform matching here, a platform of Python from a linux local exploit should not map to Windows
     if PLATFORM_MAPPING.key?(platform_str)
       # Platform maps to multiple platforms (e.g., java -> windows, linux, osx)
       result.merge(PLATFORM_MAPPING[platform_str])
@@ -152,6 +153,7 @@ class ModuleImporter
       properties = {
         type: mod_cls.type,
         target_index: -1,
+        disclosure_date: mod_ins.disclosure_date&.strftime('%Y-%m-%d'),
         authentication_in: authentication_in_property(mod_ins)
       }
       graph.create_module(mod_cls.fullname, **properties)
@@ -162,6 +164,7 @@ class ModuleImporter
           type: mod_cls.type,
           target_index: idx,
           target_name: target.name,
+          disclosure_date: mod_ins.disclosure_date&.strftime('%Y-%m-%d'),
           authentication_in: authentication_in_property(mod_ins),
           platform: platform_property(mod_ins),
           session_in: session_in_property(mod_ins),
@@ -173,6 +176,7 @@ class ModuleImporter
       properties = {
         type: mod_cls.type,
         target_index: -1,
+        disclosure_date: mod_ins.disclosure_date&.strftime('%Y-%m-%d'),
         platform: platform_property(mod_ins),
         session_in: session_in_property(mod_ins)
       }
