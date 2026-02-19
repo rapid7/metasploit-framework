@@ -173,6 +173,18 @@ module Metasploit::Framework::Obfuscation
                         :custom_rule => nil
                     }
                 ],
+                'not' => [
+                    {
+                        :instructions => ['xor {dest}, -1'],
+                        :rules => ['{dest} == {reg}'],
+                        :custom_rule => nil
+                    },
+                    {
+                        :instructions => ['neg {dest}', 'sub {dest}, 1'],
+                        :rules => ['{dest} == {reg}'],
+                        :custom_rule => nil
+                    }
+                ],
             }
         end
 
