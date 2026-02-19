@@ -1,3 +1,4 @@
+require 'did_you_mean'
 require 'msfenv'
 
 require 'rex'
@@ -592,6 +593,34 @@ namespace :module_graph do
     target_name ? "#{mod_id} (target: #{target_name})" : mod_id.to_s
   end
 
+  # Validate a requirement ID argument against the database, aborting with suggestions on mismatch.
+  # match: :exact  - the input must equal a requirement ID
+  # match: :contains - at least one requirement ID must contain the input as a substring (mirrors Cypher CONTAINS)
+  def validate_requirement_id(graph, input, label: nil, match: :exact)
+    all_ids = []
+    graph.instance_eval do
+      session do |sess|
+        cypher = label ? "MATCH (r:Requirement:#{label}) RETURN r.id AS id" : 'MATCH (r:Requirement) RETURN r.id AS id'
+        sess.run(cypher).each { |record| all_ids << record['id'] }
+      end
+    end
+
+    valid = case match
+            when :exact    then all_ids.include?(input)
+            when :contains then all_ids.any? { |id| id.include?(input) }
+            end
+    return if valid
+
+    # Prefer IDs that contain the input as a substring, then fall back to spell-check
+    suggestions = all_ids.select { |id| id.include?(input) }
+    suggestions += DidYouMean::SpellChecker.new(dictionary: all_ids).correct(input)
+    suggestions = suggestions.uniq.first(3)
+
+    lines = ["Unknown requirement '#{input}'"]
+    lines << "Did you mean?\n#{suggestions.map { |s| "  #{s}" }.join("\n")}" unless suggestions.empty?
+    abort lines.join("\n")
+  end
+
   # Map output property names to requirement ID prefixes
   OUTPUT_PREFIXES = {
     'authentication_out' => 'authentication/',
@@ -675,6 +704,7 @@ namespace :module_graph do
 
     graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
     begin
+      validate_requirement_id(graph, target, label: 'Access', match: :contains)
       results = graph.find_unauthenticated_chains_to(target, max_depth: max_depth, limit: limit)
 
       puts "\n" + "=" * 80
@@ -713,6 +743,8 @@ namespace :module_graph do
 
     graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
     begin
+      validate_requirement_id(graph, from, label: 'Access')
+      validate_requirement_id(graph, to, label: 'Access')
       results = graph.find_access_escalation(from, to, max_depth: max_depth, limit: limit)
 
       puts "\n" + "=" * 80
@@ -752,6 +784,7 @@ namespace :module_graph do
 
     graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
     begin
+      validate_requirement_id(graph, from, label: 'Access')
       result = graph.find_paths_to_module(from, target_module, max_depth: max_depth, limit: limit)
 
       puts "\n" + "=" * 80
@@ -793,6 +826,7 @@ namespace :module_graph do
 
     graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
     begin
+      validate_requirement_id(graph, coercion, label: 'Trigger')
       results = graph.find_coercion_chains(coercion)
 
       puts "\n" + "=" * 80
@@ -863,6 +897,7 @@ namespace :module_graph do
 
     graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
     begin
+      validate_requirement_id(graph, access, label: 'Access')
       results = graph.find_reachable_from(access, max_depth: max_depth, limit: limit)
 
       puts "\n" + "=" * 80
