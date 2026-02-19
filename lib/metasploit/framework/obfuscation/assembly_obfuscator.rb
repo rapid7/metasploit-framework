@@ -166,6 +166,13 @@ module Metasploit::Framework::Obfuscation
                         :custom_rule => nil
                     }
                 ],
+                'neg' => [
+                    {
+                        :instructions => ['xor {dest}, -1', 'add {dest}, 1'],
+                        :rules => ['{dest} == {reg}'],
+                        :custom_rule => nil
+                    }
+                ],
             }
         end
 
