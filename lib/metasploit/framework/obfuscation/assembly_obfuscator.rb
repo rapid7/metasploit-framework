@@ -179,6 +179,12 @@ module Metasploit::Framework::Obfuscation
             when '{dest} == {imm}'
                 dest = operands[:dst]
                 return is_immediate_value?(dest)
+            when '$or'
+                sub_rules = rule['$or']
+                return sub_rules.any? { |sub_rule| rule_validate_placeholder(sub_rule, operands) }
+            when '$and'
+                sub_rules = rule['$and']
+                return sub_rules.all? { |sub_rule| rule_validate_placeholder(sub_rule, operands) }
             else
                 return true
             end
