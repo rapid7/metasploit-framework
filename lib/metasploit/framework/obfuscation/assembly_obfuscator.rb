@@ -154,6 +154,18 @@ module Metasploit::Framework::Obfuscation
                         :custom_rule => nil
                     }
                 ],
+                'dec' => [
+                    {
+                        :instructions => ['sub {dest}, 1'],
+                        :rules => ['{dest} == {reg}'],
+                        :custom_rule => nil
+                    },
+                    {
+                        :instructions => ['add {dest}, {random}', 'sub {dest}, 1', 'sub {dest}, {random}'],
+                        :rules => ['{dest} == {reg}'],
+                        :custom_rule => nil
+                    }
+                ],
             }
         end
 
