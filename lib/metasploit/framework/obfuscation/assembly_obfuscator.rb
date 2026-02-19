@@ -136,6 +136,11 @@ module Metasploit::Framework::Obfuscation
                         :rules => ['{src} == {reg}', '{dest} == {reg}'],
                         :custom_rule => nil
                     },
+                    {
+                        :instructions => ['xor {dest}, {src}', 'xor {src}, {dest}', 'xor {dest}, {src}'],
+                        :rules => ['{src} == {reg}', '{dest} == {reg}'],
+                        :custom_rule => nil
+                    }
                 ],
             }
         end
