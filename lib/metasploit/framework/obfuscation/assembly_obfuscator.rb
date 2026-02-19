@@ -25,17 +25,23 @@ module Metasploit::Framework::Obfuscation
             @arch = arch
             @temp_registers = get_arch_registers.dup
             @obfuscation_matrix = {
-                'mov' => [ {
+                'mov' => [
+                    {
                         :instructions => ['xor {dest}, {dest}', 'add {dest}, {src}'],
                         :rules => [],
                         :custom_rule => lambda { |operands|
-                            # esure src is register or immediate value below 32-bit
+                            # ensure dest is a register, src != dest (xor dest,dest zeros it),
+                            # and src is a register or immediate value below 32-bit
                             src = operands[:src]
+                            dest = operands[:dst]
+                            return false unless dest && CommonRules.register_operand(dest)
+                            return false if src && dest && src.downcase == dest.downcase
                             return true if CommonRules.register_operand(src)
                             return true if CommonRules.immediate_value_below_32bit(src)
                             false
                         }
-                    }, {
+                    },
+                    {
                         :instructions => ['push {src}', 'pop {dest}'],
                         :rules => [],
                         :custom_rule => lambda { |operands|
@@ -44,6 +50,32 @@ module Metasploit::Framework::Obfuscation
                             dest = operands[:dst]
                             return false unless CommonRules.register_operand(src)
                             return false unless CommonRules.register_operand(dest)
+                            true
+                        }
+                    },
+                    {
+                        :instructions => ['sub {dest}, {dest}', 'or {dest}, {src}'],
+                        :rules => [],
+                        :custom_rule => lambda { |operands|
+                            # ensure dest is a register, src != dest, and src is register or immediate
+                            src = operands[:src]
+                            dest = operands[:dst]
+                            return false unless dest && CommonRules.register_operand(dest)
+                            return false if src && dest && src.downcase == dest.downcase
+                            return true if CommonRules.register_operand(src)
+                            return true if CommonRules.immediate_value_below_32bit(src)
+                            false
+                        }
+                    },
+                    {
+                        :instructions => ['lea {dest}, [{src}]'],
+                        :rules => [],
+                        :custom_rule => lambda { |operands|
+                            # ensure both src and dest are registers (lea reg-to-reg only)
+                            src = operands[:src]
+                            dest = operands[:dst]
+                            return false unless src && CommonRules.register_operand(src)
+                            return false unless dest && CommonRules.register_operand(dest)
                             true
                         }
                     }
