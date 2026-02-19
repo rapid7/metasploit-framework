@@ -735,11 +735,14 @@ module Msf
         modules_return = '[' + module_names.map { |m| "#{m}.id" }.join(', ') + ']'
         reqs_return = '[' + req_names.map { |r| "#{r}.id" }.join(', ') + ']'
 
+        where_parts = ['start <> target'] + session_platform_consistency_conditions(req_names)
+        chain_where = "WHERE #{where_parts.join("\nAND ")}"
+
         session do |session|
           result = session.run(<<~CYPHER, target_id: target_module_id)
             MATCH (target:Module {id: $target_id})
             MATCH #{chain_pattern}
-            WHERE start <> target
+            #{chain_where}
             RETURN #{modules_return} AS module_chain,
                    #{reqs_return} AS requirements_used,
                    #{depth} AS chain_length
@@ -839,6 +842,10 @@ module Msf
                         '[' + req_names.map { |r| "#{r}.id" }.join(', ') + ', goal.id]'
                       end
 
+        # Include 'goal' so we also check the last intermediate req -> goal transition
+        consistency_conditions = session_platform_consistency_conditions(req_names + ['goal'])
+        chain_where = consistency_conditions.empty? ? '' : "WHERE #{consistency_conditions.join("\nAND ")}"
+
         session do |session|
           result = session.run(<<~CYPHER, target: target_access)
             MATCH (entry:Module)
@@ -846,6 +853,7 @@ module Msf
             MATCH (goal:Access)
             WHERE goal.id CONTAINS $target
             MATCH #{chain_pattern}
+            #{chain_where}
             RETURN #{modules_return} AS chain,
                    #{targets_return} AS target_names,
                    #{reqs_return} AS access_pivots,
@@ -904,12 +912,17 @@ module Msf
                       end
         weight_sum = produces_names.map { |p| "#{p}.weight" }.join(' + ')
 
+        # Check consistency between intermediate reqs and end_req; start_req is user-chosen so excluded
+        consistency_conditions = session_platform_consistency_conditions(req_names + ['end_req'])
+        chain_where = consistency_conditions.empty? ? '' : "WHERE #{consistency_conditions.join("\nAND ")}"
+
         session do |session|
           result = session.run(<<~CYPHER, from: from_access, to: to_access)
             MATCH (start_req:Access {id: $from})
             MATCH (end_req:Access {id: $to})
             MATCH (first:Module)-[:REQUIRES]->(start_req)
             MATCH #{chain_pattern}
+            #{chain_where}
             RETURN #{modules_return} AS chain,
                    #{targets_return} AS target_names,
                    #{reqs_return} AS access_pivots,
@@ -986,13 +999,17 @@ module Msf
         reqs_return = '[' + req_names.map { |r| "#{r}.id" }.join(', ') + ']'
         weight_sum = produces_names.map { |p| "#{p}.weight" }.join(' + ')
 
+        # Include start_req to catch modules that take e.g. a Windows session and produce a Linux one
+        where_parts = ['first <> target'] + session_platform_consistency_conditions(['start_req'] + req_names)
+        chain_where = "WHERE #{where_parts.join("\nAND ")}"
+
         session do |session|
           result = session.run(<<~CYPHER, from: from_access, target_id: target_module)
             MATCH (start_req:Access {id: $from})
             MATCH (target:Module {id: $target_id})
             MATCH (first:Module)-[:REQUIRES]->(start_req)
             MATCH #{chain_pattern}
-            WHERE first <> target
+            #{chain_where}
             RETURN #{modules_return} AS chain,
                    #{targets_return} AS target_names,
                    #{reqs_return} AS requirements_used,
@@ -1086,7 +1103,9 @@ module Msf
         targets_return = '[' + module_names.map { |m| "#{m}.target_name" }.join(', ') + ']'
         reqs_return = '[' + req_names.map { |r| "#{r}.id" }.join(', ') + ']'
 
-        platform_clause = platform ? "WHERE any(req_id IN #{reqs_return} WHERE req_id CONTAINS '#{platform}')" : ""
+        where_parts = session_platform_consistency_conditions(req_names)
+        where_parts << "any(req_id IN #{reqs_return} WHERE req_id CONTAINS '#{platform}')" if platform
+        chain_where = where_parts.empty? ? '' : "WHERE #{where_parts.join("\nAND ")}"
 
         session do |session|
           result = session.run(<<~CYPHER)
@@ -1094,7 +1113,7 @@ module Msf
             WHERE (entry)-[:PRODUCES]->(:Trigger)
                OR (entry.type = 'exploit' AND NOT (entry)-[:REQUIRES]->(:Access))
             MATCH #{chain_pattern}
-            #{platform_clause}
+            #{chain_where}
             RETURN #{modules_return} AS chain,
                    #{types_return} AS module_types,
                    #{targets_return} AS target_names,
@@ -1201,6 +1220,20 @@ module Msf
     end
 
     private
+
+    # Returns Cypher boolean conditions (to be joined with AND) that enforce platform
+    # consistency between adjacent session requirement nodes in a chain.
+    # When two consecutive requirement nodes are both session requirements
+    # (e.g., session/windows/meterpreter), they must share the same platform segment.
+    # This prevents nonsensical paths like session/windows/X -> session/linux/Y
+    # being chained through a single module without an explicit cross-platform mechanism.
+    #
+    # req_var_names: ordered list of Cypher variable names for requirement nodes in the chain
+    def session_platform_consistency_conditions(req_var_names)
+      req_var_names.each_cons(2).map do |ra, rb|
+        "(NOT #{ra}.id STARTS WITH 'session/' OR NOT #{rb}.id STARTS WITH 'session/' OR split(#{ra}.id, '/')[1] = split(#{rb}.id, '/')[1])"
+      end
+    end
 
     def escape_cypher_string(str)
       # Escape single quotes and backslashes for Cypher string literals
