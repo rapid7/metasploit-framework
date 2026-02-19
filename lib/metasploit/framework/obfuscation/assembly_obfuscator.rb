@@ -85,7 +85,7 @@ module Metasploit::Framework::Obfuscation
                         :instructions => ['inc {dest}', 'add {dest}, {src}', 'dec {dest}'],
                         :rules => [],
                         :custom_rule => lambda { |operands|
-                            # esure src is register or immediate value below 32-bit
+                            # ensure src is register or immediate value below 32-bit
                             src = operands[:src]
                             return true if CommonRules.register_operand(src)
                             return true if CommonRules.immediate_value_below_32bit(src)
@@ -103,7 +103,7 @@ module Metasploit::Framework::Obfuscation
                         :instructions => ['dec {dest}', 'sub {dest}, {src}', 'inc {dest}'],
                         :rules => [],
                         :custom_rule => lambda { |operands|
-                            # esure src is register or immediate value below 32-bit
+                            # ensure src is register or immediate value below 32-bit
                             src = operands[:src]
                             return true if CommonRules.register_operand(src)
                             return true if CommonRules.immediate_value_below_32bit(src)
