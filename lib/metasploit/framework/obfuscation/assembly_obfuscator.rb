@@ -212,7 +212,7 @@ module Metasploit::Framework::Obfuscation
             elsif operands.size == 1
                 if mnemonic == 'push'
                     src = operands[0]
-                elsif mnemonic == 'pop'
+                elsif ['pop', 'inc', 'dec', 'neg', 'not'].include?(mnemonic)
                     dest = operands[0]
                 end
             end
