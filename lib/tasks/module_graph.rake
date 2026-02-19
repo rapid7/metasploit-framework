@@ -7,7 +7,7 @@ require Rails.root.join('app/models/application_record')
 require Rails.root.join('app/validators/metasploit/framework/executable_path_validator')
 require Rails.root.join('app/validators/metasploit/framework/file_path_validator')
 
-require_relative '../msf/neo4j'
+require_relative '../msf/core/neo4j'
 
 def load_platform_mappings(transforms)
   result = {}
@@ -30,7 +30,7 @@ def platform_property(mod_ins)
   unmapped_platforms = platform_set - mapped_platforms
 
   if unmapped_platforms.empty?
-    if mod_ins.type == ::Msf::MODULE_EXPLOIT
+    unless mod_ins.type == ::Msf::MODULE_PAYLOAD
       _, platform_name, path = mod_ins.fullname.split('/', 3)
       if path && platform_name != 'multi'
         result.add(Msf::Platform.find_platform(platform_name).realname.downcase)
@@ -51,7 +51,6 @@ def platform_property(mod_ins)
     end
   end
 
-
   result.delete('unknown')
   result.empty? ? nil : result.to_a
 end
@@ -67,7 +66,7 @@ def authentication_in_property(mod_ins)
   if result.empty?
     if (option = mod_ins.datastore.options.fetch('PASSWORD', nil))
       if option.required
-        # fixme: this is gonna get fooled by modules that need PASSWORD set for the creation of an accountI'd
+        # fixme: this is gonna get fooled by modules that need PASSWORD set for the creation of an account
         result.add('plaintext')
       end
     end
@@ -124,13 +123,6 @@ end
 # The caller is responsible for setting datastore['TARGET'] before calling this.
 def session_out_property(mod_ins)
   result = Set.new
-
-  unless ENV['NEED_SPEED'].nil? # mock this data while testing to speed things way up
-    return %w[
-      windows/meterpreter
-      linux/meterpreter
-    ]
-  end
 
   mod_ins.compatible_payloads.each do |ref_name, klass|
     payload_mod_ins = klass.new
@@ -292,34 +284,6 @@ namespace :module_graph do
     end
   end
 
-  desc "Show module graph statistics"
-  task :stats do
-    puts "Fetching statistics..."
-    graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
-
-    begin
-      stats = graph.get_hypergraph_stats
-
-      puts "\n" + "=" * 60
-      puts "MODULE GRAPH STATISTICS"
-      puts "=" * 60
-
-      if stats.empty?
-        puts "No data in module graph"
-      else
-        stats.each do |key, value|
-          formatted_value = value.is_a?(Float) ? format('%.2f', value) : value
-          puts "#{key}: #{formatted_value}"
-        end
-      end
-      
-      puts "=" * 60
-
-    ensure
-      graph.close
-    end
-  end
-
   desc "Show requirement model statistics"
   task :requirement_stats do
     puts "Fetching requirement model statistics..."
@@ -425,7 +389,6 @@ namespace :module_graph do
           CYPHER
 
           result.each do |record|
-            binding.pry if ((record['type'] || 'Unknown') == 'Unknown')
             requirements << {
               type: record['type'] || 'Unknown',
               id: record['id'],
