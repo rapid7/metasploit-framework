@@ -34,7 +34,7 @@ module Msf
       # Capture modules may accept either generic OR protocol-specific coercion
       trigger: {
         label: 'Trigger',
-        values: %w[coercion coercion/smb coercion/http coercion/ldap coercion/webdav]
+        values: %w[coercion coercion/smb coercion/http coercion/ldap coercion/webdav interaction/file-open]
       }
     }.freeze
 
@@ -842,7 +842,7 @@ module Msf
         session do |session|
           result = session.run(<<~CYPHER, target: target_access)
             MATCH (entry:Module)
-            WHERE NOT (entry)-[:REQUIRES]->(:Access)
+            WHERE NOT (entry)-[:REQUIRES]->(:Requirement)
             MATCH (goal:Access)
             WHERE goal.id CONTAINS $target
             MATCH #{chain_pattern}

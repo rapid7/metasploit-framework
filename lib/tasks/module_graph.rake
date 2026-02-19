@@ -21,19 +21,35 @@ end
 
 def platform_property(mod_ins)
   # Use target-specific platform if available, otherwise fall back to module-level
-  platform_list = (mod_ins.respond_to?(:target) && mod_ins.target&.platform) || mod_ins.platform
+  platform_list = ((mod_ins.respond_to?(:target) && mod_ins.target&.platform) || mod_ins.platform)
+  platform_set = platform_list.names.map(&:downcase).to_set
   result = Set.new
-  platform_list.names.each do |platform|
-    platform_str = platform.to_s.downcase
-    # todo: clean up the platform matching here, a platform of Python from a linux local exploit should not map to Windows
-    if PLATFORM_MAPPING.key?(platform_str)
-      # Platform maps to multiple platforms (e.g., java -> windows, linux, osx)
-      result.merge(PLATFORM_MAPPING[platform_str])
+
+  mapped_platforms = platform_set & ::PLATFORM_MAPPING.keys.to_set
+  unmapped_platforms = platform_set - mapped_platforms
+
+  if unmapped_platforms.empty?
+    if mod_ins.type == ::Msf::MODULE_EXPLOIT
+      _, platform_name, path = mod_ins.fullname.split('/', 3)
+      if path && platform_name != 'multi'
+        result.add(Msf::Platform.find_platform(platform_name).realname.downcase)
+      elsif path
+        mapped_platforms.each do |platform|
+          result.merge(::PLATFORM_MAPPING[platform].map(&:downcase))
+        end
+      end
     else
-      # Keep the original platform
-      result.add(platform_str)
+      mapped_platforms.each do |platform|
+        result.merge(::PLATFORM_MAPPING[platform].map(&:downcase))
+      end
+    end
+  else
+    # if there's an explicit platform that's not mapped because it's a language, then assume that's accurate
+    unmapped_platforms.each do |platform|
+      result.add(platform.to_s.downcase)
     end
   end
+
 
   result.delete('unknown')
   result.empty? ? nil : result.to_a
@@ -127,6 +143,14 @@ def session_out_property(mod_ins)
   result.empty? ? nil : result.to_a
 end
 
+def trigger_in_property(mod_ins)
+  result = Set.new
+
+  result.add('interaction/file-open') if mod_ins.fullname.include?('/fileformat/')
+
+  result.empty? ? nil : result.to_a
+end
+
 NEO4J_PASSWORD = ENV['NEO4J_PASSWORD'] || 'neo4j'
 
 PROTOCOL_SESSIONS = %w[ ldap mssql mysql postgresql smb ]
@@ -168,7 +192,8 @@ class ModuleImporter
           authentication_in: authentication_in_property(mod_ins),
           platform: platform_property(mod_ins),
           session_in: session_in_property(mod_ins),
-          session_out: session_out_property(mod_ins)
+          session_out: session_out_property(mod_ins),
+          trigger_in: trigger_in_property(mod_ins)
         }
         graph.create_module(mod_cls.fullname, **properties)
       end
@@ -212,6 +237,8 @@ namespace :module_graph do
         end
         begin
           importer.import_module(graph, mod_cls)
+        rescue Interrupt
+          exit
         rescue Exception => e
           $stderr.puts "Failed to import #{mod_cls.fullname}"
           $stderr.puts "#{e.class}: #{e.message}".indent(2)
@@ -472,6 +499,90 @@ namespace :module_graph do
     end
   end
 
+  desc 'Inspect a module node and its relationships (e.g., MODULE=exploit/windows/smb/ms17_010_eternalblue)'
+  task :inspect_module do
+    module_id = ENV['MODULE']
+    abort 'Usage: rake module_graph:inspect_module MODULE=exploit/windows/smb/ms17_010_eternalblue' unless module_id
+
+    graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
+    begin
+      nodes = []
+      graph.instance_eval do
+        session do |sess|
+          result = sess.run(<<~CYPHER, module_id: module_id)
+            MATCH (m:Module {id: $module_id})
+            OPTIONAL MATCH (m)-[pr:PRODUCES]->(produced:Requirement)
+            OPTIONAL MATCH (m)-[rr:REQUIRES]->(required:Requirement)
+            WITH m, labels(m) AS node_labels,
+                 collect(DISTINCT {id: produced.id, labels: labels(produced), weight: pr.weight}) AS produces,
+                 collect(DISTINCT {id: required.id, labels: labels(required)}) AS requires
+            RETURN m, node_labels, produces, requires
+            ORDER BY m.target_index
+          CYPHER
+
+          result.each do |record|
+            nodes << {
+              props: record['m'].properties,
+              labels: record['node_labels'],
+              produces: record['produces'].reject { |r| r['id'].nil? },
+              requires: record['requires'].reject { |r| r['id'].nil? }
+            }
+          end
+        end
+      end
+
+      if nodes.empty?
+        puts "No module found with id: #{module_id}"
+      else
+        puts "\n" + ('=' * 70)
+        puts "MODULE: #{module_id}"
+        puts '=' * 70
+
+        nodes.each do |node|
+          props = node[:props]
+          target_index = props[:target_index]
+          has_targets = nodes.any? { |n| n[:props][:target_index] != -1 }
+
+          puts "\n--- Target #{target_index}: #{props[:target_name] || '(unnamed)'} ---" if has_targets && target_index != -1
+
+          # Print properties (excluding id and target_index which are shown above)
+          skip_keys = %i[target_index target_name id]
+          props.each do |key, value|
+            next if skip_keys.include?(key)
+            next if value.nil?
+
+            value_str = value.is_a?(Array) ? value.join(', ') : value.to_s
+            puts format('  %-20<key>s %<value>s', key: "#{key}:", value: value_str)
+          end
+
+          # Print PRODUCES relationships
+          if node[:produces].any?
+            puts format('  %-20<key>s', key: 'produces:')
+            node[:produces].sort_by { |r| r['id'] }.each do |req|
+              type_label = (req['labels'] - ['Requirement']).first || 'Unknown'
+              weight_str = req['weight'] && req['weight'] != 0 ? " (weight: #{req['weight']})" : ''
+              puts "    [#{type_label}] #{req['id']}#{weight_str}"
+            end
+          end
+
+          # Print REQUIRES relationships
+          next unless node[:requires].any?
+
+          puts format('  %-20<key>s', key: 'requires:')
+          node[:requires].sort_by { |r| r['id'] }.each do |req|
+            type_label = (req['labels'] - ['Requirement']).first || 'Unknown'
+            puts "    [#{type_label}] #{req['id']}"
+          end
+        end
+
+        puts "\n" + ('=' * 70)
+        puts "#{nodes.size} node(s) found"
+      end
+    ensure
+      graph.close
+    end
+  end
+
   # =========================================================================
   # ATTACK CHAIN QUERIES
   # =========================================================================
@@ -592,24 +703,24 @@ namespace :module_graph do
     end
   end
 
-  desc "Find credential/access escalation paths (e.g., FROM=authentication/hash/ntlm TO=authentication/kerberos)"
-  task :escalate do
+  desc "Find paths that transform one access type into another (e.g., FROM=authentication/hash/ntlm TO=authentication/kerberos)"
+  task :transform_access do
     from = ENV['FROM']
     to = ENV['TO']
     max_depth = (ENV['DEPTH'] || 4).to_i
     limit = (ENV['LIMIT'] || 50).to_i
-    abort "Usage: rake module_graph:escalate FROM=authentication/hash/ntlm TO=authentication/kerberos [DEPTH=4] [LIMIT=50]" unless from && to
+    abort "Usage: rake module_graph:transform_access FROM=authentication/hash/ntlm TO=authentication/kerberos [DEPTH=4] [LIMIT=50]" unless from && to
 
     graph = Msf::Neo4j::Graph.new(password: NEO4J_PASSWORD)
     begin
       results = graph.find_access_escalation(from, to, max_depth: max_depth, limit: limit)
 
       puts "\n" + "=" * 80
-      puts "ACCESS ESCALATION: #{from} -> #{to}"
+      puts "ACCESS TRANSFORM: #{from} -> #{to}"
       puts "=" * 80
 
       if results.empty?
-        puts "No escalation paths found (try increasing DEPTH)"
+        puts "No paths found (try increasing DEPTH)"
       else
         results.each_with_index do |chain, i|
           weight_label = chain[:total_weight] != 0 ? " | weight: #{chain[:total_weight]}" : ""
