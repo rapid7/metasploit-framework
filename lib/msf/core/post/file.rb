@@ -117,43 +117,13 @@ module Msf::Post::File
 
   alias ls dir
 
-def meterpreter_mkdir_p(path)
-  return nil if directory?(path)
-
-  separator = session.fs.file.separator
-  normalized = path.tr('\\/', separator)
-  directories = normalized.split(separator)
-  current_path = ''
-
-  if normalized.match?(/\A[a-zA-Z]:#{Regexp.escape(separator)}?/)
-    current_path = "#{directories.shift}#{separator}"
-  elsif normalized.start_with?(separator)
-    current_path = separator
-  end
-
-  directories.each do |dir|
-    next if dir.empty?
-
-    current_path =
-      if current_path.end_with?(separator) || current_path.empty?
-        "#{current_path}#{dir}"
-      else
-        "#{current_path}#{separator}#{dir}"
-      end
-
-    session.fs.dir.mkdir(current_path) unless directory?(current_path)
-  end
-
-  nil
-end
-
   # create and mark directory for cleanup
   def mkdir(path)
     result = nil
     vprint_status("Creating directory #{path}")
     if session.type == 'meterpreter'
       # behave like mkdir -p and don't throw an error if the directory exists
-      result = meterpreter_mkdir_p(path)
+      result = session.fs.dir.mkdir(path) unless directory?(path)
     elsif session.type == 'powershell'
       result = cmd_exec("New-Item \"#{path}\" -itemtype directory")
     elsif session.platform == 'windows'
