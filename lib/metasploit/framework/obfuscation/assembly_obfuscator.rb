@@ -54,32 +54,32 @@ module Metasploit::Framework::Obfuscation
                             true
                         }
                     },
-                    {
-                        :instructions => ['sub {dest}, {dest}', 'or {dest}, {src}'],
-                        :rules => [],
-                        :custom_rule => lambda { |operands|
-                            # ensure dest is a register, src != dest, and src is register or immediate
-                            src = operands[:src]
-                            dest = operands[:dst]
-                            return false unless dest && CommonRules.register_operand(dest)
-                            return false if src && dest && src.downcase == dest.downcase
-                            return true if CommonRules.register_operand(src)
-                            return true if CommonRules.immediate_value_below_32bit(src)
-                            false
-                        }
-                    },
-                    {
-                        :instructions => ['lea {dest}, [{src}]'],
-                        :rules => [],
-                        :custom_rule => lambda { |operands|
-                            # ensure both src and dest are registers (lea reg-to-reg only)
-                            src = operands[:src]
-                            dest = operands[:dst]
-                            return false unless src && CommonRules.register_operand(src)
-                            return false unless dest && CommonRules.register_operand(dest)
-                            true
-                        }
-                    }
+                    # {
+                    #     :instructions => ['sub {dest}, {dest}', 'or {dest}, {src}'],
+                    #     :rules => [],
+                    #     :custom_rule => lambda { |operands|
+                    #         # ensure dest is a register, src != dest, and src is register or immediate
+                    #         src = operands[:src]
+                    #         dest = operands[:dst]
+                    #         return false unless dest && CommonRules.register_operand(dest)
+                    #         return false if src && dest && src.downcase == dest.downcase
+                    #         return true if CommonRules.register_operand(src)
+                    #         return true if CommonRules.immediate_value_below_32bit(src)
+                    #         false
+                    #     }
+                    # },
+                    # {
+                    #     :instructions => ['lea {dest}, [{src}]'],
+                    #     :rules => [],
+                    #     :custom_rule => lambda { |operands|
+                    #         # ensure both src and dest are registers (lea reg-to-reg only)
+                    #         src = operands[:src]
+                    #         dest = operands[:dst]
+                    #         return false unless src && CommonRules.register_operand(src)
+                    #         return false unless dest && CommonRules.register_operand(dest)
+                    #         true
+                    #     }
+                    # }
                 ],
                 'add' => [
                     {
@@ -137,11 +137,11 @@ module Metasploit::Framework::Obfuscation
                         :rules => ['{src} == {reg}', '{dest} == {reg}'],
                         :custom_rule => nil
                     },
-                    {
-                        :instructions => ['xor {dest}, {src}', 'xor {src}, {dest}', 'xor {dest}, {src}'],
-                        :rules => ['{src} == {reg}', '{dest} == {reg}'],
-                        :custom_rule => nil
-                    }
+                #     {
+                #         :instructions => ['xor {dest}, {src}', 'xor {src}, {dest}', 'xor {dest}, {src}'],
+                #         :rules => ['{src} == {reg}', '{dest} == {reg}'],
+                #         :custom_rule => nil
+                #     }
                 ],
                 'inc' => [
                     {
@@ -149,11 +149,11 @@ module Metasploit::Framework::Obfuscation
                         :rules => ['{dest} == {reg}'],
                         :custom_rule => nil
                     },
-                    {
-                        :instructions => ['sub {dest}, {random}', 'add {dest}, {random}', 'add {dest}, 1'],
-                        :rules => ['{dest} == {reg}'],
-                        :custom_rule => nil
-                    }
+                #     {
+                #         :instructions => ['sub {dest}, {random}', 'add {dest}, 1', 'add {dest}, {random}'],
+                #         :rules => ['{dest} == {reg}'],
+                #         :custom_rule => nil
+                #     }
                 ],
                 'dec' => [
                     {
@@ -161,31 +161,31 @@ module Metasploit::Framework::Obfuscation
                         :rules => ['{dest} == {reg}'],
                         :custom_rule => nil
                     },
-                    {
-                        :instructions => ['add {dest}, {random}', 'sub {dest}, 1', 'sub {dest}, {random}'],
-                        :rules => ['{dest} == {reg}'],
-                        :custom_rule => nil
-                    }
+                #     {
+                #         :instructions => ['add {dest}, {random}', 'sub {dest}, 1', 'sub {dest}, {random}'],
+                #         :rules => ['{dest} == {reg}'],
+                #         :custom_rule => nil
+                #     }
                 ],
-                'neg' => [
-                    {
-                        :instructions => ['xor {dest}, -1', 'add {dest}, 1'],
-                        :rules => ['{dest} == {reg}'],
-                        :custom_rule => nil
-                    }
-                ],
-                'not' => [
-                    {
-                        :instructions => ['xor {dest}, -1'],
-                        :rules => ['{dest} == {reg}'],
-                        :custom_rule => nil
-                    },
-                    {
-                        :instructions => ['neg {dest}', 'sub {dest}, 1'],
-                        :rules => ['{dest} == {reg}'],
-                        :custom_rule => nil
-                    }
-                ],
+                # 'neg' => [
+                #     {
+                #         :instructions => ['xor {dest}, -1', 'add {dest}, 1'],
+                #         :rules => ['{dest} == {reg}'],
+                #         :custom_rule => nil
+                #     }
+                # ],
+                # 'not' => [
+                #     {
+                #         :instructions => ['xor {dest}, -1'],
+                #         :rules => ['{dest} == {reg}'],
+                #         :custom_rule => nil
+                #     },
+                #     {
+                #         :instructions => ['neg {dest}', 'sub {dest}, 1'],
+                #         :rules => ['{dest} == {reg}'],
+                #         :custom_rule => nil
+                #     }
+                # ],
             }
         end
 
