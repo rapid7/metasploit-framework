@@ -20,9 +20,10 @@ module Metasploit::Framework::Obfuscation
             end
         end
 
-        def initialize(assembly_code, arch: 'x64')
+        def initialize(assembly_code, arch: 'x64', percentual: 50)
             @assembly_code = assembly_code
             @arch = arch
+            @percentual = percentual
             @temp_registers = get_arch_registers.dup
             @obfuscation_matrix = {
                 'mov' => [
@@ -344,7 +345,7 @@ module Metasploit::Framework::Obfuscation
 
                 puts "DEBUG: Processing line: #{line.strip}" if DEBUG
                 possible_obfuscations = get_avaiable_obfuscations_for_line(line)
-                if !possible_obfuscations.empty?
+                if !possible_obfuscations.empty? && rand(100) < @percentual
                     random_obfuscation = possible_obfuscations.sample
                     puts "DEBUG: Obfuscating line: #{line.strip}" if DEBUG
                     obfuscated_lines = obfuscate_line(line, random_obfuscation)
@@ -365,10 +366,10 @@ module Metasploit::Framework::Obfuscation
             obfuscated_code = @assembly_code.dup
             for pass in 1..passes
                 puts "Executing pass number #{pass}..." if DEBUG
-                obfuscated_code_result = obfuscate_once(obfuscated_code)
-                puts "DEBUG: Obfuscated code after pass #{pass}:\n#{obfuscated_code_result}" if DEBUG
+                obfuscated_code = obfuscate_once(obfuscated_code)
+                puts "DEBUG: Obfuscated code after pass #{pass}:\n#{obfuscated_code}" if DEBUG
             end
-            obfuscated_code_result
+            obfuscated_code
         end
     end
 end
