@@ -78,6 +78,10 @@ class MetasploitModule < Msf::Auxiliary
     s == 0 ? 'x86 (32-bit)' : 'x64 (64-bit)'
   end
 
+  def check_host(ip)
+    run_host(ip)
+  end
+
   def run_host(ip)
     checkcode = Exploit::CheckCode::Unknown
     details = {}
