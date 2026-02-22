@@ -30,6 +30,25 @@ module Msf
         end
 
         #
+        # Returns the kernel release as a Rex::Version object.
+        #
+        # @param release [String, nil] Pre-fetched kernel release string.
+        # @return [Rex::Version] the upstream kernel version
+        # @return [nil] if the release could not be determined or parsed
+        #
+        def kernel_rex_version(release = nil)
+          release ||= kernel_release
+          return nil if release.blank?
+
+          version_string = release.split('-').first
+          return nil if version_string.blank?
+
+          Rex::Version.new(version_string)
+        rescue ArgumentError, RuntimeError
+          nil
+        end
+
+        #
         # Returns the kernel version
         #
         # @return [String]
