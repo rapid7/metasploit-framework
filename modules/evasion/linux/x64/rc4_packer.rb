@@ -9,6 +9,9 @@ class MetasploitModule < Msf::Evasion
   include Msf::Payload::Linux::X64::SleepEvasion
   include Msf::Payload::Linux::X64::ElfLoader
 
+  include Msf::ModuleInputs::Payload
+  include Msf::ModuleOutputs::Executable
+
   def initialize(info = {})
     super(
       update_info(
@@ -46,5 +49,7 @@ class MetasploitModule < Msf::Evasion
 
     File.binwrite(datastore['FILENAME'], final_elf)
     File.chmod(0o755, datastore['FILENAME'])
+
+    final_elf
   end
 end

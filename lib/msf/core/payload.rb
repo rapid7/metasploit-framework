@@ -460,6 +460,30 @@ class Payload < Msf::Module
     return encoders
   end
 
+  def compatible_evasion_modules(architectures, platform_names)
+    results = Msf::Modules::Metadata::Cache.instance.find(
+      'type'     => [['evasion'], []],
+      'platform' => [platform_names, []],
+      'arch'     => [architectures, []]
+    )
+  end
+
+  def compatible_shellcode_to_shellcode_evasion_modules
+    compat_modules = compatible_evasion_modules([*self.arch], [*self.platform.names])
+    results = compat_modules.reject do |metadata_result|
+      created_mod = framework.modules.create(metadata_result.ref_name)
+      created_mod.module_inputs != 'Payload' || created_mod.module_outputs != 'Payload'
+    end.map {|metadata_result| metadata_result.ref_name }
+  end
+
+  def compatible_shellcode_to_binary_evasion_modules
+    compat_modules = compatible_evasion_modules([*self.arch], [*self.platform.names])
+    results = compat_modules.reject do |metadata_result|
+      created_mod = framework.modules.create(metadata_result.ref_name)
+      created_mod.module_inputs != 'Payload' || created_mod.module_outputs != 'Executable'
+    end.map {|metadata_result| metadata_result.ref_name }
+  end
+
   #
   # Returns the array of compatible nops for this payload instance.
   #
@@ -472,6 +496,37 @@ class Payload < Msf::Module
     }
 
     return nops
+  end
+
+  def self.choose_evasion(mod, datastore_option_name, caller_method_name, evasion_type)
+    evasion_name = mod.datastore[datastore_option_name]
+    evasion_mod = mod.framework.modules.create(evasion_name)
+    return nil unless evasion_mod
+
+    # Is using the payload here correct? I think so, but it gets wonky in the case of CMD stager payloads.
+    # The ideal fix would be to correctly set the payload when we have a cmd stager set.
+    if payload.nil?
+      
+    end
+    compatible_evasion_modules = case evasion_type
+    when 'SHELLCODE_TO_BINARY'
+      payload.compatible_shellcode_to_binary_evasion_modules
+    when 'SHELLCODE_TO_SHELLCODE'
+      payload.compatible_shellcode_to_shellcode_evasion_modules
+    end.map(&:first)
+
+    # If there are any preferred evasion modules, sort them here. For now, return the first entry.
+    return configure_evasion.call(compatible_evasion_modules.first) if compatible_evasion_modules.any?
+    
+    nil
+  end
+
+  def self.choose_shellcode_to_shellcode_evasion(mod)
+    choose_evasion(mod, 'SHELLCODE_TO_SHELLCODE_EVASION_MODULE', 'choose_shellcode_to_shellcode_evasion')
+  end
+
+  def self.choose_shellcode_to_binary_evasion(mod)
+    choose_evasion(mod, 'SHELLCODE_TO_BINARY_EVASION_MODULE', 'choose_shellcode_to_binary_evasion')
   end
 
   # Select a reasonable default payload and minimally configure it

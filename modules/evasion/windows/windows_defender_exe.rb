@@ -7,6 +7,9 @@ require 'metasploit/framework/compiler/windows'
 
 class MetasploitModule < Msf::Evasion
 
+  include Msf::ModuleInputs::Payload
+  include Msf::ModuleOutputs::Executable
+
   def initialize(info = {})
     super(
       merge_info(
@@ -78,6 +81,7 @@ int main() {
     bin = Metasploit::Framework::Compiler::Windows.compile_random_c(c_template)
     print_status("Compiled executable size: #{bin.length}")
     file_create(bin)
+    bin
   end
 
 end

@@ -88,12 +88,20 @@ module Msf
             res << 'NOP'
             res << 'TARGET'
             res << 'ENCODER'
+            if framework.features.enabled?(::Msf::FeatureManager::EVASION_MODULE_WORKFLOW)
+              res << 'SHELLCODE_TO_SHELLCODE_EVASION_MODULE'
+              res << 'SHELLCODE_TO_BINARY_EVASION_MODULE'
+            end
           elsif mod.evasion?
             res << 'PAYLOAD'
             res << 'TARGET'
             res << 'ENCODER'
           elsif mod.payload?
             res << 'ENCODER'
+            if framework.features.enabled?(::Msf::FeatureManager::EVASION_MODULE_WORKFLOW)
+              res << 'SHELLCODE_TO_SHELLCODE_EVASION_MODULE'
+              res << 'SHELLCODE_TO_BINARY_EVASION_MODULE'
+            end
           end
           if mod.is_a?(Msf::Module::HasActions)
             res << 'ACTION'
@@ -107,6 +115,9 @@ module Msf
               end
             end
           end
+
+          res += process_evasion_options(mod)
+
           unless str.blank?
             res = res.select { |term| term.upcase.start_with?(str.upcase) }
             res = res.map do |term|
@@ -121,6 +132,28 @@ module Msf
           end
 
           return res.sort
+        end
+
+        def process_evasion_options(mod)
+          return [] unless (mod.exploit? || mod.payload?)
+
+          shell_to_shell = mod.datastore['SHELLCODE_TO_SHELLCODE_EVASION_MODULE']
+          shell_to_bin = mod.datastore['SHELLCODE_TO_BINARY_EVASION_MODULE']
+          res = []
+
+          [shell_to_shell, shell_to_bin].each do |val|
+            next if val.blank?
+
+            p = framework.modules.create(val)
+            next unless p
+
+            p.options.each do |e|
+              name, _opt = e
+              res << name
+            end
+          end
+
+          res
         end
 
         #
@@ -155,6 +188,14 @@ module Msf
           if ((mod.evasion? || mod.exploit? || mod.payload?) && (opt.upcase == 'ENCODER'))
             return option_values_encoders
           end
+          # The EVASION_MODULE option works for payloads and exploits
+          if ((mod.exploit? || mod.payload?) && (opt.upcase == 'SHELLCODE_TO_SHELLCODE_EVASION_MODULE'))
+            return option_values_shellcode_to_shellcode_evasion_modules(mod)
+          end
+          # The EVASION_MODULE option works for payloads and exploits
+          if ((mod.exploit? || mod.payload?) && (opt.upcase == 'SHELLCODE_TO_BINARY_EVASION_MODULE'))
+            return option_values_shellcode_to_binary_evasion_modules(mod)
+          end
 
           # Well-known option names specific to post-exploitation
           if (mod.post? || mod.exploit?)
@@ -169,6 +210,21 @@ module Msf
           # How about the selected payload?
           if ((mod.evasion? || mod.exploit?) && mod.datastore['PAYLOAD'])
             if p = framework.payloads.create(mod.datastore['PAYLOAD'])
+              p.options.each_key do |key|
+                res.concat(option_values_dispatch(mod, p.options[key], str, words)) if key.downcase == opt.downcase
+              end
+            end
+          end
+          if ((mod.exploit? || mod.payload?) && mod.datastore['SHELLCODE_TO_SHELLCODE_EVASION_MODULE'])
+            if p = framework.modules.create(mod.datastore['SHELLCODE_TO_SHELLCODE_EVASION_MODULE'])
+              p.options.each_key do |key|
+                res.concat(option_values_dispatch(mod, p.options[key], str, words)) if key.downcase == opt.downcase
+              end
+            end
+          end
+
+          if ((mod.exploit? || mod.payload?) && mod.datastore['SHELLCODE_TO_BINARY_EVASION_MODULE'])
+            if p = framework.modules.create(mod.datastore['SHELLCODE_TO_BINARY_EVASION_MODULE'])
               p.options.each_key do |key|
                 res.concat(option_values_dispatch(mod, p.options[key], str, words)) if key.downcase == opt.downcase
               end
@@ -314,6 +370,31 @@ module Msf
         #
         def option_values_encoders
           framework.encoders.module_refnames
+        end
+
+        #
+        # Provide valid evasion modules options for the current exploit or payload
+        #
+        def option_values_shellcode_to_shellcode_evasion_modules(mod)
+          results = Msf::Modules::Metadata::Cache.instance.find(
+            'type'     => [['evasion'], []],
+            'platform' => [[*mod.platform.names], []],
+            'arch'     => [[*mod.arch], []]
+          ).reject do |metadata_result|
+            created_mod = framework.modules.create(metadata_result.ref_name)
+            created_mod.module_inputs != 'Payload' || created_mod.module_outputs != 'Payload'
+          end.map {|metadata_result| metadata_result.ref_name }
+        end
+
+        def option_values_shellcode_to_binary_evasion_modules(mod)
+          results = Msf::Modules::Metadata::Cache.instance.find(
+            'type'     => [['evasion'], []],
+            'platform' => [[*mod.platform.names], []],
+            'arch'     => [[*mod.arch], []]
+          ).reject do |metadata_result|
+            created_mod = framework.modules.create(metadata_result.ref_name)
+            created_mod.module_inputs != 'Payload' || created_mod.module_outputs != 'Executable'
+          end.map {|metadata_result| metadata_result.ref_name }
         end
 
         #

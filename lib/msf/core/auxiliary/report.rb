@@ -519,6 +519,7 @@ module Auxiliary::Report
       :type => "#{ltype}.localpath"
     )
 
+    self.instance_variable_set(:@store_local_path, full_path.dup)
     return full_path.dup
   end
 

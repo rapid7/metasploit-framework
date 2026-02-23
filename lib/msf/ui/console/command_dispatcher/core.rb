@@ -2190,6 +2190,42 @@ class Core
       end
     end
 
+    # Set SHELLCODE_TO_SHELLCODE_EVASION_MODULE
+    if name.upcase == 'SHELLCODE_TO_SHELLCODE_EVASION_MODULE' && active_module && (active_module.exploit? || active_module.payload?) && !clear
+      value = trim_path(value, 'evasion')
+
+      payload = active_module.framework.payloads.create(datastore['PAYLOAD'])
+      
+      unless payload
+        print_error("Please set a valid PAYLOAD before setting the SHELLCODE_TO_SHELLCODE_EVASION_MODULE.")
+        return false
+      end
+
+      index_from_list(payload.compatible_shellcode_to_shellcode_evasion_modules, value) do |mod|
+        return false unless mod && mod.respond_to?(:first)
+        # [name, class] from compatible_shellcode_to_shellcode_evasion_modules
+        value = mod.first
+      end
+    end
+
+    # Set SHELLCODE_TO_BINARY_EVASION_MODULE
+    if name.upcase == 'SHELLCODE_TO_BINARY_EVASION_MODULE' && active_module && (active_module.exploit? || active_module.payload?) && !clear
+      value = trim_path(value, 'evasion')
+
+      payload = active_module.framework.payloads.create(datastore['PAYLOAD'])
+      
+      unless payload
+        print_error("Please set a valid PAYLOAD before setting the SHELLCODE_TO_BINARY_EVASION_MODULE.")
+        return false
+      end
+
+      index_from_list(payload.compatible_shellcode_to_binary_evasion_modules, value) do |mod|
+        return false unless mod && mod.respond_to?(:first)
+        # [name, class] from compatible_shellcode_to_binary_evasion_modules
+        value = mod.first
+      end
+    end
+
     unless global || valid_options.any? { |vo| vo.casecmp?(name) }
       message = "Unknown datastore option: #{name}."
       suggestion = DidYouMean::SpellChecker.new(dictionary: valid_options).correct(name).first

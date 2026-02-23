@@ -908,11 +908,33 @@ module Msf
               print_status("No payload configured, defaulting to #{chosen_payload}") if chosen_payload
             end
 
+            print_evasion_info(mod)
+
             if framework.features.enabled?(Msf::FeatureManager::DISPLAY_MODULE_ACTION) && mod.respond_to?(:actions) && mod.actions.size > 1
               print_status "Setting default action %grn#{mod.action.name}%clr - view all #{mod.actions.size} actions with the %grnshow actions%clr command"
             end
 
             mod.init_ui(driver.input, driver.output)
+          end
+
+          def print_evasion_info(mod)
+            return unless mod.exploit? || mod.payload?
+            return unless framework.features.enabled?(Msf::FeatureManager::EVASION_MODULE_WORKFLOW)
+
+            shell_to_shell = mod.datastore['SHELLCODE_TO_SHELLCODE_EVASION_MODULE']
+            shell_to_bin = mod.datastore['SHELLCODE_TO_BINARY_EVASION_MODULE']
+
+            if shell_to_shell
+              print_status("Using configured Shellcode-to-Shellcode evasion module #{shell_to_shell}")
+            else
+              print_status("No Shellcode-to-Shellcode evasion module configured. You can set it by running 'set SHELLCODE_TO_SHELLCODE_EVASION_MODULE ...'")
+            end
+
+            if shell_to_bin
+              print_status("Using configured Shellcode-to-Binary evasion module #{shell_to_bin}")
+            else
+              print_status("No Shellcode-to-Binary evasion module configured. You can set it by running 'set SHELLCODE_TO_BINARY_EVASION_MODULE ...'")
+            end
           end
 
           #

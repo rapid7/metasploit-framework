@@ -42,6 +42,14 @@ module Msf::Module::ModuleInfo
     module_info['Name']
   end
 
+  def module_inputs
+    module_info['ModuleInputs']
+  end
+
+  def module_outputs
+    module_info['ModuleOutputs']
+  end
+
 
   #
   # Return the module's notes (including AKA and NOCVE descriptors).

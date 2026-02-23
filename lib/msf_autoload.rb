@@ -307,7 +307,10 @@ class MsfAutoload
       'opnsense' => 'OPNSense',
       'pgadmin' => 'PgAdmin',
       'freepbx' => 'FreePBX',
-      'complete_pbx' => 'CompletePBX'
+      'complete_pbx' => 'CompletePBX',
+      'exe_service' => 'EXEService',
+      'exe_small' => 'EXESmall',
+      'exe_only' => 'EXEOnly'
     }
   end
 

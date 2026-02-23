@@ -190,6 +190,7 @@ module Msf::Payload::Stager
 
       # Generate and encode the stage if stage encoding is enabled
       begin
+        # TODO: In the future, we can consider performing evasion on this stage.
         p = generate_stage(opts)
         p = encode_stage(p)
       rescue ::RuntimeError, ::StandardError => e
@@ -294,7 +295,8 @@ module Msf::Payload::Stager
         'ForceSaveRegisters' => true,
         'ForceEncode'        => true,
         'Arch'               => self.stage_arch,
-        'Platform'           => self.stage_platform)
+        'Platform'           => self.stage_platform
+      )
 
       if encp.encoder
         if stage_enc_mod

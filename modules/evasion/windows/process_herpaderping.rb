@@ -7,6 +7,14 @@ require 'metasploit/framework/compiler/windows'
 
 class MetasploitModule < Msf::Evasion
 
+  include Msf::ModuleInputs::Payload
+  include Msf::ModuleOutputs::Executable
+
+  # It works in the context of a service as it spawns a separate process.
+  # However, it is compatible with 'exe' and 'exe-service'.
+  include Msf::ModuleOutputs::ExecutableTypes::EXE
+  include Msf::ModuleOutputs::ExecutableTypes::EXEService
+
   # These constants must match the constants defined in the PE loader code (ProcessHerpaderpingTemplate.cpp)
   MAX_JUNK_SIZE = 1024
   MAX_PAYLOAD_SIZE = 8192
@@ -188,5 +196,7 @@ class MetasploitModule < Msf::Evasion
         'it detects the OS is one of these versions.'
       )
     end
+
+    pe
   end
 end
