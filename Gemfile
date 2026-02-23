@@ -54,7 +54,3 @@ group :test do
   # Manipulate Time.now in specs
   gem 'timecop'
 end
-
-
-gem "rqrcode", "~> 3.1"
-gem "chunky_png", "~> 1.4"
