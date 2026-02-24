@@ -31,7 +31,7 @@ module Msf::DBManager::Import::Nikto
                 :workspace => wspace,
                 :host      => addr,
                 :type      => "service.nikto.scan.description",
-                :data      => desc_text,
+                :data      => { :description => desc_text },
                 :proto     => "tcp",
                 :port      => port.to_i,
                 :sname     => uri.scheme,
