@@ -8,7 +8,7 @@ module Msf::DBManager::Import::Nikto
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     doc = rexmlify(data)
     doc.elements.each do |f|
-      f.elements.each('scandetails') do |host|
+      f.elements.each('niktoscan/scandetails') do |host|
         # Get host information
         addr = host.attributes['targetip']
         next if not addr
