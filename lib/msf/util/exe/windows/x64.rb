@@ -11,39 +11,6 @@ module Msf::Util::EXE::Windows::X64
     # Construct a Windows x64 PE executable with the given shellcode.
     # to_win64pe
     #
-    # @param framework [Msf::Framework] The Metasploit framework instance.
-    # @param code [String] The shellcode to embed in the executable.
-    # @param opts [Hash] Additional options.
-    # @return [String] The constructed PE executable as a binary string.
-
-    def to_win64pe(framework, code, opts = {})
-      # Use the standard template if not specified by the user.
-      # This helper finds the full path and stores it in opts[:template].
-      set_template_default(opts, 'template_x64_windows.exe')
-
-      # Try to inject code into executable by adding a section without affecting executable behavior
-      if opts[:inject]
-        injector = Msf::Exe::SegmentInjector.new({
-           :payload  => code,
-           :template => opts[:template],
-           :arch     => :x64,
-           :secname  => opts[:secname]
-        })
-        return injector.generate_pe
-      end
-
-      # Append a new section instead
-      appender = Msf::Exe::SegmentAppender.new({
-        :payload  => code,
-        :template => opts[:template],
-        :arch     => :x64,
-        :secname	=> opts[:secname]
-      })
-      return appender.generate_pe
-    end
-    
-    # to_win64pe
-    #
     # @param framework  [Msf::Framework]  The framework of you want to use
     # @param code       [String]
     # @param opts       [Hash]
