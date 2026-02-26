@@ -17,6 +17,7 @@ module Msf::Util::EXE::Windows::X64
     # to_win64pe
     #
 <<<<<<< HEAD
+<<<<<<< HEAD
     # @param framework  [Msf::Framework]  The framework of you want to use
     # @param code       [String]
     # @param opts       [Hash]
@@ -30,6 +31,8 @@ module Msf::Util::EXE::Windows::X64
       end
       set_template_default(opts, exe, path)
 =======
+=======
+>>>>>>> 5e3e59e2391 (refactor: remove duplicated to_win64pe method implementation)
     # @param framework [Msf::Framework] The Metasploit framework instance.
     # @param code [String] The shellcode to embed in the executable.
     # @param opts [Hash] Additional options.
@@ -81,9 +84,12 @@ module Msf::Util::EXE::Windows::X64
       return appender.generate_pe
     end
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     
 >>>>>>> 441ef83dba3 (Adds base for template randomization)
+=======
+>>>>>>> 5e3e59e2391 (refactor: remove duplicated to_win64pe method implementation)
 
     # to_win64pe_service
     #
