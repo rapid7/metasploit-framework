@@ -72,3 +72,18 @@ Preferred Skills: Experience using containers; understanding of container defini
 
 If you want to suggest your own idea, please discuss it with us first on [Slack](https://metasploit.com/slack) in the
 `#gsoc` channel to make sure it is a reasonable amount of work for a summer and that it fits the goals of the project.
+
+## AI Usage Policy
+We understand that AI aided development seems to be the future and we have no strong opposition towards GSoC contributors using
+AI, responsibly. All code submitted for review must be both understood and tested successfully by the contributor and testing output or
+proof of working functionality must be included in the PR description.
+
+### Note on AI
+Beware that although AI can be a powerful tool, it often generates more code than is needed and has the tendency to
+rewrite library functionality that has already been implemented in the Metasploit-Framework. The best way to learn how
+to do something in Framework is to traverse the code base, study modules which follow similar exploit paths and if you
+have questions you can always ask in [Slack](https://metasploit.com/slack). At its current maturity level AI is great for helping with smaller tasks.
+For example, if you are new to writing Ruby code, ask how to parse a hash and iterate over both the keys and values,
+and it will likely be very helpful. Larger tasks, it will struggle with. For example, if you ask “I would like you to
+write a Metasploit module for this CVE / PoC” it will generate lots of code (aka slop) that will not run. PRs submitted
+that do not work and have clearly been AI generated will not be reviewed and repeated offenders will have disciplinary action applied.
