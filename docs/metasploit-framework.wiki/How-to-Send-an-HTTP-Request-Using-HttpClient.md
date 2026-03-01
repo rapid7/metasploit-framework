@@ -86,7 +86,7 @@ Module authors can also pass an instance of `HttpCookieJar` with the `cookie` op
 ```ruby
 cj = Msf::Exploit::Remote::HTTP::HttpCookieJar.new
 
-cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('PHPSESSID', @phpsessid))
+cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('PHPSESSID', @phpsessid, domain: 'example.com', path: '/'))
 cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('AsWebStatisticsCooKie', 1))
 cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('shellinaboxCooKie', 1))
 
