@@ -2,6 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'net/ldap'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::RelayServer
@@ -79,8 +80,37 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def check
+    print_status('Checking LDAP server configuration...')
+
+    begin
+      ldap = Net::LDAP.new(
+        host: datastore['RHOSTS'],
+        port: datastore['RPORT'],
+        connect_timeout: 10
+      )
+
+      if ldap.bind
+        print_good('LDAP server allows unsigned binds')
+        return Msf::Exploit::CheckCode::Appears('LDAP signing not required')
+      else
+        print_error('LDAP signing likely required')
+        return Msf::Exploit::CheckCode::Safe('LDAP signing required')
+      end
+    rescue ::Rex::ConnectionError
+      print_error('Could not connect to the LDAP server')
+      print_status("Check if the target is reachable and LDAP port #{datastore['RPORT']} is open")
+      return Msf::Exploit::CheckCode::Unknown('Connection failed')
+    rescue Net::LDAP::Error => e
+      print_error("LDAP connection error: #{e}")
+      print_status('The LDAP server may be unreachable or blocked by a firewall')
+      return Msf::Exploit::CheckCode::Unknown('LDAP error occurred')
+    end
+  end
+
   def run
     check_options
+    check
 
     start_service
     print_status('Server started.')
