@@ -528,8 +528,12 @@ class Payload < Msf::Module
   end
 
   def self.choose_encoder(mod)
-    payload_name = mod.datastore['PAYLOAD']
-    payload = mod.framework.payloads.create(payload_name)
+    if mod.type == Msf::MODULE_PAYLOAD
+      payload = mod
+    else
+      payload_name = mod.datastore['PAYLOAD']
+      payload = mod.framework.payloads.create(payload_name)
+    end
     return nil unless payload
     compatible_encoders = payload.compatible_encoders.map(&:first)
     configure_encoder = lambda do |encoder|

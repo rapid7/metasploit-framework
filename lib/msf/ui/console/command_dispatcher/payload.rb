@@ -272,6 +272,9 @@ module Msf
             options = tab_complete_option(active_module, str, words)
             flags + options
           end
+          def self.choose_encoder(mod)
+            Msf::Payload.choose_encoder(mod)
+          end
         end
       end
     end
