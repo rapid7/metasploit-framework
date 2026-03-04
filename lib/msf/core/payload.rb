@@ -567,8 +567,11 @@ class Payload < Msf::Module
 
       return configure_encoder.call(encoder)
     end
-
-    return compatible_encoders&.first
+    encoder = compatible_encoders&.first
+    if encoder
+      return configure_encoder.call(encoder)
+    end
+    nil
   end
 
   #
