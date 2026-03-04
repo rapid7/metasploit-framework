@@ -543,7 +543,8 @@ class Payload < Msf::Module
       else
         mod.datastore['ENCODER'] = encoder
       end
-
+      e = mod.framework.encoders.create(encoder)
+      e.share_datastore(mod.datastore)
       encoder
     end
 
