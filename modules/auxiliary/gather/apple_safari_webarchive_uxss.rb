@@ -86,14 +86,6 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  # @return [String] formatted http/https URL of the listener
-  def backend_url
-    proto = (datastore["SSL"] ? "https" : "http")
-    myhost = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address : datastore['SRVHOST']
-    port_str = (datastore['SRVPORT'].to_i == 80) ? '' : ":#{datastore['SRVPORT']}"
-    "#{proto}://#{myhost}#{port_str}/#{datastore['URIPATH']}/catch"
-  end
-
   def message
     super + (datastore['INSTALL_EXTENSION'] ? " <a href='javascript:void(0)'>Click here to continue.</a>" + popup_js : '')
   end

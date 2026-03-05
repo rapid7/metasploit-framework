@@ -45,13 +45,13 @@ class PayloadCachedSize
   }.freeze
 
   OPTS_IPV4 = {
-    'LHOST' => '255.255.255.255',
+    'LHOST' => '223.255.255.255',
     'KHOST' => '255.255.255.255',
     'AHOST' => '255.255.255.255'
   }.freeze
 
   OPTS_IPV6 = {
-    'LHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
+    'LHOST' => 'fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
     'KHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
     'AHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'
   }.freeze
@@ -60,7 +60,7 @@ class PayloadCachedSize
   #
   # @param data [String] The source code of a payload module
   # @param cached_size [String] The new value for cached_size, which
-  #   which should be either numeric or the string :dynamic
+  #   should be either numeric or the string :dynamic
   # @return [String]
   def self.update_cache_constant(data, cached_size)
     data.

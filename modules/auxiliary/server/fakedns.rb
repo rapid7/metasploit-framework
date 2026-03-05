@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("DNS server initializing")
     @sock = ::UDPSocket.new()
     @sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
-    @sock.bind(datastore['SRVHOST'], @port)
+    @sock.bind(srvhost, @port)
     @run = true
     @domain_target_list = datastore['TARGETDOMAIN'].split
     @bypass = (datastore['TARGETACTION'].upcase == "BYPASS")

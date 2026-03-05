@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     host = datastore['HOST']
     port = datastore['PORT']
-    local_host = datastore['SRVHOST']
+    local_host = srvhost
     local_port = datastore['SRVPORT']
 
     root_ca_name = OpenSSL::X509::Name.parse('/C=US/O=Root Inc./CN=Root CA')

