@@ -44,7 +44,14 @@ module Msf::DBManager::Import::Nikto
           :proto     => "tcp",
           :state     => "open",
           :name      => uri.scheme,
-          :task      => args[:task]
+          :task      => args[:task],
+          :parents   => {
+            name:    'tcp',
+            host:    addr,
+            port:    port.to_i,
+            proto:   'tcp',
+            parents: nil
+          }
         }
         service_info[:info] = banner if banner and !banner.empty?
         msf_import_service(service_info)
@@ -86,19 +93,22 @@ module Msf::DBManager::Import::Nikto
               refs << "OSVDB-#{item.attributes['osvdbid']}"
             end
 
-            # Always report as a vuln, with refs when available.
-            vuln_data = {
-              :workspace => wspace,
-              :host      => addr,
-              :port      => port.to_i,
-              :proto     => "tcp",
-              :sname     => uri.scheme,
-              :name      => "NIKTO-#{nikto_id}",
-              :info      => desc_text,
-              :task      => args[:task]
-            }
-            vuln_data[:refs] = refs if refs.any?
-            msf_import_vuln(vuln_data)
+            # Only report as a vuln when a CVE reference is present to avoid false positives.
+            cve_refs = refs.select { |r| r.start_with?('CVE-') }
+            if cve_refs.any?
+              vuln_data = {
+                :workspace => wspace,
+                :host      => addr,
+                :port      => port.to_i,
+                :proto     => "tcp",
+                :sname     => uri.scheme,
+                :name      => "NIKTO-#{nikto_id}",
+                :info      => desc_text,
+                :refs      => refs,
+                :task      => args[:task]
+              }
+              msf_import_vuln(vuln_data)
+            end
           end
         end
       end
