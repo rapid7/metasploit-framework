@@ -58,6 +58,18 @@ module Rex
           "#{peerhost}:#{peerport}"
         end
 
+        def username
+          @auth[:username]
+        end
+
+        def realm
+          @auth[:domain]
+        end
+
+        def password
+          @auth[:password]
+        end
+
         def use_connection(args)
           @connection_use_mutex.synchronize do
             return super(args)

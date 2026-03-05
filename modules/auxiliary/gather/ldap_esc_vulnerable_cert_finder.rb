@@ -1088,8 +1088,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def domain_controller_version_check
-    domain = adds_get_domain_info(@ldap)[:dns_name]
-    user = adds_get_current_user(@ldap)[:sAMAccountName].first.to_s
+    domain_info = adds_get_domain_info(@ldap)
+    return unless domain_info
+
+    user_info = adds_get_current_user(@ldap)
+    return unless user_info
+
+    user = [:sAMAccountName].first.to_s
+    domain = domain_info[:dns_name]
     print_status("user: #{user}, domain: #{domain}")
 
     version_raw = nil

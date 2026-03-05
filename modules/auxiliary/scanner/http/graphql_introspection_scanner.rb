@@ -8,6 +8,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
+  prepend Msf::Exploit::Remote::AutoCheck
+
   def initialize(info = {})
     super(
       update_info(
@@ -214,7 +216,9 @@ class MetasploitModule < Msf::Auxiliary
         name: 'GraphQL Introspection',
         description: 'GraphQL endpoint has enabled introspection. This can lead to information disclosure',
         owner: self,
-        category: 'Information Disclosure'
+        category: 'Information Disclosure',
+        confidence: 100,
+        risk: 4
       }
     )
   end
@@ -236,9 +240,9 @@ class MetasploitModule < Msf::Auxiliary
 
   # Process the errors array into a nice human-readable and formatted string.
   # @param errors An array of errors.
-  # @return [String] A string with formatted error messages
+  # @return [String, nil] A string with formatted error messages
   def process_errors(errors)
-    return '' if errors&.empty?
+    return nil if errors&.empty?
 
     # APIs aren't consistent. Some have an error message, some have title & detail.
     # Match all the known cases so far, otherwise return the inspected value.
@@ -246,6 +250,12 @@ class MetasploitModule < Msf::Auxiliary
     errors.map do |error|
       "  - #{error['message'] || error['detail'] || error['description']}"
     end.join("\n") || ''
+  end
+
+  def valid_graphql_response?(hash)
+    return false if hash.nil?
+
+    hash.try(:[], 'data').try(:[], '__schema').try(:[], 'queryType').try(:[], 'name').is_a?(String)
   end
 
   # Check if the current endpoint is vulnerable to GraphQL Introspection information disclosure.
@@ -260,14 +270,26 @@ class MetasploitModule < Msf::Auxiliary
 
     case res.code
     when 200
-      graphql_service = report_graphql_service
-      report_graphql_vuln
-      report_graphql_web_vuln(graphql_service, query, res)
+      json = res.get_json_document
 
-      return Exploit::CheckCode::Vulnerable('The server has introspection enabled.')
+      # validate the JSON response has the expected structure of an introspection response, to avoid false positives.
+      if valid_graphql_response?(json)
+        graphql_service = report_graphql_service
+        report_graphql_vuln
+        report_graphql_web_vuln(graphql_service, query, res)
+
+        return Exploit::CheckCode::Vulnerable('The server has introspection enabled.')
+      else
+        return Exploit::CheckCode::Safe('The server responded with a 200 status code, but the response did not have the expected structure of an introspection response.')
+      end
     when 400
-      parsed_body = JSON.parse!(res.body)
-      error_messages = process_errors(parsed_body['errors'] || Array.wrap(parsed_body['error']))
+      json = res.get_json_document
+      error_messages = process_errors(json['errors'] || Array.wrap(json['error']))
+
+      if error_messages.nil?
+        return Exploit::CheckCode::Safe('The server responded with an error status code, but did not provide any error messages in the response.')
+      end
+
       safe_message = "The server responded with an error status code and the following error(s) to the introspection request:\n#{error_messages}"
       return Exploit::CheckCode::Safe(safe_message)
     when 403
@@ -279,7 +301,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Unknown('The server required a CSRF token.')
     else
       # We are not 100% sure that the service is a GraphQL endpoint. It could be a generic 403 Access Denied.
-      return Exploit::CheckCode::Unknown('The server is online, but returned an unexpected response code.')
+      return Exploit::CheckCode::Unknown("The server is online, but returned an unexpected response code: '#{res.code}'.")
     end
   end
 
@@ -296,14 +318,24 @@ class MetasploitModule < Msf::Auxiliary
 
     if res.code == 200
       print_good("#{rhost}:#{rport} - Server responded with introspected data. Reporting a vulnerability, and storing it as loot.")
+      # validate the JSON response has the expected structure of an introspection response, to avoid false positives.
+      unless valid_graphql_response?(res.get_json_document)
+        print_error("#{rhost}:#{rport} - Server responded with a 200 status code, but the response did not have the expected structure of an introspection response")
+        return
+      end
       graphql_service = report_graphql_service
       report_graphql_vuln
       report_graphql_web_vuln(graphql_service, query, res)
       store_loot('graphql.schema', 'json', rhost, res.body, 'graphql-schema.json', 'GraphQL Schema Dump', graphql_service)
     else
-      parsed_body = JSON.parse!(res.body)
-      if parsed_body.include?('errors') || parsed_body.include?('error')
-        print_error("#{rhost}:#{rport} - Server encountered the following error(s) (code: '#{res.code}'):\n#{process_errors(parsed_body['errors'] || Array.wrap(parsed_body['error']))}")
+      json = res.get_json_document
+      if json.nil?
+        print_error("#{rhost}:#{rport} - Server replied with an unexpected status code: '#{res.code}', and the response was not a valid JSON document.")
+        return
+      end
+
+      if json.key?('errors') || json.key?('error')
+        print_error("#{rhost}:#{rport} - Server encountered the following error(s) (code: '#{res.code}'):\n#{process_errors(json['errors'] || Array.wrap(json['error']))}")
       else
         print_error("#{rhost}:#{rport} - Server replied with an unexpected status code: '#{res.code}'")
       end

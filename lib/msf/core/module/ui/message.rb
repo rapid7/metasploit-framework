@@ -27,7 +27,11 @@ module Msf::Module::UI::Message
       if xn.is_a?(Integer)
         prefix << "[%04d] " % xn
       end
+    end
 
+    if (module_name_output = (datastore['ModuleNameOutput'] ||
+        (framework && framework.datastore['ModuleNameOutput'])))
+      prefix << "[#{module_name_output}] "
     end
     prefix
   end
