@@ -2244,8 +2244,9 @@ class Core
     # Re-select encoder when PAYLOAD or TARGET changes
     if %w[PAYLOAD TARGET].include?(name.upcase) && active_module && (active_module.exploit? || active_module.evasion?) && !clear
       if active_module.datastore['PAYLOAD']
+        previous_encoder = active_module.datastore['ENCODER']
         chosen_encoder = Msf::Payload.choose_encoder(active_module)
-        print_status("Encoder changed to #{chosen_encoder}") if chosen_encoder
+        print_status("Encoder changed to #{chosen_encoder}") if chosen_encoder && chosen_encoder != previous_encoder
       end
     end
 
