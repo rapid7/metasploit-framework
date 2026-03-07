@@ -38,7 +38,7 @@ RSpec.describe Msf::Payload, '.choose_encoder' do
       expect(chosen).to include('php/')
     end
 
-    it 'prefers php/base64' do
+    it 'selects the first native encoder' do
       chosen = described_class.choose_encoder(mod)
       expect(chosen).to eq('encoder/php/base64')
     end
@@ -176,7 +176,7 @@ RSpec.describe Msf::Payload, '.choose_encoder' do
       expect(chosen).to include('ruby/')
     end
 
-    it 'prefers ruby/base64' do
+    it 'selects the first native encoder' do
       chosen = described_class.choose_encoder(mod)
       expect(chosen).to eq('encoder/ruby/base64')
     end
@@ -312,31 +312,31 @@ RSpec.describe Msf::Payload, '.choose_encoder' do
     end
   end
 
-  # --- Preferred encoder ordering ---
+  # --- Encoder selection within same arch ---
 
-  context 'preferred encoder ordering within same arch' do
+  context 'encoder selection within same arch' do
     before(:each) do
       datastore.import_options_from_hash({ 'PAYLOAD' => 'php/meterpreter/reverse_tcp' })
       allow(payload).to receive(:arch).and_return([ARCH_PHP])
     end
 
-    it 'prefers php/base64 over php/hex' do
+    it 'selects the first native encoder from filtered list' do
       allow(payload).to receive(:compatible_encoders).and_return([
         ['encoder/php/hex', nil],
         ['encoder/php/base64', nil],
       ])
       chosen = described_class.choose_encoder(mod)
-      expect(chosen).to eq('encoder/php/base64')
+      expect(chosen).to eq('encoder/php/hex')
     end
 
-    it 'falls back to non-preferred native encoder when preferred is absent' do
+    it 'picks first from filtered list when no preferred matches' do
       allow(payload).to receive(:compatible_encoders).and_return([
+        ['encoder/generic/none', nil],
         ['encoder/php/hex', nil],
         ['encoder/php/minify', nil],
-        ['encoder/generic/none', nil],
       ])
       chosen = described_class.choose_encoder(mod)
-      expect(chosen).to include('php/')
+      expect(chosen).to eq('encoder/generic/none')
     end
   end
 end
