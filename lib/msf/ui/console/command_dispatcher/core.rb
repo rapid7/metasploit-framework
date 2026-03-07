@@ -2195,7 +2195,7 @@ class Core
       value = trim_path(value, 'encoder')
 
       payload = active_module.framework.payloads.create(datastore['PAYLOAD'])
-      
+
       unless payload
         print_error("Please set a valid PAYLOAD before setting the ENCODER.")
         return false
@@ -2207,7 +2207,6 @@ class Core
         value = mod.first
       end
     end
-
 
     unless global || valid_options.any? { |vo| vo.casecmp?(name) }
       message = "Unknown datastore option: #{name}."
