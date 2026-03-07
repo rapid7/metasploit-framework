@@ -908,9 +908,10 @@ module Msf
               print_status("No payload configured, defaulting to #{chosen_payload}") if chosen_payload
             end
 
-            # Choose a default encoder based on the current payload (silently)
+            # Choose a default encoder based on the current payload
             if !mod.datastore['ENCODER'] && mod.datastore['PAYLOAD'] && dispatcher.respond_to?(:choose_encoder)
-              dispatcher.choose_encoder(mod)
+              chosen_encoder = dispatcher.choose_encoder(mod)
+              print_status("No encoder configured, defaulting to #{chosen_encoder}") if chosen_encoder
             end
 
             if framework.features.enabled?(Msf::FeatureManager::DISPLAY_MODULE_ACTION) && mod.respond_to?(:actions) && mod.actions.size > 1
