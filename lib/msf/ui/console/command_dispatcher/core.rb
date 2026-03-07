@@ -2241,6 +2241,14 @@ class Core
       active_module.import_target_defaults
     end
 
+    # Re-select encoder when PAYLOAD or TARGET changes
+    if %w[PAYLOAD TARGET].include?(name.upcase) && active_module && (active_module.exploit? || active_module.evasion?) && !clear
+      if active_module.datastore['PAYLOAD']
+        chosen_encoder = Msf::Payload.choose_encoder(active_module)
+        print_status("Encoder changed to #{chosen_encoder}") if chosen_encoder
+      end
+    end
+
     # If the new SSL value already set in datastore[name] is different from the old value, warn the user
     if name.casecmp('SSL') == 0 && datastore[name] != old_value
       print_warning("Changing the SSL option's value may require changing RPORT!")

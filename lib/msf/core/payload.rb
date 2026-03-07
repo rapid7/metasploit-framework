@@ -548,11 +548,21 @@ class Payload < Msf::Module
       return configure_encoder.call(compatible_encoders.first)
     end
 
+    # Filter encoders to match the payload architecture to avoid
+    # cross-arch corruption (e.g. x64 encoder on a PHP payload)
+    arch_prefix = Array(payload.arch).first
+    if arch_prefix
+      native_encoders = compatible_encoders.select { |name| name.include?("#{arch_prefix}/") || name.include?('generic/') }
+      compatible_encoders = native_encoders unless native_encoders.empty?
+    end
+
     # Prefer encoders that are known to be reliable
     preferred_encoders = [
+      'php/base64',
+      'ruby/base64',
+      'cmd/base64',
       'x86/shikata_ga_nai',
       'x64/zutto_dekiru',
-      'cmd/base64',
     ]
 
     preferred_encoders.each do |type|

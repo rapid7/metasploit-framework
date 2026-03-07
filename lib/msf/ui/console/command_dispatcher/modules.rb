@@ -908,11 +908,11 @@ module Msf
               print_status("No payload configured, defaulting to #{chosen_payload}") if chosen_payload
             end
 
-            # Choose a default encoder when the module is used, not run
+            # Choose a default encoder based on the current payload
             if mod.datastore['ENCODER']
               print_status("Using configured encoder #{mod.datastore['ENCODER']}")
-            elsif dispatcher.respond_to?(:choose_encoder)
-              chosen_encoder = dispatcher.choose_encoder(mod) 
+            elsif mod.datastore['PAYLOAD'] && dispatcher.respond_to?(:choose_encoder)
+              chosen_encoder = dispatcher.choose_encoder(mod)
               print_status("No encoder configured, defaulting to #{chosen_encoder}") if chosen_encoder
             end
 
