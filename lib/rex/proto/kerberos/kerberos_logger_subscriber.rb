@@ -1,9 +1,11 @@
 # -*- coding: binary -*-
 
 require 'json'
+require 'set'
 require 'time'
 require 'rex/proto/kerberos/model'
 require 'rex/proto/kerberos/kerberos_subscriber'
+require 'rex/proto/kerberos/credential_cache/krb5_ccache_presenter'
 
 module Rex
 module Proto
@@ -11,9 +13,6 @@ module Kerberos
 
   # Logs Kerberos requests/responses
   class KerberosLoggerSubscriber < KerberosSubscriber
-    # Limit binary previews to keep logs readable and avoid dumping large blobs.
-    BINARY_PREVIEW_SIZE = 32
-
     def initialize(logger:)
       super()
       raise RuntimeError, "Incompatible logger" unless logger.respond_to?(:print_line) && logger.respond_to?(:datastore)
@@ -43,6 +42,15 @@ module Kerberos
       @logger.print_line("%clr#{response_color}#{format_message(response)}%clr")
     end
 
+    # (see Rex::Proto::Kerberos::KerberosSubscriber#on_credential)
+    def on_credential(credential, source: nil)
+      return unless trace_enabled?
+      return if credential.nil?
+
+      print_credential_header(source)
+      @logger.print_line(format_credential(credential))
+    end
+
     private
 
     def trace_enabled?
@@ -62,6 +70,12 @@ module Kerberos
     def print_header(direction, message)
       @logger.print_line('#' * 20)
       @logger.print_line("# Kerberos #{direction}: #{message_type_name(message)}")
+      @logger.print_line('#' * 20)
+    end
+
+    def print_credential_header(source)
+      @logger.print_line('#' * 20)
+      @logger.print_line("# Kerberos Credential#{source ? ": #{source}" : ''}")
       @logger.print_line('#' * 20)
     end
 
@@ -101,6 +115,16 @@ module Kerberos
       end
     end
 
+    def format_credential(credential)
+      rendered_credential = ticket_presenter.present_cred(credential)
+      [
+        'Creds: 1',
+        "  Credential[0]:\n#{rendered_credential.indent(4)}"
+      ].join("\n")
+    rescue StandardError => e
+      "Credential presenter error: #{e.class}: #{e.message}"
+    end
+
     def serialize_element(element)
       element.attributes.each_with_object({}) do |attribute, output|
         value = element.public_send(attribute)
@@ -130,10 +154,17 @@ module Kerberos
       case value
       when Array
         value.map { |entry| serialize_value(entry) }
+      when Set
+        value.to_a.map { |entry| serialize_value(entry) }
       when Hash
         value.each_with_object({}) do |(key, entry), output|
           output[key.to_s] = serialize_value(entry)
         end
+      when Rex::Proto::Kerberos::Model::KerberosFlags
+        {
+          'value' => value.to_i,
+          'flags' => value.enabled_flag_names.map(&:to_s)
+        }
       when Time
         value.utc.iso8601
       when String
@@ -154,10 +185,12 @@ module Kerberos
     def serialize_string(value)
       return value if printable_string?(value)
 
-      # Show a short hex prefix when strings are binary/non-printable.
-      preview = value.byteslice(0, BINARY_PREVIEW_SIZE).to_s.unpack1('H*')
-      suffix = value.bytesize > BINARY_PREVIEW_SIZE ? '...' : ''
-      "[binary #{value.bytesize} bytes: #{preview}#{suffix}]"
+      # Expand binary/non-printable strings fully in hex.
+      "[binary #{value.bytesize} bytes: #{value.unpack1('H*')}]"
+    end
+
+    def ticket_presenter
+      @ticket_presenter ||= Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter.new(nil)
     end
 
     def printable_string?(value)
