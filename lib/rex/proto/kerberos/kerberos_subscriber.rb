@@ -15,12 +15,6 @@ module Kerberos
     def on_response(response)
       nil
     end
-
-    # @param credential [Rex::Proto::Kerberos::CredentialCache::Krb5CcacheCredential]
-    # @param source [String,nil]
-    def on_credential(credential, source: nil)
-      nil
-    end
   end
 
 end
