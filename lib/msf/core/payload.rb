@@ -535,7 +535,14 @@ class Payload < Msf::Module
       payload = mod.framework.payloads.create(payload_name)
     end
     return nil unless payload
-    compatible_encoders = payload.compatible_encoders.map(&:first)
+    
+    begin
+      compatible_encoders = payload.compatible_encoders.map(&:first)
+    rescue Msf::NoCompatiblePayloadError
+      # If there are no compatible encoders or searching for compatible encoder fails (generic payloads), we will use the generic/none encoder, which doesn't actually do any encoding but will allow payloads that require an encoder to be used
+      compatible_encoders = ["generic/none"]
+    end
+
     configure_encoder = lambda do |encoder|
       if payload.datastore.is_a?(Msf::DataStore)
         payload_defaults = { 'ENCODER' => encoder }
@@ -547,7 +554,6 @@ class Payload < Msf::Module
       e.share_datastore(mod.datastore)
       encoder
     end
-
     # If there is only one compatible encoder, return it immediately
     if compatible_encoders.length == 1
       return configure_encoder.call(compatible_encoders.first)
