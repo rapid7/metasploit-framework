@@ -560,10 +560,8 @@ class Payload < Msf::Module
 
     # Prefer encoders that are known to be reliable
     preferred_encoders = [
-      'generic/none',
       'x86/shikata_ga_nai',
-      'x64/zutto_dekiru',
-      'cmd/base64',
+      'cmd/base64'
     ]
 
     preferred_encoders.each do |type|
