@@ -560,7 +560,6 @@ class Payload < Msf::Module
 
     # Prefer encoders that are known to be reliable
     preferred_encoders = [
-      'x86/shikata_ga_nai',
       'cmd/base64'
     ]
 
