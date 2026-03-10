@@ -440,13 +440,14 @@ class Payload < Msf::Module
   # Returns the array of compatible encoders for this payload instance.
   #
   def compatible_encoders
-    encoders = []
+    # generic/none should always be option
+    encoders = [ ["generic/none" , framework.encoders['generic/none']] ]
 
     framework.encoders.each_module_ranked(
       'Arch' => self.arch, 'Platform' => self.platform) { |name, mod|
       encoders << [ name, mod ]
     }
-
+    
     return encoders
   end
 
@@ -535,12 +536,10 @@ class Payload < Msf::Module
       payload = mod.framework.payloads.create(payload_name)
     end
     return nil unless payload
-    
+
     begin
-      compatible_encoders = payload.compatible_encoders.map(&:first)
+      compatible_encoders = payload.compatible_encoders.map(&:first)    
     rescue Msf::NoCompatiblePayloadError
-      # If there are no compatible encoders or searching for compatible encoder fails (generic payloads), we will use the generic/none encoder, which doesn't actually do any encoding but will allow payloads that require an encoder to be used
-      compatible_encoders = ["generic/none"]
     end
 
     configure_encoder = lambda do |encoder|
@@ -561,6 +560,7 @@ class Payload < Msf::Module
 
     # Prefer encoders that are known to be reliable
     preferred_encoders = [
+      'generic/none',
       'x86/shikata_ga_nai',
       'x64/zutto_dekiru',
       'cmd/base64',
