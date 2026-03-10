@@ -97,43 +97,6 @@ module Metasploit
         def self.is_posix(platform)
           return ['unifi','linux','osx','solaris','bsd','hpux','aix'].include?(platform)
         end
-
-        def self.get_platform_from_info(info)
-          case info
-          when /unifi\.version|UniFiSecurityGateway/i # Ubiquiti Unifi.  uname -a is left in, so we got to pull before Linux
-            'unifi'
-          when /Linux/i
-            'linux'
-          when /VMware ESXi/i
-            'linux'
-          when /Darwin/i
-            'osx'
-          when /SunOS/i
-            'solaris'
-          when /BSD/i
-            'bsd'
-          when /HP-UX/i
-            'hpux'
-          when /AIX/i
-            'aix'
-          when /MSYS_NT|cygwin|Win32|Windows|Microsoft/i
-            'windows'
-          when /Unknown command or computer name|Line has invalid autocommand/i
-            'cisco-ios'
-          when /unknown keyword/i # ScreenOS
-            'juniper'
-          when /JUNOS Base OS/i # JunOS
-            'juniper'
-          when /MikroTik/i
-            'mikrotik'
-          when /Arista/i
-            'arista'
-          when /VMware vCenter Server/i
-            'vcenter'
-          else
-            'unknown'
-          end
-        end
       end
     end
   end

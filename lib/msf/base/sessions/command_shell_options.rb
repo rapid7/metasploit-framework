@@ -7,6 +7,7 @@
 # https://metasploit.com/framework/
 ##
 
+require 'msf/core/sessions/platform_resolution'
 
 module Msf
 module Sessions
@@ -26,35 +27,34 @@ module CommandShellOptions
   end
 
   def on_session(session)
-    super
-
-    # Configure input/output to match the payload
-    session.user_input  = self.user_input if self.user_input
+    session.user_input = self.user_input if self.user_input
     session.user_output = self.user_output if self.user_output
-
+  
     platform = nil
-    if self.platform and self.platform.kind_of? Msf::Module::PlatformList
-      platform = self.platform.platforms.first.realname.downcase
+    if !session.banner.blank?
+      platform = Msf::Sessions::PlatformResolution.get_platform_from_info(session.banner)
     end
-    if self.platform and self.platform.kind_of? Msf::Module::Platform
-      platform = self.platform.realname.downcase
+  
+    if platform.nil?
+      if self.platform && self.platform.is_a?(Msf::Module::PlatformList)
+        platform = self.platform.platforms.first.realname.downcase
+      elsif self.platform && self.platform.is_a?(Msf::Module::Platform)
+        platform = self.platform.realname.downcase
+      end
     end
-
-
-    # a blank platform is *all* platforms and used by the generic modules, in that case only set this instance if it was
-    # not previously set to a more specific value through some means
-    session.platform = platform unless platform.blank? && !session.platform.blank?
-
+  
+    session.platform = platform unless platform.blank? || !session.platform.blank?
+  
     if self.arch
-      if self.arch.kind_of?(Array)
+      if self.arch.is_a?(Array)
         session.arch = self.arch.join('')
       else
         session.arch = self.arch
       end
     end
-
+  
+    super
   end
-
 end
 end
 end
