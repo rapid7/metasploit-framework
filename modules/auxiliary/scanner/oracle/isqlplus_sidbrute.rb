@@ -1,4 +1,4 @@
-##
+  ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
@@ -8,6 +8,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
+  include Msf::Module::Deprecated
+  moved_from 'auxiliary/scanner/oracle/isqlplus_sid_brute'
 
   def initialize
     super(
