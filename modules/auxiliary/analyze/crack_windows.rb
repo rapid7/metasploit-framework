@@ -101,7 +101,9 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    create_cracked_credential(username: cred['username'], password: cred['password'], core_id: cred['core_id'])
+    puts "XXX process_cracker_results cred prior to create_cracked_credential: #{cred.inspect}"
+    t = create_cracked_credential(username: cred['username'], password: cred['password'], core_id: cred['core_id'])
+    puts "XXX create_cracked_credential returned: #{t.inspect}"
     results
   end
 
@@ -157,16 +159,17 @@ class MetasploitModule < Msf::Auxiliary
 
         cred['core_id'] = fields.shift
 
-        if ['netntlm', 'netntlmv2'].include? hash_type
+        case hash_type
+        when 'netntlm', 'netntlmv2'
           # we could grab the username here, but no need since we grab it later based on core_id, which is safer
           6.times { fields.shift } # Get rid of a bunch of extra fields
-        elsif ['krb5tgs', 'krb5asrep'].include? hash_type
+        when 'krb5asrep'
           2.times { fields.shift } # Get rid of extra hash fields
-        else
+        else # 'krb5tgs'
           cred['hash'] = fields.shift
         end
 
-        fields.pop if hash_type == 'mscash' # Get rid of username
+        fields.pop if ['mscash'].include? hash_type # Get rid of username
 
         cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
         next if cred['core_id'].include?("Hashfile '") && cred['core_id'].include?("' on line ") # skip error lines
@@ -175,6 +178,7 @@ class MetasploitModule < Msf::Auxiliary
         # so we can now just go grab the username from the DB
         cred['username'] = framework.db.creds(workspace: myworkspace, id: cred['core_id'])[0].public.username
       end
+      puts "XXX check_results function prior to process_crack_results: #{cred.inspect}"
       results = process_cracker_results(results, cred)
     end
     results
