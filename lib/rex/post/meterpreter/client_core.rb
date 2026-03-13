@@ -673,7 +673,6 @@ class ClientCore < Extension
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
     end
     
-    binding.pry
     # if we change architecture, we need to change UUID as well
     if current_process['arch'] != target_process['arch']
       client.payload_uuid.arch = target_process['arch']

