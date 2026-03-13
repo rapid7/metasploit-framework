@@ -14,8 +14,6 @@ require 'rex/socket/x509_certificate'
 require 'msf/core/payload/malleable_c2'
 
 require 'openssl'
-require 'pry'
-require 'pry-byebug'
 
 module Rex
 module Post
