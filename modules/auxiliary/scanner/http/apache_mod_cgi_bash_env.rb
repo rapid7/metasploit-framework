@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Apache mod_cgi Bash Environment Variable Injection (Shellshock) Scanner',
+        'Name' => 'Apache mod_cgi Bash Environment Variable Code Injection Scanner (Shellshock)',
         'Description' => %q{
           This module scans for the Shellshock vulnerability, a flaw in how the Bash shell
           handles external environment variables. This module targets CGI scripts in the
