@@ -19,7 +19,10 @@ module MetasploitModule
         'License' => MSF_LICENSE,
         'Platform' => 'linux',
         'Arch' => ARCH_X64,
-        'Privileged' => true
+        'Privileged' => true,
+	'DefaultOptions' => {
+          'AppendExit' => true
+	}
       )
     )
 
@@ -50,14 +53,12 @@ module MetasploitModule
       xor byte [rdi+rsi], 0x41
       syscall
 
-      push 60    ; exit() syscall number.
-      pop rax
-      xor rdi,rdi
-      syscall
+      jmp finish ; Jump over the string to hit the framework's appended exit
 
     str:
       call end
       db "#{hostname}A"
+    finish:
     ^
 
     Metasm::Shellcode.assemble(Metasm::X64.new, payload).encode_string
