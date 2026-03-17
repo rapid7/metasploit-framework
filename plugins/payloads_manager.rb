@@ -27,7 +27,7 @@ module Msf
     class PayloadsManagerCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
 
-      PAYLOADS_DIR = File.join(Dir.home, '.msf4', 'payloads')
+      PAYLOADS_DIR = File.join(Msf::Config.config_directory, 'payloads')
       DATABASE_FILE = File.join(PAYLOADS_DIR, 'payloads.json')
       MSF_METERPRETER_DIR = File.join(Msf::Config.data_directory, 'meterpreter')
 
