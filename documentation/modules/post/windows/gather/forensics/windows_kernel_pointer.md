@@ -63,7 +63,7 @@ When set to `true`, the module will save the complete pointer data to a CSV fil
 
 This scenario demonstrates a standard run of the module on a Windows 10 system, showing the complete output including buffer size negotiation and result analysis.
 
-```javascript
+```text
 msf6 post(windows/gather/windows_kernel_pointer_enum) > set SESSION 1
 SESSION => 1
 msf6 post(windows/gather/windows_kernel_pointer_enum) > run
@@ -138,7 +138,7 @@ ALPC OBJECT ANALYSIS (Type Indices 32-48)
 
 This scenario demonstrates exporting the complete dataset to CSV for further analysis.
 
-```javascript
+```text
 msf6 post(windows/gather/windows_kernel_pointer_enum) > set EXPORT_CSV true
 EXPORT_CSV => true
 msf6 post(windows/gather/windows_kernel_pointer_enum) > run
@@ -148,7 +148,7 @@ msf6 post(windows/gather/windows_kernel_pointer_enum) > run
 
 View the first 10 lines of the CSV:
 
-```javascript
+```text
 $ cat /home/kali/.msf4/loot/20260302132544_default_192.168.91.133_windows.kernel.p_795889.txt | head -n 10
 
 PID,TypeIndex,TypeHint,Handle,Access,Address
