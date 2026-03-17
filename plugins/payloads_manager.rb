@@ -286,8 +286,19 @@ module Msf
           end
         end
 
-        FileUtils.rm(target_link) if File.symlink?(target_link)
-        FileUtils.ln_s(payload['path'], target_link)
+        # Refuse to overwrite an existing non-symlink file at the target path
+        if File.exist?(target_link) && !File.symlink?(target_link)
+          print_error("Cannot select payload '#{payload['name']}'. A non-symlink file already exists at #{target_link}. Please move or remove it and try again.")
+          return
+        end
+
+        begin
+          FileUtils.rm(target_link) if File.symlink?(target_link)
+          FileUtils.ln_s(payload['path'], target_link)
+        rescue SystemCallError => e
+          print_error("Failed to activate payload '#{payload['name']}' at #{target_link}: #{e.class}: #{e.message}")
+          return
+        end
         @database[id]['active'] = true
         @database[id]['last_selected_at'] = Time.now.to_s
         save_database
