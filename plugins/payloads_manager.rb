@@ -17,7 +17,7 @@ module Msf
     end
 
     def name
-      "PayloadsManager"
+      "payloads_manager"
     end
 
     def desc
