@@ -17,6 +17,8 @@ Gemfile.local.lock
 .versions.conf
 # YARD cache directory
 .yardoc
+# temporary
+users.txt
 # Mac OS X files
 .DS_Store
 # Ignore Solargraph config file
