@@ -362,7 +362,23 @@ module Msf
 
       def load_database
         if File.exist?(DATABASE_FILE)
-          @database = JSON.parse(File.read(DATABASE_FILE))
+          begin
+            contents = File.read(DATABASE_FILE)
+            if contents.strip.empty?
+              @database = {}
+            else
+              @database = JSON.parse(contents)
+            end
+          rescue JSON::ParserError => e
+            backup_path = "#{DATABASE_FILE}.corrupted-#{Time.now.to_i}"
+            begin
+              FileUtils.mv(DATABASE_FILE, backup_path)
+              print_error("Failed to parse payloads database; backing up corrupted file to #{backup_path}: #{e.message}")
+            rescue StandardError
+              print_error("Failed to parse payloads database and could not back up corrupted file: #{e.message}")
+            end
+            @database = {}
+          end
         else
           @database = {}
         end
