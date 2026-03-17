@@ -866,14 +866,25 @@ private
       stub = c.new().generate
     
     elsif client.platform == 'linux' && [ARCH_X86, ARCH_X64].include?(client.arch)
-
+      
+      t = get_current_transport
+    
       c = Class.new(::Msf::Payload)
-
-      if target_process['arch'] == ARCH_X86
-        c.include(::Msf::Payload::Linux::X86::Migrate)
-      else
-        c.include(::Msf::Payload::Linux::X64::Migrate)
+      
+      case target_process['arch']
+        when 'x86_64'
+          case t[:url]
+          when /^tcp/i
+            c.include(::Msf::Payload::Linux::X64::MigrateTcp)
+          else
+            raise RuntimeError, "Unsupported transport #{t[:url]}"
+          end
+        when 'x86'
+          c.include(::Msf::Payload::Linux::X86::Migrate)
+        else
+          raise RuntimeError, "Unsupported arch #{target_process['arch']}"
       end
+
       stub = c.new().generate(opts={"payload":payload,  "payload_length":payload_length, "pid": target_process['pid']})
     else
       raise RuntimeError, "Unsupported session #{client.session_type}"
