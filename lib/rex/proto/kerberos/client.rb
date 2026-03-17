@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'rex/proto/kerberos/kerberos_subscriber'
 require 'rex/stopwatch'
 
 module Rex
@@ -29,14 +30,18 @@ module Rex
         # @!attribute context
         #   @return [Hash] The Msf context where the connection belongs to
         attr_accessor :context
+        # @!attribute subscriber
+        #   @return [Rex::Proto::Kerberos::KerberosSubscriber] The Kerberos trace subscriber
+        attr_accessor :subscriber
 
         def initialize(opts = {})
           self.host = opts[:host]
-          self.port     = (opts[:port] || 88).to_i
-          self.proxies  = opts[:proxies]
-          self.timeout  = (opts[:timeout] || 10).to_i
+          self.port = (opts[:port] || 88).to_i
+          self.proxies = opts[:proxies]
+          self.timeout = (opts[:timeout] || 10).to_i
           self.protocol = opts[:protocol] || 'tcp'
-          self.context  = opts[:context] || {}
+          self.context = opts[:context] || {}
+          self.subscriber = opts[:subscriber] || KerberosSubscriber.new
         end
 
         # Creates a connection through a Rex socket
@@ -45,14 +50,16 @@ module Rex
         # @raise [RuntimeError] if the connection can not be created
         def connect
           return connection if connection
-          raise ArgumentError, 'Missing remote address' unless self.host && self.port
+
+          raise ArgumentError, 'Missing remote address' unless host && port
+
           case protocol
           when 'tcp'
             self.connection = create_tcp_connection
           when 'udp'
             raise ::NotImplementedError, 'Kerberos Client: UDP not supported'
           else
-            raise ::RuntimeError, 'Kerberos Client: unknown transport protocol'
+            raise 'Kerberos Client: unknown transport protocol'
           end
 
           connection
@@ -84,7 +91,7 @@ module Rex
           when 'udp'
             sent = send_request_udp(req)
           else
-            raise ::RuntimeError, 'Kerberos Client: unknown transport protocol'
+            raise 'Kerberos Client: unknown transport protocol'
           end
 
           sent
@@ -99,7 +106,7 @@ module Rex
         # @raise [NotImplementedError] if the transport protocol isn't supported
         def recv_response
           if connection.nil?
-            raise ::RuntimeError, 'Kerberos Client: connection not established'
+            raise 'Kerberos Client: connection not established'
           end
 
           res = nil
@@ -109,7 +116,7 @@ module Rex
           when 'udp'
             res = recv_response_udp
           else
-            raise ::RuntimeError, 'Kerberos Client: unknown transport protocol'
+            raise 'Kerberos Client: unknown transport protocol'
           end
 
           res
@@ -135,11 +142,11 @@ module Rex
         # @return [Rex::Socket::Tcp]
         def create_tcp_connection
           self.connection = Rex::Socket::Tcp.create(
-            'PeerHost'   => host,
-            'PeerPort'   => port.to_i,
-            'Proxies'    => proxies,
-            'Context'    => context,
-            'Timeout'    => timeout
+            'PeerHost' => host,
+            'PeerPort' => port.to_i,
+            'Proxies' => proxies,
+            'Context' => context,
+            'Timeout' => timeout
           )
         end
 
@@ -150,6 +157,7 @@ module Rex
         # @raise [RuntimeError] if the request can't be encoded
         def send_request_tcp(req)
           data = req.encode
+          notify_subscriber(:on_request, req, raw: data, context: trace_context)
           length = [data.length].pack('N')
           connection.put(length + data)
         end
@@ -201,7 +209,9 @@ module Rex
             raise ::EOFError, 'Kerberos Client: failed to read response'
           end
 
-          decode_kerb_response(data)
+          res = decode_kerb_response(data)
+          notify_subscriber(:on_response, res, raw: data, context: trace_context)
+          res
         end
 
         # UDP isn't supported
@@ -210,8 +220,6 @@ module Rex
         def recv_response_udp
           raise ::NotImplementedError, 'Kerberos Client: UDP unsupported'
         end
-
-        private
 
         # Decodes a Kerberos response
         #
@@ -234,6 +242,19 @@ module Rex
           end
 
           res
+        end
+
+        def trace_context
+          {
+            peer: "#{host}:#{port}",
+            protocol: protocol
+          }
+        end
+
+        def notify_subscriber(method_name, *args, **kwargs)
+          return unless subscriber.respond_to?(method_name)
+
+          subscriber.public_send(method_name, *args, **kwargs)
         end
       end
     end
