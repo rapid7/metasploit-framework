@@ -30,6 +30,7 @@ module Payload::Linux::X86::Migrate
       nop
       nop
       nop
+      #{migrate_stub(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
   end

@@ -880,7 +880,12 @@ private
             raise RuntimeError, "Unsupported transport #{t[:url]}"
           end
         when 'x86'
-          c.include(::Msf::Payload::Linux::X86::Migrate)
+          case t[:url]
+          when /^tcp/i
+            c.include(::Msf::Payload::Linux::X86::MigrateTcp)
+          else
+            raise RuntimeError, "Unsupported transport #{t[:url]}"
+          end
         else
           raise RuntimeError, "Unsupported arch #{target_process['arch']}"
       end
