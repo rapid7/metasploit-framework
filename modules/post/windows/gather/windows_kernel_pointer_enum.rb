@@ -69,27 +69,25 @@ class MetasploitModule < Msf::Post
   end
 
   def validate_environment
-    begin
-      sysinfo = session.sys.config.sysinfo
-      @os = sysinfo['OS']
-      @arch = sysinfo['Architecture']
-      @computer = sysinfo['Computer']
+    sysinfo = session.sys.config.sysinfo
+    @os = sysinfo['OS']
+    @arch = sysinfo['Architecture']
+    @computer = sysinfo['Computer']
 
-      print_status("Target: #{@computer}")
-      print_status("OS: #{@os}")
-      print_status("Arch: #{@arch}")
-      print_status("User: #{session.sys.config.getuid}")
+    print_status("Target: #{@computer}")
+    print_status("OS: #{@os}")
+    print_status("Arch: #{@arch}")
+    print_status("User: #{session.sys.config.getuid}")
 
-      unless @arch =~ /x64|64|amd64/i
-        print_error('This module only supports x64 systems')
-        return false
-      end
-
-      true
-    rescue StandardError => e
-      print_error("Failed to get system info: #{e.message}")
-      false
+    unless @arch =~ /x64|64|amd64/i
+      print_error('This module only supports x64 systems')
+      return false
     end
+
+    true
+  rescue StandardError => e
+    print_error("Failed to get system info: #{e.message}")
+    false
   end
 
   def display_results
