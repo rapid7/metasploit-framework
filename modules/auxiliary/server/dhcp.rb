@@ -5,7 +5,6 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DHCPServer
-  include Msf::Auxiliary::Report
 
   def initialize
     super(
@@ -13,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => %q{
         This module provides a DHCP service
       },
-      'Author' => [ 'scriptjunkie', 'apconole@yahoo.com' ],
+      'Author' => [ 'scriptjunkie', 'apconole[at]yahoo.com' ],
       'License' => MSF_LICENSE,
       'Actions' => [
         [ 'Service', 'Description' => 'Run DHCP server' ]

