@@ -247,6 +247,17 @@ protected
       end
     end
 
+    mac = _clienthwaddr.unpack('C6').map { |b| "%02x" % b }.join(':')
+    ip_packed = self.served[buf[28..43]]&.first
+    ip = ip_packed ? Rex::Socket.addr_itoa(ip_packed) : nil
+
+    case messageType
+    when Constants::DHCPDiscover
+      self.reporter.call(type: :dhcp_discover, mac: mac) if self.reporter
+    when Constants::DHCPRequest
+      self.reporter.call(type: :dhcp_request, mac: mac, ip: ip) if self.reporter
+    end
+
     # don't serve if only serving PXE and not PXE request
     return if pxeclient == false and self.serveOnlyPXE == true
 
@@ -314,9 +325,7 @@ protected
         pkt << dhcpoption(Constants::OpPXEConfigFile, self.pxealtconfigfile)
       else
         # We are handing out an IP and our PXE attack
-        if(self.reporter)
-          self.reporter.call(buf[28..43],self.ipstring)
-        end
+        self.reporter.call(type: :dhcp_pxe, mac: mac, ip: ipstring) if self.reporter
         pkt << dhcpoption(Constants::OpPXEConfigFile, self.pxeconfigfile)
       end
       pkt << dhcpoption(Constants::OpPXEPathPrefix, self.pxepathprefix)
