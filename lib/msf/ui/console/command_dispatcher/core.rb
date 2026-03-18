@@ -1813,8 +1813,12 @@ class Core
         session = verify_session(sess_id)
         next unless session
 
-        module_name = if session.type == 'postgresql'
-                        'post/multi/manage/sql_to_meterpreter'
+        module_name = case session.type
+                      when 'postgresql'
+                        'exploit/multi/local/sql_to_meterpreter'
+                      when 'mysql', 'mssql'
+                        print_warning("Session #{sess_id} (#{session.type}) does not support `sessions -u` yet, skipping.")
+                        next
                       else
                         'post/multi/manage/shell_to_meterpreter'
                       end
