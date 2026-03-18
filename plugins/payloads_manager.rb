@@ -3,6 +3,8 @@ require 'fileutils'
 require 'digest'
 require 'net/http'
 require 'uri'
+require 'time'
+require 'securerandom'
 
 module Msf
   class Plugin::PayloadsManager < Msf::Plugin
@@ -90,7 +92,11 @@ module Msf
         difference_in_seconds = lambda do |time_str|
           now = Time.now
           return 'Never' if time_str.nil?
-          time = Time.parse(time_str)
+          begin
+            time = Time.parse(time_str)
+          rescue ArgumentError, TypeError
+            return 'Invalid timestamp'
+          end
           diff = now - time
           if diff < 60
             "#{diff.to_i} seconds ago"
@@ -127,25 +133,10 @@ module Msf
           return
         end
 
-        # Parse optional flags
-        description = nil
-        tags = []
-        positional = []
-
-        i = 0
-        while i < args.length
-          case args[i]
-          when '--description', '-d'
-            i += 1
-            description = args[i]
-          when '--tags', '-t'
-            i += 1
-            tags = args[i].to_s.split(',').map(&:strip).reject(&:empty?) if args[i]
-          else
-            positional << args[i]
-          end
-          i += 1
-        end
+        parsed = parse_subcommand_args(args)
+        positional = parsed[:positional]
+        description = parsed[:description]
+        tags = parsed[:tags]
 
         if positional.empty?
           print_error("Usage: payloads_manager add <path_to_payload> [name] [--description <desc>] [--tags <t1,t2,...>]")
@@ -188,25 +179,10 @@ module Msf
           return
         end
 
-        # Parse optional flags
-        description = nil
-        tags = []
-        positional = []
-
-        i = 0
-        while i < args.length
-          case args[i]
-          when '--description', '-d'
-            i += 1
-            description = args[i]
-          when '--tags', '-t'
-            i += 1
-            tags = args[i].to_s.split(',').map(&:strip).reject(&:empty?) if args[i]
-          else
-            positional << args[i]
-          end
-          i += 1
-        end
+        parsed = parse_subcommand_args(args)
+        positional = parsed[:positional]
+        description = parsed[:description]
+        tags = parsed[:tags]
 
         if positional.empty?
           print_error("Usage: payloads_manager fetch <url> [name] [--description <desc>] [--tags <t1,t2,...>]")
@@ -259,6 +235,33 @@ module Msf
         print_status("  SHA256: #{sha256}")
         print_status("  Description: #{description}") if description && !description.empty?
         print_status("  Tags: #{tags.join(', ')}") unless tags.empty?
+      end
+
+      def parse_subcommand_args(args)
+        description = nil
+        tags = []
+        positional = []
+
+        i = 0
+        while i < args.length
+          case args[i]
+          when '--description', '-d'
+            i += 1
+            description = args[i]
+          when '--tags', '-t'
+            i += 1
+            tags = args[i].to_s.split(',').map(&:strip).reject(&:empty?) if args[i]
+          else
+            positional << args[i]
+          end
+          i += 1
+        end
+
+        {
+          positional: positional,
+          description: description,
+          tags: tags
+        }
       end
 
       def handle_select(*args)
@@ -399,9 +402,11 @@ module Msf
         File.write(DATABASE_FILE, JSON.pretty_generate(@database))
       end
 
-      def generate_id(name)
-        name = "#{name.gsub(/[^a-zA-Z0-9]/, '_')}_#{Time.now.to_i}"
-        Digest::SHA256.hexdigest(name)[0..7]
+      def generate_id(_name)
+        loop do
+          id = SecureRandom.hex(8)
+          return id unless @database.key?(id)
+        end
       end
 
       def fetch_with_redirects(uri, limit = 5)
@@ -427,18 +432,34 @@ module Msf
       end
 
       def derive_filename(uri, response)
+        filename = nil
+
         # Try Content-Disposition header first
         if (cd = response['content-disposition'])
           match = cd.match(/filename="?([^";]+)"?/i)
-          return match[1].strip if match
+          filename = match[1].strip if match
         end
 
-        # Fall back to the last segment of the URL path
-        path_basename = File.basename(uri.path)
-        return path_basename unless path_basename.empty? || path_basename == '/'
+        if filename.nil? || filename.empty?
+          # Fall back to the last segment of the URL path
+          path_basename = File.basename(uri.path)
+          filename = path_basename unless path_basename.empty? || path_basename == '/'
+        end
 
-        # Last resort
-        'fetched_payload'
+        filename = 'fetched_payload' if filename.nil? || filename.empty?
+
+        sanitize_filename(filename)
+      end
+
+      def sanitize_filename(filename)
+        # Normalize separators first, then keep only a safe basename.
+        sanitized = File.basename(filename.to_s.tr('\\', '/'))
+        sanitized = sanitized.gsub(/[\x00-\x1f]/, '')
+        sanitized = sanitized.gsub(/[^0-9A-Za-z._-]/, '_')
+
+        return 'fetched_payload' if sanitized.empty? || sanitized == '.' || sanitized == '..'
+
+        sanitized
       end
     end
   end
