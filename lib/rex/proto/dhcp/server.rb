@@ -117,8 +117,8 @@ class Server
     )
 
     # Dynamically bind to interface if provided
-    if interface && !interface.empty?
-      self.sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_BINDTODEVICE, "#{interface}\0")
+    if self.interface && !self.interface.empty?
+      self.sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_BINDTODEVICE, "#{self.interface}\0")
     end
 
     self.thread = Rex::ThreadFactory.spawn("DHCPServerMonitor", false) {
