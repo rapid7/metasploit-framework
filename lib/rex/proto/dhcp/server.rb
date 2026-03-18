@@ -75,7 +75,11 @@ class Server
     self.served = {}
     self.serveOnce = hash.include?('SERVEONCE')
 
-    self.servePXE = (hash.include?('PXE') or hash.include?('FILENAME') or hash.include?('PXEONLY'))
+    self.servePXE = (
+      (hash.include?('PXE')) or
+      (hash['FILENAME'] && !hash['FILENAME'].to_s.empty?) or
+      (hash['PXEONLY'] == true)
+    )
     self.serveOnlyPXE = hash.include?('PXEONLY')
 
     # Always assume we don't give out hostnames ...
