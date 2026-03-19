@@ -5,6 +5,7 @@
 
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/kerberos'
+require 'ostruct'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Kerberos::AuthBrute
@@ -42,4 +43,22 @@ class MetasploitModule < Msf::Auxiliary
   def run
     attempt_kerberos_logins
   end
+  
+  def on_login_success(result)
+    super
+  
+    return unless datastore['VERBOSE']
+    return unless result.respond_to?(:proof) && result.proof
+  
+    # Converted result into trace-compatible structure
+    response = OpenStruct.new(
+      as_rep: result.proof,
+      decrypted_part: nil
+    )
+  
+    # Used trace system (important)
+    if defined?(Msf::Trace::KerberosTicketTrace)
+      Msf::Trace::KerberosTicketTrace.print_metadata(response, self)
+    end
+end
 end

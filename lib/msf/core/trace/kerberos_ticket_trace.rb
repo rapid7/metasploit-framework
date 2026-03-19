@@ -1,33 +1,43 @@
+# -*- coding: binary -*-
+
 module Msf
-module Trace
+  module Trace
+    class KerberosTicketTrace
 
-class KerberosTicketTrace
+      SEPARATOR = '[KerberosTrace] ' + ('-' * 41)
 
-  def self.print(response, framework_module, level: :metadata)
+      def self.print_metadata(response, mod)
+        return unless response&.as_rep
 
-    return unless response
+        as_rep = response.as_rep
 
-    as_rep = response.as_rep
+        realm = as_rep.crealm
+        cname = as_rep.cname&.name_string&.join('/')
+        etype = as_rep.enc_part&.etype || 'unknown'
 
-    framework_module.print_status("[KerberosTrace] ------------------")
+        mod.print_line(SEPARATOR)
+        mod.print_line(" Principal : #{realm} / #{cname}")
+        mod.print_line(" Enc Type : #{etype}")
+      end
 
-    if as_rep
-      framework_module.print_status("Msg Type : #{as_rep.msg_type}") if as_rep.respond_to?(:msg_type)
-      framework_module.print_status("Enc Type : #{as_rep.enc_part.etype}") if as_rep.respond_to?(:enc_part)
+      def self.print_full(response, mod)
+        print_metadata(response, mod)
+
+        dec = response.decrypted_part
+        return unless dec
+
+        mod.print_line(" Start : #{dec.starttime}")
+        mod.print_line(" End : #{dec.endtime}")
+
+        flags = if dec.flags.respond_to?(:join)
+                  dec.flags.join(', ')
+                else
+                  dec.flags.to_s
+                end
+
+        mod.print_line(" Flags : #{flags}")
+      end
+
     end
-
-    if level == :full && response.decrypted_part
-      dec = response.decrypted_part
-
-      framework_module.print_status("Client   : #{dec.cname}") if dec.respond_to?(:cname)
-      framework_module.print_status("Realm    : #{dec.crealm}") if dec.respond_to?(:crealm)
-      framework_module.print_status("Start    : #{dec.starttime}") if dec.respond_to?(:starttime)
-      framework_module.print_status("End      : #{dec.endtime}") if dec.respond_to?(:endtime)
-    end
-
   end
-
-end
-
-end
 end

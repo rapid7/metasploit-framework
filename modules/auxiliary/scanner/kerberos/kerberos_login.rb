@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'ostruct'
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Kerberos::AuthBrute
 
@@ -13,15 +15,10 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'Kerberos Authentication Check Scanner',
         'Description' => %q{
           This module will test Kerberos logins on a range of machines and
-          report successful logins.  If you have loaded a database plugin
-          and connected to a database this module will record successful
-          logins and hosts so you can track your access.
+          report successful logins.
 
           Kerberos accounts which do not require pre-authentication will
-          have the TGT logged for offline cracking, this technique is known as AS-REP Roasting.
-
-          It is also able to identify whether user accounts are enabled or
-          disabled/locked out.
+          have the TGT logged for offline cracking (AS-REP Roasting).
         },
         'Author' => [
           'alanfoster',
@@ -44,5 +41,22 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     attempt_kerberos_logins
+  end
+
+  # TRACE INTEGRATION
+  def on_login_success(result)
+    super
+
+    return unless datastore['VERBOSE']
+    return unless result.respond_to?(:proof) && result.proof
+
+    response = OpenStruct.new(
+      as_rep: result.proof,
+      decrypted_part: nil
+    )
+
+    if defined?(Msf::Trace::KerberosTicketTrace)
+      Msf::Trace::KerberosTicketTrace.print_metadata(response, self)
+    end
   end
 end
