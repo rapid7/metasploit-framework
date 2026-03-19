@@ -35,9 +35,7 @@ module Payload::Linux::X64::MigrateTcp
     
     entry_offset = elf_ep(opts[:payload])
     %^
-      push r9
-      push r11
-      xchg r10, rdi
+      pop rdi
       xor rsi, rsi
       push 0x1b2
       pop rax

