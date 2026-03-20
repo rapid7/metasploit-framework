@@ -3,7 +3,7 @@ require 'rex/proto/mssql/client_mixin'
 require 'rex/text'
 require 'msf/core/exploit'
 require 'msf/core/exploit/remote'
-require 'msf/core/exploit/remote/kerberos/clock_skew'
+require 'msf/core/opt_timedelta'
 
 module Rex
   module Proto
@@ -389,7 +389,7 @@ module Rex
             framework: framework,
             framework_module: framework_module,
             ticket_storage: Msf::Exploit::Remote::Kerberos::Ticket::Storage::WriteOnly.new(framework: framework, framework_module: framework_module),
-            clock_skew: Msf::Exploit::Remote::Kerberos::ClockSkew.parse(framework_module.datastore['KrbClockSkew'])
+            clock_skew: framework_module.datastore['KrbClockSkew']
           )
 
           kerberos_result = kerberos_authenticator.authenticate

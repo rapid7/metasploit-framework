@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptAddress.new('SRVHOST', [ true, "The local host to listen on.", '0.0.0.0' ]),
+        OptAddressLocal.new('SRVHOST', [ true, "The local host to listen on.", '0.0.0.0' ]),
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 53 ]),
         OptAddress.new('TARGETHOST', [ false, "The address that all names should resolve to", nil ]),
         OptString.new('TARGETDOMAIN', [ true, "The list of target domain names we want to fully resolve (BYPASS) or fake resolve (FAKE). Use '*' for wildcard.", 'www.google.com']),
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("DNS server initializing")
     @sock = ::UDPSocket.new()
     @sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
-    @sock.bind(srvhost, @port)
+    @sock.bind(datastore['SRVHOST'], @port)
     @run = true
     @domain_target_list = datastore['TARGETDOMAIN'].split
     @bypass = (datastore['TARGETACTION'].upcase == "BYPASS")

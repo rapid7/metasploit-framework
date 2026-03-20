@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    @myhost = srvhost
+    @myhost = datastore['SRVHOST']
     @myport = datastore['SRVPORT']
     @realm = datastore['REALM']
 

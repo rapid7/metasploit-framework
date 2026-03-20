@@ -1,6 +1,8 @@
 # -*- coding: binary -*-
 
 module Msf::Payload::Python
+  # Mark the payload as dynamic, as the zlib compression with a single char change can lead to size changes even if the original payload is the same length
+  ForceDynamicCachedSize = true
 
   #
   # Encode the given python command in base64 and wrap it with a stub

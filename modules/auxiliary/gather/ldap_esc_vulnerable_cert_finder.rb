@@ -1094,7 +1094,7 @@ class MetasploitModule < Msf::Auxiliary
     user_info = adds_get_current_user(@ldap)
     return unless user_info
 
-    user = [:sAMAccountName].first.to_s
+    user = user_info[:sAMAccountName].first.to_s
     domain = domain_info[:dns_name]
     print_status("user: #{user}, domain: #{domain}")
 

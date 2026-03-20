@@ -55,6 +55,8 @@ class MetasploitModule < Msf::Auxiliary
     @state = {}
 
     begin
+      @srvhost = datastore['SRVHOST']
+      @srvport = datastore['SRVPORT'] || 9100
       @mode = datastore['MODE'].upcase || 'RAW'
       if datastore['FORWARD']
         @forward = datastore['FORWARD']
@@ -69,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
         fail_with(Failure::BadConfig, 'Cannot intercept LPR/IPP without a forwarding target')
       end
       @metadata = datastore['METADATA']
-      print_status("Starting Print Server on #{Rex::Socket.to_authority(bindhost, bindport)} - #{@mode} mode")
+      print_status("Starting Print Server on #{@srvhost}:#{@srvport} - #{@mode} mode")
 
       exploit
     rescue StandardError => e

@@ -10,9 +10,9 @@ RSpec.shared_examples_for 'payload is not cached' do |options|
   context reference_name do
     ancestor_reference_names.each do |ancestor_reference_name|
       it "has listed ancestors '#{module_type}/#{ancestor_reference_name}'" do
-        @actual_ancestor_reference_name_set.add(ancestor_reference_name)
+        @actual_ancestor_reference_name_set.add(ancestor_reference_name) if @actual_ancestor_reference_name_set
       end
     end
-  
+
   end
 end

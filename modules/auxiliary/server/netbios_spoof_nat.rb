@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptAddress.new('SRVHOST', [ true, "The local host to listen on.", '0.0.0.0' ]),
+        OptAddressLocal.new('SRVHOST', [ true, "The local host to listen on.", '0.0.0.0' ]),
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 137 ]),
         OptString.new('NBNAME', [ true, "The NetBIOS name to spoof a reply for", 'WPAD' ]),
         OptAddress.new('NBADDR', [ true, "The address that the NetBIOS name should resolve to", Rex::Socket.source_address("50.50.50.50") ]),
@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
 
     @sock = ::UDPSocket.new()
     @sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
-    @sock.bind(srvhost, @port)
+    @sock.bind(datastore['SRVHOST'], @port)
 
     @targ_rate = datastore['PPSRATE']
     @fake_name = datastore['NBNAME']

@@ -32,7 +32,7 @@ module MetasploitModule
     # please do not copy me into new code, instead use the #php_exec_cmd method after including Msf::Payload::Php or
     # use the PHP adapter payload by selecting any php/unix/cmd/* payload
     vars = Rex::RandomIdentifier::Generator.new(language: :php)
-    shell <<-END_OF_PHP_CODE
+    shell = <<-END_OF_PHP_CODE
       #{php_preamble(vars_generator: vars)}
       #{php_system_block(vars_generator: vars, cmd: datastore['CMD'])}
     END_OF_PHP_CODE

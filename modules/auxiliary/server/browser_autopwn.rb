@@ -365,7 +365,7 @@ class MetasploitModule < Msf::Auxiliary
     @payloads[lport] = payload
 
     print_status("Starting exploit #{name} with payload #{payload}")
-    @exploits[name].datastore['SRVHOST'] = srvhost
+    @exploits[name].datastore['SRVHOST'] = datastore['SRVHOST']
     @exploits[name].datastore['SRVPORT'] = datastore['SRVPORT']
 
     # For testing, set the exploit uri to the name of the exploit so it's

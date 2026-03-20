@@ -159,7 +159,12 @@ class Payload < Msf::Module
   # This method returns an optional cached size value
   #
   def self.cached_size
-    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize = const_defined?('CachedSize') ? const_get('CachedSize') : nil
+    if ancestors.include?(Msf::Payload::Stager)
+      csize_overrides = const_defined?('CachedSizeOverrides') ? const_get('CachedSizeOverrides') : {}
+      csize = csize_overrides.fetch(self.refname, csize)
+    end
+
     csize == :dynamic ? nil : csize
   end
 
@@ -167,7 +172,12 @@ class Payload < Msf::Module
   # This method returns whether the payload generates variable-sized output
   #
   def self.dynamic_size?
-    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize = const_defined?('CachedSize') ? const_get('CachedSize') : nil
+    if ancestors.include?(Msf::Payload::Stager)
+      csize_overrides = const_defined?('CachedSizeOverrides') ? const_get('CachedSizeOverrides') : {}
+      csize = csize_overrides.fetch(self.refname, csize)
+    end
+
     csize == :dynamic
   end
 
@@ -525,45 +535,6 @@ class Payload < Msf::Module
     end
 
     nil
-  end
-
-  def self.choose_encoder(mod)
-    payload_name = mod.datastore['PAYLOAD']
-    payload = mod.framework.payloads.create(payload_name)
-    return nil unless payload
-    compatible_encoders = payload.compatible_encoders.map(&:first)
-    configure_encoder = lambda do |encoder|
-      if payload.datastore.is_a?(Msf::DataStore)
-        payload_defaults = { 'ENCODER' => encoder }
-         mod.datastore.import_defaults_from_hash(payload_defaults, imported_by: 'choose_encoder')
-      else
-        mod.datastore['ENCODER'] = encoder
-      end
-
-      encoder
-    end
-
-    # If there is only one compatible encoder, return it immediately
-    if compatible_encoders.length == 1
-      return configure_encoder.call(compatible_encoders.first)
-    end
-
-    # Prefer encoders that are known to be reliable
-    preferred_encoders = [
-      'x86/shikata_ga_nai',
-      'x64/zutto_dekiru',
-      'cmd/base64',
-    ]
-
-    preferred_encoders.each do |type|
-      encoder = compatible_encoders.find { |name| name.end_with?(type) }
-
-      next unless encoder
-
-      return configure_encoder.call(encoder)
-    end
-
-    return compatible_encoders&.first
   end
 
   #

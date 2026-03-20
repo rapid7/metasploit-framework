@@ -2190,25 +2190,6 @@ class Core
       end
     end
 
-    # Set ENCODER
-    if name.upcase == 'ENCODER' && active_module && active_module.exploit? && !clear
-      value = trim_path(value, 'encoder')
-
-      payload = active_module.framework.payloads.create(datastore['PAYLOAD'])
-      
-      unless payload
-        print_error("Please set a valid PAYLOAD before setting the ENCODER.")
-        return false
-      end
-
-      index_from_list(payload.compatible_encoders, value) do |mod|
-        return false unless mod && mod.respond_to?(:first)
-        # [name, class] from compatible_encoders
-        value = mod.first
-      end
-    end
-
-
     unless global || valid_options.any? { |vo| vo.casecmp?(name) }
       message = "Unknown datastore option: #{name}."
       suggestion = DidYouMean::SpellChecker.new(dictionary: valid_options).correct(name).first

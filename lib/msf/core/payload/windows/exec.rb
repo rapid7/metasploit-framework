@@ -65,7 +65,7 @@ module Payload::Windows::Exec
   # Returns the command string to use for execution
   #
   def command_string
-    return datastore['CMD'] || ''
+    return (datastore['CMD'] || '').b
   end
 
 end
