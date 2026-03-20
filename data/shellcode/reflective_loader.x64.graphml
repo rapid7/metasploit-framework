@@ -1,0 +1,3706 @@
+<?xml version="1.0" ?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://graphml.graphdrawing.org/xmlns" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="address" for="all" attr.name="address" attr.type="long"/>
+  <key id="type" for="all" attr.name="type" attr.type="string"/>
+  <key id="instruction.source" for="node" attr.name="instruction.source" attr.type="string"/>
+  <key id="instruction.hex" for="node" attr.name="instruction.hex" attr.type="string"/>
+  <key id="data.hex" for="node" attr.name="data.hex" attr.type="string"/>
+  <graph edgedefault="directed">
+    <node id="block.0x1000">
+      <data key="address">0x1000</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1000</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1000:instruction.0x1000">
+          <data key="address">0x1000</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">55</data>
+          <data key="instruction.source">push rbp</data>
+        </node>
+        <node id="block.0x1000:instruction.0x1001">
+          <data key="address">0x1001</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4889e5</data>
+          <data key="instruction.source">mov rbp, rsp</data>
+        </node>
+        <node id="block.0x1000:instruction.0x1004">
+          <data key="address">0x1004</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4881eca0000000</data>
+          <data key="instruction.source">sub rsp, 0xa0</data>
+        </node>
+        <node id="block.0x1000:instruction.0x100b">
+          <data key="address">0x100b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883e4f0</data>
+          <data key="instruction.source">and rsp, 0xfffffffffffffff0</data>
+        </node>
+        <node id="block.0x1000:instruction.0x100f">
+          <data key="address">0x100f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">53</data>
+          <data key="instruction.source">push rbx</data>
+        </node>
+        <node id="block.0x1000:instruction.0x1010">
+          <data key="address">0x1010</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">56</data>
+          <data key="instruction.source">push rsi</data>
+        </node>
+        <node id="block.0x1000:instruction.0x1011">
+          <data key="address">0x1011</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">57</data>
+          <data key="instruction.source">push rdi</data>
+        </node>
+        <node id="block.0x1000:instruction.0x1012">
+          <data key="address">0x1012</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4154</data>
+          <data key="instruction.source">push r12</data>
+        </node>
+        <node id="block.0x1000:instruction.0x1014">
+          <data key="address">0x1014</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4155</data>
+          <data key="instruction.source">push r13</data>
+        </node>
+        <node id="block.0x1000:instruction.0x1016">
+          <data key="address">0x1016</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4156</data>
+          <data key="instruction.source">push r14</data>
+        </node>
+        <node id="block.0x1000:instruction.0x1018">
+          <data key="address">0x1018</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4157</data>
+          <data key="instruction.source">push r15</data>
+        </node>
+        <node id="block.0x1000:instruction.0x101a">
+          <data key="address">0x101a</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4831c0</data>
+          <data key="instruction.source">xor rax, rax</data>
+        </node>
+        <node id="block.0x1000:instruction.0x101d">
+          <data key="address">0x101d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488945f8</data>
+          <data key="instruction.source">mov qword ptr [rbp - 8], rax</data>
+        </node>
+        <node id="block.0x1000:instruction.0x1021">
+          <data key="address">0x1021</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488945f0</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x10], rax</data>
+        </node>
+        <node id="block.0x1000:instruction.0x1025">
+          <data key="address">0x1025</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488945e8</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x18], rax</data>
+        </node>
+        <node id="block.0x1000:instruction.0x1029">
+          <data key="address">0x1029</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488945e0</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x20], rax</data>
+        </node>
+        <node id="block.0x1000:instruction.0x102d">
+          <data key="address">0x102d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48898568ffffff</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x98], rax</data>
+        </node>
+        <node id="block.0x1000:instruction.0x1034">
+          <data key="address">0x1034</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4831c9</data>
+          <data key="instruction.source">xor rcx, rcx</data>
+        </node>
+        <node id="block.0x1000:instruction.0x1037">
+          <data key="address">0x1037</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c9</data>
+          <data key="instruction.source">test rcx, rcx</data>
+        </node>
+        <node id="block.0x1000:instruction.0x103a">
+          <data key="address">0x103a</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">753b</data>
+          <data key="instruction.source">jne 0x1077</data>
+        </node>
+        <edge source="block.0x1000:instruction.0x1000" target="block.0x1000:instruction.0x1001"/>
+        <edge source="block.0x1000:instruction.0x1000" target="block.0x1000:instruction.0x1004"/>
+        <edge source="block.0x1000:instruction.0x1001" target="block.0x1000:instruction.0x1004"/>
+        <edge source="block.0x1000:instruction.0x1001" target="block.0x1000:instruction.0x101d"/>
+        <edge source="block.0x1000:instruction.0x1001" target="block.0x1000:instruction.0x1021"/>
+        <edge source="block.0x1000:instruction.0x1001" target="block.0x1000:instruction.0x1025"/>
+        <edge source="block.0x1000:instruction.0x1001" target="block.0x1000:instruction.0x1029"/>
+        <edge source="block.0x1000:instruction.0x1001" target="block.0x1000:instruction.0x102d"/>
+        <edge source="block.0x1000:instruction.0x1004" target="block.0x1000:instruction.0x100b"/>
+        <edge source="block.0x1000:instruction.0x100b" target="block.0x1000:instruction.0x100f"/>
+        <edge source="block.0x1000:instruction.0x100b" target="block.0x1000:instruction.0x101a"/>
+        <edge source="block.0x1000:instruction.0x100f" target="block.0x1000:instruction.0x1010"/>
+        <edge source="block.0x1000:instruction.0x1010" target="block.0x1000:instruction.0x1011"/>
+        <edge source="block.0x1000:instruction.0x1011" target="block.0x1000:instruction.0x1012"/>
+        <edge source="block.0x1000:instruction.0x1012" target="block.0x1000:instruction.0x1014"/>
+        <edge source="block.0x1000:instruction.0x1014" target="block.0x1000:instruction.0x1016"/>
+        <edge source="block.0x1000:instruction.0x1016" target="block.0x1000:instruction.0x1018"/>
+        <edge source="block.0x1000:instruction.0x1018" target="block.0x1000:instruction.0x103a"/>
+        <edge source="block.0x1000:instruction.0x101a" target="block.0x1000:instruction.0x101d"/>
+        <edge source="block.0x1000:instruction.0x101a" target="block.0x1000:instruction.0x1021"/>
+        <edge source="block.0x1000:instruction.0x101a" target="block.0x1000:instruction.0x1025"/>
+        <edge source="block.0x1000:instruction.0x101a" target="block.0x1000:instruction.0x1029"/>
+        <edge source="block.0x1000:instruction.0x101a" target="block.0x1000:instruction.0x102d"/>
+        <edge source="block.0x1000:instruction.0x101a" target="block.0x1000:instruction.0x1034"/>
+        <edge source="block.0x1000:instruction.0x101d" target="block.0x1000:instruction.0x103a"/>
+        <edge source="block.0x1000:instruction.0x1021" target="block.0x1000:instruction.0x103a"/>
+        <edge source="block.0x1000:instruction.0x1025" target="block.0x1000:instruction.0x103a"/>
+        <edge source="block.0x1000:instruction.0x1029" target="block.0x1000:instruction.0x103a"/>
+        <edge source="block.0x1000:instruction.0x102d" target="block.0x1000:instruction.0x103a"/>
+        <edge source="block.0x1000:instruction.0x1034" target="block.0x1000:instruction.0x1037"/>
+        <edge source="block.0x1000:instruction.0x1037" target="block.0x1000:instruction.0x103a"/>
+      </graph>
+    </node>
+    <node id="block.0x103c">
+      <data key="address">0x103c</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x103c</data>
+        <data key="type">instructions</data>
+        <node id="block.0x103c:instruction.0x103c">
+          <data key="address">0x103c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">e800000000</data>
+          <data key="instruction.source">call 0x1041</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x1041">
+      <data key="address">0x1041</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1041</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1041:instruction.0x1041">
+          <data key="address">0x1041</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">59</data>
+          <data key="instruction.source">pop rcx</data>
+        </node>
+        <node id="block.0x1041:instruction.0x1042">
+          <data key="address">0x1042</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4881e100f0ffff</data>
+          <data key="instruction.source">and rcx, 0xfffffffffffff000</data>
+        </node>
+        <edge source="block.0x1041:instruction.0x1041" target="block.0x1041:instruction.0x1042"/>
+      </graph>
+    </node>
+    <node id="block.0x1049">
+      <data key="address">0x1049</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1049</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1049:instruction.0x1049">
+          <data key="address">0x1049</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">668b01</data>
+          <data key="instruction.source">mov ax, word ptr [rcx]</data>
+        </node>
+        <node id="block.0x1049:instruction.0x104c">
+          <data key="address">0x104c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">663d4d5a</data>
+          <data key="instruction.source">cmp ax, 0x5a4d</data>
+        </node>
+        <node id="block.0x1049:instruction.0x1050">
+          <data key="address">0x1050</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">751c</data>
+          <data key="instruction.source">jne 0x106e</data>
+        </node>
+        <edge source="block.0x1049:instruction.0x1049" target="block.0x1049:instruction.0x104c"/>
+        <edge source="block.0x1049:instruction.0x104c" target="block.0x1049:instruction.0x1050"/>
+      </graph>
+    </node>
+    <node id="block.0x1052">
+      <data key="address">0x1052</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1052</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1052:instruction.0x1052">
+          <data key="address">0x1052</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b413c</data>
+          <data key="instruction.source">mov eax, dword ptr [rcx + 0x3c]</data>
+        </node>
+        <node id="block.0x1052:instruction.0x1055">
+          <data key="address">0x1055</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">83f840</data>
+          <data key="instruction.source">cmp eax, 0x40</data>
+        </node>
+        <node id="block.0x1052:instruction.0x1058">
+          <data key="address">0x1058</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7214</data>
+          <data key="instruction.source">jb 0x106e</data>
+        </node>
+        <edge source="block.0x1052:instruction.0x1052" target="block.0x1052:instruction.0x1055"/>
+        <edge source="block.0x1052:instruction.0x1055" target="block.0x1052:instruction.0x1058"/>
+      </graph>
+    </node>
+    <node id="block.0x105a">
+      <data key="address">0x105a</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x105a</data>
+        <data key="type">instructions</data>
+        <node id="block.0x105a:instruction.0x105a">
+          <data key="address">0x105a</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">3d00040000</data>
+          <data key="instruction.source">cmp eax, 0x400</data>
+        </node>
+        <node id="block.0x105a:instruction.0x105f">
+          <data key="address">0x105f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">730d</data>
+          <data key="instruction.source">jae 0x106e</data>
+        </node>
+        <edge source="block.0x105a:instruction.0x105a" target="block.0x105a:instruction.0x105f"/>
+      </graph>
+    </node>
+    <node id="block.0x1061">
+      <data key="address">0x1061</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1061</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1061:instruction.0x1061">
+          <data key="address">0x1061</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488d1401</data>
+          <data key="instruction.source">lea rdx, [rcx + rax]</data>
+        </node>
+        <node id="block.0x1061:instruction.0x1065">
+          <data key="address">0x1065</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b02</data>
+          <data key="instruction.source">mov eax, dword ptr [rdx]</data>
+        </node>
+        <node id="block.0x1061:instruction.0x1067">
+          <data key="address">0x1067</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">3d50450000</data>
+          <data key="instruction.source">cmp eax, 0x4550</data>
+        </node>
+        <node id="block.0x1061:instruction.0x106c">
+          <data key="address">0x106c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7409</data>
+          <data key="instruction.source">je 0x1077</data>
+        </node>
+        <edge source="block.0x1061:instruction.0x1061" target="block.0x1061:instruction.0x1065"/>
+        <edge source="block.0x1061:instruction.0x1065" target="block.0x1061:instruction.0x1067"/>
+        <edge source="block.0x1061:instruction.0x1067" target="block.0x1061:instruction.0x106c"/>
+      </graph>
+    </node>
+    <node id="block.0x106e">
+      <data key="address">0x106e</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x106e</data>
+        <data key="type">instructions</data>
+        <node id="block.0x106e:instruction.0x106e">
+          <data key="address">0x106e</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4881e900100000</data>
+          <data key="instruction.source">sub rcx, 0x1000</data>
+        </node>
+        <node id="block.0x106e:instruction.0x1075">
+          <data key="address">0x1075</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">ebd2</data>
+          <data key="instruction.source">jmp 0x1049</data>
+        </node>
+        <edge source="block.0x106e:instruction.0x106e" target="block.0x106e:instruction.0x1075"/>
+      </graph>
+    </node>
+    <node id="block.0x1077">
+      <data key="address">0x1077</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1077</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1077:instruction.0x1077">
+          <data key="address">0x1077</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48894dd8</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x28], rcx</data>
+        </node>
+        <node id="block.0x1077:instruction.0x107b">
+          <data key="address">0x107b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">65488b042560000000</data>
+          <data key="instruction.source">mov rax, qword ptr gs:[0x60]</data>
+        </node>
+        <node id="block.0x1077:instruction.0x1084">
+          <data key="address">0x1084</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b4018</data>
+          <data key="instruction.source">mov rax, qword ptr [rax + 0x18]</data>
+        </node>
+        <node id="block.0x1077:instruction.0x1088">
+          <data key="address">0x1088</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b4020</data>
+          <data key="instruction.source">mov rax, qword ptr [rax + 0x20]</data>
+        </node>
+        <edge source="block.0x1077:instruction.0x107b" target="block.0x1077:instruction.0x1084"/>
+        <edge source="block.0x1077:instruction.0x1084" target="block.0x1077:instruction.0x1088"/>
+      </graph>
+    </node>
+    <node id="block.0x108c">
+      <data key="address">0x108c</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x108c</data>
+        <data key="type">instructions</data>
+        <node id="block.0x108c:instruction.0x108c">
+          <data key="address">0x108c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c0</data>
+          <data key="instruction.source">test rax, rax</data>
+        </node>
+        <node id="block.0x108c:instruction.0x108f">
+          <data key="address">0x108f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">0f8407020000</data>
+          <data key="instruction.source">je 0x129c</data>
+        </node>
+        <edge source="block.0x108c:instruction.0x108c" target="block.0x108c:instruction.0x108f"/>
+      </graph>
+    </node>
+    <node id="block.0x1095">
+      <data key="address">0x1095</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1095</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1095:instruction.0x1095">
+          <data key="address">0x1095</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488945a0</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x60], rax</data>
+        </node>
+        <node id="block.0x1095:instruction.0x1099">
+          <data key="address">0x1099</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">480fb74848</data>
+          <data key="instruction.source">movzx rcx, word ptr [rax + 0x48]</data>
+        </node>
+        <node id="block.0x1095:instruction.0x109e">
+          <data key="address">0x109e</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c9</data>
+          <data key="instruction.source">test rcx, rcx</data>
+        </node>
+        <node id="block.0x1095:instruction.0x10a1">
+          <data key="address">0x10a1</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">0f84e9010000</data>
+          <data key="instruction.source">je 0x1290</data>
+        </node>
+        <edge source="block.0x1095:instruction.0x1095" target="block.0x1095:instruction.0x10a1"/>
+        <edge source="block.0x1095:instruction.0x1099" target="block.0x1095:instruction.0x109e"/>
+        <edge source="block.0x1095:instruction.0x109e" target="block.0x1095:instruction.0x10a1"/>
+      </graph>
+    </node>
+    <node id="block.0x10a7">
+      <data key="address">0x10a7</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x10a7</data>
+        <data key="type">instructions</data>
+        <node id="block.0x10a7:instruction.0x10a7">
+          <data key="address">0x10a7</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b5050</data>
+          <data key="instruction.source">mov rdx, qword ptr [rax + 0x50]</data>
+        </node>
+        <node id="block.0x10a7:instruction.0x10ab">
+          <data key="address">0x10ab</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4531e4</data>
+          <data key="instruction.source">xor r12d, r12d</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x10ae">
+      <data key="address">0x10ae</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x10ae</data>
+        <data key="type">instructions</data>
+        <node id="block.0x10ae:instruction.0x10ae">
+          <data key="address">0x10ae</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">41c1cc0d</data>
+          <data key="instruction.source">ror r12d, 0xd</data>
+        </node>
+        <node id="block.0x10ae:instruction.0x10b2">
+          <data key="address">0x10b2</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">0fb61a</data>
+          <data key="instruction.source">movzx ebx, byte ptr [rdx]</data>
+        </node>
+        <node id="block.0x10ae:instruction.0x10b5">
+          <data key="address">0x10b5</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">80fb61</data>
+          <data key="instruction.source">cmp bl, 0x61</data>
+        </node>
+        <node id="block.0x10ae:instruction.0x10b8">
+          <data key="address">0x10b8</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7203</data>
+          <data key="instruction.source">jb 0x10bd</data>
+        </node>
+        <edge source="block.0x10ae:instruction.0x10ae" target="block.0x10ae:instruction.0x10b5"/>
+        <edge source="block.0x10ae:instruction.0x10ae" target="block.0x10ae:instruction.0x10b8"/>
+        <edge source="block.0x10ae:instruction.0x10b2" target="block.0x10ae:instruction.0x10b5"/>
+        <edge source="block.0x10ae:instruction.0x10b5" target="block.0x10ae:instruction.0x10b8"/>
+      </graph>
+    </node>
+    <node id="block.0x10ba">
+      <data key="address">0x10ba</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x10ba</data>
+        <data key="type">instructions</data>
+        <node id="block.0x10ba:instruction.0x10ba">
+          <data key="address">0x10ba</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">80eb20</data>
+          <data key="instruction.source">sub bl, 0x20</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x10bd">
+      <data key="address">0x10bd</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x10bd</data>
+        <data key="type">instructions</data>
+        <node id="block.0x10bd:instruction.0x10bd">
+          <data key="address">0x10bd</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4101dc</data>
+          <data key="instruction.source">add r12d, ebx</data>
+        </node>
+        <node id="block.0x10bd:instruction.0x10c0">
+          <data key="address">0x10c0</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48ffc2</data>
+          <data key="instruction.source">inc rdx</data>
+        </node>
+        <node id="block.0x10bd:instruction.0x10c3">
+          <data key="address">0x10c3</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48ffc9</data>
+          <data key="instruction.source">dec rcx</data>
+        </node>
+        <node id="block.0x10bd:instruction.0x10c6">
+          <data key="address">0x10c6</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">75e6</data>
+          <data key="instruction.source">jne 0x10ae</data>
+        </node>
+        <edge source="block.0x10bd:instruction.0x10bd" target="block.0x10bd:instruction.0x10c0"/>
+        <edge source="block.0x10bd:instruction.0x10c0" target="block.0x10bd:instruction.0x10c3"/>
+        <edge source="block.0x10bd:instruction.0x10c3" target="block.0x10bd:instruction.0x10c6"/>
+      </graph>
+    </node>
+    <node id="block.0x10c8">
+      <data key="address">0x10c8</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x10c8</data>
+        <data key="type">instructions</data>
+        <node id="block.0x10c8:instruction.0x10c8">
+          <data key="address">0x10c8</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4181fc5bbc4a6a</data>
+          <data key="instruction.source">cmp r12d, 0x6a4abc5b</data>
+        </node>
+        <node id="block.0x10c8:instruction.0x10cf">
+          <data key="address">0x10cf</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7412</data>
+          <data key="instruction.source">je 0x10e3</data>
+        </node>
+        <edge source="block.0x10c8:instruction.0x10c8" target="block.0x10c8:instruction.0x10cf"/>
+      </graph>
+    </node>
+    <node id="block.0x10d1">
+      <data key="address">0x10d1</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x10d1</data>
+        <data key="type">instructions</data>
+        <node id="block.0x10d1:instruction.0x10d1">
+          <data key="address">0x10d1</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4181fc5d68fa3c</data>
+          <data key="instruction.source">cmp r12d, 0x3cfa685d</data>
+        </node>
+        <node id="block.0x10d1:instruction.0x10d8">
+          <data key="address">0x10d8</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">0f84ba000000</data>
+          <data key="instruction.source">je 0x1198</data>
+        </node>
+        <edge source="block.0x10d1:instruction.0x10d1" target="block.0x10d1:instruction.0x10d8"/>
+      </graph>
+    </node>
+    <node id="block.0x10de">
+      <data key="address">0x10de</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x10de</data>
+        <data key="type">instructions</data>
+        <node id="block.0x10de:instruction.0x10de">
+          <data key="address">0x10de</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">e9ad010000</data>
+          <data key="instruction.source">jmp 0x1290</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x10e3">
+      <data key="address">0x10e3</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x10e3</data>
+        <data key="type">instructions</data>
+        <node id="block.0x10e3:instruction.0x10e3">
+          <data key="address">0x10e3</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b45a0</data>
+          <data key="instruction.source">mov rax, qword ptr [rbp - 0x60]</data>
+        </node>
+        <node id="block.0x10e3:instruction.0x10e7">
+          <data key="address">0x10e7</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8b6820</data>
+          <data key="instruction.source">mov r13, qword ptr [rax + 0x20]</data>
+        </node>
+        <node id="block.0x10e3:instruction.0x10eb">
+          <data key="address">0x10eb</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c896dd0</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x30], r13</data>
+        </node>
+        <node id="block.0x10e3:instruction.0x10ef">
+          <data key="address">0x10ef</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">e89e040000</data>
+          <data key="instruction.source">call 0x1592</data>
+        </node>
+        <edge source="block.0x10e3:instruction.0x10e3" target="block.0x10e3:instruction.0x10e7"/>
+        <edge source="block.0x10e3:instruction.0x10e7" target="block.0x10e3:instruction.0x10eb"/>
+        <edge source="block.0x10e3:instruction.0x10eb" target="block.0x10e3:instruction.0x10ef"/>
+      </graph>
+    </node>
+    <node id="block.0x10f4">
+      <data key="address">0x10f4</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x10f4</data>
+        <data key="type">instructions</data>
+        <node id="block.0x10f4:instruction.0x10f4">
+          <data key="address">0x10f4</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48c78578ffffff02000000</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x88], 2</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x10ff">
+      <data key="address">0x10ff</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x10ff</data>
+        <data key="type">instructions</data>
+        <node id="block.0x10ff:instruction.0x10ff">
+          <data key="address">0x10ff</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b4590</data>
+          <data key="instruction.source">mov rax, qword ptr [rbp - 0x70]</data>
+        </node>
+        <node id="block.0x10ff:instruction.0x1103">
+          <data key="address">0x1103</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c0</data>
+          <data key="instruction.source">test rax, rax</data>
+        </node>
+        <node id="block.0x10ff:instruction.0x1106">
+          <data key="address">0x1106</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">0f8454010000</data>
+          <data key="instruction.source">je 0x1260</data>
+        </node>
+        <edge source="block.0x10ff:instruction.0x10ff" target="block.0x10ff:instruction.0x1103"/>
+        <edge source="block.0x10ff:instruction.0x1103" target="block.0x10ff:instruction.0x1106"/>
+      </graph>
+    </node>
+    <node id="block.0x110c">
+      <data key="address">0x110c</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x110c</data>
+        <data key="type">instructions</data>
+        <node id="block.0x110c:instruction.0x110c">
+          <data key="address">0x110c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48ffc8</data>
+          <data key="instruction.source">dec rax</data>
+        </node>
+        <node id="block.0x110c:instruction.0x110f">
+          <data key="address">0x110f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48894590</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x70], rax</data>
+        </node>
+        <node id="block.0x110c:instruction.0x1113">
+          <data key="address">0x1113</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b4db8</data>
+          <data key="instruction.source">mov rcx, qword ptr [rbp - 0x48]</data>
+        </node>
+        <node id="block.0x110c:instruction.0x1117">
+          <data key="address">0x1117</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b09</data>
+          <data key="instruction.source">mov ecx, dword ptr [rcx]</data>
+        </node>
+        <node id="block.0x110c:instruction.0x1119">
+          <data key="address">0x1119</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48034dd0</data>
+          <data key="instruction.source">add rcx, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x110c:instruction.0x111d">
+          <data key="address">0x111d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">e8a8040000</data>
+          <data key="instruction.source">call 0x15ca</data>
+        </node>
+        <edge source="block.0x110c:instruction.0x110c" target="block.0x110c:instruction.0x110f"/>
+        <edge source="block.0x110c:instruction.0x110c" target="block.0x110c:instruction.0x1119"/>
+        <edge source="block.0x110c:instruction.0x110f" target="block.0x110c:instruction.0x111d"/>
+        <edge source="block.0x110c:instruction.0x1113" target="block.0x110c:instruction.0x1117"/>
+        <edge source="block.0x110c:instruction.0x1117" target="block.0x110c:instruction.0x1119"/>
+        <edge source="block.0x110c:instruction.0x1119" target="block.0x110c:instruction.0x111d"/>
+      </graph>
+    </node>
+    <node id="block.0x1122">
+      <data key="address">0x1122</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1122</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1122:instruction.0x1122">
+          <data key="address">0x1122</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48898570ffffff</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x90], rax</data>
+        </node>
+        <node id="block.0x1122:instruction.0x1129">
+          <data key="address">0x1129</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">3d8e4e0eec</data>
+          <data key="instruction.source">cmp eax, 0xec0e4e8e</data>
+        </node>
+        <node id="block.0x1122:instruction.0x112e">
+          <data key="address">0x112e</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7409</data>
+          <data key="instruction.source">je 0x1139</data>
+        </node>
+        <edge source="block.0x1122:instruction.0x1122" target="block.0x1122:instruction.0x112e"/>
+        <edge source="block.0x1122:instruction.0x1129" target="block.0x1122:instruction.0x112e"/>
+      </graph>
+    </node>
+    <node id="block.0x1130">
+      <data key="address">0x1130</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1130</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1130:instruction.0x1130">
+          <data key="address">0x1130</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">3daafc0d7c</data>
+          <data key="instruction.source">cmp eax, 0x7c0dfcaa</data>
+        </node>
+        <node id="block.0x1130:instruction.0x1135">
+          <data key="address">0x1135</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7402</data>
+          <data key="instruction.source">je 0x1139</data>
+        </node>
+        <edge source="block.0x1130:instruction.0x1130" target="block.0x1130:instruction.0x1135"/>
+      </graph>
+    </node>
+    <node id="block.0x1137">
+      <data key="address">0x1137</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1137</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1137:instruction.0x1137">
+          <data key="address">0x1137</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">eb50</data>
+          <data key="instruction.source">jmp 0x1189</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x1139">
+      <data key="address">0x1139</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1139</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1139:instruction.0x1139">
+          <data key="address">0x1139</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8b75c0</data>
+          <data key="instruction.source">mov r14, qword ptr [rbp - 0x40]</data>
+        </node>
+        <node id="block.0x1139:instruction.0x113d">
+          <data key="address">0x113d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">458b761c</data>
+          <data key="instruction.source">mov r14d, dword ptr [r14 + 0x1c]</data>
+        </node>
+        <node id="block.0x1139:instruction.0x1141">
+          <data key="address">0x1141</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c0375d0</data>
+          <data key="instruction.source">add r14, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x1139:instruction.0x1145">
+          <data key="address">0x1145</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8b7db0</data>
+          <data key="instruction.source">mov r15, qword ptr [rbp - 0x50]</data>
+        </node>
+        <node id="block.0x1139:instruction.0x1149">
+          <data key="address">0x1149</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">450fb73f</data>
+          <data key="instruction.source">movzx r15d, word ptr [r15]</data>
+        </node>
+        <node id="block.0x1139:instruction.0x114d">
+          <data key="address">0x114d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4f8d34be</data>
+          <data key="instruction.source">lea r14, [r14 + r15*4]</data>
+        </node>
+        <node id="block.0x1139:instruction.0x1151">
+          <data key="address">0x1151</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">458b36</data>
+          <data key="instruction.source">mov r14d, dword ptr [r14]</data>
+        </node>
+        <node id="block.0x1139:instruction.0x1154">
+          <data key="address">0x1154</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c0375d0</data>
+          <data key="instruction.source">add r14, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x1139:instruction.0x1158">
+          <data key="address">0x1158</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b8570ffffff</data>
+          <data key="instruction.source">mov eax, dword ptr [rbp - 0x90]</data>
+        </node>
+        <node id="block.0x1139:instruction.0x115e">
+          <data key="address">0x115e</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">3d8e4e0eec</data>
+          <data key="instruction.source">cmp eax, 0xec0e4e8e</data>
+        </node>
+        <node id="block.0x1139:instruction.0x1163">
+          <data key="address">0x1163</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7506</data>
+          <data key="instruction.source">jne 0x116b</data>
+        </node>
+        <edge source="block.0x1139:instruction.0x1139" target="block.0x1139:instruction.0x113d"/>
+        <edge source="block.0x1139:instruction.0x113d" target="block.0x1139:instruction.0x1141"/>
+        <edge source="block.0x1139:instruction.0x1141" target="block.0x1139:instruction.0x114d"/>
+        <edge source="block.0x1139:instruction.0x1141" target="block.0x1139:instruction.0x1154"/>
+        <edge source="block.0x1139:instruction.0x1145" target="block.0x1139:instruction.0x1149"/>
+        <edge source="block.0x1139:instruction.0x1149" target="block.0x1139:instruction.0x114d"/>
+        <edge source="block.0x1139:instruction.0x114d" target="block.0x1139:instruction.0x1151"/>
+        <edge source="block.0x1139:instruction.0x1151" target="block.0x1139:instruction.0x1154"/>
+        <edge source="block.0x1139:instruction.0x1154" target="block.0x1139:instruction.0x115e"/>
+        <edge source="block.0x1139:instruction.0x1158" target="block.0x1139:instruction.0x115e"/>
+        <edge source="block.0x1139:instruction.0x115e" target="block.0x1139:instruction.0x1163"/>
+      </graph>
+    </node>
+    <node id="block.0x1165">
+      <data key="address">0x1165</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1165</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1165:instruction.0x1165">
+          <data key="address">0x1165</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8975f8</data>
+          <data key="instruction.source">mov qword ptr [rbp - 8], r14</data>
+        </node>
+        <node id="block.0x1165:instruction.0x1169">
+          <data key="address">0x1169</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">eb04</data>
+          <data key="instruction.source">jmp 0x116f</data>
+        </node>
+        <edge source="block.0x1165:instruction.0x1165" target="block.0x1165:instruction.0x1169"/>
+      </graph>
+    </node>
+    <node id="block.0x116b">
+      <data key="address">0x116b</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x116b</data>
+        <data key="type">instructions</data>
+        <node id="block.0x116b:instruction.0x116b">
+          <data key="address">0x116b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8975f0</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x10], r14</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x116f">
+      <data key="address">0x116f</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x116f</data>
+        <data key="type">instructions</data>
+        <node id="block.0x116f:instruction.0x116f">
+          <data key="address">0x116f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b8578ffffff</data>
+          <data key="instruction.source">mov rax, qword ptr [rbp - 0x88]</data>
+        </node>
+        <node id="block.0x116f:instruction.0x1176">
+          <data key="address">0x1176</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48ffc8</data>
+          <data key="instruction.source">dec rax</data>
+        </node>
+        <node id="block.0x116f:instruction.0x1179">
+          <data key="address">0x1179</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48898578ffffff</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x88], rax</data>
+        </node>
+        <node id="block.0x116f:instruction.0x1180">
+          <data key="address">0x1180</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c0</data>
+          <data key="instruction.source">test rax, rax</data>
+        </node>
+        <node id="block.0x116f:instruction.0x1183">
+          <data key="address">0x1183</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">0f84d7000000</data>
+          <data key="instruction.source">je 0x1260</data>
+        </node>
+        <edge source="block.0x116f:instruction.0x116f" target="block.0x116f:instruction.0x1176"/>
+        <edge source="block.0x116f:instruction.0x1176" target="block.0x116f:instruction.0x1179"/>
+        <edge source="block.0x116f:instruction.0x1176" target="block.0x116f:instruction.0x1180"/>
+        <edge source="block.0x116f:instruction.0x1176" target="block.0x116f:instruction.0x1183"/>
+        <edge source="block.0x116f:instruction.0x1179" target="block.0x116f:instruction.0x1183"/>
+        <edge source="block.0x116f:instruction.0x1180" target="block.0x116f:instruction.0x1183"/>
+      </graph>
+    </node>
+    <node id="block.0x1189">
+      <data key="address">0x1189</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1189</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1189:instruction.0x1189">
+          <data key="address">0x1189</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488345b804</data>
+          <data key="instruction.source">add qword ptr [rbp - 0x48], 4</data>
+        </node>
+        <node id="block.0x1189:instruction.0x118e">
+          <data key="address">0x118e</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488345b002</data>
+          <data key="instruction.source">add qword ptr [rbp - 0x50], 2</data>
+        </node>
+        <node id="block.0x1189:instruction.0x1193">
+          <data key="address">0x1193</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">e967ffffff</data>
+          <data key="instruction.source">jmp 0x10ff</data>
+        </node>
+        <edge source="block.0x1189:instruction.0x1189" target="block.0x1189:instruction.0x118e"/>
+        <edge source="block.0x1189:instruction.0x118e" target="block.0x1189:instruction.0x1193"/>
+      </graph>
+    </node>
+    <node id="block.0x1198">
+      <data key="address">0x1198</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1198</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1198:instruction.0x1198">
+          <data key="address">0x1198</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b45a0</data>
+          <data key="instruction.source">mov rax, qword ptr [rbp - 0x60]</data>
+        </node>
+        <node id="block.0x1198:instruction.0x119c">
+          <data key="address">0x119c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8b6820</data>
+          <data key="instruction.source">mov r13, qword ptr [rax + 0x20]</data>
+        </node>
+        <node id="block.0x1198:instruction.0x11a0">
+          <data key="address">0x11a0</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c896dd0</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x30], r13</data>
+        </node>
+        <node id="block.0x1198:instruction.0x11a4">
+          <data key="address">0x11a4</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">e8e9030000</data>
+          <data key="instruction.source">call 0x1592</data>
+        </node>
+        <edge source="block.0x1198:instruction.0x1198" target="block.0x1198:instruction.0x119c"/>
+        <edge source="block.0x1198:instruction.0x119c" target="block.0x1198:instruction.0x11a0"/>
+        <edge source="block.0x1198:instruction.0x11a0" target="block.0x1198:instruction.0x11a4"/>
+      </graph>
+    </node>
+    <node id="block.0x11a9">
+      <data key="address">0x11a9</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x11a9</data>
+        <data key="type">instructions</data>
+        <node id="block.0x11a9:instruction.0x11a9">
+          <data key="address">0x11a9</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48c78578ffffff03000000</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x88], 3</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x11b4">
+      <data key="address">0x11b4</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x11b4</data>
+        <data key="type">instructions</data>
+        <node id="block.0x11b4:instruction.0x11b4">
+          <data key="address">0x11b4</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b4590</data>
+          <data key="instruction.source">mov rax, qword ptr [rbp - 0x70]</data>
+        </node>
+        <node id="block.0x11b4:instruction.0x11b8">
+          <data key="address">0x11b8</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c0</data>
+          <data key="instruction.source">test rax, rax</data>
+        </node>
+        <node id="block.0x11b4:instruction.0x11bb">
+          <data key="address">0x11bb</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">0f849f000000</data>
+          <data key="instruction.source">je 0x1260</data>
+        </node>
+        <edge source="block.0x11b4:instruction.0x11b4" target="block.0x11b4:instruction.0x11b8"/>
+        <edge source="block.0x11b4:instruction.0x11b8" target="block.0x11b4:instruction.0x11bb"/>
+      </graph>
+    </node>
+    <node id="block.0x11c1">
+      <data key="address">0x11c1</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x11c1</data>
+        <data key="type">instructions</data>
+        <node id="block.0x11c1:instruction.0x11c1">
+          <data key="address">0x11c1</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48ffc8</data>
+          <data key="instruction.source">dec rax</data>
+        </node>
+        <node id="block.0x11c1:instruction.0x11c4">
+          <data key="address">0x11c4</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48894590</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x70], rax</data>
+        </node>
+        <node id="block.0x11c1:instruction.0x11c8">
+          <data key="address">0x11c8</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b4db8</data>
+          <data key="instruction.source">mov rcx, qword ptr [rbp - 0x48]</data>
+        </node>
+        <node id="block.0x11c1:instruction.0x11cc">
+          <data key="address">0x11cc</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b09</data>
+          <data key="instruction.source">mov ecx, dword ptr [rcx]</data>
+        </node>
+        <node id="block.0x11c1:instruction.0x11ce">
+          <data key="address">0x11ce</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48034dd0</data>
+          <data key="instruction.source">add rcx, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x11c1:instruction.0x11d2">
+          <data key="address">0x11d2</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">e8f3030000</data>
+          <data key="instruction.source">call 0x15ca</data>
+        </node>
+        <edge source="block.0x11c1:instruction.0x11c1" target="block.0x11c1:instruction.0x11c4"/>
+        <edge source="block.0x11c1:instruction.0x11c1" target="block.0x11c1:instruction.0x11ce"/>
+        <edge source="block.0x11c1:instruction.0x11c4" target="block.0x11c1:instruction.0x11d2"/>
+        <edge source="block.0x11c1:instruction.0x11c8" target="block.0x11c1:instruction.0x11cc"/>
+        <edge source="block.0x11c1:instruction.0x11cc" target="block.0x11c1:instruction.0x11ce"/>
+        <edge source="block.0x11c1:instruction.0x11ce" target="block.0x11c1:instruction.0x11d2"/>
+      </graph>
+    </node>
+    <node id="block.0x11d7">
+      <data key="address">0x11d7</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x11d7</data>
+        <data key="type">instructions</data>
+        <node id="block.0x11d7:instruction.0x11d7">
+          <data key="address">0x11d7</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48898570ffffff</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x90], rax</data>
+        </node>
+        <node id="block.0x11d7:instruction.0x11de">
+          <data key="address">0x11de</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">3db80a4c53</data>
+          <data key="instruction.source">cmp eax, 0x534c0ab8</data>
+        </node>
+        <node id="block.0x11d7:instruction.0x11e3">
+          <data key="address">0x11e3</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7410</data>
+          <data key="instruction.source">je 0x11f5</data>
+        </node>
+        <edge source="block.0x11d7:instruction.0x11d7" target="block.0x11d7:instruction.0x11e3"/>
+        <edge source="block.0x11d7:instruction.0x11de" target="block.0x11d7:instruction.0x11e3"/>
+      </graph>
+    </node>
+    <node id="block.0x11e5">
+      <data key="address">0x11e5</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x11e5</data>
+        <data key="type">instructions</data>
+        <node id="block.0x11e5:instruction.0x11e5">
+          <data key="address">0x11e5</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">3ded4a3dd3</data>
+          <data key="instruction.source">cmp eax, 0xd33d4aed</data>
+        </node>
+        <node id="block.0x11e5:instruction.0x11ea">
+          <data key="address">0x11ea</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7409</data>
+          <data key="instruction.source">je 0x11f5</data>
+        </node>
+        <edge source="block.0x11e5:instruction.0x11e5" target="block.0x11e5:instruction.0x11ea"/>
+      </graph>
+    </node>
+    <node id="block.0x11ec">
+      <data key="address">0x11ec</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x11ec</data>
+        <data key="type">instructions</data>
+        <node id="block.0x11ec:instruction.0x11ec">
+          <data key="address">0x11ec</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">3d894d3fbc</data>
+          <data key="instruction.source">cmp eax, 0xbc3f4d89</data>
+        </node>
+        <node id="block.0x11ec:instruction.0x11f1">
+          <data key="address">0x11f1</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7402</data>
+          <data key="instruction.source">je 0x11f5</data>
+        </node>
+        <edge source="block.0x11ec:instruction.0x11ec" target="block.0x11ec:instruction.0x11f1"/>
+      </graph>
+    </node>
+    <node id="block.0x11f3">
+      <data key="address">0x11f3</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x11f3</data>
+        <data key="type">instructions</data>
+        <node id="block.0x11f3:instruction.0x11f3">
+          <data key="address">0x11f3</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">eb5c</data>
+          <data key="instruction.source">jmp 0x1251</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x11f5">
+      <data key="address">0x11f5</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x11f5</data>
+        <data key="type">instructions</data>
+        <node id="block.0x11f5:instruction.0x11f5">
+          <data key="address">0x11f5</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8b75c0</data>
+          <data key="instruction.source">mov r14, qword ptr [rbp - 0x40]</data>
+        </node>
+        <node id="block.0x11f5:instruction.0x11f9">
+          <data key="address">0x11f9</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">458b761c</data>
+          <data key="instruction.source">mov r14d, dword ptr [r14 + 0x1c]</data>
+        </node>
+        <node id="block.0x11f5:instruction.0x11fd">
+          <data key="address">0x11fd</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c0375d0</data>
+          <data key="instruction.source">add r14, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x11f5:instruction.0x1201">
+          <data key="address">0x1201</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8b7db0</data>
+          <data key="instruction.source">mov r15, qword ptr [rbp - 0x50]</data>
+        </node>
+        <node id="block.0x11f5:instruction.0x1205">
+          <data key="address">0x1205</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">450fb73f</data>
+          <data key="instruction.source">movzx r15d, word ptr [r15]</data>
+        </node>
+        <node id="block.0x11f5:instruction.0x1209">
+          <data key="address">0x1209</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4f8d34be</data>
+          <data key="instruction.source">lea r14, [r14 + r15*4]</data>
+        </node>
+        <node id="block.0x11f5:instruction.0x120d">
+          <data key="address">0x120d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">458b36</data>
+          <data key="instruction.source">mov r14d, dword ptr [r14]</data>
+        </node>
+        <node id="block.0x11f5:instruction.0x1210">
+          <data key="address">0x1210</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c0375d0</data>
+          <data key="instruction.source">add r14, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x11f5:instruction.0x1214">
+          <data key="address">0x1214</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b8570ffffff</data>
+          <data key="instruction.source">mov eax, dword ptr [rbp - 0x90]</data>
+        </node>
+        <node id="block.0x11f5:instruction.0x121a">
+          <data key="address">0x121a</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">3db80a4c53</data>
+          <data key="instruction.source">cmp eax, 0x534c0ab8</data>
+        </node>
+        <node id="block.0x11f5:instruction.0x121f">
+          <data key="address">0x121f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7506</data>
+          <data key="instruction.source">jne 0x1227</data>
+        </node>
+        <edge source="block.0x11f5:instruction.0x11f5" target="block.0x11f5:instruction.0x11f9"/>
+        <edge source="block.0x11f5:instruction.0x11f9" target="block.0x11f5:instruction.0x11fd"/>
+        <edge source="block.0x11f5:instruction.0x11fd" target="block.0x11f5:instruction.0x1209"/>
+        <edge source="block.0x11f5:instruction.0x11fd" target="block.0x11f5:instruction.0x1210"/>
+        <edge source="block.0x11f5:instruction.0x1201" target="block.0x11f5:instruction.0x1205"/>
+        <edge source="block.0x11f5:instruction.0x1205" target="block.0x11f5:instruction.0x1209"/>
+        <edge source="block.0x11f5:instruction.0x1209" target="block.0x11f5:instruction.0x120d"/>
+        <edge source="block.0x11f5:instruction.0x120d" target="block.0x11f5:instruction.0x1210"/>
+        <edge source="block.0x11f5:instruction.0x1210" target="block.0x11f5:instruction.0x121a"/>
+        <edge source="block.0x11f5:instruction.0x1214" target="block.0x11f5:instruction.0x121a"/>
+        <edge source="block.0x11f5:instruction.0x121a" target="block.0x11f5:instruction.0x121f"/>
+      </graph>
+    </node>
+    <node id="block.0x1221">
+      <data key="address">0x1221</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1221</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1221:instruction.0x1221">
+          <data key="address">0x1221</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8975e0</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x20], r14</data>
+        </node>
+        <node id="block.0x1221:instruction.0x1225">
+          <data key="address">0x1225</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">eb14</data>
+          <data key="instruction.source">jmp 0x123b</data>
+        </node>
+        <edge source="block.0x1221:instruction.0x1221" target="block.0x1221:instruction.0x1225"/>
+      </graph>
+    </node>
+    <node id="block.0x1227">
+      <data key="address">0x1227</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1227</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1227:instruction.0x1227">
+          <data key="address">0x1227</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">3ded4a3dd3</data>
+          <data key="instruction.source">cmp eax, 0xd33d4aed</data>
+        </node>
+        <node id="block.0x1227:instruction.0x122c">
+          <data key="address">0x122c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7506</data>
+          <data key="instruction.source">jne 0x1234</data>
+        </node>
+        <edge source="block.0x1227:instruction.0x1227" target="block.0x1227:instruction.0x122c"/>
+      </graph>
+    </node>
+    <node id="block.0x122e">
+      <data key="address">0x122e</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x122e</data>
+        <data key="type">instructions</data>
+        <node id="block.0x122e:instruction.0x122e">
+          <data key="address">0x122e</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8975e8</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x18], r14</data>
+        </node>
+        <node id="block.0x122e:instruction.0x1232">
+          <data key="address">0x1232</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">eb07</data>
+          <data key="instruction.source">jmp 0x123b</data>
+        </node>
+        <edge source="block.0x122e:instruction.0x122e" target="block.0x122e:instruction.0x1232"/>
+      </graph>
+    </node>
+    <node id="block.0x1234">
+      <data key="address">0x1234</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1234</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1234:instruction.0x1234">
+          <data key="address">0x1234</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c89b568ffffff</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x98], r14</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x123b">
+      <data key="address">0x123b</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x123b</data>
+        <data key="type">instructions</data>
+        <node id="block.0x123b:instruction.0x123b">
+          <data key="address">0x123b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b8578ffffff</data>
+          <data key="instruction.source">mov rax, qword ptr [rbp - 0x88]</data>
+        </node>
+        <node id="block.0x123b:instruction.0x1242">
+          <data key="address">0x1242</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48ffc8</data>
+          <data key="instruction.source">dec rax</data>
+        </node>
+        <node id="block.0x123b:instruction.0x1245">
+          <data key="address">0x1245</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48898578ffffff</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x88], rax</data>
+        </node>
+        <node id="block.0x123b:instruction.0x124c">
+          <data key="address">0x124c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c0</data>
+          <data key="instruction.source">test rax, rax</data>
+        </node>
+        <node id="block.0x123b:instruction.0x124f">
+          <data key="address">0x124f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">740f</data>
+          <data key="instruction.source">je 0x1260</data>
+        </node>
+        <edge source="block.0x123b:instruction.0x123b" target="block.0x123b:instruction.0x1242"/>
+        <edge source="block.0x123b:instruction.0x1242" target="block.0x123b:instruction.0x1245"/>
+        <edge source="block.0x123b:instruction.0x1242" target="block.0x123b:instruction.0x124c"/>
+        <edge source="block.0x123b:instruction.0x1242" target="block.0x123b:instruction.0x124f"/>
+        <edge source="block.0x123b:instruction.0x1245" target="block.0x123b:instruction.0x124f"/>
+        <edge source="block.0x123b:instruction.0x124c" target="block.0x123b:instruction.0x124f"/>
+      </graph>
+    </node>
+    <node id="block.0x1251">
+      <data key="address">0x1251</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1251</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1251:instruction.0x1251">
+          <data key="address">0x1251</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488345b804</data>
+          <data key="instruction.source">add qword ptr [rbp - 0x48], 4</data>
+        </node>
+        <node id="block.0x1251:instruction.0x1256">
+          <data key="address">0x1256</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488345b002</data>
+          <data key="instruction.source">add qword ptr [rbp - 0x50], 2</data>
+        </node>
+        <node id="block.0x1251:instruction.0x125b">
+          <data key="address">0x125b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">e954ffffff</data>
+          <data key="instruction.source">jmp 0x11b4</data>
+        </node>
+        <edge source="block.0x1251:instruction.0x1251" target="block.0x1251:instruction.0x1256"/>
+        <edge source="block.0x1251:instruction.0x1256" target="block.0x1251:instruction.0x125b"/>
+      </graph>
+    </node>
+    <node id="block.0x1260">
+      <data key="address">0x1260</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1260</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1260:instruction.0x1260">
+          <data key="address">0x1260</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b45f8</data>
+          <data key="instruction.source">mov rax, qword ptr [rbp - 8]</data>
+        </node>
+        <node id="block.0x1260:instruction.0x1264">
+          <data key="address">0x1264</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c0</data>
+          <data key="instruction.source">test rax, rax</data>
+        </node>
+        <node id="block.0x1260:instruction.0x1267">
+          <data key="address">0x1267</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7427</data>
+          <data key="instruction.source">je 0x1290</data>
+        </node>
+        <edge source="block.0x1260:instruction.0x1260" target="block.0x1260:instruction.0x1264"/>
+        <edge source="block.0x1260:instruction.0x1264" target="block.0x1260:instruction.0x1267"/>
+      </graph>
+    </node>
+    <node id="block.0x1269">
+      <data key="address">0x1269</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1269</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1269:instruction.0x1269">
+          <data key="address">0x1269</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b45f0</data>
+          <data key="instruction.source">mov rax, qword ptr [rbp - 0x10]</data>
+        </node>
+        <node id="block.0x1269:instruction.0x126d">
+          <data key="address">0x126d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c0</data>
+          <data key="instruction.source">test rax, rax</data>
+        </node>
+        <node id="block.0x1269:instruction.0x1270">
+          <data key="address">0x1270</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">741e</data>
+          <data key="instruction.source">je 0x1290</data>
+        </node>
+        <edge source="block.0x1269:instruction.0x1269" target="block.0x1269:instruction.0x126d"/>
+        <edge source="block.0x1269:instruction.0x126d" target="block.0x1269:instruction.0x1270"/>
+      </graph>
+    </node>
+    <node id="block.0x1272">
+      <data key="address">0x1272</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1272</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1272:instruction.0x1272">
+          <data key="address">0x1272</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b45e8</data>
+          <data key="instruction.source">mov rax, qword ptr [rbp - 0x18]</data>
+        </node>
+        <node id="block.0x1272:instruction.0x1276">
+          <data key="address">0x1276</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c0</data>
+          <data key="instruction.source">test rax, rax</data>
+        </node>
+        <node id="block.0x1272:instruction.0x1279">
+          <data key="address">0x1279</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7415</data>
+          <data key="instruction.source">je 0x1290</data>
+        </node>
+        <edge source="block.0x1272:instruction.0x1272" target="block.0x1272:instruction.0x1276"/>
+        <edge source="block.0x1272:instruction.0x1276" target="block.0x1272:instruction.0x1279"/>
+      </graph>
+    </node>
+    <node id="block.0x127b">
+      <data key="address">0x127b</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x127b</data>
+        <data key="type">instructions</data>
+        <node id="block.0x127b:instruction.0x127b">
+          <data key="address">0x127b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b8568ffffff</data>
+          <data key="instruction.source">mov rax, qword ptr [rbp - 0x98]</data>
+        </node>
+        <node id="block.0x127b:instruction.0x1282">
+          <data key="address">0x1282</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c0</data>
+          <data key="instruction.source">test rax, rax</data>
+        </node>
+        <node id="block.0x127b:instruction.0x1285">
+          <data key="address">0x1285</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7409</data>
+          <data key="instruction.source">je 0x1290</data>
+        </node>
+        <edge source="block.0x127b:instruction.0x127b" target="block.0x127b:instruction.0x1282"/>
+        <edge source="block.0x127b:instruction.0x1282" target="block.0x127b:instruction.0x1285"/>
+      </graph>
+    </node>
+    <node id="block.0x1287">
+      <data key="address">0x1287</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1287</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1287:instruction.0x1287">
+          <data key="address">0x1287</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b45e0</data>
+          <data key="instruction.source">mov rax, qword ptr [rbp - 0x20]</data>
+        </node>
+        <node id="block.0x1287:instruction.0x128b">
+          <data key="address">0x128b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c0</data>
+          <data key="instruction.source">test rax, rax</data>
+        </node>
+        <node id="block.0x1287:instruction.0x128e">
+          <data key="address">0x128e</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">750c</data>
+          <data key="instruction.source">jne 0x129c</data>
+        </node>
+        <edge source="block.0x1287:instruction.0x1287" target="block.0x1287:instruction.0x128b"/>
+        <edge source="block.0x1287:instruction.0x128b" target="block.0x1287:instruction.0x128e"/>
+      </graph>
+    </node>
+    <node id="block.0x1290">
+      <data key="address">0x1290</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1290</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1290:instruction.0x1290">
+          <data key="address">0x1290</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b45a0</data>
+          <data key="instruction.source">mov rax, qword ptr [rbp - 0x60]</data>
+        </node>
+        <node id="block.0x1290:instruction.0x1294">
+          <data key="address">0x1294</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b00</data>
+          <data key="instruction.source">mov rax, qword ptr [rax]</data>
+        </node>
+        <node id="block.0x1290:instruction.0x1297">
+          <data key="address">0x1297</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">e9f0fdffff</data>
+          <data key="instruction.source">jmp 0x108c</data>
+        </node>
+        <edge source="block.0x1290:instruction.0x1290" target="block.0x1290:instruction.0x1294"/>
+        <edge source="block.0x1290:instruction.0x1294" target="block.0x1290:instruction.0x1297"/>
+      </graph>
+    </node>
+    <node id="block.0x129c">
+      <data key="address">0x129c</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x129c</data>
+        <data key="type">instructions</data>
+        <node id="block.0x129c:instruction.0x129c">
+          <data key="address">0x129c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b4dd8</data>
+          <data key="instruction.source">mov rcx, qword ptr [rbp - 0x28]</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12a0">
+          <data key="address">0x12a0</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b413c</data>
+          <data key="instruction.source">mov eax, dword ptr [rcx + 0x3c]</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12a3">
+          <data key="address">0x12a3</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8d2401</data>
+          <data key="instruction.source">lea r12, [rcx + rax]</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12a7">
+          <data key="address">0x12a7</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8965c8</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x38], r12</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12ab">
+          <data key="address">0x12ab</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883ec48</data>
+          <data key="instruction.source">sub rsp, 0x48</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12af">
+          <data key="address">0x12af</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4831c0</data>
+          <data key="instruction.source">xor rax, rax</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12b2">
+          <data key="address">0x12b2</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4889442438</data>
+          <data key="instruction.source">mov qword ptr [rsp + 0x38], rax</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12b7">
+          <data key="address">0x12b7</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b442450</data>
+          <data key="instruction.source">mov eax, dword ptr [r12 + 0x50]</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12bc">
+          <data key="address">0x12bc</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4889442440</data>
+          <data key="instruction.source">mov qword ptr [rsp + 0x40], rax</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12c1">
+          <data key="address">0x12c1</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48c7c1ffffffff</data>
+          <data key="instruction.source">mov rcx, 0xffffffffffffffff</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12c8">
+          <data key="address">0x12c8</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488d542438</data>
+          <data key="instruction.source">lea rdx, [rsp + 0x38]</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12cd">
+          <data key="address">0x12cd</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4d31c0</data>
+          <data key="instruction.source">xor r8, r8</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12d0">
+          <data key="address">0x12d0</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8d4c2440</data>
+          <data key="instruction.source">lea r9, [rsp + 0x40]</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12d5">
+          <data key="address">0x12d5</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">c744242000300000</data>
+          <data key="instruction.source">mov dword ptr [rsp + 0x20], 0x3000</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12dd">
+          <data key="address">0x12dd</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">c744242840000000</data>
+          <data key="instruction.source">mov dword ptr [rsp + 0x28], 0x40</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12e5">
+          <data key="address">0x12e5</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8b55e8</data>
+          <data key="instruction.source">mov r10, qword ptr [rbp - 0x18]</data>
+        </node>
+        <node id="block.0x129c:instruction.0x12e9">
+          <data key="address">0x12e9</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">e8f0020000</data>
+          <data key="instruction.source">call 0x15de</data>
+        </node>
+        <edge source="block.0x129c:instruction.0x129c" target="block.0x129c:instruction.0x12a0"/>
+        <edge source="block.0x129c:instruction.0x129c" target="block.0x129c:instruction.0x12a3"/>
+        <edge source="block.0x129c:instruction.0x129c" target="block.0x129c:instruction.0x12c1"/>
+        <edge source="block.0x129c:instruction.0x12a0" target="block.0x129c:instruction.0x12a3"/>
+        <edge source="block.0x129c:instruction.0x12a0" target="block.0x129c:instruction.0x12af"/>
+        <edge source="block.0x129c:instruction.0x12a0" target="block.0x129c:instruction.0x12c1"/>
+        <edge source="block.0x129c:instruction.0x12a3" target="block.0x129c:instruction.0x12a7"/>
+        <edge source="block.0x129c:instruction.0x12a3" target="block.0x129c:instruction.0x12af"/>
+        <edge source="block.0x129c:instruction.0x12a3" target="block.0x129c:instruction.0x12b7"/>
+        <edge source="block.0x129c:instruction.0x12a3" target="block.0x129c:instruction.0x12c1"/>
+        <edge source="block.0x129c:instruction.0x12a7" target="block.0x129c:instruction.0x12e9"/>
+        <edge source="block.0x129c:instruction.0x12ab" target="block.0x129c:instruction.0x12af"/>
+        <edge source="block.0x129c:instruction.0x12ab" target="block.0x129c:instruction.0x12b2"/>
+        <edge source="block.0x129c:instruction.0x12ab" target="block.0x129c:instruction.0x12bc"/>
+        <edge source="block.0x129c:instruction.0x12ab" target="block.0x129c:instruction.0x12c8"/>
+        <edge source="block.0x129c:instruction.0x12ab" target="block.0x129c:instruction.0x12d0"/>
+        <edge source="block.0x129c:instruction.0x12ab" target="block.0x129c:instruction.0x12d5"/>
+        <edge source="block.0x129c:instruction.0x12ab" target="block.0x129c:instruction.0x12dd"/>
+        <edge source="block.0x129c:instruction.0x12ab" target="block.0x129c:instruction.0x12e9"/>
+        <edge source="block.0x129c:instruction.0x12af" target="block.0x129c:instruction.0x12b2"/>
+        <edge source="block.0x129c:instruction.0x12af" target="block.0x129c:instruction.0x12b7"/>
+        <edge source="block.0x129c:instruction.0x12af" target="block.0x129c:instruction.0x12cd"/>
+        <edge source="block.0x129c:instruction.0x12b2" target="block.0x129c:instruction.0x12b7"/>
+        <edge source="block.0x129c:instruction.0x12b2" target="block.0x129c:instruction.0x12e9"/>
+        <edge source="block.0x129c:instruction.0x12b7" target="block.0x129c:instruction.0x12bc"/>
+        <edge source="block.0x129c:instruction.0x12bc" target="block.0x129c:instruction.0x12e9"/>
+        <edge source="block.0x129c:instruction.0x12c1" target="block.0x129c:instruction.0x12e9"/>
+        <edge source="block.0x129c:instruction.0x12c8" target="block.0x129c:instruction.0x12e9"/>
+        <edge source="block.0x129c:instruction.0x12cd" target="block.0x129c:instruction.0x12e9"/>
+        <edge source="block.0x129c:instruction.0x12d0" target="block.0x129c:instruction.0x12e9"/>
+        <edge source="block.0x129c:instruction.0x12d5" target="block.0x129c:instruction.0x12e9"/>
+        <edge source="block.0x129c:instruction.0x12dd" target="block.0x129c:instruction.0x12e9"/>
+        <edge source="block.0x129c:instruction.0x12e5" target="block.0x129c:instruction.0x12e9"/>
+      </graph>
+    </node>
+    <node id="block.0x12ee">
+      <data key="address">0x12ee</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x12ee</data>
+        <data key="type">instructions</data>
+        <node id="block.0x12ee:instruction.0x12ee">
+          <data key="address">0x12ee</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b442438</data>
+          <data key="instruction.source">mov rax, qword ptr [rsp + 0x38]</data>
+        </node>
+        <node id="block.0x12ee:instruction.0x12f3">
+          <data key="address">0x12f3</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883c448</data>
+          <data key="instruction.source">add rsp, 0x48</data>
+        </node>
+        <node id="block.0x12ee:instruction.0x12f7">
+          <data key="address">0x12f7</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488945d0</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x30], rax</data>
+        </node>
+        <node id="block.0x12ee:instruction.0x12fb">
+          <data key="address">0x12fb</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b4c2454</data>
+          <data key="instruction.source">mov ecx, dword ptr [r12 + 0x54]</data>
+        </node>
+        <node id="block.0x12ee:instruction.0x1300">
+          <data key="address">0x1300</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b75d8</data>
+          <data key="instruction.source">mov rsi, qword ptr [rbp - 0x28]</data>
+        </node>
+        <node id="block.0x12ee:instruction.0x1304">
+          <data key="address">0x1304</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b7dd0</data>
+          <data key="instruction.source">mov rdi, qword ptr [rbp - 0x30]</data>
+        </node>
+        <edge source="block.0x12ee:instruction.0x12ee" target="block.0x12ee:instruction.0x12f3"/>
+        <edge source="block.0x12ee:instruction.0x12ee" target="block.0x12ee:instruction.0x12f7"/>
+      </graph>
+    </node>
+    <node id="block.0x1308">
+      <data key="address">0x1308</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1308</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1308:instruction.0x1308">
+          <data key="address">0x1308</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">f3a4</data>
+          <data key="instruction.source">rep movsb byte ptr [rdi], byte ptr [rsi]</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x130a">
+      <data key="address">0x130a</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x130a</data>
+        <data key="type">instructions</data>
+        <node id="block.0x130a:instruction.0x130a">
+          <data key="address">0x130a</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">490fb7442414</data>
+          <data key="instruction.source">movzx rax, word ptr [r12 + 0x14]</data>
+        </node>
+        <node id="block.0x130a:instruction.0x1310">
+          <data key="address">0x1310</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4d8d6c0418</data>
+          <data key="instruction.source">lea r13, [r12 + rax + 0x18]</data>
+        </node>
+        <node id="block.0x130a:instruction.0x1315">
+          <data key="address">0x1315</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">450fb77c2406</data>
+          <data key="instruction.source">movzx r15d, word ptr [r12 + 6]</data>
+        </node>
+        <edge source="block.0x130a:instruction.0x130a" target="block.0x130a:instruction.0x1310"/>
+      </graph>
+    </node>
+    <node id="block.0x131b">
+      <data key="address">0x131b</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x131b</data>
+        <data key="type">instructions</data>
+        <node id="block.0x131b:instruction.0x131b">
+          <data key="address">0x131b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4585ff</data>
+          <data key="instruction.source">test r15d, r15d</data>
+        </node>
+        <node id="block.0x131b:instruction.0x131e">
+          <data key="address">0x131e</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7425</data>
+          <data key="instruction.source">je 0x1345</data>
+        </node>
+        <edge source="block.0x131b:instruction.0x131b" target="block.0x131b:instruction.0x131e"/>
+      </graph>
+    </node>
+    <node id="block.0x1320">
+      <data key="address">0x1320</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1320</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1320:instruction.0x1320">
+          <data key="address">0x1320</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b450c</data>
+          <data key="instruction.source">mov eax, dword ptr [r13 + 0xc]</data>
+        </node>
+        <node id="block.0x1320:instruction.0x1324">
+          <data key="address">0x1324</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b7dd0</data>
+          <data key="instruction.source">mov rdi, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x1320:instruction.0x1328">
+          <data key="address">0x1328</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4801c7</data>
+          <data key="instruction.source">add rdi, rax</data>
+        </node>
+        <node id="block.0x1320:instruction.0x132b">
+          <data key="address">0x132b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b4514</data>
+          <data key="instruction.source">mov eax, dword ptr [r13 + 0x14]</data>
+        </node>
+        <node id="block.0x1320:instruction.0x132f">
+          <data key="address">0x132f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b75d8</data>
+          <data key="instruction.source">mov rsi, qword ptr [rbp - 0x28]</data>
+        </node>
+        <node id="block.0x1320:instruction.0x1333">
+          <data key="address">0x1333</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4801c6</data>
+          <data key="instruction.source">add rsi, rax</data>
+        </node>
+        <node id="block.0x1320:instruction.0x1336">
+          <data key="address">0x1336</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b4d10</data>
+          <data key="instruction.source">mov ecx, dword ptr [r13 + 0x10]</data>
+        </node>
+        <edge source="block.0x1320:instruction.0x1320" target="block.0x1320:instruction.0x1328"/>
+        <edge source="block.0x1320:instruction.0x1320" target="block.0x1320:instruction.0x132b"/>
+        <edge source="block.0x1320:instruction.0x1324" target="block.0x1320:instruction.0x1328"/>
+        <edge source="block.0x1320:instruction.0x1328" target="block.0x1320:instruction.0x132b"/>
+        <edge source="block.0x1320:instruction.0x1328" target="block.0x1320:instruction.0x1333"/>
+        <edge source="block.0x1320:instruction.0x132b" target="block.0x1320:instruction.0x1333"/>
+        <edge source="block.0x1320:instruction.0x132f" target="block.0x1320:instruction.0x1333"/>
+      </graph>
+    </node>
+    <node id="block.0x133a">
+      <data key="address">0x133a</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x133a</data>
+        <data key="type">instructions</data>
+        <node id="block.0x133a:instruction.0x133a">
+          <data key="address">0x133a</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">f3a4</data>
+          <data key="instruction.source">rep movsb byte ptr [rdi], byte ptr [rsi]</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x133c">
+      <data key="address">0x133c</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x133c</data>
+        <data key="type">instructions</data>
+        <node id="block.0x133c:instruction.0x133c">
+          <data key="address">0x133c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4983c528</data>
+          <data key="instruction.source">add r13, 0x28</data>
+        </node>
+        <node id="block.0x133c:instruction.0x1340">
+          <data key="address">0x1340</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">41ffcf</data>
+          <data key="instruction.source">dec r15d</data>
+        </node>
+        <node id="block.0x133c:instruction.0x1343">
+          <data key="address">0x1343</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">ebd6</data>
+          <data key="instruction.source">jmp 0x131b</data>
+        </node>
+        <edge source="block.0x133c:instruction.0x133c" target="block.0x133c:instruction.0x1340"/>
+        <edge source="block.0x133c:instruction.0x1340" target="block.0x133c:instruction.0x1343"/>
+      </graph>
+    </node>
+    <node id="block.0x1345">
+      <data key="address">0x1345</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1345</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1345:instruction.0x1345">
+          <data key="address">0x1345</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b842490000000</data>
+          <data key="instruction.source">mov eax, dword ptr [r12 + 0x90]</data>
+        </node>
+        <node id="block.0x1345:instruction.0x134d">
+          <data key="address">0x134d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">85c0</data>
+          <data key="instruction.source">test eax, eax</data>
+        </node>
+        <node id="block.0x1345:instruction.0x134f">
+          <data key="address">0x134f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">0f84a5000000</data>
+          <data key="instruction.source">je 0x13fa</data>
+        </node>
+        <edge source="block.0x1345:instruction.0x1345" target="block.0x1345:instruction.0x134d"/>
+        <edge source="block.0x1345:instruction.0x134d" target="block.0x1345:instruction.0x134f"/>
+      </graph>
+    </node>
+    <node id="block.0x1355">
+      <data key="address">0x1355</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1355</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1355:instruction.0x1355">
+          <data key="address">0x1355</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8b75d0</data>
+          <data key="instruction.source">mov r14, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x1355:instruction.0x1359">
+          <data key="address">0x1359</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4901c6</data>
+          <data key="instruction.source">add r14, rax</data>
+        </node>
+        <edge source="block.0x1355:instruction.0x1355" target="block.0x1355:instruction.0x1359"/>
+      </graph>
+    </node>
+    <node id="block.0x135c">
+      <data key="address">0x135c</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x135c</data>
+        <data key="type">instructions</data>
+        <node id="block.0x135c:instruction.0x135c">
+          <data key="address">0x135c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b460c</data>
+          <data key="instruction.source">mov eax, dword ptr [r14 + 0xc]</data>
+        </node>
+        <node id="block.0x135c:instruction.0x1360">
+          <data key="address">0x1360</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">85c0</data>
+          <data key="instruction.source">test eax, eax</data>
+        </node>
+        <node id="block.0x135c:instruction.0x1362">
+          <data key="address">0x1362</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">0f8492000000</data>
+          <data key="instruction.source">je 0x13fa</data>
+        </node>
+        <edge source="block.0x135c:instruction.0x135c" target="block.0x135c:instruction.0x1360"/>
+        <edge source="block.0x135c:instruction.0x1360" target="block.0x135c:instruction.0x1362"/>
+      </graph>
+    </node>
+    <node id="block.0x1368">
+      <data key="address">0x1368</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1368</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1368:instruction.0x1368">
+          <data key="address">0x1368</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b4dd0</data>
+          <data key="instruction.source">mov rcx, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x1368:instruction.0x136c">
+          <data key="address">0x136c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4801c1</data>
+          <data key="instruction.source">add rcx, rax</data>
+        </node>
+        <node id="block.0x1368:instruction.0x136f">
+          <data key="address">0x136f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883ec28</data>
+          <data key="instruction.source">sub rsp, 0x28</data>
+        </node>
+        <node id="block.0x1368:instruction.0x1373">
+          <data key="address">0x1373</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">ff55f8</data>
+          <data key="instruction.source">call qword ptr [rbp - 8]</data>
+        </node>
+        <edge source="block.0x1368:instruction.0x1368" target="block.0x1368:instruction.0x136c"/>
+        <edge source="block.0x1368:instruction.0x136c" target="block.0x1368:instruction.0x136f"/>
+        <edge source="block.0x1368:instruction.0x136f" target="block.0x1368:instruction.0x1373"/>
+      </graph>
+    </node>
+    <node id="block.0x1376">
+      <data key="address">0x1376</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1376</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1376:instruction.0x1376">
+          <data key="address">0x1376</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883c428</data>
+          <data key="instruction.source">add rsp, 0x28</data>
+        </node>
+        <node id="block.0x1376:instruction.0x137a">
+          <data key="address">0x137a</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4989c5</data>
+          <data key="instruction.source">mov r13, rax</data>
+        </node>
+        <node id="block.0x1376:instruction.0x137d">
+          <data key="address">0x137d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b06</data>
+          <data key="instruction.source">mov eax, dword ptr [r14]</data>
+        </node>
+        <node id="block.0x1376:instruction.0x1380">
+          <data key="address">0x1380</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">85c0</data>
+          <data key="instruction.source">test eax, eax</data>
+        </node>
+        <node id="block.0x1376:instruction.0x1382">
+          <data key="address">0x1382</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7504</data>
+          <data key="instruction.source">jne 0x1388</data>
+        </node>
+        <edge source="block.0x1376:instruction.0x1376" target="block.0x1376:instruction.0x1380"/>
+        <edge source="block.0x1376:instruction.0x137a" target="block.0x1376:instruction.0x137d"/>
+        <edge source="block.0x1376:instruction.0x137d" target="block.0x1376:instruction.0x1380"/>
+        <edge source="block.0x1376:instruction.0x1380" target="block.0x1376:instruction.0x1382"/>
+      </graph>
+    </node>
+    <node id="block.0x1384">
+      <data key="address">0x1384</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1384</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1384:instruction.0x1384">
+          <data key="address">0x1384</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b4610</data>
+          <data key="instruction.source">mov eax, dword ptr [r14 + 0x10]</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x1388">
+      <data key="address">0x1388</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1388</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1388:instruction.0x1388">
+          <data key="address">0x1388</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b75d0</data>
+          <data key="instruction.source">mov rsi, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x1388:instruction.0x138c">
+          <data key="address">0x138c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4801c6</data>
+          <data key="instruction.source">add rsi, rax</data>
+        </node>
+        <node id="block.0x1388:instruction.0x138f">
+          <data key="address">0x138f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b4610</data>
+          <data key="instruction.source">mov eax, dword ptr [r14 + 0x10]</data>
+        </node>
+        <node id="block.0x1388:instruction.0x1393">
+          <data key="address">0x1393</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b7dd0</data>
+          <data key="instruction.source">mov rdi, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x1388:instruction.0x1397">
+          <data key="address">0x1397</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4801c7</data>
+          <data key="instruction.source">add rdi, rax</data>
+        </node>
+        <edge source="block.0x1388:instruction.0x1388" target="block.0x1388:instruction.0x138c"/>
+        <edge source="block.0x1388:instruction.0x138c" target="block.0x1388:instruction.0x138f"/>
+        <edge source="block.0x1388:instruction.0x138c" target="block.0x1388:instruction.0x1397"/>
+        <edge source="block.0x1388:instruction.0x138f" target="block.0x1388:instruction.0x1397"/>
+        <edge source="block.0x1388:instruction.0x1393" target="block.0x1388:instruction.0x1397"/>
+      </graph>
+    </node>
+    <node id="block.0x139a">
+      <data key="address">0x139a</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x139a</data>
+        <data key="type">instructions</data>
+        <node id="block.0x139a:instruction.0x139a">
+          <data key="address">0x139a</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b06</data>
+          <data key="instruction.source">mov rax, qword ptr [rsi]</data>
+        </node>
+        <node id="block.0x139a:instruction.0x139d">
+          <data key="address">0x139d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c0</data>
+          <data key="instruction.source">test rax, rax</data>
+        </node>
+        <node id="block.0x139a:instruction.0x13a0">
+          <data key="address">0x13a0</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">744f</data>
+          <data key="instruction.source">je 0x13f1</data>
+        </node>
+        <edge source="block.0x139a:instruction.0x139a" target="block.0x139a:instruction.0x139d"/>
+        <edge source="block.0x139a:instruction.0x139d" target="block.0x139a:instruction.0x13a0"/>
+      </graph>
+    </node>
+    <node id="block.0x13a2">
+      <data key="address">0x13a2</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x13a2</data>
+        <data key="type">instructions</data>
+        <node id="block.0x13a2:instruction.0x13a2">
+          <data key="address">0x13a2</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48b90000000000000080</data>
+          <data key="instruction.source">movabs rcx, 0x8000000000000000</data>
+        </node>
+        <node id="block.0x13a2:instruction.0x13ac">
+          <data key="address">0x13ac</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4885c8</data>
+          <data key="instruction.source">test rax, rcx</data>
+        </node>
+        <node id="block.0x13a2:instruction.0x13af">
+          <data key="address">0x13af</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7521</data>
+          <data key="instruction.source">jne 0x13d2</data>
+        </node>
+        <edge source="block.0x13a2:instruction.0x13a2" target="block.0x13a2:instruction.0x13ac"/>
+        <edge source="block.0x13a2:instruction.0x13ac" target="block.0x13a2:instruction.0x13af"/>
+      </graph>
+    </node>
+    <node id="block.0x13b1">
+      <data key="address">0x13b1</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x13b1</data>
+        <data key="type">instructions</data>
+        <node id="block.0x13b1:instruction.0x13b1">
+          <data key="address">0x13b1</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b4dd0</data>
+          <data key="instruction.source">mov rcx, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x13b1:instruction.0x13b5">
+          <data key="address">0x13b5</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4801c1</data>
+          <data key="instruction.source">add rcx, rax</data>
+        </node>
+        <node id="block.0x13b1:instruction.0x13b8">
+          <data key="address">0x13b8</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883c102</data>
+          <data key="instruction.source">add rcx, 2</data>
+        </node>
+        <node id="block.0x13b1:instruction.0x13bc">
+          <data key="address">0x13bc</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883ec28</data>
+          <data key="instruction.source">sub rsp, 0x28</data>
+        </node>
+        <node id="block.0x13b1:instruction.0x13c0">
+          <data key="address">0x13c0</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4889ca</data>
+          <data key="instruction.source">mov rdx, rcx</data>
+        </node>
+        <node id="block.0x13b1:instruction.0x13c3">
+          <data key="address">0x13c3</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c89e9</data>
+          <data key="instruction.source">mov rcx, r13</data>
+        </node>
+        <node id="block.0x13b1:instruction.0x13c6">
+          <data key="address">0x13c6</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">ff55f0</data>
+          <data key="instruction.source">call qword ptr [rbp - 0x10]</data>
+        </node>
+        <edge source="block.0x13b1:instruction.0x13b1" target="block.0x13b1:instruction.0x13b5"/>
+        <edge source="block.0x13b1:instruction.0x13b5" target="block.0x13b1:instruction.0x13b8"/>
+        <edge source="block.0x13b1:instruction.0x13b8" target="block.0x13b1:instruction.0x13bc"/>
+        <edge source="block.0x13b1:instruction.0x13b8" target="block.0x13b1:instruction.0x13c0"/>
+        <edge source="block.0x13b1:instruction.0x13b8" target="block.0x13b1:instruction.0x13c3"/>
+        <edge source="block.0x13b1:instruction.0x13bc" target="block.0x13b1:instruction.0x13c6"/>
+        <edge source="block.0x13b1:instruction.0x13c0" target="block.0x13b1:instruction.0x13c3"/>
+        <edge source="block.0x13b1:instruction.0x13c3" target="block.0x13b1:instruction.0x13c6"/>
+      </graph>
+    </node>
+    <node id="block.0x13c9">
+      <data key="address">0x13c9</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x13c9</data>
+        <data key="type">instructions</data>
+        <node id="block.0x13c9:instruction.0x13c9">
+          <data key="address">0x13c9</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883c428</data>
+          <data key="instruction.source">add rsp, 0x28</data>
+        </node>
+        <node id="block.0x13c9:instruction.0x13cd">
+          <data key="address">0x13cd</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488907</data>
+          <data key="instruction.source">mov qword ptr [rdi], rax</data>
+        </node>
+        <node id="block.0x13c9:instruction.0x13d0">
+          <data key="address">0x13d0</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">eb15</data>
+          <data key="instruction.source">jmp 0x13e7</data>
+        </node>
+        <edge source="block.0x13c9:instruction.0x13c9" target="block.0x13c9:instruction.0x13d0"/>
+        <edge source="block.0x13c9:instruction.0x13cd" target="block.0x13c9:instruction.0x13d0"/>
+      </graph>
+    </node>
+    <node id="block.0x13d2">
+      <data key="address">0x13d2</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x13d2</data>
+        <data key="type">instructions</data>
+        <node id="block.0x13d2:instruction.0x13d2">
+          <data key="address">0x13d2</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">480fb716</data>
+          <data key="instruction.source">movzx rdx, word ptr [rsi]</data>
+        </node>
+        <node id="block.0x13d2:instruction.0x13d6">
+          <data key="address">0x13d6</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883ec28</data>
+          <data key="instruction.source">sub rsp, 0x28</data>
+        </node>
+        <node id="block.0x13d2:instruction.0x13da">
+          <data key="address">0x13da</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c89e9</data>
+          <data key="instruction.source">mov rcx, r13</data>
+        </node>
+        <node id="block.0x13d2:instruction.0x13dd">
+          <data key="address">0x13dd</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">ff55f0</data>
+          <data key="instruction.source">call qword ptr [rbp - 0x10]</data>
+        </node>
+        <edge source="block.0x13d2:instruction.0x13d2" target="block.0x13d2:instruction.0x13dd"/>
+        <edge source="block.0x13d2:instruction.0x13d6" target="block.0x13d2:instruction.0x13dd"/>
+        <edge source="block.0x13d2:instruction.0x13da" target="block.0x13d2:instruction.0x13dd"/>
+      </graph>
+    </node>
+    <node id="block.0x13e0">
+      <data key="address">0x13e0</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x13e0</data>
+        <data key="type">instructions</data>
+        <node id="block.0x13e0:instruction.0x13e0">
+          <data key="address">0x13e0</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883c428</data>
+          <data key="instruction.source">add rsp, 0x28</data>
+        </node>
+        <node id="block.0x13e0:instruction.0x13e4">
+          <data key="address">0x13e4</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488907</data>
+          <data key="instruction.source">mov qword ptr [rdi], rax</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x13e7">
+      <data key="address">0x13e7</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x13e7</data>
+        <data key="type">instructions</data>
+        <node id="block.0x13e7:instruction.0x13e7">
+          <data key="address">0x13e7</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883c608</data>
+          <data key="instruction.source">add rsi, 8</data>
+        </node>
+        <node id="block.0x13e7:instruction.0x13eb">
+          <data key="address">0x13eb</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883c708</data>
+          <data key="instruction.source">add rdi, 8</data>
+        </node>
+        <node id="block.0x13e7:instruction.0x13ef">
+          <data key="address">0x13ef</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">eba9</data>
+          <data key="instruction.source">jmp 0x139a</data>
+        </node>
+        <edge source="block.0x13e7:instruction.0x13e7" target="block.0x13e7:instruction.0x13eb"/>
+        <edge source="block.0x13e7:instruction.0x13eb" target="block.0x13e7:instruction.0x13ef"/>
+      </graph>
+    </node>
+    <node id="block.0x13f1">
+      <data key="address">0x13f1</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x13f1</data>
+        <data key="type">instructions</data>
+        <node id="block.0x13f1:instruction.0x13f1">
+          <data key="address">0x13f1</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4983c614</data>
+          <data key="instruction.source">add r14, 0x14</data>
+        </node>
+        <node id="block.0x13f1:instruction.0x13f5">
+          <data key="address">0x13f5</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">e962ffffff</data>
+          <data key="instruction.source">jmp 0x135c</data>
+        </node>
+        <edge source="block.0x13f1:instruction.0x13f1" target="block.0x13f1:instruction.0x13f5"/>
+      </graph>
+    </node>
+    <node id="block.0x13fa">
+      <data key="address">0x13fa</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x13fa</data>
+        <data key="type">instructions</data>
+        <node id="block.0x13fa:instruction.0x13fa">
+          <data key="address">0x13fa</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b45d0</data>
+          <data key="instruction.source">mov rax, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x13fa:instruction.0x13fe">
+          <data key="address">0x13fe</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">498b4c2430</data>
+          <data key="instruction.source">mov rcx, qword ptr [r12 + 0x30]</data>
+        </node>
+        <node id="block.0x13fa:instruction.0x1403">
+          <data key="address">0x1403</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4829c8</data>
+          <data key="instruction.source">sub rax, rcx</data>
+        </node>
+        <node id="block.0x13fa:instruction.0x1406">
+          <data key="address">0x1406</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488945d8</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x28], rax</data>
+        </node>
+        <node id="block.0x13fa:instruction.0x140a">
+          <data key="address">0x140a</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b8424b0000000</data>
+          <data key="instruction.source">mov eax, dword ptr [r12 + 0xb0]</data>
+        </node>
+        <node id="block.0x13fa:instruction.0x1412">
+          <data key="address">0x1412</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">85c0</data>
+          <data key="instruction.source">test eax, eax</data>
+        </node>
+        <node id="block.0x13fa:instruction.0x1414">
+          <data key="address">0x1414</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7478</data>
+          <data key="instruction.source">je 0x148e</data>
+        </node>
+        <edge source="block.0x13fa:instruction.0x13fa" target="block.0x13fa:instruction.0x1403"/>
+        <edge source="block.0x13fa:instruction.0x13fe" target="block.0x13fa:instruction.0x1403"/>
+        <edge source="block.0x13fa:instruction.0x1403" target="block.0x13fa:instruction.0x1406"/>
+        <edge source="block.0x13fa:instruction.0x1403" target="block.0x13fa:instruction.0x140a"/>
+        <edge source="block.0x13fa:instruction.0x1403" target="block.0x13fa:instruction.0x1412"/>
+        <edge source="block.0x13fa:instruction.0x1406" target="block.0x13fa:instruction.0x140a"/>
+        <edge source="block.0x13fa:instruction.0x140a" target="block.0x13fa:instruction.0x1412"/>
+        <edge source="block.0x13fa:instruction.0x1412" target="block.0x13fa:instruction.0x1414"/>
+      </graph>
+    </node>
+    <node id="block.0x1416">
+      <data key="address">0x1416</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1416</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1416:instruction.0x1416">
+          <data key="address">0x1416</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b8c24b4000000</data>
+          <data key="instruction.source">mov ecx, dword ptr [r12 + 0xb4]</data>
+        </node>
+        <node id="block.0x1416:instruction.0x141e">
+          <data key="address">0x141e</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">85c9</data>
+          <data key="instruction.source">test ecx, ecx</data>
+        </node>
+        <node id="block.0x1416:instruction.0x1420">
+          <data key="address">0x1420</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">746c</data>
+          <data key="instruction.source">je 0x148e</data>
+        </node>
+        <edge source="block.0x1416:instruction.0x1416" target="block.0x1416:instruction.0x141e"/>
+        <edge source="block.0x1416:instruction.0x141e" target="block.0x1416:instruction.0x1420"/>
+      </graph>
+    </node>
+    <node id="block.0x1422">
+      <data key="address">0x1422</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1422</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1422:instruction.0x1422">
+          <data key="address">0x1422</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8b75d0</data>
+          <data key="instruction.source">mov r14, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x1422:instruction.0x1426">
+          <data key="address">0x1426</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4901c6</data>
+          <data key="instruction.source">add r14, rax</data>
+        </node>
+        <edge source="block.0x1422:instruction.0x1422" target="block.0x1422:instruction.0x1426"/>
+      </graph>
+    </node>
+    <node id="block.0x1429">
+      <data key="address">0x1429</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1429</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1429:instruction.0x1429">
+          <data key="address">0x1429</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b4604</data>
+          <data key="instruction.source">mov eax, dword ptr [r14 + 4]</data>
+        </node>
+        <node id="block.0x1429:instruction.0x142d">
+          <data key="address">0x142d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">85c0</data>
+          <data key="instruction.source">test eax, eax</data>
+        </node>
+        <node id="block.0x1429:instruction.0x142f">
+          <data key="address">0x142f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">745d</data>
+          <data key="instruction.source">je 0x148e</data>
+        </node>
+        <edge source="block.0x1429:instruction.0x1429" target="block.0x1429:instruction.0x142d"/>
+        <edge source="block.0x1429:instruction.0x142d" target="block.0x1429:instruction.0x142f"/>
+      </graph>
+    </node>
+    <node id="block.0x1431">
+      <data key="address">0x1431</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1431</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1431:instruction.0x1431">
+          <data key="address">0x1431</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">83e808</data>
+          <data key="instruction.source">sub eax, 8</data>
+        </node>
+        <node id="block.0x1431:instruction.0x1434">
+          <data key="address">0x1434</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">d1e8</data>
+          <data key="instruction.source">shr eax, 1</data>
+        </node>
+        <node id="block.0x1431:instruction.0x1436">
+          <data key="address">0x1436</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4189c7</data>
+          <data key="instruction.source">mov r15d, eax</data>
+        </node>
+        <node id="block.0x1431:instruction.0x1439">
+          <data key="address">0x1439</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b06</data>
+          <data key="instruction.source">mov eax, dword ptr [r14]</data>
+        </node>
+        <node id="block.0x1431:instruction.0x143c">
+          <data key="address">0x143c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8b6dd0</data>
+          <data key="instruction.source">mov r13, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x1431:instruction.0x1440">
+          <data key="address">0x1440</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4901c5</data>
+          <data key="instruction.source">add r13, rax</data>
+        </node>
+        <node id="block.0x1431:instruction.0x1443">
+          <data key="address">0x1443</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4d8d6608</data>
+          <data key="instruction.source">lea r12, [r14 + 8]</data>
+        </node>
+        <edge source="block.0x1431:instruction.0x1431" target="block.0x1431:instruction.0x1434"/>
+        <edge source="block.0x1431:instruction.0x1434" target="block.0x1431:instruction.0x1436"/>
+        <edge source="block.0x1431:instruction.0x1434" target="block.0x1431:instruction.0x1439"/>
+        <edge source="block.0x1431:instruction.0x1434" target="block.0x1431:instruction.0x1440"/>
+        <edge source="block.0x1431:instruction.0x1436" target="block.0x1431:instruction.0x1439"/>
+        <edge source="block.0x1431:instruction.0x1439" target="block.0x1431:instruction.0x1440"/>
+        <edge source="block.0x1431:instruction.0x143c" target="block.0x1431:instruction.0x1440"/>
+      </graph>
+    </node>
+    <node id="block.0x1447">
+      <data key="address">0x1447</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1447</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1447:instruction.0x1447">
+          <data key="address">0x1447</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4585ff</data>
+          <data key="instruction.source">test r15d, r15d</data>
+        </node>
+        <node id="block.0x1447:instruction.0x144a">
+          <data key="address">0x144a</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7439</data>
+          <data key="instruction.source">je 0x1485</data>
+        </node>
+        <edge source="block.0x1447:instruction.0x1447" target="block.0x1447:instruction.0x144a"/>
+      </graph>
+    </node>
+    <node id="block.0x144c">
+      <data key="address">0x144c</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x144c</data>
+        <data key="type">instructions</data>
+        <node id="block.0x144c:instruction.0x144c">
+          <data key="address">0x144c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">410fb70424</data>
+          <data key="instruction.source">movzx eax, word ptr [r12]</data>
+        </node>
+        <node id="block.0x144c:instruction.0x1451">
+          <data key="address">0x1451</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">89c3</data>
+          <data key="instruction.source">mov ebx, eax</data>
+        </node>
+        <node id="block.0x144c:instruction.0x1453">
+          <data key="address">0x1453</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">c1eb0c</data>
+          <data key="instruction.source">shr ebx, 0xc</data>
+        </node>
+        <node id="block.0x144c:instruction.0x1456">
+          <data key="address">0x1456</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">25ff0f0000</data>
+          <data key="instruction.source">and eax, 0xfff</data>
+        </node>
+        <node id="block.0x144c:instruction.0x145b">
+          <data key="address">0x145b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">83fb0a</data>
+          <data key="instruction.source">cmp ebx, 0xa</data>
+        </node>
+        <node id="block.0x144c:instruction.0x145e">
+          <data key="address">0x145e</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7407</data>
+          <data key="instruction.source">je 0x1467</data>
+        </node>
+        <edge source="block.0x144c:instruction.0x144c" target="block.0x144c:instruction.0x1451"/>
+        <edge source="block.0x144c:instruction.0x144c" target="block.0x144c:instruction.0x1456"/>
+        <edge source="block.0x144c:instruction.0x1451" target="block.0x144c:instruction.0x1453"/>
+        <edge source="block.0x144c:instruction.0x1451" target="block.0x144c:instruction.0x1456"/>
+        <edge source="block.0x144c:instruction.0x1453" target="block.0x144c:instruction.0x1456"/>
+        <edge source="block.0x144c:instruction.0x1453" target="block.0x144c:instruction.0x145b"/>
+        <edge source="block.0x144c:instruction.0x1456" target="block.0x144c:instruction.0x145b"/>
+        <edge source="block.0x144c:instruction.0x145b" target="block.0x144c:instruction.0x145e"/>
+      </graph>
+    </node>
+    <node id="block.0x1460">
+      <data key="address">0x1460</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1460</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1460:instruction.0x1460">
+          <data key="address">0x1460</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">83fb03</data>
+          <data key="instruction.source">cmp ebx, 3</data>
+        </node>
+        <node id="block.0x1460:instruction.0x1463">
+          <data key="address">0x1463</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">740d</data>
+          <data key="instruction.source">je 0x1472</data>
+        </node>
+        <edge source="block.0x1460:instruction.0x1460" target="block.0x1460:instruction.0x1463"/>
+      </graph>
+    </node>
+    <node id="block.0x1465">
+      <data key="address">0x1465</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1465</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1465:instruction.0x1465">
+          <data key="address">0x1465</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">eb15</data>
+          <data key="instruction.source">jmp 0x147c</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x1467">
+      <data key="address">0x1467</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1467</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1467:instruction.0x1467">
+          <data key="address">0x1467</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b55d8</data>
+          <data key="instruction.source">mov rdx, qword ptr [rbp - 0x28]</data>
+        </node>
+        <node id="block.0x1467:instruction.0x146b">
+          <data key="address">0x146b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4901540500</data>
+          <data key="instruction.source">add qword ptr [r13 + rax], rdx</data>
+        </node>
+        <node id="block.0x1467:instruction.0x1470">
+          <data key="address">0x1470</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">eb0a</data>
+          <data key="instruction.source">jmp 0x147c</data>
+        </node>
+        <edge source="block.0x1467:instruction.0x1467" target="block.0x1467:instruction.0x146b"/>
+        <edge source="block.0x1467:instruction.0x146b" target="block.0x1467:instruction.0x1470"/>
+      </graph>
+    </node>
+    <node id="block.0x1472">
+      <data key="address">0x1472</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1472</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1472:instruction.0x1472">
+          <data key="address">0x1472</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b55d8</data>
+          <data key="instruction.source">mov edx, dword ptr [rbp - 0x28]</data>
+        </node>
+        <node id="block.0x1472:instruction.0x1475">
+          <data key="address">0x1475</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4101540500</data>
+          <data key="instruction.source">add dword ptr [r13 + rax], edx</data>
+        </node>
+        <node id="block.0x1472:instruction.0x147a">
+          <data key="address">0x147a</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">eb00</data>
+          <data key="instruction.source">jmp 0x147c</data>
+        </node>
+        <edge source="block.0x1472:instruction.0x1472" target="block.0x1472:instruction.0x1475"/>
+      </graph>
+    </node>
+    <node id="block.0x147c">
+      <data key="address">0x147c</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x147c</data>
+        <data key="type">instructions</data>
+        <node id="block.0x147c:instruction.0x147c">
+          <data key="address">0x147c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4983c402</data>
+          <data key="instruction.source">add r12, 2</data>
+        </node>
+        <node id="block.0x147c:instruction.0x1480">
+          <data key="address">0x1480</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">41ffcf</data>
+          <data key="instruction.source">dec r15d</data>
+        </node>
+        <node id="block.0x147c:instruction.0x1483">
+          <data key="address">0x1483</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">ebc2</data>
+          <data key="instruction.source">jmp 0x1447</data>
+        </node>
+        <edge source="block.0x147c:instruction.0x147c" target="block.0x147c:instruction.0x1480"/>
+        <edge source="block.0x147c:instruction.0x1480" target="block.0x147c:instruction.0x1483"/>
+      </graph>
+    </node>
+    <node id="block.0x1485">
+      <data key="address">0x1485</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1485</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1485:instruction.0x1485">
+          <data key="address">0x1485</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b4604</data>
+          <data key="instruction.source">mov eax, dword ptr [r14 + 4]</data>
+        </node>
+        <node id="block.0x1485:instruction.0x1489">
+          <data key="address">0x1489</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4901c6</data>
+          <data key="instruction.source">add r14, rax</data>
+        </node>
+        <node id="block.0x1485:instruction.0x148c">
+          <data key="address">0x148c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">eb9b</data>
+          <data key="instruction.source">jmp 0x1429</data>
+        </node>
+        <edge source="block.0x1485:instruction.0x1485" target="block.0x1485:instruction.0x1489"/>
+        <edge source="block.0x1485:instruction.0x1489" target="block.0x1485:instruction.0x148c"/>
+      </graph>
+    </node>
+    <node id="block.0x148e">
+      <data key="address">0x148e</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x148e</data>
+        <data key="type">instructions</data>
+        <node id="block.0x148e:instruction.0x148e">
+          <data key="address">0x148e</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b4dd0</data>
+          <data key="instruction.source">mov rcx, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x148e:instruction.0x1492">
+          <data key="address">0x1492</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b413c</data>
+          <data key="instruction.source">mov eax, dword ptr [rcx + 0x3c]</data>
+        </node>
+        <node id="block.0x148e:instruction.0x1495">
+          <data key="address">0x1495</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8d2401</data>
+          <data key="instruction.source">lea r12, [rcx + rax]</data>
+        </node>
+        <node id="block.0x148e:instruction.0x1499">
+          <data key="address">0x1499</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">490fb7442414</data>
+          <data key="instruction.source">movzx rax, word ptr [r12 + 0x14]</data>
+        </node>
+        <node id="block.0x148e:instruction.0x149f">
+          <data key="address">0x149f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4d8d6c0418</data>
+          <data key="instruction.source">lea r13, [r12 + rax + 0x18]</data>
+        </node>
+        <node id="block.0x148e:instruction.0x14a4">
+          <data key="address">0x14a4</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">450fb77c2406</data>
+          <data key="instruction.source">movzx r15d, word ptr [r12 + 6]</data>
+        </node>
+        <edge source="block.0x148e:instruction.0x148e" target="block.0x148e:instruction.0x1492"/>
+        <edge source="block.0x148e:instruction.0x148e" target="block.0x148e:instruction.0x1495"/>
+        <edge source="block.0x148e:instruction.0x1492" target="block.0x148e:instruction.0x1495"/>
+        <edge source="block.0x148e:instruction.0x1492" target="block.0x148e:instruction.0x1499"/>
+        <edge source="block.0x148e:instruction.0x1495" target="block.0x148e:instruction.0x1499"/>
+        <edge source="block.0x148e:instruction.0x1495" target="block.0x148e:instruction.0x149f"/>
+        <edge source="block.0x148e:instruction.0x1495" target="block.0x148e:instruction.0x14a4"/>
+        <edge source="block.0x148e:instruction.0x1499" target="block.0x148e:instruction.0x149f"/>
+      </graph>
+    </node>
+    <node id="block.0x14aa">
+      <data key="address">0x14aa</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x14aa</data>
+        <data key="type">instructions</data>
+        <node id="block.0x14aa:instruction.0x14aa">
+          <data key="address">0x14aa</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4585ff</data>
+          <data key="instruction.source">test r15d, r15d</data>
+        </node>
+        <node id="block.0x14aa:instruction.0x14ad">
+          <data key="address">0x14ad</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">0f8486000000</data>
+          <data key="instruction.source">je 0x1539</data>
+        </node>
+        <edge source="block.0x14aa:instruction.0x14aa" target="block.0x14aa:instruction.0x14ad"/>
+      </graph>
+    </node>
+    <node id="block.0x14b3">
+      <data key="address">0x14b3</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x14b3</data>
+        <data key="type">instructions</data>
+        <node id="block.0x14b3:instruction.0x14b3">
+          <data key="address">0x14b3</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b4508</data>
+          <data key="instruction.source">mov eax, dword ptr [r13 + 8]</data>
+        </node>
+        <node id="block.0x14b3:instruction.0x14b7">
+          <data key="address">0x14b7</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">85c0</data>
+          <data key="instruction.source">test eax, eax</data>
+        </node>
+        <node id="block.0x14b3:instruction.0x14b9">
+          <data key="address">0x14b9</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">7472</data>
+          <data key="instruction.source">je 0x152d</data>
+        </node>
+        <edge source="block.0x14b3:instruction.0x14b3" target="block.0x14b3:instruction.0x14b7"/>
+        <edge source="block.0x14b3:instruction.0x14b7" target="block.0x14b3:instruction.0x14b9"/>
+      </graph>
+    </node>
+    <node id="block.0x14bb">
+      <data key="address">0x14bb</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x14bb</data>
+        <data key="type">instructions</data>
+        <node id="block.0x14bb:instruction.0x14bb">
+          <data key="address">0x14bb</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b4524</data>
+          <data key="instruction.source">mov eax, dword ptr [r13 + 0x24]</data>
+        </node>
+        <node id="block.0x14bb:instruction.0x14bf">
+          <data key="address">0x14bf</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">c1e81d</data>
+          <data key="instruction.source">shr eax, 0x1d</data>
+        </node>
+        <node id="block.0x14bb:instruction.0x14c2">
+          <data key="address">0x14c2</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">83e007</data>
+          <data key="instruction.source">and eax, 7</data>
+        </node>
+        <node id="block.0x14bb:instruction.0x14c5">
+          <data key="address">0x14c5</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488d1d06000000</data>
+          <data key="instruction.source">lea rbx, [rip + 6]</data>
+        </node>
+        <node id="block.0x14bb:instruction.0x14cc">
+          <data key="address">0x14cc</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">0fb61c03</data>
+          <data key="instruction.source">movzx ebx, byte ptr [rbx + rax]</data>
+        </node>
+        <node id="block.0x14bb:instruction.0x14d0">
+          <data key="address">0x14d0</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">eb08</data>
+          <data key="instruction.source">jmp 0x14da</data>
+        </node>
+        <edge source="block.0x14bb:instruction.0x14bb" target="block.0x14bb:instruction.0x14bf"/>
+        <edge source="block.0x14bb:instruction.0x14bf" target="block.0x14bb:instruction.0x14c2"/>
+        <edge source="block.0x14bb:instruction.0x14c2" target="block.0x14bb:instruction.0x14cc"/>
+        <edge source="block.0x14bb:instruction.0x14c5" target="block.0x14bb:instruction.0x14cc"/>
+        <edge source="block.0x14bb:instruction.0x14cc" target="block.0x14bb:instruction.0x14d0"/>
+      </graph>
+    </node>
+    <node id="block.0x14d2">
+      <data key="address">0x14d2</data>
+      <data key="type">data</data>
+      <data key="data.hex">0110022004400440</data>
+    </node>
+    <node id="block.0x14da">
+      <data key="address">0x14da</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x14da</data>
+        <data key="type">instructions</data>
+        <node id="block.0x14da:instruction.0x14da">
+          <data key="address">0x14da</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883ec48</data>
+          <data key="instruction.source">sub rsp, 0x48</data>
+        </node>
+        <node id="block.0x14da:instruction.0x14de">
+          <data key="address">0x14de</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b450c</data>
+          <data key="instruction.source">mov eax, dword ptr [r13 + 0xc]</data>
+        </node>
+        <node id="block.0x14da:instruction.0x14e2">
+          <data key="address">0x14e2</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b4dd0</data>
+          <data key="instruction.source">mov rcx, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x14da:instruction.0x14e6">
+          <data key="address">0x14e6</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4801c1</data>
+          <data key="instruction.source">add rcx, rax</data>
+        </node>
+        <node id="block.0x14da:instruction.0x14e9">
+          <data key="address">0x14e9</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48894c2430</data>
+          <data key="instruction.source">mov qword ptr [rsp + 0x30], rcx</data>
+        </node>
+        <node id="block.0x14da:instruction.0x14ee">
+          <data key="address">0x14ee</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b4508</data>
+          <data key="instruction.source">mov eax, dword ptr [r13 + 8]</data>
+        </node>
+        <node id="block.0x14da:instruction.0x14f2">
+          <data key="address">0x14f2</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4889442438</data>
+          <data key="instruction.source">mov qword ptr [rsp + 0x38], rax</data>
+        </node>
+        <node id="block.0x14da:instruction.0x14f7">
+          <data key="address">0x14f7</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">c744244000000000</data>
+          <data key="instruction.source">mov dword ptr [rsp + 0x40], 0</data>
+        </node>
+        <node id="block.0x14da:instruction.0x14ff">
+          <data key="address">0x14ff</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48c7c1ffffffff</data>
+          <data key="instruction.source">mov rcx, 0xffffffffffffffff</data>
+        </node>
+        <node id="block.0x14da:instruction.0x1506">
+          <data key="address">0x1506</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488d542430</data>
+          <data key="instruction.source">lea rdx, [rsp + 0x30]</data>
+        </node>
+        <node id="block.0x14da:instruction.0x150b">
+          <data key="address">0x150b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8d442438</data>
+          <data key="instruction.source">lea r8, [rsp + 0x38]</data>
+        </node>
+        <node id="block.0x14da:instruction.0x1510">
+          <data key="address">0x1510</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4189d9</data>
+          <data key="instruction.source">mov r9d, ebx</data>
+        </node>
+        <node id="block.0x14da:instruction.0x1513">
+          <data key="address">0x1513</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488d442440</data>
+          <data key="instruction.source">lea rax, [rsp + 0x40]</data>
+        </node>
+        <node id="block.0x14da:instruction.0x1518">
+          <data key="address">0x1518</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4889442420</data>
+          <data key="instruction.source">mov qword ptr [rsp + 0x20], rax</data>
+        </node>
+        <node id="block.0x14da:instruction.0x151d">
+          <data key="address">0x151d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8b9568ffffff</data>
+          <data key="instruction.source">mov r10, qword ptr [rbp - 0x98]</data>
+        </node>
+        <node id="block.0x14da:instruction.0x1524">
+          <data key="address">0x1524</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">e8b5000000</data>
+          <data key="instruction.source">call 0x15de</data>
+        </node>
+        <edge source="block.0x14da:instruction.0x14da" target="block.0x14da:instruction.0x14e6"/>
+        <edge source="block.0x14da:instruction.0x14da" target="block.0x14da:instruction.0x14e9"/>
+        <edge source="block.0x14da:instruction.0x14da" target="block.0x14da:instruction.0x14f2"/>
+        <edge source="block.0x14da:instruction.0x14da" target="block.0x14da:instruction.0x14f7"/>
+        <edge source="block.0x14da:instruction.0x14da" target="block.0x14da:instruction.0x1506"/>
+        <edge source="block.0x14da:instruction.0x14da" target="block.0x14da:instruction.0x150b"/>
+        <edge source="block.0x14da:instruction.0x14da" target="block.0x14da:instruction.0x1513"/>
+        <edge source="block.0x14da:instruction.0x14da" target="block.0x14da:instruction.0x1518"/>
+        <edge source="block.0x14da:instruction.0x14da" target="block.0x14da:instruction.0x1524"/>
+        <edge source="block.0x14da:instruction.0x14de" target="block.0x14da:instruction.0x14e6"/>
+        <edge source="block.0x14da:instruction.0x14de" target="block.0x14da:instruction.0x14ee"/>
+        <edge source="block.0x14da:instruction.0x14e2" target="block.0x14da:instruction.0x14e6"/>
+        <edge source="block.0x14da:instruction.0x14e6" target="block.0x14da:instruction.0x14e9"/>
+        <edge source="block.0x14da:instruction.0x14e6" target="block.0x14da:instruction.0x14ee"/>
+        <edge source="block.0x14da:instruction.0x14e6" target="block.0x14da:instruction.0x14ff"/>
+        <edge source="block.0x14da:instruction.0x14e9" target="block.0x14da:instruction.0x14ff"/>
+        <edge source="block.0x14da:instruction.0x14e9" target="block.0x14da:instruction.0x1524"/>
+        <edge source="block.0x14da:instruction.0x14ee" target="block.0x14da:instruction.0x14f2"/>
+        <edge source="block.0x14da:instruction.0x14ee" target="block.0x14da:instruction.0x1513"/>
+        <edge source="block.0x14da:instruction.0x14f2" target="block.0x14da:instruction.0x1513"/>
+        <edge source="block.0x14da:instruction.0x14f2" target="block.0x14da:instruction.0x1524"/>
+        <edge source="block.0x14da:instruction.0x14f7" target="block.0x14da:instruction.0x1524"/>
+        <edge source="block.0x14da:instruction.0x14ff" target="block.0x14da:instruction.0x1524"/>
+        <edge source="block.0x14da:instruction.0x1506" target="block.0x14da:instruction.0x1524"/>
+        <edge source="block.0x14da:instruction.0x150b" target="block.0x14da:instruction.0x1524"/>
+        <edge source="block.0x14da:instruction.0x1510" target="block.0x14da:instruction.0x1524"/>
+        <edge source="block.0x14da:instruction.0x1513" target="block.0x14da:instruction.0x1518"/>
+        <edge source="block.0x14da:instruction.0x1513" target="block.0x14da:instruction.0x1524"/>
+        <edge source="block.0x14da:instruction.0x1518" target="block.0x14da:instruction.0x1524"/>
+        <edge source="block.0x14da:instruction.0x151d" target="block.0x14da:instruction.0x1524"/>
+      </graph>
+    </node>
+    <node id="block.0x1529">
+      <data key="address">0x1529</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1529</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1529:instruction.0x1529">
+          <data key="address">0x1529</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883c448</data>
+          <data key="instruction.source">add rsp, 0x48</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x152d">
+      <data key="address">0x152d</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x152d</data>
+        <data key="type">instructions</data>
+        <node id="block.0x152d:instruction.0x152d">
+          <data key="address">0x152d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4983c528</data>
+          <data key="instruction.source">add r13, 0x28</data>
+        </node>
+        <node id="block.0x152d:instruction.0x1531">
+          <data key="address">0x1531</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">41ffcf</data>
+          <data key="instruction.source">dec r15d</data>
+        </node>
+        <node id="block.0x152d:instruction.0x1534">
+          <data key="address">0x1534</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">e971ffffff</data>
+          <data key="instruction.source">jmp 0x14aa</data>
+        </node>
+        <edge source="block.0x152d:instruction.0x152d" target="block.0x152d:instruction.0x1531"/>
+        <edge source="block.0x152d:instruction.0x1531" target="block.0x152d:instruction.0x1534"/>
+      </graph>
+    </node>
+    <node id="block.0x1539">
+      <data key="address">0x1539</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1539</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1539:instruction.0x1539">
+          <data key="address">0x1539</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b4dd0</data>
+          <data key="instruction.source">mov rcx, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x1539:instruction.0x153d">
+          <data key="address">0x153d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b413c</data>
+          <data key="instruction.source">mov eax, dword ptr [rcx + 0x3c]</data>
+        </node>
+        <node id="block.0x1539:instruction.0x1540">
+          <data key="address">0x1540</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8d2401</data>
+          <data key="instruction.source">lea r12, [rcx + rax]</data>
+        </node>
+        <node id="block.0x1539:instruction.0x1544">
+          <data key="address">0x1544</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b442428</data>
+          <data key="instruction.source">mov eax, dword ptr [r12 + 0x28]</data>
+        </node>
+        <node id="block.0x1539:instruction.0x1549">
+          <data key="address">0x1549</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c8b6dd0</data>
+          <data key="instruction.source">mov r13, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x1539:instruction.0x154d">
+          <data key="address">0x154d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4901c5</data>
+          <data key="instruction.source">add r13, rax</data>
+        </node>
+        <node id="block.0x1539:instruction.0x1550">
+          <data key="address">0x1550</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883ec28</data>
+          <data key="instruction.source">sub rsp, 0x28</data>
+        </node>
+        <node id="block.0x1539:instruction.0x1554">
+          <data key="address">0x1554</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48c7c1ffffffff</data>
+          <data key="instruction.source">mov rcx, 0xffffffffffffffff</data>
+        </node>
+        <node id="block.0x1539:instruction.0x155b">
+          <data key="address">0x155b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4831d2</data>
+          <data key="instruction.source">xor rdx, rdx</data>
+        </node>
+        <node id="block.0x1539:instruction.0x155e">
+          <data key="address">0x155e</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4531c0</data>
+          <data key="instruction.source">xor r8d, r8d</data>
+        </node>
+        <node id="block.0x1539:instruction.0x1561">
+          <data key="address">0x1561</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">ff55e0</data>
+          <data key="instruction.source">call qword ptr [rbp - 0x20]</data>
+        </node>
+        <edge source="block.0x1539:instruction.0x1539" target="block.0x1539:instruction.0x153d"/>
+        <edge source="block.0x1539:instruction.0x1539" target="block.0x1539:instruction.0x1540"/>
+        <edge source="block.0x1539:instruction.0x1539" target="block.0x1539:instruction.0x1554"/>
+        <edge source="block.0x1539:instruction.0x153d" target="block.0x1539:instruction.0x1540"/>
+        <edge source="block.0x1539:instruction.0x153d" target="block.0x1539:instruction.0x1544"/>
+        <edge source="block.0x1539:instruction.0x153d" target="block.0x1539:instruction.0x1554"/>
+        <edge source="block.0x1539:instruction.0x1540" target="block.0x1539:instruction.0x1544"/>
+        <edge source="block.0x1539:instruction.0x1540" target="block.0x1539:instruction.0x1554"/>
+        <edge source="block.0x1539:instruction.0x1544" target="block.0x1539:instruction.0x154d"/>
+        <edge source="block.0x1539:instruction.0x1549" target="block.0x1539:instruction.0x154d"/>
+        <edge source="block.0x1539:instruction.0x154d" target="block.0x1539:instruction.0x1550"/>
+        <edge source="block.0x1539:instruction.0x1550" target="block.0x1539:instruction.0x155b"/>
+        <edge source="block.0x1539:instruction.0x1550" target="block.0x1539:instruction.0x1561"/>
+        <edge source="block.0x1539:instruction.0x1554" target="block.0x1539:instruction.0x1561"/>
+        <edge source="block.0x1539:instruction.0x155b" target="block.0x1539:instruction.0x155e"/>
+        <edge source="block.0x1539:instruction.0x155e" target="block.0x1539:instruction.0x1561"/>
+      </graph>
+    </node>
+    <node id="block.0x1564">
+      <data key="address">0x1564</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1564</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1564:instruction.0x1564">
+          <data key="address">0x1564</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883c428</data>
+          <data key="instruction.source">add rsp, 0x28</data>
+        </node>
+        <node id="block.0x1564:instruction.0x1568">
+          <data key="address">0x1568</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883ec28</data>
+          <data key="instruction.source">sub rsp, 0x28</data>
+        </node>
+        <node id="block.0x1564:instruction.0x156c">
+          <data key="address">0x156c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488b4dd0</data>
+          <data key="instruction.source">mov rcx, qword ptr [rbp - 0x30]</data>
+        </node>
+        <node id="block.0x1564:instruction.0x1570">
+          <data key="address">0x1570</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">ba01000000</data>
+          <data key="instruction.source">mov edx, 1</data>
+        </node>
+        <node id="block.0x1564:instruction.0x1575">
+          <data key="address">0x1575</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4531c0</data>
+          <data key="instruction.source">xor r8d, r8d</data>
+        </node>
+        <node id="block.0x1564:instruction.0x1578">
+          <data key="address">0x1578</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">41ffd5</data>
+          <data key="instruction.source">call r13</data>
+        </node>
+        <edge source="block.0x1564:instruction.0x1564" target="block.0x1564:instruction.0x1568"/>
+        <edge source="block.0x1564:instruction.0x1568" target="block.0x1564:instruction.0x1575"/>
+        <edge source="block.0x1564:instruction.0x1568" target="block.0x1564:instruction.0x1578"/>
+        <edge source="block.0x1564:instruction.0x156c" target="block.0x1564:instruction.0x1578"/>
+        <edge source="block.0x1564:instruction.0x1570" target="block.0x1564:instruction.0x1578"/>
+        <edge source="block.0x1564:instruction.0x1575" target="block.0x1564:instruction.0x1578"/>
+      </graph>
+    </node>
+    <node id="block.0x157b">
+      <data key="address">0x157b</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x157b</data>
+        <data key="type">instructions</data>
+        <node id="block.0x157b:instruction.0x157b">
+          <data key="address">0x157b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4883c428</data>
+          <data key="instruction.source">add rsp, 0x28</data>
+        </node>
+        <node id="block.0x157b:instruction.0x157f">
+          <data key="address">0x157f</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4c89e8</data>
+          <data key="instruction.source">mov rax, r13</data>
+        </node>
+        <node id="block.0x157b:instruction.0x1582">
+          <data key="address">0x1582</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">415f</data>
+          <data key="instruction.source">pop r15</data>
+        </node>
+        <node id="block.0x157b:instruction.0x1584">
+          <data key="address">0x1584</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">415e</data>
+          <data key="instruction.source">pop r14</data>
+        </node>
+        <node id="block.0x157b:instruction.0x1586">
+          <data key="address">0x1586</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">415d</data>
+          <data key="instruction.source">pop r13</data>
+        </node>
+        <node id="block.0x157b:instruction.0x1588">
+          <data key="address">0x1588</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">415c</data>
+          <data key="instruction.source">pop r12</data>
+        </node>
+        <node id="block.0x157b:instruction.0x158a">
+          <data key="address">0x158a</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">5f</data>
+          <data key="instruction.source">pop rdi</data>
+        </node>
+        <node id="block.0x157b:instruction.0x158b">
+          <data key="address">0x158b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">5e</data>
+          <data key="instruction.source">pop rsi</data>
+        </node>
+        <node id="block.0x157b:instruction.0x158c">
+          <data key="address">0x158c</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">5b</data>
+          <data key="instruction.source">pop rbx</data>
+        </node>
+        <node id="block.0x157b:instruction.0x158d">
+          <data key="address">0x158d</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4889ec</data>
+          <data key="instruction.source">mov rsp, rbp</data>
+        </node>
+        <node id="block.0x157b:instruction.0x1590">
+          <data key="address">0x1590</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">5d</data>
+          <data key="instruction.source">pop rbp</data>
+        </node>
+        <node id="block.0x157b:instruction.0x1591">
+          <data key="address">0x1591</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">c3</data>
+          <data key="instruction.source">ret</data>
+        </node>
+        <edge source="block.0x157b:instruction.0x157b" target="block.0x157b:instruction.0x1582"/>
+        <edge source="block.0x157b:instruction.0x157f" target="block.0x157b:instruction.0x1586"/>
+        <edge source="block.0x157b:instruction.0x1582" target="block.0x157b:instruction.0x1584"/>
+        <edge source="block.0x157b:instruction.0x1584" target="block.0x157b:instruction.0x1586"/>
+        <edge source="block.0x157b:instruction.0x1586" target="block.0x157b:instruction.0x1588"/>
+        <edge source="block.0x157b:instruction.0x1588" target="block.0x157b:instruction.0x158a"/>
+        <edge source="block.0x157b:instruction.0x158a" target="block.0x157b:instruction.0x158b"/>
+        <edge source="block.0x157b:instruction.0x158b" target="block.0x157b:instruction.0x158c"/>
+        <edge source="block.0x157b:instruction.0x158c" target="block.0x157b:instruction.0x158d"/>
+        <edge source="block.0x157b:instruction.0x158d" target="block.0x157b:instruction.0x1590"/>
+        <edge source="block.0x157b:instruction.0x1590" target="block.0x157b:instruction.0x1591"/>
+      </graph>
+    </node>
+    <node id="block.0x1592">
+      <data key="address">0x1592</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x1592</data>
+        <data key="type">instructions</data>
+        <node id="block.0x1592:instruction.0x1592">
+          <data key="address">0x1592</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b453c</data>
+          <data key="instruction.source">mov eax, dword ptr [r13 + 0x3c]</data>
+        </node>
+        <node id="block.0x1592:instruction.0x1596">
+          <data key="address">0x1596</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">498d5c0500</data>
+          <data key="instruction.source">lea rbx, [r13 + rax]</data>
+        </node>
+        <node id="block.0x1592:instruction.0x159b">
+          <data key="address">0x159b</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b8388000000</data>
+          <data key="instruction.source">mov eax, dword ptr [rbx + 0x88]</data>
+        </node>
+        <node id="block.0x1592:instruction.0x15a1">
+          <data key="address">0x15a1</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">498d4c0500</data>
+          <data key="instruction.source">lea rcx, [r13 + rax]</data>
+        </node>
+        <node id="block.0x1592:instruction.0x15a6">
+          <data key="address">0x15a6</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48894dc0</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x40], rcx</data>
+        </node>
+        <node id="block.0x1592:instruction.0x15aa">
+          <data key="address">0x15aa</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b4118</data>
+          <data key="instruction.source">mov eax, dword ptr [rcx + 0x18]</data>
+        </node>
+        <node id="block.0x1592:instruction.0x15ad">
+          <data key="address">0x15ad</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48894590</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x70], rax</data>
+        </node>
+        <node id="block.0x1592:instruction.0x15b1">
+          <data key="address">0x15b1</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b4120</data>
+          <data key="instruction.source">mov eax, dword ptr [rcx + 0x20]</data>
+        </node>
+        <node id="block.0x1592:instruction.0x15b4">
+          <data key="address">0x15b4</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">498d440500</data>
+          <data key="instruction.source">lea rax, [r13 + rax]</data>
+        </node>
+        <node id="block.0x1592:instruction.0x15b9">
+          <data key="address">0x15b9</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488945b8</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x48], rax</data>
+        </node>
+        <node id="block.0x1592:instruction.0x15bd">
+          <data key="address">0x15bd</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">8b4124</data>
+          <data key="instruction.source">mov eax, dword ptr [rcx + 0x24]</data>
+        </node>
+        <node id="block.0x1592:instruction.0x15c0">
+          <data key="address">0x15c0</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">498d440500</data>
+          <data key="instruction.source">lea rax, [r13 + rax]</data>
+        </node>
+        <node id="block.0x1592:instruction.0x15c5">
+          <data key="address">0x15c5</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">488945b0</data>
+          <data key="instruction.source">mov qword ptr [rbp - 0x50], rax</data>
+        </node>
+        <node id="block.0x1592:instruction.0x15c9">
+          <data key="address">0x15c9</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">c3</data>
+          <data key="instruction.source">ret</data>
+        </node>
+        <edge source="block.0x1592:instruction.0x1592" target="block.0x1592:instruction.0x1596"/>
+        <edge source="block.0x1592:instruction.0x1592" target="block.0x1592:instruction.0x159b"/>
+        <edge source="block.0x1592:instruction.0x1596" target="block.0x1592:instruction.0x159b"/>
+        <edge source="block.0x1592:instruction.0x159b" target="block.0x1592:instruction.0x15a1"/>
+        <edge source="block.0x1592:instruction.0x159b" target="block.0x1592:instruction.0x15aa"/>
+        <edge source="block.0x1592:instruction.0x15a1" target="block.0x1592:instruction.0x15a6"/>
+        <edge source="block.0x1592:instruction.0x15a1" target="block.0x1592:instruction.0x15aa"/>
+        <edge source="block.0x1592:instruction.0x15a1" target="block.0x1592:instruction.0x15b1"/>
+        <edge source="block.0x1592:instruction.0x15a1" target="block.0x1592:instruction.0x15bd"/>
+        <edge source="block.0x1592:instruction.0x15a6" target="block.0x1592:instruction.0x15c9"/>
+        <edge source="block.0x1592:instruction.0x15aa" target="block.0x1592:instruction.0x15ad"/>
+        <edge source="block.0x1592:instruction.0x15aa" target="block.0x1592:instruction.0x15b1"/>
+        <edge source="block.0x1592:instruction.0x15ad" target="block.0x1592:instruction.0x15b1"/>
+        <edge source="block.0x1592:instruction.0x15b1" target="block.0x1592:instruction.0x15b4"/>
+        <edge source="block.0x1592:instruction.0x15b4" target="block.0x1592:instruction.0x15b9"/>
+        <edge source="block.0x1592:instruction.0x15b4" target="block.0x1592:instruction.0x15bd"/>
+        <edge source="block.0x1592:instruction.0x15b9" target="block.0x1592:instruction.0x15bd"/>
+        <edge source="block.0x1592:instruction.0x15bd" target="block.0x1592:instruction.0x15c0"/>
+        <edge source="block.0x1592:instruction.0x15c0" target="block.0x1592:instruction.0x15c5"/>
+        <edge source="block.0x1592:instruction.0x15c5" target="block.0x1592:instruction.0x15c9"/>
+      </graph>
+    </node>
+    <node id="block.0x15ca">
+      <data key="address">0x15ca</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x15ca</data>
+        <data key="type">instructions</data>
+        <node id="block.0x15ca:instruction.0x15ca">
+          <data key="address">0x15ca</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">31c0</data>
+          <data key="instruction.source">xor eax, eax</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x15cc">
+      <data key="address">0x15cc</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x15cc</data>
+        <data key="type">instructions</data>
+        <node id="block.0x15cc:instruction.0x15cc">
+          <data key="address">0x15cc</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">0fb619</data>
+          <data key="instruction.source">movzx ebx, byte ptr [rcx]</data>
+        </node>
+        <node id="block.0x15cc:instruction.0x15cf">
+          <data key="address">0x15cf</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">85db</data>
+          <data key="instruction.source">test ebx, ebx</data>
+        </node>
+        <node id="block.0x15cc:instruction.0x15d1">
+          <data key="address">0x15d1</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">740a</data>
+          <data key="instruction.source">je 0x15dd</data>
+        </node>
+        <edge source="block.0x15cc:instruction.0x15cc" target="block.0x15cc:instruction.0x15cf"/>
+        <edge source="block.0x15cc:instruction.0x15cf" target="block.0x15cc:instruction.0x15d1"/>
+      </graph>
+    </node>
+    <node id="block.0x15d3">
+      <data key="address">0x15d3</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x15d3</data>
+        <data key="type">instructions</data>
+        <node id="block.0x15d3:instruction.0x15d3">
+          <data key="address">0x15d3</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">c1c80d</data>
+          <data key="instruction.source">ror eax, 0xd</data>
+        </node>
+        <node id="block.0x15d3:instruction.0x15d6">
+          <data key="address">0x15d6</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">01d8</data>
+          <data key="instruction.source">add eax, ebx</data>
+        </node>
+        <node id="block.0x15d3:instruction.0x15d8">
+          <data key="address">0x15d8</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">48ffc1</data>
+          <data key="instruction.source">inc rcx</data>
+        </node>
+        <node id="block.0x15d3:instruction.0x15db">
+          <data key="address">0x15db</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">ebef</data>
+          <data key="instruction.source">jmp 0x15cc</data>
+        </node>
+        <edge source="block.0x15d3:instruction.0x15d3" target="block.0x15d3:instruction.0x15d6"/>
+        <edge source="block.0x15d3:instruction.0x15d3" target="block.0x15d3:instruction.0x15d8"/>
+        <edge source="block.0x15d3:instruction.0x15d6" target="block.0x15d3:instruction.0x15d8"/>
+        <edge source="block.0x15d3:instruction.0x15d8" target="block.0x15d3:instruction.0x15db"/>
+      </graph>
+    </node>
+    <node id="block.0x15dd">
+      <data key="address">0x15dd</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x15dd</data>
+        <data key="type">instructions</data>
+        <node id="block.0x15dd:instruction.0x15dd">
+          <data key="address">0x15dd</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">c3</data>
+          <data key="instruction.source">ret</data>
+        </node>
+      </graph>
+    </node>
+    <node id="block.0x15de">
+      <data key="address">0x15de</data>
+      <data key="type">instructions-graph</data>
+      <graph edgedefault="directed">
+        <data key="address">0x15de</data>
+        <data key="type">instructions</data>
+        <node id="block.0x15de:instruction.0x15de">
+          <data key="address">0x15de</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">418b4204</data>
+          <data key="instruction.source">mov eax, dword ptr [r10 + 4]</data>
+        </node>
+        <node id="block.0x15de:instruction.0x15e2">
+          <data key="address">0x15e2</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4d8d5a08</data>
+          <data key="instruction.source">lea r11, [r10 + 8]</data>
+        </node>
+        <node id="block.0x15de:instruction.0x15e6">
+          <data key="address">0x15e6</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">4989ca</data>
+          <data key="instruction.source">mov r10, rcx</data>
+        </node>
+        <node id="block.0x15de:instruction.0x15e9">
+          <data key="address">0x15e9</data>
+          <data key="type">instruction</data>
+          <data key="instruction.hex">41ffe3</data>
+          <data key="instruction.source">jmp r11</data>
+        </node>
+        <edge source="block.0x15de:instruction.0x15de" target="block.0x15de:instruction.0x15e6"/>
+        <edge source="block.0x15de:instruction.0x15e2" target="block.0x15de:instruction.0x15e6"/>
+        <edge source="block.0x15de:instruction.0x15e2" target="block.0x15de:instruction.0x15e9"/>
+        <edge source="block.0x15de:instruction.0x15e6" target="block.0x15de:instruction.0x15e9"/>
+      </graph>
+    </node>
+    <edge source="block.0x1000" target="block.0x103c"/>
+    <edge source="block.0x103c" target="block.0x1041"/>
+    <edge source="block.0x1041" target="block.0x1049"/>
+    <edge source="block.0x1049" target="block.0x1052"/>
+    <edge source="block.0x1052" target="block.0x105a"/>
+    <edge source="block.0x105a" target="block.0x1061"/>
+    <edge source="block.0x1061" target="block.0x106e"/>
+    <edge source="block.0x106e" target="block.0x1077"/>
+    <edge source="block.0x1077" target="block.0x108c"/>
+    <edge source="block.0x108c" target="block.0x1095"/>
+    <edge source="block.0x1095" target="block.0x10a7"/>
+    <edge source="block.0x10a7" target="block.0x10ae"/>
+    <edge source="block.0x10ae" target="block.0x10ba"/>
+    <edge source="block.0x10ba" target="block.0x10bd"/>
+    <edge source="block.0x10bd" target="block.0x10c8"/>
+    <edge source="block.0x10c8" target="block.0x10d1"/>
+    <edge source="block.0x10d1" target="block.0x10de"/>
+    <edge source="block.0x10de" target="block.0x10e3"/>
+    <edge source="block.0x10e3" target="block.0x10f4"/>
+    <edge source="block.0x10f4" target="block.0x10ff"/>
+    <edge source="block.0x10ff" target="block.0x110c"/>
+    <edge source="block.0x110c" target="block.0x1122"/>
+    <edge source="block.0x1122" target="block.0x1130"/>
+    <edge source="block.0x1130" target="block.0x1137"/>
+    <edge source="block.0x1137" target="block.0x1139"/>
+    <edge source="block.0x1139" target="block.0x1165"/>
+    <edge source="block.0x1165" target="block.0x116b"/>
+    <edge source="block.0x116b" target="block.0x116f"/>
+    <edge source="block.0x116f" target="block.0x1189"/>
+    <edge source="block.0x1189" target="block.0x1198"/>
+    <edge source="block.0x1198" target="block.0x11a9"/>
+    <edge source="block.0x11a9" target="block.0x11b4"/>
+    <edge source="block.0x11b4" target="block.0x11c1"/>
+    <edge source="block.0x11c1" target="block.0x11d7"/>
+    <edge source="block.0x11d7" target="block.0x11e5"/>
+    <edge source="block.0x11e5" target="block.0x11ec"/>
+    <edge source="block.0x11ec" target="block.0x11f3"/>
+    <edge source="block.0x11f3" target="block.0x11f5"/>
+    <edge source="block.0x11f5" target="block.0x1221"/>
+    <edge source="block.0x1221" target="block.0x1227"/>
+    <edge source="block.0x1227" target="block.0x122e"/>
+    <edge source="block.0x122e" target="block.0x1234"/>
+    <edge source="block.0x1234" target="block.0x123b"/>
+    <edge source="block.0x123b" target="block.0x1251"/>
+    <edge source="block.0x1251" target="block.0x1260"/>
+    <edge source="block.0x1260" target="block.0x1269"/>
+    <edge source="block.0x1269" target="block.0x1272"/>
+    <edge source="block.0x1272" target="block.0x127b"/>
+    <edge source="block.0x127b" target="block.0x1287"/>
+    <edge source="block.0x1287" target="block.0x1290"/>
+    <edge source="block.0x1290" target="block.0x129c"/>
+    <edge source="block.0x129c" target="block.0x12ee"/>
+    <edge source="block.0x12ee" target="block.0x1308"/>
+    <edge source="block.0x1308" target="block.0x130a"/>
+    <edge source="block.0x130a" target="block.0x131b"/>
+    <edge source="block.0x131b" target="block.0x1320"/>
+    <edge source="block.0x1320" target="block.0x133a"/>
+    <edge source="block.0x133a" target="block.0x133c"/>
+    <edge source="block.0x133c" target="block.0x1345"/>
+    <edge source="block.0x1345" target="block.0x1355"/>
+    <edge source="block.0x1355" target="block.0x135c"/>
+    <edge source="block.0x135c" target="block.0x1368"/>
+    <edge source="block.0x1368" target="block.0x1376"/>
+    <edge source="block.0x1376" target="block.0x1384"/>
+    <edge source="block.0x1384" target="block.0x1388"/>
+    <edge source="block.0x1388" target="block.0x139a"/>
+    <edge source="block.0x139a" target="block.0x13a2"/>
+    <edge source="block.0x13a2" target="block.0x13b1"/>
+    <edge source="block.0x13b1" target="block.0x13c9"/>
+    <edge source="block.0x13c9" target="block.0x13d2"/>
+    <edge source="block.0x13d2" target="block.0x13e0"/>
+    <edge source="block.0x13e0" target="block.0x13e7"/>
+    <edge source="block.0x13e7" target="block.0x13f1"/>
+    <edge source="block.0x13f1" target="block.0x13fa"/>
+    <edge source="block.0x13fa" target="block.0x1416"/>
+    <edge source="block.0x1416" target="block.0x1422"/>
+    <edge source="block.0x1422" target="block.0x1429"/>
+    <edge source="block.0x1429" target="block.0x1431"/>
+    <edge source="block.0x1431" target="block.0x1447"/>
+    <edge source="block.0x1447" target="block.0x144c"/>
+    <edge source="block.0x144c" target="block.0x1460"/>
+    <edge source="block.0x1460" target="block.0x1465"/>
+    <edge source="block.0x1465" target="block.0x1467"/>
+    <edge source="block.0x1467" target="block.0x1472"/>
+    <edge source="block.0x1472" target="block.0x147c"/>
+    <edge source="block.0x147c" target="block.0x1485"/>
+    <edge source="block.0x1485" target="block.0x148e"/>
+    <edge source="block.0x148e" target="block.0x14aa"/>
+    <edge source="block.0x14aa" target="block.0x14b3"/>
+    <edge source="block.0x14b3" target="block.0x14bb"/>
+    <edge source="block.0x14bb" target="block.0x14d2"/>
+    <edge source="block.0x14d2" target="block.0x14da"/>
+    <edge source="block.0x14da" target="block.0x1529"/>
+    <edge source="block.0x1529" target="block.0x152d"/>
+    <edge source="block.0x152d" target="block.0x1539"/>
+    <edge source="block.0x1539" target="block.0x1564"/>
+    <edge source="block.0x1564" target="block.0x157b"/>
+    <edge source="block.0x157b" target="block.0x1592"/>
+    <edge source="block.0x1592" target="block.0x15ca"/>
+    <edge source="block.0x15ca" target="block.0x15cc"/>
+    <edge source="block.0x15cc" target="block.0x15d3"/>
+    <edge source="block.0x15d3" target="block.0x15dd"/>
+    <edge source="block.0x15dd" target="block.0x15de"/>
+  </graph>
+</graphml>
