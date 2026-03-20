@@ -160,6 +160,18 @@ This content was originally posted on the [Rapid7 Blog](https://www.rapid7.com/b
 
 The Payloads Manager plugin keeps an archive of local or remotely fetched payload binaries under `~/.msf4/payloads/` and lets you activate one by creating a symlink into Metasploit's `data/meterpreter/` directory. This is useful when you are iterating on custom Meterpreter binaries and want to switch between archived payloads without manually copying files into the framework tree.
 
+The available subcommands are:
+
+* `payloads_manager list` shows the payloads currently stored in the local archive, including whether each payload is active.
+* `payloads_manager add <path> [name]` copies a local payload into the archive and optionally records a name, description, and tags.
+* `payloads_manager fetch <url> [name]` downloads a payload from an HTTP or HTTPS URL directly into the archive.
+* `payloads_manager select <payload_id>` activates a stored payload by symlinking it into Metasploit's `data/meterpreter/` directory.
+* `payloads_manager unselect <payload_id>` deactivates an active payload by removing its symlink.
+* `payloads_manager remove <payload_id>` deletes a payload from the local archive.
+* `payloads_manager help` prints the built-in usage summary.
+
+IMPORTANT: If the name is not provided, the file name must match the name of the item to be dropped in `data/meterpreter/` (e.g. `metsrv.x64.dll` for a Windows x64 Meterpreter server payload). If the name is provided, the file will be symlinked with that name instead. For example, if you have a custom compiled payload named `custom_metsrv.x64.dll` but want to symlink it as `metsrv.x64.dll`, you can run `payloads_manager add /path/to/custom_metsrv.x64.dll metsrv.x64.dll` and then select it to have it symlinked as `data/meterpreter/metsrv.x64.dll`.
+
 After loading the plugin, use `payloads_manager help` to view the available subcommands:
 
 ```msf
