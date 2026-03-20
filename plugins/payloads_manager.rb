@@ -277,12 +277,14 @@ module Msf
         end
 
         payload = @database[id]
-        target_link = File.join(MSF_METERPRETER_DIR, File.basename(payload['name']))
+        target_link = meterpreter_target_link(payload['name'], context: "select payload '#{id}'")
+        return unless target_link
 
         # Only deactivate payloads that target the same filename (would conflict)
         @database.each do |other_id, v|
           next unless v['active']
-          other_link = File.join(MSF_METERPRETER_DIR, File.basename(v['name']))
+          other_link = meterpreter_target_link(v['name'], context: "check active payload '#{other_id}'")
+          next unless other_link
           if other_link == target_link
             FileUtils.rm(other_link) if File.symlink?(other_link)
             v['active'] = false
@@ -329,7 +331,8 @@ module Msf
           return
         end
 
-        target_link = File.join(MSF_METERPRETER_DIR, File.basename(payload['name']))
+        target_link = meterpreter_target_link(payload['name'], context: "unselect payload '#{id}'")
+        return unless target_link
         FileUtils.rm(target_link) if File.symlink?(target_link)
         payload['active'] = false
         save_database
@@ -351,8 +354,8 @@ module Msf
 
         payload = @database[id]
         if payload['active']
-          target_link = File.join(MSF_METERPRETER_DIR, File.basename(payload['name']))
-          FileUtils.rm(target_link) if File.symlink?(target_link)
+          target_link = meterpreter_target_link(payload['name'], context: "remove payload '#{id}'")
+          FileUtils.rm(target_link) if target_link && File.symlink?(target_link)
           payload['active'] = false
         end
 
@@ -413,6 +416,23 @@ module Msf
           id = SecureRandom.hex(8)
           return id unless @database.key?(id)
         end
+      end
+
+      def meterpreter_target_link(payload_name, context: nil)
+        base_name = File.basename(payload_name.to_s.tr('\\', '/'))
+        if base_name.empty? || base_name == '.' || base_name == '..'
+          print_error("Invalid payload name '#{payload_name}'#{context ? " while trying to #{context}" : ''}.")
+          return nil
+        end
+
+        meterpreter_dir = File.expand_path(MSF_METERPRETER_DIR)
+        target_link = File.expand_path(File.join(meterpreter_dir, base_name))
+        unless target_link.start_with?(meterpreter_dir + File::SEPARATOR)
+          print_error("Refusing to use target path outside meterpreter directory: #{target_link}")
+          return nil
+        end
+
+        target_link
       end
 
       def fetch_with_redirects(uri, limit = 5)
