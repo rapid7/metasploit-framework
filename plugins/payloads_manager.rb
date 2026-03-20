@@ -32,6 +32,7 @@ module Msf
       PAYLOADS_DIR = File.join(Msf::Config.config_directory, 'payloads')
       DATABASE_FILE = File.join(PAYLOADS_DIR, 'payloads.json')
       MSF_METERPRETER_DIR = File.join(Msf::Config.data_directory, 'meterpreter')
+      MAX_FETCH_SIZE = 100 * 1024 * 1024
 
       def initialize(driver)
         super
@@ -209,29 +210,16 @@ module Msf
         print_status("Fetching payload from #{url}...")
 
         begin
-          response = fetch_with_redirects(uri)
+          fetched_payload = fetch_to_archive_with_redirects(uri, positional[1])
         rescue StandardError => e
           print_error("Failed to fetch payload: #{e.message}")
           return
         end
 
-        unless response.is_a?(Net::HTTPSuccess)
-          print_error("HTTP request failed: #{response.code} #{response.message}")
-          return
-        end
-
-        filename = derive_filename(uri, response)
-        name = positional[1] || filename
-        id = generate_id(name)
-        dest_path = File.join(PAYLOADS_DIR, "#{id}_#{filename}")
-
-        File.binwrite(dest_path, response.body)
-        sha256 = Digest::SHA256.file(dest_path).hexdigest
-
-        @database[id] = {
-          'name' => name,
-          'path' => dest_path,
-          'sha256' => sha256,
+        @database[fetched_payload[:id]] = {
+          'name' => fetched_payload[:name],
+          'path' => fetched_payload[:dest_path],
+          'sha256' => fetched_payload[:sha256],
           'active' => false,
           'added_at' => Time.now.to_s,
           'last_selected_at' => nil,
@@ -241,8 +229,9 @@ module Msf
         }
 
         save_database
-        print_good("Payload fetched and added: #{name} (ID: #{id})")
-        print_status("  SHA256: #{sha256}")
+        print_good("Payload fetched and added: #{fetched_payload[:name]} (ID: #{fetched_payload[:id]})")
+        print_status("  SHA256: #{fetched_payload[:sha256]}")
+        print_status("  Size: #{fetched_payload[:size]} bytes")
         print_status("  Description: #{description}") if description && !description.empty?
         print_status("  Tags: #{tags.join(', ')}") unless tags.empty?
       end
@@ -487,7 +476,7 @@ module Msf
         source_path
       end
 
-      def fetch_with_redirects(uri, limit = 5)
+      def fetch_to_archive_with_redirects(uri, requested_name = nil, limit = 5, max_size = MAX_FETCH_SIZE)
         raise "Too many redirects" if limit == 0
 
         http = Net::HTTP.new(uri.host, uri.port)
@@ -496,16 +485,47 @@ module Msf
         http.read_timeout = 30
 
         request = Net::HTTP::Get.new(uri)
-        response = http.request(request)
+        http.request(request) do |response|
+          case response
+          when Net::HTTPRedirection
+            location_header = response['location']
+            raise 'Redirect response missing Location header' if location_header.to_s.strip.empty?
 
-        case response
-        when Net::HTTPRedirection
-          location = URI.parse(response['location'])
-          location = uri + location unless location.is_a?(URI::HTTP) || location.is_a?(URI::HTTPS)
-          print_status("  Following redirect to #{location}")
-          fetch_with_redirects(location, limit - 1)
-        else
-          response
+            location = URI.parse(location_header)
+            location = uri + location unless location.is_a?(URI::HTTP) || location.is_a?(URI::HTTPS)
+            print_status("  Following redirect to #{location}")
+            return fetch_to_archive_with_redirects(location, requested_name, limit - 1, max_size)
+          when Net::HTTPSuccess
+            filename = derive_filename(uri, response)
+            name = requested_name || filename
+            id = generate_id(name)
+            dest_path = File.join(PAYLOADS_DIR, "#{id}_#{filename}")
+            bytes_written = 0
+
+            begin
+              File.open(dest_path, 'wb') do |file|
+                response.read_body do |chunk|
+                  bytes_written += chunk.bytesize
+                  raise "Downloaded payload exceeds maximum allowed size of #{max_size} bytes" if bytes_written > max_size
+
+                  file.write(chunk)
+                end
+              end
+            rescue StandardError
+              File.delete(dest_path) if File.exist?(dest_path)
+              raise
+            end
+
+            return {
+              id: id,
+              name: name,
+              dest_path: dest_path,
+              sha256: Digest::SHA256.file(dest_path).hexdigest,
+              size: bytes_written
+            }
+          else
+            raise "HTTP request failed: #{response.code} #{response.message}"
+          end
         end
       end
 
