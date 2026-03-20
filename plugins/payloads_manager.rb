@@ -361,7 +361,20 @@ module Msf
           payload['active'] = false
         end
 
-        File.delete(payload['path']) if File.exist?(payload['path'])
+        payload_path = archived_payload_source_path(payload['path'], context: "remove payload '#{id}'", require_exists: false)
+        if payload_path && File.exist?(payload_path)
+          begin
+            File.delete(payload_path)
+          rescue SystemCallError => e
+            print_error("Failed to remove archived payload file '#{payload_path}': #{e.class}: #{e.message}")
+            return
+          end
+        elsif payload_path
+          print_status("Archived payload file not found; removing database entry only: #{payload_path}")
+        else
+          print_error("Skipping payload file deletion for '#{payload['name']}' due to invalid stored path; removing database entry only.")
+        end
+
         @database.delete(id)
         save_database
 
@@ -437,7 +450,7 @@ module Msf
         target_link
       end
 
-      def archived_payload_source_path(payload_path, context: nil)
+      def archived_payload_source_path(payload_path, context: nil, require_exists: true)
         source_path = File.expand_path(payload_path.to_s)
         payloads_dir = File.expand_path(PAYLOADS_DIR)
 
@@ -446,7 +459,7 @@ module Msf
           return nil
         end
 
-        unless File.exist?(source_path)
+        if require_exists && !File.exist?(source_path)
           print_error("Payload file is missing#{context ? " while trying to #{context}" : ''}: #{source_path}")
           return nil
         end
