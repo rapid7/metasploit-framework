@@ -279,6 +279,8 @@ module Msf
         payload = @database[id]
         target_link = meterpreter_target_link(payload['name'], context: "select payload '#{id}'")
         return unless target_link
+        source_path = archived_payload_source_path(payload['path'], context: "select payload '#{id}'")
+        return unless source_path
 
         # Only deactivate payloads that target the same filename (would conflict)
         @database.each do |other_id, v|
@@ -299,7 +301,7 @@ module Msf
 
         begin
           FileUtils.rm(target_link) if File.symlink?(target_link)
-          FileUtils.ln_s(payload['path'], target_link)
+          FileUtils.ln_s(source_path, target_link)
         rescue SystemCallError => e
           print_error("Failed to activate payload '#{payload['name']}' at #{target_link}: #{e.class}: #{e.message}")
           return
@@ -433,6 +435,23 @@ module Msf
         end
 
         target_link
+      end
+
+      def archived_payload_source_path(payload_path, context: nil)
+        source_path = File.expand_path(payload_path.to_s)
+        payloads_dir = File.expand_path(PAYLOADS_DIR)
+
+        unless source_path.start_with?(payloads_dir + File::SEPARATOR)
+          print_error("Refusing to use payload path outside managed payloads directory#{context ? " while trying to #{context}" : ''}: #{source_path}")
+          return nil
+        end
+
+        unless File.exist?(source_path)
+          print_error("Payload file is missing#{context ? " while trying to #{context}" : ''}: #{source_path}")
+          return nil
+        end
+
+        source_path
       end
 
       def fetch_with_redirects(uri, limit = 5)
