@@ -350,6 +350,12 @@ module Msf
         end
 
         payload = @database[id]
+        if payload['active']
+          target_link = File.join(MSF_METERPRETER_DIR, File.basename(payload['name']))
+          FileUtils.rm(target_link) if File.symlink?(target_link)
+          payload['active'] = false
+        end
+
         File.delete(payload['path']) if File.exist?(payload['path'])
         @database.delete(id)
         save_database
