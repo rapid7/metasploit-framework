@@ -134,6 +134,11 @@ module Msf
         end
 
         parsed = parse_subcommand_args(args)
+        if parsed[:error]
+          print_error(parsed[:error])
+          print_error("Usage: payloads_manager add <path_to_payload> [name] [--description <desc>] [--tags <t1,t2,...>]")
+          return
+        end
         positional = parsed[:positional]
         description = parsed[:description]
         tags = parsed[:tags]
@@ -180,6 +185,11 @@ module Msf
         end
 
         parsed = parse_subcommand_args(args)
+        if parsed[:error]
+          print_error(parsed[:error])
+          print_error("Usage: payloads_manager fetch <url> [name] [--description <desc>] [--tags <t1,t2,...>]")
+          return
+        end
         positional = parsed[:positional]
         description = parsed[:description]
         tags = parsed[:tags]
@@ -241,15 +251,24 @@ module Msf
         description = nil
         tags = []
         positional = []
+        error = nil
 
         i = 0
         while i < args.length
           case args[i]
           when '--description', '-d'
             i += 1
+            unless args[i]
+              error = "Missing value for #{args[i - 1]}"
+              break
+            end
             description = args[i]
           when '--tags', '-t'
             i += 1
+            unless args[i]
+              error = "Missing value for #{args[i - 1]}"
+              break
+            end
             tags = args[i].to_s.split(',').map(&:strip).reject(&:empty?) if args[i]
           else
             positional << args[i]
@@ -260,7 +279,8 @@ module Msf
         {
           positional: positional,
           description: description,
-          tags: tags
+          tags: tags,
+          error: error
         }
       end
 
