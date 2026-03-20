@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Post
     register_options([
       OptEnum.new('CollectionMethod', [
         true, 'The collection method to use.', 'Default',
-        ['Group', 'LocalGroup', 'LocalAdmin', 'RDP', 'DCOM', 'PSRemote', 'Session', 'Trusts', 'ACL', 'Container', 'ComputerOnly', 'GPOLocalGroup', 'LoggedOn', 'ObjectProps', 'SPNTargets', 'Default', 'DCOnly', 'All']
+        ['Container', 'Group', 'LocalGroup', 'GPOLocalGroup', 'Session', 'LoggedOn', 'ObjectProps', 'ACL', 'ComputerOnly', 'Trusts', 'Default', 'RDP', 'DCOM', 'DCOnly', 'UserRights', 'CARegistry', 'DCRegistry', 'CertServices', 'WebClientService', 'NTLMRegistry', 'SMBInfo', 'LdapServices', 'All']
       ]),
       OptString.new('Domain', [false, 'Specifies the domain to enumerate. If not specified, will enumerate the current domain your user context specifies']),
       OptBool.new('Stealth', [true, 'Use stealth collection options, will sacrifice data quality in favor of much reduced network impact', false]),

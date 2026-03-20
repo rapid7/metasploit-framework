@@ -105,26 +105,6 @@ end
 scripts = []
 
 ###
-# Bloodhound/Sharphound files
-###
-
-# https://github.com/BloodHoundAD/BloodHound/commit/b6ab5cd369c70219c6376d9f5c4fcd63f34fb4a0
-scripts << {
-  name: 'Sharphound (Bloodhound) ps1',
-  addr: 'https://raw.githubusercontent.com/BloodHoundAD/BloodHound/master/Collectors/SharpHound.ps1',
-  dest: '/data/post/powershell/SharpHound.ps1',
-  subs: [
-    ["\t", '    '], # tabs to spaces
-    [/\s+$/, ''] # trailing whitespace
-  ]
-}
-scripts << {
-  name: 'Sharphound (Bloodhound) exe',
-  addr: 'https://raw.githubusercontent.com/BloodHoundAD/BloodHound/master/Collectors/SharpHound.exe',
-  dest: '/data/post/SharpHound.exe',
-  subs: []
-}
-###
 # JTR files
 ###
 scripts << {

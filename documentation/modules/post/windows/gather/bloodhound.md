@@ -29,9 +29,10 @@ file to disk.  No connectivity is required but a disk write does happen which is
 
 ### CollectionMethode
 
-The collection method to use. Accepted values are `Default`, `Group`,
-`LocalAdmin`, `RDP`, `DCOM`, `GPOLocalGroup`, `Session`, `ObjectProps`, `ComputerOnly`, `LoggedOn`, `Trusts`, `ACL`, `Container`,
-`DcOnly`, `All`.  The default method is `Default`.
+The collection method to use. Accepted values are `Container`, `Group`, `LocalGroup`, `GPOLocalGroup`,
+`Session`, `LoggedOn`, `ObjectProps`, `ACL`, `ComputerOnly`, `Trusts`, `Default`, `RDP`, `DCOM`, `DCOnly`,
+`UserRights`, `CARegistry`, `DCRegistry`, `CertServices`, `WebClientService`, `NTLMRegistry`, `SMBInfo`, `LdapServices`, `All`.
+The default method is `Default`.
 
 ### Domain
 
