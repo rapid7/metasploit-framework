@@ -23,11 +23,19 @@ module Rex
       # @param name [String] An optional symbol name to apply to the assembly source.
       def self.from_graphml_file(file_path, arch: nil, name: nil)
         graphml = Rex::Parser::GraphML.from_file(file_path)
-        blocks = create_path(graphml.nodes.select { |_id,node| node.attributes['type'] == 'block' }, graphml.graphs[0].edges)
-        blocks.map! { |block| { node: block, instructions: process_block(block) } }
+        blocks = create_path(graphml.nodes.select { |_id,node| %w[ data instructions-graph ].include?(node.attributes['type']) }, graphml.graphs[0].edges)
+        blocks.map! do |block|
+          hash = { node: block }
+
+          if block.attributes['type'] == 'instructions-graph'
+            hash[:instructions] = process_instructions_graph_block(block)
+          end
+
+          hash
+        end
 
         label_prefix = Rex::Text.rand_text_alpha_lower(4)
-        labeler = lambda { |address| "loc_#{label_prefix}#{ address.to_s(16).rjust(4, '0') }" }
+        labeler = lambda { |address| "loc_#{label_prefix}#{address.to_s(16).rjust(4, '0')}" }
 
         source_lines = []
         labeled = []
@@ -36,22 +44,30 @@ module Rex
           if [ Rex::Arch::ARCH_X86, Rex::Arch::ARCH_X64 ].include? arch
             source_lines << labeler.call(block[:node].attributes['address']) + ':'
             labeled << block[:node].attributes['address']
-            # by default use the raw binary instruction to avoid syntax compatibility issues with metasm
-            instructions = block[:instructions].map { |node| 'db ' + node.attributes['instruction.hex'].strip.chars.each_slice(2).map { |hex| '0x' + hex.join }.join(', ') }
+            case block[:node].attributes['type']
+            when 'data'
+              instructions = [ 'db ' + block[:node].attributes['data.hex'].strip.chars.each_slice(2).map { |hex| '0x' + hex.join }.join(', ') ]
+            when 'instructions-graph'
+              # by default use the raw binary instruction to avoid syntax compatibility issues with metasm
+              instructions = block[:instructions].map { |node| 'db ' + node.attributes['instruction.hex'].strip.chars.each_slice(2).map { |hex| '0x' + hex.join }.join(', ') }
+            end
           else
             instructions = block[:instructions].map { |node| node.attributes['instruction.source'] }
           end
+
           unless arch.nil?
             raise ArgumentError, 'Unsupported architecture' if FLOW_INSTRUCTIONS[arch].nil?
 
-            # if a supported architecture was specified, use the original source and apply the necessary labels
-            block[:instructions].each_with_index do |node, index|
-              next unless match = /^(?<mnemonic>\S+)\s+(?<address>0x[a-f0-9]+)$/.match(node.attributes['instruction.source'])
-              next unless FLOW_INSTRUCTIONS[arch].include? match[:mnemonic]
+            if block[:node].attributes['type'] == 'instructions-graph'
+              # if a supported architecture was specified, use the original source and apply the necessary labels
+              block[:instructions].each_with_index do |node, index|
+                next unless match = /^(?<mnemonic>\S+)\s+(?<address>0x[a-f0-9]+)$/.match(node.attributes['instruction.source'])
+                next unless FLOW_INSTRUCTIONS[arch].include? match[:mnemonic]
 
-              address = Integer(match[:address])
-              instructions[index] = "#{match[:mnemonic]} #{labeler.call(address)}"
-              label_refs << address
+                address = Integer(match[:address])
+                instructions[index] = "#{match[:mnemonic]} #{labeler.call(address)}"
+                label_refs << address
+              end
             end
           end
 
@@ -75,7 +91,7 @@ module Rex
         # Process the specified graph element which represents a single basic block in assembly. This graph element
         # contains nodes representing each of its instructions.
         #
-        def process_block(block)
+        def process_instructions_graph_block(block)
           subgraph = block.subgraph
           instructions = subgraph.nodes.select { |_id, node| node.attributes['type'] == 'instruction' }
           create_path(instructions, subgraph.edges)
