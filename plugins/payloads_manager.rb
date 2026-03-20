@@ -88,6 +88,7 @@ module Msf
           'Indent'  => 1,
           'Columns' => ['ID', 'Name', 'Description', 'Tags', 'Added At', 'Last Selected At', 'Status'],
           'SortIndex' => 6,
+          'Stylers' => [::Msf::Ui::Console::TablePrint::CustomColorStyler.new('Active' => '%grn', 'Inactive' => '%red')],
         )
 
         difference_in_seconds = lambda do |time_str|
@@ -120,7 +121,7 @@ module Msf
             Array(payload['tags']).join(', '),
             added,
             last_selected,
-            payload['active'] ? "\e[32mActive\e[0m" : 'Inactive'
+            payload['active'] ? 'Active' : 'Inactive'
           ]
         end
 
