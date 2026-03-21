@@ -359,7 +359,7 @@ module Msf::Payload::MalleableC2
     end
 
     def has_directive(type)
-      @entries.find_all {|d| d.kind_of?(ParsedDirective) && d.type == type.downcase}.length > 0
+      @entries.any? {|d| d.kind_of?(ParsedDirective) && d.type == type.downcase}
     end
 
     def get_section(name)
