@@ -59,7 +59,7 @@ private
       session_guid = [SecureRandom.uuid.gsub('-', '')].pack('H*')
     end
 
-    tlv.add_tlv(MET::TLV_TYPE_EXITFUNC, exit_func)
+    tlv.add_tlv(MET::TLV_TYPE_EXITFUNC, exit_func) if exit_func
     tlv.add_tlv(MET::TLV_TYPE_SESSION_EXPIRY, opts[:expiration])
     tlv.add_tlv(MET::TLV_TYPE_UUID, uuid)
     tlv.add_tlv(MET::TLV_TYPE_SESSION_GUID, session_guid)
@@ -155,10 +155,13 @@ private
       add_extension_tlv(config_packet, e, ext_inits[e], file_extension, debug_build: @opts[:debug_build])
     end
 
-    # comms handle needs to have space added, as this is where things are patched by the stager
-    comms_handle = "\x00" * 8
     config_bytes = config_packet.to_r
 
-    comms_handle + config_bytes
+    if @opts[:include_comms_handle] == false
+      config_bytes
+    else
+      # comms handle needs to have space added, as this is where things are patched by the stager
+      "\x00" * 8 + config_bytes
+    end
   end
 end
