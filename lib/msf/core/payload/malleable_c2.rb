@@ -25,7 +25,7 @@ module Msf::Payload::MalleableC2
     s.gsub(/\\(x(..)|r|n|t|"|\\)/) {|b|
       case b[1]
       when 'x'
-        [b[2, 4].to_i(16)].pack('C')
+        [b[2, 2].to_i(16)].pack('C')
       when 'r'
         "\r"
       when 't'
