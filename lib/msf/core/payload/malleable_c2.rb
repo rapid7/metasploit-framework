@@ -312,7 +312,7 @@ module Msf::Payload::MalleableC2
     end
 
     def add_uri(base_uri, section, group_tlv)
-      uri = base_uri || ""
+      uri = (base_uri || "").dup
       query_string = section.get_directive('parameter').map {|dir| "#{dir.args[0]}=#{URI.encode_uri_component(dir.args[1])}" }.join("&")
       unless query_string.empty?
         uri << "?"
