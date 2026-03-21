@@ -135,7 +135,7 @@ class Client
   #
   def unwrap_packet(raw_bytes)
     if self.c2_profile
-      self.c2_profile.unwrap_inbound_post(raw_bytes)
+      raw_bytes = self.c2_profile.unwrap_inbound_post(raw_bytes)
     end
 
     raw_bytes
