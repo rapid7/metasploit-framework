@@ -202,13 +202,13 @@ module Msf::Payload::MalleableC2
     def unwrap_inbound_post(raw_bytes)
       prepends = self.http_post&.client&.output&.prepend || []
       prefix = prepends.map {|p| p.args[0]}.join('')
-      unless prefix.empty? || (raw_bytes[0, prefix.length] <=> prefix) != 0
+      if !prefix.empty? && raw_bytes.start_with?(prefix)
         raw_bytes = raw_bytes[prefix.length, raw_bytes.length]
       end
 
       appends = self.http_post&.client&.output&.append || []
       suffix = appends.map {|p| p.args[0]}.join('')
-      unless suffix.empty? || (raw_bytes[-suffix.length, raw_bytes.length] <=> suffix) != 0
+      if !suffix.empty? && raw_bytes.end_with?(suffix)
         raw_bytes = raw_bytes[0, raw_bytes.length - suffix.length]
       end
 
