@@ -230,72 +230,76 @@ module Msf::Payload::MalleableC2
       c2_uri = self.get_set('uri')
 
       self.get_section('http-get') {|http_get|
-        get_tlv = MET::GroupTlv.new(MET::TLV_TYPE_C2_GET)
-        get_uri = http_get.get_set('uri') || c2_uri
-        http_get.get_section('client') {|client|
-          self.add_http_tlv(get_uri, client, get_tlv)
-
-          prepends = self.http_get&.server&.output&.prepend || []
-          prefix_len = prepends.map {|p| p.args[0].length}.sum
-          get_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX_SKIP, prefix_len) unless prefix_len == 0
-
-          appends = self.http_get&.server&.output&.append || []
-          suffix_len = appends.map {|s| s.args[0].length}.sum
-          get_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX_SKIP, suffix_len) unless suffix_len == 0
-
-          client.get_section('metadata') {|meta|
-            enc_flags = MET::C2_ENCODING_NONE
-            enc_flags = MET::C2_ENCODING_B64URL if meta.has_directive('base64url')
-            enc_flags = MET::C2_ENCODING_B64 if meta.has_directive('base64')
-
-            get_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != MET::C2_ENCODING_NONE
-            get_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_GET, meta.get_directive('parameter')[0].args[0]) if meta.has_directive('parameter')
-            get_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_HEADER, meta.get_directive('header')[0].args[0]) if meta.has_directive('header')
-            # assume uri-append for POST otherwise.
-          }
-        }
-
-        tlv.tlvs << get_tlv
+        tlv.tlvs << build_get_tlv(http_get, c2_uri)
       }
 
       self.get_section('http-post') {|http_post|
-        post_tlv = MET::GroupTlv.new(MET::TLV_TYPE_C2_POST)
-        post_uri = http_post.get_set('uri') || c2_uri
-        http_post.get_section('client') {|client|
-          self.add_http_tlv(post_uri, client, post_tlv)
-
-          prepends = self.http_post&.server&.output&.prepend || []
-          prefix_len = prepends.map {|p| p.args[0].length}.sum
-          post_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX_SKIP, prefix_len) unless prefix_len == 0
-
-          appends = self.http_post&.server&.output&.append || []
-          suffix_len = appends.map {|s| s.args[0].length}.sum
-          post_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX_SKIP, suffix_len) unless suffix_len == 0
-
-          client.get_section('output') {|client_output|
-            enc_flags = MET::C2_ENCODING_NONE
-            enc_flags = MET::C2_ENCODING_B64URL if client_output.has_directive('base64url')
-            enc_flags = MET::C2_ENCODING_B64 if client_output.has_directive('base64')
-
-            post_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != MET::C2_ENCODING_NONE
-
-            prepend_data = client_output.get_directive('prepend').map{|d|d.args[0]}.join("")
-            post_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX, prepend_data) unless prepend_data.empty?
-            append_data = client_output.get_directive('append').map{|d|d.args[0]}.join("")
-            post_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX, append_data) unless append_data.empty?
-          }
-
-          client.get_section('id') {|client_id|
-            post_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_GET, client_id.get_directive('parameter')[0].args[0]) if client_id.has_directive('parameter')
-            post_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_HEADER, client_id.get_directive('header')[0].args[0]) if client_id.has_directive('header')
-            # assume uri-append for POST otherwise given that we always put the TLV payload in the body?
-          }
-        }
-
-        tlv.tlvs << post_tlv
+        tlv.tlvs << build_post_tlv(http_post, c2_uri)
       }
 
       tlv
+    end
+
+  private
+
+    def build_get_tlv(http_get, c2_uri)
+      get_tlv = MET::GroupTlv.new(MET::TLV_TYPE_C2_GET)
+      get_uri = http_get.get_set('uri') || c2_uri
+      http_get.get_section('client') {|client|
+        self.add_http_tlv(get_uri, client, get_tlv)
+        add_skip_tlvs(get_tlv, self.http_get&.server&.output)
+
+        client.get_section('metadata') {|meta|
+          add_encoding_tlv(get_tlv, meta)
+          add_uuid_tlvs(get_tlv, meta)
+        }
+      }
+      get_tlv
+    end
+
+    def build_post_tlv(http_post, c2_uri)
+      post_tlv = MET::GroupTlv.new(MET::TLV_TYPE_C2_POST)
+      post_uri = http_post.get_set('uri') || c2_uri
+      http_post.get_section('client') {|client|
+        self.add_http_tlv(post_uri, client, post_tlv)
+        add_skip_tlvs(post_tlv, self.http_post&.server&.output)
+
+        client.get_section('output') {|client_output|
+          add_encoding_tlv(post_tlv, client_output)
+
+          prepend_data = client_output.get_directive('prepend').map{|d|d.args[0]}.join("")
+          post_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX, prepend_data) unless prepend_data.empty?
+          append_data = client_output.get_directive('append').map{|d|d.args[0]}.join("")
+          post_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX, append_data) unless append_data.empty?
+        }
+
+        client.get_section('id') {|client_id|
+          add_uuid_tlvs(post_tlv, client_id)
+        }
+      }
+      post_tlv
+    end
+
+    def add_skip_tlvs(group_tlv, server_output)
+      prepends = server_output&.prepend || []
+      prefix_len = prepends.map {|p| p.args[0].length}.sum
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX_SKIP, prefix_len) unless prefix_len == 0
+
+      appends = server_output&.append || []
+      suffix_len = appends.map {|s| s.args[0].length}.sum
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX_SKIP, suffix_len) unless suffix_len == 0
+    end
+
+    def add_encoding_tlv(group_tlv, section)
+      enc_flags = MET::C2_ENCODING_NONE
+      enc_flags = MET::C2_ENCODING_B64URL if section.has_directive('base64url')
+      enc_flags = MET::C2_ENCODING_B64 if section.has_directive('base64')
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != MET::C2_ENCODING_NONE
+    end
+
+    def add_uuid_tlvs(group_tlv, section)
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_GET, section.get_directive('parameter')[0].args[0]) if section.has_directive('parameter')
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_HEADER, section.get_directive('header')[0].args[0]) if section.has_directive('header')
     end
 
     def add_http_tlv(base_uri, section, group_tlv)
