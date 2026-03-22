@@ -31,9 +31,9 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'Notes' => {
-          'Stability' => [CRASH_SAFE],
-          'Reliability' => [],
-          'SideEffects' => [ACCOUNT_LOCKOUTS, IOC_IN_LOGS]
+          'Stability'    => [CRASH_SAFE],
+          'Reliability'  => [],
+          'SideEffects'  => [ACCOUNT_LOCKOUTS, IOC_IN_LOGS]
         }
       )
     )
@@ -43,20 +43,23 @@ class MetasploitModule < Msf::Auxiliary
     attempt_kerberos_logins
   end
 
-  # TRACE INTEGRATION
   def on_login_success(result)
     super
 
     return unless datastore['VERBOSE']
     return unless result.respond_to?(:proof) && result.proof
 
+    # Wrap the AS-REP proof into a trace-compatible structure so the standard
+    # kerberos_trace() dispatcher in client.rb can handle it without this module
+    # needing to know which verbosity level the operator has selected.
     response = OpenStruct.new(
-      as_rep: result.proof,
+      as_rep:         result.proof,
       decrypted_part: nil
     )
 
-    if defined?(Msf::Trace::KerberosTicketTrace)
-      Msf::Trace::KerberosTicketTrace.print_metadata(response, self)
-    end
+    # Delegate to the framework dispatcher rather than calling the trace class
+    # directly. This respects the KerberosTrace option level (metadata / full)
+    # and keeps all trace routing in one place.
+    kerberos_trace(response) if respond_to?(:kerberos_trace)
   end
 end
