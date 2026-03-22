@@ -206,19 +206,20 @@ module ReverseHttp
       all.push(*uris)
     end
 
-    all
+    all.uniq
   end
 
   def c2_profile
-    unless @c2_profile_parsed
-      profile_path = datastore['MALLEABLEC2'] || ''
-      unless profile_path.empty?
-        parser = Msf::Payload::MalleableC2::Parser.new
-        @c2_profile_instance = parser.parse(profile_path)
-      end
-      c2_profile_parsed = true
-    end
-    @c2_profile_instance
+    # Only use a C2 profile if the payload explicitly registered the option.
+    # This prevents staged payloads from inheriting a stale MALLEABLEC2
+    # value from a prior stageless payload configuration.
+    return nil unless self.options.include?('MALLEABLEC2')
+
+    profile_path = datastore['MALLEABLEC2'] || ''
+    return nil if profile_path.empty?
+
+    parser = Msf::Payload::MalleableC2::Parser.new
+    parser.parse(profile_path)
   end
 
 
