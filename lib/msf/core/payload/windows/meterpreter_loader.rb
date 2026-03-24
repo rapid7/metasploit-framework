@@ -86,8 +86,9 @@ module Payload::Windows::MeterpreterLoader
     # create the configuration instance based off the parameters
     config = Rex::Payloads::Meterpreter::Config.new(config_opts)
 
-    # return the binary version of it
-    config.to_b
+    # return the binary version of it, prefixed with an 8-byte comms handle
+    # that the stager patches with the active socket/handle
+    "\x00" * 8 + config.to_b
   end
 
   def stage_meterpreter(opts={})
