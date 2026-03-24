@@ -443,7 +443,7 @@ protected
         resp.body = pkt.to_r
         resp.body = self.c2_profile.wrap_outbound_get(resp.body) if self.c2_profile
 
-      when :init_python, :init_native, :init_java, :connect
+      when :init_python, :init_native, :init_java, :init_php, :connect
         # TODO: at some point we may normalise these three cases into just :init
 
         if info[:mode] == :connect
