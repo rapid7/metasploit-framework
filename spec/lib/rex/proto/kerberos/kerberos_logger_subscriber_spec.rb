@@ -58,19 +58,36 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
 
     context 'when KerberosTicketTrace is enabled with default colors' do
       let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Request: AS-REQ
-          ####################
-          %clr%bld%red{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REQ},
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
+        expected_trace_output(
+          direction: 'Request',
+          message_name: 'AS-REQ',
+          color_prefix: '%bld%red',
+          body: expected_basic_body(msg_type: Rex::Proto::Kerberos::Model::AS_REQ, msg_name: 'AS-REQ')
+        )
       end
 
-      it 'prints a colored request header and JSON payload' do
+      it 'prints a colored request header and readable text payload' do
+        log_request
+
+        expect(output_text).to eq(expected_output)
+      end
+    end
+
+    context 'when the readable text presenter raises an error' do
+      let(:expected_output) do
+        expected_trace_output(
+          direction: 'Request',
+          message_name: 'AS-REQ',
+          color_prefix: '%bld%red',
+          body: 'Kerberos trace rendering error: RuntimeError: boom'
+        )
+      end
+
+      before do
+        allow(subscriber).to receive(:readable_text_presenter).and_raise(RuntimeError, 'boom')
+      end
+
+      it 'prints an error placeholder without interrupting the flow' do
         log_request
 
         expect(output_text).to eq(expected_output)
@@ -100,16 +117,12 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
     context 'when request msg_type is unknown' do
       let(:request_message) { build_kerberos_message(msg_type: 999) }
       let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Request: UNKNOWN (999)
-          ####################
-          %clr%bld%red{
-            "pvno": 5,
-            "msg_type": 999,
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
+        expected_trace_output(
+          direction: 'Request',
+          message_name: 'UNKNOWN (999)',
+          color_prefix: '%bld%red',
+          body: expected_basic_body(msg_type: 999, msg_name: 'UNKNOWN')
+        )
       end
 
       it 'prints UNKNOWN with the numeric msg_type' do
@@ -122,12 +135,12 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
     context 'when request object does not expose attributes' do
       let(:request_message) { 'raw-payload' }
       let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Request: UNKNOWN
-          ####################
-          %clr%bld%redraw-payload%clr
-        EOF
+        expected_trace_output(
+          direction: 'Request',
+          message_name: 'UNKNOWN',
+          color_prefix: '%bld%red',
+          body: 'raw-payload'
+        )
       end
 
       it 'falls back to to_s formatting' do
@@ -137,135 +150,30 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
       end
     end
 
-    context 'when KerberosTicketTraceColors is set to red/blu' do
-      let(:trace_colors) { 'red/blu' }
-      let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Request: AS-REQ
-          ####################
-          %clr%bld%red{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REQ},
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
-      end
+    {
+      'red/blu' => '%bld%red',
+      'yel/' => '%bld%yel',
+      '/grn' => '',
+      'blu' => '%bld%blu',
+      '/' => '',
+      '   ' => '%bld%red'
+    }.each do |configured_colors, expected_prefix|
+      context "when KerberosTicketTraceColors is set to #{configured_colors.inspect}" do
+        let(:trace_colors) { configured_colors }
+        let(:expected_output) do
+          expected_trace_output(
+            direction: 'Request',
+            message_name: 'AS-REQ',
+            color_prefix: expected_prefix,
+            body: expected_basic_body(msg_type: Rex::Proto::Kerberos::Model::AS_REQ, msg_name: 'AS-REQ')
+          )
+        end
 
-      it 'uses the configured request color' do
-        log_request
+        it 'uses the expected request color prefix' do
+          log_request
 
-        expect(output_text).to eq(expected_output)
-      end
-    end
-
-    context 'when KerberosTicketTraceColors is set to yel/' do
-      let(:trace_colors) { 'yel/' }
-      let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Request: AS-REQ
-          ####################
-          %clr%bld%yel{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REQ},
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
-      end
-
-      it 'uses the configured request color with a blank response color' do
-        log_request
-
-        expect(output_text).to eq(expected_output)
-      end
-    end
-
-    context 'when KerberosTicketTraceColors is set to /grn' do
-      let(:trace_colors) { '/grn' }
-      let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Request: AS-REQ
-          ####################
-          %clr{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REQ},
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
-      end
-
-      it 'uses no request color when the request side is blank' do
-        log_request
-
-        expect(output_text).to eq(expected_output)
-      end
-    end
-
-    context 'when KerberosTicketTraceColors is set to blu' do
-      let(:trace_colors) { 'blu' }
-      let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Request: AS-REQ
-          ####################
-          %clr%bld%blu{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REQ},
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
-      end
-
-      it 'treats a single color as request-only' do
-        log_request
-
-        expect(output_text).to eq(expected_output)
-      end
-    end
-
-    context 'when KerberosTicketTraceColors is set to /' do
-      let(:trace_colors) { '/' }
-      let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Request: AS-REQ
-          ####################
-          %clr{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REQ},
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
-      end
-
-      it 'disables both request and response color prefixes' do
-        log_request
-
-        expect(output_text).to eq(expected_output)
-      end
-    end
-
-    context 'when KerberosTicketTraceColors is blank' do
-      let(:trace_colors) { '   ' }
-      let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Request: AS-REQ
-          ####################
-          %clr%bld%red{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REQ},
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
-      end
-
-      it 'falls back to default red/blu colors' do
-        log_request
-
-        expect(output_text).to eq(expected_output)
+          expect(output_text).to eq(expected_output)
+        end
       end
     end
 
@@ -280,16 +188,12 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
       context "when request msg_type is #{msg_name}" do
         let(:request_message) { build_kerberos_message(msg_type: msg_type) }
         let(:expected_output) do
-          <<~EOF.rstrip
-            ####################
-            # Kerberos Request: #{msg_name}
-            ####################
-            %clr%bld%red{
-              "pvno": 5,
-              "msg_type": #{msg_type},
-              "crealm": "EXAMPLE.LOCAL"
-            }%clr
-          EOF
+          expected_trace_output(
+            direction: 'Request',
+            message_name: msg_name,
+            color_prefix: '%bld%red',
+            body: expected_basic_body(msg_type: msg_type, msg_name: msg_name)
+          )
         end
 
         it 'maps message type to the expected label' do
@@ -309,17 +213,17 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
         )
       end
       let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Request: AS-REQ
-          ####################
-          %clr%bld%red{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REQ},
-            "crealm": "EXAMPLE.LOCAL",
-            "ticket": "[binary 40 bytes: #{binary_hex}]"
-          }%clr
-        EOF
+        expected_trace_output(
+          direction: 'Request',
+          message_name: 'AS-REQ',
+          color_prefix: '%bld%red',
+          body: <<~EOF.rstrip
+            Protocol Version: 5
+            Message Type: #{Rex::Proto::Kerberos::Model::AS_REQ} (AS-REQ)
+            Client Realm: EXAMPLE.LOCAL
+            Ticket: [binary 40 bytes: #{binary_hex}]
+          EOF
+        )
       end
 
       it 'prints binary data as tagged hex bytes' do
@@ -359,40 +263,34 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
         )
       end
       let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Request: KRB-ERROR
-          ####################
-          %clr%bld%red{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::KRB_ERROR},
-            "crealm": "EXAMPLE.LOCAL",
-            "stime": "2026-03-07T12:00:00Z",
-            "tags": [
-              "ap",
-              "error"
-            ],
-            "metadata": {
-              "source": "kdc"
-            },
-            "error_code": {
-              "name": "KRB_AP_ERR_MODIFIED",
-              "value": 41,
-              "description": "Message stream modified"
-            },
-            "options": {
-              "value": #{kdc_options.to_i},
-              "flags": [
-                "FORWARDABLE",
-                "RENEWABLE"
-              ]
-            },
-            "etype_set": [
-              18,
-              17
-            ]
-          }%clr
-        EOF
+        expected_trace_output(
+          direction: 'Request',
+          message_name: 'KRB-ERROR',
+          color_prefix: '%bld%red',
+          body: <<~EOF.rstrip
+            Protocol Version: 5
+            Message Type: #{Rex::Proto::Kerberos::Model::KRB_ERROR} (KRB-ERROR)
+            Client Realm: EXAMPLE.LOCAL
+            Server Time: 2026-03-07T12:00:00Z
+            Tags:
+              - ap
+              - error
+            Metadata:
+              Source: kdc
+            Error Code:
+              Name: KRB_AP_ERR_MODIFIED
+              Value: 41
+              Description: Message stream modified
+            KDC Options:
+              Value: #{kdc_options.to_i}
+              Flags:
+                - FORWARDABLE
+                - RENEWABLE
+            Etype Set:
+              - 18
+              - 17
+          EOF
+        )
       end
 
       it 'normalizes time, symbols, flags, sets and error code objects' do
@@ -425,35 +323,120 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
         )
       end
       let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Request: AS-REP
-          ####################
-          %clr%bld%red{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REP},
-            "crealm": "EXAMPLE.LOCAL",
-            "ticket": {
-              "tkt_vno": 5,
-              "realm": "EXAMPLE.LOCAL",
-              "sname": {
-                "name_type": #{Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST},
-                "name_string": [
-                  "krbtgt",
-                  "EXAMPLE.LOCAL"
-                ]
-              },
-              "enc_part": {
-                "etype": #{Rex::Proto::Kerberos::Crypto::Encryption::AES256},
-                "kvno": 2,
-                "cipher": "[binary 3 bytes: 010203]"
-              }
-            }
-          }%clr
-        EOF
+        expected_trace_output(
+          direction: 'Request',
+          message_name: 'AS-REP',
+          color_prefix: '%bld%red',
+          body: <<~EOF.rstrip
+            Protocol Version: 5
+            Message Type: #{Rex::Proto::Kerberos::Model::AS_REP} (AS-REP)
+            Client Realm: EXAMPLE.LOCAL
+            Ticket:
+              Ticket Version Number: 5
+              Realm: EXAMPLE.LOCAL
+              Server Name:
+                Name Type: #{Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST} (NT_SRV_INST)
+                Name String:
+                  - krbtgt
+                  - EXAMPLE.LOCAL
+              Encrypted Part:
+                Encryption Type: #{Rex::Proto::Kerberos::Crypto::Encryption::AES256} (AES256)
+                Key Version Number: 2
+                Cipher: [binary 3 bytes: 010203]
+          EOF
+        )
       end
 
       it 'recursively serializes nested model attributes' do
+        log_request
+
+        expect(output_text).to eq(expected_output)
+      end
+    end
+
+    context 'when serializing PA-DATA types and etype arrays' do
+      let(:request_message) do
+        build_kerberos_message(
+          msg_type: Rex::Proto::Kerberos::Model::AS_REQ,
+          fields: {
+            pa_data: [
+              Rex::Proto::Kerberos::Model::PreAuthDataEntry.new(
+                type: Rex::Proto::Kerberos::Model::PreAuthType::PA_PAC_REQUEST,
+                value: "\x30\x05\xA0\x03\x01\x01\xFF".b
+              )
+            ],
+            req_body: Rex::Proto::Kerberos::Model::KdcRequestBody.new(
+              etype: [
+                Rex::Proto::Kerberos::Crypto::Encryption::AES256,
+                Rex::Proto::Kerberos::Crypto::Encryption::AES128,
+                Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC
+              ]
+            )
+          }
+        )
+      end
+      let(:expected_output) do
+        expected_trace_output(
+          direction: 'Request',
+          message_name: 'AS-REQ',
+          color_prefix: '%bld%red',
+          body: <<~EOF.rstrip
+            Protocol Version: 5
+            Message Type: #{Rex::Proto::Kerberos::Model::AS_REQ} (AS-REQ)
+            Client Realm: EXAMPLE.LOCAL
+            Pre-Authentication Data:
+              Entry[0]:
+                Type: #{Rex::Proto::Kerberos::Model::PreAuthType::PA_PAC_REQUEST} (PA_PAC_REQUEST)
+                Value: [binary 7 bytes: 3005a0030101ff]
+            Request Body:
+              Encryption Type:
+                - #{Rex::Proto::Kerberos::Crypto::Encryption::AES256} (AES256)
+                - #{Rex::Proto::Kerberos::Crypto::Encryption::AES128} (AES128)
+                - #{Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC} (RC4_HMAC)
+          EOF
+        )
+      end
+
+      it 'renders key enum values in a readable value+name format' do
+        log_request
+
+        expect(output_text).to eq(expected_output)
+      end
+    end
+
+    context 'when serializing unknown enum values in mapped fields' do
+      let(:request_message) do
+        build_kerberos_message(
+          msg_type: 12_345,
+          fields: {
+            req_body: Rex::Proto::Kerberos::Model::KdcRequestBody.new(
+              cname: Rex::Proto::Kerberos::Model::PrincipalName.new(
+                name_type: 54_321,
+                name_string: ['user']
+              )
+            )
+          }
+        )
+      end
+      let(:expected_output) do
+        expected_trace_output(
+          direction: 'Request',
+          message_name: 'UNKNOWN (12345)',
+          color_prefix: '%bld%red',
+          body: <<~EOF.rstrip
+            Protocol Version: 5
+            Message Type: 12345 (UNKNOWN)
+            Client Realm: EXAMPLE.LOCAL
+            Request Body:
+              Client Name:
+                Name Type: 54321 (UNKNOWN)
+                Name String:
+                  - user
+          EOF
+        )
+      end
+
+      it 'uses UNKNOWN labels for unmapped enum values' do
         log_request
 
         expect(output_text).to eq(expected_output)
@@ -472,19 +455,15 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
 
     context 'when KerberosTicketTrace is enabled with default colors' do
       let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Response: AS-REP
-          ####################
-          %clr%bld%blu{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REP},
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
+        expected_trace_output(
+          direction: 'Response',
+          message_name: 'AS-REP',
+          color_prefix: '%bld%blu',
+          body: expected_basic_body(msg_type: Rex::Proto::Kerberos::Model::AS_REP, msg_name: 'AS-REP')
+        )
       end
 
-      it 'prints a colored response header and JSON payload' do
+      it 'prints a colored response header and readable text payload' do
         log_response
 
         expect(output_text).to eq(expected_output)
@@ -532,16 +511,12 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
     context 'when response msg_type is unknown' do
       let(:response_message) { build_kerberos_message(msg_type: 31_337) }
       let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Response: UNKNOWN (31337)
-          ####################
-          %clr%bld%blu{
-            "pvno": 5,
-            "msg_type": 31337,
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
+        expected_trace_output(
+          direction: 'Response',
+          message_name: 'UNKNOWN (31337)',
+          color_prefix: '%bld%blu',
+          body: expected_basic_body(msg_type: 31_337, msg_name: 'UNKNOWN')
+        )
       end
 
       it 'prints UNKNOWN with the numeric msg_type' do
@@ -554,12 +529,12 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
     context 'when response object does not expose attributes' do
       let(:response_message) { :raw_payload }
       let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Response: UNKNOWN
-          ####################
-          %clr%bld%bluraw_payload%clr
-        EOF
+        expected_trace_output(
+          direction: 'Response',
+          message_name: 'UNKNOWN',
+          color_prefix: '%bld%blu',
+          body: 'raw_payload'
+        )
       end
 
       it 'falls back to to_s formatting' do
@@ -569,113 +544,29 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
       end
     end
 
-    context 'when KerberosTicketTraceColors is set to red/blu' do
-      let(:trace_colors) { 'red/blu' }
-      let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Response: AS-REP
-          ####################
-          %clr%bld%blu{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REP},
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
-      end
+    {
+      'red/blu' => '%bld%blu',
+      'yel/' => '',
+      '/grn' => '%bld%grn',
+      'blu' => '',
+      '/' => ''
+    }.each do |configured_colors, expected_prefix|
+      context "when KerberosTicketTraceColors is set to #{configured_colors.inspect}" do
+        let(:trace_colors) { configured_colors }
+        let(:expected_output) do
+          expected_trace_output(
+            direction: 'Response',
+            message_name: 'AS-REP',
+            color_prefix: expected_prefix,
+            body: expected_basic_body(msg_type: Rex::Proto::Kerberos::Model::AS_REP, msg_name: 'AS-REP')
+          )
+        end
 
-      it 'uses the configured response color' do
-        log_response
+        it 'uses the expected response color prefix' do
+          log_response
 
-        expect(output_text).to eq(expected_output)
-      end
-    end
-
-    context 'when KerberosTicketTraceColors is set to yel/' do
-      let(:trace_colors) { 'yel/' }
-      let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Response: AS-REP
-          ####################
-          %clr{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REP},
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
-      end
-
-      it 'uses no response color when the response side is blank' do
-        log_response
-
-        expect(output_text).to eq(expected_output)
-      end
-    end
-
-    context 'when KerberosTicketTraceColors is set to /grn' do
-      let(:trace_colors) { '/grn' }
-      let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Response: AS-REP
-          ####################
-          %clr%bld%grn{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REP},
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
-      end
-
-      it 'uses the configured response color' do
-        log_response
-
-        expect(output_text).to eq(expected_output)
-      end
-    end
-
-    context 'when KerberosTicketTraceColors is set to blu' do
-      let(:trace_colors) { 'blu' }
-      let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Response: AS-REP
-          ####################
-          %clr{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REP},
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
-      end
-
-      it 'treats a single color as request-only' do
-        log_response
-
-        expect(output_text).to eq(expected_output)
-      end
-    end
-
-    context 'when KerberosTicketTraceColors is set to /' do
-      let(:trace_colors) { '/' }
-      let(:expected_output) do
-        <<~EOF.rstrip
-          ####################
-          # Kerberos Response: AS-REP
-          ####################
-          %clr{
-            "pvno": 5,
-            "msg_type": #{Rex::Proto::Kerberos::Model::AS_REP},
-            "crealm": "EXAMPLE.LOCAL"
-          }%clr
-        EOF
-      end
-
-      it 'disables both request and response color prefixes' do
-        log_response
-
-        expect(output_text).to eq(expected_output)
+          expect(output_text).to eq(expected_output)
+        end
       end
     end
 
@@ -690,16 +581,12 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
       context "when response msg_type is #{msg_name}" do
         let(:response_message) { build_kerberos_message(msg_type: msg_type) }
         let(:expected_output) do
-          <<~EOF.rstrip
-            ####################
-            # Kerberos Response: #{msg_name}
-            ####################
-            %clr%bld%blu{
-              "pvno": 5,
-              "msg_type": #{msg_type},
-              "crealm": "EXAMPLE.LOCAL"
-            }%clr
-          EOF
+          expected_trace_output(
+            direction: 'Response',
+            message_name: msg_name,
+            color_prefix: '%bld%blu',
+            body: expected_basic_body(msg_type: msg_type, msg_name: msg_name)
+          )
         end
 
         it 'maps message type to the expected label' do
@@ -823,6 +710,23 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
         expect(output_text).to eq(expected_output)
       end
     end
+  end
+
+  def expected_trace_output(direction:, message_name:, color_prefix:, body:)
+    [
+      '####################',
+      "# Kerberos #{direction}: #{message_name}",
+      '####################',
+      "%clr#{color_prefix}#{body}%clr"
+    ].join("\n")
+  end
+
+  def expected_basic_body(msg_type:, msg_name:)
+    <<~EOF.rstrip
+      Protocol Version: 5
+      Message Type: #{msg_type} (#{msg_name})
+      Client Realm: EXAMPLE.LOCAL
+    EOF
   end
 
   def build_kerberos_message(msg_type:, fields: {})
