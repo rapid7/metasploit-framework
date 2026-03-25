@@ -14,35 +14,7 @@ module Msf
       trigger_out
     ].freeze
 
-    # Requirement types for the intermediate node model
-    # These map requirement values to their typed node labels
-    REQUIREMENT_TYPES = {
-      # Access types - represent how a module obtains access to a target
-      # This includes both authentication (credentials) and sessions (established connections)
-      # Session IDs are formatted as: session/{platform}/{session_type}
-      # e.g., session/windows/meterpreter, session/linux/shell
-      access: {
-        label: 'Access',
-        base_values: %w[shell meterpreter powershell cmd],
-        values: %w[authentication/plaintext authentication/hash/net-ntlm authentication/hash/ntlm authentication/kerberos authentication/kerberos/keys authentication/certificate session/ldap session/mssql session/mysql session/postgresql session/smb]
-      },
-      # Trigger types - events/conditions that enable subsequent modules
-      # Used for coercion mechanisms (active like PetitPotam, passive like NBNS)
-      # that provide inbound authentication to capture/relay modules
-      # - 'coercion' = generic coercion (any mechanism, e.g., NBNS/LLMNR poisoning)
-      # - 'coercion/smb' = SMB-specific coercion (e.g., PetitPotam, PrinterBug)
-      # Capture modules may accept either generic OR protocol-specific coercion
-      trigger: {
-        label: 'Trigger',
-        values: %w[coercion coercion/smb coercion/http coercion/ldap coercion/webdav interaction/file-open]
-      }
-    }.freeze
-
-    # Base session types (without platform qualification)
-    SESSION_TYPES = %w[shell meterpreter powershell cmd].freeze
-
-    # Named weight levels for PRODUCES relationships.
-    # Positive values boost a path, negative values penalize it.
+    # Named weight levels for PRODUCES relationships. Positive values boost a path, negative values penalize it.
     # Default (unweighted) relationships have weight 0.
     WEIGHT_LEVELS = {
       'highest' => 2.0,
@@ -57,30 +29,10 @@ module Msf
 
     def initialize(uri: 'neo4j://localhost:7687', user: 'neo4j', password: 'neo4j')
       @driver = ::Neo4j::Driver::GraphDatabase.driver(uri, ::Neo4j::Driver::AuthTokens.basic(user, password))
-      puts "Connected to Neo4j"
     end
 
     def close
       @driver.close
-      puts "Connection closed"
-    end
-
-    # Delete only Requirement nodes and their relationships, keeping Module nodes intact.
-    def clear_requirement_model(batch_size: DEFAULT_BATCH_SIZE)
-      loop do
-        deleted = 0
-        session do |sess|
-          result = sess.run(<<~CYPHER)
-            MATCH (r:Requirement)
-            WITH r LIMIT #{batch_size}
-            DETACH DELETE r
-            RETURN count(*) AS deleted
-          CYPHER
-          deleted = result.first&.[]('deleted') || 0
-        end
-        break if deleted == 0
-      end
-      puts "Requirement model cleared"
     end
 
     def clear_database(batch_size: DEFAULT_BATCH_SIZE)
@@ -138,119 +90,6 @@ module Msf
           "MERGE (n:Module {id: #{escape_cypher_string(module_id.to_s)}, target_index: #{target_index.to_i}}) SET n += {#{props_str}}"
         )
       end
-      #puts "Created module: #{module_id}"
-    end
-
-    def create_hyperedge(hyperedge_id, node_ids, hyperedge_properties = {})
-      session do |session|
-        # Create the hyperedge node
-        session.run(
-          'MERGE (h:Hyperedge {id: $hyperedge_id}) SET h += $props',
-          hyperedge_id: hyperedge_id,
-          props: hyperedge_properties
-        )
-
-        # Connect all nodes to this hyperedge
-        node_ids.each do |node_id|
-          session.run(
-            'MATCH (h:Hyperedge {id: $hyperedge_id}) ' \
-            'MERGE (n:Module {id: $node_id}) ' \
-            'MERGE (n)-[:PARTICIPATES_IN]->(h)',
-            hyperedge_id: hyperedge_id,
-            node_id: node_id
-          )
-        end
-      end
-      puts "Created hyperedge: #{hyperedge_id} connecting #{node_ids.length} nodes"
-    end
-
-    def create_subgraph(subgraph_id, properties = {})
-      session do |session|
-        session.run(
-          'MERGE (sg:Subgraph {id: $subgraph_id}) SET sg += $props',
-          subgraph_id: subgraph_id,
-          props: properties
-        )
-      end
-      puts "Created subgraph: #{subgraph_id}"
-    end
-
-    def create_module_in_subgraph(module_id, subgraph_id, properties = {})
-      session do |session|
-        session.run(
-          'MATCH (sg:Subgraph {id: $subgraph_id}) ' \
-          'MERGE (n:Module {id: $module_id}) ' \
-          'SET n += $props ' \
-          'MERGE (n)-[:BELONGS_TO]->(sg)',
-          module_id: module_id,
-          subgraph_id: subgraph_id,
-          props: properties
-        )
-      end
-      puts "Created module #{module_id} in subgraph #{subgraph_id}"
-    end
-
-    def create_hyperedge_in_subgraph(hyperedge_id, node_ids, subgraph_id, hyperedge_properties = {})
-      session do |session|
-        # Create hyperedge and link to subgraph
-        session.run(
-          'MATCH (sg:Subgraph {id: $subgraph_id}) ' \
-          'MERGE (h:Hyperedge {id: $hyperedge_id}) ' \
-          'SET h += $props ' \
-          'MERGE (h)-[:BELONGS_TO]->(sg)',
-          hyperedge_id: hyperedge_id,
-          subgraph_id: subgraph_id,
-          props: hyperedge_properties
-        )
-
-        # Connect nodes to hyperedge
-        node_ids.each do |node_id|
-          session.run(
-            'MATCH (h:Hyperedge {id: $hyperedge_id}) ' \
-            'MATCH (n:Module {id: $node_id}) ' \
-            'MERGE (n)-[:PARTICIPATES_IN]->(h)',
-            hyperedge_id: hyperedge_id,
-            node_id: node_id
-          )
-        end
-      end
-      puts "Created hyperedge #{hyperedge_id} in subgraph #{subgraph_id}"
-    end
-
-    def get_hyperedge_modules(hyperedge_id)
-      results = []
-      session do |session|
-        result = session.run(
-          'MATCH (n:Module)-[:PARTICIPATES_IN]->(h:Hyperedge {id: $hyperedge_id}) ' \
-          'RETURN n.id as node_id, n',
-          hyperedge_id: hyperedge_id
-        )
-        result.each do |record|
-          results << {
-            id: record['node_id'],
-            properties: record['n'].properties
-          }
-        end
-      end
-      results
-    end
-
-    def get_module_hyperedges(module_id)
-      results = []
-      session do |session|
-        result = session.run(
-          'MATCH (n:Module {id: $module_id})-[:PARTICIPATES_IN]->(h:Hyperedge) ' \
-          'RETURN h.id as hyperedge_id, h',
-          module_id: module_id
-        )
-        result.each do |record|
-          results << {
-            id: record['hyperedge_id'],
-            properties: record['h'].properties
-          }
-        end
-      end
-      results
     end
 
     def update_module_properties(module_id, additions: {}, removals: {})
@@ -324,17 +163,6 @@ module Msf
     # - Multi-requirement satisfaction queries
     # - Better graph visualization
     # =========================================================================
-
-    # Create a typed requirement node
-    def create_requirement_node(value, label:)
-      raise ArgumentError unless REQUIREMENT_TYPES.values.any? { |requirement| requirement[:label] == label }
-
-      session do |session|
-        session.run(
-          "MERGE (r:Requirement:#{label} {id: #{escape_cypher_string(value)}})"
-        )
-      end
-    end
 
     # Create all requirement nodes from module properties in batches
     # Session requirements are platform-qualified: session/{platform}/{session_type}
@@ -664,141 +492,6 @@ module Msf
         stats[:requires_relationships] = result.first['count']
       end
       stats
-    end
-
-    # =========================================================================
-    # MULTI-REQUIREMENT PATHFINDING
-    # =========================================================================
-
-    # Find modules that can satisfy ALL requirements of a target module
-    # Returns paths through requirement nodes
-    def find_enablers_for_module(module_id)
-      results = []
-      session do |session|
-        result = session.run(<<~CYPHER, module_id: module_id)
-          MATCH (target:Module {id: $module_id})-[:REQUIRES]->(req:Requirement)
-          WITH target, collect(req) AS required_reqs
-          MATCH (enabler:Module)-[:PRODUCES]->(req)
-          WHERE req IN required_reqs
-          WITH target, required_reqs, enabler, collect(req) AS provided_reqs
-          WHERE size(provided_reqs) > 0
-          RETURN enabler.id AS enabler_id,
-                 [r IN provided_reqs | r.id] AS requirements_provided,
-                 [r IN required_reqs | r.id] AS requirements_needed,
-                 size(provided_reqs) AS match_count,
-                 size(required_reqs) AS total_required
-          ORDER BY match_count DESC
-        CYPHER
-
-        result.each do |record|
-          results << {
-            enabler_id: record['enabler_id'],
-            requirements_provided: record['requirements_provided'],
-            requirements_needed: record['requirements_needed'],
-            match_count: record['match_count'],
-            total_required: record['total_required'],
-            satisfies_all: record['match_count'] == record['total_required']
-          }
-        end
-      end
-      results
-    end
-
-    # Find attack chains that satisfy ALL requirements of a target
-    # max_depth: maximum number of modules in the chain
-    # Returns paths where each step provides requirements needed by the next
-    #
-    # Path pattern: Module -PRODUCES-> Req <-REQUIRES- Module -PRODUCES-> Req ...
-    # Since both PRODUCES and REQUIRES point Module->Requirement, we use undirected
-    # variable-length paths and validate edge directions explicitly.
-    def find_attack_chains(target_module_id, max_depth: 5, limit: 50)
-      chains = []
-      (2..max_depth).each do |depth|
-        # Build: (start)-[:PRODUCES]->(r1)<-[:REQUIRES]-(m2)-[:PRODUCES]->...<-[:REQUIRES]-(target)
-        # The chain ends with a REQUIRES edge into the target module
-        chain_pattern = '(start:Module)-[:PRODUCES]->'
-        module_names = ['start']
-        req_names = []
-        (1...depth).each do |i|
-          req_name = "r#{i}"
-          req_names << req_name
-          if i < depth - 1
-            mod_name = "m#{i + 1}"
-            module_names << mod_name
-            chain_pattern += "(#{req_name}:Requirement)<-[:REQUIRES]-(#{mod_name}:Module)-[:PRODUCES]->"
-          else
-            chain_pattern += "(#{req_name}:Requirement)<-[:REQUIRES]-(target)"
-          end
-        end
-        module_names << 'target'
-
-        modules_return = '[' + module_names.map { |m| "#{m}.id" }.join(', ') + ']'
-        reqs_return = '[' + req_names.map { |r| "#{r}.id" }.join(', ') + ']'
-
-        where_parts = ['start <> target'] + session_platform_consistency_conditions(req_names)
-        chain_where = "WHERE #{where_parts.join("\nAND ")}"
-
-        session do |session|
-          result = session.run(<<~CYPHER, target_id: target_module_id)
-            MATCH (target:Module {id: $target_id})
-            MATCH #{chain_pattern}
-            #{chain_where}
-            RETURN #{modules_return} AS module_chain,
-                   #{reqs_return} AS requirements_used,
-                   #{depth} AS chain_length
-            LIMIT #{limit}
-          CYPHER
-
-          result.each do |record|
-            chains << {
-              modules: record['module_chain'],
-              requirements: record['requirements_used'],
-              length: record['chain_length']
-            }
-          end
-        end
-      end
-      chains.sort_by { |c| c[:length] }
-    end
-
-    # Find modules that produce a specific requirement
-    def find_producers_of(requirement_id)
-      results = []
-      session do |session|
-        result = session.run(<<~CYPHER, req_id: requirement_id)
-          MATCH (m:Module)-[:PRODUCES]->(r:Requirement {id: $req_id})
-          RETURN m.id AS module_id, m.type AS module_type
-          ORDER BY m.id
-        CYPHER
-
-        result.each do |record|
-          results << {
-            module_id: record['module_id'],
-            type: record['module_type']
-          }
-        end
-      end
-      results
-    end
-
-    # Find modules that require a specific requirement
-    def find_consumers_of(requirement_id)
-      results = []
-      session do |session|
-        result = session.run(<<~CYPHER, req_id: requirement_id)
-          MATCH (m:Module)-[:REQUIRES]->(r:Requirement {id: $req_id})
-          RETURN m.id AS module_id, m.type AS module_type
-          ORDER BY m.id
-        CYPHER
-
-        result.each do |record|
-          results << {
-            module_id: record['module_id'],
-            type: record['module_type']
-          }
-        end
-      end
-      results
     end
 
     # =========================================================================
@@ -1189,34 +882,6 @@ module Msf
         end
       end
       results
-    end
-
-    def get_hypergraph_stats
-      stats = {}
-      session do |session|
-        result = session.run(
-          'MATCH (n:Module) ' \
-          'OPTIONAL MATCH (n)-[:PARTICIPATES_IN]->(h:Hyperedge) ' \
-          'WITH count(DISTINCT n) as node_count, count(DISTINCT h) as hyperedge_count ' \
-          'MATCH (h:Hyperedge)<-[r:PARTICIPATES_IN]-(n:Module) ' \
-          'WITH node_count, hyperedge_count, h, count(r) as edge_size ' \
-          'RETURN node_count, hyperedge_count, ' \
-          'avg(edge_size) as avg_hyperedge_size, ' \
-          'max(edge_size) as max_hyperedge_size, ' \
-          'min(edge_size) as min_hyperedge_size'
-        )
-        record = result.first
-        if record
-          stats = {
-            nodes: record['node_count'],
-            hyperedges: record['hyperedge_count'],
-            avg_hyperedge_size: record['avg_hyperedge_size'],
-            max_hyperedge_size: record['max_hyperedge_size'],
-            min_hyperedge_size: record['min_hyperedge_size']
-          }
-        end
-      end
-      stats
     end
 
     private
