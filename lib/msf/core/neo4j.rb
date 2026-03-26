@@ -1,4 +1,5 @@
 require 'neo4j/driver'
+require 'uri'
 
 module Msf
   module Neo4j
@@ -27,8 +28,10 @@ module Msf
     # Default batch size for relationship building
     DEFAULT_BATCH_SIZE = 500
 
-    def initialize(uri: 'neo4j://localhost:7687', user: 'neo4j', password: 'neo4j')
-      @driver = ::Neo4j::Driver::GraphDatabase.driver(uri, ::Neo4j::Driver::AuthTokens.basic(user, password))
+    def initialize(connection_string: 'neo4j://neo4j:neo4j@localhost:7687')
+      parsed = URI.parse(connection_string)
+      uri = "#{parsed.scheme}://#{parsed.host}:#{parsed.port}"
+      @driver = ::Neo4j::Driver::GraphDatabase.driver(uri, ::Neo4j::Driver::AuthTokens.basic(parsed.user, parsed.password))
     end
 
     def close
@@ -50,7 +53,6 @@ module Msf
         end
         break if deleted == 0
       end
-      puts "Database cleared"
     end
 
     def create_module(module_id, properties = {})
@@ -167,8 +169,6 @@ module Msf
     # Create all requirement nodes from module properties in batches
     # Session requirements are platform-qualified: session/{platform}/{session_type}
     def create_requirement_nodes(batch_size: DEFAULT_BATCH_SIZE)
-      puts "Creating requirement nodes..."
-
       # Collect all access requirement values (authentication + session)
       access_values = Set.new
 
@@ -232,9 +232,6 @@ module Msf
         result.each { |record| trigger_values.add(record['value']) }
       end
 
-      puts "  Found #{access_values.size} access requirement values"
-      puts "  Found #{trigger_values.size} trigger requirement values"
-
       # Create access requirement nodes in batches
       access_values.each_slice(batch_size) do |batch|
         session do |session|
@@ -257,15 +254,13 @@ module Msf
         end
       end
 
-      puts "  Created requirement nodes"
+      { access_count: access_values.size, trigger_count: trigger_values.size }
     end
 
     # Create PRODUCES relationships from modules to requirement nodes (batched)
     # Session relationships use platform-qualified IDs: session/{platform}/{session_type}
     # All PRODUCES relationships get a default weight of 0.
     def create_produces_relationships(batch_size: DEFAULT_BATCH_SIZE)
-      puts "Creating PRODUCES relationships..."
-
       # Access PRODUCES relationships from session_out (values are {platform}/{session_type})
       session do |session|
         session.run(<<~CYPHER)
@@ -293,7 +288,6 @@ module Msf
           } IN TRANSACTIONS OF #{batch_size} ROWS
         CYPHER
       end
-      puts "  Created access PRODUCES relationships"
 
       # Trigger PRODUCES relationships (trigger_out -> Trigger nodes)
       session do |session|
@@ -307,14 +301,12 @@ module Msf
           } IN TRANSACTIONS OF #{batch_size} ROWS
         CYPHER
       end
-      puts "  Created trigger PRODUCES relationships"
     end
 
     # Apply weight overrides to specific PRODUCES relationships.
     # weight_edits is a hash of module_id => { requirement_id => weight }
     # e.g., { 'auxiliary/admin/kerberos/get_ticket' => { 'authentication/kerberos' => 0.1 } }
     def apply_produces_weights(weight_edits)
-      puts "Applying PRODUCES relationship weights..."
       count = 0
       weight_edits.each do |module_id, req_weights|
         req_weights.each do |req_id, weight|
@@ -328,19 +320,17 @@ module Msf
             if record && record['updated'] > 0
               count += record['updated']
             else
-              $stderr.puts "  WARNING: No PRODUCES relationship found for #{module_id} -> #{req_id}"
+              wlog "No PRODUCES relationship found for #{module_id} -> #{req_id}"
             end
           end
         end
       end
-      puts "  Updated #{count} PRODUCES relationship weights"
+      count
     end
 
     # Create REQUIRES relationships from modules to requirement nodes (batched)
     # Session relationships use platform-qualified IDs: session/{platform}/{session_type}
     def create_requires_relationships(batch_size: DEFAULT_BATCH_SIZE)
-      puts "Creating REQUIRES relationships..."
-
       # Access REQUIRES relationships from session_in (values are {platform}/{session_type})
       session do |session|
         session.run(<<~CYPHER)
@@ -368,7 +358,6 @@ module Msf
           } IN TRANSACTIONS OF #{batch_size} ROWS
         CYPHER
       end
-      puts "  Created access REQUIRES relationships"
 
       # Trigger REQUIRES relationships (trigger_in -> Trigger nodes)
       session do |session|
@@ -382,17 +371,12 @@ module Msf
           } IN TRANSACTIONS OF #{batch_size} ROWS
         CYPHER
       end
-      puts "  Created trigger REQUIRES relationships"
     end
 
     # Build the complete requirement node model with relationships
     def build_requirement_model(batch_size: DEFAULT_BATCH_SIZE)
-      puts "\n" + "=" * 60
-      puts "BUILDING REQUIREMENT NODE MODEL"
-      puts "=" * 60
-
       # Step 1: Create all requirement nodes
-      create_requirement_nodes(batch_size: batch_size)
+      stats = create_requirement_nodes(batch_size: batch_size)
 
       # Step 2: Create PRODUCES relationships
       create_produces_relationships(batch_size: batch_size)
@@ -403,50 +387,30 @@ module Msf
       # Step 4: Create indexes for efficient querying
       create_requirement_indexes
 
-      puts "\nRequirement model built successfully!"
-      puts "=" * 60
+      stats
     end
 
     # Create indexes on requirement nodes for query performance
     def create_requirement_indexes
-      puts "Creating indexes..."
       session do |session|
         # Composite index on Module (id + target_index) for unique lookups
-        begin
-          session.run('CREATE INDEX module_id_target IF NOT EXISTS FOR (m:Module) ON (m.id, m.target_index)')
-        rescue StandardError => e
-          puts "  Note: #{e.message}" if e.message.include?('already exists')
-        end
+        session.run('CREATE INDEX module_id_target IF NOT EXISTS FOR (m:Module) ON (m.id, m.target_index)')
 
         # Index on Module id for queries across all targets of a module
-        begin
-          session.run('CREATE INDEX module_id IF NOT EXISTS FOR (m:Module) ON (m.id)')
-        rescue StandardError => e
-          puts "  Note: #{e.message}" if e.message.include?('already exists')
-        end
+        session.run('CREATE INDEX module_id IF NOT EXISTS FOR (m:Module) ON (m.id)')
 
         # Index on Requirement id
-        begin
-          session.run('CREATE INDEX requirement_id IF NOT EXISTS FOR (r:Requirement) ON (r.id)')
-        rescue StandardError => e
-          puts "  Note: #{e.message}" if e.message.include?('already exists')
-        end
+        session.run('CREATE INDEX requirement_id IF NOT EXISTS FOR (r:Requirement) ON (r.id)')
 
         # Indexes on typed requirement labels
         %w[Access Trigger].each do |label|
-          begin
-            session.run("CREATE INDEX #{label.downcase}_id IF NOT EXISTS FOR (n:#{label}) ON (n.id)")
-          rescue StandardError => e
-            puts "  Note: #{e.message}" if e.message.include?('already exists')
-          end
+          session.run("CREATE INDEX #{label.downcase}_id IF NOT EXISTS FOR (n:#{label}) ON (n.id)")
         end
       end
-      puts "  Indexes created"
     end
 
     # Clear only requirement nodes and their relationships (preserves Module nodes)
     def clear_requirement_model(batch_size: DEFAULT_BATCH_SIZE)
-      puts "Clearing requirement model..."
       # Delete in batches to avoid transaction memory limits
       loop do
         deleted = 0
@@ -461,7 +425,6 @@ module Msf
         end
         break if deleted == 0
       end
-      puts "  Requirement nodes and relationships cleared"
     end
 
     # Get statistics about the requirement model
