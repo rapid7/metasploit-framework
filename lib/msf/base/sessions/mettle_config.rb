@@ -96,15 +96,40 @@ module Msf
 
         opts[:uuid] ||= generate_payload_uuid
 
+        unless opts[:transport_config]
+          case opts[:scheme]
+          when 'http'
+            opts[:transport_config] = [transport_config_reverse_http(opts)]
+          when 'https'
+            opts[:transport_config] = [transport_config_reverse_https(opts)]
+          when 'tcp'
+            opts[:transport_config] = [transport_config_reverse_tcp(opts)]
+          else
+            raise ArgumentError, "Unknown scheme: #{opts[:scheme]}"
+          end
+        end
+
+        # Generate the TLV config block
+        config_opts = {
+          ascii_str:         true,
+          null_session_guid: opts[:stageless] == true,
+          expiration:        (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
+          uuid:              opts[:uuid],
+          transports:        opts[:transport_config],
+          stageless:         opts[:stageless] == true,
+        }.merge(meterpreter_logging_config(opts))
+
+        config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+        opts[:config_block] = config.to_b
+
+        # Keep the legacy CLI config for backward compatibility during transition
         case opts[:scheme]
         when 'http'
-          opts[:uri] = generate_http_uri(transport_config_reverse_http(opts))
+          opts[:uri] = generate_http_uri(opts[:transport_config].first)
         when 'https'
-          opts[:uri] = generate_http_uri(transport_config_reverse_https(opts))
+          opts[:uri] = generate_http_uri(opts[:transport_config].first)
         when 'tcp'
-          opts[:uri] = generate_tcp_uri(transport_config_reverse_tcp(opts))
-        else
-          raise ArgumentError, "Unknown scheme: #{opts[:scheme]}"
+          opts[:uri] = generate_tcp_uri(opts[:transport_config].first)
         end
 
         opts[:uuid] = Base64.encode64(opts[:uuid].to_raw).strip
@@ -114,7 +139,7 @@ module Msf
         end
         opts[:session_guid] = Base64.encode64(guid).strip
 
-        opts.slice(:uuid, :session_guid, :uri, :debug, :log_file, :name, :background)
+        opts.slice(:uuid, :session_guid, :uri, :debug, :log_file, :name, :background, :config_block)
       end
 
       # Stage encoding is not safe for Mettle (doesn't apply to stageless)
