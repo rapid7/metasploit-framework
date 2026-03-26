@@ -62,5 +62,54 @@ RSpec.shared_examples_for 'Msf::DBManager::Cred' do
         end
       end
     end
+
+    describe '#create_credential_core' do
+      let(:workspace) { subject.default_workspace }
+      let(:host_addr) { '192.0.2.1' }
+      let(:module_fullname) { 'auxiliary/test/module' }
+
+      it 'creates a Login when origin is a service origin' do
+        core = subject.create_credential(
+          address: host_addr,
+          port: 22,
+          service_name: 'ssh',
+          protocol: 'tcp',
+          workspace_id: workspace.id,
+          origin_type: :service,
+          module_fullname: module_fullname,
+          username: 'admin'
+        )
+        expect(core).to be_persisted
+        expect(core.logins.count).to eq(1)
+        expect(core.logins.first.status).to eq(Metasploit::Model::Login::Status::UNTRIED)
+      end
+
+      it 'creates separate Logins when the same credential is found on different services' do
+        core1 = subject.create_credential(
+          address: host_addr,
+          port: 22,
+          service_name: 'ssh',
+          protocol: 'tcp',
+          workspace_id: workspace.id,
+          origin_type: :service,
+          module_fullname: module_fullname,
+          username: 'admin'
+        )
+
+        core2 = subject.create_credential(
+          address: '192.0.2.2',
+          port: 80,
+          service_name: 'http',
+          protocol: 'tcp',
+          workspace_id: workspace.id,
+          origin_type: :service,
+          module_fullname: module_fullname,
+          username: 'admin'
+        )
+
+        expect(core1.id).to eq(core2.id)
+        expect(core1.logins.reload.count).to eq(2)
+      end
+    end
   end
 end

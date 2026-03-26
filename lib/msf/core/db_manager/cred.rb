@@ -307,6 +307,23 @@ module Msf::DBManager::Cred
     service
   end
 
+  def create_credential_core(opts = {})
+    core = super
+    return core if core.nil?
+    origin = opts[:origin]
+    if origin.is_a?(Metasploit::Credential::Origin::Service)
+      retry_transaction do
+        login = Metasploit::Credential::Login.where(
+          core_id: core.id,
+          service_id: origin.service_id
+        ).first_or_initialize
+        login.status = Metasploit::Model::Login::Status::UNTRIED if login.status.blank?
+        login.save!
+      end
+    end
+    core
+  end
+
   alias :report_auth :report_auth_info
   alias :report_cred :report_auth_info
 end
