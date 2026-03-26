@@ -299,6 +299,14 @@ module Msf::DBManager::Cred
     }
   end
 
+  def create_credential_service(opts = {})
+    service = super
+    return service if service.nil?
+    service.info = opts[:info] if opts.key?(:info)
+    service.save! if service.changed?
+    service
+  end
+
   alias :report_auth :report_auth_info
   alias :report_cred :report_auth_info
 end
