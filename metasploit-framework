@@ -1,0 +1,6 @@
+export resank6661
+export rnkoibur@gmail.com
+mkdir -p ~/git
+cd ~/git
+git clone git@github.com:$resank6661/metasploit-framework
+cd ~/git/metasploit-framework
