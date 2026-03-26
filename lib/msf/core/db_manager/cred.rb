@@ -300,7 +300,8 @@ module Msf::DBManager::Cred
   end
 
   def create_credential_service(opts = {})
-    service = super
+    opts = opts.merge(service_name: opts[:service_name].to_s.downcase) if opts[:service_name]
+    service = super(opts)
     return service if service.nil?
     service.info = opts[:info] if opts.key?(:info)
     service.save! if service.changed?

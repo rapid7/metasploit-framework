@@ -61,6 +61,13 @@ RSpec.shared_examples_for 'Msf::DBManager::Cred' do
           expect(service.info).to eq('original banner')
         end
       end
+
+      context 'when :service_name has mixed case' do
+        it 'lowercases the service name to match report_service behavior' do
+          service = subject.create_credential_service(base_opts.merge(service_name: 'HTTP'))
+          expect(service.name).to eq('http')
+        end
+      end
     end
 
     describe '#create_credential_core' do
