@@ -1,5 +1,6 @@
 require 'did_you_mean'
 require 'msfenv'
+require 'uri'
 
 require 'rex'
 require 'msf/core/constants'
@@ -145,6 +146,7 @@ def trigger_in_property(mod_ins)
 end
 
 NEO4J_URL = ENV['NEO4J_URL'] || 'neo4j://neo4j:neo4j@localhost:7687'
+NEO4J_BROWSER_URL = "http://#{URI.parse(NEO4J_URL).host}:7474"
 
 PROTOCOL_SESSIONS = %w[ ldap mssql mysql postgresql smb ]
 # Load Neo4j transforms configuration
@@ -232,10 +234,10 @@ namespace :module_graph do
           importer.import_module(graph, mod_cls)
         rescue Interrupt
           exit
-        rescue Exception => e
-          $stderr.puts "Failed to import #{mod_cls.fullname}"
-          $stderr.puts "#{e.class}: #{e.message}".indent(2)
-          $stderr.puts e.backtrace.join("\n").indent(2)
+        rescue StandardError => e
+          elog "Failed to import #{mod_cls.fullname}"
+          elog "#{e.class}: #{e.message}".indent(2)
+          elog e.backtrace.join("\n").indent(2)
         else
           modules_imported += 1
         end
@@ -245,10 +247,10 @@ namespace :module_graph do
       # Phase 2: Apply artisanal properties from transforms file
       puts "Phase 2: Applying module edits..."
       module_edits = TRANSFORMS_CONFIG['module_edits'] || {}
+      result = { weight_edits: {}, edit_errors: [], weight_errors: [], artisanal_count: 0 }
 
       if module_edits.any?
         result = apply_module_edits(graph, module_edits)
-
         puts "Phase 2: Applied module edits to #{result[:artisanal_count]} modules."
         unless result[:edit_errors].empty?
           puts "\nErrors encountered:"
@@ -281,7 +283,7 @@ namespace :module_graph do
       end
 
       puts "Generation complete!"
-      puts "View at http://localhost:7474"
+      puts "View at #{NEO4J_BROWSER_URL}"
     ensure
       graph.close
     end
@@ -299,7 +301,7 @@ namespace :module_graph do
       puts "REQUIREMENT MODEL STATISTICS"
       puts "=" * 60
 
-      if stats.empty?
+      if stats[:modules] == 0
         puts "No data in requirement model"
       else
         puts "Modules: #{stats[:modules].to_s.gsub(/\B(?=(...)*\b)/, ',')}"
@@ -334,6 +336,7 @@ namespace :module_graph do
       # Step 2: Re-apply module edits from transforms
       puts "\nApplying module edits..."
       module_edits = TRANSFORMS_CONFIG['module_edits'] || {}
+      result = { weight_edits: {}, edit_errors: [], weight_errors: [], artisanal_count: 0 }
 
       if module_edits.any?
         result = apply_module_edits(graph, module_edits)
@@ -365,7 +368,7 @@ namespace :module_graph do
       end
 
       puts "\nRefresh complete!"
-      puts "View at http://localhost:7474"
+      puts "View at #{NEO4J_BROWSER_URL}"
     ensure
       graph.close
     end
@@ -379,7 +382,7 @@ namespace :module_graph do
     begin
       requirements = []
       graph.instance_eval do
-        session do |sess|
+        with_session do |sess|
           result = sess.run(<<~CYPHER)
             MATCH (r:Requirement)
             OPTIONAL MATCH (producer:Module)-[:PRODUCES]->(r)
@@ -406,7 +409,7 @@ namespace :module_graph do
       end
 
       if requirements.empty?
-        puts "No requirement nodes found. Run 'rake module_graph:build_requirement_model' first."
+        puts "No requirement nodes found. Run 'rake module_graph:generate' first."
       else
         # Calculate column widths
         type_width = [requirements.map { |r| r[:type].to_s.length }.max, 'Type'.length].max
@@ -478,7 +481,7 @@ namespace :module_graph do
     begin
       nodes = []
       graph.instance_eval do
-        session do |sess|
+        with_session do |sess|
           result = sess.run(<<~CYPHER, module_id: module_id)
             MATCH (m:Module {id: $module_id})
             OPTIONAL MATCH (m)-[pr:PRODUCES]->(produced:Requirement)
@@ -568,7 +571,7 @@ namespace :module_graph do
   def validate_requirement_id(graph, input, label: nil, match: :exact)
     all_ids = []
     graph.instance_eval do
-      session do |sess|
+      with_session do |sess|
         cypher = label ? "MATCH (r:Requirement:#{label}) RETURN r.id AS id" : 'MATCH (r:Requirement) RETURN r.id AS id'
         sess.run(cypher).each { |record| all_ids << record['id'] }
       end
@@ -602,7 +605,7 @@ namespace :module_graph do
   #   - plaintext          => plain value, normal weight
   #   - kerberos: highest  => plain value "kerberos" with weight override
   #
-  # Returns { additions: Hash, removals: Hash, weight_edits: Hash, errors: Array }
+  # Returns { artisanal_count: Integer, weight_edits: Hash, edit_errors: Array, weight_errors: Array }
   def apply_module_edits(graph, module_edits)
     weight_edits = {}
     edit_errors = []
@@ -656,7 +659,7 @@ namespace :module_graph do
           puts "  Updated: #{module_name}"
         rescue ArgumentError => e
           edit_errors << "#{module_name}: #{e.message}"
-          $stderr.puts "  ERROR - #{module_name}: #{e.message}"
+          elog "#{module_name}: #{e.message}"
         end
       end
     end
