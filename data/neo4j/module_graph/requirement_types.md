@@ -18,7 +18,7 @@ Credentials stay under Access (not Information) because they are interchangeable
 
 ## PRODUCES Relationship Weights
 
-PRODUCES relationships carry a `weight` property that indicates how reliably a module produces a specific output. Weights are configured inline in `neo4j_transforms.yml` using named levels:
+PRODUCES relationships carry a `weight` property that indicates how reliably a module produces a specific output. Weights are configured inline in `transforms.yml` using named levels:
 
 | Level | Value | Meaning |
 |-------|-------|---------|
@@ -30,7 +30,7 @@ PRODUCES relationships carry a `weight` property that indicates how reliably a m
 
 Pathfinding sorts by shortest chain length first, then by highest total weight as a tiebreaker among paths of equal length.
 
-Example in `neo4j_transforms.yml`:
+Example in `transforms.yml`:
 
 ```yaml
 auxiliary/admin/kerberos/get_ticket:

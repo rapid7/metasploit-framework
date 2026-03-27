@@ -150,7 +150,7 @@ NEO4J_BROWSER_URL = "http://#{URI.parse(NEO4J_URL).host}:7474"
 
 PROTOCOL_SESSIONS = %w[ ldap mssql mysql postgresql smb ]
 # Load Neo4j transforms configuration
-TRANSFORMS_FILE = Rails.root.join('data/neo4j_transforms.yml')
+TRANSFORMS_FILE = Rails.root.join('data/neo4j/module_graph/transforms.yml')
 TRANSFORMS_CONFIG = File.exist?(TRANSFORMS_FILE) ? YAML.load_file(TRANSFORMS_FILE) : {}
 PLATFORM_MAPPING = load_platform_mappings(TRANSFORMS_CONFIG)
 
@@ -206,21 +206,32 @@ class ModuleImporter
 end
 
 namespace :module_graph do
+  def with_graph
+    graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
+    begin
+      yield graph
+    rescue Neo4j::Driver::Exceptions::AuthenticationException
+      abort "Neo4j authentication failed. Check the credentials in NEO4J_URL. (currently: #{NEO4J_URL})"
+    rescue Neo4j::Driver::Exceptions::ServiceUnavailableException
+      abort "Could not connect to Neo4j. Is it running? (currently: #{NEO4J_URL})"
+    ensure
+      graph.close
+    end
+  end
+
   desc "Delete all data from Neo4j database"
   task :clean do
     puts "Clearing Neo4j database..."
-    graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
-    graph.clear_database
-    graph.close
+    with_graph do |graph|
+      graph.clear_database
+    end
     puts "Done!"
   end
 
   desc "Generate module graph (import modules, apply edits, build requirement model)"
   task :generate do
     puts "Generating module graph..."
-    graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
-
-    begin
+    with_graph do |graph|
       puts "Phase 1: Importing modules..."
       importer = ModuleImporter.new
 
@@ -234,6 +245,8 @@ namespace :module_graph do
           importer.import_module(graph, mod_cls)
         rescue Interrupt
           exit
+        rescue Neo4j::Driver::Exceptions::ServiceUnavailableException, Neo4j::Driver::Exceptions::AuthenticationException
+          raise
         rescue StandardError => e
           elog "Failed to import #{mod_cls.fullname}"
           elog "#{e.class}: #{e.message}".indent(2)
@@ -284,17 +297,13 @@ namespace :module_graph do
 
       puts "Generation complete!"
       puts "View at #{NEO4J_BROWSER_URL}"
-    ensure
-      graph.close
     end
   end
 
   desc "Show requirement model statistics"
   task :requirement_stats do
     puts "Fetching requirement model statistics..."
-    graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
-
-    begin
+    with_graph do |graph|
       stats = graph.get_requirement_stats
 
       puts "\n" + "=" * 60
@@ -317,8 +326,6 @@ namespace :module_graph do
       end
 
       puts "=" * 60
-    ensure
-      graph.close
     end
   end
 
@@ -327,8 +334,7 @@ namespace :module_graph do
 
   desc "Re-apply module edits and rebuild the requirement model without re-importing modules"
   task :reapply_transforms do
-    graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
-    begin
+    with_graph do |graph|
       # Step 1: Clear existing requirement model
       puts "Clearing requirement model..."
       graph.clear_requirement_model
@@ -369,17 +375,13 @@ namespace :module_graph do
 
       puts "\nRefresh complete!"
       puts "View at #{NEO4J_BROWSER_URL}"
-    ensure
-      graph.close
     end
   end
 
   desc "List all requirement nodes in a table format to help spot typos and modeling errors"
   task :list_requirements do
     puts "Fetching requirement nodes..."
-    graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
-
-    begin
+    with_graph do |graph|
       requirements = []
       graph.instance_eval do
         with_session do |sess|
@@ -467,8 +469,6 @@ namespace :module_graph do
       end
 
       puts
-    ensure
-      graph.close
     end
   end
 
@@ -477,8 +477,7 @@ namespace :module_graph do
     module_id = ENV['MODULE']
     abort 'Usage: rake module_graph:inspect_module MODULE=exploit/windows/smb/ms17_010_eternalblue' unless module_id
 
-    graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
-    begin
+    with_graph do |graph|
       nodes = []
       graph.instance_eval do
         with_session do |sess|
@@ -551,8 +550,6 @@ namespace :module_graph do
         puts "\n" + ('=' * 70)
         puts "#{nodes.size} node(s) found"
       end
-    ensure
-      graph.close
     end
   end
 
@@ -674,8 +671,7 @@ namespace :module_graph do
     limit = (ENV['LIMIT'] || 50).to_i
     abort "Usage: rake module_graph:chains_to TARGET=session/windows/meterpreter [DEPTH=4] [LIMIT=50]" unless target
 
-    graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
-    begin
+    with_graph do |graph|
       validate_requirement_id(graph, target, label: 'Access', match: :contains)
       results = graph.find_unauthenticated_chains_to(target, max_depth: max_depth, limit: limit)
 
@@ -700,8 +696,6 @@ namespace :module_graph do
         end
         puts "\n#{results.size} chains found"
       end
-    ensure
-      graph.close
     end
   end
 
@@ -713,8 +707,7 @@ namespace :module_graph do
     limit = (ENV['LIMIT'] || 50).to_i
     abort "Usage: rake module_graph:transform_access FROM=authentication/hash/ntlm TO=authentication/kerberos [DEPTH=4] [LIMIT=50]" unless from && to
 
-    graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
-    begin
+    with_graph do |graph|
       validate_requirement_id(graph, from, label: 'Access')
       validate_requirement_id(graph, to, label: 'Access')
       results = graph.find_access_escalation(from, to, max_depth: max_depth, limit: limit)
@@ -741,8 +734,6 @@ namespace :module_graph do
         end
         puts "\n#{results.size} paths found"
       end
-    ensure
-      graph.close
     end
   end
 
@@ -754,8 +745,7 @@ namespace :module_graph do
     limit = (ENV['LIMIT'] || 50).to_i
     abort "Usage: rake module_graph:reach_module FROM=authentication/hash/ntlm MODULE=post/windows/gather/hashdump [DEPTH=4] [LIMIT=50]" unless from && target_module
 
-    graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
-    begin
+    with_graph do |graph|
       validate_requirement_id(graph, from, label: 'Access')
       result = graph.find_paths_to_module(from, target_module, max_depth: max_depth, limit: limit)
 
@@ -787,8 +777,6 @@ namespace :module_graph do
         end
         puts "\n#{result[:paths].size} paths found"
       end
-    ensure
-      graph.close
     end
   end
 
@@ -796,8 +784,7 @@ namespace :module_graph do
   task :coercion_chains do
     coercion = ENV['TRIGGER'] || 'coercion/smb'
 
-    graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
-    begin
+    with_graph do |graph|
       validate_requirement_id(graph, coercion, label: 'Trigger')
       results = graph.find_coercion_chains(coercion)
 
@@ -817,8 +804,6 @@ namespace :module_graph do
         end
         puts "\n#{results.size} modules found"
       end
-    ensure
-      graph.close
     end
   end
 
@@ -828,8 +813,7 @@ namespace :module_graph do
     max_depth = (ENV['DEPTH'] || 6).to_i
     limit = (ENV['LIMIT'] || 25).to_i
 
-    graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
-    begin
+    with_graph do |graph|
       results = graph.find_full_attack_paths(max_depth: max_depth, platform: platform, limit: limit)
 
       puts "\n" + "=" * 80
@@ -855,8 +839,6 @@ namespace :module_graph do
         end
         puts "\n#{results.size} paths found"
       end
-    ensure
-      graph.close
     end
   end
 
@@ -867,8 +849,7 @@ namespace :module_graph do
     limit = (ENV['LIMIT'] || 50).to_i
     abort "Usage: rake module_graph:reachable ACCESS=authentication/hash/ntlm [DEPTH=3] [LIMIT=50]" unless access
 
-    graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
-    begin
+    with_graph do |graph|
       validate_requirement_id(graph, access, label: 'Access')
       results = graph.find_reachable_from(access, max_depth: max_depth, limit: limit)
 
@@ -891,8 +872,6 @@ namespace :module_graph do
         end
         puts "\n#{results.size} modules reachable"
       end
-    ensure
-      graph.close
     end
   end
 end
