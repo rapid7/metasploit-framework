@@ -31,7 +31,11 @@ module Msf
       def initialize(connection_string: 'neo4j://neo4j:neo4j@localhost:7687')
         parsed = URI.parse(connection_string)
         uri = "#{parsed.scheme}://#{parsed.host}:#{parsed.port}"
-        @driver = ::Neo4j::Driver::GraphDatabase.driver(uri, ::Neo4j::Driver::AuthTokens.basic(parsed.user, parsed.password))
+        auth_tokens = ::Neo4j::Driver::AuthTokens.basic(
+          (parsed.user || 'neo4j'),
+          (parsed.password || 'neo4j')
+        )
+        @driver = ::Neo4j::Driver::GraphDatabase.driver(uri, auth_tokens)
       end
 
       def close
