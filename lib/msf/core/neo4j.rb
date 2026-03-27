@@ -6,11 +6,9 @@ module Msf
     class Graph
       # Allowed property names for artisanal modifications
       ALLOWED_PROPERTIES = %w[
-        authentication_in
-        authentication_out
+        access_in
+        access_out
         platform
-        session_in
-        session_out
         trigger_in
         trigger_out
       ].freeze
@@ -171,58 +169,19 @@ module Msf
         trigger_values = Set.new
 
         with_session do |session|
-          # Get authentication_out values (prefix non-session values with 'authentication/')
+          # Get all access values (already pre-qualified as 'authentication/...' or 'session/...')
           result = session.run(<<~CYPHER)
             MATCH (m:Module)
-            WHERE m.authentication_out IS NOT NULL
-            UNWIND m.authentication_out AS auth
-            RETURN DISTINCT CASE WHEN auth STARTS WITH 'session/' THEN auth ELSE 'authentication/' + auth END AS value
+            UNWIND coalesce(m.access_in, []) + coalesce(m.access_out, []) AS value
+            RETURN DISTINCT value
           CYPHER
           result.each { |record| access_values.add(record['value']) }
 
-          # Get authentication_in values (prefix non-session values with 'authentication/')
+          # Get all trigger values
           result = session.run(<<~CYPHER)
             MATCH (m:Module)
-            WHERE m.authentication_in IS NOT NULL
-            UNWIND m.authentication_in AS auth
-            RETURN DISTINCT CASE WHEN auth STARTS WITH 'session/' THEN auth ELSE 'authentication/' + auth END AS value
-          CYPHER
-          result.each { |record| access_values.add(record['value']) }
-
-          # Get session_out values (platform-qualified as {platform}/{session_type})
-          # Prepend 'session/' to create final ID: session/{platform}/{session_type}
-          result = session.run(<<~CYPHER)
-            MATCH (m:Module)
-            WHERE m.session_out IS NOT NULL
-            UNWIND m.session_out AS sess_value
-            RETURN DISTINCT 'session/' + sess_value AS value
-          CYPHER
-          result.each { |record| access_values.add(record['value']) }
-
-          # Get session_in values (platform-qualified as {platform}/{session_type})
-          result = session.run(<<~CYPHER)
-            MATCH (m:Module)
-            WHERE m.session_in IS NOT NULL
-            UNWIND m.session_in AS sess_value
-            RETURN DISTINCT 'session/' + sess_value AS value
-          CYPHER
-          result.each { |record| access_values.add(record['value']) }
-
-          # Get trigger_out values
-          result = session.run(<<~CYPHER)
-            MATCH (m:Module)
-            WHERE m.trigger_out IS NOT NULL
-            UNWIND m.trigger_out AS trig
-            RETURN DISTINCT trig AS value
-          CYPHER
-          result.each { |record| trigger_values.add(record['value']) }
-
-          # Get trigger_in values
-          result = session.run(<<~CYPHER)
-            MATCH (m:Module)
-            WHERE m.trigger_in IS NOT NULL
-            UNWIND m.trigger_in AS trig
-            RETURN DISTINCT trig AS value
+            UNWIND coalesce(m.trigger_in, []) + coalesce(m.trigger_out, []) AS value
+            RETURN DISTINCT value
           CYPHER
           result.each { |record| trigger_values.add(record['value']) }
         end
@@ -253,32 +212,16 @@ module Msf
       end
 
       # Create PRODUCES relationships from modules to requirement nodes (batched)
-      # Session relationships use platform-qualified IDs: session/{platform}/{session_type}
       # All PRODUCES relationships get a default weight of 0.
       def create_produces_relationships(batch_size: DEFAULT_BATCH_SIZE)
-        # Access PRODUCES relationships from session_out (values are {platform}/{session_type})
+        # Access PRODUCES relationships (values are already pre-qualified)
         with_session do |session|
           session.run(<<~CYPHER)
             CALL {
               MATCH (m:Module)
-              WHERE m.session_out IS NOT NULL
-              UNWIND m.session_out AS sess_value
-              WITH m, 'session/' + sess_value AS qualified_id
-              MATCH (r:Requirement {id: qualified_id})
-              MERGE (m)-[:PRODUCES {type: 'access', weight: 0}]->(r)
-            } IN TRANSACTIONS OF #{batch_size} ROWS
-          CYPHER
-        end
-
-        # Access PRODUCES relationships from authentication_out (prefix non-session values)
-        with_session do |session|
-          session.run(<<~CYPHER)
-            CALL {
-              MATCH (m:Module)
-              WHERE m.authentication_out IS NOT NULL
-              UNWIND m.authentication_out AS auth_type
-              WITH m, CASE WHEN auth_type STARTS WITH 'session/' THEN auth_type ELSE 'authentication/' + auth_type END AS qualified_id
-              MATCH (r:Requirement {id: qualified_id})
+              WHERE m.access_out IS NOT NULL
+              UNWIND m.access_out AS access_id
+              MATCH (r:Requirement {id: access_id})
               MERGE (m)-[:PRODUCES {type: 'access', weight: 0}]->(r)
             } IN TRANSACTIONS OF #{batch_size} ROWS
           CYPHER
@@ -324,31 +267,15 @@ module Msf
       end
 
       # Create REQUIRES relationships from modules to requirement nodes (batched)
-      # Session relationships use platform-qualified IDs: session/{platform}/{session_type}
       def create_requires_relationships(batch_size: DEFAULT_BATCH_SIZE)
-        # Access REQUIRES relationships from session_in (values are {platform}/{session_type})
+        # Access REQUIRES relationships (values are already pre-qualified)
         with_session do |session|
           session.run(<<~CYPHER)
             CALL {
               MATCH (m:Module)
-              WHERE m.session_in IS NOT NULL
-              UNWIND m.session_in AS sess_value
-              WITH m, 'session/' + sess_value AS qualified_id
-              MATCH (r:Requirement {id: qualified_id})
-              MERGE (m)-[:REQUIRES {type: 'access'}]->(r)
-            } IN TRANSACTIONS OF #{batch_size} ROWS
-          CYPHER
-        end
-
-        # Access REQUIRES relationships from authentication_in (prefix non-session values)
-        with_session do |session|
-          session.run(<<~CYPHER)
-            CALL {
-              MATCH (m:Module)
-              WHERE m.authentication_in IS NOT NULL
-              UNWIND m.authentication_in AS auth_type
-              WITH m, CASE WHEN auth_type STARTS WITH 'session/' THEN auth_type ELSE 'authentication/' + auth_type END AS qualified_id
-              MATCH (r:Requirement {id: qualified_id})
+              WHERE m.access_in IS NOT NULL
+              UNWIND m.access_in AS access_id
+              MATCH (r:Requirement {id: access_id})
               MERGE (m)-[:REQUIRES {type: 'access'}]->(r)
             } IN TRANSACTIONS OF #{batch_size} ROWS
           CYPHER

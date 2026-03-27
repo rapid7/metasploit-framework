@@ -38,56 +38,56 @@ platform_edits:
 module_edits:
   auxiliary/analyze/crack_windows:
     add:
-      authentication_in:
-        - hash/net-ntlm
-        - hash/ntlm
-      authentication_out:
-        - plaintext
+      access_in:
+        - authentication/hash/net-ntlm
+        - authentication/hash/ntlm
+      access_out:
+        - authentication/plaintext
 
   auxiliary/admin/dcerpc/icpr_cert:
     add:
-      authentication_out:
-        - certificate: highest
+      access_out:
+        - authentication/certificate: highest
 
   auxiliary/admin/kerberos/forge_ticket:
     add:
-      authentication_in:
-        - kerberos/keys
-      authentication_out:
-        - kerberos: highest
+      access_in:
+        - authentication/kerberos/keys
+      access_out:
+        - authentication/kerberos: highest
 
   auxiliary/admin/kerberos/get_ticket:
     add:
-      authentication_in:
-        - plaintext
-        - certificate
-      authentication_out:
-        - kerberos: highest
+      access_in:
+        - authentication/plaintext
+        - authentication/certificate
+      access_out:
+        - authentication/kerberos: highest
 
   auxiliary/admin/ldap/bad_successor:
     remove:
-      authentication_in:
-        - kerberos
-        - certificate
+      access_in:
+        - authentication/kerberos
+        - authentication/certificate
 
   auxiliary/admin/sccm/get_naa_credentials:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
 
   auxiliary/gather/ldap_passwords:
     add:
-      authentication_out:
-        - plaintext: high
-        - hash/ntlm
-        - kerberos/keys: low
+      access_out:
+        - authentication/plaintext: high
+        - authentication/hash/ntlm
+        - authentication/kerberos/keys: low
 
   auxiliary/gather/windows_secrets_dump:
     add:
-      authentication_out:
-        - plaintext
-        - hash/ntlm
-        - kerberos/keys
+      access_out:
+        - authentication/plaintext
+        - authentication/hash/ntlm
+        - authentication/kerberos/keys
 
   auxiliary/scanner/dcerpc/dfscoerce:
     add:
@@ -101,159 +101,155 @@ module_edits:
 
   auxiliary/scanner/ldap/ldap_login:
     add:
-      authentication_out:
+      access_out:
         - session/ldap
 
   auxiliary/scanner/mssql/mssql_login:
     add:
-      authentication_out:
+      access_out:
         - session/mssql
 
   auxiliary/scanner/mysql/mysql_login:
     add:
-      authentication_out:
+      access_out:
         - session/mysql
 
   auxiliary/scanner/smb/smb_login:
     add:
-      authentication_out:
+      access_out:
         - session/smb
 
   auxiliary/server/capture/drda:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
       trigger_in:
         - coercion
 
   auxiliary/server/capture/ftp:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
       trigger_in:
         - coercion
 
   auxiliary/server/capture/imap:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
       trigger_in:
         - coercion
 
   auxiliary/server/capture/ldap:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
       trigger_in:
         - coercion
 
   auxiliary/server/capture/mssql:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
       trigger_in:
         - coercion
 
   auxiliary/server/capture/mysql:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
       trigger_in:
         - coercion
 
   auxiliary/server/capture/pop3:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
       trigger_in:
         - coercion
 
   auxiliary/server/capture/postgresql:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
       trigger_in:
         - coercion
 
   auxiliary/server/capture/printjob_capture:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
       trigger_in:
         - coercion
 
   auxiliary/server/capture/sip:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
       trigger_in:
         - coercion
 
   auxiliary/server/capture/smb:
     add:
-      authentication_out:
-        - hash/net-ntlm
+      access_out:
+        - authentication/hash/net-ntlm
       trigger_in:
         - coercion
         - coercion/smb
 
   auxiliary/server/capture/smtp:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
       trigger_in:
         - coercion
 
   auxiliary/server/capture/telnet:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
       trigger_in:
         - coercion
 
   auxiliary/server/capture/vnc:
     add:
-      authentication_out:
-        - plaintext
+      access_out:
+        - authentication/plaintext
       trigger_in:
         - coercion
 
   auxiliary/server/relay/esc8:
     add:
-      authentication_out:
-        - certificate
-        - hash/net-ntlm
+      access_out:
+        - authentication/certificate
+        - authentication/hash/net-ntlm
       trigger_in:
         - coercion
         - coercion/smb
 
   auxiliary/server/relay/relay_get_naa_credentials:
     add:
-      authentication_out:
-        - hash/net-ntlm
-        - plaintext
+      access_out:
+        - authentication/hash/net-ntlm
+        - authentication/plaintext
       trigger_in:
         - coercion
         - coercion/smb
 
   auxiliary/server/relay/smb_to_ldap:
     add:
-      authentication_out:
-        - hash/net-ntlm
+      access_out:
+        - authentication/hash/net-ntlm
         - session/ldap
-      session_out:
-        - ldap
       trigger_in:
         - coercion
         - coercion/smb
 
   auxiliary/server/relay/smb_to_mssql:
     add:
-      authentication_out:
-        - hash/net-ntlm
+      access_out:
+        - authentication/hash/net-ntlm
         - session/mssql
-      session_out:
-        - mssql
       trigger_in:
         - coercion
         - coercion/smb
@@ -276,41 +272,39 @@ module_edits:
   exploit/multi/ssh/sshexec:
     add:
       # todo: this is probably missing a "highest" ranking for the SSH interactive shell
-      session_out:
-        - linux/meterpreter: high
-        - linux/shell: high
-        - osx/meterpreter: high
-        - osx/shell: high
+      access_out:
+        - session/linux/meterpreter: high
+        - session/linux/shell: high
+        - session/osx/meterpreter: high
+        - session/osx/shell: high
 
   exploit/windows/smb/psexec:
     add:
       # mark these as high because psexec is a generally reliable technique given it is not dependent on any vulnerability
-      session_out:
-        - windows/meterpreter: high
-        - windows/shell: high
+      access_out:
+        - session/windows/meterpreter: high
+        - session/windows/shell: high
 
   exploit/windows/smb/smb_relay:
     add:
-      authentication_out:
-        - hash/net-ntlm: high
+      access_out:
+        - authentication/hash/net-ntlm: high
         - session/smb: low
-      session_out:
-        - smb
       trigger_in:
         - coercion
         - coercion/smb
 
   post/windows/gather/hashdump:
     add:
-      authentication_out:
-        - hash/ntlm
+      access_out:
+        - authentication/hash/ntlm
 
   post/windows/gather/smart_hashdump:
     add:
-      authentication_out:
-        - hash/ntlm
+      access_out:
+        - authentication/hash/ntlm
 
   post/windows/manage/kerberos_tickets:
     add:
-      authentication_out:
-        - kerberos
+      access_out:
+        - authentication/kerberos
