@@ -462,7 +462,7 @@ module Rex
           # Rem : One have to set check_status to false here because sql server sp0 (and maybe above)
           # has a strange behavior that differs from the specifications
           # upon receiving the ntlm_negotiate request it send an ntlm_challenge but the status flag of the tds packet header
-          # is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentification
+          # is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentication
           resp = mssql_send_recv(pkt, 15, false)
 
           # Strip the TDS header

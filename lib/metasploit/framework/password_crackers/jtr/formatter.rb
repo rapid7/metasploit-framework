@@ -118,7 +118,7 @@ module Metasploit
                 return "#{username}:#{private_data}:#{db_id}:"
               end
             else
-              puts "[X] JTR Formatter (params_to_jtr) recieved an unknown private_type: #{private_type} (#{private_type.class})"
+              puts "[X] JTR Formatter (params_to_jtr) received an unknown private_type: #{private_type} (#{private_type.class})"
             end
 
             nil

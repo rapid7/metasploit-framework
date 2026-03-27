@@ -101,7 +101,7 @@ module Msf
               end
             else
               # XXX: No vprint_status here
-              if framework.datastore['VERBOSE'].to_s == 'true'
+              if framework.datastore['VERBOSE']
                 print_status("You are executing expressions in #{binding.receiver}")
               end
 

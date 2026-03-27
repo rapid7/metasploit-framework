@@ -112,8 +112,18 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
 
-      - uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231
-        if: ${{ matrix.meterpreter.name == 'php' }}
+      # Use setup-php@2.31.1 for Windows (PHP 5.3 on windows-2022 is broken with later versions while PHP 7.4 and 8.3
+      # are broken on MacOS with this version)
+      - name: Use setup-php@2.31.1 to install PHP for Windows runners
+        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231
+        if: ${{ matrix.meterpreter.name == 'php' && runner.os == 'Windows' }}
+        with:
+          php-version: ${{ matrix.meterpreter.runtime_version }}
+          tools: none
+
+      - name: Use setup-php@2.37.0 to install PHP for non-Windows runners
+        uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f
+        if: ${{ matrix.meterpreter.name == 'php' && runner.os != 'Windows' }}
         with:
           php-version: ${{ matrix.meterpreter.runtime_version }}
           tools: none

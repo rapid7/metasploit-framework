@@ -11,6 +11,10 @@ module Auxiliary::AuthBrute
 
   include Msf::Auxiliary::LoginScanner
 
+  # Registers datastore options used to build username/password permutations and control brute-force execution.
+  #
+  # @param [Hash] info Module metadata passed through to the superclass initializer.
+  # @return [void]
   def initialize(info = {})
     super
 
@@ -116,6 +120,9 @@ module Auxiliary::AuthBrute
     cred_collection
   end
 
+  # Resets per-service brute-force limits before a module run starts.
+  #
+  # @return [void]
   def setup
     @@max_per_service = nil
   end
@@ -259,6 +266,12 @@ module Auxiliary::AuthBrute
   # The 'noconn' argument should be set to true if each_user_pass is merely
   # iterating over the usernames and passwords and should not respect
   # bruteforce_speed as a delaying factor.
+  #
+  # @param [Boolean] noconn When `true`, skips the usual per-attempt delay because no connection is made.
+  # @yield [username, password] Gives each username/password pair to the caller.
+  # @yieldparam [String] username Username to attempt.
+  # @yieldparam [String] password Password to attempt.
+  # @return [void]
   def each_user_pass(noconn=false,&block)
     this_service = [datastore['RHOST'],datastore['RPORT']].join(":")
     fq_rest = [this_service,"all remaining users"].join(":")
@@ -349,6 +362,11 @@ module Auxiliary::AuthBrute
     end
   end
 
+  # Determines whether the current service has exceeded its guess-count or runtime limits.
+  #
+  # @param [String] this_service Service identifier in <code>host:port</code> form
+  # @param [Array<Array<String, String>>] credentials Credential pairs queued for the service
+  # @return [Boolean] True when the service should stop brute-force attempts
   def counters_expired?(this_service,credentials)
     expired_cred = false
     expired_time = false
@@ -380,10 +398,12 @@ module Auxiliary::AuthBrute
     expired_cred || expired_time
   end
 
-  # If the user passed a memory location for credential gen, assume
-  # that that's precisely what's desired -- no other transforms or
-  # additions or uniqueness should be done. Otherwise, perform
-  # the usual alterations.
+  # Builds the ordered credential list from files, datastore overrides, and optional database values.
+  #
+  # If the user passed a memory-backed credential source, the list is returned as-is without
+  # additional transforms, deduplication, or database-backed augmentation.
+  #
+  # @return [Array<Array<String, String>>] The credential pairs to iterate during brute forcing
   def build_credentials_array
     credentials = extract_word_pair(datastore['USERPASS_FILE'])
     translate_proto_datastores()
@@ -421,8 +441,13 @@ module Auxiliary::AuthBrute
     return credentials
   end
 
-  # Class variables to track credential use. They need
-  # to be class variables due to threading.
+  # Initializes shared brute-force counters for the current service and run configuration.
+  #
+  # Class variables are used here so the counters remain visible across worker threads.
+  #
+  # @param [String] this_service Service identifier in <code>host:port</code> form
+  # @param [Array<Array<String, String>>] credentials Credential pairs queued for the service
+  # @return [void]
   def initialize_class_variables(this_service,credentials)
     @@guesses_per_service ||= {}
     @@guesses_per_service[this_service] = nil
@@ -449,6 +474,10 @@ module Auxiliary::AuthBrute
     end
   end
 
+  # Loads usernames from the configured file and optional USERNAME datastore override.
+  #
+  # @param [Array<Array<String, String>>, nil] credentials Existing credential pairs to prioritize with USERNAME
+  # @return [Array<String>] The collected usernames
   def load_user_vars(credentials = nil)
     users = extract_words(datastore['USER_FILE'])
     if datastore['USERNAME']
@@ -458,6 +487,10 @@ module Auxiliary::AuthBrute
     users
   end
 
+  # Loads passwords from the configured file and optional PASSWORD datastore override.
+  #
+  # @param [Array<Array<String, String>>, nil] credentials Existing credential pairs to prioritize with PASSWORD
+  # @return [Array<String>] The collected passwords
   def load_password_vars(credentials = nil)
     passwords = extract_words(datastore['PASS_FILE'])
     if datastore['PASSWORD']
@@ -468,10 +501,12 @@ module Auxiliary::AuthBrute
   end
 
 
-  # Takes protocol-specific username and password fields, and,
-  # if present, prefer those over any given USERNAME or PASSWORD.
-  # Note, these special username/passwords should get deprecated
-  # some day. Note2: Don't use with SMB and FTP at the same time!
+  # Copies protocol-specific username/password datastore options into the generic auth-brute options.
+  #
+  # Legacy datastore keys such as `SMBUser` and `FTPUSER` take precedence over the generic
+  # `USERNAME` and `PASSWORD` values when they are populated.
+  #
+  # @return [void]
   def translate_proto_datastores
     ['SMBUser','FTPUSER'].each do |u|
       if datastore[u] and !datastore[u].empty?
@@ -485,22 +520,45 @@ module Auxiliary::AuthBrute
     end
   end
 
+  # Collapses credential pairs to unique usernames while replacing every password with a blank value.
+  #
+  # @param [Array<Array<String, String>>] credentials Credential pairs to normalize
+  # @return [Array<Array<String, String>>] Unique username entries with blank passwords.
   def just_uniq_users(credentials)
     credentials.map {|x| [x[0],""]}.uniq
   end
 
+  # Collapses credential pairs to unique passwords while replacing every username with a blank value.
+  #
+  # @param [Array<Array<String, String>>] credentials Credential pairs to normalize
+  # @return [Array<Array<String, String>>] Unique password entries with blank usernames
   def just_uniq_passwords(credentials)
     credentials.map{|x| ["",x[1]]}.uniq
   end
 
+  # Prepends credential pairs that reuse a chosen username across the supplied passwords.
+  #
+  # @param [String] user Username to prioritize
+  # @param [Array<Array<String, String>>] cred_array Existing credential pairs
+  # @return [Array<Array<String, String>>] Updated credential pairs with prioritized username combinations
   def prepend_chosen_username(user,cred_array)
     cred_array.map {|pair| [user,pair[1]]} + cred_array
   end
 
+  # Prepends credential pairs that reuse a chosen password across the supplied usernames.
+  #
+  # @param [String] pass Password to prioritize
+  # @param [Array<Array<String, String>>] cred_array Existing credential pairs
+  # @return [Array<Array<String, String>>] Updated credential pairs with prioritized password combinations
   def prepend_chosen_password(pass,cred_array)
     cred_array.map {|pair| [pair[0],pass]} + cred_array
   end
 
+  # Generates additional credential pairs that try blank passwords for each known username.
+  #
+  # @param [Array<String>] user_array Usernames gathered for brute forcing
+  # @param [Array<Array<String, String>>] cred_array Existing credential pairs
+  # @return [Array<Array<String, String>>] Credential pairs prefixed with blank-password attempts
   def gen_blank_passwords(user_array,cred_array)
     blank_passwords = []
     unless user_array.empty?
@@ -512,6 +570,11 @@ module Auxiliary::AuthBrute
     return(blank_passwords + cred_array)
   end
 
+  # Generates additional credential pairs that try each username as its own password.
+  #
+  # @param [Array<String>] user_array Usernames gathered for brute forcing
+  # @param [Array<Array<String, String>>] cred_array Existing credential pairs
+  # @return [Array<Array<String, String>>] Credential pairs prefixed with username-as-password attempts
   def gen_user_as_password(user_array,cred_array)
     user_as_passwords = []
     unless user_array.empty?
@@ -523,6 +586,11 @@ module Auxiliary::AuthBrute
     return(user_as_passwords + cred_array)
   end
 
+  # Produces the ordered cartesian product of usernames and passwords, prioritizing explicit datastore choices.
+  #
+  # @param [Array<String>] user_array Usernames to combine.
+  # @param [Array<String>] pass_array Passwords to combine.
+  # @return [Array<Array<String, String>>] Ordered username/password pairs for brute-force attempts.
   def combine_users_and_passwords(user_array,pass_array)
     if (user_array.length + pass_array.length) < 1
       return []
@@ -578,6 +646,10 @@ module Auxiliary::AuthBrute
     return creds[0] + creds[1] + creds[2] + creds[3]
   end
 
+  # Reads a newline-delimited wordlist from disk.
+  #
+  # @param [String, nil] wordfile Path to the wordlist file
+  # @return [Array<String>] The extracted entries, or an empty array when unavailable
   def extract_words(wordfile)
     return [] unless wordfile && File.readable?(wordfile)
 
@@ -589,6 +661,10 @@ module Auxiliary::AuthBrute
     end
   end
 
+  # Resolves a <code>memory:</code> pseudo-path into the referenced Ruby object.
+  #
+  # @param [String] memloc Memory-backed credential location
+  # @return [Object, nil] The referenced object when the identifier is valid
   def get_object_from_memory_location(memloc)
     if memloc.to_s =~ /^memory:\s*([0-9]+)/
       id = $1
@@ -596,6 +672,10 @@ module Auxiliary::AuthBrute
     end
   end
 
+  # Reads username/password pairs from disk or a memory-backed credential source.
+  #
+  # @param [String, nil] wordfile Path or <code>memory:</code> pseudo-path containing credential pairs
+  # @return [Array<Array<String, String>>] The extracted username/password pairs
   def extract_word_pair(wordfile)
     creds = []
     if wordfile.to_s =~ /^memory:/
@@ -615,6 +695,11 @@ module Auxiliary::AuthBrute
     end
   end
 
+  # Extracts username/password pairs from a memory-backed credential builder.
+  #
+  # @param [String] memloc Memory-backed credential location
+  # @return [Array<Array<String, String>>] The extracted username/password pairs
+  # @raise [ArgumentError] If the in-memory credentials cannot be resolved or parsed
   def extract_word_pair_from_memory(memloc)
     begin
       creds = []
@@ -646,6 +731,9 @@ module Auxiliary::AuthBrute
     end
   end
 
+  # Maps the configured brute-force speed to the delay inserted between login attempts.
+  #
+  # @return [Integer, Float] Seconds to wait between attempts
   def userpass_interval
     case datastore['BRUTEFORCE_SPEED'].to_i
       when 0; 60 * 5
@@ -657,27 +745,45 @@ module Auxiliary::AuthBrute
     end
   end
 
+  # Sleeps for the delay implied by {#userpass_interval}.
+  #
+  # @return [Array<IO, nil>, nil] The result of <code>IO.select</code>, or nil when no delay is needed
   def userpass_sleep_interval
     ::IO.select(nil,nil,nil,userpass_interval) unless userpass_interval == 0
   end
 
-  # See #print_brute
+  # Prints a verbose auth-brute message when `VERBOSE` output is enabled.
+  #
+  # @param [Hash] opts Message formatting options accepted by {#print_brute}.
+  # @return [void]
   def vprint_brute(opts={})
     if datastore['VERBOSE']
       print_brute(opts)
     end
   end
 
+  # Prints a verbose status message via {#print_brute}.
+  #
+  # @param [String] msg Message to display
+  # @return [void]
   def vprint_status(msg='')
     print_brute :level => :vstatus, :msg => msg
   end
 
+  # Prints a verbose error message via {#print_brute}.
+  #
+  # @param [String] msg Message to display
+  # @return [void]
   def vprint_error(msg='')
     print_brute :level => :verror, :msg => msg
   end
 
   alias_method :vprint_bad, :vprint_error
 
+  # Prints a verbose success message via {#print_brute}.
+  #
+  # @param [String] msg Message to display
+  # @return [void]
   def vprint_good(msg='')
     print_brute :level => :vgood, :msg => msg
   end
@@ -716,8 +822,13 @@ module Auxiliary::AuthBrute
     end
   end
 
-  # Depending on the non-nil elements, build up a standardized
-  # auth_brute message.
+  # Builds the standardized auth_brute status line for a login attempt or event.
+  #
+  # @param [String, nil] host_ip Target host address
+  # @param [String, Integer, nil] host_port Target service port
+  # @param [String, nil] proto Protocol label to display
+  # @param [String] msg Event-specific message suffix
+  # @return [String] The formatted brute-force status line
   def build_brute_message(host_ip,host_port,proto,msg)
     ip = host_ip.to_s.strip if host_ip
     port = host_port.to_s.strip if host_port
@@ -741,8 +852,10 @@ module Auxiliary::AuthBrute
     end
   end
 
-  # Takes a credentials array, and returns just the first X involving
-  # a particular user.
+  # Limits the number of credential pairs retained for each username based on `MaxGuessesPerUser`.
+  #
+  # @param [Array<Array<String, String>>] credentials Candidate credential pairs.
+  # @return [Array<Array<String, String>>] Filtered credential pairs that respect the per-user limit.
   def adjust_credentials_by_max_user(credentials)
     max = datastore['MaxGuessesPerUser'].to_i.abs
     if max == 0
@@ -764,8 +877,13 @@ module Auxiliary::AuthBrute
     return new_credentials
   end
 
-  # Fun trick: Only prints if we're already in each_user_pass, since
-  # only then is @@max_per_service defined.
+  # Formats the current attempt count and total guess limit for a service.
+  #
+  # This only returns progress text after {#each_user_pass} has initialized the shared counters.
+  #
+  # @param [String] ip Target host address
+  # @param [String, Integer] port Target service port
+  # @return [String, nil] Progress text when counters have been initialized
   def tried_over_total(ip,port)
     total = self.class.class_variable_get("@@max_per_service") rescue nil
     return unless total
@@ -775,14 +893,19 @@ module Auxiliary::AuthBrute
     "[%0#{pad}d/%0#{pad}d] - " % [current_try, total]
   end
 
-  # Protocols can nearly always be automatically determined from the
-  # name of the module, assuming the name is sensible like ssh_login or
-  # smb_auth.
+  # Infers the protocol name from the module's fullname suffix.
+  #
+  # This assumes the module name follows auth/login naming patterns such as <code>ssh_login</code>
+  # or <code>smb_auth</code>.
+  #
+  # @return [String, nil] The inferred protocol in uppercase, when recognizable
   def proto_from_fullname
     File.split(self.fullname).last.match(/^(.*)_(login|auth|identify)/)[1].upcase rescue nil
   end
 
-  # This method deletes the dictionary files if requested
+  # Deletes temporary credential dictionary files when their removal options are enabled.
+  #
+  # @return [void]
   def cleanup_files
     path = datastore['USERPASS_FILE']
     if path and datastore['REMOVE_USERPASS_FILE']

@@ -1,5 +1,3 @@
-# -*- coding: binary -*-
-
 require 'spec_helper'
 
 RSpec.describe Msf::Modules::Metadata::Search do
@@ -370,8 +368,8 @@ RSpec.describe Msf::Modules::Metadata::Search do
           'search_filter',
           accept: [
             "author:István",
-            "author:Istv\xE1n ",
-            "author:Istv\u00E1n ",
+            "author:Istv\xE1n ".b,
+            "author:Istv\u00E1n ".b,
           ],
           :reject => [
             'different_author'
@@ -385,11 +383,11 @@ RSpec.describe Msf::Modules::Metadata::Search do
           'search_filter',
           accept: [
             'different_author',
-            "author:Istv\xE1n",
+            "author:Istv\xE1n".b,
           ],
           :reject => [
             "author:István",
-            "author:Istv\u00E1n ",
+            "author:Istv\u00E1n ".b,
           ],
           :test_inverse => false
         )
