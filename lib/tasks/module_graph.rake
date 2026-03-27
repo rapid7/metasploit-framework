@@ -792,9 +792,9 @@ namespace :module_graph do
     end
   end
 
-  desc "Find what credentials/sessions a coercion type yields (e.g., COERCION=coercion/smb)"
+  desc "Find what credentials/sessions a trigger type yields (e.g., TRIGGER=coercion/smb)"
   task :coercion_chains do
-    coercion = ENV['COERCION'] || 'coercion/smb'
+    coercion = ENV['TRIGGER'] || 'coercion/smb'
 
     graph = Msf::Neo4j::Graph.new(connection_string: NEO4J_URL)
     begin
@@ -802,11 +802,11 @@ namespace :module_graph do
       results = graph.find_coercion_chains(coercion)
 
       puts "\n" + "=" * 80
-      puts "COERCION CHAINS FROM: #{coercion}"
+      puts "TRIGGER CHAINS FROM: #{coercion}"
       puts "=" * 80
 
       if results.empty?
-        puts "No modules consume this coercion type"
+        puts "No modules consume this trigger type"
       else
         results.each do |entry|
           label = format_module(entry[:module_id], entry[:target_name])
