@@ -1,5 +1,3 @@
-# encoding: binary
-
 xml_group = '
 <?xml version="1.0" encoding="utf-8"?>
 <Groups clsid="{3125E937-EB16-4b4c-9934-544FC6D24D26}"><User clsid="{DF5F1855-51E5-4d24-8B1A-D9BDE98BA1D1}" name="SuperSecretBackdoor" image="0" changed="2013-04-25 18:36:07" uid="{B5EDB865-34F5-4BD7-9C59-3AEB1C7A68C3}"><Properties action="C" fullName="" description="" cpassword="VBQUNbDhuVti3/GHTGHPvcno2vH3y8e8m1qALVO1H3T0rdkr2rub1smfTtqRBRI3" changeLogon="0" noChange="0" neverExpires="1" acctDisabled="0" userName="SuperSecretBackdoor"/></User>

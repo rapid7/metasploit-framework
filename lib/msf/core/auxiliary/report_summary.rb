@@ -22,6 +22,7 @@ module Msf
           register_options(
             [
               OptBool.new('ShowSuccessfulLogins', [false, 'Outputs a table of successful logins', true]),
+              OptBool.new('VerboseIfSingleHost', [false, 'Force verbose logging if there is only one host scanned', true]),
             ]
           )
         end
@@ -170,8 +171,11 @@ module Msf
       #
       # @param [Object] host_count The number of hosts
       def conditional_verbose_output(host_count)
+        return unless datastore['VerboseIfSingleHost']
+
         if host_count == 1
           datastore['Verbose'] = true
+          print_warning('One host detected - enabling verbose mode - to disable use %grnset VerboseIfSingleHost false%clr')
         end
       end
 

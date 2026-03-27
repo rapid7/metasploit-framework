@@ -33,6 +33,42 @@ end
 
 RSpec.describe Msf::DataStore do
 
+  describe ".GLOBAL_OPTION_DEFINITIONS" do
+    it "contains only OptBase subclass instances" do
+      Msf::DataStore::GLOBAL_OPTION_DEFINITIONS.each_option do |_name, opt|
+        expect(opt).to be_a(Msf::OptBase)
+      end
+    end
+
+    it "defines the expected option types" do
+      defs = Msf::DataStore::GLOBAL_OPTION_DEFINITIONS
+      expect(defs['ConsoleLogging']).to be_a(Msf::OptBool)
+      expect(defs['LogLevel']).to be_a(Msf::OptInt)
+      expect(defs['MinimumRank']).to be_a(Msf::OptEnum)
+      expect(defs['SessionLogging']).to be_a(Msf::OptBool)
+      expect(defs['TimestampOutput']).to be_a(Msf::OptBool)
+      expect(defs['VERBOSE']).to be_a(Msf::OptBool)
+      expect(defs['SessionTlvLogging']).to be_a(Msf::OptSessionTlvLogging)
+    end
+
+    it "derives GLOBAL_KEYS with the same key names" do
+      expected_keys = %w[
+        ConsoleLogging
+        LogLevel
+        MinimumRank
+        SessionLogging
+        TimestampOutput
+        VERBOSE
+        Prompt
+        PromptChar
+        PromptTimeFormat
+        MeterpreterPrompt
+        SessionTlvLogging
+      ]
+      expect(Msf::DataStore::GLOBAL_KEYS).to match_array(expected_keys)
+    end
+  end
+
   describe "#import_option" do
     subject do
       s = described_class.new
@@ -102,7 +138,57 @@ RSpec.describe Msf::DataStore do
     end
 
     it_behaves_like "datastore"
-  end
 
+    context "normalizes values loaded from an INI config file" do
+      subject do
+        ds = described_class.new
+        ds.import_options(Msf::DataStore::GLOBAL_OPTION_DEFINITIONS)
+        ds
+      end
+
+      it "normalizes boolean and integer strings" do
+        ini_instance = double group?: true,
+                              :[] => {
+                                "VERBOSE" => "true",
+                                "ConsoleLogging" => "false",
+                                "LogLevel" => "3"
+                              }
+        ini_class = double from_file: ini_instance
+        stub_const("Rex::Parser::Ini", ini_class)
+
+        subject.from_file("path")
+
+        expect(subject['VERBOSE']).to eq true
+        expect(subject['ConsoleLogging']).to eq false
+        expect(subject['LogLevel']).to eq 3
+      end
+    end
+
+    it "registers each option by name" do
+      options = Msf::OptionContainer.new([
+        Msf::OptBool.new('TestBool', [false, 'A bool', false]),
+        Msf::OptInt.new('TestInt', [false, 'An int', 0]),
+      ])
+      subject.import_options(options)
+      expect(subject.options['TestBool']).to be_a(Msf::OptBool)
+      expect(subject.options['TestInt']).to be_a(Msf::OptInt)
+    end
+
+    it "normalizes values through registered options" do
+      options = Msf::OptionContainer.new([Msf::OptBool.new('MyFlag', [false, 'A flag', false])])
+      subject.import_options(options)
+      subject['MyFlag'] = 'true'
+      expect(subject['MyFlag']).to eq true
+    end
+
+    it "registers options from a standalone OptionContainer" do
+      options = Msf::OptionContainer.new
+      options.add_options([
+        Msf::OptString.new('Foo', [false, 'A string', nil])
+      ])
+      subject.import_options(options)
+      expect(subject.options['Foo']).to be_a(Msf::OptString)
+    end
+  end
 
 end

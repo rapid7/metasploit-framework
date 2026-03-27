@@ -1,5 +1,3 @@
-# -*- coding: binary -*-
-
 #
 # This mixin is a simplistic implementation of X11 extensions protocol
 #
@@ -212,8 +210,8 @@ end
 
 class X11Image
   def initialize(width, height, image_data, color_data)
-    @width = width # integer, 1024 in 1024×768
-    @height = height # integer, 768 in 1024×768
+    @width = width # integer, 1024 in 1024x768
+    @height = height # integer, 768 in 1024x768
     @image_data = image_data # from X11GetImageResponse
     @color_data = color_data # from X11GetColorsResponse
   end

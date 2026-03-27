@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf::Util::EXE::Windows::Common
   include Msf::Util::EXE::Common
 

@@ -26,7 +26,8 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['URL', 'https://github.com/SecuraBV/Timeroast/'],
-          ['URL', 'https://www.secura.com/uploads/whitepapers/Secura-WP-Timeroasting-v3.pdf']
+          ['URL', 'https://www.secura.com/uploads/whitepapers/Secura-WP-Timeroasting-v3.pdf'],
+          ['ATT&CK', Mitre::Attack::Technique::T1110_002_PASSWORD_CRACKING]
         ],
         'Notes' => {
           'Stability' => [],
