@@ -145,6 +145,30 @@ def trigger_in_property(mod_ins)
   result.empty? ? nil : result.to_a
 end
 
+def access_in_property(mod_ins)
+  result = Set.new
+
+  (authentication_in_property(mod_ins) || []).each do |val|
+    result.add(val.start_with?('session/') ? val : "authentication/#{val}")
+  end
+
+  (session_in_property(mod_ins) || []).each do |val|
+    result.add("session/#{val}")
+  end
+
+  result.empty? ? nil : result.to_a
+end
+
+def access_out_property(mod_ins)
+  result = Set.new
+
+  (session_out_property(mod_ins) || []).each do |val|
+    result.add("session/#{val}")
+  end
+
+  result.empty? ? nil : result.to_a
+end
+
 NEO4J_URL = ENV['NEO4J_URL'] || 'neo4j://neo4j:neo4j@localhost:7687'
 NEO4J_BROWSER_URL = "http://#{URI.parse(NEO4J_URL).host}:7474"
 
@@ -173,7 +197,7 @@ class ModuleImporter
         type: mod_cls.type,
         target_index: -1,
         disclosure_date: mod_ins.disclosure_date&.strftime('%Y-%m-%d'),
-        authentication_in: authentication_in_property(mod_ins)
+        access_in: access_in_property(mod_ins)
       }
       graph.create_module(mod_cls.fullname, **properties)
     when ::Msf::MODULE_EXPLOIT
@@ -184,10 +208,9 @@ class ModuleImporter
           target_index: idx,
           target_name: target.name,
           disclosure_date: mod_ins.disclosure_date&.strftime('%Y-%m-%d'),
-          authentication_in: authentication_in_property(mod_ins),
+          access_in: access_in_property(mod_ins),
           platform: platform_property(mod_ins),
-          session_in: session_in_property(mod_ins),
-          session_out: session_out_property(mod_ins),
+          access_out: access_out_property(mod_ins),
           trigger_in: trigger_in_property(mod_ins)
         }
         graph.create_module(mod_cls.fullname, **properties)
@@ -198,7 +221,7 @@ class ModuleImporter
         target_index: -1,
         disclosure_date: mod_ins.disclosure_date&.strftime('%Y-%m-%d'),
         platform: platform_property(mod_ins),
-        session_in: session_in_property(mod_ins)
+        access_in: access_in_property(mod_ins)
       }
       graph.create_module(mod_cls.fullname, **properties)
     end
@@ -592,8 +615,7 @@ namespace :module_graph do
 
   # Map output property names to requirement ID prefixes
   OUTPUT_PREFIXES = {
-    'authentication_out' => 'authentication/',
-    'session_out' => 'session/',
+    'access_out' => '',
     'trigger_out' => ''
   }.freeze
 
