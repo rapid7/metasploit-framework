@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf::Util::EXE::Linux::Mipsbe
   include Msf::Util::EXE::Common
   include Msf::Util::EXE::Linux::Common

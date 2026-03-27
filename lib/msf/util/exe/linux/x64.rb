@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf::Util::EXE::Linux::X64
 include Msf::Util::EXE::Linux::Common
   

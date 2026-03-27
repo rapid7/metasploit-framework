@@ -19,6 +19,7 @@ module Msf
   autoload :OptPort, 'msf/core/opt_port'
   autoload :OptRaw, 'msf/core/opt_raw'
   autoload :OptRegexp, 'msf/core/opt_regexp'
+  autoload :OptSessionTlvLogging, 'msf/core/opt_session_tlv_logging'
   autoload :OptString, 'msf/core/opt_string'
 
   #

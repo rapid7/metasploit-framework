@@ -1516,7 +1516,7 @@ module Msf
 
               show_module_metadata('Compatible Payloads', @@payload_show_results)
             else
-              # show_module_set(‘Payloads’, framework.payloads, regex, minrank, opts)
+              # show_module_set('Payloads', framework.payloads, regex, minrank, opts)
               show_module_metadata('Payloads', 'payload')
             end
           end
@@ -1622,14 +1622,21 @@ module Msf
               'Postfix' => "\n",
               'Columns' => columns
             )
-            #
-          # Displays the global options.
-          #
-          def show_global_options
-            print_line
-            print_line 'Global Options:'
-            print_line '==============='
-            print_line
+
+            # Display-only defaults for options whose actual defaults are managed
+            # by the UI layer (driver prompt constants, time format, etc.)
+            computed_defaults = {
+              'Prompt'            => Msf::Ui::Console::Driver::DefaultPrompt.to_s.gsub(/%.../, ''),
+              'PromptChar'        => Msf::Ui::Console::Driver::DefaultPromptChar.to_s.gsub(/%.../, ''),
+              'PromptTimeFormat'  => Time::DATE_FORMATS[:db].to_s,
+              'MeterpreterPrompt' => '%undmeterpreter%clr',
+            }
+
+            Msf::DataStore::GLOBAL_OPTION_DEFINITIONS.each_option do |name, opt|
+              val = framework.datastore[name]
+              display_value = val.nil? ? (opt.default.nil? ? '' : opt.default.to_s) : val.to_s
+              tbl << [ name, display_value, opt.desc ]
+            end
 
             tbl = Rex::Text::Table.new(
               'Header'  => 'Global Options',

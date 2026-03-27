@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf::Util::EXE::Common
   require 'rex'
   require 'rex/peparsey'
@@ -117,7 +118,8 @@ module Msf::Util::EXE::Common
     end
 
     def macho?(code)
-      code[0..3] == "\xCF\xFA\xED\xFE" || code[0..3] == "\xCE\xFA\xED\xFE" || code[0..3] == "\xCA\xFE\xBA\xBE"
+      magic = code&.byteslice(0, 4)
+      magic == "\xCF\xFA\xED\xFE".b || magic == "\xCE\xFA\xED\xFE".b || magic == "\xCA\xFE\xBA\xBE".b
     end
 
     # Create an ELF executable containing the payload provided in +code+

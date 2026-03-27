@@ -46,6 +46,14 @@ class MetasploitModule < Msf::Auxiliary
           access_type = 'Read-only'
         end
         register_creds(target_host, access_type)
+      elsif banner
+        report_service(
+          host: rhost,
+          port: rport,
+          proto: 'tcp',
+          name: 'ftp',
+          info: banner
+        )
       end
 
       disconnect

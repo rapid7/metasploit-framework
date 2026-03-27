@@ -91,6 +91,18 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
       allow(driver).to receive(:on_variable_set)
     end
 
+    context 'with global flag and no active module' do
+      it 'should normalize boolean true on the global datastore' do
+        subject.cmd_set('-g', 'VERBOSE', 'true')
+        expect(framework.datastore['VERBOSE']).to eq true
+      end
+
+      it 'should normalize boolean false on the global datastore' do
+        subject.cmd_set('-g', 'VERBOSE', 'false')
+        expect(framework.datastore['VERBOSE']).to eq false
+      end
+    end
+
     context 'with an exploit active module' do
       let(:mod) do
         mod_klass = Class.new(Msf::Exploit) do

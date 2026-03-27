@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf::Util::EXE::OSX::Common
   include Msf::Util::EXE::Common
   def self.included(base)
