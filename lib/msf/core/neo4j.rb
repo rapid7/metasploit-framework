@@ -443,7 +443,7 @@ module Msf
             end
           end
         end
-        results.sort_by { |r| r[:chain_length] }
+        results.sort_by { |r| r[:chain_length] }.first(limit)
       end
 
       # Find credential escalation paths between two access types.
@@ -517,7 +517,7 @@ module Msf
             end
           end
         end
-        results.sort_by { |r| [r[:chain_length], -r[:total_weight]] }
+        results.sort_by { |r| [r[:chain_length], -r[:total_weight]] }.first(limit)
       end
 
       # Find paths from a given access type to satisfy the requirements of a target module.
@@ -603,7 +603,7 @@ module Msf
         {
           target_module: target_module,
           target_requirements: target_requirements,
-          paths: results.sort_by { |r| [r[:chain_length], -r[:total_weight]] }
+          paths: results.sort_by { |r| [r[:chain_length], -r[:total_weight]] }.first(limit)
         }
       end
 
@@ -703,7 +703,7 @@ module Msf
             end
           end
         end
-        results.sort_by { |r| -r[:chain_length] }
+        results.sort_by { |r| -r[:chain_length] }.first(limit)
       end
 
       # Find all modules reachable from a given access type, traversing through
