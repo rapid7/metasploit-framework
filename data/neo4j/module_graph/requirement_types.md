@@ -35,8 +35,8 @@ Example in `transforms.yml`:
 ```yaml
 auxiliary/admin/kerberos/get_ticket:
   add:
-    authentication_out:
-      - kerberos: highest   # the go-to module for kerberos tickets
+    access_out:
+      - authentication/kerberos: highest   # the go-to module for kerberos tickets
 ```
 
 Entries without a weight level are treated as `normal` (weight `0.0`).
