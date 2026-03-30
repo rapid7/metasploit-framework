@@ -1,6 +1,8 @@
 require 'did_you_mean'
 require 'msfenv'
+require 'set'
 require 'uri'
+require 'yaml'
 
 require 'rex'
 require 'msf/core/constants'

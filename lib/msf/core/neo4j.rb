@@ -1,4 +1,5 @@
 require 'neo4j/driver'
+require 'set'
 require 'uri'
 
 module Msf
@@ -674,11 +675,12 @@ module Msf
           reqs_return = '[' + req_names.map { |r| "#{r}.id" }.join(', ') + ']'
 
           where_parts = session_platform_consistency_conditions(req_names)
-          where_parts << "any(req_id IN #{reqs_return} WHERE req_id CONTAINS '#{platform}')" if platform
+          where_parts << "any(req_id IN #{reqs_return} WHERE req_id CONTAINS $platform)" if platform
           chain_where = where_parts.empty? ? '' : "WHERE #{where_parts.join("\nAND ")}"
-
+          params = {}
+          params[:platform] = platform if platform
           with_session do |session|
-            result = session.run(<<~CYPHER)
+            result = session.run(<<~CYPHER, params)
               MATCH (entry:Module)
               WHERE (entry)-[:PRODUCES]->(:Trigger)
                  OR (entry.type = 'exploit' AND NOT (entry)-[:REQUIRES]->(:Access))
