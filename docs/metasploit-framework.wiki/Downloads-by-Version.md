@@ -47,6 +47,7 @@ The pgp signatures below can be verified with the following [public key](https:/
 | [metasploit-4.17.1-windows-x64-installer.exe](https://downloads.metasploit.com/data/releases/archive/metasploit-4.17.1-2020080301-windows-x64-installer.exe) | Windows 64-bit | [SHA1](https://downloads.metasploit.com/data/releases/archive/metasploit-4.17.1-2020080301-windows-x64-installer.exe.sha1) | [PGP](https://downloads.metasploit.com/data/releases/archive/metasploit-4.17.1-2020080301-windows-x64-installer.exe.asc) |
 | [metasploit-4.17.1-linux-x64-installer.run](https://downloads.metasploit.com/data/releases/archive/metasploit-4.17.1-2020080301-linux-x64-installer.run)     | Linux 64-bit | [SHA1](https://downloads.metasploit.com/data/releases/archive/metasploit-4.17.1-2020080301-linux-x64-installer.run.sha1)  | [PGP](https://downloads.metasploit.com/data/releases/archive/metasploit-4.17.1-2020080301-linux-x64-installer.run.asc)   |
 
+## **atention the names of the downloded installer archive is *not* equal to the name of the installer listed on this page e.g  metasploit-4.17.1-linux-x64-installer.run**
 
 ## Metasploit Framework Source
 
