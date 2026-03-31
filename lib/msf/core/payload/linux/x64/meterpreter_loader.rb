@@ -91,13 +91,15 @@ module Payload::Linux::X64::MeterpreterLoader
     vprint_status("Transmitting intermediate stager...(#{midstager.length} bytes)")
     conn.put(midstager) == midstager.length
   end
-  def generate(opts = {})
-    config_opts = { scheme: 'tcp', stageless: true }.merge(mettle_logging_config(opts))
-    MetasploitPayloads::Mettle.new(
-      'x86_64-linux-musl',
-      generate_config(opts.merge(config_opts))
-    ).to_binary :process_image
+  
+  def generate(_opts = {})
+
+    _opts.merge!(mettle_logging_config)
+    
+    MetasploitPayloads::Mettle.new('x86_64-linux-musl', generate_config(_opts)).to_binary :process_image
+
   end
+
   def stage_meterpreter(opts = {})
     generate(opts)
   end

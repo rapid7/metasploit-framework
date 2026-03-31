@@ -41,8 +41,8 @@ module Payload::Linux::X86::Migrate
       jz _exec_child
 _exec_parent:
       int 3
-_exec_child
-      #{migrate_stub(opts)}
+_exec_child:
+      #{generate_migrate(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
   end
