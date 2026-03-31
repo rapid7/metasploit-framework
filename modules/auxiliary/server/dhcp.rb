@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author' => [ 'scriptjunkie', 'apconole[at]yahoo.com' ],
       'License' => MSF_LICENSE,
       'Actions' => [
-        [ 'Service', 'Description' => 'Run DHCP server' ]
+        [ 'Service', { 'Description' => 'Run DHCP server' } ]
       ],
       'PassiveActions' => [
         'Service'
