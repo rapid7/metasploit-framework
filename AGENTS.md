@@ -21,7 +21,6 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 - Ruby (see `.ruby-version` for the current version). Minimum supported: 3.1+
 - Follow the project's `.rubocop.yml` configuration — run `rubocop` on changed files before submitting
 - Run `ruby tools/dev/msftidy.rb <module_file_path>` to catch common module issues
-- Add `# frozen_string_literal: true` to new files (the RuboCop cop is disabled project-wide for legacy code, but new files should include it)
 - No enforced line length limit, but keep code readable
 - Use `%q{}` for long multi-line strings (curly braces preferred for module descriptions)
 - Multiline block comments are acceptable for embedded code snippets/payloads
