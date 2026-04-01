@@ -33,16 +33,7 @@ module Rex
 
         URI_CHECKSUM_UUID_MIN_LEN = URI_CHECKSUM_MIN_LEN + Msf::Payload::UUID::UriLength
 
-        # Map "random" URIs to static strings, allowing us to randomize
-        # the URI sent in the first request.
-        #
-        # @param uri [String] The URI string from the HTTP request
-        # @return [Hash] The attributes extracted from the URI
-        def process_uri_resource(uri)
-
-          # Ignore non-base64url characters in the URL
-          uri_bare = uri.gsub(/[^a-zA-Z0-9_\-]/, '')
-
+        def process_uuid_string(uri_bare)
           # Figure out the mode based on the checksum
           uri_csum = Rex::Text.checksum8(uri_bare)
 
@@ -56,6 +47,37 @@ module Rex
 
           # Return a hash of URI attributes
           { uri: uri_bare, sum: uri_csum, uuid: uri_uuid, mode: uri_mode }
+        end
+
+        # Map "random" URIs to static strings, allowing us to randomize
+        # the URI sent in the first request.
+        #
+        # @param uri [String] The URI string from the HTTP request
+        # @return [Hash] The attributes extracted from the URI
+        def process_uri_resource(uri)
+          # look for the UUID anywhere in the given URI, excluding the query string
+          uri.split('?')[0].split('/').each {|u|
+            # Ignore non-base64url characters in the URL
+            uri_bare = u.gsub(/[^a-zA-Z0-9_\-]/, '')
+            h = process_uuid_string(uri_bare)
+            return h if h[:uuid]
+          }
+
+          nil
+        end
+
+        # Map "random" get params to static strings.
+        #
+        # @param  [String] The query string from the HTTP request.
+        # @return [Hash] The attributes extracted from the URI
+        def process_query_string_resource(query_string)
+        end
+
+        # Map "random" cookies to static strings.
+        #
+        # @param cookie [String] The Cookie header string from the HTTP request.
+        # @return [Hash] The attributes extracted from the URI
+        def process_cookie_resource(cookie)
         end
 
         # Create a URI that matches the specified checksum and payload uuid
