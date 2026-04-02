@@ -12,61 +12,6 @@ module Proxy
 # A client connected to the proxy server.
 #
 module Socks5
-  #
-  # A mixin for a socket to perform a relay to another socket.
-  #
-  module TcpRelay
-    #
-    # TcpRelay data coming in from relay_sock to this socket.
-    #
-    def relay(relay_client, relay_sock)
-      @relay_client = relay_client
-      @relay_sock   = relay_sock
-      # start the relay thread (modified from Rex::IO::StreamAbstraction)
-      @relay_thread = Rex::ThreadFactory.spawn("SOCKS5ProxyServerTcpRelay", false) do
-        loop do
-          closed = false
-          buf    = nil
-
-          begin
-            s = Rex::ThreadSafe.select([@relay_sock], nil, nil, 0.2)
-            next if s.nil? || s[0].nil?
-          rescue
-            closed = true
-          end
-
-          unless closed
-            begin
-              buf = @relay_sock.sysread( 32768 )
-              closed = buf.nil?
-            rescue
-              closed = true
-            end
-          end
-
-          unless closed
-            total_sent   = 0
-            total_length = buf.length
-            while total_sent < total_length
-              begin
-                data = buf[total_sent, buf.length]
-                sent = self.write(data)
-                total_sent += sent if sent > 0
-              rescue
-                closed = true
-                break
-              end
-            end
-          end
-
-          if closed
-            @relay_client.stop
-            ::Thread.exit
-          end
-        end
-      end
-    end
-  end
 
   #
   # A client connected to the SOCKS5 server.
@@ -122,13 +67,13 @@ module Socks5
 
           # handle the request
           handle_command
-        rescue => exception
+        rescue StandardError => e
           # respond with a general failure to the client
           response         = ResponsePacket.new
           response.command = REPLY_GENERAL_FAILURE
           @lsock.put(response.to_binary_s)
 
-          wlog("Client.start - #{$!}")
+          elog('ServerClient#start - encountered a problem while processing the client connection', error:e)
           self.stop
         end
       end
@@ -259,15 +204,11 @@ module Socks5
     end
 
     #
-    # Setup the TcpRelay between lsock and rsock.
+    # Setup the relay between lsock and rsock.
     #
     def setup_tcp_relay
-      # setup the two way relay for full duplex io
-      @lsock.extend(TcpRelay)
-      @rsock.extend(TcpRelay)
-      # start the socket relays...
-      @lsock.relay(self, @rsock)
-      @rsock.relay(self, @lsock)
+      @server.relay_manager.add_relay(@rsock, sink: @lsock, name: 'SOCKS5ProxyRelay-Remote', on_exit: method(:stop))
+      @server.relay_manager.add_relay(@lsock, sink: @rsock, name: 'SOCKS5ProxyRelay-Local', on_exit: method(:stop))
     end
 
     #
@@ -286,9 +227,13 @@ module Socks5
           rescue
           end
 
-          @client_thread.kill if @client_thread and @client_thread.alive?
           @server.remove_client(self)
           @closed = true
+
+          unless @client_thread == Thread.current
+            @client_thread.join
+          end
+          @client_thread = nil
         end
       end
     end

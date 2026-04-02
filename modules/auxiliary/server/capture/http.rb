@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
     @formsdir = datastore['FORMSDIR']
     @template = datastore['TEMPLATE']
     @sitelist = datastore['SITELIST']
-    @myhost = datastore['SRVHOST']
+    @myhost = srvhost
     @myport = datastore['SRVPORT']
 
     @myautopwn_host = datastore['AUTOPWN_HOST']

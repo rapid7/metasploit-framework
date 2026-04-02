@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.4.125)
+    metasploit-framework (6.4.126)
       aarch64
       abbrev
       actionpack (~> 7.2.0)
@@ -46,7 +46,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 2.0.242)
+      metasploit-payloads (= 2.0.244)
       metasploit_data_models (>= 6.0.15)
       metasploit_payloads-mettle (= 1.0.46)
       mqtt
@@ -211,7 +211,7 @@ GEM
     bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.1)
     benchmark (0.4.1)
-    bigdecimal (3.2.3)
+    bigdecimal (3.3.1)
     bindata (2.4.15)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
@@ -352,7 +352,7 @@ GEM
       drb
       mutex_m
       railties (~> 7.0)
-    metasploit-payloads (2.0.242)
+    metasploit-payloads (2.0.244)
     metasploit_data_models (6.0.15)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
@@ -491,13 +491,13 @@ GEM
       netrc (~> 0.8)
     rex-arch (0.1.19)
       rex-text
-    rex-bin_tools (0.1.10)
+    rex-bin_tools (0.1.15)
       metasm
       rex-arch
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.35)
+    rex-core (0.1.36)
     rex-encoder (0.1.8)
       metasm
       rex-arch

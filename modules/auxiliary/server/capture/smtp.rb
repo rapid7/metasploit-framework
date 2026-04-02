@@ -241,7 +241,7 @@ class MetasploitModule < Msf::Auxiliary
         return
       elsif arg == 'CRAM-MD5'
         # create and send challenge
-        challenge = "<#{Rex::Text.rand_text_numeric(9..12)}@#{datastore['SRVHOST']}>"
+        challenge = "<#{Rex::Text.rand_text_numeric(9..12)}@#{srvhost}>"
         client.put "334 #{Rex::Text.encode_base64(challenge)}\r\n"
         @state[client][:auth_cram] = true
         @state[client][:auth_cram_challenge] = challenge

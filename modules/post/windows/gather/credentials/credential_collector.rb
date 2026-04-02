@@ -106,10 +106,10 @@ class MetasploitModule < Msf::Post
       data = {}
       data[:host] = addr
       data[:type] = 'smb_token'
-      data[:data] = token
+      data[:data] = { :token => token }
       data[:update] = :unique_data
 
-      print_line "    #{data[:data]}"
+      print_line "    #{token}"
 
       report_note(data)
     end

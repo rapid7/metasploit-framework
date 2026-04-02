@@ -680,6 +680,9 @@ protected
   # Normalize the supplied full registry key string so the root key is sane.  For
   # instance, passing "HKLM\Software\Dog" will return 'HKEY_LOCAL_MACHINE\Software\Dog'
   #
+  # Any trailing backslash is stripped to prevent cmd.exe argument escaping
+  # issues when the normalized key is interpolated into a quoted shell command.
+  #
   def normalize_key(key)
     keys = split_key(key)
     if (keys[0] =~ /HKLM|HKEY_LOCAL_MACHINE/)
@@ -700,7 +703,7 @@ protected
       raise ArgumentError, "Cannot normalize unknown key: #{key}"
     end
     # print_status("Normalized #{key} to #{keys.join("\\")}")
-    return keys.compact.join("\\")
+    return keys.compact.join("\\").chomp("\\")
   end
 
   #

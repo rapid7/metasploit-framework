@@ -47,14 +47,14 @@ class PayloadCachedSize
   }.freeze
 
   OPTS_IPV4 = {
-    'LHOST' => '255.255.255.255',
+    'LHOST' => '223.255.255.255',
     'RHOST' => '255.255.255.255',
     'KHOST' => '255.255.255.255',
     'AHOST' => '255.255.255.255'
   }.freeze
 
   OPTS_IPV6 = {
-    'LHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
+    'LHOST' => 'fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
     'RHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
     'KHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
     'AHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'

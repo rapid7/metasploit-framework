@@ -1390,12 +1390,28 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/http/x64'
   end
 
+  context 'cmd/windows/http/x86' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/http/x86'
+                          ],
+                          reference_name: 'cmd/windows/http/x86'
+  end
+
   context 'cmd/windows/https/x64' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
                             'adapters/cmd/windows/https/x64'
                           ],
                           reference_name: 'cmd/windows/https/x64'
+  end
+
+  context 'cmd/windows/https/x86' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/https/x86'
+                          ],
+                          reference_name: 'cmd/windows/https/x86'
   end
 
   context 'cmd/windows/powershell' do

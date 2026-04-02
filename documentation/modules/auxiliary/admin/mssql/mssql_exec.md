@@ -21,7 +21,7 @@ technique leverages the [`sp_OACreate`][2] stored procedure to create an instanc
 
 ## Verification Steps
 
-1. Do: `use use admin/mssql/mssql_exec`
+1. Do: `use admin/mssql/mssql_exec`
 2. Do: `set USERNAME [username1]`
 3. Do: `set PASSWORD [password1]`
 3. Do: `set TECHNIQUE sp_oacreate` (optional, defaults to xp_cmdshell)
@@ -32,7 +32,7 @@ technique leverages the [`sp_OACreate`][2] stored procedure to create an instanc
 ## Scenarios
 
 ```
-msf > use use use admin/mssql/mssql_exec
+msf > use admin/mssql/mssql_exec
 msf auxiliary(mssql_exec) > set USERNAME username1
 USERNAME => username1
 msf auxiliary(mssql_exec) > set PASSWORD password1

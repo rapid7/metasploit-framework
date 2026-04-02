@@ -28,8 +28,8 @@ module Rex
             super
             print_line
             print_line
-            logo_path = File.join(Msf::Config.data_directory, 'logos', 'bofloader.txt')
-            File.binread(logo_path).each_line { |line| print_line(line.chomp) }
+            logo_path = ::File.join(Msf::Config.data_directory, 'bofloader', 'logo.txt')
+            ::File.binread(logo_path).each_line { |line| print_line(line.chomp) }
             print_line
           end
 

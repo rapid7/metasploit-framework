@@ -25,6 +25,7 @@ require:
   - ./lib/rubocop/cop/lint/detect_invalid_pack_directives.rb
   - ./lib/rubocop/cop/lint/detect_metadata_trailing_leading_whitespace.rb
   - ./lib/rubocop/cop/lint/detect_outdated_cmd_exec_api.rb
+  - ./lib/rubocop/cop/lint/datastore_srvhost_usage.rb
 
 Layout/SpaceBeforeBrackets:
   Enabled: true

@@ -63,10 +63,18 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  # Sends a video request to AppleTV device.
   #
-  # Sends a video request to AppleTV. HttpClient isn't used because we actually need to keep
-  # the connection alive so that the video can keep playing.
+  # @note HttpClient isn't used because we need to keep the connection alive
+  #   so that the video can keep playing for the specified duration.
   #
+  # @param opts [Hash] HTTP request options
+  # @option opts [String] :method HTTP method (e.g., 'POST')
+  # @option opts [String] :uri Request URI path
+  # @option opts [Hash] :headers HTTP headers
+  # @option opts [String] :data Request body data
+  #
+  # @return [Rex::Proto::Http::Response, nil] HTTP response object or nil on timeout
   def send_video_request(opts)
     http = Rex::Proto::Http::Client.new(
       rhost,
@@ -93,19 +101,24 @@ class MetasploitModule < Msf::Auxiliary
     res
   end
 
+  # Validates the video source URI.
   #
-  # Checks the URI datastore option. AppleTV is sort of picky about the URI. It's better to
-  # always supply an IP instead of a domain.
+  # @note AppleTV requires an IP address in the URL rather than a domain name.
   #
+  # @param uri [String] Video source URI to validate
+  #
+  # @raise [Msf::OptionValidateError] if the URI host is not a valid IPv4 address
+  #
+  # @return [void]
   def validate_source!(uri)
-    unless Rex::Socket.is_ipv4?(URI(uri).host) # Same trick in target_uri form HttpClient
+    unless Rex::Socket.is_ipv4?(URI(uri).host)
       raise Msf::OptionValidateError, ['URL']
     end
   end
 
+  # Plays a video on the AppleTV device.
   #
-  # Plays a video as a new thread
-  #
+  # @return [void]
   def play_video_uri
     uri = datastore['URL']
     validate_source!(uri)
@@ -134,18 +147,21 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  # Stops video playback (currently not implemented).
   #
-  # Maybe it's just me not understanding the /stop API correctly, but when I send a request to
-  # /stop, it doesn't actually do anything. It is sort of possible to stop my video by looking
-  # through framework.threads.each {|t| puts t[:tm_name]}, and then kill the right thread. But
-  # if there are multiple appletv_display_video running, we don't seem to have a good way to
-  # kill the right thread we want. We could kill them all, but we shouldn't do that. So I'll
-  # just leave this method here, and then we'll think about how to do it later.
+  # @note The /stop API endpoint behavior is unclear. Thread management
+  #   for stopping playback needs further investigation.
   #
+  # @raise [NotImplementedError] This method is not yet implemented
+  #
+  # @return [void]
   def stop_play
     raise NotImplementedError
   end
 
+  # Executes the module to play video on target AppleTV.
+  #
+  # @return [void]
   def run
     print_status("Video request sent. Duration set: #{datastore['TIME']} seconds")
     play_video_uri

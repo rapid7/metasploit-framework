@@ -118,7 +118,7 @@ class MetasploitModule < Msf::Post
   end
 
   def ntds_location
-    @ntds_location ||= registry_getvaldata('HKLM\\SYSTEM\\CurrentControlSet\\services\\NTDS\\Parameters\\', 'DSA Working Directory')
+    @ntds_location ||= registry_getvaldata('HKLM\\SYSTEM\\CurrentControlSet\\services\\NTDS\\Parameters', 'DSA Working Directory')
   end
 
   def ntdsutil_method
