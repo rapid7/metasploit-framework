@@ -15,7 +15,7 @@ Configure the target:
 4. `set RPORT <TARGET_HTTP_OR_HTTPS_PORT>` (If different from the default of 443)
 5. `set SSL true` (Or set to false if targeting HTTP)
 
-You can check if the target is vulnerable. THe leaked data is not inspected. Intended to identify
+You can check if the target is vulnerable. The leaked data is not inspected. Intended to identify
 patched and vulnerable systems.
 
 6. `check`
