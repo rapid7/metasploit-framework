@@ -126,6 +126,12 @@ class MetasploitModule < Msf::Auxiliary
       key_vals.each do |k, v|
         next unless k == 'NSC_TASS'
 
+        # Validate an NSC_TASS cookie value is well-formed base64 before attempting to decode it.
+        unless v.match?(%r{\A[A-Za-z0-9+/]*={0,2}\z})
+          vprint_error("#{peer} - NSC_TASS cookie value is not valid base64: #{v}")
+          next
+        end
+
         bytes = Rex::Text.decode_base64(v)
 
         # A patched system will not return a base64 encoded NSC_TASS value, so if we can decode it, it's a strong
