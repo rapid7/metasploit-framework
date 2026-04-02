@@ -52,7 +52,7 @@ module Auxiliary::EPMP
         }
       )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - HTTP Connection Failed...")
       return false
     end
 
@@ -67,18 +67,18 @@ module Auxiliary::EPMP
       if !get_epmp_ver.nil?
         epmp_ver = get_epmp_ver[1]
         if !epmp_ver.nil?
-          print_good("#{rhost}:#{rport} - Running Cambium ePMP 1000 version #{epmp_ver}...")
+          print_good("#{Rex::Socket.to_authority(rhost, rport)} - Running Cambium ePMP 1000 version #{epmp_ver}...")
           do_login(epmp_ver.to_s)
           return true
         else
-          print_good("#{rhost}:#{rport} - Running Cambium ePMP 1000...")
+          print_good("#{Rex::Socket.to_authority(rhost, rport)} - Running Cambium ePMP 1000...")
           epmp_ver = ''
           login(datastore['USERNAME'], datastore['PASSWORD'], epmp_ver)
           return true
         end
       end
     else
-      print_error("#{rhost}:#{rport} - Application does not appear to be Cambium ePMP 1000. Module will not continue.")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Application does not appear to be Cambium ePMP 1000. Module will not continue.")
       return false
     end
   end
@@ -142,7 +142,7 @@ module Auxiliary::EPMP
       )
 
       if good_response
-        print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+        print_good("SUCCESSFUL LOGIN - #{Rex::Socket.to_authority(rhost, rport)} - #{user.inspect}:#{pass.inspect}")
         report_cred(
           ip: rhost,
           port: rport,
@@ -177,7 +177,7 @@ module Auxiliary::EPMP
           return final_cookie, config_uri_dump_config, config_uri_reset_pass, config_uri_get_chart
         end
       else
-        print_error("FAILED LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+        print_error("FAILED LOGIN - #{Rex::Socket.to_authority(rhost, rport)} - #{user.inspect}:#{pass.inspect}")
         final_cookie = 'skip'
         config_uri_dump_config = 'skip'
         config_uri_reset_pass = 'skip'
@@ -247,7 +247,7 @@ module Auxiliary::EPMP
       )
 
       if good_response
-        print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+        print_good("SUCCESSFUL LOGIN - #{Rex::Socket.to_authority(rhost, rport)} - #{user.inspect}:#{pass.inspect}")
         report_cred(
           ip: rhost,
           port: rport,
@@ -283,7 +283,7 @@ module Auxiliary::EPMP
           return final_cookie, config_uri_dump_config, config_uri_reset_pass, config_uri_get_chart, config_uri_ping
         end
       else
-        print_error("FAILED LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+        print_error("FAILED LOGIN - #{Rex::Socket.to_authority(rhost, rport)} - #{user.inspect}:#{pass.inspect}")
         final_cookie = 'skip'
         config_uri_dump_config = 'skip'
         config_uri_reset_pass = 'skip'

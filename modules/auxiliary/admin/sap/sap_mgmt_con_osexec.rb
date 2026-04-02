@@ -78,12 +78,12 @@ class MetasploitModule < Msf::Auxiliary
           }
       }, 60)
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP] Unable to communicate")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to communicate")
       return :abort
     end
 
     if !res
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
       return
     elsif res.code == 200
       body = res.body
@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def osexecute(rhost, cmd_to_run)
-    print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
+    print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{Rex::Socket.to_authority(rhost, rport)}")
     success = false
 
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -161,19 +161,19 @@ class MetasploitModule < Msf::Auxiliary
           fault = true
         end
       else
-        print_error("#{rhost}:#{rport} [SAP] Unknown response received")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unknown response received")
         return
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP] Unable to attempt authentication")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to attempt authentication")
       return :abort
     end
 
     if success
       if exitcode > 0
-        print_error("#{rhost}:#{rport} [SAP] Command exitcode: #{exitcode}")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Command exitcode: #{exitcode}")
       else
-        print_good("#{rhost}:#{rport} [SAP] Command exitcode: #{exitcode}")
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Command exitcode: #{exitcode}")
       end
 
       saptbl = Msf::Ui::Console::Table.new(
@@ -187,13 +187,13 @@ class MetasploitModule < Msf::Auxiliary
         saptbl << [ output[0] ]
       end
 
-      print_good("#{rhost}:#{rport} [SAP] Command (#{cmd_to_run}) ran as PID: #{pid}\n#{saptbl}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Command (#{cmd_to_run}) ran as PID: #{pid}\n#{saptbl}")
 
     elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Error code: #{faultcode}")
       return
     else
-      print_error("#{rhost}:#{rport} [SAP] failed to run command")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] failed to run command")
       return
     end
   end

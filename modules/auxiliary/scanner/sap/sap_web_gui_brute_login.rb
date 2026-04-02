@@ -160,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
         }
       })
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-      print_error("[SAP] #{rhost}:#{rport} - Service failed to respond")
+      print_error("[SAP] #{Rex::Socket.to_authority(rhost, rport)} - Service failed to respond")
       return false
     end
 
@@ -188,11 +188,11 @@ class MetasploitModule < Msf::Auxiliary
         )
         return true
       elsif res.body =~ /Password logon no longer possible - too many failed attempts/
-        print_error("[SAP] #{rhost}:#{rport} - #{user} locked in client #{cli}")
+        print_error("[SAP] #{Rex::Socket.to_authority(rhost, rport)} - #{user} locked in client #{cli}")
         return false
       end
     else
-      print_error("[SAP] #{rhost}:#{rport} - error trying #{user}/#{pass} against client #{cli}")
+      print_error("[SAP] #{Rex::Socket.to_authority(rhost, rport)} - error trying #{user}/#{pass} against client #{cli}")
       return false
     end
   end

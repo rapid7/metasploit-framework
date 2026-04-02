@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     connect
     print_status("Sending RMI header...")
     unless is_rmi?
-      print_status("#{rhost}:#{rport} Java JMX RMI not detected")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Java JMX RMI not detected")
       disconnect
       return
     end
@@ -47,14 +47,14 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
 
     if mbean_server.nil?
-      print_status("#{rhost}:#{rport} Java JMX MBean not detected")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Java JMX MBean not detected")
       return
     end
 
     connect(true, { 'RHOST' => mbean_server[:address], 'RPORT' => mbean_server[:port] })
 
     unless is_rmi?
-      print_status("#{rhost}:#{rport} Java JMX RMI not detected")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Java JMX RMI not detected")
       disconnect
       return
     end

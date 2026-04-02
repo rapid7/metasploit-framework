@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
 
       if res.redirect? && res.headers['Location'] && res.headers['Location'] !~ /^http/
         path = res.headers['Location']
-        vprint_status("#{rhost}:#{rport} - Following redirect: #{path}")
+        vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Following redirect: #{path}")
         begin
           res = send_request_cgi(
             'uri' => path,
@@ -96,11 +96,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    vprint_status("#{rhost}:#{rport} - Searching Joomla authentication URI...")
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Searching Joomla authentication URI...")
     @uri = find_auth_uri
 
     unless @uri
-      vprint_error("#{rhost}:#{rport} - No URI found that asks for authentication")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - No URI found that asks for authentication")
       return
     end
 

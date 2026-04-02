@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
     ret = postgres_query(datastore['SQL'], datastore['RETURN_ROWSET'])
     case ret.keys[0]
     when :conn_error
-      print_error "#{rhost}:#{rport} Postgres - Authentication failure, could not connect."
+      print_error "#{Rex::Socket.to_authority(rhost, rport)} Postgres - Authentication failure, could not connect."
     when :sql_error
       print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - #{ret[:sql_error]}"
     when :complete

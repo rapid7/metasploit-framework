@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi({ 'uri' => '/' })
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to connect to the web server")
       return false
     end
 

@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
     }.merge(service_details)
     create_credential_and_login(connection_details) # makes service_name more consistent
   rescue ::Rex::ConnectionError
-    print_error("#{rhost}:#{rport} - Failed to connect")
+    print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to connect")
     return
   end
 end

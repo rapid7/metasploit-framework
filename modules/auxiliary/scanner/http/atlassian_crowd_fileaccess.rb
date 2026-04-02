@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if not res
-      print_error("#{rhost}:#{rport} Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} Unable to connect")
       return
     end
 
@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def accessfile(rhost)
     uri = normalize_uri(target_uri.path)
-    print_status("#{rhost}:#{rport} Connecting to Crowd SOAP Interface")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} Connecting to Crowd SOAP Interface")
 
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
     xmlaut = 'http://authentication.integration.crowd.atlassian.com'
@@ -127,16 +127,16 @@ class MetasploitModule < Msf::Auxiliary
       when /<faultstring\>Invalid boolean value: \?(.*)<\/faultstring>/m
         loot = $1
         if not loot or loot.empty?
-          print_status("#{rhost}#{rport} Retrieved empty file from #{rhost}:#{rport}")
+          print_status("#{rhost}#{rport} Retrieved empty file from #{Rex::Socket.to_authority(rhost, rport)}")
           return
         end
         f = ::File.basename(datastore['RFILE'])
         path = store_loot('atlassian.crowd.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-        print_good("#{rhost}:#{rport} Atlassian Crowd - #{datastore['RFILE']} saved in #{path}")
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} Atlassian Crowd - #{datastore['RFILE']} saved in #{path}")
         return
       end
     end
 
-    print_error("#{rhost}#{rport} Failed to retrieve file from #{rhost}:#{rport}")
+    print_error("#{rhost}#{rport} Failed to retrieve file from #{Rex::Socket.to_authority(rhost, rport)}")
   end
 end

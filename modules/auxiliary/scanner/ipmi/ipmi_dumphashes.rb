@@ -53,15 +53,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def ipmi_status(msg)
-    vprint_status("#{rhost}:#{rport} - IPMI - #{msg}")
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - IPMI - #{msg}")
   end
 
   def ipmi_error(msg)
-    vprint_error("#{rhost}:#{rport} - IPMI - #{msg}")
+    vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - IPMI - #{msg}")
   end
 
   def ipmi_good(msg)
-    print_good("#{rhost}:#{rport} - IPMI - #{msg}")
+    print_good("#{Rex::Socket.to_authority(rhost, rport)} - IPMI - #{msg}")
   end
 
   def run_host(ip)

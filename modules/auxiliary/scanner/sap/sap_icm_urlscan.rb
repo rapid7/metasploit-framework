@@ -55,13 +55,13 @@ class MetasploitModule < Msf::Auxiliary
       @info = []
       if res.headers['Server']
         @info << res.headers['Server']
-        print_status("#{rhost}:#{rport} Server responded with the following Server Header: #{@info[0]}")
+        print_status("#{Rex::Socket.to_authority(rhost, rport)} Server responded with the following Server Header: #{@info[0]}")
       else
-        print_status("#{rhost}:#{rport} Server responded with a blank or missing Server Header")
+        print_status("#{Rex::Socket.to_authority(rhost, rport)} Server responded with a blank or missing Server Header")
       end
 
       if res.body && /class="note">(.*)code:(.*)</i.match(res.body)
-        print_error("#{rhost}:#{rport} SAP ICM error message: #{::Regexp.last_match(2)}")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} SAP ICM error message: #{::Regexp.last_match(2)}")
       end
 
       # Load URLs
@@ -72,13 +72,13 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      print_status("#{rhost}:#{rport} Beginning URL check")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Beginning URL check")
       @valid_urls = ''
       urls_to_check.each do |url|
         check_url(url.strip)
       end
     else
-      print_error("#{rhost}:#{rport} No response received")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} No response received")
     end
 
     if !@valid_urls.empty?
@@ -161,7 +161,7 @@ class MetasploitModule < Msf::Auxiliary
     if res&.code == 200
       print_good("#{full_url} Got authentication bypass via HTTP verb tampering")
     else
-      vprint_status("#{rhost}:#{rport} Could not get authentication bypass via HTTP verb tampering")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} Could not get authentication bypass via HTTP verb tampering")
     end
   end
 
@@ -186,7 +186,7 @@ class MetasploitModule < Msf::Auxiliary
         urls << url_dec.strip
       end
     else
-      print_error("#{rhost}:#{rport} Could not retrieve urlprefixes")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} Could not retrieve urlprefixes")
     end
 
     urls
