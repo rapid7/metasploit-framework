@@ -176,7 +176,8 @@ class MetasploitModule < Msf::Auxiliary
       if found_cookies.empty?
         message += ', but did not leak any session cookies.'
       else
-        message += ", and #{found_cookies.size} unique session cookies pairs."
+        cookie_word = found_cookies.size == 1 ? 'session cookie' : 'session cookies'
+        message += ", and #{found_cookies.size} unique #{cookie_word}."
       end
 
       print_status("#{peer} - #{message}")
