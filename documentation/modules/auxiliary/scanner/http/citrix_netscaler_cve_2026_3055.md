@@ -85,7 +85,7 @@ msf auxiliary(scanner/http/citrix_netscaler_cve_2026_3055) >
 ```
 
 In the above example we leaked a `SESSID` cookie. If we know the IP address of the management interface (which may or may
-not be the same IP as the RHOST), we can verify teh session with a simple curl query. Below we see a GET request to
+not be the same IP as the RHOST), we can verify the session with a simple curl query. Below we see a GET request to
 `/menu/neo` without the cookie results in a redirect to an error page, while the same request with the leaked cookie
 returns a 200 OK and the expected HTML content.
 
