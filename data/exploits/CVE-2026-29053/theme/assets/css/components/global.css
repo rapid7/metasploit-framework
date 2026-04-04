@@ -1,0 +1,197 @@
+/* Reset
+/* ---------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 62.5%;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    color: #464646;
+    font-family: var(--font-sans-serif);
+    font-size: 1.5rem;
+    line-height: 1.6em;
+    font-weight: 400;
+    font-style: normal;
+    background: #fff;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+p,
+ul,
+ol,
+li,
+dl,
+dd,
+hr,
+pre,
+form,
+table,
+video,
+figure,
+figcaption,
+blockquote {
+    margin: 0;
+    padding: 0;
+}
+
+ul[class],
+ol[class] {
+    padding: 0;
+    list-style: none;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+input,
+button,
+select,
+textarea {
+    font: inherit;
+    -webkit-appearance: none;
+}
+
+fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+label {
+    display: block;
+    font-size: 0.9em;
+    font-weight: 700;
+}
+
+hr {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid currentcolor;
+    opacity: 0.2;
+}
+
+::selection {
+    text-shadow: none;
+    background: #cbeafb;
+}
+
+mark {
+    background-color: #fdffb6;
+}
+
+small {
+    font-size: 80%;
+}
+
+sub,
+sup {
+    position: relative;
+    font-size: 75%;
+    line-height: 0;
+    vertical-align: baseline;
+}
+sup {
+    top: -0.5em;
+}
+sub {
+    bottom: -0.25em;
+}
+
+ul:not([class]) li + li {
+    margin-top: 0.6em;
+}
+
+a:not([class]) {
+    color: var(--color-primary);
+    text-decoration-skip-ink: auto;
+}
+
+a[class] {
+    color: inherit;
+    text-decoration: none;
+    transition: 0.4s ease;
+}
+
+a[class]:hover {
+    transition: 0.2s ease;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+    line-height: 1.15em;
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 4.6rem;
+    letter-spacing: -0.5px;
+}
+@media (max-width: 500px) {
+    h1 {
+        font-size: 2.7rem;
+    }
+}
+
+h2 {
+    font-size: 3.6rem;
+}
+@media (max-width: 500px) {
+    h2 {
+        font-size: 2.2rem;
+    }
+}
+
+h3 {
+    font-size: 3.2rem;
+}
+@media (max-width: 500px) {
+    h3 {
+        font-size: 1.8rem;
+    }
+}
+
+h4 {
+    font-size: 2.6rem;
+}
+
+h5 {
+    font-size: 2.4rem;
+}
+
+h6 {
+    font-size: 2.2rem;
+}
+
+/* Remove all animations and transitions for people that prefer not to see them */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
