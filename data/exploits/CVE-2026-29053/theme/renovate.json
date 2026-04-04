@@ -1,0 +1,13 @@
+{
+  "extends": [
+    "@tryghost:theme"
+  ],
+  "schedule": ["after 12am and before 4am"],
+  "timezone": "UTC",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch", "minor"],
+      "automerge": true
+    }
+  ]
+}

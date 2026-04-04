@@ -1,0 +1,57 @@
+/* Global Footer
+/* ---------------------------------------------------------- */
+
+.gh-foot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8vmin 4vmin 4vmin;
+}
+
+.gh-foot .gh-container {
+    width: auto;
+}
+
+.gh-foot a {
+    color: inherit;
+}
+
+.gh-foot-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gh-foot-menu .nav {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+    font-size: 1.8rem;
+}
+
+.gh-foot-menu .nav li {
+    margin: 0 1.5vmin;
+    padding: 0;
+}
+
+.gh-foot-menu .nav a {
+    display: inline-block;
+    padding: 3px 0;
+    text-decoration: none;
+    box-shadow: 0 -1px 0 0 currentcolor inset;
+}
+
+.gh-foot-meta {
+    margin: 2rem 0;
+    font-size: 1.5rem;
+    text-align: center;
+    opacity: 0.75;
+}
+
+@media (max-width: 700px) {
+    .gh-foot-menu .nav {
+        font-size: 1.6rem;
+    }
+}

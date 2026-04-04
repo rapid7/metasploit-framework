@@ -1,0 +1,24 @@
+a.gh-powered,
+a.gh-powered:hover {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 9px 6px 6px;
+    border: none;
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: -0.3px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    font-weight: 600;
+    text-decoration: none;
+    color: #383838;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.08);
+    cursor: pointer;
+}
+
+a.gh-powered svg {
+    height: 16px;
+    width: 16px;
+    margin: 0 6px 0 0;
+}
