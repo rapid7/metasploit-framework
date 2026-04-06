@@ -25,7 +25,9 @@ module Payload::Linux::X64::MeterpreterLoader
 
       ))
   end
-
+    def luri
+      ""
+    end
 
     def elf_ep(payload)
     elf = Rex::ElfParsey::Elf.new(Rex::ImageSource::Memory.new(payload))

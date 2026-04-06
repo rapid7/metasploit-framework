@@ -13,6 +13,8 @@ require 'rex/socket/x509_certificate'
 require 'msf/core/payload/malleable_c2'
 
 require 'openssl'
+require 'pry'
+require 'pry-byebug'
 
 module Rex
 module Post
@@ -653,17 +655,12 @@ class ClientCore < Extension
       raise RuntimeError, 'Cannot migrate into current process', caller
     end
     
-    t = get_current_transport
-    migrate_id = Rex::Text.rand_text_alpha(16)
-    client.passive_service.add_resource(migrate_id,
-    'Proc' => Proc.new { |cli, req|
-      puts "Got request"
-    },
-    'VirtualDirectory' => true)
+    binding.pry
 
-    migrate_payload = generate_migrate_payload(target_process, t[:uri], client.payload_uuid)
-    uuid_b64 = Base64.encode64(client.payload_uuid.to_raw).strip
-    migrate_stub = generate_migrate_stub(target_process, migrate_payload, migrate_payload.length, t, uuid_b64)
+    t = get_current_transport
+
+    migrate_payload = generate_migrate_payload(target_process, t[:url], client.payload_uuid)
+    migrate_stub = generate_migrate_stub(target_process, migrate_payload, migrate_payload.length, t)
 
     # Build the migration request
     request = Packet.create_request(COMMAND_ID_CORE_MIGRATE)
@@ -687,7 +684,9 @@ class ClientCore < Extension
     # Send the migration request. Timeout can be specified by the caller, or set to a min
     # of 60 seconds.
     timeout = [(opts[:timeout] || 0), 60].max
-    client.send_request(request, timeout)
+    response_recv = client.send_request(request, timeout)
+    puts response_recv
+    binding.pry
 
     # Post-migration the session doesn't have encryption any more.
     # Set the TLV key to nil to make sure that the old key isn't used
@@ -838,7 +837,7 @@ private
   # Generate a migrate stub that is specific to the current transport type and the
   # target process.
   #
-  def generate_migrate_stub(target_process, payload=nil, payload_length=nil, t=nil, uuid_b64=nil)
+  def generate_migrate_stub(target_process, payload=nil, payload_length=nil, t=nil)
     stub = nil
 
     if client.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(client.arch)
@@ -898,7 +897,7 @@ private
           raise RuntimeError, "Unsupported arch #{target_process['arch']}"
       end
 
-      stub = c.new().generate(opts={"payload":payload,  "payload_length":payload_length, "pid": target_process['pid'], 'url': t[:url], 'uuid_b64': uuid_b64})
+      stub = c.new().generate(opts={"payload":payload,  "payload_length":payload_length, "pid": target_process['pid'], 'url': t[:url]})
     else
       raise RuntimeError, "Unsupported session #{client.session_type}"
     end
