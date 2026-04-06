@@ -95,61 +95,19 @@ module Msf
         end
 
         opts[:uuid] ||= generate_payload_uuid
-
-        unless opts[:transport_config]
-          if opts[:stageless] == true
-            case opts[:scheme]
-            when 'http'
-              opts[:transport_config] = [transport_config_reverse_http(opts)]
-            when 'https'
-              opts[:transport_config] = [transport_config_reverse_https(opts)]
-            when 'tcp'
-              opts[:transport_config] = [transport_config_reverse_tcp(opts)]
-            else
-              raise ArgumentError, "Unknown scheme: #{opts[:scheme]}"
-            end
-          else
-            # Staged payloads inherit the stager's socket (fd transport);
-            # the stage must not synthesise its own C2 transport. Use an
-            # explicit empty array ([] is truthy, so the build is skipped).
-            opts[:transport_config] = []
-          end
-        end
-
-        # Generate the TLV config block
-        config_opts = {
-          ascii_str:         true,
-          null_session_guid: opts[:stageless] == true,
-          expiration:        (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
-          uuid:              opts[:uuid],
-          transports:        opts[:transport_config],
-          extensions:        opts[:extensions] || [],
-          ext_format:        'bin',
-          mettle_platform:   opts[:mettle_platform],
-          stageless:         opts[:stageless] == true,
-        }.merge(meterpreter_logging_config(opts))
-
-        config = Rex::Payloads::Meterpreter::Config.new(config_opts)
-        opts[:config_block] = config.to_b
-
-        # Mettle reserves a fixed 8 KB slot in the binary for the config
-        # block. Catch the overflow here with a useful message instead of
-        # letting the gem's `to_binary` raise a generic "config block too
-        # large" -- baked-in EXTENSIONS= is the usual culprit.
-        if opts[:config_block].length > MetasploitPayloads::Mettle::CONFIG_BLOCK_MAX
-          raise ArgumentError, "Mettle config block (#{opts[:config_block].length} bytes) exceeds the #{MetasploitPayloads::Mettle::CONFIG_BLOCK_MAX}-byte embedded slot. " \
-            "Drop EXTENSIONS= and `load <ext>` once the session is up."
-        end
-
-        # Keep the legacy CLI config for backward compatibility during
-        # transition. Skipped for staged payloads, which have no transport.
-        transport = opts[:transport_config].first
-        if transport
+        
+        if opts[:override_uri]
+          opts[:uri] = opts[:override_uri]
+        else
           case opts[:scheme]
-          when 'http', 'https'
-            opts[:uri] = generate_http_uri(transport)
+          when 'http'
+            opts[:uri] = generate_http_uri(transport_config_reverse_http(opts))
+          when 'https'
+            opts[:uri] = generate_http_uri(transport_config_reverse_https(opts))
           when 'tcp'
-            opts[:uri] = generate_tcp_uri(transport)
+            opts[:uri] = generate_tcp_uri(transport_config_reverse_tcp(opts))
+          else
+            raise ArgumentError, "Unknown scheme: #{opts[:scheme]}"
           end
         end
 
