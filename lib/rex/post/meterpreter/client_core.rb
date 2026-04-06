@@ -653,8 +653,6 @@ class ClientCore < Extension
       raise RuntimeError, 'Cannot migrate into current process', caller
     end
     
-    binding.pry
-
     t = get_current_transport
 
     migrate_payload = generate_migrate_payload(target_process, t[:url], client.payload_uuid)
@@ -682,9 +680,7 @@ class ClientCore < Extension
     # Send the migration request. Timeout can be specified by the caller, or set to a min
     # of 60 seconds.
     timeout = [(opts[:timeout] || 0), 60].max
-    response_recv = client.send_request(request, timeout)
-    puts response_recv
-    binding.pry
+    client.send_request(request, timeout)
 
     # Post-migration the session doesn't have encryption any more.
     # Set the TLV key to nil to make sure that the old key isn't used
