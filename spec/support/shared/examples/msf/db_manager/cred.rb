@@ -35,6 +35,14 @@ RSpec.shared_examples_for 'Msf::DBManager::Cred' do
         end
       end
 
+      context 'when :info is nil' do
+        it 'normalizes info to an empty string' do
+          service = subject.create_credential_service(base_opts.merge(info: nil))
+          expect(service).to be_persisted
+          expect(service.info).to eq('')
+        end
+      end
+      
       context 'when :info is not provided' do
         it 'creates the service without raising an error' do
           service = subject.create_credential_service(base_opts)
