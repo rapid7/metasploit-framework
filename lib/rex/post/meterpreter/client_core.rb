@@ -1041,11 +1041,14 @@ private
       raise RuntimeError, "Unsupported target architecture '#{target_process['arch']}' for process '#{target_process['name']}'.", caller
     end
     scheme = nil
+    override_url = nil
+
     case url
     when /^tcp/i
       scheme = 'tcp'
     when /^http/i
       scheme = 'http' # Covers HTTP and HTTPS
+      override_url ||= url
     else
       raise RuntimeError, "Unsupported transport #{url}"
     end
@@ -1053,7 +1056,7 @@ private
     # Create the migrate stager
     migrate_stager = c.new()
 
-    migrate_stager.stage_meterpreter({MeterpreterDebugBuild: client.debug_build, scheme: scheme, uuid: uuid, override_uri: url, stageless: true})
+    migrate_stager.stage_meterpreter({MeterpreterDebugBuild: client.debug_build, scheme: scheme, uuid: uuid, override_uri: override_url, stageless: true})
   end
 
   #
