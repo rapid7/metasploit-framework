@@ -303,7 +303,9 @@ module Msf::DBManager::Cred
     opts = opts.merge(service_name: opts[:service_name].to_s.downcase) if opts[:service_name]
     service = super(opts)
     return service if service.nil?
-    service.info = opts[:info] if opts.key?(:info)
+    if opts.key?(:info)
+      service.info = opts[:info].nil? ? '' : opts[:info]
+    end
     service.save! if service.changed?
     service
   end
