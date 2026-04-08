@@ -1640,6 +1640,12 @@ class Core
               print_line(output) if output
             when 'mssql', 'postgresql', 'mysql'
               session.run_cmd(cmd, driver.output)
+            when 'hwbridge'
+              if session.respond_to?(:console) && session.console
+                session.console.run_single(cmd)
+              else
+                print_error("Session #{s} has no hwbridge console; skipping...")
+              end
             end
           ensure
             # Restore timeout for each session

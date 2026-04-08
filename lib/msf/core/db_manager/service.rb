@@ -191,42 +191,47 @@ module Msf::DBManager::Service
   end
 
   def process_service_chain(host, services)
-    return if services.nil? || host.nil?
-    return unless services.is_a?(Hash) || services.is_a?(::Array)
     return unless host.is_a?(Mdm::Host)
+
+    return if services.nil?
 
     services = [services] unless services.is_a?(Array)
     services.map do |service|
-      return unless service.is_a?(Hash)
-      return if service[:port].nil? || service[:proto].nil?
+      case service
+      when ::Mdm::Service
+        service_obj = service
+      when ::Hash
+        next if service[:port].nil? || service[:proto].nil?
 
-      parents = nil
-      if service[:parents]&.any?
-        parents = process_service_chain(host, service[:parents])
-      end
-
-      service_info = {
-        port: service[:port].to_i,
-        proto: service[:proto].to_s.downcase,
-      }
-      service_info[:name] = service[:name].downcase if service[:name]
-      service_info[:resource] = service[:resource] if service[:resource]
-      service_obj = host.services.find_or_create_by(service_info)
-      if service_obj.id.nil?
-        elog("Failed to create service #{service_info.inspect} for host #{host.name} (#{host.address})")
-        return
-      end
-      service_obj.state ||= Msf::ServiceState::Open
-      service_obj.info = service[:info] ? service[:info] : ''
-
-      if parents
-        parents.each do |parent|
-          service_obj.parents << parent if parent && !service_obj.parents.include?(parent)
+        parents = nil
+        if service[:parents]&.any?
+          parents = process_service_chain(host, service[:parents])
         end
+
+        service_info = {
+          port: service[:port].to_i,
+          proto: service[:proto].to_s.downcase,
+        }
+        service_info[:name] = service[:name].downcase if service[:name]
+        service_info[:resource] = service[:resource] if service[:resource]
+        service_obj = host.services.find_or_create_by(service_info)
+        if service_obj.id.nil?
+          elog("Failed to create service #{service_info.inspect} for host #{host.name} (#{host.address})")
+          return
+        end
+        service_obj.state ||= Msf::ServiceState::Open
+        service_obj.info = service[:info] ? service[:info] : ''
+
+        if parents
+          parents.each do |parent|
+            service_obj.parents << parent if parent && !service_obj.parents.include?(parent)
+          end
+        end
+      else
+        next
       end
 
       service_obj
-    end
-
+    end.compact
   end
 end

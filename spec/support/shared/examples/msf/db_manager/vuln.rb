@@ -29,7 +29,6 @@ RSpec.shared_examples_for 'Msf::DBManager::Vuln' do
       it 'creates a vuln' do
         vuln = subject.report_vuln(
           host: '192.0.2.1',
-          sname: 'AD CS',
           name: "vuln name",
           info: 'vuln info',
           refs: ['https://example.com'],

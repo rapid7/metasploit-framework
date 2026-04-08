@@ -143,7 +143,15 @@ class MetasploitModule < Msf::Auxiliary
         return Exploit::CheckCode::Unknown('Failed to check the permissions on the target object.')
       end
 
-      Exploit::CheckCode::Vulnerable('The object can be written to.')
+      Exploit::CheckCode::Vulnerable(
+        'The object can be written to.',
+        vuln: {
+          resource: {
+            ldap_dn: obj.dn
+          },
+          service: report_ldap_service
+        }
+      )
     end
   end
 

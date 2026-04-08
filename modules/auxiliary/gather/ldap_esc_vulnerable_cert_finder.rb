@@ -611,13 +611,7 @@ class MetasploitModule < Msf::Auxiliary
     ca_server_ip_address = get_ip_addresses_by_fqdn(ca_server_fqdn)&.first
 
     if ca_server_ip_address
-      report_service({
-        host: ca_server_ip_address,
-        port: 445,
-        proto: 'tcp',
-        name: 'AD CS',
-        info: "AD CS CA name: #{ldap_object[:name][0]}"
-      })
+      report_service_icertpassage(ca_server_ip_address, ca_name: ldap_object[:name][0])
 
       report_host({
         host: ca_server_ip_address,
@@ -888,13 +882,7 @@ class MetasploitModule < Msf::Auxiliary
           info = nil if info.blank?
 
           hash[:ca_servers].each_value do |ca_server|
-            service = report_service(
-              host: ca_server[:ip_address],
-              port: 445,
-              proto: 'tcp',
-              name: 'AD CS',
-              info: "AD CS CA name: #{ca_server[:name]}"
-            )
+            service = report_service_icertpassage(ca_server[:ip_address], ca_name: ca_server[:name])
 
             if ca_server[:ip_address].present?
               vuln = report_vuln(
@@ -902,11 +890,11 @@ class MetasploitModule < Msf::Auxiliary
                 host: ca_server[:ip_address],
                 port: 445,
                 proto: 'tcp',
-                sname: 'AD CS',
-                name: "#{vuln} - #{key}",
+                name: vuln.to_s,
                 info: info,
                 refs: REFERENCES[vuln],
-                service: service
+                service: service,
+                resource: { template_name: key, ldap_dn: hash[:dn] }
               )
             else
               vuln = nil
@@ -1240,5 +1228,42 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::NoAccess, e.message)
   rescue Net::LDAP::Error => e
     fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
+  end
+
+  def report_service_icertpassage(host, ca_name:)
+    common = {
+      host: host,
+      port: 445,
+      proto: 'tcp'
+    }
+
+    report_service({
+      name: ::Msf::Exploit::Remote::MsIcpr::ADCS_CA_SERVICE_NAME,
+      resource: {
+        'name' => ca_name
+      },
+      parents: {
+        name: 'icertpassage',
+        resource: {
+          'dcerpc' => {
+            'pipe' => 'cert'
+          }
+        },
+        parents: {
+          name: 'dcerpc',
+          resource: {
+            'smb' => {
+              'share' => 'IPC$'
+            }
+          },
+          parents: {
+            name: 'smb',
+            parents: {
+              name: 'tcp'
+            }
+          }.merge(common)
+        }.merge(common)
+      }.merge(common)
+    }.merge(common))
   end
 end
