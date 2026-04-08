@@ -7,6 +7,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::DRDoS
+  include Msf::Module::Deprecated
+  moved_from 'modules/auxiliary/scanner/portmap/portmap_amp'
 
   def initialize
     super(
