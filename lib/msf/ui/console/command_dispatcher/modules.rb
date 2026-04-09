@@ -22,7 +22,8 @@ module Msf
             ['-S', '--filter']          => [true,  'Regex pattern used to filter search results', '<filter>'],
             ['-u', '--use']             => [false, 'Use module if there is one result'],
             ['-s', '--sort-ascending']  => [true,  'Sort search results by the specified column in ascending order', '<column>'],
-            ['-r', '--sort-descending'] => [true,  'Reverse the order of search results to descending order', '<column>']
+            ['-r', '--sort-descending'] => [true,  'Reverse the order of search results to descending order', '<column>'],
+            ['-c', '--show-child']      => [true,  'How to display child items. Always hide, always show, show when matched (hide, show, matched)', '<mode>']
           )
 
           @@favorite_opts = Rex::Parser::Arguments.new(
@@ -445,6 +446,8 @@ module Msf
             search_terms = []
             sort_attribute  = 'name'
             valid_sort_attributes = ['action','rank','disclosure_date','name','date','type','check']
+            child_mode = 'show'
+            valid_child_mode = ['hide','show','matched']
             reverse_sort = false
             ignore_use_exact_match = false
 
@@ -465,6 +468,8 @@ module Msf
                 sort_attribute = val
               when '-r'
                 reverse_sort = true
+              when '-c'
+                child_mode = val
               else
                 match += val + ' '
               end
@@ -481,6 +486,11 @@ module Msf
 
             if sort_attribute && !valid_sort_attributes.include?(sort_attribute)
               print_error("Supported options for the -s flag are: #{valid_sort_attributes}")
+              return false
+            end
+
+            if child_mode && !valid_child_mode.include?(child_mode)
+              print_error("Supported options for the -c flag are: #{valid_child_mode}")
               return false
             end
 
@@ -542,7 +552,7 @@ module Msf
                   m.name,
                 ]
 
-                if framework.features.enabled?(Msf::FeatureManager::HIERARCHICAL_SEARCH_TABLE)
+                if framework.features.enabled?(Msf::FeatureManager::HIERARCHICAL_SEARCH_TABLE) && child_mode != 'hide'
                   total_children_rows = (m.actions&.length || 0) + (m.targets&.length || 0) + (m.notes&.[]('AKA')&.length || 0)
                   show_child_items = total_children_rows > 1
                   next unless show_child_items
@@ -554,6 +564,11 @@ module Msf
 
                   if (m.actions&.length || 0) > 1
                     m.actions.each do |action|
+                      next if child_mode == 'matched' &&
+                              !(
+                                action['name'].to_s.strip.downcase.include?(match.to_s.strip.downcase) ||
+                                action['description'].to_s.strip.downcase.include?(match.to_s.strip.downcase)
+                              )
                       @module_search_results_with_usage_metadata << { mod: m, datastore: { 'ACTION' => action['name'] } }
                       count += 1
                       tbl << [
@@ -569,6 +584,7 @@ module Msf
 
                   if (m.targets&.length || 0) > 1
                     m.targets.each do |target|
+                      next if child_mode == 'matched' && !target.to_s.strip.downcase.include?(match.to_s.strip.downcase)
                       @module_search_results_with_usage_metadata << { mod: m, datastore: { 'TARGET' => target } }
                       count += 1
                       tbl << [
@@ -584,6 +600,7 @@ module Msf
 
                   if (m.notes&.[]('AKA')&.length || 0) > 1
                     m.notes['AKA'].each do |aka|
+                      next if child_mode == 'matched' && !aka.to_s.strip.downcase.include?(match.to_s.strip.downcase)
                       @module_search_results_with_usage_metadata << { mod: m }
                       count += 1
                       tbl << [
