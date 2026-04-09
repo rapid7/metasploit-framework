@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-
 module Msf
   module Ui
     module Console
@@ -22,8 +21,8 @@ module Msf
             ['-o', '--output']          => [true,  'Send output to a file in csv format', '<filename>'],
             ['-S', '--filter']          => [true,  'Regex pattern used to filter search results', '<filter>'],
             ['-u', '--use']             => [false, 'Use module if there is one result'],
-            ['-s', '--sort-ascending']  => [true, 'Sort search results by the specified column in ascending order', '<column>'],
-            ['-r', '--sort-descending'] => [true, 'Reverse the order of search results to descending order', '<column>']
+            ['-s', '--sort-ascending']  => [true,  'Sort search results by the specified column in ascending order', '<column>'],
+            ['-r', '--sort-descending'] => [true,  'Reverse the order of search results to descending order', '<column>']
           )
 
           @@favorite_opts = Rex::Parser::Arguments.new(
@@ -445,7 +444,7 @@ module Msf
             count        = -1
             search_terms = []
             sort_attribute  = 'name'
-            valid_sort_attributes = ['action', 'rank','disclosure_date','name','date','type','check']
+            valid_sort_attributes = ['action','rank','disclosure_date','name','date','type','check']
             reverse_sort = false
             ignore_use_exact_match = false
 
@@ -493,11 +492,12 @@ module Msf
                 @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
 
                 @module_search_results.sort_by! do |module_metadata|
-                  if sort_attribute == 'action'
+                  case sort_attribute
+                  when 'action'
                     module_metadata.actions&.any? ? 0 : 1
-                  elsif sort_attribute == 'check'
+                  when 'check'
                     module_metadata.check ? 0 : 1
-                  elsif sort_attribute == 'disclosure_date' || sort_attribute == 'date'
+                  when 'disclosure_date', 'date'
                     # Not all modules have disclosure_date, i.e. multi/handler
                     module_metadata.disclosure_date || Time.utc(0)
                   else
@@ -551,6 +551,7 @@ module Msf
                   # Note: We still use visual indicators for blank values as it's easier to read
                   # We can't always use a generic formatter/styler, as it would be applied to the 'parent' rows too
                   blank_value = '.'
+
                   if (m.actions&.length || 0) > 1
                     m.actions.each do |action|
                       @module_search_results_with_usage_metadata << { mod: m, datastore: { 'ACTION' => action['name'] } }
