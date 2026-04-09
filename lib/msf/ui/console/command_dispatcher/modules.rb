@@ -22,7 +22,7 @@ module Msf
             ['-S', '--filter']          => [true,  'Regex pattern used to filter search results', '<filter>'],
             ['-u', '--use']             => [false, 'Use module if there is one result'],
             ['-s', '--sort-ascending']  => [true,  'Sort search results by the specified column in ascending order', '<column>'],
-            ['-r', '--sort-descending'] => [true,  'Reverse the order of search results to descending order', '<column>'],
+            ['-r', '--sort-descending'] => [false, 'Reverse the order of search results to descending order'],
             ['-c', '--show-child']      => [true,  'How to display child items. Always hide, always show, show when matched (hide, show, matched)', '<mode>']
           )
 
