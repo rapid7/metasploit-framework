@@ -416,7 +416,7 @@ module Msf
               'rank'                 => 'Sort modules by their exploitability rank',
               'date'                 => 'Sort modules by their disclosure date. Alias for disclosure_date',
               'disclosure_date'      => 'Sort modules by their disclosure date',
-              'name'                 => 'Sort modules by their name',
+              'name'                 => 'Sort modules by their descriptive name (title)',
               'type'                 => 'Sort modules by their type',
               'check'                => 'Sort modules by whether or not they have a check method',
               'action'                => 'Sort modules by whether or not they have actions',
@@ -1813,11 +1813,11 @@ module Msf
                 'WordWrap' => false,
                 'Columns' => [
                   '#',
-                  'Name',
+                  'Full Name',
                   'Disclosure Date',
                   'Rank',
                   'Check',
-                  'Description'
+                  'Name'
                 ],
                 'ColProps' => {
                   'Rank' => {
@@ -1829,7 +1829,7 @@ module Msf
                       Msf::Ui::Console::TablePrint::RankStyler.new
                     ]
                   },
-                  'Name' => {
+                  'Full Name' => {
                     'Strip' => false,
                     'Stylers' => [Msf::Ui::Console::TablePrint::HighlightSubstringStyler.new(search_terms)]
                   },
@@ -1843,7 +1843,7 @@ module Msf
                       *table_hierarchy_formatters,
                     ]
                   },
-                  'Description' => {
+                  'Name' => {
                     'Stylers' => [
                       Msf::Ui::Console::TablePrint::HighlightSubstringStyler.new(search_terms)
                     ]
