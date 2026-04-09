@@ -416,6 +416,7 @@ module Msf
               'rank'                 => 'Sort modules by their exploitability rank',
               'date'                 => 'Sort modules by their disclosure date. Alias for disclosure_date',
               'disclosure_date'      => 'Sort modules by their disclosure date',
+              'fullname'             => 'Sort modules by their fullname',
               'name'                 => 'Sort modules by their name (description)',
               'type'                 => 'Sort modules by their type',
               'check'                => 'Sort modules by whether or not they have a check method',
@@ -445,7 +446,7 @@ module Msf
             count        = -1
             search_terms = []
             sort_attribute  = 'name'
-            valid_sort_attributes = ['action','rank','disclosure_date','name','date','type','check']
+            valid_sort_attributes = ['action','rank','disclosure_date','name','fullname','date','type','check']
             child_mode = 'show'
             valid_child_mode = ['hide','show','matched']
             reverse_sort = false
