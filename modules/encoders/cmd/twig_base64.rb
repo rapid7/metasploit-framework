@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Encoder
         {{_self.env.registerUndefinedFilterCallback(e|lower)}}
         {{_self.env.getFilter(p)}}
       },
-        'Author' => 'bootstrapbool <bootstrapbool[at]gmail.com>',
+      'Author' => 'bootstrapbool <bootstrapbool[at]gmail.com>',
       'License' => BSD_LICENSE,
       'Arch' => ARCH_CMD)
   end
