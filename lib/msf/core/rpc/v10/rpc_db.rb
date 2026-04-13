@@ -252,6 +252,8 @@ public
   #    * 'port' [Integer] Port.
   #    * 'proto' [String] Protocol.
   #    * 'sname' [String] Service name.
+  #    * 'realm_key' [String] Realm key type.
+  #    * 'realm_value' [String] Realm value.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.creds', {})
   def rpc_creds(xopts)
@@ -298,7 +300,9 @@ public
           :host => host,
           :port => port,
           :proto => proto,
-          :sname => sname
+          :sname => sname,
+          :realm_key => cred.realm.try(:key),
+          :realm_value => cred.realm.try(:value)
         }
       end
       ret
