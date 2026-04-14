@@ -13,26 +13,7 @@ module Msf::Util::EXE::Windows::X64
   end
 
   module ClassMethods
-    # Construct a Windows x64 PE executable with the given shellcode.
-    # to_win64pe
-    #
-<<<<<<< HEAD
-<<<<<<< HEAD
-    # @param framework  [Msf::Framework]  The framework of you want to use
-    # @param code       [String]
-    # @param opts       [Hash]
-    # @return           [String]
-    def to_win64pe(framework, code, opts = {})
-      # Allow the user to specify their own EXE template
-      path = nil
-      exe = "template_x64_windows.exe"
-      if opts['EXE::Obfuscation::Enabled']
-        path, exe = Msf::Obfuscation::ExeTemplate.exe_template_compile(framework, opts)
-      end
-      set_template_default(opts, exe, path)
-=======
-=======
->>>>>>> 5e3e59e2391 (refactor: remove duplicated to_win64pe method implementation)
+    
     # @param framework [Msf::Framework] The Metasploit framework instance.
     # @param code [String] The shellcode to embed in the executable.
     # @param opts [Hash] Additional options.
@@ -43,7 +24,6 @@ module Msf::Util::EXE::Windows::X64
       # This helper finds the full path and stores it in opts[:template].
       set_template_default(opts, 'template_x64_windows.exe')
       
-      binding.pry
       # -----------------------------
       payload_length = code.bytesize
       payload = code.bytes.map { |b| "\\x%02x" % b }.join
@@ -54,22 +34,13 @@ module Msf::Util::EXE::Windows::X64
       compiler_out = comp_obj.compile_c(c_source)
       bin = Metasploit::Framework::Compiler::Windows.compile_c(c_source, :exe,Metasm::X86_64.new)
       # -----------------------------
->>>>>>> 441ef83dba3 (Adds base for template randomization)
-
       # Try to inject code into executable by adding a section without affecting executable behavior
       if opts[:inject]
         injector = Msf::Exe::SegmentInjector.new({
-<<<<<<< HEAD
-          :payload  => code,
-          :template => opts[:template],
-          :arch     => :x64,
-          :secname  => opts[:secname]
-=======
            :payload  => code,
            :template => opts[:template],
            :arch     => :x64,
            :secname  => opts[:secname]
->>>>>>> 441ef83dba3 (Adds base for template randomization)
         })
         return injector.generate_pe
       end
@@ -83,13 +54,6 @@ module Msf::Util::EXE::Windows::X64
       })
       return appender.generate_pe
     end
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    
->>>>>>> 441ef83dba3 (Adds base for template randomization)
-=======
->>>>>>> 5e3e59e2391 (refactor: remove duplicated to_win64pe method implementation)
 
     # to_win64pe_service
     #
