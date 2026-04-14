@@ -128,7 +128,7 @@ class MetasploitModule < Msf::Auxiliary
         next unless k == 'NSC_TASS'
 
         # Validate an NSC_TASS cookie value is well-formed base64 before attempting to decode it.
-        unless v.match?(%r{\A[A-Za-z0-9+/]*={0,2}\z})
+        unless v.match?(%r{\A[A-Za-z0-9+/]+={0,2}\z})
           vprint_error("#{peer} - NSC_TASS cookie value is not valid base64: #{v}")
           next
         end
