@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       # A vulnerable host will return 302, but may occasionally return a 200 error, we test for this and keep
-      # going if we see teh 200 error, otherwise we bail out early.
+      # going if we see the 200 error, otherwise we bail out early.
       unless res.code == 302
         vprint_error("#{peer} - Unexpected response code #{res.code}")
 
