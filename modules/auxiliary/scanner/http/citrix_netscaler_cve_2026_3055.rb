@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_target_host)
-    # We track the number of bytes we leak to report back to teh user and help determine if we triggered the vuln or not.
+    # We track the number of bytes we leak to report back to the user and help determine if we triggered the vuln or not.
     leaked_data_count = 0
 
     # We use a set to track the unique leaked cookies, so we don't report leaking the same cookie numerous times.
