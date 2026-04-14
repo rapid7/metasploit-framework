@@ -2,7 +2,6 @@
 module Msf::Util::EXE::Windows::X64
   include Msf::Util::EXE::Common
   include Msf::Util::EXE::Windows::Common
-  
   def self.included(base)
     base.extend(ClassMethods)
   end
@@ -17,7 +16,12 @@ module Msf::Util::EXE::Windows::X64
     # @return           [String]
     def to_win64pe(framework, code, opts = {})
       # Allow the user to specify their own EXE template
-      set_template_default(opts, "template_x64_windows.exe")
+      path = nil
+      exe = "template_x64_windows.exe"
+      if opts['EXE::Obfuscation::Enabled']
+        path, exe = Msf::Obfuscation::ExeTemplate.exe_template_compile(framework, opts)
+      end
+      set_template_default(opts, exe, path)
 
       # Try to inject code into executable by adding a section without affecting executable behavior
       if opts[:inject]

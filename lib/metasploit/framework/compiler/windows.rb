@@ -71,6 +71,7 @@ module Metasploit
           cpu = opts[:cpu] || Metasm::Ia32.new
 
           random_c = self.generate_random_c(c_template, opts)
+          puts("Randomized C source code:\n#{random_c}\n")
           self.compile_c(random_c, type, cpu)
         end
 
