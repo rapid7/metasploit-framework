@@ -1130,8 +1130,8 @@ end
   #    * 'time' [Integer] Creation date.
   #    * 'host' [String] Host address.
   #    * 'service' [String] Service name or port.
-  #    * 'type' [String] Host type.
-  #    * 'data' [String] Host data.
+  #    * 'type' [String] Note type.
+  #    * 'data' [Hash, String, nil] Note data.
   # @example Here's how you would use this from the client:
   #  # This gives you all the notes.
   #  rpc.call('db.notes', {})
@@ -1157,7 +1157,7 @@ end
       note[:host] = n.host.address if n.host
       note[:service] = n.service.name || n.service.port  if n.service
       note[:type ] = n.ntype.to_s
-      note[:data] = n.data.inspect
+      note[:data] = n.data
       ret[:notes] << note
     end
     ret
