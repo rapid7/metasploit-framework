@@ -42,8 +42,8 @@ module Msf::Util::EXE::Windows::X64
       
       binding.pry
       # -----------------------------
-      payload_length = code.length
-      payload = code.unpack("C*")
+      payload_length = code.bytesize
+      payload = code.bytes.map { |b| "\\x%02x" % b }.join
       template_path = File.join(Msf::Config.data_directory, 'templates','template_x64_windows.erb')
       erb = ERB.new(File.read(template_path))
       c_source = erb.result(binding)
