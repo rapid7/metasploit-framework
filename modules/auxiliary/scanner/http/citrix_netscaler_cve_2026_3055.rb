@@ -64,11 +64,16 @@ class MetasploitModule < Msf::Auxiliary
 
     cookies = res.get_cookies
 
+    # A patched system will not return any cookie values.
     return Exploit::CheckCode::Safe('Response has no cookies') if cookies.empty?
 
     return Exploit::CheckCode::Safe('Response has no NSC_TASS cookie') unless cookies.include? 'NSC_TASS='
 
-    Exploit::CheckCode::Appears('Response contains an NSC_TASS cookie.')
+    # We report vulnerable, as by here an unpatched system will be leaking memory in the NSC_TASS cookie, while
+    # a patched system will not return any cookies at all.
+    report_vuln
+
+    Exploit::CheckCode::Vulnerable('Response contains an NSC_TASS cookie.')
   end
 
   def run_host(_target_host)
