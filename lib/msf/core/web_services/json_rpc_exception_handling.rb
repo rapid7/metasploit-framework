@@ -40,7 +40,7 @@ module Msf::WebServices::JsonRpcExceptionHandling
         Rack::Response.new(
           response.to_json,
           500,
-          {'Content-type' => 'application/json'}
+          {'content-type' => 'application/json'}
         ).finish
       end
 

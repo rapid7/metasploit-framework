@@ -8,7 +8,7 @@ module Msf::WebServices::ServletHelper
 
   def set_error_on_response(error)
     print_error "Error handling request: #{error.message}", error
-    headers = {'Content-Type' => 'text/plain'}
+    headers = {'content-type' => 'text/plain'}
     [500, headers, error.message]
   end
 
@@ -17,12 +17,12 @@ module Msf::WebServices::ServletHelper
   end
 
   def set_raw_response(data, code: 200)
-    headers = { 'Content-Type' => 'application/json' }
+    headers = { 'content-type' => 'application/json' }
     [code, headers, data]
   end
 
   def set_json_response(data, includes = nil, code = 200)
-    headers = { 'Content-Type' => 'application/json' }
+    headers = { 'content-type' => 'application/json' }
     [code, headers, to_json(data, includes)]
   end
 
@@ -37,7 +37,7 @@ module Msf::WebServices::ServletHelper
   end
 
   def set_html_response(data)
-    headers = {'Content-Type' => 'text/html'}
+    headers = {'content-type' => 'text/html'}
     [200, headers, data]
   end
 

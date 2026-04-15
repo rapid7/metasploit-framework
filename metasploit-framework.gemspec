@@ -65,14 +65,17 @@ Gem::Specification.new do |spec|
   # Needed for aarch64 assembler support - as Metasm does not currently support Aarch64 fully
   spec.add_runtime_dependency 'aarch64'
   # Metasploit::Concern hooks
-  spec.add_runtime_dependency 'metasploit-concern'
+  # Pinned to 5.0.6+ which supports activemodel >= 7.0, < 8.1 (Rails 8.0 compatible)
+  spec.add_runtime_dependency 'metasploit-concern', '~> 5.0', '>= 5.0.6'
   # Metasploit::Credential database models
-  spec.add_runtime_dependency 'metasploit-credential', '>= 6.0.21'
+  spec.add_runtime_dependency 'metasploit-credential', '~> 6.0', '>= 6.0.22'
   # Database models shared between framework and Pro.
-  spec.add_runtime_dependency 'metasploit_data_models', '>= 6.0.15'
+  # Pinned to 6.0.16+ which supports activerecord >= 7.0, < 8.1 (Rails 8.0 compatible)
+  spec.add_runtime_dependency 'metasploit_data_models', '~> 6.0', '>= 6.0.16'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model'
+  # Pinned to 5.0.5+ which supports activemodel >= 7.0, < 8.1 (Rails 8.0 compatible)
+  spec.add_runtime_dependency 'metasploit-model', '~> 5.0', '>= 5.0.5'
   # Needed for Meterpreter
   spec.add_runtime_dependency 'metasploit-payloads', '2.0.245'
   # Needed for the next-generation POSIX Meterpreter
@@ -107,12 +110,14 @@ Gem::Specification.new do |spec|
   # Required for Metasploit Web Services
   spec.add_runtime_dependency 'puma'
   spec.add_runtime_dependency 'ruby-mysql'
-  # webserver - pinned due to: https://github.com/github/secure_headers/issues/514
-  spec.add_runtime_dependency 'thin', '~> 1.x'
-  # rack pinned due to authlogic warnings when setting cookie keys with a / char present: https://github.com/binarylogic/authlogic/issues/779
-  spec.add_runtime_dependency 'rack', '~> 2.2'
-  # 4.x needs tested and verified for JSON RPC service
-  spec.add_runtime_dependency 'sinatra', '~> 3.2'
+  # Rails 8.0 requires Rack 3.x; changed from '~> 2.2' which blocked resolution.
+  # Thin was removed as a dependency because it only supports Rack 2.x.
+  # Puma (already a runtime dep above) is the Rack 3-compatible replacement.
+  spec.add_runtime_dependency 'rack', '>= 3.0'
+  # Sinatra 4.x is required for Rack 3.x compatibility — Sinatra 3.x only supports
+  # Rack 2.x. Changed from '~> 3.2'. The JSON-RPC and web service apps
+  # (MetasploitApiApp, JsonRpcApp) are Sinatra-based and need this for Rack 3.
+  spec.add_runtime_dependency 'sinatra', '~> 4.0'
   spec.add_runtime_dependency 'warden'
   spec.add_runtime_dependency 'swagger-blocks'
   # Required for JSON-RPC client

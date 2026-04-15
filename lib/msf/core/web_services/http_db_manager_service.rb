@@ -1,4 +1,8 @@
 require 'rack'
+# Rails 8.0 upgrade: migrated from Rack::Handler::Thin to Rack::Handler::Puma.
+# Thin only supports Rack 2.x and cannot run under Rack 3.x (required by Rails 8).
+# Puma was already a runtime dependency and is Rack 3-compatible.
+require 'rack/handler/puma'
 require 'metasploit/framework/parsed_options/remote_db'
 
 # TODO: This functionality isn't fully used currently, it should be integrated and called from the top level msfdb.rb file
@@ -23,19 +27,37 @@ class Msf::WebServices::HttpDBManagerService
 
   private
 
+  # Rails 8.0 upgrade: replaced Thin server startup with Puma.
+  # Thin configured SSL via server.ssl / server.ssl_options in a block callback.
+  # Puma uses a URI-based SSL config (ssl://host:port?key=...&cert=...&verify_mode=...)
+  # passed through the Host option, so the SSL setup was rewritten accordingly.
   def start_http_server(opts)
+    host = opts[:Host] || '0.0.0.0'
+    port = opts[:Port] || 8080
 
-    Rack::Handler::Thin.run(Msf::WebServices::MetasploitApiApp, **opts) do |server|
+    puma_opts = {
+      Host: host,
+      Port: port,
+      Threads: '0:16',
+      Verbose: false,
+      Silent: opts[:Silent] || false
+    }
 
-      if opts[:ssl] && opts[:ssl] = true
-        print_good('SSL Enabled')
-        server.ssl = true
-        server.ssl_options = opts[:ssl_opts]
-      else
-        print_warning('SSL Disabled')
-      end
-      server.threaded = true
+    if opts[:ssl]
+      print_good('SSL Enabled')
+      ssl_opts = opts[:ssl_opts] || {}
+      key = ssl_opts[:private_key_file]
+      cert = ssl_opts[:cert_chain_file]
+      verify = ssl_opts[:verify_peer] ? 'peer' : 'none'
+
+      ssl_uri = "ssl://#{host}:#{port}?key=#{key}&cert=#{cert}&verify_mode=#{verify}"
+      puma_opts[:Host] = ssl_uri
+      puma_opts.delete(:Port)
+    else
+      print_warning('SSL Disabled')
     end
+
+    Rack::Handler::Puma.run(Msf::WebServices::MetasploitApiApp, **puma_opts)
   end
 
   def init_db
