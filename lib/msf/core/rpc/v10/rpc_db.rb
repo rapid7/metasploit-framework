@@ -453,6 +453,8 @@ public
   #    * 'state' [String] Service state.
   #    * 'name' [String] Service name.
   #    * 'info' [String] Additional information about the service.
+  #    * 'resource' [Hash] Service resource.
+  #    * 'parents' [Array<Hash>] List of parent services with same set of keys as the service.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.services', {})
   def rpc_services( xopts)
@@ -471,18 +473,8 @@ public
     ret = {}
     ret[:services] = []
 
-    wspace.services.includes(:host).where(conditions).offset(offset).limit(limit).each do |s|
-      service = {}
-      host = s.host
-      service[:host] = host.address || "unknown"
-      service[:created_at] = s[:created_at].to_i
-      service[:updated_at] = s[:updated_at].to_i
-      service[:port] = s[:port]
-      service[:proto] = s[:proto].to_s
-      service[:state] = s[:state].to_s
-      service[:name] = s[:name].to_s
-      service[:info] = s[:info].to_s
-      ret[:services] << service
+    wspace.services.includes(:host, :parents).where(conditions).offset(offset).limit(limit).each do |s|
+      ret[:services] << process_service(s)
     end
     ret
   }
@@ -511,6 +503,7 @@ public
   #    * 'host' [String] Vulnerable host.
   #    * 'name' [String] Exploit that was used.
   #    * 'refs' [String] Vulnerability references.
+  #    * 'resource' [String] Vulnerability resource.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.vulns', {})
   def rpc_vulns(xopts)
@@ -541,6 +534,7 @@ public
       vuln[:host] = v.host.address || nil
       vuln[:name] = v.name
       vuln[:refs] = reflist.join(',')
+      vuln[:resource] = v.resource
       ret[:vulns] << vuln
     end
     ret
@@ -1987,6 +1981,35 @@ end
     end
   end
 
+
+  private
+
+  # Process an Mdm::Service object to a hash, with recursive parent lookup.
+  #
+  # @param mdm_service [Mdm::Service] The service record to process.
+  # @param recursion_count [Integer] Current recursion iteration count
+  # @return [Hash] Serialized service data.
+  def process_service(mdm_service, recursion_count = 0)
+    return { error: :recursion_limit_reached } unless recursion_count >= 0 && recursion_count < 3
+
+    service = {}
+    host = mdm_service.host
+
+    service[:host] = host.address || "unknown"
+    service[:created_at] = mdm_service[:created_at].to_i
+    service[:updated_at] = mdm_service[:updated_at].to_i
+    service[:port] = mdm_service[:port]
+    service[:proto] = mdm_service[:proto].to_s
+    service[:state] = mdm_service[:state].to_s
+    service[:name] = mdm_service[:name].to_s
+    service[:info] = mdm_service[:info].to_s
+    service[:resource] = mdm_service[:resource]
+    service[:parents] = mdm_service.parents.map do |parent|
+      process_service(parent, recursion_count + 1)
+    end
+
+    service
+  end
 
 end
 end
