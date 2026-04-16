@@ -17,25 +17,9 @@ require 'action_view'
 # checks the ancestor chain including Kernel.
 #
 # See: https://github.com/rapid7/metasploit-framework/blob/ae1db09f32cd04c007dbf445cf16dc22c9fc2e53/lib/rex.rb#L74-L79
-if ActionView::VERSION::MAJOR == 7
-  # Rails 7.2.x patch: override define_element to skip the instance_methods.include? guard
-  # https://github.com/rails/rails/blob/v7.2.2.2/actionview/lib/action_view/helpers/tag_helper.rb#L51
-  module ActionView::Helpers::TagHelper
-    class TagBuilder
-      def self.define_element(name, code_generator:, method_name: name.to_s.underscore)
-        code_generator.define_cached_method(method_name, namespace: :tag_builder) do |batch|
-          batch.push(<<~RUBY)
-                def #{method_name}(content = nil, escape: true, **options, &block)
-                  tag_string("#{name}", content, options, escape: escape, &block)
-                end
-              RUBY
-        end
-      end
-    end
-  end
-elsif ActionView::VERSION::MAJOR >= 8
+if ActionView::VERSION::MAJOR == 8
   # Rails 8.0.x patch: override define_element to skip the method_defined? guard
-  # https://github.com/rails/rails/blob/v8.0.2/actionview/lib/action_view/helpers/tag_helper.rb#L51
+  # https://github.com/rails/rails/blob/v8.0.5/actionview/lib/action_view/helpers/tag_helper.rb#L51
   module ActionView::Helpers::TagHelper
     class TagBuilder
       def self.define_element(name, code_generator:, method_name: name)
