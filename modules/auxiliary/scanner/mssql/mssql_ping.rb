@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'MSSQL Ping Utility',
       'Description' => 'This module simply queries the MSSQL Browser service for server information.',

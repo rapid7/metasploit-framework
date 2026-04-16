@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Anonymous FTP Access Detection',
       'Description' => 'Detect anonymous (read/write) FTP server access.',

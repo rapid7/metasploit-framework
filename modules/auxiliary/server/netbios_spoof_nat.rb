@@ -5,7 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'NetBIOS Response "BadTunnel" Brute Force Spoof (NAT Tunnel)',
       'Description' => %q{

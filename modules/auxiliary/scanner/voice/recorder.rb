@@ -8,7 +8,7 @@ require 'fileutils'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::IAX2
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Telephone Line Voice Scanner',
       'Description' => 'This module dials a range of phone numbers and records audio from each answered call',

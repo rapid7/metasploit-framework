@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'D-Link DSL 320B Password Extractor',
       'Description' => %q{

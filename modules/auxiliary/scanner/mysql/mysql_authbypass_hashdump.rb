@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'MySQL Authentication Bypass Password Dump',
       'Description' => %Q{

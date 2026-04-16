@@ -9,7 +9,7 @@ require 'rex/socket'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Authentication Capture: SIP',
       'Description' => %q{

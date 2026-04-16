@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
   XCEPT = Rex::Proto::SMB::Exceptions
   CONST = Rex::Proto::SMB::Constants
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SMB Scanner Check File/Directory Utility',
       'Description' => %(

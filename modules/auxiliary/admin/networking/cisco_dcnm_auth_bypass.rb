@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
   KEY = 's91zEQmb305F!90a'.freeze
 
   class AESCipher
-    def initialize
+    def initialize(info = {})
       # Cisco's hardcoded key
       @bs = 16
     end

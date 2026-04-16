@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Rex::Proto::TFTP
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'TFTP File Transfer Utility',
       'Description' => %q{

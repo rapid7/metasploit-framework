@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::OptionalSession::SMB
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SMB SID User Enumeration (LookupSid)',
       'Description' => 'Determine what users exist via brute force SID lookups.

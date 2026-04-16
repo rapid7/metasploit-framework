@@ -8,7 +8,7 @@ require 'openssl'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Java Secure Socket Extension (JSSE) SKIP-TLS MITM Proxy',
       'Description' => %q{

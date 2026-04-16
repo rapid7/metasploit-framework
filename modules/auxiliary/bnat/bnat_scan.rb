@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Capture
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'BNAT Scanner',
       'Description' => %q{

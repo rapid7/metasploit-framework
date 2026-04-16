@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::OptionalSession::MSSQL
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'MSSQL Password Hashdump',
       'Description' => %Q{

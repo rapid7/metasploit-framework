@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SAP Management Console ABAP Syslog Disclosure',
       'Description' => %q{ This module simply attempts to extract the ABAP syslog through the SAP Management Console SOAP Interface. },

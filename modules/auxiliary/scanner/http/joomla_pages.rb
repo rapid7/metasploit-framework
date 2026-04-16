@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # Huge thanks to @zeroSteiner for helping me. Also thanks to @kaospunk. Finally thanks to
   # Joomscan and various MSF modules for code examples.
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Joomla Page Scanner',
       'Description' => %q{

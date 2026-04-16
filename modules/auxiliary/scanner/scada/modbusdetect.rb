@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Modbus Version Scanner',
       'Description' => %q{

@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Ubee DDW3611b Cable Modem WiFi Enumeration',
       'Description' => %q{

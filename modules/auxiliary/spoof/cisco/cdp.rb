@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Send Cisco Discovery Protocol (CDP) Packets',
       'Description' => %q{

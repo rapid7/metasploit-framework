@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Oracle XML DB SID Discovery via Brute Force',
       'Description' => %q{

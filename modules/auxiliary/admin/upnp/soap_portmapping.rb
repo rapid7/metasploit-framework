@@ -8,7 +8,7 @@ require 'nokogiri'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'UPnP IGD SOAP Port Mapping Utility',
       'Description' => %q{

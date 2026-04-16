@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'VMware Authentication Daemon Login Scanner',
       'Description' => %q{

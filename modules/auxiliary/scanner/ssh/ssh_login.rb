@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Deprecated
   moved_from 'auxiliary/scanner/ssh/ssh_login_pubkey'
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SSH Login Check Scanner',
       'Description' => %q{

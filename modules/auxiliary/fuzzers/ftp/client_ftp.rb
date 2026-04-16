@@ -12,7 +12,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Exploit::Remote::TcpServer
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Simple FTP Client Fuzzer',
       'Description' => %q{

@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'GitLab Password Reset Account Takeover',
       'Description' => 'This module exploits an account-take-over vulnerability that allows users

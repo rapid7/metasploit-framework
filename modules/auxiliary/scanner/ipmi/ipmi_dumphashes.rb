@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'IPMI 2.0 RAKP Remote SHA1 Password Hash Retrieval',
       'Description' => %q|

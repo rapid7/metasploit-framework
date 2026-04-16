@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Nessus NTP Login Utility',
       'Description' => 'This module attempts to authenticate to a Nessus NTP service.',

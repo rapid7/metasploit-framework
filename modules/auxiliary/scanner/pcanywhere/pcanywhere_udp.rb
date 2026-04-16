@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'PcAnywhere UDP Service Discovery',
       'Description' => 'Discover active pcAnywhere services through UDP',

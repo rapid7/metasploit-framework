@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Veeder-Root Automatic Tank Gauge (ATG) Administrative Client',
       'Description' => %q{

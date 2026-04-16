@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'ua-parser-js npm module ReDoS',
       'Description' => %q{

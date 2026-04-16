@@ -10,7 +10,7 @@ require 'openssl'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Red Hat CloudForms Management Engine 5.1 miq_policy/explorer SQL Injection',
       'Description' => %q{

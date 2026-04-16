@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     'ftp'
   end
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Titan FTP XCRC Directory Traversal Information Disclosure',
       'Description' => %q{

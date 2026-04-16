@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Rogue Gateway Detection: Receiver',
       'Description' => %q{

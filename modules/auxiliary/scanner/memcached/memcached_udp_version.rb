@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
   include Msf::Auxiliary::UDPScanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Memcached UDP Version Scanner',
       'Description' => %q(

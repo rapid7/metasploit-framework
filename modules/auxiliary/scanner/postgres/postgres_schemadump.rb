@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::OptionalSession::PostgreSQL
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Postgres Schema Dump',
       'Description' => %(

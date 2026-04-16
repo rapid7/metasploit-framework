@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::DECT_COA
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'DECT Base Station Scanner',
       'Description' => 'This module scans for DECT base stations.',

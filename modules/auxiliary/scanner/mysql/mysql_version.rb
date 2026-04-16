@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::OptionalSession::MySQL
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'MySQL Server Version Enumeration',
       'Description' => %q{

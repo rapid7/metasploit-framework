@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include SNMP
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SNMP Windows Username Enumeration',
       'Description' => '

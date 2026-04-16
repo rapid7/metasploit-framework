@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'NetBIOS Response Brute Force Spoof (Direct)',
       'Description' => %q{

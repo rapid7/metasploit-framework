@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'HTTP Login Utility',
       'Description' => 'This module attempts to authenticate to an HTTP service.',

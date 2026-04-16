@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'HTTP Subversion Scanner',
       'Description' => 'Detect subversion directories and files and analyze its content. Only SVN Version > 7 supported',

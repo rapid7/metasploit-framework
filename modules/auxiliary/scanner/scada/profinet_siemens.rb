@@ -4,7 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Siemens Profinet Scanner',
       'Description' => %q{

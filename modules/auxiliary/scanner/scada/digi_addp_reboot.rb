@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Digi ADDP Remote Reboot Initiator',
       'Description' => 'Reboot Digi International based equipment through the ADDP service',

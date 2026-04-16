@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Joomla Bruteforce Login Utility',
       'Description' => 'This module attempts to authenticate to Joomla 2.5. or 3.0 through bruteforce attacks',

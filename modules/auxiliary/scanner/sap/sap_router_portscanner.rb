@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
 
   VALID_HOSTNAME_REGEX = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$/
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SAPRouter Port Scanner',
       'Description' => %q{

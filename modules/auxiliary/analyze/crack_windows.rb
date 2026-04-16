@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Deprecated
   moved_from 'auxiliary/analyze/jtr_windows_fast'
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Password Cracker: Windows',
       'Description' => %(

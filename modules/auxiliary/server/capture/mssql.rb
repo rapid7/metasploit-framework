@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
     TDS_TOKEN_AUTH = 0xED
   end
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Authentication Capture: MSSQL',
       'Description' => %q{

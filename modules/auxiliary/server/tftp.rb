@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TFTPServer
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'TFTP File Server',
       'Description' => %q{

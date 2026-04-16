@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Fuzzer
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SMTP Simple Fuzzer',
       'Description' => 'SMTP Simple Fuzzer',

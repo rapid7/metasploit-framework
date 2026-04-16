@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
     }
   }.freeze
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'PetitPotam',
       'Description' => %q{

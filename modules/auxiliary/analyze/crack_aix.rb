@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Deprecated
   moved_from 'auxiliary/analyze/jtr_aix'
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Password Cracker: AIX',
       'Description' => %(

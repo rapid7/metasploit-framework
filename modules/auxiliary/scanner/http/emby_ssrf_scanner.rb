@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Emby SSRF HTTP Scanner',
       'Description' => 'Generates a `GET` request to the provided web servers and executes an SSRF against

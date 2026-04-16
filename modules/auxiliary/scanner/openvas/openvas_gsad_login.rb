@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'OpenVAS gsad Web Interface Login Utility',
       'Description' => %q{

@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include ::Msf::Exploit::Remote::SMB::RelayServer
   include ::Msf::Exploit::Remote::HTTP::SCCM
 
-  def initialize
+  def initialize(info = {})
     super({
       'Name' => 'SMB to HTTP relay version of Get NAA Creds',
       'Description' => %q{

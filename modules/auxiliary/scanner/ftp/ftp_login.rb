@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
     'ftp'
   end
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'FTP Authentication Scanner',
       'Description' => %q{

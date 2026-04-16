@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DHCPServer
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'DHCP Client Bash Environment Variable Code Injection (Shellshock)',
       'Description' => %q{

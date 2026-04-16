@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Katello (Red Hat Satellite) users/update_roles Missing Authorization',
       'Description' => %q{

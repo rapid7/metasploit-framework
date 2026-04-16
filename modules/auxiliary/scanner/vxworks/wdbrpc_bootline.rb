@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'VxWorks WDB Agent Boot Parameter Scanner',
       'Description' => 'Scan for exposed VxWorks wdbrpc daemons and dump the boot parameters from memory',

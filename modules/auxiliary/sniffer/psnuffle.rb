@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Capture
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'pSnuffle Packet Sniffer',
       'Description' => 'This module sniffs passwords like dsniff did in the past.',

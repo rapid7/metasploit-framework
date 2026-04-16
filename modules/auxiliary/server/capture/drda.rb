@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     CODEPOINT_RDBNAM = 0x2110
   end
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Authentication Capture: DRDA (DB2, Informix, Derby)',
       'Description' => %q{

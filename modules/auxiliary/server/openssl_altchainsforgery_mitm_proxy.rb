@@ -8,7 +8,7 @@ require 'openssl'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'OpenSSL Alternative Chains Certificate Forgery MITM Proxy',
       'Description' => %q{

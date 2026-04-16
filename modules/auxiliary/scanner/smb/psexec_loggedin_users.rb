@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
   XCEPT = Rex::Proto::SMB::Exceptions
   CONST = Rex::Proto::SMB::Constants
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Microsoft Windows Authenticated Logged In Users Enumeration',
       'Description' => %Q{

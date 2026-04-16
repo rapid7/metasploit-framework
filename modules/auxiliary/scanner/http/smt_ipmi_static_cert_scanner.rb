@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
     -----END RSA PRIVATE KEY-----
   EOF
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Supermicro Onboard IPMI Static SSL Certificate Scanner',
       'Description' => %q{

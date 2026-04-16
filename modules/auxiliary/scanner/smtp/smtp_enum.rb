@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     'auxiliary/scanner/smtp/enum'
   ]
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SMTP User Enumeration Utility',
       'Description' => %q{

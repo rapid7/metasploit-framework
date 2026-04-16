@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Metasploit Web Interface Login Utility',
       'Description' => %{

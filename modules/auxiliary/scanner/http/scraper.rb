@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'HTTP Page Scraper',
       'Description' => 'Scrape defined data from a specific web page based on a regular expression',

@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Sessions::CreateSessionOptions
   include Msf::Auxiliary::ReportSummary
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'rlogin Authentication Scanner',
       'Description' => %q{

@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'UPnP SSDP M-SEARCH Information Discovery',
       'Description' => 'Discover information from UPnP-enabled systems',

@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
   include Msf::Exploit::Capture
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'ISC DHCP Zero Length ClientID Denial of Service Module',
       'Description' => %q{

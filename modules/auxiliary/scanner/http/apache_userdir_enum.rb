@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Apache "mod_userdir" User Enumeration',
       'Description' => %q{Apache with the UserDir directive enabled generates different error

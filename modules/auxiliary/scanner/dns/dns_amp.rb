@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::DRDoS
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'DNS Amplification Scanner',
       'Description' => %q{

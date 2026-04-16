@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'OpenVAS OTP Login Utility',
       'Description' => 'This module attempts to authenticate to an OpenVAS OTP service.',

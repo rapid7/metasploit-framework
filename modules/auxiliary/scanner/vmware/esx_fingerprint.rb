@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'VMware ESX/ESXi Fingerprint Scanner',
       'Description' => %(

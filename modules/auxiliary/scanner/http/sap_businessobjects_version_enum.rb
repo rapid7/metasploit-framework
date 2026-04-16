@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name'	=> 'SAP BusinessObjects Version Detection',
       'Description'	=> 'This module simply attempts to identify the version of SAP BusinessObjects.',

@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'WordPress W3-Total-Cache Plugin 0.9.2.4 (or before) Username and Hash Extract',
       'Description' => "The W3-Total-Cache Wordpress Plugin <= 0.9.2.4 can cache database statements

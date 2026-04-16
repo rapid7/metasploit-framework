@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'IPMI 2.0 Cipher Zero Authentication Bypass Scanner',
       'Description' => %q|

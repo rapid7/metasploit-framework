@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Koyo DirectLogic PLC Password Brute Force Utility',
       'Description' => %q{

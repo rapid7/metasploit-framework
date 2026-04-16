@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::WmapScanServer
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Tomcat Administration Tool Default Access',
       'Description' => 'Detect the Tomcat administration interface.  The administration interface is included in versions 5.5 and lower.

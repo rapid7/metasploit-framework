@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SAP SOAP Service RFC_PING Login Brute Forcer',
       'Description' => %q{

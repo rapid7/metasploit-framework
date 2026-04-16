@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'UDP Amplification Scanner',
       'Description' => 'Detect UDP endpoints with UDP amplification vulnerabilities',

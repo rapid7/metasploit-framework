@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
 
   attr_accessor :sock, :thread
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'NetBIOS Name Service Spoofer',
       'Description' => %q{

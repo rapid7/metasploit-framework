@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::DRDoS
   include Msf::Auxiliary::UDPScanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Chargen Probe Utility',
       'Description' => %q{

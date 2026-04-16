@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::HttpCrawler
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Web Site Crawler',
       'Description' => 'Crawl a web site and store information about what was found',

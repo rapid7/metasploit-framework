@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SNMP Windows SMB Share Enumeration',
       'Description' => 'This module will use LanManager OID values to enumerate SMB shares on a Windows system via SNMP',

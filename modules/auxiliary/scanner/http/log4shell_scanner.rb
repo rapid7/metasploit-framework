@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Log4Shell
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Log4Shell HTTP Scanner',
       'Description' => %q{

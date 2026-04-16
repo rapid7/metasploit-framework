@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name'	=> 'SAP BusinessObjects User Bruteforcer',
       'Description'	=> 'This module attempts to bruteforce SAP BusinessObjects users.

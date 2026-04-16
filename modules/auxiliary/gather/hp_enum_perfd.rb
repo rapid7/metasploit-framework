@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
   #   B, c, F, G, I, M, U, x: all require an "instance id" and possibly other args
   ALLOWED_COMMANDS = %w(a A i g l p t T u w Z)
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'HP Operations Manager Perfd Environment Scanner',
       'Description' => %q{

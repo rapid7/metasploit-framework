@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::UDPScanner
   include Msf::Exploit::Remote::SIP
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SIP Endpoint Scanner (UDP)',
       'Description' => 'Scan for SIP devices using OPTIONS requests',

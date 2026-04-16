@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
   # For verbose output, deduplicate repeated characters beyond this threshold
   DEDUP_REPEATED_CHARS_THRESHOLD = 400
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'OpenSSL Heartbeat (Heartbleed) Information Leak',
       'Description' => %q{

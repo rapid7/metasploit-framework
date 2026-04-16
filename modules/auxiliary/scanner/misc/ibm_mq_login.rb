@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'IBM WebSphere MQ Login Check',
       'Description' => 'This module can be used to bruteforce usernames that can be used to connect to a queue manager. The name of a valid server-connection channel without SSL configured is required, as well as a list of usernames to try.',

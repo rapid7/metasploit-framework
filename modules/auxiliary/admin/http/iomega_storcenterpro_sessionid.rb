@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Iomega StorCenter Pro NAS Web Authentication Bypass',
       'Description' => %q{

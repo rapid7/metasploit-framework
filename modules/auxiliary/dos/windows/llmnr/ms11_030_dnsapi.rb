@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Dos
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Microsoft Windows DNSAPI.dll LLMNR Buffer Underrun DoS',
       'Description' => %q{

@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Capture
   include Msf::Exploit::Remote::Ipv6
   include Msf::Auxiliary::Report
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'IPv6 Local Neighbor Discovery Using Router Advertisement',
       'Description' => %q{

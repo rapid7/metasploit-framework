@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'HTTP Version Detection',
       'Description' => 'Display version information about each system.',

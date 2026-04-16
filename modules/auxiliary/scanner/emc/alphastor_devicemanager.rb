@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'EMC AlphaStor Device Manager Service',
       'Description' => 'This module queries the remote host for the EMC Alphastor Device Management Service.',

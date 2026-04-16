@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Dos
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'rsyslog Long Tag Off-By-Two DoS',
       'Description' => %q{

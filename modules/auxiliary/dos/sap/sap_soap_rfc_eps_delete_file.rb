@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SAP SOAP EPS_DELETE_FILE File Deletion',
       'Description' => %q{

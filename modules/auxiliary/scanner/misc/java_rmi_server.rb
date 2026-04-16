@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Java RMI Server Insecure Endpoint Code Execution Scanner',
       'Description' => 'Detect Java RMI endpoints',

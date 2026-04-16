@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Dos
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Wireshark LDAP Dissector DOS',
       'Description' => %q{

@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'IBM WebSphere MQ Channel Name Bruteforce',
       'Description' => 'This module uses a dictionary to bruteforce MQ channel names. For all identified channels it also returns if SSL is used and whether it is a server-connection channel.',

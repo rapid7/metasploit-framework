@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'ws - Denial of Service',
       'Description' => %q{

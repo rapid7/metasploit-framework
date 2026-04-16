@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Energizer DUO Trojan Scanner',
       'Description' => 'Detect instances of the Energizer DUO trojan horse software on port 7777.',

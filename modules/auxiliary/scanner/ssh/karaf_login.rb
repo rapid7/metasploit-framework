@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
   DEFAULT_USERNAME = 'karaf'
   DEFAULT_PASSWORD = 'karaf'
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Apache Karaf Login Utility',
       'Description' => %q{

@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::JBoss
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'JBoss JMX Console DeploymentFileRepository WAR Upload and Deployment',
       'Description' => %q{

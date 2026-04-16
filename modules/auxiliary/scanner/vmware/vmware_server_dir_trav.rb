@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'VMware Server Directory Traversal Vulnerability',
       'Description' => 'This modules exploits the VMware Server Directory Traversal

@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'DCERPC TCP Service Auditor',
       'Description' => 'Determine what DCERPC services are accessible over a TCP port.',

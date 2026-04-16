@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
     '0x02ff' => 'SMB 2.???'
   }.freeze
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SMB Version Detection',
       'Description' => %q{

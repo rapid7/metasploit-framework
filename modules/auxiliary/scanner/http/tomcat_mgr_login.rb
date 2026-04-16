@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Tomcat Application Manager Login Utility',
       'Description' => 'This module simply attempts to login to a Tomcat Application Manager instance using a specific user/pass.',

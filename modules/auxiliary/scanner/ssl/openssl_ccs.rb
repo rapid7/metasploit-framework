@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
     '1.2' => 0x0303
   }
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'OpenSSL Server-Side ChangeCipherSpec Injection Scanner',
       'Description' => %q{

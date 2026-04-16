@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'OWA Exchange Web Services (EWS) Login Scanner',
       'Description' => %q{

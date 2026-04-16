@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
   include ::Msf::Exploit::Remote::SMB::Server
   include ::Msf::Exploit::Remote::Relay::NTLM::HashCapture
 
-  def initialize
+  def initialize(info = {})
     super({
       'Name' => 'Authentication Capture: SMB',
       'Description' => %q{

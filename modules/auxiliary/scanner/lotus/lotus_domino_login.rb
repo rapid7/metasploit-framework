@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Lotus Domino Brute Force Utility',
       'Description' => 'Lotus Domino Authentication Brute Force Utility',

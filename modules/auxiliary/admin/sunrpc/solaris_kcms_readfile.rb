@@ -7,7 +7,7 @@ require 'English'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SunRPC
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Solaris KCMS + TTDB Arbitrary File Read',
       'Description' => %q{

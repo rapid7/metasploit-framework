@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::NATPMP
   include Rex::Proto::NATPMP
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'NAT-PMP Port Mapper',
       'Description' => 'Map (forward) TCP and UDP ports on NAT devices using NAT-PMP',

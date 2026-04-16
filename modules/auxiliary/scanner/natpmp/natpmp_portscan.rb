@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::NATPMP
   include Rex::Proto::NATPMP
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'NAT-PMP External Port Scanner',
       'Description' => 'Scan NAT devices for their external listening ports using NAT-PMP',

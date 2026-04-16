@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SAP /sap/bc/soap/rfc SOAP Service SXPG_COMMAND_EXEC Function Command Injection',
       'Description' => %q{

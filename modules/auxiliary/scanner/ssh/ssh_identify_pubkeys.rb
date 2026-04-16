@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::SSH
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SSH Public Key Acceptance Scanner',
       'Description' => %q{

@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::OptionalSession::MSSQL
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'MSSQL Version Utility',
       'Description' => 'Executes a TDS7 pre-login request against the MSSQL instance to query for version information.',

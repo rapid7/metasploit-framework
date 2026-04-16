@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::UDPScanner
   include Msf::Exploit::Remote::HttpServer
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'cups-browsed Information Disclosure',
       'Description' => %q{

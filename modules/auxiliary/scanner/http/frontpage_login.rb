@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'FrontPage Server Extensions Anonymous Login Scanner',
       'Description' => 'This module queries the FrontPage Server Extensions and determines whether anonymous access is allowed.',

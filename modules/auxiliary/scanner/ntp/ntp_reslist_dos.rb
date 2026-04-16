@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::NTP
   include Msf::Auxiliary::DRDoS
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'NTP Mode 7 GET_RESTRICT DRDoS Scanner',
       'Description' => %q{

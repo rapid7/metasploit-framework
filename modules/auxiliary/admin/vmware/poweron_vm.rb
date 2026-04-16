@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::VIMSoap
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'VMWare Power On Virtual Machine',
       'Description' => %(

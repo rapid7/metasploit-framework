@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::OptionalSession::SMB
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SMB File Upload Utility',
       'Description' => %(

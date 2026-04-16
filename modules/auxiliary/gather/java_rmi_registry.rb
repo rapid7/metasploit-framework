@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Java::Rmi::Client
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Java RMI Registry Interfaces Enumeration',
       'Description' => %q{

@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Deprecated
   moved_from 'auxiliary/admin/cisco/cisco_asa_extrabacon'
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Cisco ASA Authentication Bypass (EXTRABACON)',
       'Description' => %q{

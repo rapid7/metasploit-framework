@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::OptionalSession::SMB
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SMB Session Pipe Auditor',
       'Description' => 'Determine what named pipes are accessible over SMB',

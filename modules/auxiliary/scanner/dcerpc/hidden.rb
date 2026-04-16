@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Hidden DCERPC Service Discovery',
       'Description' => %q{

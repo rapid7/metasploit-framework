@@ -8,7 +8,7 @@ require 'resolv'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Fake DNS Service',
       'Description' => %q{

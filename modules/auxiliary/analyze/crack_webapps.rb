@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::PasswordCracker
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Password Cracker: Webapps',
       'Description' => %(

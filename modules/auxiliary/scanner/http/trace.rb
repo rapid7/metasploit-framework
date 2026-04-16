@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'HTTP Cross-Site Tracing Detection',
       'Description' => 'Checks if the host is vulnerable to Cross-Site Tracing (XST)',

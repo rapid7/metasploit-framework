@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Metasploit::Framework::Varnish::Client
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Varnish Cache CLI Login Utility',
       'Description' => 'This module attempts to login to the Varnish Cache (varnishd) CLI instance using a bruteforce

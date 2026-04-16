@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
 
   METHODS = %w[NetrDfsAddStdRoot NetrDfsRemoveStdRoot].freeze
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'DFSCoerce',
       'Description' => %q{

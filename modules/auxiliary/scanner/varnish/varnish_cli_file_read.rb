@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Metasploit::Framework::Varnish::Client
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Varnish Cache CLI File Read',
       'Description' => 'This module attempts to read the first line of a file by abusing the error message when

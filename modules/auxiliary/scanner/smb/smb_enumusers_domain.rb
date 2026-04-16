@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::OptionalSession::SMB
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SMB Domain User Enumeration',
       'Description' => 'Determine what domain users are logged into a remote system via a DCERPC to NetWkstaUserEnum.',

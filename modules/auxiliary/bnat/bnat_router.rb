@@ -5,7 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'BNAT Router',
       'Description' => %q{

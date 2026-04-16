@@ -6,7 +6,7 @@
 require 'faraday'
 
 class MetasploitModule < Msf::Auxiliary
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Telegram Message Client',
       'Description' => %q{

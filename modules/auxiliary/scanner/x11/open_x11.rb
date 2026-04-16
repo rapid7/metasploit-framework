@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Auxiliary::Report
   include Msf::Exploit::Remote::X11::Connect
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name'	=> 'X11 No-Auth Scanner',
       'Description'	=> %q{

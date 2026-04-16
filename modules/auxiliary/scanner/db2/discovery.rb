@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Udp
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'DB2 Discovery Service Detection',
       'Description' => 'This module simply queries the DB2 discovery service for information.',

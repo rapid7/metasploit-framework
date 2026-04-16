@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
 
   attr_accessor :sock, :thread
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'LLMNR Spoofer',
       'Description' => %q{

@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
     ::Errno::ETIMEDOUT, ::Timeout::Error, ::EOFError
   ]
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'List Rsync Modules',
       'Description' => %q(

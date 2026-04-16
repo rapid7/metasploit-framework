@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SIP Username Enumerator (TCP)',
       'Description' => 'Scan for numeric username/extensions using OPTIONS/REGISTER requests',

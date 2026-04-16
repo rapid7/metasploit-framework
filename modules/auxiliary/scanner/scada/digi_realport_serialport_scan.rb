@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Digi RealPort Serial Server Port Scanner',
       'Description' => 'Identify active ports on RealPort-enabled serial servers.',

@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     "\u0001${dest_net_id}{dadr_len}{dadr}\xFF\u0002\u0002\u0002\f\f\u0002{object_identifier}#{READ_DESCRIPTION_PROP}"
   ].freeze
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'BACnet Scanner',
       'Description' => '

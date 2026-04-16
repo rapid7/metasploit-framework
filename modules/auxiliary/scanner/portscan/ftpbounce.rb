@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Ftp
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'FTP Bounce Port Scanner',
       'Description' => %q{

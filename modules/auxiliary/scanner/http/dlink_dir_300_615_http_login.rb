@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'D-Link DIR-300A / DIR-320 / DIR-615D HTTP Login Utility',
       'Description' => %q{

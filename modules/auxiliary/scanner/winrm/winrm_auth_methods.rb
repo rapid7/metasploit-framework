@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'WinRM Authentication Method Detection',
       'Description' => %q{

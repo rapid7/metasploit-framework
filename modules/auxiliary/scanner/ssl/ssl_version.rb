@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   moved_from 'auxiliary/scanner/http/ssl'
   moved_from 'auxiliary/scanner/http/ssl_version'
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SSL/TLS Version Detection',
       'Description' => %q{

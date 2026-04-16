@@ -9,7 +9,7 @@ require 'dnsruby'
 
 class MetasploitModule < Msf::Auxiliary
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'DNS Server Dynamic Update Record Injection',
       'Description' => %q{

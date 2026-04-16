@@ -9,7 +9,7 @@ require 'rex/zip'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::FILEFORMAT
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'LibreOffice 6.03 /Apache OpenOffice 4.1.5 Malicious ODT File Generator',
       'Description' => 'Generates a Malicious ODT File which can be used with auxiliary/server/capture/smb or similar to capture hashes.',

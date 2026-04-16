@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Capture
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Pcap Replay Utility',
       'Description' => %q{

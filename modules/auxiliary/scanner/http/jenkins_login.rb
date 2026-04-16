@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Jenkins-CI Login Utility',
       'Description' => 'This module attempts to login to a Jenkins-CI instance using a specific user/pass.',

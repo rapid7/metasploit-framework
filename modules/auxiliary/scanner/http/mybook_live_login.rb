@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Western Digital MyBook Live Login Utility',
       'Description' => 'This module simply attempts to login to a Western Digital MyBook Live instance using a specific user/pass.',

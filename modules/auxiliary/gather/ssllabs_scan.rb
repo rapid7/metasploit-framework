@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
   class Api
     attr_reader :max_assessments, :current_assessments
 
-    def initialize
+    def initialize(info = {})
       @max_assessments = 0
       @current_assessments = 0
     end

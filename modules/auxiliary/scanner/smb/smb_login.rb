@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
     'smb'
   end
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SMB Login Check Scanner',
       'Description' => %q{

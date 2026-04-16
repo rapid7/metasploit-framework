@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
 
   OUI_LIST = Rex::Oui
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'ARP Sweep Local Network Discovery',
       'Description' => %q{

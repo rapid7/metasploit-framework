@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   moved_from 'auxiliary/analyze/jtr_oracle_fast'
   moved_from 'auxiliary/analyze/jtr_postgres_fast'
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Password Cracker: Databases',
       'Description' => %(

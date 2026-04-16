@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'Telnet Service Encryption Key ID Overflow Detection',
       'Description' => 'Detect telnet services vulnerable to the encrypt option Key ID overflow (BSD-derived telnetd)',

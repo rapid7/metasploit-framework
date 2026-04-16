@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
       'Name' => 'SAP /sap/bc/soap/rfc SOAP Service RFC_READ_TABLE Function Dump Data',
       'Description' => %q{
