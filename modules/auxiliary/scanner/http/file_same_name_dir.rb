@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP File Same Name Directory Scanner',
+        'Name' => 'Generic HTTP File Same Name Directory Scanner',
         'Description'	=> %q{
           This module identifies the existence of files
           in a given directory path named as the same name of the

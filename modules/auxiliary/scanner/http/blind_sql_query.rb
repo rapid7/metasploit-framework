@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Blind SQL Injection Scanner',
+        'Name' => 'Generic HTTP Blind SQL Injection Scanner',
         'Description'	=> %q{
           This module identifies the existence of Blind SQL injection issues
           in GET/POST Query parameters values.

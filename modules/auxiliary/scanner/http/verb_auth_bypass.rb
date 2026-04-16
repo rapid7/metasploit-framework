@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Verb Authentication Bypass Scanner',
+        'Name' => 'Generic HTTP Verb Authentication Bypass Scanner',
         'Description' => %q{
           This module test for authentication bypass using different HTTP verbs.
         },

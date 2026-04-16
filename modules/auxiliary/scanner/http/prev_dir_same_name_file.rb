@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Previous Directory File Scanner',
+        'Name' => 'Generic HTTP Previous Directory File Scanner',
         'Description'	=> %q{
           This module identifies files in the first parent directory with same name as
           the given directory path. Example: Test /backup/files/ will look for the

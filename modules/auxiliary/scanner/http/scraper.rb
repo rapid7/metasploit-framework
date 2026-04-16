@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name' => 'HTTP Page Scraper',
+      'Name' => 'Generic HTTP Page Scraper',
       'Description' => 'Scrape defined data from a specific web page based on a regular expression',
       'Author' => ['et'],
       'License' => MSF_LICENSE

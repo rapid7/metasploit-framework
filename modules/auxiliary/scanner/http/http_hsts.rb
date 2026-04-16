@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Strict Transport Security (HSTS) Detection',
+        'Name' => 'Generic HTTP Strict Transport Security (HSTS) Detection',
         'Description' => %q{
           Display HTTP Strict Transport Security (HSTS) information about each system.
         },

@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name' => 'HTTP Cross-Site Tracing Detection',
+      'Name' => 'Generic HTTP Cross-Site Tracing Detection',
       'Description' => 'Checks if the host is vulnerable to Cross-Site Tracing (XST)',
       'Author' => [
         'Jay Turla <@shipcod3>', # Cross-Site Tracing (XST) Checker

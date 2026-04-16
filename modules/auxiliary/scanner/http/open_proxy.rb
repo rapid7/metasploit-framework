@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Open Proxy Detection',
+        'Name' => 'Generic HTTP Open Proxy Detection',
         'Description' => %q{
           Checks if an HTTP proxy is open. False positive are avoided
           verifying the HTTP return code and matching a pattern.

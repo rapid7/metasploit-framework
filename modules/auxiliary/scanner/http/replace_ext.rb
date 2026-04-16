@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP File Extension Scanner',
+        'Name' => 'Generic HTTP File Extension Scanner',
         'Description'	=> %q{
           This module identifies the existence of additional files
           by modifying the extension of an existing file.

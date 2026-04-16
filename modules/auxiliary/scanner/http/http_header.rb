@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Header Detection',
+        'Name' => 'Generic HTTP Header Detection',
         'Description' => %q{ This module shows HTTP Headers returned by the scanned systems. },
         'Author' => [
           'Christian Mehlmauer',

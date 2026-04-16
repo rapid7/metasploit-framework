@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Directory Scanner',
+        'Name' => 'Generic HTTP Directory Scanner',
         'Description'	=> %q{
           This module identifies the existence of interesting directories
           in a given directory path.

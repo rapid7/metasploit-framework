@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Error Based SQL Injection Scanner',
+        'Name' => 'Generic HTTP Error Based SQL Injection Scanner',
         'Description'	=> %q{
           This module identifies the existence of Error Based SQL injection issues. Still requires a lot of work
         },
