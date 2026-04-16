@@ -127,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
       when /<faultstring\>Invalid boolean value: \?(.*)<\/faultstring>/m
         loot = $1
         if not loot or loot.empty?
-          print_status("#{rhost}#{rport} Retrieved empty file from #{Rex::Socket.to_authority(rhost, rport)}")
+          print_status("#{Rex::Socket.to_authority(rhost, rport)} Retrieved empty file")
           return
         end
         f = ::File.basename(datastore['RFILE'])
@@ -137,6 +137,6 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    print_error("#{rhost}#{rport} Failed to retrieve file from #{Rex::Socket.to_authority(rhost, rport)}")
+    print_error("#{Rex::Socket.to_authority(rhost, rport)} Failed to retrieve file")
   end
 end

@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif fault
       print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Error code: #{faultcode}")
     else
-      print_error("#{rhost}#{rport} [SAP] failed to access ABAPSyslog on #{Rex::Socket.to_authority(rhost, rport)}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] failed to access ABAPSyslog on #{Rex::Socket.to_authority(rhost, rport)}")
     end
   end
 end
