@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name' => 'Titan FTP XCRC Directory Traversal Information Disclosure',
+      'Name' => 'Titan FTP 8.10.1125 XCRC Directory Traversal Information Disclosure',
       'Description' => %q{
           This module exploits a directory traversal vulnerability in the XCRC command
         implemented in versions of Titan FTP up to and including 8.10.1125. By making
