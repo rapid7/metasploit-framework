@@ -432,6 +432,14 @@ module Msf
             print_line "  search type:exploit -s type -r"
             print_line "  search att&ck:T1059"
             print_line
+            print_line "Global Settings For Search Results:"
+            {
+              'SearchSort'         => 'Set the default sort order (-s)',
+              'SearchChildMode'    => 'Set the default for displaying child items (-c)',
+            }.each_pair do |keyword, description|
+              print_line "  #{keyword.ljust 17}:  #{description}"
+            end
+            print_line
           end
 
           #
@@ -445,9 +453,9 @@ module Msf
             use          = false
             count        = -1
             search_terms = []
-            sort_attribute  = 'name'
+            sort_attribute = framework.datastore['SearchSort'] || 'name'
             valid_sort_attributes = ['rank', 'date', 'disclosure_date', 'fullname', 'name', 'type', 'check', 'action']
-            child_mode = 'show'
+            child_mode = framework.datastore['SearchChildMode'] || 'show'
             valid_child_mode = ['hide','show','matched']
             reverse_sort = false
             ignore_use_exact_match = false
