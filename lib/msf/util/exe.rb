@@ -1,6 +1,4 @@
 # -*- coding: binary -*-
-require 'pry'
-require 'pry-byebug'
 
 module Msf::Util::EXE
   include Msf::Util::EXE::Common
@@ -104,7 +102,6 @@ module Msf::Util::EXE
     def to_executable_fmt(framework, arch, plat, code, fmt, exeopts)
       # For backwards compatibility with the way this gets called when
       # generating from Msf::Simple::Payload.generate_simple
-      binding.pry
       if arch.is_a? Array
         output = nil
         arch.each do |a|

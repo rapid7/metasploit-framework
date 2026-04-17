@@ -1,13 +1,13 @@
 require 'erb'
 require 'metasploit/framework/compiler/windows'
 require 'metasploit/framework/compiler/mingw'
-require 'pry'
-require 'pry-byebug'
 
 # -*- coding: binary -*-
 module Msf::Util::EXE::Windows::X64
   include Msf::Util::EXE::Common
   include Msf::Util::EXE::Windows::Common
+  include Msf::Obfluscation::ExeTemplate
+
   def self.included(base)
     base.extend(ClassMethods)
   end
@@ -22,6 +22,9 @@ module Msf::Util::EXE::Windows::X64
     def to_win64pe(framework, code, opts = {})
       # Use the standard template if not specified by the user.
       # This helper finds the full path and stores it in opts[:template].
+
+      return Msf::Obfluscation::ExeTemplate.exe_template_compile(framework, code, opts) #if framework.datastore['EXE::Template::Dynamic::Enabled']
+      
       set_template_default(opts, 'template_x64_windows.exe')
       
       # -----------------------------

