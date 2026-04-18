@@ -285,7 +285,8 @@ assembly instructions.
 Files: data/exploits/CVE-2026-29053/theme/*
 Copyright: 2013-2026
 License: Ghost
-Purpose: The module `modules/exploits/multi/http/ghostcms_cve_2026_29053.rb` uses [ghost-starter](https://github.com/tryghost/starter) theme to get an RCE.
+Purpose: The module `modules/exploits/multi/http/ghostcms_cve_2026_29053.rb` uses 
+         [ghost-starter](https://github.com/tryghost/starter) theme to achieve an RCE.
 
 License: BSD-2-clause
  Redistribution and use in source and binary forms, with or without modification,
