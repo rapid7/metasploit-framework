@@ -6,16 +6,18 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TFTPServer
   include Msf::Auxiliary::Report
+  include Msf::Module::Deprecated
+  moved_from 'auxiliary/server/pxeexploit'
 
   def initialize
     super(
-      'Name' => 'PXE Boot Exploit Server',
+      'Name' => 'PXE Boot Server',
       'Description' => %q{
         This module provides a PXE server, running a DHCP and TFTP server.
-        The default configuration loads a linux kernel and initrd into memory that
+        The default configuration loads a Linux kernel and initrd into memory that
         reads the hard drive; placing a payload to install metsvc, disable the
         firewall, and add a new user metasploit on any Windows partition seen,
-        and add a uid 0 user with username and password metasploit to any linux
+        and add a uid 0 user with username and password metasploit to any Linux
         partition seen. The windows user will have the password p@SSw0rd!123456
         (in case of complexity requirements) and will be added to the administrators
         group.

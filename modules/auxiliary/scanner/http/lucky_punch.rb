@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Microsoft SQL Injection Table XSS Infection',
+        'Name' => 'Generic HTTP Microsoft SQL Injection Table XSS Infection',
         'Description' => %q{
           This module implements the mass SQL injection attack in
           use lately by concatenation of HTML string that forces a persistent

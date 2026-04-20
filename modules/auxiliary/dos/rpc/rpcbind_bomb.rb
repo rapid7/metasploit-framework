@@ -7,6 +7,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
+  include Msf::Module::Deprecated
+  moved_from 'auxiliary/dos/rpc/rpcbomb'
 
   def initialize(info = {})
     super(

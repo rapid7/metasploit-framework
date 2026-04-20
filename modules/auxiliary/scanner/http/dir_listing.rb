@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Directory Listing Scanner',
+        'Name' => 'Generic HTTP Directory Listing Scanner',
         'Description'	=> %q{
           This module identifies directory listing vulnerabilities
           in a given directory path.

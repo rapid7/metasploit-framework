@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP SOAP Verb/Noun Brute Force Scanner',
+        'Name' => 'Generic HTTP SOAP Verb/Noun Brute Force Scanner',
         'Description' => %q{
           This module attempts to brute force SOAP/XML requests to uncover
           hidden methods.

@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Copy File Scanner',
+        'Name' => 'Generic HTTP Copy File Scanner',
         'Description'	=> %q{
           This module identifies the existence of possible copies
           of a specific file in a given path.

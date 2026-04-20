@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name' => 'HTTP Login Utility',
+      'Name' => 'Generic HTTP Login Utility',
       'Description' => 'This module attempts to authenticate to an HTTP service.',
       'Author' => [ 'hdm' ],
       'References' => [

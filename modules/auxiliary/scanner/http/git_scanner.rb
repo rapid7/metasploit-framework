@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name' => 'HTTP Git Scanner',
+      'Name' => 'Generic HTTP Git Scanner',
       'Description' => %q(
         This module can detect situations where there may be information
         disclosure vulnerabilities that occur when a Git repository is made

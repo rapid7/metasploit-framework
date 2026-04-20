@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name' => 'HTTP WebDAV Scanner',
+      'Name' => 'Generic HTTP WebDAV Scanner',
       'Description' => 'Detect webservers with WebDAV enabled',
       'Author' => ['et'],
       'License' => MSF_LICENSE

@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Vuln Scanner',
+        'Name' => 'Generic HTTP Vuln Scanner',
         'Description'	=> %q{
           This module identifies common vulnerable files or cgis.
         },

@@ -5,6 +5,8 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Module::Deprecated
+  moved_from 'auxiliary/admin/http/pfadmin_set_protected_alias'
 
   def initialize(info = {})
     super(

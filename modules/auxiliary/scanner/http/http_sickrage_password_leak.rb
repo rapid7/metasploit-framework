@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP SickRage Password Leak',
+        'Name' => 'SickRage Password Leak',
         'Description' => %q{
           SickRage < v2018-09-03 allows an attacker to view a user's saved Github credentials in HTTP
           responses unless the user has set login information for SickRage.

@@ -15,6 +15,8 @@ class MetasploitModule < Msf::Auxiliary
         to DHCP requests with a malicious hostname, domainname, and URL which are then
         passed to the configuration scripts as environment variables, resulting in code
         execution.
+
+        See exploits/unix/dhcp/dhclient_bash_env for a version which uses /etc/crontab
       },
       'Author' => [
         'scriptjunkie', 'apconole[at]yahoo.com', # Original DHCP Server auxiliary module

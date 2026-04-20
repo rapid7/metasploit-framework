@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Host Header Injection Detection',
+        'Name' => 'Generic HTTP Host Header Injection Detection',
         'Description' => 'Checks if the host is vulnerable to Host header injection',
         'Author' => [
           'Jay Turla', # @shipcod3

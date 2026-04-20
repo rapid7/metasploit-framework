@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Interesting File Scanner',
+        'Name' => 'Generic HTTP Interesting File Scanner',
         'Description'	=> %q{
           This module identifies the existence of interesting files
           in a given directory path.

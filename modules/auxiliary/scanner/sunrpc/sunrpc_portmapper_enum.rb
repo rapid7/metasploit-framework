@@ -7,6 +7,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SunRPC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::Module::Deprecated
+  moved_from 'auxiliary/scanner/misc/sunrpc_portmapper'
 
   def initialize
     super(

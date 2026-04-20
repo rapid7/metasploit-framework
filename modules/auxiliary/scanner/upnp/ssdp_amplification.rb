@@ -8,6 +8,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::DRDoS
+  include Msf::Module::Deprecated
+  moved_from 'auxiliary/scanner/upnp/ssdp_amp'
 
   def initialize
     super(

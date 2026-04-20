@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Directory Brute Force Scanner',
+        'Name' => 'Generic HTTP Directory Brute Force Scanner',
         'Description'	=> %q{
           This module identifies the existence of interesting directories by brute forcing the name
           in a given directory path.

@@ -7,10 +7,12 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Module::Deprecated
+  moved_from 'auxiliary/scanner/ftp/anonymous'
 
   def initialize
     super(
-      'Name' => 'Anonymous FTP Access Detection',
+      'Name' => 'Anonymous FTP Access Scanner',
       'Description' => 'Detect anonymous (read/write) FTP server access.',
       'References' => [
         ['URL', 'https://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],

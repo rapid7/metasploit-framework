@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'HTTP Blind XPATH 1.0 Injector',
+        'Name' => 'Generic HTTP Blind XPATH 1.0 Injector',
         'Description'	=> %q{
           This module exploits blind XPATH 1.0 injections over HTTP GET requests.
         },
