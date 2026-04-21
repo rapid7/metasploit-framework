@@ -298,18 +298,17 @@ class MetasploitModule < Msf::Auxiliary
       self.simple = session.simple_client
       enum_shares(session.address)
     else
-      [{ port: SMB1_PORT }, { port: SMB2_3_PORT } ].each do |info|
-        vprint_status("Connecting to the server...")
+      [
+        { port: SMB1_PORT, versions: [1], backend: :ruby_smb, label: 'SMB over NetBIOS' },
+        { port: SMB2_3_PORT, versions: [1, 2, 3], backend: :ruby_smb, label: 'SMB' }
+      ].each do |info|
+        # Update line prefix, as port changes
+        remove_instance_variable(:@print_prefix) if instance_variable_defined?(:@print_prefix)
         # Assign @rport so that it is accessible via the rport method in this module,
         # as well as making it accessible to the module mixins
         @rport = info[:port]
-        if rport == SMB1_PORT
-          # force library in smb1 mode otherwise simple.client is a
-          # `Rex::Proto::SMB::Client` that does not supply `net_share_enum_all`
-          connect(versions: [1], backend: :ruby_smb)
-        else
-          connect(versions: [1, 2, 3])
-        end
+        vprint_status("Connecting using #{info[:label]} via #{info[:backend]}")
+        connect(versions: info[:versions], backend: info[:backend])
         smb_login
         shares = enum_shares(ip)
         next if shares.nil? || shares.empty?
@@ -345,19 +344,17 @@ class MetasploitModule < Msf::Auxiliary
       # Return all shares if `Shares` option has not been set
       if datastore['Share'].nil?
         shares = simple.client.net_share_enum_all(ip)
+      # Return specific share if the `Share` option has been set
       else
-        # Return specific share if the `Share` option has been set
         simple.client.net_share_enum_all(ip).each { |share| shares = [share] if share[:name] == datastore['Share'] }
-        # Return an error if `Share` option has been set but no matches were found
-        if shares.empty?
-          print_error("No shares match #{datastore['Share']}")
-        end
       end
+      # Return an error if `Share` option has been set but no matches were found
+      print_error("No shares match #{datastore['Share']}") if shares.empty?
     rescue RubySMB::Error::UnexpectedStatusCode => e
       print_error("Error when trying to enumerate shares - #{e.status_code.name}")
       return
     rescue RubySMB::Error::InvalidPacket => e
-      print_error("Invalid packet received when trying to enumerate shares - #{e}")
+      vprint_error("Invalid packet received when trying to enumerate shares - #{e}")
       return
     end
 
@@ -382,9 +379,7 @@ class MetasploitModule < Msf::Auxiliary
         update: :unique_data
       )
 
-      if datastore['SpiderShares']
-        get_files_info(ip, shares)
-      end
+      get_files_info(ip, shares) if datastore['SpiderShares']
     end
 
     shares
