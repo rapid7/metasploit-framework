@@ -208,8 +208,8 @@ if $PROGRAM_NAME == __FILE__
   begin
     if json_rpc
 
-      if !File.file?(ws_ssl_key_default) || !File.file?(ws_ssl_cert_default)
-        $stdout.puts "[-] It doesn't appear msfdb has been run; please run 'msfdb init' first."
+      if opts['SSL'] && (!File.file?(ws_ssl_key) || !File.file?(ws_ssl_cert))
+        $stdout.puts "[-] It doesn't appear msfdb has been run; please run 'msfdb init' first to generate SSL certificates."
         abort
       end
 

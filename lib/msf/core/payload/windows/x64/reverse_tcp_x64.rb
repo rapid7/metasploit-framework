@@ -173,7 +173,7 @@ module Payload::Windows::ReverseTcp_x64
     else
       asm << %Q^
       failure:
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
+        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
         call rbp
       ^
     end

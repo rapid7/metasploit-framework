@@ -173,7 +173,7 @@ RSpec.shared_examples_for 'a datastore' do
         'bar' => bar_option
       }
 
-      expect(subject.options).to eq(expected_options)
+      expect(subject.options.instance_values).to eq(expected_options.instance_values)
     end
   end
 
@@ -420,12 +420,8 @@ RSpec.shared_examples_for 'a datastore' do
         s
       end
 
-      # Note: This aligns the first implementation of the DataStore class.
-      # In certain scenarios it does not seem like desired behavior.
-      it 'does not perform option validation' do
-        subject.merge!({ 'FloatValue' => 'invalid_value' })
-
-        expect(subject['FloatValue']).to eq('invalid_value')
+      it 'does perform option validation' do
+        expect { subject.merge!({ 'FloatValue' => 'invalid_value' }) }.to raise_error(Msf::OptionValidateError, / Value 'invalid_value' is not valid for option 'FloatValue'/)
       end
     end
   end

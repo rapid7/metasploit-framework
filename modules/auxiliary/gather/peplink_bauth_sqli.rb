@@ -205,9 +205,9 @@ class MetasploitModule < Msf::Auxiliary
       res.get_cookies.empty? # no Set-Cookie header means the session cookie is valid
     end
     if @sqli.test_vulnerable
-      Exploit::CheckCode::Vulnerable
+      Exploit::CheckCode::Vulnerable('SQL injection in bauth cookie confirmed')
     else
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe('SQL injection test did not succeed')
     end
   end
 

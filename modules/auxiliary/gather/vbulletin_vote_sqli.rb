@@ -139,14 +139,14 @@ class MetasploitModule < Msf::Auxiliary
     if res and res.code == 200 and res.body.to_s =~ /"simpleversion": "v=5/
       if get_node
         # Multiple factors determine this LOOKS vulnerable
-        return Msf::Exploit::CheckCode::Appears
+        return Msf::Exploit::CheckCode::Appears('vBulletin vote node found, target appears vulnerable')
       else
         # Not enough information about the vuln state, but at least we know this is vbulletin
-        return Msf::Exploit::CheckCode::Detected
+        return Msf::Exploit::CheckCode::Detected('vBulletin detected but vulnerability not confirmed')
       end
     end
 
-    Msf::Exploit::CheckCode::Safe
+    Msf::Exploit::CheckCode::Safe('Target does not appear to be vBulletin')
   end
 
   def report_cred(opts)

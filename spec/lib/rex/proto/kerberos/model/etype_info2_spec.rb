@@ -1,4 +1,3 @@
-# -*- coding:binary -*-
 require 'spec_helper'
 
 
@@ -52,7 +51,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::PreAuthEtypeInfo2 do
   @tagging=nil,
   @tag_class=:UNIVERSAL,
   @indefinite_length=false>,
-#<OpenSSL::ASN1::Sequence:0x000055eae2f2e1f8 
+#<OpenSSL::ASN1::Sequence:0x000055eae2f2e1f8
   @tag=16,
   @value=
     [#<OpenSSL::ASN1::ASN1Data:0x000055eae2f2e2c0
@@ -96,7 +95,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::PreAuthEtypeInfo2 do
 
     it "first entry salt is decoded" do
       etype_info2.decode(etype_info2_encoded)
-      expect(etype_info2.etype_info2_entries[0].salt).to eq("POD8.LANwîth.dìáçriticš")
+      expect(etype_info2.etype_info2_entries[0].salt).to eq("POD8.LANwîth.dìáçriticš".b)
     end
 
     it "second entry salt is not present" do
@@ -126,7 +125,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::PreAuthEtypeInfo2 do
       expect(decoded.etype_info2_entries.length).to eq(2)
       expect(decoded.etype_info2_entries[0].etype).to eq(1)
       expect(decoded.etype_info2_entries[1].etype).to eq(4)
-      
+
       expect(decoded.etype_info2_entries[0].salt).to eq('hello')
       expect(decoded.etype_info2_entries[1].salt).to eq(nil)
 

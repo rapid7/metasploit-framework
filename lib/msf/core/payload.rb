@@ -159,7 +159,12 @@ class Payload < Msf::Module
   # This method returns an optional cached size value
   #
   def self.cached_size
-    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize = const_defined?('CachedSize') ? const_get('CachedSize') : nil
+    if ancestors.include?(Msf::Payload::Stager)
+      csize_overrides = const_defined?('CachedSizeOverrides') ? const_get('CachedSizeOverrides') : {}
+      csize = csize_overrides.fetch(self.refname, csize)
+    end
+
     csize == :dynamic ? nil : csize
   end
 
@@ -167,7 +172,12 @@ class Payload < Msf::Module
   # This method returns whether the payload generates variable-sized output
   #
   def self.dynamic_size?
-    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize = const_defined?('CachedSize') ? const_get('CachedSize') : nil
+    if ancestors.include?(Msf::Payload::Stager)
+      csize_overrides = const_defined?('CachedSizeOverrides') ? const_get('CachedSizeOverrides') : {}
+      csize = csize_overrides.fetch(self.refname, csize)
+    end
+
     csize == :dynamic
   end
 

@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => ['meterpreter'],
         'Author' => ['Danil Bazin <danil.bazin[at]hsc.fr>'], # @danilbaz
         'References' => [
-          ['URL', 'https://github.com/libyal/libbde/blob/master/documentation/BitLocker Drive Encryption (BDE) format.asciidoc'],
+          ['URL', 'https://github.com/libyal/libbde/blob/master/documentation/BitLocker%20Drive%20Encryption%20%28BDE%29%20format.asciidoc'],
           ['URL', 'https://web.archive.org/web/20170914195545/http://www.hsc.fr/ressources/outils/dislocker/'],
         ],
         'Notes' => {

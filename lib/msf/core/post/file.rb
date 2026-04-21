@@ -118,7 +118,7 @@ module Msf::Post::File
   alias ls dir
 
   # create and mark directory for cleanup
-  def mkdir(path)
+  def mkdir(path, cleanup: true)
     result = nil
     vprint_status("Creating directory #{path}")
     if session.type == 'meterpreter'
@@ -132,7 +132,7 @@ module Msf::Post::File
       result = cmd_exec("mkdir -p '#{path}'")
     end
     vprint_status("#{path} created")
-    register_dir_for_cleanup(path)
+    register_dir_for_cleanup(path) if cleanup
     result
   end
 
@@ -701,6 +701,52 @@ module Msf::Post::File
     end
   end
   alias cp_file copy_file
+
+  #
+  # Find writable directories under +path+ on a Unix system.
+  #
+  # Uses find's +-writable+ flag which checks effective access for the current user.
+  #
+  # @param path [String] Absolute base path to search from (default: '/')
+  # @param max_depth [Integer] Maximum directory depth to search (0 = base directory only)
+  # @param timeout [Integer] Maximum seconds for cmd_exec to wait (default: 15).
+  #   Note: if the command times out, the remote find process may continue
+  #   running and tie up the shell channel until it finishes.
+  # @return [Array<String>, nil] Array of writable directory paths, or nil on failure
+  #
+  def find_writable_directories(path: '/', max_depth: 2, timeout: 15)
+    raise "`find_writable_directories' method does not support Windows systems" if session.platform == 'windows'
+
+    path = path.to_s
+    raise ArgumentError, 'path must be an absolute path' unless path.start_with?('/')
+
+    max_depth = max_depth.to_i
+    raise ArgumentError, 'max_depth must not be negative' if max_depth < 0
+
+    timeout = timeout.to_i
+
+    if max_depth > 2
+      print_warning("Large max_depth (#{max_depth}) may cause the find command to run for a long time and hang the session")
+    end
+
+    escaped_path = session.escape_arg(path)
+    find_args = ["find #{escaped_path}"]
+    find_args << "-maxdepth #{max_depth}"
+    find_args << '-type d'
+    find_args << '-writable'
+
+    find_args << '2>/dev/null'
+    cmd = find_args.join(' ')
+    exec_timeout = timeout > 0 ? timeout : 15
+
+    begin
+      cmd_exec(cmd, nil, exec_timeout).to_s.lines.map(&:strip).select { |p| p.start_with?('/') }
+    rescue ::StandardError => e
+      elog("Failed to find writable directories in #{path}", error: e)
+      print_error("Failed to find writable directories in #{path}")
+      nil
+    end
+  end
 
   protected
 

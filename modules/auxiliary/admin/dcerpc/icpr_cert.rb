@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_request_cert
     with_ipc_tree do |opts|
-      request_certificate(opts)
+      icpr_request_certificate(opts)
     end
   end
 

@@ -1104,7 +1104,7 @@ module Msf
               wlog(log_msg)
             end
 
-            self.driver.run_single('reload')
+            self.driver.run_single('reload') if self.driver.active_module
             self.driver.run_single("banner")
           end
 
@@ -1513,7 +1513,7 @@ module Msf
 
               show_module_metadata('Compatible Payloads', @@payload_show_results)
             else
-              # show_module_set(‘Payloads’, framework.payloads, regex, minrank, opts)
+              # show_module_set('Payloads', framework.payloads, regex, minrank, opts)
               show_module_metadata('Payloads', 'payload')
             end
           end
@@ -1619,18 +1619,21 @@ module Msf
               'Postfix' => "\n",
               'Columns' => columns
             )
-            [
-              [ 'ConsoleLogging', framework.datastore['ConsoleLogging'] || "false", 'Log all console input and output' ],
-              [ 'LogLevel', framework.datastore['LogLevel'] || "0", 'Verbosity of logs (default 0, max 3)' ],
-              [ 'MinimumRank', framework.datastore['MinimumRank'] || "0", 'The minimum rank of exploits that will run without explicit confirmation' ],
-              [ 'SessionLogging', framework.datastore['SessionLogging'] || "false", 'Log all input and output for sessions' ],
-              [ 'SessionTlvLogging', framework.datastore['SessionTlvLogging'] || "false", 'Log all incoming and outgoing TLV packets' ],
-              [ 'TimestampOutput', framework.datastore['TimestampOutput'] || "false", 'Prefix all console output with a timestamp' ],
-              [ 'Prompt', framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt.to_s.gsub(/%.../,"") , "The prompt string" ],
-              [ 'PromptChar', framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar.to_s.gsub(/%.../,""), "The prompt character" ],
-              [ 'PromptTimeFormat', framework.datastore['PromptTimeFormat'] || Time::DATE_FORMATS[:db].to_s, 'Format for timestamp escapes in prompts' ],
-              [ 'MeterpreterPrompt', framework.datastore['MeterpreterPrompt'] || '%undmeterpreter%clr', 'The meterpreter prompt string' ],
-            ].each { |r| tbl << r }
+
+            # Display-only defaults for options whose actual defaults are managed
+            # by the UI layer (driver prompt constants, time format, etc.)
+            computed_defaults = {
+              'Prompt'            => Msf::Ui::Console::Driver::DefaultPrompt.to_s.gsub(/%.../, ''),
+              'PromptChar'        => Msf::Ui::Console::Driver::DefaultPromptChar.to_s.gsub(/%.../, ''),
+              'PromptTimeFormat'  => Time::DATE_FORMATS[:db].to_s,
+              'MeterpreterPrompt' => '%undmeterpreter%clr',
+            }
+
+            Msf::DataStore::GLOBAL_OPTION_DEFINITIONS.each_option do |name, opt|
+              val = framework.datastore[name]
+              display_value = val.nil? ? (opt.default.nil? ? '' : opt.default.to_s) : val.to_s
+              tbl << [ name, display_value, opt.desc ]
+            end
 
             print(tbl.to_s)
           end

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.4.117)
+    metasploit-framework (6.4.129)
       aarch64
       abbrev
       actionpack (~> 7.2.0)
@@ -44,10 +44,10 @@ PATH
       lru_redux
       metasm
       metasploit-concern
-      metasploit-credential
+      metasploit-credential (>= 6.0.21)
       metasploit-model
-      metasploit-payloads (= 2.0.240)
-      metasploit_data_models (>= 6.0.7)
+      metasploit-payloads (= 2.0.245)
+      metasploit_data_models (>= 6.0.15)
       metasploit_payloads-mettle (= 1.0.46)
       mqtt
       msgpack (~> 1.6.0)
@@ -102,7 +102,7 @@ PATH
       rinda
       ruby-macho
       ruby-mysql
-      ruby_smb (~> 3.3.15)
+      ruby_smb (~> 3.3.17)
       rubyntlm
       rubyzip
       sinatra (~> 3.2)
@@ -211,7 +211,7 @@ GEM
     bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.1)
     benchmark (0.4.1)
-    bigdecimal (3.2.3)
+    bigdecimal (3.3.1)
     bindata (2.4.15)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
@@ -331,7 +331,7 @@ GEM
       mutex_m
       railties (~> 7.0)
       zeitwerk
-    metasploit-credential (6.0.20)
+    metasploit-credential (6.0.21)
       bigdecimal
       csv
       drb
@@ -352,8 +352,8 @@ GEM
       drb
       mutex_m
       railties (~> 7.0)
-    metasploit-payloads (2.0.240)
-    metasploit_data_models (6.0.12)
+    metasploit-payloads (2.0.245)
+    metasploit_data_models (6.0.15)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
       arel-helpers
@@ -491,13 +491,13 @@ GEM
       netrc (~> 0.8)
     rex-arch (0.1.19)
       rex-text
-    rex-bin_tools (0.1.10)
+    rex-bin_tools (0.1.16)
       metasm
       rex-arch
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.35)
+    rex-core (0.1.36)
     rex-encoder (0.1.8)
       metasm
       rex-arch
@@ -539,7 +539,7 @@ GEM
       rex-socket
       rex-text
     rex-struct2 (0.1.5)
-    rex-text (0.2.61)
+    rex-text (0.2.62)
       bigdecimal
     rex-zip (0.1.6)
       rex-text
@@ -593,7 +593,7 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.3.15)
+    ruby_smb (3.3.17)
       bindata (= 2.4.15)
       openssl-ccm
       openssl-cmac

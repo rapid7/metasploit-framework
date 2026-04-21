@@ -63,18 +63,18 @@ class MetasploitModule < Msf::Auxiliary
       })
 
       # Validate response
-      return GET_SQLI_OBJECT_FAILED_ERROR_MSG unless res
-      return GET_SQLI_OBJECT_FAILED_ERROR_MSG unless res.code == 200
+      next GET_SQLI_OBJECT_FAILED_ERROR_MSG unless res
+      next GET_SQLI_OBJECT_FAILED_ERROR_MSG unless res.code == 200
 
       html_content = res.get_json_document['html']
-      fail_with(Failure::Unknown, 'HTML content is empty') unless html_content
+      next GET_SQLI_OBJECT_FAILED_ERROR_MSG unless html_content
 
       # Extract data from response
       match_data = /survey_question_p">([^<]+)/.match(html_content)
-      return GET_SQLI_OBJECT_FAILED_ERROR_MSG unless match_data
+      next GET_SQLI_OBJECT_FAILED_ERROR_MSG unless match_data
 
       extracted_data = match_data.captures[0]
-      return GET_SQLI_OBJECT_FAILED_ERROR_MSG unless extracted_data
+      next GET_SQLI_OBJECT_FAILED_ERROR_MSG unless extracted_data
 
       extracted_data
     end

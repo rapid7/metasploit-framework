@@ -36,6 +36,7 @@ module ModuleValidation
     validate :validate_description_does_not_contain_non_printable_chars
     validate :validate_name_does_not_contain_non_printable_chars
     validate :validate_attack_reference_format
+    validate :validate_url_reference_format
 
     attr_reader :mod
 
@@ -183,6 +184,23 @@ module ModuleValidation
 
         unless valid_format && !whitespace
           errors.add :references, "ATT&CK reference '#{val}' is invalid. Must start with one of #{Msf::Mitre::Attack::Categories::PATHS.keys.inspect} and be followed by digits/periods, no whitespace."
+        end
+      end
+    end
+
+    def validate_url_reference_format
+      references.each do |ref|
+        next unless ref.respond_to?(:ctx_id) && ref.respond_to?(:ctx_val)
+        next unless ref.ctx_id == 'URL'
+
+        val = ref.ctx_val
+        begin
+          uri = URI.parse(val)
+          unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+            errors.add :references, "URL reference '#{val}' is not a valid HTTP(s) URI with valid percent encoding"
+          end
+        rescue URI::InvalidURIError => e
+          errors.add :references, "URL reference '#{val}' is not a valid HTTP(s) URI with valid percent encoding"
         end
       end
     end

@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::FILEFORMAT
   include Msf::Exploit::Remote::SMB::Server::Share
-  include Msf::Exploit::Remote::SMB::Server::HashCapture
+  include Msf::Exploit::Remote::Relay::NTLM::HashCapture
 
   def initialize(info = {})
     super(

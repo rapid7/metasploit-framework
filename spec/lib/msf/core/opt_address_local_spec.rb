@@ -19,8 +19,11 @@ RSpec.describe Msf::OptAddressLocal do
   end.first
 
   valid_values = [
+    { value: '0.0.0.0', normalized: '0.0.0.0' },
     { value: '192.0.2.0', normalized: '192.0.2.0' },
     { value: '127.0.0.1', normalized: '127.0.0.1' },
+    { value: '::', normalized: '::' },
+    { value: '0::0', normalized: '::' },
     { value: '2001:db8::', normalized: '2001:db8::' },
     { value: '::1', normalized: '::1' },
     { value: iface[:name], normalized: iface[:addr] }
@@ -29,8 +32,10 @@ RSpec.describe Msf::OptAddressLocal do
   invalid_values = [
     # Too many dots
     { value: '192.0.2.0.0' },
+    { value: '0:::0' },
     # Not enough
     { value: '192.0.2' },
+    { value: '0:0:0' },
     # Non-string values
     { value: true },
     { value: 5 },

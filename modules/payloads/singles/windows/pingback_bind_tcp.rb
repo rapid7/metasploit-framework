@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 314
+  CachedSize = 315
 
   include Msf::Payload::Windows
   include Msf::Payload::Single

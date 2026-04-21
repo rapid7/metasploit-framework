@@ -51,7 +51,8 @@ module Msf
         "Execute a command across all sessions with #{highlight('sessions -C <command>')}",
         "Use #{highlight('post/multi/manage/autoroute')} to automatically add pivot routes",
         "Use #{highlight('check')} before #{highlight('run')} to confirm if a target is vulnerable",
-        "Bind your reverse shell to a tunnel with #{highlight('set ReverseListenerBindAddress <tunnel_address>')} and #{highlight('set ReverseListenerBindPort <tunnel_port>')} (e.g., ngrok)"
+        "Bind your reverse shell to a tunnel with #{highlight('set ReverseListenerBindAddress <tunnel_address>')} and #{highlight('set ReverseListenerBindPort <tunnel_port>')} (e.g., ngrok)",
+        "Use #{highlight('set LDAP::QuerySacl false')} to view security descriptors with the ldap_query module from non-privileged accounts"
       ].freeze
       private_constant :COMMON_TIPS
 

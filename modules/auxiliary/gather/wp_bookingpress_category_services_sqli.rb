@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Unknown(GET_SQLI_OBJECT_FAILED_ERROR_MSG) if @sqli == GET_SQLI_OBJECT_FAILED_ERROR_MSG
     return Exploit::CheckCode::Vulnerable if @sqli.test_vulnerable
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('SQL injection test did not succeed')
   end
 
   def generate_vars_post(sqli)

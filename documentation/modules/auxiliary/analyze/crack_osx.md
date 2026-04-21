@@ -88,7 +88,7 @@ Default is `false`.
 
 ### PBKDF2-HMAC-SHA512
 
-Crack SHA12 hashes. Default is `true`.
+Crack SHA512 hashes. Default is `true`.
 
 ### POT
 

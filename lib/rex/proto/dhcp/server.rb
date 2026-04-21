@@ -70,6 +70,8 @@ class Server
       self.broadcasta = Rex::Socket.addr_itoa( self.start_ip | (Rex::Socket.addr_ntoi(self.netmaskn) ^ 0xffffffff) )
     end
 
+    self.interface = hash['DHCPINTERFACE'] || nil
+
     self.served = {}
     self.serveOnce = hash.include?('SERVEONCE')
 
@@ -109,6 +111,11 @@ class Server
       'LocalPort' => listen_port,
       'Context'   => context
     )
+
+    # Dynamically bind to interface if provided
+    if interface && !interface.empty?
+      self.sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_BINDTODEVICE, "#{interface}\0")
+    end
 
     self.thread = Rex::ThreadFactory.spawn("DHCPServerMonitor", false) {
       monitor_socket
@@ -153,7 +160,7 @@ class Server
   end
 
   attr_accessor :listen_host, :listen_port, :context, :leasetime, :relayip, :router, :dnsserv
-  attr_accessor :domain_name, :proxy_auto_discovery
+  attr_accessor :domain_name, :proxy_auto_discovery, :interface
   attr_accessor :sock, :thread, :myfilename, :ipstring, :served, :serveOnce
   attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
   attr_accessor :servePXE, :pxeconfigfile, :pxealtconfigfile, :pxepathprefix, :pxereboottime, :serveOnlyPXE

@@ -70,12 +70,12 @@ class MetasploitModule < Msf::Auxiliary
 
     if version == Rex::Version.new('9.4.37.v20210219') || version == Rex::Version.new('9.4.38.v20210224')
       print_good("#{version} vulnerable to CVE-2021-28164")
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Detected("Jetty #{version} vulnerable to CVE-2021-28164")
     elsif version.between?(Rex::Version.new('9.4.37'), Rex::Version.new('9.4.43')) ||
           version.between?(Rex::Version.new('10.0.1'), Rex::Version.new('10.0.6')) ||
           version.between?(Rex::Version.new('11.0.1'), Rex::Version.new('11.0.6'))
       print_good("#{version} vulnerable to CVE-2021-34429")
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears("Jetty #{version} vulnerable to CVE-2021-34429")
     end
 
     Exploit::CheckCode::Safe('Server not vulnerable')

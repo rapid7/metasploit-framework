@@ -239,11 +239,13 @@ module ReverseHttp
     self.service.server_name = datastore['HttpServerName']
 
     # Add the new resource
-    service.add_resource((luri + "/").gsub("//", "/"),
+    resource_path = (luri + "/").gsub("//", "/")
+    service.add_resource(resource_path,
       'Proc' => Proc.new { |cli, req|
         on_request(cli, req)
       },
       'VirtualDirectory' => true)
+    self.resource_added = true
 
     print_status("Started #{scheme.upcase} reverse handler on #{listener_uri(local_addr)}")
     lookup_proxy_settings
@@ -259,13 +261,17 @@ module ReverseHttp
   #
   def stop_handler
     if self.service
-      self.service.remove_resource((luri + "/").gsub("//", "/"))
+      if self.resource_added
+        self.service.remove_resource((luri + "/").gsub("//", "/"))
+        self.resource_added = false
+      end
       self.service.deref
       self.service = nil
     end
   end
 
   attr_accessor :service # :nodoc:
+  attr_accessor :resource_added # :nodoc:
 
 protected
 

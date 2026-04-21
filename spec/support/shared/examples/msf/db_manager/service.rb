@@ -418,12 +418,12 @@ RSpec.shared_examples_for 'Msf::DBManager::Service' do
         expect(subject.process_service_chain(nil, service_hash)).to be_nil
       end
 
-      it 'returns nil if required service parameters are missing' do
+      it 'returns [] if required service parameters are missing' do
         # Missing port
-        expect(subject.process_service_chain(host, { name: 'http', proto: 'tcp' })).to be_nil
+        expect(subject.process_service_chain(host, { name: 'http', proto: 'tcp' })).to eq []
 
         # Missing proto
-        expect(subject.process_service_chain(host, { name: 'http', port: 80 })).to be_nil
+        expect(subject.process_service_chain(host, { name: 'http', port: 80 })).to eq []
       end
     end
   end

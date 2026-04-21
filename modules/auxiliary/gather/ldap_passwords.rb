@@ -237,7 +237,12 @@ class MetasploitModule < Msf::Auxiliary
       # observed sambapassword history with either 56 or 64 zeros
       next if attr == 'sambapasswordhistory' && private_data =~ /^(0{64}|0{56})$/
 
-      artifacts = SecretArtifact.new(public_data: username, private_data: private_data, private_type: :password)
+      artifacts = SecretArtifact.new(
+        public_data: username,
+        private_data: private_data,
+        private_type: :password,
+        object_dn: entry.dn
+      )
 
       case attr
       when 'sambalmpassword'
@@ -282,7 +287,8 @@ class MetasploitModule < Msf::Auxiliary
             public_data: username,
             private_data: "#{EMPTY_LM.unpack1('H*')}:#{OpenSSL::Digest::MD4.digest(current_password).unpack1('H*')}",
             private_type: :ntlm_hash,
-            jtr_format: 'nt,lm'
+            jtr_format: 'nt,lm',
+            object_dn: entry.dn
           )
 
           artifacts << SecretArtifact.new(
@@ -292,7 +298,8 @@ class MetasploitModule < Msf::Auxiliary
               key: aes256_cts_hmac_sha1_96(encoded_current_password, salt),
               salt: salt
             ),
-            private_type: :krb_enc_key
+            private_type: :krb_enc_key,
+            object_dn: entry.dn
           )
           artifacts << SecretArtifact.new(
             public_data: username,
@@ -301,7 +308,8 @@ class MetasploitModule < Msf::Auxiliary
               key: aes128_cts_hmac_sha1_96(encoded_current_password, salt),
               salt: salt
             ),
-            private_type: :krb_enc_key
+            private_type: :krb_enc_key,
+            object_dn: entry.dn
           )
         end
       when 'mslaps-password'
@@ -357,7 +365,16 @@ class MetasploitModule < Msf::Auxiliary
           end
           artifacts.jtr_format = Metasploit::Framework::Hashes.identify_hash(artifacts.private_data)
         end
-        artifacts.private_type = :nonreplayable_hash
+
+        if artifacts.private_type.blank?
+          if artifacts.jtr_format == 'nt'
+            artifacts.private_type = :ntlm_hash
+          elsif artifacts.jtr_format.blank? && attr.include?('password')
+            artifacts.private_type = :password
+          else
+            artifacts.private_type = :nonreplayable_hash
+          end
+        end
       end
 
       Array.wrap(artifacts).each do |artifact|
@@ -384,6 +401,40 @@ class MetasploitModule < Msf::Auxiliary
         print_good("Credential found in #{attr}: #{formatted} #{artifact.annotation}")
 
         report_creds(artifact.public_data, artifact.private_data, artifact.private_type, artifact.jtr_format)
+
+        common = {
+          host: rhost,
+          port: rport,
+          service: this_ldap_service,
+          resource: { ldap_dn: artifact.object_dn }
+        }
+
+        case artifact.private_type
+        when :krb_enc_key
+          report_vuln(common.merge({
+            name: 'Kerberos encryption key found in LDAP',
+            info: "Module #{fullname} found a Kerberos encryption key in LDAP.",
+            refs: [
+              SiteReference.new('CWE', '312'), # CWE-312: Cleartext Storage of Sensitive Information
+            ]
+          }))
+        when :ntlm_hash
+          report_vuln(common.merge({
+            name: 'NTLM hash found in LDAP',
+            info: "Module #{fullname} found an NTLM hash in LDAP.",
+            refs: [
+              SiteReference.new('CWE', '522') # CWE-522: Insufficiently Protected Credentials
+            ]
+          }))
+        when :password
+          report_vuln(common.merge({
+            name: 'Plaintext credentials found in LDAP',
+            info: "Module #{fullname} found plaintext credentials in LDAP.",
+            refs: [
+              SiteReference.new('CWE', '256') # CWE-256: Plaintext Storage of a Password
+            ]
+          }))
+        end
       end
 
       # only increment once because the iteration is per-attribute so report one credential found even if it's reported
@@ -392,6 +443,11 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     creds_found
+  end
+
+  def this_ldap_service
+    # use this so we're not reporting the service over and over again
+    @this_ldap_service ||= report_ldap_service
   end
 
   def report_creds(username, private_data, private_type, jtr_format)
@@ -493,7 +549,7 @@ class MetasploitModule < Msf::Auxiliary
     JSON.parse(RubySMB::Field::Stringz16.read(plaintext).value)
   end
 
-  SecretArtifact = Struct.new(:public_data, :private_data, :private_type, :jtr_format, :annotation)
+  SecretArtifact = Struct.new(:public_data, :private_data, :private_type, :jtr_format, :annotation, :object_dn)
 
   # https://blog.xpnsec.com/lapsv2-internals/#:~:text=msLAPS%2DEncryptedPassword%20attribute
   # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-ada2/b6ea7b78-64da-48d3-87cb-2cff378e4597

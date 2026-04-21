@@ -209,7 +209,7 @@ class MetasploitModule < Msf::Auxiliary
         :proto	=> 'tcp',
         :port	=> rport,
         :type	=> 'Version of the InterBase server',
-        :data	=> "Version of the InterBase server: #{info_svc_server_version}"
+        :data	=> { :version => info_svc_server_version }
       )
 
       # Add Report
@@ -219,7 +219,7 @@ class MetasploitModule < Msf::Auxiliary
         :proto	=> 'tcp',
         :port	=> rport,
         :type	=> 'Implementation of the InterBase server',
-        :data	=> "Implementation of the InterBase server: #{info_svc_implementation}"
+        :data	=> { :implementation => info_svc_implementation }
       )
     rescue ::Rex::ConnectionError
     rescue ::Errno::EPIPE

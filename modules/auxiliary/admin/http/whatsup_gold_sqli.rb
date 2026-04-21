@@ -51,21 +51,21 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'NmConsole/app.json')
     })
 
-    return CheckCode::Unknown unless res && res.code == 200
+    return Exploit::CheckCode::Unknown('No response or unexpected HTTP status') unless res && res.code == 200
 
     data = res.get_json_document
     data_js = data['js']
     version_path = data_js.find { |item| item['path'] =~ /app-/ }['path']
     version = version_path[/app-(.*)\.js/, 1]
     if version.nil?
-      return CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Could not determine WhatsUp Gold version')
     else
       vprint_status('Version retrieved: ' + version)
     end
 
     return Exploit::CheckCode::Appears("Version: #{version}") if Rex::Version.new(version) <= Rex::Version.new('23.1.3')
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe("WhatsUp Gold version #{version} is not vulnerable")
   end
 
   def run

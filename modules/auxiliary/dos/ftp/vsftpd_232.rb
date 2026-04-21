@@ -43,14 +43,14 @@ class MetasploitModule < Msf::Auxiliary
     begin
       if !connect_login
         print_error('Connection refused.')
-        return Exploit::CheckCode::Unknown
+        return Exploit::CheckCode::Unknown('Failed to connect or authenticate via FTP')
       end
     rescue Rex::ConnectionRefused
       print_error('Connection refused.')
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Connection refused by the target')
     rescue Rex::ConnectionTimeout
       print_error('Connection timed out')
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Connection timed out')
     end
     s = ''
     loop do
@@ -62,15 +62,15 @@ class MetasploitModule < Msf::Auxiliary
     # check if version was found
     if s !~ /vsFTPd \d+\.\d+\.\d+/
       print_error('Did not find FTP version in FTP session.')
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Could not determine vsFTPd version')
     end
 
     # pull out version and check if its in range of vulnerability
     version = s[/\d+\.\d+\.\d+/]
     if Rex::Version.new(version) < Rex::Version.new('2.3.3')
-      Exploit::CheckCode::Appears
+      Exploit::CheckCode::Appears("vsFTPd #{version} is older than the patched version 2.3.3")
     else
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe("vsFTPd #{version} is not vulnerable")
     end
   end
 

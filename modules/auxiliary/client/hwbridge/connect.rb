@@ -69,12 +69,22 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
+    parsed = res.get_json_document
+
     if res.code == 200
       print_status res.body if datastore['DEBUGJSON'] == true
-      return JSON.parse(res.body)
+      return parsed || {}
     end
 
-    return
+    # Preserve non-200 JSON bodies so callers can surface adapter error codes
+    if parsed.is_a?(Hash)
+      parsed['_http_status'] = res.code
+      print_error("HTTP #{res.code}: #{parsed}") if datastore['DEBUGJSON'] == true
+      return parsed
+    end
+
+    print_error("HTTP #{res.code}: #{res.body}") if datastore['DEBUGJSON'] == true
+    return({ 'status' => 'error', 'error' => { 'code' => 'HTTP_ERROR', 'message' => "HTTP #{res.code}" } })
   rescue OpenSSL::SSL::SSLError
     vprint_error('SSL error')
     return

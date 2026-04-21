@@ -142,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
 
     unless res && res[0].length > 63 && res[0][0, 2] == "\x63\x00"
       print_error 'EtherNet/IP Packet Not Valid'
-      return Exploit::CheckCode::Unsupported
+      return Exploit::CheckCode::Unsupported('Target did not return a valid EtherNet/IP response')
     end
 
     res[0][54, 2]
@@ -154,20 +154,20 @@ class MetasploitModule < Msf::Auxiliary
     array = product_name.split(' ')
     plc_model = array[0]
 
-    return Exploit::CheckCode::Safe unless VULN_LIST.any? { |e| plc_model.include? e }
+    return Exploit::CheckCode::Safe("PLC model #{plc_model} is not in the vulnerable list") unless VULN_LIST.any? { |e| plc_model.include? e }
 
     firmware = array[1]
     begin
       firmware_nbr = firmware.scan(/(\d+[.,]\d+)/).flatten.first.to_f
       if firmware_nbr >= VULN_FW_VERSION_MIN && firmware_nbr < VULN_FW_VERSION_MAX
-        return Exploit::CheckCode::Vulnerable
+        return Exploit::CheckCode::Vulnerable("#{plc_model} firmware #{firmware_nbr} is in the vulnerable range")
       elsif firmware_nbr < VULN_FW_VERSION_MIN
-        return Exploit::CheckCode::Appears
+        return Exploit::CheckCode::Appears("#{plc_model} firmware #{firmware_nbr} may be vulnerable")
       else
-        return Exploit::CheckCode::Safe
+        return Exploit::CheckCode::Safe("#{plc_model} firmware #{firmware_nbr} is patched")
       end
     rescue StandardError
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Could not parse firmware version')
     end
   rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
     elog(e)

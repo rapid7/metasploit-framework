@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
     res = make_injected_request(query, sid, cookies)
 
     unless res and res.body
-      return Msf::Exploit::CheckCode::Safe
+      return Msf::Exploit::CheckCode::Unknown('No response received from the target')
     end
 
     match = /#{left_marker}(.*)#{right_marker}/.match(res.body)
@@ -70,10 +70,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if match[1] == flag
-      return Msf::Exploit::CheckCode::Vulnerable
+      return Msf::Exploit::CheckCode::Vulnerable('SQL injection confirmed via toggleids parameter')
     end
 
-    Msf::Exploit::CheckCode::Safe
+    Msf::Exploit::CheckCode::Safe('SQL injection test did not succeed')
   end
 
   def run

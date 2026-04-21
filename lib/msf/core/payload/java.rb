@@ -2,6 +2,9 @@
 
 module Msf::Payload::Java
 
+  # Mark the payload as dynamic as the generated JAR/zip files can differ in size depending on the host machine's zlib version
+  ForceDynamicCachedSize = true
+
   #
   # Used by stages; all java stages need to define +stage_class_files+ as an
   # array of .class files located in data/java/

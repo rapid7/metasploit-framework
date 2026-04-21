@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -15,9 +17,10 @@ class MetasploitModule < Msf::Post
         'Name' => 'Linux Gather Protection Enumeration',
         'Description' => %q{
           This module checks whether popular system hardening mechanisms are
-          in place, such as SMEP, SMAP, SELinux, PaX and grsecurity. It also
-          tries to find installed applications that can be used to hinder,
-          prevent, or detect attacks, such as tripwire, snort, and apparmor.
+          in place, such as SMEP, SMAP, KPTI, SELinux, PaX, grsecurity, and
+          Yama. It also tries to find installed applications that can be used
+          to hinder, prevent, or detect attacks, such as tripwire, snort,
+          apparmor, falco, and wazuh.
 
           This module is meant to identify Linux Secure Modules (LSM) in addition
           to various antivirus, IDS/IPS, firewalls, sandboxes and other security
@@ -58,7 +61,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def report(data)
+  def report(**data)
     report_note(
       host: session,
       type: 'linux.protection',
@@ -68,109 +71,66 @@ class MetasploitModule < Msf::Post
   end
 
   def check_hardening
-    begin
-      if aslr_enabled?
-        r = 'ASLR is enabled'
-        print_good r
-        report r
+    hardening_checks = {
+      aslr_enabled?: 'ASLR is enabled',
+      exec_shield_enabled?: 'Exec-Shield is enabled',
+      kaiser_enabled?: 'KAISER is enabled',
+      kpti_enabled?: 'KPTI is enabled',
+      smep_enabled?: 'SMEP is enabled',
+      smap_enabled?: 'SMAP is enabled',
+      lkrg_installed?: 'LKRG is installed',
+      grsec_installed?: 'grsecurity is installed',
+      pax_installed?: 'PaX is installed',
+      unprivileged_bpf_disabled?: 'Unprivileged BPF is disabled',
+      kptr_restrict?: 'Kernel pointer restriction is enabled',
+      dmesg_restrict?: 'dmesg restriction is enabled'
+    }
+
+    hardening_checks.each do |check, message|
+      if send(check)
+        print_good message
+        report(message: message)
       end
     rescue RuntimeError => e
       vprint_status(e.to_s)
     end
 
-    begin
-      if exec_shield_enabled?
-        r = 'Exec-Shield is enabled'
-        print_good r
-        report r
-      end
-    rescue RuntimeError => e
-      vprint_status(e.to_s)
-    end
-
-    begin
-      if kaiser_enabled?
-        r = 'KAISER is enabled'
-        print_good r
-        report r
-      end
-    rescue RuntimeError => e
-      vprint_status(e.to_s)
-    end
-
-    begin
-      if smep_enabled?
-        r = 'SMEP is enabled'
-        print_good r
-        report r
-      end
-    rescue RuntimeError => e
-      vprint_status(e.to_s)
-    end
-
-    begin
-      if smap_enabled?
-        r = 'SMAP is enabled'
-        print_good r
-        report r
-      end
-    rescue RuntimeError => e
-      vprint_status(e.to_s)
-    end
-
-    begin
-      if lkrg_installed?
-        r = 'LKRG is installed'
-        print_good r
-        report r
-      end
-    rescue RuntimeError => e
-      vprint_status(e.to_s)
-    end
-
-    begin
-      if grsec_installed?
-        r = 'grsecurity is installed'
-        print_good r
-        report r
-      end
-    rescue RuntimeError => e
-      vprint_status(e.to_s)
-    end
-
-    begin
-      if pax_installed?
-        r = 'PaX is installed'
-        print_good r
-        report r
-      end
-    rescue RuntimeError => e
-      vprint_status(e.to_s)
-    end
-
+    # SELinux has additional enforcing/permissive state
     begin
       if selinux_installed?
-        if selinux_enforcing?
-          r = 'SELinux is installed and enforcing'
-        else
-          r = 'SELinux is installed, but in permissive mode'
-        end
-        print_good r
-        report r
+        r = if selinux_enforcing?
+              'SELinux is installed and enforcing'
+            else
+              'SELinux is installed, but in permissive mode'
+            end
+        print_good(r)
+        report(message: r)
       end
     rescue RuntimeError => e
       vprint_status(e.to_s)
     end
 
+    # Yama has additional enabled/disabled state
     begin
       if yama_installed?
-        if yama_enabled?
-          r = 'Yama is installed and enabled'
-        else
-          r = 'Yama is installed, but not enabled'
-        end
-        print_good r
-        report r
+        r = if yama_enabled?
+              'Yama is installed and enabled'
+            else
+              'Yama is installed, but not enabled'
+            end
+        print_good(r)
+        report(message: r)
+      end
+    rescue RuntimeError => e
+      vprint_status(e.to_s)
+    end
+
+    # User namespaces - report as an attack surface when enabled
+    begin
+      if userns_enabled?
+        r = 'User namespaces are enabled (unprivileged may be available)'
+        print_good(r)
+        report(message: r)
       end
     rescue RuntimeError => e
       vprint_status(e.to_s)
@@ -189,8 +149,11 @@ class MetasploitModule < Msf::Post
       'chkrootkit' => 'chkrootkit',
       'clamav' => 'ClamAV',
       'elastic-agent' => 'Elastic Security',
+      'fail2ban-client' => 'fail2ban',
+      'falco' => 'Falco Runtime Security',
+      'firewall-cmd' => 'firewalld',
       'firejail' => 'Firejail',
-      'firestarter' => 'Firestarted',
+      'firestarter' => 'Firestarter',
       'fw-settings' => 'Uncomplicated FireWall (UFW)',
       'getenforce' => 'SELinux',
       'gradm' => 'grsecurity',
@@ -202,6 +165,10 @@ class MetasploitModule < Msf::Post
       'logwatch' => 'logwatch',
       'lynis' => 'lynis',
       'nagios' => 'nagios',
+      'nft' => 'nftables',
+      'opensnitch' => 'OpenSnitch',
+      'ossec-control' => 'OSSEC HIDS',
+      'osqueryd' => 'osquery',
       'oz-seccomp' => 'OZ',
       'paxctl' => 'PaX',
       'paxctld' => 'PaX',
@@ -210,12 +177,16 @@ class MetasploitModule < Msf::Post
       'psad' => 'psad',
       'rkhunter' => 'rkhunter',
       'snort' => 'snort',
+      'suricata' => 'Suricata IDS/IPS',
+      'sysdig' => 'Sysdig',
       'tcpdump' => 'tcpdump',
       'thpot' => 'thpot',
       'tiger' => 'tiger',
       'tripwire' => 'tripwire',
       'ufw' => 'Uncomplicated FireWall (UFW)',
-      'wireshark' => 'Wireshark'
+      'wazuh-control' => 'Wazuh',
+      'wireshark' => 'Wireshark',
+      'zeek' => 'Zeek Network Monitor'
     }
 
     apps.each do |app, appname|
@@ -224,8 +195,8 @@ class MetasploitModule < Msf::Post
       path = cmd_exec "command -v #{app}"
       next unless path.start_with? '/'
 
-      print_good "#{app} found: #{path}"
-      report "#{appname}: #{path}"
+      print_good("#{app} found: #{path}")
+      report(message: "Found: #{appname}", path: path)
     end
   end
 
@@ -233,8 +204,11 @@ class MetasploitModule < Msf::Post
     apps = {
       '/bin/logrhythm' => 'LogRhythm Axon',
       '/etc/aide/aide.conf' => 'Advanced Intrusion Detection Environment (AIDE)',
-      '/etc/chkrootkit' => 'chkrootkit [chkrootkit -q]',
+      '/etc/chkrootkit' => 'chkrootkit',
       '/etc/clamd.d/scan.conf' => 'ClamAV',
+      '/etc/fail2ban' => 'fail2ban',
+      '/etc/falco' => 'Falco Runtime Security',
+      '/etc/firewalld' => 'firewalld',
       '/etc/fluent-bit' => 'Fluent Bit Log Collector',
       '/etc/freshclam.conf' => 'ClamAV',
       '/etc/init.d/avast' => 'Avast',
@@ -249,16 +223,19 @@ class MetasploitModule < Msf::Post
       '/etc/init.d/splx' => 'Trend Micro Server Protect',
       '/etc/init.d/threatconnect-envsvr' => 'ThreatConnect',
       '/etc/logrhythm' => 'LogRhythm Axon',
+      '/etc/nftables.conf' => 'nftables',
       '/etc/opt/f-secure' => 'WithSecure (F-Secure)',
+      '/etc/osquery' => 'osquery',
       '/etc/otelcol-sumo/sumologic.yaml' => 'Sumo Logic OTEL Collector',
+      '/etc/opensnitchd' => 'OpenSnitch',
       '/etc/rkhunter.conf' => 'rkhunter',
       '/etc/safedog/sdsvrd.conf' => 'Safedog',
       '/etc/safedog/server/conf/sdsvrd.conf' => 'Safedog',
+      '/etc/suricata' => 'Suricata IDS/IPS',
       '/etc/tripwire' => 'TripWire',
       '/opt/COMODO' => 'Comodo AV',
       '/opt/CrowdStrike' => 'CrowdStrike',
       '/opt/FortiEDRCollector' => 'Fortinet FortiEDR',
-      '/opt/FortiEDRCollector/scripts/fortiedrconfig.sh' => 'Fortinet FortiEDR',
       '/opt/McAfee' => 'FireEye/McAfee/Trellix Agent',
       '/opt/SumoCollector' => 'Sumo Logic Cloud SIEM',
       '/opt/Symantec' => 'Symantec EDR',
@@ -266,7 +243,6 @@ class MetasploitModule < Msf::Post
       '/opt/Trellix' => 'FireEye/McAfee/Trellix SIEM Collector',
       '/opt/avg' => 'AVG',
       '/opt/bitdefender-security-tools/bin/bdconfigure' => 'Bitdefender EDR',
-      '/opt/cisco/amp/bin/ampcli ' => 'Cisco Secure Endpoint',
       '/opt/cisco/amp/bin/ampcli' => 'Cisco Secure Endpoint',
       '/opt/cyberark' => 'CyberArk',
       '/opt/ds_agent/dsa' => 'Trend Micro Deep Security Agent',
@@ -276,12 +252,14 @@ class MetasploitModule < Msf::Post
       '/opt/isec' => 'FireEye/Trellix Endpoint Security',
       '/opt/kaspersky' => 'Kaspersky',
       '/opt/logrhythm/scsm' => 'LogRhythm System Monitor',
+      '/opt/osquery' => 'osquery',
       '/opt/secureworks' => 'Secureworks',
       '/opt/sentinelone/bin/sentinelctl' => 'SentinelOne',
       '/opt/splunkforwarder' => 'Splunk',
       '/opt/threatbook/OneAV' => 'threatbook.OneAV',
       '/opt/threatconnect-envsvr/' => 'ThreatConnect',
       '/opt/traps/bin/cytool' => 'Palo Alto Networks Cortex XDR',
+      '/opt/wazuh' => 'Wazuh',
       '/sf/edr/agent/bin/edr_agent' => 'Sangfor EDR',
       '/titan/agent/agent_update.sh' => 'Titan Agent',
       '/usr/bin/linep' => 'Group-iB XDR Endpoint Agent',
@@ -290,17 +268,18 @@ class MetasploitModule < Msf::Post
       '/usr/lib/symantec/status.sh' => 'Symantec Linux Agent',
       '/usr/local/bin/intezer-analyze' => 'Intezer',
       '/usr/local/qualys' => 'Qualys EDR Cloud Agent',
-      '/usr/local/rocketcyber' => 'Kseya RocketCyber',
+      '/usr/local/rocketcyber' => 'Kaseya RocketCyber',
       '/var/lib/avast/Setup/avast.vpsupdate' => 'Avast',
       '/var/log/checkpoint' => 'Checkpoint',
+      '/var/ossec' => 'OSSEC/Wazuh HIDS',
       '/var/pt' => 'PT Swarm'
     }
 
     apps.each do |path, appname|
       next unless file_exist?(path) || directory?(path)
 
-      print_good "#{appname} found: #{path}"
-      report "#{appname}: #{path}"
+      print_good("#{appname} found: #{path}")
+      report(message: "#{appname}: #{path}")
     rescue RuntimeError
       print_bad("Unable to determine state of #{appname}")
       next

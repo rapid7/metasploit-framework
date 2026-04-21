@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 5060 ]),
-        OptAddress.new('SRVHOST', [ true, 'The local host to listen on.', '0.0.0.0' ]),
+        OptAddressLocal.new('SRVHOST', [ true, 'The local host to listen on.', '0.0.0.0' ]),
         OptString.new('NONCE', [ true, 'The server byte nonce', '1234' ]),
         OptString.new('JOHNPWFILE', [ false, 'The prefix to the local filename to store the hashes in JOHN format', nil ]),
       ]
@@ -139,12 +139,12 @@ class MetasploitModule < Msf::Auxiliary
   def run
     @port = datastore['SRVPORT'].to_i
     @sock = Rex::Socket::Udp.create(
-      'LocalHost' => datastore['SRVHOST'],
+      'LocalHost' => srvhost,
       'LocalPort' => @port,
       'Context' => { 'Msf' => framework, 'MsfExploit' => self }
     )
     @run = true
-    server_ip = sip_sanitize_address(datastore['SRVHOST'])
+    server_ip = sip_sanitize_address(srvhost)
 
     while @run
       res = @sock.recvfrom

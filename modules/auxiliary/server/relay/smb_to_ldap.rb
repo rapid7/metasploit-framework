@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def relay_targets
-    Msf::Exploit::Remote::SMB::Relay::TargetList.new(
+    Msf::Exploit::Remote::Relay::TargetList.new(
       :ldap, # TODO: look into LDAPs
       datastore['RPORT'],
       datastore['RHOSTS'],
@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
     elog('Failed to setup the session', error: e)
   end
 
-  # @param [Msf::Exploit::Remote::SMB::Relay::NTLM::Target::LDAP::Client] relay_connection
+  # @param [Msf::Exploit::Remote::Relay::NTLM::Target::LDAP::Client] relay_connection
   # @return [Msf::Sessions::LDAP]
   def session_setup(relay_connection, relay_identity)
     client = relay_connection.create_ldap_client

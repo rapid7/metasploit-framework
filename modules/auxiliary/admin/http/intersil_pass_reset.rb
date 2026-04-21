@@ -58,16 +58,16 @@ class MetasploitModule < Msf::Auxiliary
 
     if res && (m = res.headers['Server'].match(%r{Boa/(.*)}))
       vprint_status("Boa Version Detected: #{m[1]}")
-      return Exploit::CheckCode::Safe if (m[1][0].ord - 48 > 0) # boa server wrong version
-      return Exploit::CheckCode::Safe if (m[1][3].ord - 48 > 4)
+      return Exploit::CheckCode::Safe("Boa version #{m[1]} is not vulnerable") if (m[1][0].ord - 48 > 0) # boa server wrong version
+      return Exploit::CheckCode::Safe("Boa version #{m[1]} is not vulnerable") if (m[1][3].ord - 48 > 4)
 
-      return Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Vulnerable("Boa version #{m[1]} is vulnerable")
     end
 
     return Exploit::CheckCode::Safe('Not a Boa Server!')
   rescue Rex::ConnectionRefused
     print_error('Connection refused by server.')
-    return Exploit::CheckCode::Safe
+    return Exploit::CheckCode::Safe('Connection refused by server')
   end
 
   def run

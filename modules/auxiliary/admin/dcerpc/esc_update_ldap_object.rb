@@ -224,7 +224,7 @@ class MetasploitModule < Msf::Auxiliary
       datastore['SMBUser'] = datastore['TARGET_USERNAME']
       datastore['SMBPass'] = smbpass
       datastore['RHOSTS'] = ca_ip
-      request_certificate(opts)
+      icpr_request_certificate(opts)
     end
   ensure
     datastore['RHOSTS'] = @dc_ip

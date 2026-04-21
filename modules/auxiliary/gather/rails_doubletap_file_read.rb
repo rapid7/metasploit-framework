@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     # Check if target file is absolute path
     unless datastore['TARGET_FILE'].start_with? '/'
       vprint_error "TARGET_FILE must be an absolute path (eg. /etc/passwd)."
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('TARGET_FILE must be an absolute path')
     end
 
     # Fire off the request
@@ -76,14 +76,14 @@ class MetasploitModule < Msf::Auxiliary
 
     if res.nil?
       vprint_error "Request timed out."
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Request timed out')
     end
 
     if res.body.include? 'root:x:0:0:root:'
-      return Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Vulnerable('Successfully read /etc/passwd via file disclosure')
     else
       vprint_error 'Target is not vulnerable. Make sure your route is correct.'
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Could not read /etc/passwd, target may not be vulnerable')
     end
   end
 

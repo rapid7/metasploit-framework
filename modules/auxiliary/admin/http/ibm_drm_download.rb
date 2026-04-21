@@ -75,10 +75,10 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
     if res && (res.code == 302)
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Detected('IBM DRM web interface detected')
     end
 
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('Could not determine if target is IBM DRM')
   end
 
   def create_session_id

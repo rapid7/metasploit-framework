@@ -1,4 +1,4 @@
-PhoenixContact Programmable Logic Controllers are built are using a variant of
+PhoenixContact Programmable Logic Controllers are built using a variant of
 ProConOS. The communicate using a proprietary protocol over ports TCP/1962 and
 TCP/41100 or TCP/20547.  This protocol allows a user to remotely determine the
 PLC type, firmware and build number on port TCP/1962.  A user can also

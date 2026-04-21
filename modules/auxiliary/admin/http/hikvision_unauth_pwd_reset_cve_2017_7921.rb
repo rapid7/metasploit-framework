@@ -118,9 +118,9 @@ class MetasploitModule < Msf::Auxiliary
       user_array.each do |user|
         print_status("USERNAME:#{user&.at_css('userName')&.content} | ID:#{user&.at_css('id')&.content} | ROLE:#{user&.at_css('userLevel')&.content}")
       end
-      return Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Vulnerable('Unauthenticated access to user credentials succeeded')
     else
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe("Target returned HTTP #{res.code}")
     end
   end
 

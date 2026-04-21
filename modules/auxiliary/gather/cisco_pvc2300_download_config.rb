@@ -223,7 +223,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     vprint_status('Target seems to be a Cisco camera')
-    Exploit::CheckCode::Appears
+    Exploit::CheckCode::Appears('Target appears to be a Cisco PVC2300 camera')
   end
 
   def run

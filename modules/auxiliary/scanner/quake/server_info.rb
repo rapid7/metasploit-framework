@@ -19,12 +19,12 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' => 'Jon Hart <jon_hart[at]rapid7.com>',
         'References' => [
-          ['URL', 'ftp://ftp.idsoftware.com/idstuff/quake3/docs/server.txt']
+          ['URL', 'https://ftp.gwdg.de/pub/misc/ftp.idsoftware.com/idstuff/quake3/docs/server.txt']
         ],
         'License' => MSF_LICENSE,
         'Actions' => [
-          ['status', 'Description' => 'Use the getstatus command'],
-          ['info', 'Description' => 'Use the getinfo command']
+          ['status', { 'Description' => 'Use the getstatus command' }],
+          ['info', { 'Description' => 'Use the getinfo command' }]
         ],
         'DefaultAction' => 'status',
         'Notes' => {
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
       stuff
     else
       # try to get the host name, game name and version
-      stuff.select { |k, _| %w(hostname sv_hostname gamename com_gamename version).include?(k) }
+      stuff.select { |k, _| %w[hostname sv_hostname gamename com_gamename version].include?(k) }
     end
   end
 

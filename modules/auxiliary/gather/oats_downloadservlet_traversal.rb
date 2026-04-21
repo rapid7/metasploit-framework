@@ -85,9 +85,9 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if res && res.body.include?('AdfLoopbackUtils.runLoopback')
-      Exploit::CheckCode::Detected
+      Exploit::CheckCode::Detected('Oracle ADF Faces endpoint detected')
     else
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe('Target does not appear to be Oracle ADF Faces')
     end
   end
 

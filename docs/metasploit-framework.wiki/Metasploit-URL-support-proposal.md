@@ -14,7 +14,7 @@ Metasploit currently provides multiple options for configuring target details:
 
 Configuring this amount of options is cumbersome and time consuming on a per module basis. 
 
-Although it is is possible to globally setting common values with the `setg` command - and to individually override the ports on a per module basis, it is still an arduous task:
+Although it is possible to globally setting common values with the `setg` command - and to individually override the ports on a per module basis, it is still an arduous task:
 
 ```
 setg RHOSTS x.x.x.x

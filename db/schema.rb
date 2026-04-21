@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_21_114306) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_30_124052) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -576,6 +576,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_21_114306) do
     t.index ["module_run_id"], name: "index_sessions_on_module_run_id"
   end
 
+  create_table "sessions_tags", force: :cascade do |t|
+    t.integer "session_id"
+    t.integer "tag_id"
+    t.index ["session_id", "tag_id"], name: "index_sessions_tags_on_session_id_and_tag_id", unique: true
+  end
+
   create_table "tags", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.string "name", limit: 1024
@@ -646,6 +652,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_21_114306) do
     t.string "company"
     t.string "prefs", limit: 524288
     t.boolean "admin", default: true, null: false
+    t.boolean "sso_enabled", default: false, null: false
   end
 
   create_table "vuln_attempts", id: :serial, force: :cascade do |t|

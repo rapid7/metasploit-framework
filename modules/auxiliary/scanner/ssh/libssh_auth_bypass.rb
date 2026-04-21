@@ -73,17 +73,17 @@ class MetasploitModule < Msf::Auxiliary
 
     if v.nil?
       vprint_error("#{ip}:#{rport} - #{version} does not appear to be libssh")
-      Exploit::CheckCode::Unknown
+      Exploit::CheckCode::Unknown("#{version} does not appear to be libssh")
     elsif v.to_s.empty?
       vprint_warning("#{ip}:#{rport} - libssh version not reported")
-      Exploit::CheckCode::Detected
+      Exploit::CheckCode::Detected('libssh detected but version not reported')
     elsif v.between?(Rex::Version.new('0.6.0'), Rex::Version.new('0.7.5')) ||
           v.between?(Rex::Version.new('0.8.0'), Rex::Version.new('0.8.3'))
       vprint_good("#{ip}:#{rport} - #{version} appears to be unpatched")
-      Exploit::CheckCode::Appears
+      Exploit::CheckCode::Appears("#{version} appears to be unpatched")
     else
       vprint_error("#{ip}:#{rport} - #{version} appears to be patched")
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe("#{version} appears to be patched")
     end
   end
 

@@ -7,7 +7,6 @@ module Metasploit
         MINGW_X64 = 'x86_64-w64-mingw32-gcc'
 
         INCLUDE_DIR = File.join(Msf::Config.data_directory, 'headers', 'windows', 'c_payload_util')
-        UTILITY_DIR = File.join(Msf::Config.data_directory, 'utilities', 'encrypted_payload')
         OPTIMIZATION_FLAGS = [ 'Os', 'O0', 'O1', 'O2', 'O3', 'Og' ]
 
         def compile_c(src)

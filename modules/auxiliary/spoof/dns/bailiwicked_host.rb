@@ -126,7 +126,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if ports.keys.empty?
       vprint_error('ERROR: This server is not replying to recursive requests')
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Server is not replying to recursive requests')
     end
 
     if (reps < 30)
@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
 
     unless random
       vprint_error('FAIL: This server uses a static source port and is vulnerable to poisoning')
-      return Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Vulnerable('Server uses a static source port')
     end
 
     ports_u = ports.keys.length
@@ -145,10 +145,10 @@ class MetasploitModule < Msf::Auxiliary
     if (ports_r != 100)
       vprint_status("INFO: This server's source ports are not really random and may still be exploitable, but not by this tool.")
       # Not exploitable by this tool, so we lower this to Appears on purpose to lower the user's confidence
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears('Source ports are not truly random but may still be exploitable')
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Server source ports appear sufficiently random')
   end
 
   def run

@@ -211,11 +211,11 @@ class MetasploitModule < Msf::Auxiliary
     version = get_version
     case version
     when 0..7104
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears("ManageEngine PMP build #{version} is in the vulnerable range")
     when 7105..9998
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe("ManageEngine PMP build #{version} is patched")
     else
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown("ManageEngine PMP build #{version} could not be assessed")
     end
   end
 

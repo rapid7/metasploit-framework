@@ -3,6 +3,27 @@
 require 'spec_helper'
 
 RSpec.describe Msf::OptionContainer do
+  describe '#add_option' do
+    it 'does not mutate reused CHOST, CPORT, and Proxies instances when they are registered with different visibility flags' do
+      {
+        'CHOST' => Msf::Opt::CHOST,
+        'CPORT' => Msf::Opt::CPORT,
+        'Proxies' => Msf::Opt::Proxies
+      }.each do |name, option|
+        advanced_options = described_class.new
+        basic_options = described_class.new
+
+        advanced_options.add_advanced_options([option])
+        basic_options.add_options([option])
+
+        expect(advanced_options[name]).to be_advanced
+        expect(basic_options[name]).not_to be_advanced
+        expect(advanced_options[name]).not_to equal(basic_options[name])
+        expect(option).not_to be_advanced
+      end
+    end
+  end
+
   describe '#[]' do
     let(:mock_opt_class) do
       double('mock_opt_class', name: 'mock_opt_class', new: mock_opt_instance)
