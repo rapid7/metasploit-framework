@@ -56,6 +56,11 @@ class MetasploitModule < Msf::Auxiliary
     delay = datastore['DELAY']
     print_status('Starting CVE-2000-0979 SMB Share Password Enumerator')
 
+    # If the user left SMBName at the default wildcard, try a pure-Ruby
+    # NBNS Node Status lookup up front — pivot-friendly via Rex::Socket::Udp —
+    # so session_request is sent with a name Win9x will actually accept.
+    resolve_smb_name_via_nbns
+
     # Phase 1: Connect and enumerate shares via RAP
     connect(versions: [1], backend: :ruby_smb, direct: false)
     smb_login
@@ -94,6 +99,33 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   private
+
+  def default_smb_name?(name)
+    name.nil? || name.to_s.strip.empty? || name.to_s.strip.upcase == '*SMBSERVER'
+  end
+
+  # Performs a pure-Ruby NBNS Node Status lookup (equivalent to
+  # `nmblookup -A <ip>`) and, if a file-server name is found, stores it
+  # on the datastore so the SMB session request uses it directly. No-op
+  # when the user has supplied an explicit SMBName.
+  def resolve_smb_name_via_nbns
+    return unless default_smb_name?(datastore['SMBName'])
+
+    udp_factory = lambda do
+      Rex::Socket::Udp.create('Context' => { 'Msf' => framework, 'MsfExploit' => self })
+    end
+    resolved = RubySMB::Nbss::NodeStatus.file_server_name(
+      rhost, udp_socket_factory: udp_factory
+    )
+    if resolved && !resolved.empty?
+      print_status("Resolved NetBIOS name via NBNS: #{resolved}")
+      datastore['SMBName'] = resolved
+    else
+      vprint_status('NBNS node status lookup returned no name; falling back to *SMBSERVER')
+    end
+  rescue StandardError => e
+    vprint_error("NBNS node status lookup failed: #{e.class}: #{e}")
+  end
 
   def enum_shares_rap
     shares = []
