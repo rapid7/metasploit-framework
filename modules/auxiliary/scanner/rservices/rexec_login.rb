@@ -49,6 +49,7 @@ class MetasploitModule < Msf::Auxiliary
 
       sd, stderr_port = ret
     else
+      vprint_status("Skipping stderr")
       sd = stderr_port = nil
     end
 
@@ -63,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login(user, pass, sfd, stderr_port)
-    vprint_status("#{target_host}:#{rport} - Attempting rexec with username:password '#{user}':'#{pass}'")
+    vprint_status("#{target_host}:#{rport} - Attempting rexec with #{user}:#{pass}")
 
     cmd = datastore['CMD']
     cmd ||= 'sh -i 2>&1'
@@ -98,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Should we report a vuln here? rexec allowed w/o password?!
-    print_good("#{target_host}:#{rport}, rexec '#{user}' : '#{pass}'")
+    print_good("#{target_host}:#{rport}, rexec #{user}:#{pass}")
     start_rexec_session(rhost, rport, user, pass, buf, stderr_sock)
 
     return :next_user
@@ -130,17 +131,17 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if !sd
-      print_error('Unable to bind to listener port')
+      print_error("Unable to bind to listener port: #{stderr_port}/TCP")
       return false
     end
 
     add_socket(sd)
-    print_status("Listening on port #{stderr_port}")
+    print_status("Listening on port #{stderr_port}/TCP")
     [ sd, stderr_port ]
   end
 
   def listen_on_port(stderr_port)
-    vprint_status("Trying to listen on port #{stderr_port}")
+    vprint_status("Trying to listen on port #{stderr_port}/TCP")
     sd = nil
     begin
       sd = Rex::Socket.create_tcp_server('LocalPort' => stderr_port)
