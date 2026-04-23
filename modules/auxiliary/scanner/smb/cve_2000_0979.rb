@@ -126,8 +126,14 @@ class MetasploitModule < Msf::Auxiliary
       raw_response
     )
 
-    success = response.smb_header.nt_status.value == 0
+    status = response.smb_header.nt_status.value
+    success = status == 0
     tid = response.smb_header.tid if success
+
+    vprint_status(
+      "TreeConnect #{share_path} pw=#{password_bytes.map { |b| '%02X' % b }.join} " \
+      "nt_status=0x#{status.to_s(16).rjust(8, '0')}"
+    )
 
     { success: success, tid: tid }
   rescue StandardError => e
