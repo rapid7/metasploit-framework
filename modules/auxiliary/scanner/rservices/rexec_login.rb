@@ -16,10 +16,9 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'rexec Authentication Scanner',
       'Description' => %q{
-          This module will test an rexec service on a range of machines and
-        report successful logins.
-
-        NOTE: This module requires access to bind to privileged ports (below 1024).
+        This module will test a range of machines for a Remote EXECution (REXEC)
+        service (part of the r-commands suite) and report successful logins,
+        optionally attempt to spawn a session.
       },
       'References' => [
         [ 'CVE', '1999-0651' ],
@@ -42,8 +41,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{ip}:#{rport} - Starting rexec sweep")
 
     if datastore['ENABLE_STDERR']
-      # For each host, bind a privileged listening port for the target to connect
-      # back to
+      # Bind a local port for the target(s) to connect back to for stderr
       ret = listen_on_random_port(datastore['STDERR_PORT'])
       return :abort if !ret
 
