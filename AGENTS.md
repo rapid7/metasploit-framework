@@ -27,6 +27,7 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 - Multiline block comments are acceptable for embedded code snippets/payloads
 - Don't use `get_`/`set_` prefixes for accessor methods in new code
 - Method parameter names must be at least 2 characters (exception for well-known crypto abbreviations)
+- When wanting to compare string values, prefer using either frozen constants (`EXAMPLE = "hello world".freeze`) or symbols to ensure consistency.
 
 ### Module Development
 
