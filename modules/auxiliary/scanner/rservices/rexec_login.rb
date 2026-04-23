@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'rexec Authentication Scanner',
       'Description' => %q{
-        This module will test a range of machines for a Remote EXECution (REXEC)
+        This module will test a range of machines for a remote execution (rexec)
         service (part of the r-commands suite) and report successful logins,
         optionally attempt to spawn a session.
       },
@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{ip}:#{rport} - Starting rexec sweep")
+    print_status('Starting rexec sweep')
 
     if datastore['ENABLE_STDERR']
       # Bind a local port for the target(s) to connect back to for stderr
@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
 
       sd, stderr_port = ret
     else
-      vprint_status("Skipping stderr")
+      print_status('Skipping stderr call back') if datastore['VERBOSE'] # This isn't a mistake not using vprint_error(), otherwise the IP:PORT is printed twice
       sd = stderr_port = nil
     end
 
@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login(user, pass, sfd, stderr_port)
-    vprint_status("#{target_host}:#{rport} - Attempting rexec with #{user}:#{pass}")
+    print_status("rexec - Attempting: #{user}:#{pass}") if datastore['VERBOSE'] # This isn't a mistake not using vprint_error(), otherwise the IP:PORT is printed twice
 
     cmd = datastore['CMD']
     cmd ||= 'sh -i 2>&1'
@@ -106,9 +106,9 @@ class MetasploitModule < Msf::Auxiliary
       # Get everything else
       buf = sock.get_once(-1) || ''
       vprint_error("Result: #{buf.gsub(/[[:space:]]+/, ' ')}") unless buf.empty?
-      # "Where are you" happens with rexecd in netkit-rsh v0.17
+      # "Where are you" happens with rexecd in netkit-rsh v0.17 when it fails to-do a rDNS
       if buf.include?('Where are you?')
-        print_error("#{target_host}:#{rport} - The rexecd service could not resolve a hostname for #{Rex::Socket.source_address(target_host)}. Ensure a reverse DNS (PTR) record exists for your attacking host.")
+        print_error("The rexecd service could not resolve a hostname for #{Rex::Socket.source_address(target_host)}. Ensure a reverse DNS (PTR) record exists for your attacking host.")
         # Stop, isn't any point going forwards
         return :abort
       end
@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Should we report a vuln here? rexec allowed w/o password?!
-    print_good("#{target_host}:#{rport}, rexec #{user}:#{pass}")
+    print_good("rexec successful login: #{user}:#{pass}")
     start_rexec_session(service_data[:address], service_data[:port], user, pass, stderr_sock, service_data)
 
     return :next_user
@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def listen_on_port(stderr_port)
-    vprint_status("Trying to listen on port #{stderr_port}/TCP")
+    print_status("Trying to listen on port #{stderr_port}/TCP") if datastore['VERBOSE'] # This isn't a mistake not using vprint_error(), otherwise the IP:PORT is printed twice
     sd = nil
     begin
       sd = Rex::Socket.create_tcp_server('LocalPort' => stderr_port)
