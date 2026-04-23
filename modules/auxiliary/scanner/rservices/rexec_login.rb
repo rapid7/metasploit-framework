@@ -102,10 +102,18 @@ class MetasploitModule < Msf::Auxiliary
       name: service_data[:service_name]
     )
 
-    # Read the expected null byte response
+    # The expected response is a null byte
     if buf != "\x00"
+      # Get everything else
       buf = sock.get_once(-1) || ''
-      vprint_error("Result: #{buf.gsub(/[[:space:]]+/, ' ')}")
+      vprint_error("Result: #{buf.gsub(/[[:space:]]+/, ' ')}") unless buf.empty?
+      # "Where are you" happens with rexecd in netkit-rsh v0.17
+      if buf.include?('Where are you?')
+        print_error("#{target_host}:#{rport} - The rexecd service could not resolve a hostname for #{Rex::Socket.source_address(target_host)}. Ensure a reverse DNS (PTR) record exists for your attacking host.")
+        # Stop, isn't any point going forwards
+        return :abort
+      end
+      # Bad login
       return :failed
     end
 
