@@ -111,21 +111,45 @@ class MetasploitModule < Msf::Auxiliary
   def resolve_smb_name_via_nbns
     return unless default_smb_name?(datastore['SMBName'])
 
-    udp_factory = lambda do
-      Rex::Socket::Udp.create('Context' => { 'Msf' => framework, 'MsfExploit' => self })
+    # Windows 9x NBNS replies to destination port 137 regardless of the
+    # client source port, so both factories try to bind the local
+    # endpoint to 137. Rex uses 'LocalHost'/'LocalPort' at create time
+    # (pivot-aware); stdlib UDPSocket is bound later inside NodeStatus.
+    # Binding 137 needs CAP_NET_BIND_SERVICE (run msfconsole with sudo)
+    # and no other process already listening on it (e.g. nmbd).
+    candidates = [
+      [
+        'Rex::Socket::Udp',
+        lambda do
+          Rex::Socket::Udp.create(
+            'LocalHost' => '0.0.0.0',
+            'LocalPort' => 137,
+            'Context' => { 'Msf' => framework, 'MsfExploit' => self }
+          )
+        end
+      ],
+      ['UDPSocket', -> { UDPSocket.new }]
+    ]
+
+    entries = nil
+    candidates.each do |label, factory|
+      vprint_status("NBNS: querying #{rhost} via #{label}")
+      begin
+        entries = RubySMB::Nbss::NodeStatus.query(rhost, udp_socket_factory: factory)
+      rescue StandardError => e
+        vprint_error("NBNS #{label} lookup raised: #{e.class}: #{e}")
+        next
+      end
+      if entries
+        vprint_status("NBNS: #{label} returned a name table")
+        break
+      else
+        vprint_status("NBNS: #{label} returned no data")
+      end
     end
 
-    vprint_status("NBNS: querying #{rhost} via Rex::Socket::Udp")
-    entries =
-      begin
-        RubySMB::Nbss::NodeStatus.query(rhost, udp_socket_factory: udp_factory)
-      rescue StandardError => e
-        vprint_error("NBNS node status lookup raised: #{e.class}: #{e}")
-        nil
-      end
-
-    if entries.nil?
-      vprint_status('NBNS: no usable response (timeout, parse failure, or empty table)')
+    unless entries
+      vprint_status('NBNS: no usable response from any UDP path')
       return
     end
 
