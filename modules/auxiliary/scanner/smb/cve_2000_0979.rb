@@ -111,14 +111,24 @@ class MetasploitModule < Msf::Auxiliary
   def resolve_smb_name_via_nbns
     return unless default_smb_name?(datastore['SMBName'])
 
-    # Try Rex::Socket::Udp first for pivot-awareness; fall back to a
-    # plain stdlib UDPSocket if the Rex path returns nothing (some
-    # routing setups don't deliver the reply through Rex's wrapped fd).
+    # Windows 9x replies to destination UDP/137, not to the client's
+    # source port, so the local endpoint needs to be bound to 137 to
+    # receive the answer. Rex accepts 'LocalPort' at create time;
+    # stdlib UDPSocket gets bound inside NodeStatus.query. Binding 137
+    # is allowed for unprivileged processes when the Ruby interpreter
+    # has CAP_NET_BIND_SERVICE (`sudo setcap 'cap_net_bind_service+ep'
+    # $(readlink -f $(which ruby))`) or when the system has
+    # `net.ipv4.ip_unprivileged_port_start` set <= 137; otherwise run
+    # msfconsole under sudo, or `set SMBName <name>` explicitly.
     candidates = [
       [
         'Rex::Socket::Udp',
         lambda do
-          Rex::Socket::Udp.create('Context' => { 'Msf' => framework, 'MsfExploit' => self })
+          Rex::Socket::Udp.create(
+            'LocalHost' => '0.0.0.0',
+            'LocalPort' => 137,
+            'Context' => { 'Msf' => framework, 'MsfExploit' => self }
+          )
         end
       ],
       ['UDPSocket', -> { UDPSocket.new }]
