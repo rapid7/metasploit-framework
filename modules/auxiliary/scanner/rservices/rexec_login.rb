@@ -80,17 +80,29 @@ class MetasploitModule < Msf::Auxiliary
       stderr_sock = nil
     end
 
+    # Get the first byte
+    buf = sock.get_once(1) || ''
+
     # NOTE: We report this here, since we are awfully convinced now that this is really
     # an rexec service
-    report_service(
-      host: rhost,
+    service_data = {
+      address: rhost,
       port: rport,
-      proto: 'tcp',
-      name: 'exec'
+      # exec (IANA) != rexec (Protocol) --- https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=512
+      service_name: 'exec',
+      proof: buf,
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    report_service(
+      host: service_data[:address],
+      port: service_data[:port],
+      proto: service_data[:protocol],
+      name: service_data[:service_name]
     )
 
     # Read the expected null byte response
-    buf = sock.get_once(1) || ''
     if buf != "\x00"
       buf = sock.get_once(-1) || ''
       vprint_error("Result: #{buf.gsub(/[[:space:]]+/, ' ')}")
@@ -99,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Should we report a vuln here? rexec allowed w/o password?!
     print_good("#{target_host}:#{rport}, rexec #{user}:#{pass}")
-    start_rexec_session(rhost, rport, user, pass, buf, stderr_sock)
+    start_rexec_session(service_data[:address], service_data[:port], user, pass, stderr_sock, service_data)
 
     return :next_user
   # For debugging only
@@ -150,16 +162,7 @@ class MetasploitModule < Msf::Auxiliary
     sd
   end
 
-  def start_rexec_session(host, port, user, pass, proof, stderr_sock)
-    service_data = {
-      address: host,
-      port: port,
-      service_name: 'exec',
-      proof: proof,
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
+  def start_rexec_session(host, port, user, pass, stderr_sock, service_data)
     credential_data = {
       module_fullname: fullname,
       origin_type: :service,
