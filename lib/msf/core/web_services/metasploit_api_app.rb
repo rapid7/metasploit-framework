@@ -33,6 +33,12 @@ class Msf::WebServices::MetasploitApiApp < Sinatra::Base
   register Msf::WebServices::RouteServlet
 
   configure do
+    # Sinatra 4.1+ enables Rack::Protection::HostAuthorization by default,
+    # which rejects requests from unrecognized hosts. Metasploit's web
+    # services bind to user-configured addresses and handle their own auth
+    # via Warden, so disable the host check.
+    set :host_authorization, permitted_hosts: []
+
     set :sessions, {key: 'msf-ws.session', expire_after: 300}
     set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET') { SecureRandom.hex(32) }
   end

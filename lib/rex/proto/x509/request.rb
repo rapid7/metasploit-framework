@@ -15,6 +15,8 @@ module Rex::Proto::X509
   class Request
     def self.create_csr(private_key, cn, algorithm = 'SHA256')
       request = OpenSSL::X509::Request.new
+      # OpenSSL 3.6 leaves version unset (-1) by default and rejects verify() on such CSRs.
+      request.version = 0
       request.subject = OpenSSL::X509::Name.new([
         ['CN', cn, OpenSSL::ASN1::UTF8STRING]
       ])

@@ -5,20 +5,30 @@ require 'rails'
 require File.expand_path('../boot', __FILE__)
 
 require 'action_view'
-# Monkey patch https://github.com/rails/rails/blob/v7.2.2.1/actionview/lib/action_view/helpers/tag_helper.rb#L51
-# Might be fixed by 8.x https://github.com/rails/rails/blob/v8.0.2/actionview/lib/action_view/helpers/tag_helper.rb#L51C1-L52C1
-raise unless ActionView::VERSION::STRING == '7.2.2.2' # A developer will need to ensure this is still required when bumping rails
-module ActionView::Helpers::TagHelper
-  class TagBuilder
-    def self.define_element(name, code_generator:, method_name: name.to_s.underscore)
-      code_generator.define_cached_method(method_name, namespace: :tag_builder) do |batch|
-        # Fixing a bug introduced by Metasploit's global Kernel patch: https://github.com/rapid7/metasploit-framework/blob/ae1db09f32cd04c007dbf445cf16dc22c9fc2e53/lib/rex.rb#L74-L79
-        # which fails when using the below 'instance_methods.include?(method_name.to_sym)' check
-        batch.push(<<~RUBY) # unless instance_methods.include?(method_name.to_sym)
-              def #{method_name}(content = nil, escape: true, **options, &block)
-                tag_string("#{name}", content, options, escape: escape, &block)
-              end
-            RUBY
+# Monkey patch for ActionView::Helpers::TagHelper::TagBuilder.define_element
+#
+# Metasploit's global Kernel patch (lib/rex.rb) overrides Kernel#select and Kernel#sleep.
+# ActionView's define_element checks whether a method already exists before defining HTML
+# element helpers (e.g. :select). Because Kernel#select is in the ancestor chain, the check
+# returns true and the :select element helper is never defined, breaking tag.select().
+#
+# Rails 7.2.x uses `instance_methods.include?(method_name.to_sym)` — affected.
+# Rails 8.0.x uses `return if method_defined?(name)` — also affected, since method_defined?
+# checks the ancestor chain including Kernel.
+#
+# See: https://github.com/rapid7/metasploit-framework/blob/ae1db09f32cd04c007dbf445cf16dc22c9fc2e53/lib/rex.rb#L74-L79
+if ActionView::VERSION::MAJOR == 8
+  # Rails 8.0.x patch: override define_element to skip the method_defined? guard
+  # https://github.com/rails/rails/blob/v8.0.5/actionview/lib/action_view/helpers/tag_helper.rb#L51
+  module ActionView::Helpers::TagHelper
+    class TagBuilder
+      def self.define_element(name, code_generator:, method_name: name)
+        code_generator.class_eval do |batch|
+          batch << "\n" <<
+            "def #{method_name}(content = nil, escape: true, **options, &block)" <<
+            "  tag_string(#{name.inspect}, content, options, escape: escape, &block)" <<
+            "end"
+        end
       end
     end
   end
@@ -59,9 +69,15 @@ module Metasploit
 
       config.paths['log']             = "#{Msf::Config.log_directory}/#{Rails.env}.log"
       config.paths['config/database'] = [Metasploit::Framework::Database.configurations_pathname.try(:to_path)]
-      config.autoloader = :zeitwerk
 
-      config.load_defaults 7.2
+      # Rails 8.0 upgrade: changed from 'config.load_defaults 7.2'.
+      # Activates Rails 8.0 framework defaults including:
+      #   - config.active_support.to_time_preserves_timezone = :zone
+      #   - config.active_record.default_column_serializer = nil
+      #   - config.active_record.run_after_transaction_callbacks_in_order_defined = true
+      # The config.autoloader = :zeitwerk line was also removed here because
+      # Zeitwerk is the only autoloader in Rails 8 — the setting no longer exists.
+      config.load_defaults 8.0
 
       config.eager_load = false
     end

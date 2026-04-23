@@ -30,6 +30,10 @@ RSpec.describe "Metasploit's json-rpc" do
     app.settings.dispatchers.clear
   end
 
+  def json_rpc_headers
+    { 'CONTENT_TYPE' => 'application/json' }
+  end
+
   def report_host(host)
     post rpc_url, {
       jsonrpc: '2.0',
@@ -38,7 +42,7 @@ RSpec.describe "Metasploit's json-rpc" do
       params: [
         host
       ]
-    }.to_json
+    }.to_json, json_rpc_headers
   end
 
   def report_vuln(vuln)
@@ -49,7 +53,7 @@ RSpec.describe "Metasploit's json-rpc" do
       params: [
         vuln
       ]
-    }.to_json
+    }.to_json, json_rpc_headers
   end
 
   def analyze_host(host)
@@ -60,7 +64,7 @@ RSpec.describe "Metasploit's json-rpc" do
       params: [
         host
       ]
-    }.to_json
+    }.to_json, json_rpc_headers
   end
 
   def create_job
@@ -75,7 +79,7 @@ RSpec.describe "Metasploit's json-rpc" do
           RHOSTS: '192.0.2.0'
         }
       ]
-    }.to_json
+    }.to_json, json_rpc_headers
   end
 
   def get_job_results(uuid)
@@ -86,7 +90,7 @@ RSpec.describe "Metasploit's json-rpc" do
       params: [
         uuid
       ]
-    }.to_json
+    }.to_json, json_rpc_headers
   end
 
   def get_rpc_health_check
@@ -95,7 +99,7 @@ RSpec.describe "Metasploit's json-rpc" do
       method: 'health.check',
       id: 1,
       params: []
-    }.to_json
+    }.to_json, json_rpc_headers
   end
 
   def get_rest_health_check
