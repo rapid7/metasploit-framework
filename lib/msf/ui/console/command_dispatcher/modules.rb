@@ -23,7 +23,7 @@ module Msf
             ['-u', '--use']             => [false, 'Use module if there is one result'],
             ['-s', '--sort-ascending']  => [true,  'Sort search results by the specified column in ascending order', '<column>'],
             ['-r', '--sort-descending'] => [false, 'Reverse the order of search results to descending order'],
-            ['-c', '--show-child']      => [true,  'How to display child items. Always hide, always show, show when matched (hide, show, matched)', '<mode>']
+            ['-c', '--hide-child']      => [false, 'Whether or not to display child items']
           )
 
           @@favorite_opts = Rex::Parser::Arguments.new(
@@ -456,7 +456,7 @@ module Msf
             sort_attribute = framework.datastore['SearchSort'] || 'name'
             valid_sort_attributes = ['action','rank','disclosure_date','name','fullname','date','type','check']
             child_mode = framework.datastore['SearchChildMode'] || 'show'
-            valid_child_mode = ['hide','show','matched']
+            valid_child_mode = ['hide','show']
             reverse_sort = false
             ignore_use_exact_match = false
 
@@ -478,7 +478,7 @@ module Msf
               when '-r'
                 reverse_sort = true
               when '-c'
-                child_mode = val
+                child_mode = 'hide'
               else
                 match += val + ' '
               end
@@ -573,11 +573,6 @@ module Msf
 
                   if (m.actions&.length || 0) > 1
                     m.actions.each do |action|
-                      next if child_mode == 'matched' &&
-                              !(
-                                action['name'].to_s.strip.downcase.include?(match.to_s.strip.downcase) ||
-                                action['description'].to_s.strip.downcase.include?(match.to_s.strip.downcase)
-                              )
                       @module_search_results_with_usage_metadata << { mod: m, datastore: { 'ACTION' => action['name'] } }
                       count += 1
                       tbl << [
@@ -593,7 +588,6 @@ module Msf
 
                   if (m.targets&.length || 0) > 1
                     m.targets.each do |target|
-                      next if child_mode == 'matched' && !target.to_s.strip.downcase.include?(match.to_s.strip.downcase)
                       @module_search_results_with_usage_metadata << { mod: m, datastore: { 'TARGET' => target } }
                       count += 1
                       tbl << [
@@ -609,7 +603,6 @@ module Msf
 
                   if (m.notes&.[]('AKA')&.length || 0) > 1
                     m.notes['AKA'].each do |aka|
-                      next if child_mode == 'matched' && !aka.to_s.strip.downcase.include?(match.to_s.strip.downcase)
                       @module_search_results_with_usage_metadata << { mod: m }
                       count += 1
                       tbl << [
