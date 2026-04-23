@@ -5,6 +5,9 @@
 
 class MetasploitModule < Msf::Evasion
 
+include Msf::ModuleInputs::Payload
+include Msf::ModuleOutputs::IntermediateFile
+
   def initialize(info = {})
     super(
       merge_info(

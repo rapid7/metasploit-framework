@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'msf/core/evasion_mixins/util_exe'
+
 module Msf::Util::EXE
   include Msf::Util::EXE::Common
   include Msf::Util::EXE::Windows
@@ -42,6 +44,8 @@ module Msf::Util::EXE
 
   include Msf::Util::EXE::Bsd::X86
   include Msf::Util::EXE::Bsd::X64
+
+  prepend Msf::EvasionMixins::UtilExe
 
   def self.included(base)
     base.extend(ClassMethods)

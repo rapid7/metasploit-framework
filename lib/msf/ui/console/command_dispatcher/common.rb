@@ -130,6 +130,8 @@ module Common
       end
     end
 
+    output_evasion_module_workflow_options(mod)
+
     # Print the selected target
     if (mod.exploit? and mod.target)
       mod_targ = Serializer::ReadableText.dump_exploit_target(mod, '   ')
@@ -149,6 +151,48 @@ module Common
 
     # Uncomment this line if u want target like msf2 format
     #print("\nTarget: #{mod.target.name}\n\n")
+  end
+
+  def output_evasion_module_workflow_options(mod)
+    return unless framework.features.enabled?(Msf::FeatureManager::EVASION_MODULE_WORKFLOW)
+    return unless mod.exploit? || mod.payload?
+
+    shell_to_shell = mod.datastore['SHELLCODE_TO_SHELLCODE_EVASION_MODULE']
+    shell_to_bin =  mod.datastore['SHELLCODE_TO_BINARY_EVASION_MODULE']
+
+    if shell_to_shell
+      e = framework.modules.create(shell_to_shell)
+
+      if (!e)
+        print_error("Invalid Shellcode-to-Shellcode evasion module defined: #{mod.datastore['SHELLCODE_TO_SHELLCODE_EVASION_MODULE']}\n")
+        return
+      end
+
+      e.share_datastore(mod.datastore)
+
+      if (e)
+        e_opt = Serializer::ReadableText.dump_options(e, '   ')
+        e_opt  << '    No options registered.' if e_opt.length == 0
+        print("\nShellcode-to-Shellcode evasion module options (#{shell_to_shell}):\n\n#{e_opt}\n") if e_opt
+      end
+    end
+
+    if shell_to_bin
+      e = framework.modules.create(shell_to_bin)
+
+      if (!e)
+        print_error("Invalid Shellcode-to-Binary evasion module defined: #{mod.datastore['SHELLCODE_TO_BINARY_EVASION_MODULE']}\n")
+        return
+      end
+
+      e.share_datastore(mod.datastore)
+
+      if (e)
+        e_opt = Serializer::ReadableText.dump_options(e, '   ')
+        e_opt  << '    No options registered.' if e_opt.length == 0
+        print("\nShellcode-to-Binary evasion module options (#{shell_to_bin}):\n\n#{e_opt}\n") if e_opt
+      end
+    end
   end
 
   # This is for the "use" and "set" commands

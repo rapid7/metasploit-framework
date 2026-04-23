@@ -13,17 +13,17 @@ module Msf::Util::EXE::Windows
   module ClassMethods
 
     def to_executable_windows(framework, arch, code, fmt = 'exe', opts = {})
-      exe_formats = ['exe', 'exe-service', 'dll', 'dll-dccw-gdiplus']
+      exe_formats = ['exe', 'exe-service', 'dll', 'dll-dccw-gdiplus', 'exe-small']
 
-      exe_fmt ||= 'exe-small' if ['vba-exe', 'vbs', 'loop-vbs', 'asp', 'aspx-exe'].include?(fmt)
+      # Default to 'exe' as the safe choice
       exe_fmt = 'exe'
-
+      # Otherwise, only use the user-requested exe format if it is allowed and present in the valid exe formats list above.
       exe_fmt = fmt if exe_formats.include?(fmt)
 
       exe = nil
       exe = to_executable_windows_x86(framework, code, exe_fmt, opts) if arch.index(ARCH_X86)
-      exe = to_executable_windows_x64(framework, code, exe_fmt, opts) if arch.index(ARCH_X64) 
-      exe = to_executable_windows_aarch64(framework, code, exe_fmt, opts) if arch.index(ARCH_AARCH64) 
+      exe = to_executable_windows_x64(framework, code, exe_fmt, opts) if arch.index(ARCH_X64)
+      exe = to_executable_windows_aarch64(framework, code, exe_fmt, opts) if arch.index(ARCH_AARCH64)
       return exe if exe_formats.include?(fmt) # Returning only the exe
     end
 

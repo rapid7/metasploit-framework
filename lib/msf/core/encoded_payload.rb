@@ -8,7 +8,7 @@ module Msf
 # This class wrappers an encoded payload buffer and the means used to create
 # one.
 #
-###
+###x
 class EncodedPayload
 
   include Framework::Offspring
@@ -20,7 +20,6 @@ class EncodedPayload
   def self.create(pinst, reqs = {})
     # Create the encoded payload instance
     p = EncodedPayload.new(pinst.framework, pinst, reqs)
-
     p.generate(reqs['Raw'])
 
     return p

@@ -68,8 +68,10 @@ module Msf::Payload::Adapter::Fetch::Server::HTTP
     if (user_agent = request.headers['User-Agent'])
       client += " (#{user_agent})"
     end
-    vprint_status("Sending payload to #{client}")
-    cli.send_response(payload_response(srvexe))
+
+    res = payload_response(srvexe)
+    vprint_status("Sending payload to #{client} of size: #{res.body.length} bytes")
+    cli.send_response(res)
   end
 
   def payload_response(srvexe)
