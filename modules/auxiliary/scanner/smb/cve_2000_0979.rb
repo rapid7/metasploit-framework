@@ -114,17 +114,31 @@ class MetasploitModule < Msf::Auxiliary
     udp_factory = lambda do
       Rex::Socket::Udp.create('Context' => { 'Msf' => framework, 'MsfExploit' => self })
     end
-    resolved = RubySMB::Nbss::NodeStatus.file_server_name(
-      rhost, udp_socket_factory: udp_factory
-    )
-    if resolved && !resolved.empty?
-      print_status("Resolved NetBIOS name via NBNS: #{resolved}")
-      datastore['SMBName'] = resolved
-    else
-      vprint_status('NBNS node status lookup returned no name; falling back to *SMBSERVER')
+
+    vprint_status("NBNS: querying #{rhost} via Rex::Socket::Udp")
+    entries =
+      begin
+        RubySMB::Nbss::NodeStatus.query(rhost, udp_socket_factory: udp_factory)
+      rescue StandardError => e
+        vprint_error("NBNS node status lookup raised: #{e.class}: #{e}")
+        nil
+      end
+
+    if entries.nil?
+      vprint_status('NBNS: no usable response (timeout, parse failure, or empty table)')
+      return
     end
-  rescue StandardError => e
-    vprint_error("NBNS node status lookup failed: #{e.class}: #{e}")
+
+    vprint_status("NBNS name table (#{entries.length} entries):")
+    entries.each { |entry| vprint_status("  #{entry}") }
+
+    file_server = entries.find { |entry| entry.suffix == 0x20 && entry.unique? }
+    if file_server
+      print_status("Resolved NetBIOS name via NBNS: #{file_server.name}")
+      datastore['SMBName'] = file_server.name
+    else
+      vprint_status('NBNS: no unique <20> (file server) entry in name table')
+    end
   end
 
   def enum_shares_rap
