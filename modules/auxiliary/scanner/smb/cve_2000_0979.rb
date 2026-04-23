@@ -111,21 +111,14 @@ class MetasploitModule < Msf::Auxiliary
   def resolve_smb_name_via_nbns
     return unless default_smb_name?(datastore['SMBName'])
 
-    # Windows 9x NBNS replies to destination port 137 regardless of the
-    # client source port, so both factories try to bind the local
-    # endpoint to 137. Rex uses 'LocalHost'/'LocalPort' at create time
-    # (pivot-aware); stdlib UDPSocket is bound later inside NodeStatus.
-    # Binding 137 needs CAP_NET_BIND_SERVICE (run msfconsole with sudo)
-    # and no other process already listening on it (e.g. nmbd).
+    # Try Rex::Socket::Udp first for pivot-awareness; fall back to a
+    # plain stdlib UDPSocket if the Rex path returns nothing (some
+    # routing setups don't deliver the reply through Rex's wrapped fd).
     candidates = [
       [
         'Rex::Socket::Udp',
         lambda do
-          Rex::Socket::Udp.create(
-            'LocalHost' => '0.0.0.0',
-            'LocalPort' => 137,
-            'Context' => { 'Msf' => framework, 'MsfExploit' => self }
-          )
+          Rex::Socket::Udp.create('Context' => { 'Msf' => framework, 'MsfExploit' => self })
         end
       ],
       ['UDPSocket', -> { UDPSocket.new }]
