@@ -49,6 +49,15 @@ class MetasploitModule < Msf::Auxiliary
           access_type = 'Read-only'
         end
         report_ftp_service(banner)
+        report_vuln(
+          host: rhost,
+          port: rport,
+          proto: 'tcp',
+          sname: 'ftp',
+          name: 'Anonymous FTP Access',
+          info: "Anonymous FTP login accepted with #{access_type} access",
+          refs: references
+        )
         register_creds(target_host, access_type)
       elsif banner
         report_ftp_service(banner)
