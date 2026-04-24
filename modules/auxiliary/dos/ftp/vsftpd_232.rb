@@ -56,6 +56,8 @@ class MetasploitModule < Msf::Auxiliary
     loop do
       # get each line until our desired line shows or end line shows
       s = send_cmd(['STAT'], true)
+      return Exploit::CheckCode::Unknown('No response received for STAT') unless s
+
       break if (s =~ /vsFTPd \d+\.\d+\.\d+/) || (s == "211 End of status\r\n")
     end
     disconnect
@@ -99,6 +101,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue Rex::ConnectionRefused
       print("\n")
       print_good('Connection refused! Appears DOS attack succeeded.')
+      break
     rescue EOFError
       print("\n")
       print_good('Stream was cut off abruptly. Appears DOS attack succeeded.')
