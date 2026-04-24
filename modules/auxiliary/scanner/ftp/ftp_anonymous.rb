@@ -48,15 +48,10 @@ class MetasploitModule < Msf::Auxiliary
           print_good("Anonymous READ (#{banner})")
           access_type = 'Read-only'
         end
+        report_ftp_service(banner)
         register_creds(target_host, access_type)
       elsif banner
-        report_service(
-          host: rhost,
-          port: rport,
-          proto: 'tcp',
-          name: 'ftp',
-          info: banner
-        )
+        report_ftp_service(banner)
       end
 
       disconnect
@@ -64,6 +59,16 @@ class MetasploitModule < Msf::Auxiliary
       raise $ERROR_INFO
     rescue ::Rex::ConnectionError, ::IOError
     end
+  end
+
+  def report_ftp_service(banner)
+    report_service(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      name: 'ftp',
+      info: banner
+    )
   end
 
   def register_creds(target_host, access_type)
