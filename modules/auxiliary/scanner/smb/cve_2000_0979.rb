@@ -170,11 +170,18 @@ class MetasploitModule < Msf::Auxiliary
 
   def enum_shares_rap
     shares = []
-    raw_shares = simple.client.net_share_enum_rap(rhost)
-    raw_shares.each do |s|
-      type_str = RAP_SHARE_TYPES.fetch(s[:type], "UNKNOWN(#{s[:type]})")
-      shares << s[:name]
-      print_good("#{s[:name]} - (#{type_str})")
+    tree = simple.client.tree_connect("\\\\#{rhost}\\IPC$")
+    begin
+      tree.net_share_enum.each do |entry|
+        type_str = RAP_SHARE_TYPES.fetch(entry[:type], "UNKNOWN(#{entry[:type]})")
+        shares << entry[:name]
+        print_good("#{entry[:name]} - (#{type_str})")
+      end
+    ensure
+      begin
+        tree.disconnect!
+      rescue StandardError # rubocop:disable Lint/SuppressedException
+      end
     end
     print_good("Number of shares: #{shares.length}")
     shares
