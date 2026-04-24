@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
       'Name' => 'Anonymous FTP Access Detection',
-      'Description' => 'Detect anonymous (read/write) FTP server access.',
+      'Description' => 'Detect anonymous (read/write) FTP service access.',
       'References' => [
         ['URL', 'https://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],
         ['CVE', '1999-0497'],
@@ -35,19 +35,22 @@ class MetasploitModule < Msf::Auxiliary
 
       banner.strip! if banner
 
-      dir = Rex::Text.rand_text_alpha(8)
       if res
+        dir = Rex::Text.rand_text_alpha(8)
+        vprint_status("Testing write access, Creating directory: #{dir}")
         write_check = send_cmd(['MKD', dir], true)
 
         if write_check && write_check =~ /^2/
-          send_cmd(['RMD', dir], true)
-
-          print_good("Anonymous READ/WRITE (#{banner})")
           access_type = 'Read/Write'
+
+          vprint_status("Deleting directory: #{dir}")
+          send_cmd(['RMD', dir], true)
         else
-          print_good("Anonymous READ (#{banner})")
           access_type = 'Read-only'
         end
+        version = banner.gsub(/^\d{3}[\s-]/, '').gsub(/\A\(|\)\z/, '').strip
+        print_good("Anonymous #{access_type} access (#{version})")
+
         report_ftp_service(banner)
         report_vuln(
           host: rhost,
@@ -60,6 +63,7 @@ class MetasploitModule < Msf::Auxiliary
         )
         register_creds(target_host, access_type)
       elsif banner
+        print_warning("FTP service, but no Anonymous access  (#{banner_version})")
         report_ftp_service(banner)
       end
 
