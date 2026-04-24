@@ -45,15 +45,15 @@ module Rex
             columns.each_with_index.to_h do |col, idx|
               name = col[:name] || "col#{idx + 1}"
               offset = align_offset(offset, col[:typid], col[:len])
-              val, consumed = decode_column(tuple, col, idx, offset)
-              offset += consumed
-              [name, val]
+              result = decode_column(tuple, col, idx, offset)
+              offset += result[:consumed]
+              [name, result[:value]]
             end
           end
 
           def decode_column(tuple, col, idx, offset)
             num = col[:num] || (idx + 1)
-            return [nil, 0] if HeapTuple.null?(tuple[:bitmap], num)
+            return { value: nil, consumed: 0 } if HeapTuple.null?(tuple[:bitmap], num)
 
             read_value(tuple[:data], offset, col[:typid] || Types::OID_TEXT, col[:len] || -1)
           end
@@ -73,10 +73,10 @@ module Rex
           end
 
           def read_value(data, offset, typid, len)
-            return [nil, 0] if offset >= data.length
+            return { value: nil, consumed: 0 } if offset >= data.length
 
             remaining = data[offset..]
-            return [Types.decode(remaining[0, len], typid), len] if len.positive?
+            return { value: Types.decode(remaining[0, len], typid), consumed: len } if len.positive?
             return read_varlena_value(remaining, typid) if len == -1
 
             read_cstring(remaining)
@@ -84,12 +84,12 @@ module Rex
 
           def read_varlena_value(data, oid)
             val, consumed = Types.read_varlena(data)
-            val ? [Types.decode(val, oid), consumed] : [nil, 1]
+            val ? { value: Types.decode(val, oid), consumed: consumed } : { value: nil, consumed: 1 }
           end
 
           def read_cstring(data)
             idx = data.index("\x00") || data.length
-            [data[0, idx], idx + 1]
+            { value: data[0, idx], consumed: idx + 1 }
           end
         end
       end
