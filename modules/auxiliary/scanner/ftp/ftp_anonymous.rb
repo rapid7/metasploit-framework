@@ -112,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
     # Build service information
     service_data = {
       address: target_host,
-      port: datastore['RPORT'],
+      port: rport,
       service_name: 'ftp',
       protocol: 'tcp',
       workspace_id: myworkspace_id
@@ -121,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
     # Build credential information
     credential_data = {
       origin_type: :service,
-      module_fullname: self.fullname,
+      module_fullname: fullname,
       private_data: datastore['FTPPASS'],
       private_type: :password,
       username: datastore['FTPUSER'],
