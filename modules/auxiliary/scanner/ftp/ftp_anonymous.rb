@@ -42,10 +42,10 @@ class MetasploitModule < Msf::Auxiliary
         if write_check && write_check =~ /^2/
           send_cmd(['RMD', dir], true)
 
-          print_good("#{target_host}:#{rport} - Anonymous READ/WRITE (#{banner})")
+          print_good("Anonymous READ/WRITE (#{banner})")
           access_type = 'Read/Write'
         else
-          print_good("#{target_host}:#{rport} - Anonymous READ (#{banner})")
+          print_good("Anonymous READ (#{banner})")
           access_type = 'Read-only'
         end
         register_creds(target_host, access_type)
