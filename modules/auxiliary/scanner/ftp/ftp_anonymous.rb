@@ -18,8 +18,17 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],
         ['CVE', '1999-0497'],
       ],
-      'Author' => 'Matteo Cantoni <goony[at]nothink.org>',
-      'License' => MSF_LICENSE
+      'Author' =>
+        [
+          'Matteo Cantoni <goony[at]nothink.org>',
+          'g0tmi1k'   # @g0tmi1k // https://blog.g0tmi1k.com/ - additional features
+       ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
 
     register_options(
