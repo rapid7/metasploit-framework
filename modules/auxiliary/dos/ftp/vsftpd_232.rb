@@ -99,6 +99,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue Rex::ConnectionRefused
       print("\n")
       print_good('Connection refused! Appears DOS attack succeeded.')
+      break
     rescue EOFError
       print("\n")
       print_good('Stream was cut off abruptly. Appears DOS attack succeeded.')
