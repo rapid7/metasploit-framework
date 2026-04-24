@@ -55,3 +55,5 @@ group :test do
   gem 'timecop'
 end
 
+gem 'ruby_smb', git: 'https://github.com/zeroSteiner/ruby_smb', branch: 'feat/smb1/symlink'
+

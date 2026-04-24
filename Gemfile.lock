@@ -1,3 +1,15 @@
+GIT
+  remote: https://github.com/zeroSteiner/ruby_smb
+  revision: 349a11cc535ed3cab892d92864dd9f877f12ac44
+  branch: feat/smb1/symlink
+  specs:
+    ruby_smb (3.3.17)
+      bindata (= 2.4.15)
+      openssl-ccm
+      openssl-cmac
+      rubyntlm (>= 0.6.5)
+      windows_error (>= 0.1.4)
+
 PATH
   remote: .
   specs:
@@ -405,8 +417,10 @@ GEM
     octokit (10.0.0)
       faraday (>= 1, < 3)
       sawyer (~> 0.9)
+    openssl (3.3.2)
     openssl-ccm (1.2.3)
-    openssl-cmac (2.0.2)
+    openssl-cmac (2.1.0)
+      openssl (~> 3.0)
     openvas-omp (0.0.4)
     ostruct (0.6.1)
     packetfu (2.0.0)
@@ -593,12 +607,6 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.3.17)
-      bindata (= 2.4.15)
-      openssl-ccm
-      openssl-cmac
-      rubyntlm (>= 0.6.5)
-      windows_error (>= 0.1.4)
     rubyntlm (0.6.5)
       base64
     rubyzip (2.4.1)
@@ -696,6 +704,7 @@ DEPENDENCIES
   rspec-rerun
   rubocop (= 1.75.7)
   ruby-prof
+  ruby_smb!
   simplecov (= 0.18.2)
   test-prof
   timecop
