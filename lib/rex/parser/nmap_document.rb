@@ -163,10 +163,6 @@ module Rex
       # is never downgraded back to a user-supplied entry.
       if hash["type"] == "PTR"
         @state[:hostname] = name
-        @state[:hostname_type] = "PTR"
-      elsif @state[:hostname_type] != "PTR"
-        @state[:hostname] = name
-        @state[:hostname_type] = hash["type"]
       end
     end
 
