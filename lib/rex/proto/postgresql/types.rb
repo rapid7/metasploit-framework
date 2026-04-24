@@ -11,20 +11,60 @@ module Rex
         PG_EPOCH = 946_684_800
         USEC = 1_000_000
 
+        # PostgreSQL type OIDs (from pg_type.dat)
+        OID_BOOL        = 16
+        OID_BYTEA       = 17
+        OID_CHAR        = 18
+        OID_NAME        = 19
+        OID_INT8        = 20
+        OID_INT2        = 21
+        OID_INT4        = 23
+        OID_TEXT        = 25
+        OID_OID         = 26
+        OID_JSON        = 114
+        OID_FLOAT4      = 700
+        OID_FLOAT8      = 701
+        OID_MACADDR     = 829
+        OID_INET        = 869
+        OID_VARCHAR     = 1043
+        OID_DATE        = 1082
+        OID_TIME        = 1083
+        OID_TIMESTAMP   = 1114
+        OID_TIMESTAMPTZ = 1184
+        OID_INTERVAL    = 1186
+        OID_NUMERIC     = 1700
+        OID_UUID        = 2950
+        OID_JSONB       = 3802
+
+        # Array type OIDs
+        OID_BOOL_ARRAY    = 1000
+        OID_INT2_ARRAY    = 1005
+        OID_INT4_ARRAY    = 1007
+        OID_VARCHAR_ARRAY = 1015
+        OID_INT8_ARRAY    = 1016
+        OID_TEXT_ARRAY    = 1009
+        OID_FLOAT8_ARRAY  = 1022
+        OID_JSONB_ARRAY   = 3807
+
         OIDS = {
-          bool: 16, bytea: 17, char: 18, name: 19, int8: 20, int2: 21, int4: 23, text: 25, oid: 26,
-          json: 114, float4: 700, float8: 701, inet: 869, macaddr: 829, time: 1083, date: 1082,
-          timestamp: 1114, timestamptz: 1184, interval: 1186, varchar: 1043, uuid: 2950,
-          numeric: 1700, jsonb: 3802,
-          bool_array: 1000, int2_array: 1005, int4_array: 1007, int8_array: 1016,
-          text_array: 1009, float8_array: 1022, varchar_array: 1015, jsonb_array: 3807
+          bool: OID_BOOL, bytea: OID_BYTEA, char: OID_CHAR, name: OID_NAME,
+          int8: OID_INT8, int2: OID_INT2, int4: OID_INT4, text: OID_TEXT, oid: OID_OID,
+          json: OID_JSON, float4: OID_FLOAT4, float8: OID_FLOAT8, inet: OID_INET,
+          macaddr: OID_MACADDR, time: OID_TIME, date: OID_DATE,
+          timestamp: OID_TIMESTAMP, timestamptz: OID_TIMESTAMPTZ, interval: OID_INTERVAL,
+          varchar: OID_VARCHAR, uuid: OID_UUID, numeric: OID_NUMERIC, jsonb: OID_JSONB,
+          bool_array: OID_BOOL_ARRAY, int2_array: OID_INT2_ARRAY, int4_array: OID_INT4_ARRAY,
+          int8_array: OID_INT8_ARRAY, text_array: OID_TEXT_ARRAY, float8_array: OID_FLOAT8_ARRAY,
+          varchar_array: OID_VARCHAR_ARRAY, jsonb_array: OID_JSONB_ARRAY
         }.freeze
 
         OID_TO_TYPE = OIDS.invert.freeze
 
         ARRAY_ELEM = {
-          1000 => 16, 1005 => 21, 1007 => 23, 1016 => 20, 1009 => 25,
-          1022 => 701, 1015 => 1043, 3807 => 3802
+          OID_BOOL_ARRAY => OID_BOOL, OID_INT2_ARRAY => OID_INT2,
+          OID_INT4_ARRAY => OID_INT4, OID_INT8_ARRAY => OID_INT8,
+          OID_TEXT_ARRAY => OID_TEXT, OID_FLOAT8_ARRAY => OID_FLOAT8,
+          OID_VARCHAR_ARRAY => OID_VARCHAR, OID_JSONB_ARRAY => OID_JSONB
         }.freeze
 
         class << self
@@ -68,27 +108,27 @@ module Rex
 
           def decode_scalar(data, oid)
             case oid
-            when 16 then data[0].unpack1('C') != 0
-            when 17 then "\\x#{data.unpack1('H*')}"
-            when 18 then data[0]
-            when 19 then data[0, 64].unpack1('Z64')
-            when 20 then data[0, 8].unpack1('q<')
-            when 21 then data[0, 2].unpack1('s<')
-            when 23 then data[0, 4].unpack1('l<')
-            when 25, 1043 then safe_string(data)
-            when 26 then data[0, 4].unpack1('L<')
-            when 114 then safe_string(data)
-            when 700 then data[0, 4].unpack1('e')
-            when 701 then data[0, 8].unpack1('E')
-            when 829 then decode_macaddr(data)
-            when 869 then decode_inet(data)
-            when 1082 then decode_date(data)
-            when 1083 then decode_time(data)
-            when 1114, 1184 then decode_timestamp(data)
-            when 1186 then decode_interval(data)
-            when 1700 then decode_numeric(data)
-            when 2950 then decode_uuid(data)
-            when 3802 then Jsonb.parse(data) || safe_string(data)
+            when OID_BOOL then data[0].unpack1('C') != 0
+            when OID_BYTEA then "\\x#{data.unpack1('H*')}"
+            when OID_CHAR then data[0]
+            when OID_NAME then data[0, 64].unpack1('Z64')
+            when OID_INT8 then data[0, 8].unpack1('q<')
+            when OID_INT2 then data[0, 2].unpack1('s<')
+            when OID_INT4 then data[0, 4].unpack1('l<')
+            when OID_TEXT, OID_VARCHAR then safe_string(data)
+            when OID_OID then data[0, 4].unpack1('L<')
+            when OID_JSON then safe_string(data)
+            when OID_FLOAT4 then data[0, 4].unpack1('e')
+            when OID_FLOAT8 then data[0, 8].unpack1('E')
+            when OID_MACADDR then decode_macaddr(data)
+            when OID_INET then decode_inet(data)
+            when OID_DATE then decode_date(data)
+            when OID_TIME then decode_time(data)
+            when OID_TIMESTAMP, OID_TIMESTAMPTZ then decode_timestamp(data)
+            when OID_INTERVAL then decode_interval(data)
+            when OID_NUMERIC then decode_numeric(data)
+            when OID_UUID then decode_uuid(data)
+            when OID_JSONB then Jsonb.parse(data) || safe_string(data)
             else safe_string(data)
             end
           end
@@ -190,8 +230,9 @@ module Rex
           end
 
           FIXED_TYPE_LENGTHS = {
-            16 => 1, 18 => 1, 21 => 2, 23 => 4, 20 => 8, 26 => 4,
-            700 => 4, 701 => 8, 1082 => 4, 1114 => 8, 1184 => 8
+            OID_BOOL => 1, OID_CHAR => 1, OID_INT2 => 2, OID_INT4 => 4,
+            OID_INT8 => 8, OID_OID => 4, OID_FLOAT4 => 4, OID_FLOAT8 => 8,
+            OID_DATE => 4, OID_TIMESTAMP => 8, OID_TIMESTAMPTZ => 8
           }.freeze
 
           def parse_array_data(raw, offset, count, elem_oid, elem_len, nullbitmap)

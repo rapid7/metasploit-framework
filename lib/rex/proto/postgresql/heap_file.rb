@@ -55,7 +55,7 @@ module Rex
             num = col[:num] || (idx + 1)
             return [nil, 0] if HeapTuple.null?(tuple[:bitmap], num)
 
-            read_value(tuple[:data], offset, col[:typid] || 25, col[:len] || -1)
+            read_value(tuple[:data], offset, col[:typid] || Types::OID_TEXT, col[:len] || -1)
           end
 
           def align_offset(offset, typid, len)
@@ -65,9 +65,9 @@ module Rex
 
           def type_alignment(typid, len)
             return 1 if len == -1
-            return 8 if [20, 701, 1114, 1184].include?(typid)
-            return 4 if [23, 26, 700].include?(typid) || len == 4
-            return 2 if typid == 21 || len == 2
+            return 8 if [Types::OID_INT8, Types::OID_FLOAT8, Types::OID_TIMESTAMP, Types::OID_TIMESTAMPTZ].include?(typid)
+            return 4 if [Types::OID_INT4, Types::OID_OID, Types::OID_FLOAT4].include?(typid) || len == 4
+            return 2 if typid == Types::OID_INT2 || len == 2
 
             1
           end

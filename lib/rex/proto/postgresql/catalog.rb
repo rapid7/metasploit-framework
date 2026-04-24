@@ -20,43 +20,43 @@ module Rex
         # Stable system catalog schemas (PostgreSQL 12+)
         # Only includes columns that are stable across all versions
         PG_CLASS_SCHEMA = [
-          { name: 'oid', typid: 26, len: 4 },
-          { name: 'relname', typid: 19, len: 64 },
-          { name: 'relnamespace', typid: 26, len: 4 },
-          { name: 'reltype', typid: 26, len: 4 },
-          { name: 'reloftype', typid: 26, len: 4 },
-          { name: 'relowner', typid: 26, len: 4 },
-          { name: 'relam', typid: 26, len: 4 },
-          { name: 'relfilenode', typid: 26, len: 4 },
-          { name: 'reltablespace', typid: 26, len: 4 },
-          { name: 'relpages', typid: 23, len: 4 },
-          { name: 'reltuples', typid: 700, len: 4 },
-          { name: 'relallvisible', typid: 23, len: 4 },
-          { name: 'reltoastrelid', typid: 26, len: 4 },
-          { name: 'relhasindex', typid: 16, len: 1 },
-          { name: 'relisshared', typid: 16, len: 1 },
-          { name: 'relpersistence', typid: 18, len: 1 },
-          { name: 'relkind', typid: 18, len: 1 }
+          { name: 'oid', typid: Types::OID_OID, len: 4 },
+          { name: 'relname', typid: Types::OID_NAME, len: 64 },
+          { name: 'relnamespace', typid: Types::OID_OID, len: 4 },
+          { name: 'reltype', typid: Types::OID_OID, len: 4 },
+          { name: 'reloftype', typid: Types::OID_OID, len: 4 },
+          { name: 'relowner', typid: Types::OID_OID, len: 4 },
+          { name: 'relam', typid: Types::OID_OID, len: 4 },
+          { name: 'relfilenode', typid: Types::OID_OID, len: 4 },
+          { name: 'reltablespace', typid: Types::OID_OID, len: 4 },
+          { name: 'relpages', typid: Types::OID_INT4, len: 4 },
+          { name: 'reltuples', typid: Types::OID_FLOAT4, len: 4 },
+          { name: 'relallvisible', typid: Types::OID_INT4, len: 4 },
+          { name: 'reltoastrelid', typid: Types::OID_OID, len: 4 },
+          { name: 'relhasindex', typid: Types::OID_BOOL, len: 1 },
+          { name: 'relisshared', typid: Types::OID_BOOL, len: 1 },
+          { name: 'relpersistence', typid: Types::OID_CHAR, len: 1 },
+          { name: 'relkind', typid: Types::OID_CHAR, len: 1 }
         ].freeze
 
         # pg_attribute schema varies between PostgreSQL versions:
         # - PG12-15: attrelid, attname, atttypid, attstattarget, attlen, attnum
         # - PG16+:   attrelid, attname, atttypid, attlen, attnum (attstattarget moved)
         PG_ATTRIBUTE_SCHEMA_V15 = [
-          { name: 'attrelid', typid: 26, len: 4 },
-          { name: 'attname', typid: 19, len: 64 },
-          { name: 'atttypid', typid: 26, len: 4 },
-          { name: 'attstattarget', typid: 23, len: 4 },
-          { name: 'attlen', typid: 21, len: 2 },
-          { name: 'attnum', typid: 21, len: 2 }
+          { name: 'attrelid', typid: Types::OID_OID, len: 4 },
+          { name: 'attname', typid: Types::OID_NAME, len: 64 },
+          { name: 'atttypid', typid: Types::OID_OID, len: 4 },
+          { name: 'attstattarget', typid: Types::OID_INT4, len: 4 },
+          { name: 'attlen', typid: Types::OID_INT2, len: 2 },
+          { name: 'attnum', typid: Types::OID_INT2, len: 2 }
         ].freeze
 
         PG_ATTRIBUTE_SCHEMA_V16 = [
-          { name: 'attrelid', typid: 26, len: 4 },
-          { name: 'attname', typid: 19, len: 64 },
-          { name: 'atttypid', typid: 26, len: 4 },
-          { name: 'attlen', typid: 21, len: 2 },
-          { name: 'attnum', typid: 21, len: 2 }
+          { name: 'attrelid', typid: Types::OID_OID, len: 4 },
+          { name: 'attname', typid: Types::OID_NAME, len: 64 },
+          { name: 'atttypid', typid: Types::OID_OID, len: 4 },
+          { name: 'attlen', typid: Types::OID_INT2, len: 2 },
+          { name: 'attnum', typid: Types::OID_INT2, len: 2 }
         ].freeze
 
         class << self
