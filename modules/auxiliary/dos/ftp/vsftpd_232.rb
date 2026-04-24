@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # pull out version and check if its in range of vulnerability
-    version = s[/\d+\.\d+\.\d+/]
+    version = s[/vsFTPd (\d+\.\d+\.\d+)/, 1]
     if Rex::Version.new(version) < Rex::Version.new('2.3.3')
       Exploit::CheckCode::Appears("vsFTPd #{version} is older than the patched version 2.3.3")
     else
