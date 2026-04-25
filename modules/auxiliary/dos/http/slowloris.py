@@ -79,7 +79,13 @@ def init_socket(host, port, use_ssl=False, rand_user_agent=True):
     s.settimeout(4)
 
     if use_ssl:
-        s = ssl.wrap_socket(s)
+        if hasattr(ssl, 'SSLContext'):
+            ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            s = ctx.wrap_socket(s)
+        else:
+            s = ssl.wrap_socket(s)
 
     s.send("GET /?{} HTTP/1.1\r\n".format(random.randint(0, 2000)).encode("utf-8"))
 
