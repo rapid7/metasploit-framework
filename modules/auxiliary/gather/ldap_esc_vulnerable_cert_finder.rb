@@ -890,7 +890,7 @@ class MetasploitModule < Msf::Auxiliary
                 host: ca_server[:ip_address],
                 port: 445,
                 proto: 'tcp',
-                name: "#{vuln}",
+                name: vuln.to_s,
                 info: info,
                 refs: REFERENCES[vuln],
                 service: service,
@@ -1238,7 +1238,7 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     report_service({
-      name: 'adcs-ca',
+      name: ::Msf::Exploit::Remote::MsIcpr::ADCS_CA_SERVICE_NAME,
       resource: {
         'name' => ca_name
       },
@@ -1257,7 +1257,10 @@ class MetasploitModule < Msf::Auxiliary
             }
           },
           parents: {
-            name: 'smb'
+            name: 'smb',
+            parents: {
+              name: 'tcp'
+            }
           }.merge(common)
         }.merge(common)
       }.merge(common)
