@@ -357,7 +357,15 @@ class MetasploitModule < Msf::Auxiliary
 
     if all_shares.nil?
       begin
-        raw_shares = simple.client.net_share_enum_rap(ip)
+        tree = simple.client.tree_connect("\\\\#{ip}\\IPC$")
+        begin
+          raw_shares = tree.net_share_enum
+        ensure
+          begin
+            tree.disconnect!
+          rescue StandardError # rubocop:disable Lint/SuppressedException
+          end
+        end
         all_shares = raw_shares.map do |s|
           {
             name: s[:name],
