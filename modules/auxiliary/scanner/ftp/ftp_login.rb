@@ -105,13 +105,17 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # Always check for anonymous access by pretending to be a browser.
   def anonymous_creds
     anon_creds = [ ]
+    # Support both ANONYMOUS_LOGIN option and RECORD_GUEST option
     if datastore['RECORD_GUEST']
       ['IEUser@', 'User@', 'mozilla@example.com', 'chrome@example.com' ].each do |password|
         anon_creds << Metasploit::Framework::Credential.new(public: 'anonymous', private: password)
       end
+    end
+    # Also add blank username/password when ANONYMOUS_LOGIN is enabled
+    if datastore['ANONYMOUS_LOGIN']
+      anon_creds << Metasploit::Framework::Credential.new(public: '', private: '', realm: nil, private_type: :password)
     end
     anon_creds
   end
