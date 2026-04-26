@@ -42,8 +42,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::Proxies,
         Opt::RPORT(21),
-        OptBool.new('RECORD_GUEST', [ false, 'Record anonymous/guest logins to the database', false ]),
-        OptBool.new('CHECK_ACCESS', [ false, 'Check READ/WRITE access for successful logins', true ])
+        OptBool.new('ANONYMOUS_LOGIN', [ true, 'Attempt to login using various anonymous FTP users', false ]), # Overwrite the AuthBrute mixin, as its not sending blank/empty user/pass
+        OptBool.new('CHECK_ACCESS', [ false, 'Check READ/WRITE access for successful logins', false ])
       ]
     )
 
@@ -150,15 +150,13 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # Always check for anonymous access by pretending to be a browser.
+  # Check for anonymous access by pretending to be a browser
   def anonymous_creds
-    anon_creds = [ ]
-    if datastore['RECORD_GUEST']
-      ['IEUser@', 'User@', 'mozilla@example.com', 'chrome@example.com' ].each do |password|
-        anon_creds << Metasploit::Framework::Credential.new(public: 'anonymous', private: password)
-      end
+    return [] unless datastore['ANONYMOUS_LOGIN']
+
+    ['mozilla@example.com', 'IEUser@', 'User@', 'chrome@example.com'].map do |password|
+      Metasploit::Framework::Credential.new(public: 'anonymous', private: password, private_type: :password)
     end
-    anon_creds
   end
 
   def test_ftp_access
