@@ -43,7 +43,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::Proxies,
         Opt::RPORT(21),
-        OptBool.new('RECORD_GUEST', [ false, 'Record anonymous/guest logins to the database', false ])
+        OptBool.new('RECORD_GUEST', [ false, 'Record anonymous/guest logins to the database', false ]),
+        OptBool.new('CHECK_ACCESS', [ false, 'Check READ/WRITE access for successful logins', true ])
       ]
     )
 
@@ -99,12 +100,20 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:private_type] = :password
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
+
+        access_level = test_ftp_access(result.credential.public, result.credential.private) if datastore['CHECK_ACCESS']
+        credential_data[:access_level] = access_level if access_level
+
         create_credential_login(credential_data)
 
-        print_good("#{ip}:#{rport} - Login Successful: #{result.credential}")
+        msg = "Success: #{result.credential}"
+        msg << " (#{access_level})" if access_level
+        print_good(msg)
       else
         invalidate_login(credential_data)
-        vprint_error("#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})")
+        proof = result.proof.to_s.strip
+        proof_str = proof.empty? ? result.status.to_s : "#{result.status}: #{proof}"
+        vprint_error("Login Failed: #{result.credential} (#{proof_str})")
       end
     end
   end
@@ -120,17 +129,24 @@ class MetasploitModule < Msf::Auxiliary
     anon_creds
   end
 
-  def test_ftp_access(user, scanner)
+  def test_ftp_access(user, pass)
+    connect(true, false)
+    send_user(user)
+    res = send_pass(pass)
+    return nil unless res =~ /^2/
+
     dir = Rex::Text.rand_text_alpha(8)
-    write_check = scanner.send_cmd(['MKD', dir], true)
-    if write_check && write_check =~ (/^2/)
-      scanner.send_cmd(['RMD', dir], true)
-      print_status("#{rhost}:#{rport} - User '#{user}' has READ/WRITE access")
-      return 'Read/Write'
+    write_check = send_cmd(['MKD', dir], true)
+    if write_check && write_check =~ /^2/
+      send_cmd(['RMD', dir], true)
+      'Read/Write'
     else
-      print_status("#{rhost}:#{rport} - User '#{user}' has READ access")
-      return 'Read-only'
+      'Read-only'
     end
+  rescue StandardError
+    nil
+  ensure
+    disconnect
   end
 
 end
