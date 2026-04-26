@@ -25,9 +25,13 @@ class MetasploitModule < Msf::Auxiliary
         and connected to a database this module will record successful
         logins and hosts so you can track your access.
       },
-      'Author' => 'todb',
+      'Author' => [
+          'todb',
+          'g0tmi1k' # @g0tmi1k - additional features
+
+      ],
       'References' => [
-        [ 'CVE', '1999-0502'] # Weak password
+        [ 'CVE', '1999-0502' ] # Weak password
       ],
       'License' => MSF_LICENSE,
       'DefaultOptions' => {
@@ -39,13 +43,13 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::Proxies,
         Opt::RPORT(21),
-        OptBool.new('RECORD_GUEST', [ false, "Record anonymous/guest logins to the database", false])
+        OptBool.new('RECORD_GUEST', [ false, 'Record anonymous/guest logins to the database', false ])
       ]
     )
 
     register_advanced_options(
       [
-        OptBool.new('SINGLE_SESSION', [ false, 'Disconnect after every login attempt', false]),
+        OptBool.new('SINGLE_SESSION', [ false, 'Disconnect after every login attempt', false ]),
       ]
     )
 
@@ -88,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-        module_fullname: self.fullname,
+        module_fullname: fullname,
         workspace_id: myworkspace_id
       )
       if result.success?
@@ -97,10 +101,10 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+        print_good("#{ip}:#{rport} - Login Successful: #{result.credential}")
       else
         invalidate_login(credential_data)
-        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        vprint_error("#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})")
       end
     end
   end
@@ -119,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
   def test_ftp_access(user, scanner)
     dir = Rex::Text.rand_text_alpha(8)
     write_check = scanner.send_cmd(['MKD', dir], true)
-    if write_check and write_check =~ /^2/
+    if write_check && write_check =~ (/^2/)
       scanner.send_cmd(['RMD', dir], true)
       print_status("#{rhost}:#{rport} - User '#{user}' has READ/WRITE access")
       return 'Read/Write'
