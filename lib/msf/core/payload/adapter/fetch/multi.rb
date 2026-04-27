@@ -29,19 +29,6 @@ module Msf
       script
     end
 
-    def _generate_bruteforce_multi_commands(arch_payloads = [])
-      # Don't bother trying to figure out the OS arch.... just try to run them all.
-      script = ''
-      arch_payloads.each do |srv_entry|
-        vprint_status("Adding #{srv_entry[:uri]} for #{srv_entry[:arch]}")
-        datastore['FETCH_FILENAME'] = srv_entry[:uri].dup
-        vprint_status(datastore['FETCH_FILENAME'])
-        script << generate_fetch_commands(srv_entry[:uri]).to_s
-      end
-      print_status(script)
-      script
-    end
-
     def os_arches(meterp_arch)
       # multiple `uname -m` values map to the same payload arch
       # we will probably need to expand this
