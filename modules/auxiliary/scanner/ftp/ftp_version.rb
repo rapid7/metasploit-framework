@@ -11,8 +11,19 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'FTP Version Scanner',
       'Description' => 'Detect FTP Version.',
-      'Author' => 'hdm',
-      'License' => MSF_LICENSE
+      'Author' => [
+        'hdm',
+        'g0tmi1k' # @g0tmi1k - additional features
+      ],
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['URL', 'https://www.ietf.org/rfc/rfc959']
+      ],
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'Reliability' => [],
+        'SideEffects' => [IOC_IN_LOGS]
+      }
     )
 
     register_options(
