@@ -20,7 +20,7 @@ module Msf
       datastore['FetchHttpServerName']
     end
 
-    def add_resource(fetch_service, uri, opts)
+    def add_resource(fetch_service, uri, srv_entry)
       vprint_status("Adding resource #{uri}")
       begin
         if fetch_service.resources.include?(uri)
@@ -29,7 +29,7 @@ module Msf
         end
         fetch_service.add_resource(uri,
                                    'Proc' => proc do |cli, req|
-                                     on_request_uri(cli, req, opts)
+                                     on_request_uri(cli, req, srv_entry)
                                    end,
                                    'VirtualDirectory' => true)
       rescue ::Exception => e
@@ -62,24 +62,42 @@ module Msf
       fetch_service
     end
 
-    def on_request_uri(cli, request, opts)
+    def on_request_uri(cli, request, srv_entry)
+      vprint_status("#{__method__}:#{__LINE__}")
+      opts = srv_entry[:opts]
+      vprint_status(opts.to_s)
       client = cli.peerhost
       vprint_status("Client #{client} requested #{request.uri}")
       if (user_agent = request.headers['User-Agent'])
         client += " (#{user_agent})"
       end
+      vprint_status("#{__method__}:#{__LINE__}")
       vprint_status("Sending payload to #{client}")
-      vprint_status request.to_s
-      vprint_status request.uri_parts['QueryString']['arch'].to_s
-      arch = to_meterp_arch(request.uri_parts['QueryString']['arch'])
-      vprint_status("Building payload for #{arch} arch")
-      vprint_status(opts[:arch])
-      opts[:arch] = arch
-      vprint_status("1")
-      @multi_arch = arch
-      vprint_status("2")
-      opts[:code] = super(opts)
-      cli.send_response(payload_response(generate_payload_exe(opts)))
+      vprint_status("#{__method__}:#{__LINE__}")
+      if opts[:dynamic_arch]
+        vprint_status("#{__method__}:#{__LINE__}")
+        vprint_status("Dynamic Payload Detected, expecting a Query String in the request...")
+        vprint_status request.to_s
+        vprint_status request.uri_parts['QueryString']['arch'].to_s
+        arch = to_meterp_arch(request.uri_parts['QueryString']['arch'])
+        if arch.nil?
+          print_error("Failed to identify the architecture in Query String #{request.uri_parts['QueryString']['arch'].to_s}")
+          return nil
+        end
+        vprint_status("Building payload for #{arch.to_s} arch")
+        opts[:arch] = arch
+        @multi_arch = arch
+        vprint_status("2")
+        # Call generate with arch and dynamic_arch populated properly to build the right binary
+        payload_exe = generate(opts)
+        if payload_exe.nil?
+          print_error("No payload available for #{arch}")
+        else
+          cli.send_response(payload_response(payload_exe))
+        end
+      else
+        cli.send_response(payload_response(srv_entry[:data]))
+      end
     end
 
     def payload_response(srvexe)

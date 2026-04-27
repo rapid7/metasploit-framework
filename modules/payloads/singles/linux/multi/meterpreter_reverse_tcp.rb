@@ -7,7 +7,7 @@ module MetasploitModule
   CachedSize = 1140752
 
   include Msf::Payload::Single
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Linux
   include Msf::Sessions::MettleConfig
   include Msf::Payload::Linux::MultiArch # must be last
 
@@ -28,7 +28,9 @@ module MetasploitModule
   end
 
   def generate(opts = {})
+    vprint_status("#{__method__}:#{__LINE__}")
     mettle_arch = mettle_arch_transform(desired_arch(opts))
+    vprint_status("#{__method__}:#{__LINE__}")
     opts = {
       scheme: 'tcp',
       stageless: true
