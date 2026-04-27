@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Now access the following share to browse the root filesystem:')
     print_status("    \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['SMBTARGET']}\\")
   rescue RubySMB::Error::UnexpectedStatusCode => e
-    print_error(e.message)
-    elog(e)
+    elog(e.message, error: e)
+    fail_with(Failure::UnexpectedReply, e.message)
   end
 end
