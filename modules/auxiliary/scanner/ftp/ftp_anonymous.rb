@@ -38,27 +38,28 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  def sanitize_ftp_response(str)
+    Rex::Text.to_hex_ascii(str.to_s.gsub(/^\d{3}[\s-]/, '').strip.gsub(/\A\(|\)\z/, ''))
+  end
+
   def run_host(target_host)
     res = connect_login(true, false)
 
-    banner.strip! if banner
-
     if res
       dir = Rex::Text.rand_text_alpha(8)
-      vprint_status("Testing write access, Creating directory: #{dir}")
+      vprint_status("Testing write access, creating test directory: #{dir}")
       # Alt would be to use STOR
       write_check = send_cmd(['MKD', dir], true)
 
       if write_check && write_check =~ /^2/
         access_type = 'Read/Write'
-
-        vprint_status("Deleting directory: #{dir}")
+        vprint_status("Removing test directory: #{dir}")
         send_cmd(['RMD', dir], true)
       else
         access_type = 'Read-only'
       end
-      version = banner.gsub(/^\d{3}[\s-]/, '').gsub(/\A\(|\)\z/, '').strip
-      print_good("Anonymous #{access_type} access (#{version})")
+
+      print_good("Anonymous #{access_type} access (#{sanitize_ftp_response(banner)})")
 
       if datastore['STORE_LOOT']
         vprint_status('Listing directory contents')
@@ -74,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      report_ftp_service(banner)
+      report_ftp_service
       report_vuln(
         host: rhost,
         port: rport,
@@ -86,8 +87,8 @@ class MetasploitModule < Msf::Auxiliary
       )
       register_creds(target_host, access_type)
     elsif banner
-      print_warning("FTP service, but no Anonymous access  (#{banner_version})")
-      report_ftp_service(banner)
+      print_warning("FTP service, but no Anonymous access (#{sanitize_ftp_response(banner)})")
+      report_ftp_service
     end
 
     disconnect
@@ -97,13 +98,13 @@ class MetasploitModule < Msf::Auxiliary
     vprint_error(e.message)
   end
 
-  def report_ftp_service(banner)
+  def report_ftp_service
     report_service(
       host: rhost,
       port: rport,
       proto: 'tcp',
       name: 'ftp',
-      info: banner
+      info: sanitize_ftp_response(banner)
     )
   end
 
