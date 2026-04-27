@@ -521,7 +521,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
   def modified_files
     # Using an array avoids shelling out, so we avoid escaping/quoting
-    changed_files = %w[git diff --name-only]
+    changed_files = ['git', 'diff', '--name-only', git_base_ref]
 
     is_success = true
     files = []
@@ -543,5 +543,17 @@ class Msf::Ui::Console::CommandDispatcher::Developer
       end
     end
     [files, is_success]
+  end
+
+  #
+  # Attempt to find the best git ref to diff against
+  # Prefers upstream remotes, rather than personal/forked remotes
+  #
+  def git_base_ref
+    %w[upstream/master upstream/main origin/master origin/main master main].each do |ref|
+      _, status = Open3.capture2e('git', 'rev-parse', '--verify', ref, chdir: source_directories.first)
+      return ref if status.success?
+    end
+    'master'
   end
 end
