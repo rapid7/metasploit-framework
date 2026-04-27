@@ -9,6 +9,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Ftp
+  include Msf::Module::Deprecated
+  moved_from 'auxiliary/scanner/portscan/ftpbounce'
 
   def initialize
     super(
