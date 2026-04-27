@@ -20,6 +20,10 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(21),
       ]
     )
+
+    # TODO: One day, might be nice to enum via doing: `send_cmd(['xxx'])` {STAT,SYST,FEAT}
+    #       May need to be auth for these to work
+    deregister_options('FTPUSER', 'FTPPASS')
   end
 
   def run_host(_target_host)
