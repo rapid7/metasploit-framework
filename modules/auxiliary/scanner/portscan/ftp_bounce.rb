@@ -29,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      OptString.new('PORTS', [true, 'Ports to scan (e.g. 22-25,80,110-900)', '1-10000']),
+      OptAddressRange.new('RHOSTS', [true, 'The host(s) to scan via BOUNCEHOST (FTP relay)']), # Overwrite the mixin default value
+      OptString.new('PORTS', [true, 'Ports to scan (e.g. 22-25,80,110-900)', '1024-10000']),
       OptAddress.new('BOUNCEHOST', [true, 'FTP relay host']),
       OptPort.new('BOUNCEPORT', [true, 'FTP relay port', 21]),
       OptInt.new('DELAY', [true, 'The delay between connections, per thread, in milliseconds', 0]),
@@ -68,7 +69,12 @@ class MetasploitModule < Msf::Auxiliary
       raise Msf::OptionValidateError, ['DELAY']
     end
 
-    return if !connect_login
+    connected = connect_login
+
+    unless connected
+      print_error("Could not authenticate to relay #{rhost}:#{rport} (check FTPUSER/FTPPASS)")
+      return
+    end
 
     ports.each do |port|
       # Clear out the receive buffer since we're heavily dependent
@@ -86,10 +92,15 @@ class MetasploitModule < Msf::Auxiliary
         host = (ip.split('.') + [port / 256, port % 256]).join(',')
         resp = send_cmd(['PORT', host])
 
-        if resp =~ /^5/
-          # print_error("Got error from PORT to #{ip}:#{port}")
+        # RFC 2577
+        if resp =~ /^5/ && port < 1024
+          vprint_warning("#{rhost}:#{rport} -> #{ip}:#{port}: PORT rejected (port <= 1023/TCP blocked by server, which is expected) -- #{resp.strip}")
+          next
+        elsif resp =~ /^5/
+          vprint_error("#{rhost}:#{rport} -> #{ip}:#{port}: PORT rejected -- #{resp.strip}")
           next
         elsif !resp
+          print_error("#{rhost}:#{rport} -> #{ip}:#{port}: No response!")
           next
         end
 
@@ -97,7 +108,9 @@ class MetasploitModule < Msf::Auxiliary
 
         if resp =~ /^[12]/
           print_good(" TCP OPEN #{ip}:#{port}")
-          report_service(host: ip, port: port)
+          report_service(host: ip, port: port, info: "Discovered via FTP bounce from #{rhost}:#{rport}")
+        else
+          vprint_warning("#{rhost}:#{rport} -> #{ip}:#{port}: LIST -- #{resp.strip}")
         end
       rescue ::StandardError
         print_error("Unknown error: #{$ERROR_INFO}")
