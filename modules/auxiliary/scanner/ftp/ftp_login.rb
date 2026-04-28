@@ -57,8 +57,36 @@ class MetasploitModule < Msf::Auxiliary
     @accepts_all_logins = {}
   end
 
+  def grab_report_banner
+    begin
+      connect(true, false)
+      banner_version = banner.to_s.gsub(/^\d{3}[\s-]/, '').strip.gsub(/\A\(|\)\z/, '')
+    rescue ::Rex::ConnectionError, ::IOError => e
+      vprint_error(e.message)
+      return
+    ensure
+      disconnect
+    end
+
+    report_service(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      name: 'ftp',
+      info: banner_version,
+      parents: {
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        name: 'tcp'
+      }
+    )
+  end
+
   def run_host(ip)
     print_status('Starting FTP login sweep')
+
+    grab_report_banner
 
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
