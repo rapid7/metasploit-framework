@@ -53,6 +53,10 @@ class MetasploitModule < Msf::Auxiliary
     datastore['BOUNCEPORT']
   end
 
+  def sanitize_ftp_response(str)
+    Rex::Text.to_hex_ascii(str.to_s.gsub(/^\d{3}[\s-]/, '').strip.gsub(/\A\(|\)\z/, ''))
+  end
+
   def run_host(ip)
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
     if ports.empty?
@@ -71,10 +75,30 @@ class MetasploitModule < Msf::Auxiliary
 
     connected = connect_login
 
+    if banner
+      # This is the FTP relay (BOUNCEHOST/BOUNCEPORT)
+      report_service(
+        host: rhost,
+        port: rport,
+        name: 'ftp',
+        proto: 'tcp',
+        info: sanitize_ftp_response(banner)
+      )
+    end
+
     unless connected
       print_error("Could not authenticate to relay #{rhost}:#{rport} (check FTPUSER/FTPPASS)")
       return
     end
+
+    # This is the FTP relay (BOUNCEHOST/BOUNCEPORT)
+    report_note(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      type: 'ftp.bounce',
+      data: { info: 'Attempted to use machine for FTP bounce attack', target: ip }
+    )
 
     ports.each do |port|
       # Clear out the receive buffer since we're heavily dependent
