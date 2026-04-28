@@ -95,7 +95,8 @@ class MetasploitModule < Msf::Auxiliary
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
       password: datastore['PASSWORD'],
-      prepended_creds: anonymous_creds
+      prepended_creds: anonymous_creds,
+      anonymous_login: false # Otherwise this would send blank for both user/password, so its different to anonymous_creds()
     )
 
     scanner = Metasploit::Framework::LoginScanner::FTP.new(
