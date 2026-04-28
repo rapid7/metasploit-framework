@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{ip}:#{rport} - Starting FTP login sweep")
+    print_status('Starting FTP login sweep')
 
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
