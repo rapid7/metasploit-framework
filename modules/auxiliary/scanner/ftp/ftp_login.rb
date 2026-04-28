@@ -43,6 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::Proxies,
         Opt::RPORT(21),
+        OptBool.new('ANONYMOUS_LOGIN', [ false, 'Attempt to login using various anonymous FTP users', false ]), # Overwrite the AuthBrute mixin, as its not sending blank/empty user/pass
         OptBool.new('CHECK_ACCESS', [ false, 'Check READ/WRITE access for successful logins', true ])
       ]
     )
@@ -92,6 +93,11 @@ class MetasploitModule < Msf::Auxiliary
       password: datastore['PASSWORD'],
       prepended_creds: anonymous_creds
     )
+
+    if cred_collection.empty?
+      print_error('No credentials specified. Set USERNAME/PASSWORD, USER_FILE/PASS_FILE, ANONYMOUS_LOGIN or BLANK_PASSWORDS.')
+      return
+    end
 
     scanner = Metasploit::Framework::LoginScanner::FTP.new(
       configure_login_scanner(
