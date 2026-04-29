@@ -59,5 +59,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Not a Kippo honeypot (banner: #{banner.strip})")
       report_kippo_service
     end
+  ensure
+    disconnect
   end
 end
