@@ -12,8 +12,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name' => 'SSH Version Scanner',
-      'Description' => 'Detect SSH Version, and the server encryption',
+      'Name' => 'SSH Version and Algorithm Scanner',
+      'Description' => %q{
+        This module detects the SSH version, cryptographic algorithm support,
+        as well as the host key fingerprint. It will flag deprecated/weak ciphers,
+        HMAC algorithms, key exchange methods, and host key types.
+      },
       'References' => [
         ['URL', 'https://en.wikipedia.org/wiki/SecureShell'], # general info
         ['URL', 'https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'], # deprecation of kex gss-sha1 stuff
@@ -24,9 +28,15 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'Author' => [
         'Daniel van Eeden <metasploit[at]myname.nl>', # original author
-        'h00die' # algorithms enhancements
+        'h00die', # algorithms enhancements
+        'g0tmi1k' # @g0tmi1k - additional features
       ],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'Reliability' => [],
+        'SideEffects' => [IOC_IN_LOGS]
+      }
     )
 
     register_options(
