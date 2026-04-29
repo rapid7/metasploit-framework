@@ -37,6 +37,15 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
+  def report_kippo_service(info: nil)
+    report_service(
+      host: ip,
+      port: rport,
+      name: 'ssh',
+      info: info.to_s.strip
+    )
+  end
+
   def run_host(ip)
     connect
     banner = sock.get_once || ''
@@ -45,14 +54,10 @@ class MetasploitModule < Msf::Auxiliary
 
     if response =~ /(?:^Protocol mismatch\.\n$|bad packet length)/
       print_good("#{ip}:#{rport} - Kippo detected!")
-      report_service(
-        :host => ip,
-        :port => rport,
-        :name => 'ssh',
-        :info => 'Kippo SSH honeypot'
-      )
+      report_kippo_service(info: 'Kippo SSH honeypot')
     else
       vprint_status("#{ip}:#{rport} - #{banner.strip} detected")
+      report_kippo_service
     end
   end
 end
