@@ -1990,7 +1990,7 @@ end
   # @param recursion_count [Integer] Current recursion iteration count
   # @return [Hash] Serialized service data.
   def process_service(mdm_service, recursion_count = 0)
-    return { error: :recursion_limit_reached } unless recursion_count >= 0 && recursion_count < 3
+    return { error: :recursion_limit_reached } unless recursion_count >= 0 && recursion_count < 6
 
     service = {}
     host = mdm_service.host
