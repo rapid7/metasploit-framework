@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => 'Andrew Morris <andrew[at]morris.guru>',
         'References' => [
           ['URL', 'https://www.obscurechannel.com/x42/magicknumber.html'],
-          ['URL', 'http://morris.guru/detecting-kippo-ssh-honeypots/']
+          ['URL', 'https://web.archive.org/web/20170904010325/https://morris.sc/detecting-kippo-ssh-honeypots/']
         ],
         'License' => MSF_LICENSE,
         'Notes' => {
