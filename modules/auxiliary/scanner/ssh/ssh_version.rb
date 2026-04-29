@@ -236,6 +236,28 @@ class MetasploitModule < Msf::Auxiliary
 
       report_service(host: target_host, port: rport, name: 'ssh', proto: 'tcp', info: ident)
 
+      # This is the same as ssh_honeypot & ssh_version
+      os_info = {}
+      recog_data = perform_recog(ident)
+      recog_data.each do |row|
+        case row[0]
+        when 'os.product' then os_info[:os_name] = row[1]
+        when 'os.vendor' then os_info[:os_flavor] = row[1]
+        when 'os.version' then os_info[:os_sp] = row[1]
+        when 'os.cpe23'
+          report_note(
+            host: target_host,
+            port: rport,
+            proto: 'tcp',
+            sname: 'ssh',
+            type: 'ssh.cpe',
+            data: { cpe: row[1] },
+            update: :unique_data
+          )
+        end
+      end
+      report_host({ host: target_host }.merge(os_info)) unless os_info.empty?
+
       return unless datastore['EXTENDED_CHECKS']
 
       table = Rex::Text::Table.new(
@@ -263,7 +285,7 @@ class MetasploitModule < Msf::Auxiliary
 
       table.rows.concat check_encryption(server_data)
 
-      table.rows.concat perform_recog(ident)
+      table.rows.concat recog_data
 
       # XXX check for host key size?
       # h00die - not sure how to get that info from the library.
@@ -271,7 +293,10 @@ class MetasploitModule < Msf::Auxiliary
 
       print_status("#{target_host} - #{table}")
     end
-  rescue EOFError, Rex::ConnectionError => e
+  rescue EOFError, Rex::ConnectionRefused, Errno::ECONNREFUSED => e
+    vprint_error("#{target_host} - #{e.message}")
+    report_host(host: target_host)
+  rescue Rex::ConnectionError, Errno::EHOSTUNREACH => e
     vprint_error("#{target_host} - #{e.message}") # This may be a little noisy, but it is consistent
   rescue Timeout::Error
     vprint_warning("#{target_host} - Timed out after #{timeout} seconds. Skipping.")
