@@ -17,14 +17,19 @@ class MetasploitModule < Msf::Auxiliary
           This module uses a malformed packet or timing attack to enumerate users on
           an OpenSSH server.
 
-          The default action sends a malformed (corrupted) SSH_MSG_USERAUTH_REQUEST
-          packet using public key authentication (must be enabled) to enumerate users.
+          The Malformed Packet action (default) sends a malformed (corrupted)
+          SSH_MSG_USERAUTH_REQUEST packet using public key authentication
+          (which needs to be enabled server-side). OpenSSH <= 7.6 responds
+          differently for valid vs. invalid users, exposing their existence
+          (CVE-2018-15473).
 
-          On some versions of OpenSSH under some configurations, OpenSSH will return a
-          "permission denied" error for an invalid user faster than for a valid user,
-          creating an opportunity for a timing attack to enumerate users.
+          The Timing Attack action submits an oversized password via
+          keyboard-interactive or password authentication. OpenSSH <= 7.2
+          with UsePAM enabled returns 'permission denied' faster for invalid
+          users than valid ones, exposing their existence via timing
+          (CVE-2016-6210).
 
-          Testing note: invalid users were logged, while valid users were not. YMMV.
+          NOTE: Invalid users were logged server side, while valid users were not. YMMV.
         },
         'Author' => [
           'kenkeiras',     # Timing attack
@@ -48,14 +53,14 @@ class MetasploitModule < Msf::Auxiliary
           [
             'Malformed Packet',
             {
-              'Description' => 'Use a malformed packet',
+              'Description' => 'Use a malformed packet (OpenSSH <= 7.6, CVE-2018-15473)',
               'Type' => :malformed_packet
             }
           ],
           [
             'Timing Attack',
             {
-              'Description' => 'Use a timing attack',
+              'Description' => 'Use a timing attack (OpenSSH <= 7.2, CVE-2016-6210)',
               'Type' => :timing_attack
             }
           ]
