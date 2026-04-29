@@ -53,10 +53,10 @@ class MetasploitModule < Msf::Auxiliary
     response = sock.get_once || ''
 
     if response =~ /(?:^Protocol mismatch\.\n$|bad packet length)/
-      print_good("#{ip}:#{rport} - Kippo detected!")
+      print_good("Kippo SSH honeypot detected (banner: #{banner.strip})")
       report_kippo_service(info: 'Kippo SSH honeypot')
     else
-      vprint_status("#{ip}:#{rport} - #{banner.strip} detected")
+      print_status("Not a Kippo honeypot (banner: #{banner.strip})")
       report_kippo_service
     end
   end
