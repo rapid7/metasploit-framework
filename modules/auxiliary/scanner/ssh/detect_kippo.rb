@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def run_host(ip)
+  def run_host
     connect
     banner = sock.get_once || ''
     sock.put(banner + "\n" * 8)
