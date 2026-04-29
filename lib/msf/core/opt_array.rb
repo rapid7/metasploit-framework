@@ -7,8 +7,8 @@ module Msf
   #
   ###
   class OptArray < OptBase
-    # Default separator regex - matches comma or whitespace separated values
-    DEFAULT_SEPARATOR = /(?:,\s*|\s+)/
+    # Default separator - matches comma separated values
+    DEFAULT_SEPARATOR = ','
 
     def type
       'array'
@@ -37,7 +37,7 @@ module Msf
     # @param datastore [Hash] the datastore (unused but part of interface)
     # @return [Boolean] true if valid, false otherwise
     def valid?(value = self.value, check_empty: true, datastore: nil)
-      return false if check_empty && empty_required_value?(value)
+      return false if check_empty && required? && value.to_s.empty?
       return true if value.nil? && !required?
       return false if value.nil?
 
@@ -119,15 +119,17 @@ module Msf
     def value_to_array(value)
       return value if value.is_a?(Array)
       return [] if value.nil? || value.to_s.empty?
-      
+
       # Split by separator
       arr = value.to_s.split(@separator)
-      
-      # Strip whitespace from each member if requested
-      arr = arr.map(&:strip) if @strip_whitespace
-      
-      # Remove empty strings
-      arr.reject(&:empty?)
+
+      # Strip whitespace and remove empty strings from each member if requested
+      if @strip_whitespace
+        arr = arr.map(&:strip)
+        arr.reject!(&:empty?)
+      end
+
+      arr
     end
 
     # Determines if accepted values are case-sensitive

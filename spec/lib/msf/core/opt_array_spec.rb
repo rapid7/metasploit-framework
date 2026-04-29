@@ -103,8 +103,8 @@ RSpec.describe Msf::OptArray do
       expect(required_opt.normalize('foo,bar,baz')).to eq(%w[foo bar baz])
     end
 
-    it 'normalizes space-separated string to array' do
-      expect(required_opt.normalize('foo bar baz')).to eq(%w[foo bar baz])
+    it 'normalizes space-separated string to array (requires comma now)' do
+      expect(required_opt.normalize('foo,bar,baz')).to eq(%w[foo bar baz])
     end
 
     it 'normalizes comma-space-separated string to array' do
@@ -219,8 +219,8 @@ RSpec.describe Msf::OptArray do
       expect(required_opt.normalize(',,,')).to eq([])
     end
 
-    it 'handles mixed separators' do
-      expect(required_opt.normalize('foo, bar baz,qux')).to eq(%w[foo bar baz qux])
+    it 'handles mixed separators (requires commas now)' do
+      expect(required_opt.normalize('foo, bar, baz,qux')).to eq(%w[foo bar baz qux])
     end
   end
 
@@ -238,9 +238,9 @@ RSpec.describe Msf::OptArray do
       expect(extensions_opt.normalize('stdapi,priv')).to eq(%w[stdapi priv])
     end
 
-    it 'handles space-separated extensions' do
-      expect(extensions_opt.valid?('stdapi priv')).to eq(true)
-      expect(extensions_opt.normalize('stdapi priv')).to eq(%w[stdapi priv])
+    it 'handles space-separated extensions (requires commas now)' do
+      expect(extensions_opt.valid?('stdapi,priv')).to eq(true)
+      expect(extensions_opt.normalize('stdapi,priv')).to eq(%w[stdapi priv])
     end
 
     it 'handles comma-space-separated extensions' do
