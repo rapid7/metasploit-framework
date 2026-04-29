@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
             host: target_host,
             port: rport,
             proto: 'tcp',
-            name: name,
+            name: 'SSH Weak Host Key Algorithm',
             info: "Module #{fullname} confirmed SSH Host Key Encryption #{host_key} is available, but should be deprecated",
             refs: refs,
             check_code: Msf::Exploit::CheckCode.Appears("SSH Host Key Encryption #{host_key} is available, but should be deprecated")
@@ -137,7 +137,7 @@ class MetasploitModule < Msf::Auxiliary
           host: target_host,
           port: rport,
           proto: 'tcp',
-          name: name,
+          name: 'SSH Weak Encryption Cipher',
           info: "Module #{fullname} confirmed SSH Encryption #{encryption} is available, but should be deprecated",
           refs: refs,
           check_code: Msf::Exploit::CheckCode.Appears("SSH Encryption #{encryption} is available, but should be deprecated")
@@ -176,7 +176,7 @@ class MetasploitModule < Msf::Auxiliary
           host: target_host,
           port: rport,
           proto: 'tcp',
-          name: name,
+          name: 'SSH Weak Key Exchange Algorithm',
           info: "Module #{fullname} confirmed SSH Key Exchange #{kex} is available, but should be deprecated",
           refs: refs,
           check_code: Msf::Exploit::CheckCode.Appears("SSH Key Exchange #{kex} is available, but should be deprecated")
@@ -211,7 +211,7 @@ class MetasploitModule < Msf::Auxiliary
           host: target_host,
           port: rport,
           proto: 'tcp',
-          name: name,
+          name: 'SSH Weak HMAC Algorithm',
           info: "Module #{fullname} confirmed SSH HMAC #{hmac} is available, but should be deprecated",
           refs: refs,
           check_code: Msf::Exploit::CheckCode.Appears("SSH HMAC #{hmac} is available, but should be deprecated")
