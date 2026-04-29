@@ -29,10 +29,14 @@ class MetasploitModule < Msf::Auxiliary
         and connected to a database this module will record successful
         logins and hosts so you can track your access.
       },
-      'Author' => ['todb', 'RageLtMan'],
+      'Author' => [
+        'todb',
+        'RageLtMan',
+        'g0tmi1k' # @g0tmi1k - additional features
+      ],
       'AKA' => ['ssh_login_pubkey'],
       'References' => [
-        [ 'CVE', '1999-0502'], # Weak password
+        [ 'CVE', '1999-0502' ], # Weak password
         [ 'ATT&CK', Mitre::Attack::Technique::T1021_004_SSH ]
       ],
       'License' => MSF_LICENSE,
@@ -90,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
     }.merge(auth_type_options)
 
     s = start_session(self, nil, merge_me, false, sess.rstream, sess)
-    self.sockets.delete(scanner.ssh_socket.transport.socket)
+    sockets.delete(scanner.ssh_socket.transport.socket)
 
     # Set the session platform
     s.platform = platform
@@ -98,9 +102,7 @@ class MetasploitModule < Msf::Auxiliary
     # Create database host information
     host_info = { host: scanner.host }
 
-    unless s.platform == 'unknown'
-      host_info[:os_name] = s.platform
-    end
+    host_info[:os_name] = s.platform.capitalize unless s.platform == 'unknown'
 
     report_host(host_info)
 
@@ -108,8 +110,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    @ip = ip
-    print_brute :ip => ip, :msg => 'Starting bruteforce'
+    print_brute ip: ip, msg: 'Starting bruteforce'
 
     if datastore['USER_FILE'].blank? && datastore['USERNAME'].blank? && datastore['USERPASS_FILE'].blank?
       validation_reason = 'At least one of USER_FILE, USERPASS_FILE or USERNAME must be given'
@@ -165,12 +166,12 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-        module_fullname: self.fullname,
+        module_fullname: fullname,
         workspace_id: myworkspace_id
       )
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+        print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
         credential_data[:private_type] = :password
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
@@ -181,24 +182,24 @@ class MetasploitModule < Msf::Auxiliary
             session_setup(result, scanner, used_key: false)
           rescue StandardError => e
             elog('Failed to setup the session', error: e)
-            print_brute :level => :error, :ip => ip, :msg => "Failed to setup the session - #{e.class} #{e.message}"
+            print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
           end
         end
 
         if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
-          msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
+          msg = 'While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with'
           msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
-          msg << " device details so it can be handled in the future."
-          print_brute :level => :error, :ip => ip, :msg => msg
+          msg << ' device details so it can be handled in the future.'
+          print_brute level: :error, ip: ip, msg: msg
         end
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
+        vprint_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
         invalidate_login(credential_data)
         :abort
       when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        vprint_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}'"
         invalidate_login(credential_data)
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
       else
@@ -230,13 +231,8 @@ class MetasploitModule < Msf::Auxiliary
 
     key_count = keys.key_data.count
     key_sources = []
-    unless datastore['KEY_PATH'].blank?
-      key_sources.append(datastore['KEY_PATH'])
-    end
-
-    unless datastore['PRIVATE_KEY'].blank?
-      key_sources.append('PRIVATE_KEY')
-    end
+    key_sources.append(datastore['KEY_PATH']) unless datastore['KEY_PATH'].blank?
+    key_sources.append('PRIVATE_KEY') unless datastore['PRIVATE_KEY'].blank?
 
     print_brute level: :vstatus, ip: ip, msg: "Testing #{key_count} #{'key'.pluralize(key_count)} from #{key_sources.join(' and ')}"
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
@@ -259,7 +255,7 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-        module_fullname: self.fullname,
+        module_fullname: fullname,
         workspace_id: myworkspace_id
       )
       case result.status

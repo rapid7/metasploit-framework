@@ -175,7 +175,7 @@ RSpec.describe 'SSH Login Check Scanner' do
         subject.session_setup(result, scanner)
       end.to change(Mdm::Host, :count).by(1)
 
-      expect(Mdm::Host.last.os_name).to eql platform
+      expect(Mdm::Host.last.os_name).to eql platform.capitalize
     end
 
     context 'when scanner does not have an ssh connection' do
