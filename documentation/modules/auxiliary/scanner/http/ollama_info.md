@@ -43,7 +43,7 @@ docker run -d -p 11434:11434 --name my-ollama my-ollama
 3. Do: `use auxiliary/scanner/http/ollama_info`
 4. Do: `set rhosts [IPs]`
 5. Do: `run`
-6. You should get information about the models in teh ollama instance
+6. You should get information about the models in the ollama instance
 
 ## Options
 
