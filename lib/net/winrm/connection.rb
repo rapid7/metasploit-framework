@@ -5,6 +5,7 @@
 
 require 'winrm'
 require 'net/winrm/stdin_shell'
+require 'net/winrm/power_shell'
 require 'net/winrm/rex_http_transport'
 
 module Net
@@ -12,7 +13,7 @@ module Net
     # Connection to a WinRM service, using Rex sockets
     class RexWinRMConnection < WinRM::Connection
       # Factory class to create a shell of the appropriate type.
-      # Subclassed to be able to provide a StdinShell
+      # Subclassed to provide Rex-safe shell implementations.
       class ShellFactory < WinRM::Shells::ShellFactory
         def create_shell(shell_type, shell_opts = {})
           args = [
@@ -22,6 +23,7 @@ module Net
             shell_opts
           ]
           return StdinShell.new(*args) if shell_type == :stdin
+          return PowerShell.new(*args) if shell_type == :powershell
 
           super(shell_type, shell_opts)
         end
