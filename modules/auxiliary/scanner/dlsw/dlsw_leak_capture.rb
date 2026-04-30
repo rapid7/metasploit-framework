@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if response.blank?
       vprint_status("No response")
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe('No response received from DLSw service')
     elsif response[0..1] == "\x31\x48" || response[0..1] == "\x32\x48"
       vprint_good("Detected DLSw protocol")
       report_service(
@@ -75,11 +75,11 @@ class MetasploitModule < Msf::Auxiliary
           refs: references,
           info: "Module #{fullname} collected #{response.length} bytes"
         )
-        Exploit::CheckCode::Vulnerable
+        Exploit::CheckCode::Vulnerable('DLSw information disclosure detected; leaked data found in response')
       end
     else
       vprint_status("#{response.size}-byte response didn't contain any leaked data")
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe('Response did not contain any leaked data')
     end
   end
 

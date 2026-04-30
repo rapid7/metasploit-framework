@@ -53,7 +53,7 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 - when opening a file, make sure the file exists first
 - when checking for a string in a response - will it always be in english?
 - Ensure hardcoded strings being regex'ed will be consistent across multiple versions
-- Use the TEST-NET-1 range for example / non-routeable IP address: `192.0.2.0`
+- Use the TEST-NET-1 range for example / non-routeable IP addresses in unit tests and spec files: `192.0.2.0`. Local/private IPs are fine in module documentation scenarios.
 - Use fetch payload instead of command stagers when only options that request the stage are available (i.e. don’t use a cmd stager and only allow curl/wget).
 - Define bad characters instead of explicitly base-64 encoding payloads
 - Use `ARCH_CMD` payloads instead of command stagers when only curl/wget and other download mechanisms would be available

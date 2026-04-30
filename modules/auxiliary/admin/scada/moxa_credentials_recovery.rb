@@ -222,19 +222,19 @@ class MetasploitModule < Msf::Auxiliary
 
     unless response
       vprint_error('Unknown response')
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('No response from target')
     end
 
     # A valid response is 24 bytes, starts with 0x81, and contains the values
     # 0x00, 0x90, 0xe8 (the Moxa OIU) in bytes 14, 15, and 16.
     if response[0] == "\x81" && response[14..16] == "\x00\x90\xe8" && response.length == 24
       format_output(response)
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears('Moxa device detected via proprietary protocol')
     end
 
     cleanup
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Target does not appear to be a Moxa device')
   end
 
   def run

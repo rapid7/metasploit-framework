@@ -28,7 +28,7 @@ module Payload::Windows::SendUUID
         db #{raw_to_db(uuid_raw)}  ; UUID
       get_uuid_address:
         push edi               ; saved socket
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'send')}
+        push #{block_api_hash('ws2_32.dll', 'send')}
         call ebp               ; call send
     ^
 

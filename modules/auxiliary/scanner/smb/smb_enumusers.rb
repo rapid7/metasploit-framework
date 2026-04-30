@@ -108,7 +108,12 @@ class MetasploitModule < Msf::Auxiliary
   def run_service_domain(tree, smb_domain: nil)
     @smb_domain = smb_domain
 
-    samr_con = connect_samr(tree)
+    begin
+      samr_con = connect_samr(tree)
+    rescue ::Exception => e
+      print_error("SAMR connection failed: #{e.class} #{e}")
+      return nil
+    end
 
     lockout_info = samr_con.samr.samr_query_information_domain(
       domain_handle: samr_con.domain_handle,
@@ -132,8 +137,10 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   ensure
-    samr_con.samr.close_handle(samr_con.domain_handle) if samr_con.domain_handle
-    samr_con.samr.close_handle(samr_con.server_handle) if samr_con.server_handle
+    if samr_con
+      samr_con.samr.close_handle(samr_con.domain_handle) if samr_con.domain_handle
+      samr_con.samr.close_handle(samr_con.server_handle) if samr_con.server_handle
+    end
   end
 
   def report_username(domain, username)

@@ -2059,6 +2059,15 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/riscv64le/shell_reverse_tcp'
   end
 
+  context 'linux/loongarch64/chmod' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/loongarch64/chmod'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/loongarch64/chmod'
+  end
+
   context 'linux/loongarch64/reboot' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3578,23 +3587,6 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/download_exec'
   end
 
-  context 'windows/encrypted_shell/reverse_tcp' do
-    it_should_behave_like 'payload is not cached',
-                          ancestor_reference_names: [
-                              'stagers/windows/encrypted_reverse_tcp',
-                              'stages/windows/encrypted_shell'
-                          ],
-                          reference_name: 'windows/encrypted_shell/reverse_tcp'
-  end
-
-  context 'windows/encrypted_shell_reverse_tcp' do
-    it_should_behave_like 'payload is not cached',
-                          ancestor_reference_names: [
-                              'singles/windows/encrypted_shell_reverse_tcp'
-                          ],
-                          reference_name: 'windows/encrypted_shell_reverse_tcp'
-  end
-
   context 'windows/exec' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -5028,23 +5020,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stages/windows/x64/custom'
                           ],
                           reference_name: 'windows/x64/custom/reverse_winhttps'
-  end
-
-  context 'windows/x64/encrypted_shell/reverse_tcp' do
-    it_should_behave_like 'payload is not cached',
-                          ancestor_reference_names: [
-                              'stagers/windows/x64/encrypted_reverse_tcp',
-                              'stages/windows/x64/encrypted_shell'
-                          ],
-                          reference_name: 'windows/x64/encrypted_shell/reverse_tcp'
-  end
-
-  context 'windows/x64/encrypted_shell_reverse_tcp' do
-    it_should_behave_like 'payload is not cached',
-                          ancestor_reference_names: [
-                              'singles/windows/x64/encrypted_shell_reverse_tcp'
-                          ],
-                          reference_name: 'windows/x64/encrypted_shell_reverse_tcp'
   end
 
   context 'windows/x64/exec' do

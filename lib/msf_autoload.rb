@@ -171,7 +171,6 @@ class MsfAutoload
       'reflective_dll_injection' => 'ReflectiveDLLInjection',
       'reflective_pe_loader' => 'ReflectivePELoader',
       'pe_inject' => 'PEInject',
-      'payload_db_conf' => 'PayloadDBConf',
       'reverse_tcp_x86' => 'ReverseTcp_x86',
       'reverse_tcp_aarch64' => 'ReverseTcp_Aarch64',
       'ruby_dl' => 'RubyDL',

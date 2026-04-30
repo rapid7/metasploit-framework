@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if res.nil?
-      Exploit::CheckCode::Unknown
+      Exploit::CheckCode::Unknown('No response received from the target')
     elsif res.code == 302
 
       id_url = res.redirection.to_s[%r{assets/app/(\w+)/services/#{class_file}}, 1]
@@ -66,12 +66,12 @@ class MetasploitModule < Msf::Auxiliary
 
       if res.code == 200 && res.headers['Content-Type'] =~ %r{application/java.*}
         print_good("Java file leak at #{rhost}:#{rport}#{normalized_url}")
-        Exploit::CheckCode::Vulnerable
+        Exploit::CheckCode::Vulnerable("Java class file leaked at #{normalized_url}")
       else
-        Exploit::CheckCode::Safe
+        Exploit::CheckCode::Safe('Redirected but class file not accessible')
       end
     else
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe("Unexpected HTTP response code: #{res.code}")
     end
   end
 

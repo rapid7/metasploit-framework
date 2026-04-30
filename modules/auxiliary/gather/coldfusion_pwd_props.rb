@@ -114,10 +114,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def check
     if check_cf
-      return Msf::Exploit::CheckCode::Vulnerable
+      return Msf::Exploit::CheckCode::Vulnerable('ColdFusion password.properties file is accessible')
     end
 
-    Msf::Exploit::CheckCode::Safe
+    Msf::Exploit::CheckCode::Safe('ColdFusion password.properties file is not accessible')
   end
 
   def check_cf

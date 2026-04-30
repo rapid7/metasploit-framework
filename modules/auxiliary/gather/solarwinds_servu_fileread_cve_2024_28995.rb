@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       return Msf::Exploit::CheckCode::Vulnerable("SolarWinds Serv-U version #{version[1]} (#{os.nil? ? 'Unknown OS' : os[1]})")
     end
 
-    Msf::Exploit::CheckCode::Safe
+    Msf::Exploit::CheckCode::Safe('Target does not appear to be a vulnerable SolarWinds Serv-U instance')
   end
 
   def run

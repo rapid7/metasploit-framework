@@ -314,11 +314,31 @@ module Auxiliary::Report
         :fail_detail  => 'vulnerability identified',
         :fail_reason  => 'Untried', # Mdm::VulnAttempt::Status::UNTRIED, avoiding direct dependency on Mdm, used elsewhere in this module
         :module       => mname,
-        :username     => username  || "unknown"
+        :username     => username || self.owner || "unknown"
     }
 
+    # Enrich attempt with check code details when available.
+    # Accept an explicit check_code in opts (useful when the module knows the
+    # result before the framework sets self.check_code), falling back to the
+    # module-level accessor.
+    check_code = opts[:check_code]
+    check_code = self.check_code if check_code.nil? && self.respond_to?(:check_code)
+    if check_code.is_a?(Msf::Exploit::CheckCode)
+      attempt_info[:check_code] = check_code.code
+      attempt_info[:check_detail] = check_code.reason || check_code.message
+      attempt_info[:fail_detail] = nil
+      mapped_reason = Msf::Module::Failure.fail_reason_from_check_code(check_code)
+      attempt_info[:fail_reason] = mapped_reason if mapped_reason
+    end
+
     # TODO: figure out what opts are required and why the above logic doesn't match that of the db_manager method
-    framework.db.report_vuln_attempt(vuln, attempt_info)
+    attempt = framework.db.report_vuln_attempt(vuln, attempt_info)
+
+    # Store the attempt object so that report_failure (called later by the
+    # job wrapper) can enrich it directly without re-querying the DB.
+    if self.respond_to?(:last_vuln_attempt=)
+      self.last_vuln_attempt = attempt || true
+    end
 
     vuln
   end

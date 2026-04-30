@@ -63,14 +63,15 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    return Exploit::CheckCode::Safe unless res&.code == 200
-    return Exploit::CheckCode::Safe unless res.headers['Content-Type'].strip.start_with?('text/xml')
+    return Exploit::CheckCode::Unknown('No response received from target') if res.nil?
+    return Exploit::CheckCode::Safe('Unexpected HTTP status') unless res.code == 200
+    return Exploit::CheckCode::Safe('Response is not XML') unless res.headers['Content-Type'].to_s.strip.start_with?('text/xml')
 
     xml = res.get_xml_document
-    return Exploit::CheckCode::Safe unless xml.namespaces['xmlns:wsdl'] == 'http://schemas.xmlsoap.org/wsdl/'
-    return Exploit::CheckCode::Safe if xml.xpath("//wsdl:definitions/wsdl:service[@name='CTCWebService']").empty?
+    return Exploit::CheckCode::Safe('Response does not contain WSDL namespace') unless xml.namespaces['xmlns:wsdl'] == 'http://schemas.xmlsoap.org/wsdl/'
+    return Exploit::CheckCode::Safe('CTCWebService not found in WSDL') if xml.xpath("//wsdl:definitions/wsdl:service[@name='CTCWebService']").empty?
 
-    Exploit::CheckCode::Vulnerable
+    Exploit::CheckCode::Vulnerable('SAP NetWeaver CTCWebService WSDL endpoint is accessible')
   end
 
   def run

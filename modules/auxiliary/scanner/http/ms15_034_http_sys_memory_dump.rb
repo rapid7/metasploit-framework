@@ -99,13 +99,13 @@ class MetasploitModule < Msf::Auxiliary
         # Save the file that we want to use for the information leak
         target_uri.path = uri
 
-        return Exploit::CheckCode::Vulnerable
+        return Exploit::CheckCode::Vulnerable("#{uri} returned 'Requested Range Not Satisfiable', indicating HTTP.SYS is vulnerable to MS15-034.")
       elsif res && res.body.include?('The request has an invalid header name')
-        return Exploit::CheckCode::Safe
+        return Exploit::CheckCode::Safe('Server rejected the crafted Range header, indicating it is not vulnerable to MS15-034.')
       end
     end
 
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('Could not determine vulnerability status. No static file returned a definitive response.')
   end
 
   def dump(data)

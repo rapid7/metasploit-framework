@@ -23,7 +23,7 @@ module Payload::Windows::Exitfunk_x64
       asm << %Q^
         push 0                ;
         pop rcx               ; set the exit function parameter
-        mov ebx, 0x#{Msf::Payload::Windows.exit_types['seh'].to_s(16)}
+        mov ebx, #{block_api_hash('kernel32.dll', 'SetUnhandledExceptionFilter')}
         mov r10d, ebx         ; place the correct EXITFUNK into r10d
         call rbp              ; SetUnhandledExceptionFilter(0)
         push 0                ;
@@ -34,7 +34,7 @@ module Payload::Windows::Exitfunk_x64
       asm << %Q^
         push 0                ;
         pop rcx               ; set the exit function parameter
-        mov ebx, 0x#{Msf::Payload::Windows.exit_types['thread'].to_s(16)}
+        mov ebx, #{block_api_hash('kernel32.dll', 'ExitThread')}
         mov r10d, ebx         ; place the correct EXITFUNK into r10d
         call rbp              ; call EXITFUNK( 0 );
       ^
@@ -43,7 +43,7 @@ module Payload::Windows::Exitfunk_x64
       asm << %Q^
         push 0                ;
         pop rcx               ; set the exit function parameter
-        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'ExitProcess')}
         call rbp              ; ExitProcess(0)
       ^
 
@@ -51,7 +51,7 @@ module Payload::Windows::Exitfunk_x64
       asm << %Q^
         push 300000           ; 300 seconds
         pop rcx               ; set the sleep function parameter
-        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'Sleep')}
         call rbp              ; Sleep(30000)
         jmp exitfunk          ; repeat
       ^

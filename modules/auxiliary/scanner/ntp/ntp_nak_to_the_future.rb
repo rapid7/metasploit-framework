@@ -90,11 +90,11 @@ class MetasploitModule < Msf::Auxiliary
           info: 'Accepted an NTP symmetric active association by replying with a symmetric passive request',
           refs: references
         )
-        return Exploit::CheckCode::Appears
+        return Exploit::CheckCode::Appears('NTP service accepted a symmetric active association')
       end
     end
 
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('NTP service did not respond to symmetric active request')
   end
 
   def run_host(_ip)

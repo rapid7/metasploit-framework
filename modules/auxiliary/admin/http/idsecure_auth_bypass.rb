@@ -47,19 +47,19 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => normalize_uri(target_uri.path, 'api/util/configUI')
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      return CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Connection failed')
     end
 
-    return CheckCode::Unknown unless res&.code == 401
+    return Exploit::CheckCode::Unknown('Target did not return HTTP 401') unless res&.code == 401
 
     data = res.get_json_document
     version = data['Version']
-    return CheckCode::Unknown if version.nil?
+    return Exploit::CheckCode::Unknown('Could not determine IDSecure version') if version.nil?
 
     print_status('Got version: ' + version)
-    return CheckCode::Safe unless Rex::Version.new(version) <= Rex::Version.new('4.7.43.0')
+    return Exploit::CheckCode::Safe("IDSecure version #{version} is not vulnerable") unless Rex::Version.new(version) <= Rex::Version.new('4.7.43.0')
 
-    return CheckCode::Appears
+    return Exploit::CheckCode::Appears("IDSecure version #{version} is vulnerable")
   end
 
   def run

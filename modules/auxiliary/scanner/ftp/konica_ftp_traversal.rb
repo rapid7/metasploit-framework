@@ -52,13 +52,13 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       if /FTP Utility FTP server \(Version 1\.00\)/i === banner
-        return Exploit::CheckCode::Appears
+        return Exploit::CheckCode::Appears('Konica FTP Utility server Version 1.00 detected')
       end
     ensure
       disconnect
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Target is not running Konica FTP Utility server')
   end
 
   def run_host(target_host)

@@ -37,7 +37,11 @@ class MetasploitModule < Msf::Auxiliary
         negotiation is only present in version 3.1.1.
       },
       'Author' => ['hdm', 'Spencer McIntyre', 'Christophe De La Fuente'],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['URL', 'https://support.microsoft.com/en-us/help/161372/how-to-enable-smb-signing-in-windows-nt'],
+        ['URL', 'https://support.microsoft.com/en-us/help/887429/overview-of-server-message-block-signing'],
+      ]
     )
 
     register_options([
@@ -149,19 +153,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def smb_description(info)
-    desc = "SMB Detected (versions:#{info[:versions].join(', ')}) (preferred dialect:#{info[:preferred_dialect]})"
+    desc = "SMB Detected (versions: #{info[:versions].join(', ')}) (preferred dialect: #{info[:preferred_dialect]})"
     info[:capabilities].each do |name, values|
-      desc << " (#{name} capabilities:#{values.join(', ')})"
+      desc << " (#{name} capabilities: #{values.join(', ')})"
     end
 
     if info[:signing_required]
-      desc << ' (signatures:required)'
+      desc << ' (signatures: required)'
     else
-      desc << ' (signatures:optional)'
+      desc << ' (signatures: optional)'
     end
-    desc << " (uptime:#{info[:uptime]})" if info[:uptime]
-    desc << " (guid:#{Rex::Text.to_guid(info[:server_guid])})" if info[:server_guid]
-    desc << " (authentication domain:#{info[:auth_domain]})" if info[:auth_domain]
+    desc << " (uptime: #{info[:uptime]})" if info[:uptime]
+    desc << " (guid: #{Rex::Text.to_guid(info[:server_guid])})" if info[:server_guid]
+    desc << " (authentication domain: #{info[:auth_domain]})" if info[:auth_domain]
 
     desc
   end
@@ -209,13 +213,13 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if !res['build'].to_s.empty?
-      words << " (build:#{res['build']})"
+      words << " (build: #{res['build']})"
       nd_smb_fingerprint[:os_build] = res['build']
       nd_fingerprint_match['os.build'] = res['build']
     end
 
     if !res['lang'].to_s.empty? && res['lang'] != 'Unknown'
-      words << " (language:#{res['lang']})"
+      words << " (language: #{res['lang']})"
       nd_smb_fingerprint[:os_lang] = res['lang']
       nd_fingerprint_match['os.language'] = nd_smb_fingerprint[:os_lang]
     end
@@ -295,30 +299,32 @@ class MetasploitModule < Msf::Auxiliary
         if info[:os_name] && info[:os_name] != 'Unknown'
           smb_desc = smb_description(info)
           os_desc = "Host is running #{info[:os_name]}"
+          smb1_desc = smb1_fingerprint['native_lm'] ? "; #{smb1_fingerprint['native_lm']}" : ""
 
           lines << { type: :status, message: smb_desc }
           lines << { type: :good, message: "  #{os_desc}" }
+          lines << { type: :status, message: "  #{smb1_fingerprint['native_lm']}", verbose: true } if smb1_fingerprint['native_lm']
 
           unless info[:signing_required]
+            lines << { type: :status, message: '  SMB signing is not required' }
             report_vuln({
               host: ip,
               port: rport,
               proto: 'tcp',
               name: 'SMB Signing Is Not Required',
-              refs: [
-                SiteReference.new('URL', 'https://support.microsoft.com/en-us/help/161372/how-to-enable-smb-signing-in-windows-nt'),
-                SiteReference.new('URL', 'https://support.microsoft.com/en-us/help/887429/overview-of-server-message-block-signing'),
-              ]
+              info: 'Disabling SMB signing allows attackers to intercept and tamper with file-sharing traffic via man-in-the-middle attacks',
+              refs: self.references,
+              check_code: Msf::Exploit::CheckCode.Appears('SMB signing is not required')
             })
           end
 
-          # Report the service with a friendly banner
+          # Report the service with a detailed friendly banner
           report_service(
             host: ip,
             port: rport,
             proto: 'tcp',
             name: 'smb',
-            info: "#{smb_desc}; #{os_desc}"
+            info: "#{smb_desc}; #{os_desc}#{smb1_desc}"
           )
 
           # Report a fingerprint.match hash for name, domain, and language
@@ -332,19 +338,20 @@ class MetasploitModule < Msf::Auxiliary
           )
         elsif smb1_fingerprint['native_os'] || smb1_fingerprint['native_lm']
           desc = "#{smb1_fingerprint['native_os']} (#{smb1_fingerprint['native_lm']})"
-          report_service(host: ip, port: rport, name: 'smb', info: desc)
+
+          # Report the service with a friendly banner
+          report_service(
+            host: ip,
+            port: rport,
+            proto: 'tcp',
+            name: 'smb',
+            info: desc
+          )
+
           lines << { type: :status, message: "  Host could not be identified: #{desc}" }
         else
           lines << { type: :status, message: '  Host could not be identified', verbose: true }
         end
-
-        report_service(
-          host: ip,
-          port: rport,
-          proto: 'tcp',
-          name: 'smb',
-          info: "#{smb_desc}. #{os_desc}"
-        )
 
         # Report a smb.fingerprint hash of attributes for OS fingerprinting
         report_note(

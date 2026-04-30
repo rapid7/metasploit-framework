@@ -578,6 +578,7 @@ module Msf::Util::EXE::Windows::Common
     # This wrapper is responsible for allocating RWX memory, copying the
     # target code there, setting an exception handler that calls ExitProcess
     # and finally executing the code.
+    # TODO: We should use the standardized version of block-api here and use randomized IV
     def win32_rwx_exec(code)
       stub_block = Rex::Payloads::Shuffle.from_graphml_file(
         File.join(Msf::Config.install_root, 'data', 'shellcode', 'block_api.x86.graphml'),

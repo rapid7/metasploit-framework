@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if res.code == 200 && !res.body.include?('Microweber')
       print_error 'Microweber CMS has not been detected.'
-      Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Target does not appear to be running Microweber CMS')
     end
 
     if res.code != 200
@@ -81,22 +81,22 @@ class MetasploitModule < Msf::Auxiliary
       major, minor, build = res_body[/Version:\s+(\d+\.\d+\.\d+)/].gsub(/Version:\s+/, '').split('.')
       version = Rex::Version.new("#{major}.#{minor}.#{build}")
     rescue NoMethodError, TypeError
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Unknown('Could not extract Microweber version')
     end
 
     if version == Rex::Version.new('1.2.10')
       print_good 'Microweber version ' + version.to_s
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears("Microweber version #{version} is vulnerable")
     end
 
     print_error 'Microweber version ' + version.to_s
 
     if version < Rex::Version.new('1.2.10')
       print_warning 'The versions that are older than 1.2.10 have not been tested. You can follow the exploitation steps of the official vulnerability report.'
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown("Microweber version #{version} has not been tested")
     end
 
-    return Exploit::CheckCode::Safe
+    return Exploit::CheckCode::Safe("Microweber version #{version} is not vulnerable")
   end
 
   def try_login

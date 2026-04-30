@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path)
     })
     return Exploit::CheckCode::Unknown('Connection failed') unless res
-    return Exploit::CheckCode::Safe unless res.code == 200
+    return Exploit::CheckCode::Safe('Target did not return HTTP 200') unless res.code == 200
 
     version = res.body.scan(/Dolibarr ([\d.]+-*[a-zA-Z0-9]*)/).flatten.first
 

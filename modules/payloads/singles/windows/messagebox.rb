@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 231
+  CachedSize = 232
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
@@ -55,20 +55,20 @@ module MetasploitModule
 
     exitfunc_asm = %(
         push 0
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
+        push #{block_api_hash('kernel32.dll', 'ExitProcess')}
         call ebp
       )
     if datastore['EXITFUNC'].upcase.strip == 'THREAD'
       exitfunc_asm = %(
-        mov ebx, #{Rex::Text.block_api_hash('kernel32.dll', 'ExitThread')}
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'GetVersion')}
+        mov ebx, #{block_api_hash('kernel32.dll', 'ExitThread')}
+        push #{block_api_hash('kernel32.dll', 'GetVersion')}
         call ebp
         add esp,0x28
         cmp al,0x6
         jl use_exitthread   ; is older than Vista or Server 2003 R2?
         cmp bl,0xe0         ; check if GetVersion change the hash stored in EBX
         jne use_exitthread
-        mov ebx, #{Rex::Text.block_api_hash('ntdll.dll', 'RtlExitUserThread')}
+        mov ebx, #{block_api_hash('ntdll.dll', 'RtlExitUserThread')}
       use_exitthread:
         push 0
         push ebx
@@ -85,7 +85,7 @@ module MetasploitModule
       call get_user32
       db "user32.dll", 0x00
     get_user32:
-      push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
+      push #{block_api_hash('kernel32.dll', 'LoadLibraryA')}
       call ebp
       push #{style}
       call get_title
@@ -95,7 +95,7 @@ module MetasploitModule
       db "#{datastore['TEXT']}", 0x00
     get_text:
       push 0
-      push #{Rex::Text.block_api_hash('user32.dll', 'MessageBoxA')}
+      push #{block_api_hash('user32.dll', 'MessageBoxA')}
       call ebp
       #{exitfunc_asm}
     )

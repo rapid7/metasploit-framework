@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
 
     version = get_version
 
-    return Exploit::CheckCode::Detected unless version
+    return Exploit::CheckCode::Detected('Pretalx detected but unable to determine version') unless version
 
     return Exploit::CheckCode::Appears("Detected vulnerable version #{version}") if version <= Rex::Version.new('2.3.1')
 

@@ -104,9 +104,9 @@ class MetasploitModule < Msf::Auxiliary
     target_version = retrieve_version
     print_status("Target is running firmware version #{target_version}")
     if (target_version < Rex::Version.new('1.0.4.94')) && (target_version >= Rex::Version.new('1.0.2.62'))
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears("NETGEAR R6700 firmware #{target_version} is in the vulnerable range")
     else
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe("NETGEAR R6700 firmware #{target_version} is not vulnerable")
     end
   end
 

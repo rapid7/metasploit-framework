@@ -270,10 +270,6 @@ class MetasploitModule < Msf::Auxiliary
     # Private can be nil if we authenticated with Kerberos and a cached ticket was used. No need to report this.
     return unless result.credential.private
 
-    if !datastore['RECORD_GUEST'] && (result.access_level == Metasploit::Framework::LoginScanner::SMB::AccessLevels::GUEST)
-      return
-    end
-
     service_data = {
       address: ip,
       port: port,
@@ -281,6 +277,14 @@ class MetasploitModule < Msf::Auxiliary
       protocol: 'tcp',
       workspace_id: myworkspace_id
     }
+
+    report_service(
+      host: service_data[:address],
+      port: service_data[:port],
+      proto: service_data[:protocol],
+      name: service_data[:service_name]
+    )
+    return if !datastore['RECORD_GUEST'] && result.access_level == Metasploit::Framework::LoginScanner::SMB::AccessLevels::GUEST
 
     credential_data = {
       module_fullname: fullname,

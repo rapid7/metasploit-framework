@@ -155,7 +155,7 @@ class MetasploitModule < Msf::Auxiliary
   # Check for session tokens in 'tmp'
   #
   def check
-    get_session_tokens ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe
+    get_session_tokens ? Exploit::CheckCode::Vulnerable('Session tokens found in tmp directory') : Exploit::CheckCode::Safe('No session tokens found in tmp directory')
   end
 
   def report_cred(opts)

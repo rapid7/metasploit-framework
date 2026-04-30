@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
       unless entries&.find { |entry| entry[:vmwstsprivatekey].any? }
         print_error("#{ldap.peerinfo} is NOT vulnerable to CVE-2020-3952") unless datastore['LDAPPassword'].present?
         print_error('Dump failed')
-        return Exploit::CheckCode::Safe
+        return Exploit::CheckCode::Safe('Dump did not contain expected vmwSTSPrivateKey attribute')
       end
 
       print_good("#{ldap.peerinfo} is vulnerable to CVE-2020-3952") unless datastore['LDAPPassword'].present?

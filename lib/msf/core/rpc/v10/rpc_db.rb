@@ -393,6 +393,7 @@ public
   #    * 'updated_at' [Integer] Last updated at.
   #    * 'purpose' [String] Host purpose (example: server)
   #    * 'info' [String] Additional information about the host.
+  #    * 'comments' [String] The host's comments.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.hosts', {})
   def rpc_hosts(xopts)
@@ -422,6 +423,7 @@ public
       host[:updated_at] = h.updated_at.to_i
       host[:purpose] = h.purpose.to_s
       host[:info] = h.info.to_s
+      host[:comments] = h.comments.to_s
       ret[:hosts]  << host
     end
     ret

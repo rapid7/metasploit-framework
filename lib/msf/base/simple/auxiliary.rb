@@ -175,9 +175,13 @@ protected
     begin
       begin
         job_listener.start run_uuid
+        mod.check_code = nil if mod.respond_to?(:check_code=)
+        mod.last_vuln_attempt = nil if mod.respond_to?(:last_vuln_attempt=)
         mod.setup
         mod.framework.events.on_module_run(mod)
         result = block.call(mod)
+        # Store the check result if the block returned a CheckCode
+        mod.check_code = result if result.is_a?(Msf::Exploit::CheckCode)
         job_listener.completed(run_uuid, result, mod)
       rescue ::Exception => e
         job_listener.failed(run_uuid, e, mod)

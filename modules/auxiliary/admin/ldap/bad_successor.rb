@@ -105,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       @ldap = ldap
 
-      return Exploit::CheckCode::Safe unless windows_version_vulnerable?
+      return Exploit::CheckCode::Safe('Target Windows version is not vulnerable to BadSuccessor') unless windows_version_vulnerable?
 
       ous = get_ous_we_can_write_to
       if ous.blank?
@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good(" - #{ou}")
       end
 
-      Exploit::CheckCode::Appears
+      Exploit::CheckCode::Appears('Writable Organizational Units found, target appears vulnerable to BadSuccessor')
     end
   rescue Errno::ECONNRESET
     fail_with(Failure::Disconnected, 'The connection was reset.')

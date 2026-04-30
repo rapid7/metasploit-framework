@@ -30,8 +30,8 @@ api_call:
   mov rdx, [rdx+0x20]         ; Get the first module from the InMemoryOrder module list
 next_mod:                     ;
   mov rsi, [rdx+0x50]         ; Get pointer to modules name (unicode string)
-  movzx rcx, word [rdx+0x4a]  ; Set rcx to the length we want to check
-  xor r9, r9                  ; Clear r9 which will store the hash of the module name
+  movzx rcx, word [rdx+0x48]  ; Set rcx to the length we want to check
+  mov r9d, 0                  ; Set r9 to the IV of the hashed module name
 loop_modname:                 ;
   xor rax, rax                ; Clear rax
   lodsb                       ; Read in the next byte of the name
@@ -68,7 +68,7 @@ get_next_func:                ;
   dec rcx                     ; Decrement the function name counter
   mov esi, dword [r8+rcx*0x4]; Get rva of next module name
   add rsi, rdx                ; Add the modules base address
-  xor r9, r9                  ; Clear r9 which will store the hash of the function name
+  mov r9d, [rsp+0x8]          ; Initialize the current function hash to the module hash
   ; And compare it to the one we want
 loop_funcname:                ;
   xor rax, rax                ; Clear rax
@@ -77,7 +77,6 @@ loop_funcname:                ;
   add r9d, eax                ; Add the next byte of the name
   cmp al, ah                  ; Compare AL (the next byte from the name) to AH (null)
   jne loop_funcname           ; If we have not reached the null terminator, continue
-  add r9, [rsp+0x8]           ; Add the current module hash to the function hash
   cmp r9d, r10d               ; Compare the hash to the one we are searchnig for
   jnz get_next_func           ; Go compute the next function hash if we have not found it
   ; If found, fix up stack, call the function and then value else compute the next one...

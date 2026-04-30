@@ -4,8 +4,8 @@
 ##
 
 module MetasploitModule
-  CachedSize = 781
-  CachedSizeOverrides = {"windows/x64/custom/reverse_winhttps" => 798}
+  CachedSize = 750
+  CachedSizeOverrides = {"windows/x64/custom/reverse_winhttps" => 766}
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows

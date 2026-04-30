@@ -26,6 +26,7 @@ require:
   - ./lib/rubocop/cop/lint/detect_metadata_trailing_leading_whitespace.rb
   - ./lib/rubocop/cop/lint/detect_outdated_cmd_exec_api.rb
   - ./lib/rubocop/cop/lint/datastore_srvhost_usage.rb
+  - ./lib/rubocop/cop/lint/bare_check_code_in_non_exploit.rb
 
 Layout/SpaceBeforeBrackets:
   Enabled: true
@@ -684,3 +685,14 @@ Lint/DetectOutdatedCmdExecApi:
     Detects outdated usage of cmd_exec with separate arguments.
     Use `create_process(executable, args: [], time_out: 15, opts: {})` API with an args array instead.
   Enabled: true
+
+Lint/BareCheckCodeInNonExploit:
+  Description: >-
+    Use Exploit::CheckCode instead of bare CheckCode in non-exploit modules.
+    Bare CheckCode will raise a NameError at runtime in auxiliary, post, and evasion modules
+    because CheckCode is defined inside Msf::Exploit which is not in their ancestor chain.
+  Enabled: true
+  Include:
+    - 'modules/auxiliary/**/*'
+    - 'modules/post/**/*'
+    - 'modules/evasion/**/*'

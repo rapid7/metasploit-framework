@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
         res.body[%r{<column>(.+)</column>}m, 1] || ''
       else
         if res
-          check_error = Exploit::CheckCode::Safe
+          check_error = Exploit::CheckCode::Safe('Target responded but does not appear vulnerable')
         else
           check_error = Exploit::CheckCode::Unknown('Failed to send HTTP request')
         end
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
     vulnerable_test = sqli.test_vulnerable
-    check_error || (vulnerable_test ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe)
+    check_error || (vulnerable_test ? Exploit::CheckCode::Vulnerable('SQL injection confirmed') : Exploit::CheckCode::Safe('SQL injection test did not succeed'))
   end
 
   def dump_data(sqli)

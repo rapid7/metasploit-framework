@@ -87,9 +87,9 @@ class MetasploitModule < Msf::Auxiliary
 
     data = sqli(payload)
     if data && data.include?(flag)
-      Msf::Exploit::CheckCode::Vulnerable
+      Msf::Exploit::CheckCode::Vulnerable('SQL injection confirmed in com_realestatemanager')
     else
-      Msf::Exploit::CheckCode::Safe
+      Msf::Exploit::CheckCode::Safe('SQL injection test payload was not reflected in response')
     end
   end
 

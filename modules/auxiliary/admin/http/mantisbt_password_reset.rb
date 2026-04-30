@@ -52,14 +52,14 @@ class MetasploitModule < Msf::Auxiliary
 
     if res && res.body && res.body.include?('Powered by <a href="http://www.mantisbt.org" title="bug tracking software">MantisBT')
       vprint_status('MantisBT detected')
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Detected('MantisBT detected')
     else
       vprint_status('Not a MantisBT Instance!')
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Target does not appear to be MantisBT')
     end
   rescue Rex::ConnectionRefused
     print_error('Connection refused by server.')
-    return Exploit::CheckCode::Safe
+    return Exploit::CheckCode::Safe('Connection refused by server')
   end
 
   def run

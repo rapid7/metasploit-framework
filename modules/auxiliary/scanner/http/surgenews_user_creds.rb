@@ -52,10 +52,10 @@ class MetasploitModule < Msf::Auxiliary
     @tries = 0
     res = read_file 'install.log'
     if res =~ /SurgeNews/
-      return Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Vulnerable('SurgeNews installation detected via file disclosure')
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Target does not appear to be running SurgeNews')
   end
 
   def read_file(file)

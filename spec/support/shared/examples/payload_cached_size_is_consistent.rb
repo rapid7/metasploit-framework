@@ -110,7 +110,7 @@ RSpec.shared_examples_for 'payload cached size is consistent' do |options|
 
     next if reference_name =~ /generic|peinject/
 
-    it 'has a valid cached_size' do
+    it 'has a valid cached_size', skip: 'Migrated to Jenkins' do
       pinst = load_and_create_module(
             ancestor_reference_names: ancestor_reference_names,
             module_type: module_type,

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_30_124052) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_11_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -665,6 +665,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_30_124052) do
     t.integer "session_id"
     t.integer "loot_id"
     t.text "fail_detail"
+    t.string "check_code"
+    t.text "check_detail"
   end
 
   create_table "vuln_details", id: :serial, force: :cascade do |t|

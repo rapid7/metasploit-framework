@@ -59,9 +59,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    is_vul ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe
+    is_vul ? Exploit::CheckCode::Vulnerable('Target is vulnerable to IIS shortname scanning') : Exploit::CheckCode::Safe('Target is not vulnerable to IIS shortname scanning')
   rescue Rex::ConnectionError
     print_bad("Failed to connect to target")
+    Exploit::CheckCode::Unknown('Failed to connect to target')
   end
 
   def is_vul

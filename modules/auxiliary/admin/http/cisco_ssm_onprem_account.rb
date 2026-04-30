@@ -143,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Appears('Password reset was successful, target is vulnerable')
     end
 
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('Password reset status could not be determined')
   end
 
   def decode_url(encoded_string)

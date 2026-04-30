@@ -177,7 +177,7 @@ module Msf::ModuleManager::Cache
       reference_name = module_metadata.ref_name
 
       # Skip cached modules that are not in our allowed load paths
-      next if allowed_paths.select{|x| path.index(x) == 0}.empty?
+      next unless allowed_paths.any? { |x| path.start_with?(x) }
 
       parent_path = get_parent_path(path, type)
 
@@ -207,8 +207,10 @@ module Msf::ModuleManager::Cache
   end
 
   def get_parent_path(module_path, type)
-    # The load path is assumed to be the next level above the type directory
-    type_dir = File.join('', Mdm::Module::Detail::DIRECTORY_BY_TYPE[type], '')
-    module_path.split(type_dir)[0..-2].join(type_dir) # TODO: rewrite
+    # The load path is the directory above the type directory (e.g. everything
+    # before "/exploits/" in the module's absolute path).
+    type_dir = "#{File::SEPARATOR}#{Mdm::Module::Detail::DIRECTORY_BY_TYPE[type]}#{File::SEPARATOR}"
+    idx = module_path.rindex(type_dir)
+    idx ? module_path[0, idx] : module_path
   end
 end
