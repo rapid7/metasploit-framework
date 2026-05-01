@@ -3,7 +3,6 @@ require 'cgi'
 require 'uri'
 
 require 'nokogiri'
-require 'rkelly'
 
 module Rex
 module Proto
@@ -121,7 +120,7 @@ class Response < Packet
   end
 
   def gzip_decode
-    gz = Zlib::GzipReader.new(StringIO.new(self.body.to_s))    
+    gz = Zlib::GzipReader.new(StringIO.new(self.body.to_s))
 
     gz.read
   end
@@ -158,6 +157,8 @@ class Response < Packet
   # @see https://github.com/tenderlove/rkelly
   # @return [Array<RKelly::Nodes::SourceElementsNode>]
   def get_html_scripts
+    require 'rkelly'
+
     n = get_html_document
     rkelly = RKelly::Parser.new
     n.search('//script').map { |s| rkelly.parse(s.text) }

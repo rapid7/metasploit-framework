@@ -3,6 +3,26 @@
 module Rex
   Root = File.join(File.expand_path(File.dirname(__FILE__)), 'rex')
   LogSource = "rex"
+
+  # library for creating Powershell scripts for exploitation purposes
+  autoload :Powershell, 'rex/powershell'
+  # Library for working with OLE
+  autoload :OLE, 'rex/ole'
+  # Library for creating and/or parsing MIME messages
+  autoload :MIME, 'rex/mime'
+  # Exploit Helper Library
+  autoload :Exploitation, 'rex/exploitation'
+  # Binary parsing tools (PE, ELF, Mach-O)
+  autoload :BinTools, 'rex/bin_tools'
+  autoload :PeParsey, 'rex/peparsey'
+  autoload :PeScan, 'rex/pescan'
+  autoload :ElfParsey, 'rex/elfparsey'
+  autoload :ElfScan, 'rex/elfscan'
+  autoload :MachParsey, 'rex/machparsey'
+  autoload :MachScan, 'rex/machscan'
+  autoload :ImageSource, 'rex/image_source'
+  # SSLScan
+  autoload :SSLScan, 'rex/sslscan/scanner'
 end
 
 #
@@ -13,8 +33,6 @@ end
 require 'rex/text'
 # Library for Generating Randomized strings valid as Identifiers such as variable names
 require 'rex/random_identifier'
-# library for creating Powershell scripts for exploitation purposes
-require 'rex/powershell'
 # Library for processing and creating Zip compatible archives
 require 'rex/zip'
 # Library for parsing offline Windows Registry files
@@ -23,16 +41,10 @@ require 'rex/registry'
 require 'rex/java'
 # Library for creating C-style Structs
 require 'rex/struct2'
-# Library for working with OLE
-require 'rex/ole'
-# Library for creating and/or parsing MIME messages
-require 'rex/mime'
 # Library for polymorphic encoders
 require 'rex/encoder'
 # Architecture subsystem
 require 'rex/arch'
-# Exploit Helper Library
-require 'rex/exploitation'
 
 # Generic classes
 require 'rex/file'
@@ -56,10 +68,6 @@ require 'rex/socket'
 
 # Compatibility
 require 'rex/compat'
-
-# SSLScan
-require 'rex/sslscan/scanner'
-require 'rex/sslscan/result'
 
 # Versions
 require 'rex/version'

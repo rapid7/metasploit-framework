@@ -2,8 +2,6 @@
 module Msf
 module Exe
 
-  require 'metasm'
-
   class SegmentAppender < SegmentInjector
 
     def payload_stub(prefix)
