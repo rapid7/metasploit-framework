@@ -184,7 +184,7 @@ class MetasploitModule < Msf::Auxiliary
           next unless kex.downcase == bad_kex
         end
 
-        vprint_good("#{target_host} - Key Exchange (kex) #{kex} is deprecated and should not be used")
+        vprint_good("#{target_host} - Key EXchange (KEX) #{kex} is deprecated and should not be used")
         deprecated << { name: kex, refs: data[:refs] }
         note = data[:note].presence || 'Deprecated'
       end
@@ -297,6 +297,20 @@ class MetasploitModule < Msf::Auxiliary
       # https://www.tenable.com/plugins/nessus/153954
 
       print_status("#{target_host} - #{table}")
+
+      flagged_rows = table.rows.reject { |r| r[2].to_s.empty? }
+      if flagged_rows.any?
+        category_labels = {
+          'encryption.key_exchange' => 'KEX',
+          'encryption.host_key' => 'Host Key',
+          'encryption.hmac' => 'HMAC',
+          'encryption.encryption' => 'Encryption'
+        }
+        breakdown = flagged_rows.group_by { |r| r[0] }.map do |type, rows|
+          "#{rows.count} #{category_labels[type] || type}"
+        end.join(', ')
+        print_warning("#{target_host} - Found #{flagged_rows.count} deprecated/weak algorithm(s): #{breakdown}")
+      end
     end
   rescue EOFError, Rex::ConnectionRefused, Errno::ECONNREFUSED => e
     vprint_error("#{target_host} - #{e.message}")
