@@ -57,3 +57,5 @@ group :test do
   gem 'webmock', '~> 3.18'
 end
 
+gem 'ruby_smb', git: 'https://github.com/zeroSteiner/ruby_smb', branch: 'feat/smb1/symlink'
+
