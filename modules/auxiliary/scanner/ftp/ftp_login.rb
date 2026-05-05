@@ -58,9 +58,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def grab_report_banner
+    vprint_status('Getting FTP banner')
+
     begin
       connect(true, false)
-      banner_version = banner.to_s.gsub(/^\d{3}[\s-]/, '').strip.gsub(/\A\(|\)\z/, '')
+    rescue ::Rex::ConnectionRefused
+      vprint_error('Connection refused')
+      return
     rescue ::Rex::ConnectionError, ::IOError => e
       vprint_error(e.message)
       return
@@ -73,13 +77,15 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
+    vprint_status("FTP Banner: #{@banner_version}")
+
     # Cleaned up FTP banner
     report_service(
       host: rhost,
       port: rport,
       proto: 'tcp',
       name: 'ftp',
-      info: banner_version,
+      info: @banner_version,
       parents: {
         host: rhost,
         port: rport,
@@ -99,9 +105,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status('Starting FTP login sweep')
-
     grab_report_banner
+
+    print_status('Starting FTP login sweep')
 
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
@@ -149,6 +155,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
 
+        vprint_status('Checking read/write access') if datastore['CHECK_ACCESS']
         access_level = test_ftp_access(result.credential.public, result.credential.private) if datastore['CHECK_ACCESS']
         credential_data[:access_level] = access_level if access_level
 
@@ -159,6 +166,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good(msg)
       else
         invalidate_login(credential_data)
+
         proof = result.proof.to_s.strip
         proof_str = proof.empty? ? result.status.to_s : "#{result.status}: #{proof}"
         vprint_error("Login Failed: #{result.credential} (#{proof_str})")
