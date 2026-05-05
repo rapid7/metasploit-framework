@@ -68,6 +68,12 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
     end
 
+    unless banner
+      vprint_warning('No FTP banner received')
+      return
+    end
+
+    # Cleaned up FTP banner
     report_service(
       host: rhost,
       port: rport,
@@ -80,6 +86,15 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'tcp',
         name: 'tcp'
       }
+    )
+
+    # Raw FTP banner
+    report_note(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      type: 'ftp.banner',
+      data: { banner: banner.strip }
     )
   end
 
