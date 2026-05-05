@@ -6,7 +6,6 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
-  include Msf::Auxiliary::Report
 
   def initialize
     super(
@@ -26,10 +25,10 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(_target_host)
     connect(true, false)
 
-    if (banner)
-      banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
-      print_good("FTP Banner: '#{banner_sanitized}'")
-      report_service(host: rhost, port: rport, name: 'ftp', info: banner_sanitized)
+    if banner
+      print_good("FTP Banner: #{Rex::Text.to_hex_ascii(banner_version)}")
+    else
+      print_warning('No FTP banner received')
     end
 
     disconnect
