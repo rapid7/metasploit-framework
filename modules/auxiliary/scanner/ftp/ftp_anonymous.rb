@@ -18,11 +18,10 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],
         ['CVE', '1999-0497'],
       ],
-      'Author' =>
-        [
-          'Matteo Cantoni <goony[at]nothink.org>',
-          'g0tmi1k'   # @g0tmi1k // https://blog.g0tmi1k.com/ - additional features
-       ],
+      'Author' => [
+        'Matteo Cantoni <goony[at]nothink.org>',
+        'g0tmi1k' # @g0tmi1k // https://blog.g0tmi1k.com/ - additional features
+      ],
       'License' => MSF_LICENSE,
       'Notes' => {
         'Stability' => [CRASH_SAFE],
@@ -40,62 +39,62 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(target_host)
-    begin
-      res = connect_login(true, false)
+    res = connect_login(true, false)
 
-      banner.strip! if banner
+    banner.strip! if banner
 
-      if res
-        dir = Rex::Text.rand_text_alpha(8)
-        vprint_status("Testing write access, Creating directory: #{dir}")
-        write_check = send_cmd(['MKD', dir], true)
+    if res
+      dir = Rex::Text.rand_text_alpha(8)
+      vprint_status("Testing write access, Creating directory: #{dir}")
+      # Alt would be to use STOR
+      write_check = send_cmd(['MKD', dir], true)
 
-        if write_check && write_check =~ /^2/
-          access_type = 'Read/Write'
+      if write_check && write_check =~ /^2/
+        access_type = 'Read/Write'
 
-          vprint_status("Deleting directory: #{dir}")
-          send_cmd(['RMD', dir], true)
+        vprint_status("Deleting directory: #{dir}")
+        send_cmd(['RMD', dir], true)
+      else
+        access_type = 'Read-only'
+      end
+      version = banner.gsub(/^\d{3}[\s-]/, '').gsub(/\A\(|\)\z/, '').strip
+      print_good("Anonymous #{access_type} access (#{version})")
+
+      if datastore['STORE_LOOT']
+        vprint_status('Listing directory contents')
+        listing = send_cmd_data(['LS'], nil)
+        if listing.nil?
+          print_warning('Could not retrieve directory listing (data connection failed)')
+        elsif listing[1].nil? || listing[1].empty?
+          vprint_status('Directory listing: (empty)')
         else
-          access_type = 'Read-only'
+          vprint_status("Directory listing:\n#{listing[1]}")
+          path = store_loot('ftp.anonymous', 'text/plain', rhost, listing[1], 'ftp_anonymous.txt', 'Anonymous FTP directory listing')
+          print_good("Directory listing stored to: #{path}")
         end
-        version = banner.gsub(/^\d{3}[\s-]/, '').gsub(/\A\(|\)\z/, '').strip
-        print_good("Anonymous #{access_type} access (#{version})")
-
-        if datastore['STORE_LOOT']
-          vprint_status("Listing directory contents")
-          listing = send_cmd_data(['LS'], nil)
-          if listing.nil?
-            print_warning('Could not retrieve directory listing (data connection failed)')
-          elsif listing[1].nil? || listing[1].empty?
-            vprint_status('Directory listing: (empty)')
-          else
-            vprint_status("Directory listing:\n#{listing[1]}")
-            path = store_loot('ftp.anonymous', 'text/plain', rhost, listing[1], 'ftp_anonymous.txt', 'Anonymous FTP directory listing')
-            print_good("Directory listing stored to: #{path}")
-          end
-        end
-
-        report_ftp_service(banner)
-        report_vuln(
-          host: rhost,
-          port: rport,
-          proto: 'tcp',
-          sname: 'ftp',
-          name: 'Anonymous FTP Access',
-          info: "Anonymous FTP login accepted with #{access_type} access",
-          refs: references
-        )
-        register_creds(target_host, access_type)
-      elsif banner
-        print_warning("FTP service, but no Anonymous access  (#{banner_version})")
-        report_ftp_service(banner)
       end
 
-      disconnect
-    rescue ::Interrupt
-      raise $ERROR_INFO
-    rescue ::Rex::ConnectionError, ::IOError
+      report_ftp_service(banner)
+      report_vuln(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        sname: 'ftp',
+        name: 'Anonymous FTP Access',
+        info: "Anonymous FTP login accepted with #{access_type} access",
+        refs: references
+      )
+      register_creds(target_host, access_type)
+    elsif banner
+      print_warning("FTP service, but no Anonymous access  (#{banner_version})")
+      report_ftp_service(banner)
     end
+
+    disconnect
+  rescue ::Interrupt
+    raise $ERROR_INFO
+  rescue ::Rex::ConnectionError, ::IOError => e
+    vprint_error(e.message)
   end
 
   def report_ftp_service(banner)
