@@ -103,6 +103,8 @@ class MetasploitModule < Msf::Auxiliary
       data: { info: 'Attempted to use machine for FTP bounce attack', target: ip }
     )
 
+    open_ports = []
+
     ports.each do |port|
       # Clear out the receive buffer since we're heavily dependent
       # on the response codes.  We need to do this between every
@@ -134,14 +136,29 @@ class MetasploitModule < Msf::Auxiliary
         resp = send_cmd(['LIST'])
 
         if resp =~ /^[12]/
-          print_good(" TCP OPEN #{ip}:#{port}")
-          report_service(host: ip, port: port, info: "Discovered via FTP bounce from #{rhost}:#{rport}")
+          print_good("  TCP OPEN #{ip}:#{port}")
+          report_service(host: ip, port: port, proto: 'tcp', info: "Discovered via FTP bounce from #{rhost}:#{rport}")
+          open_ports << port
         else
           vprint_warning("#{rhost}:#{rport} -> #{ip}:#{port}: LIST -- #{resp.strip}")
         end
       rescue ::StandardError
         print_error("Unknown error: #{$ERROR_INFO}")
       end
+    end
+
+    if open_ports.empty?
+      print_status("#{ports.length} port(s) scanned via #{rhost}:#{rport}, none open (relay may block FTP bounce)")
+    else
+      print_good("#{ports.length} port(s) scanned via #{rhost}:#{rport}, #{open_ports.length} port(s) open: #{open_ports.join(', ')}")
+      report_vuln(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        name: 'FTP Bounce Attack',
+        info: "FTP Relay accepted PORT/LIST to #{ip}:#{open_ports.join(',')}",
+        refs: references
+      )
     end
   end
 end
