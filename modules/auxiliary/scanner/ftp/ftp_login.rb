@@ -9,7 +9,6 @@ require 'metasploit/framework/login_scanner/ftp'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
-  include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
   def proto
@@ -77,31 +76,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    vprint_status("FTP Banner: #{@banner_version}")
-
-    # Cleaned up FTP banner
-    report_service(
-      host: rhost,
-      port: rport,
-      proto: 'tcp',
-      name: 'ftp',
-      info: @banner_version,
-      parents: {
-        host: rhost,
-        port: rport,
-        proto: 'tcp',
-        name: 'tcp'
-      }
-    )
-
-    # Raw FTP banner
-    report_note(
-      host: rhost,
-      port: rport,
-      proto: 'tcp',
-      type: 'ftp.banner',
-      data: { banner: banner.strip }
-    )
+    vprint_status("FTP Banner: #{banner_version}")
   end
 
   def run_host(ip)
@@ -117,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if cred_collection.empty?
-      print_error('No credentials specified. Set USERNAME/PASSWORD, USER_FILE/PASS_FILE, ANONYMOUS_LOGIN or BLANK_PASSWORDS.')
+      print_error('No credentials specified. Set USERNAME/PASSWORD, USER_FILE/PASS_FILE, or ANONYMOUS_LOGIN.')
       return
     end
 
