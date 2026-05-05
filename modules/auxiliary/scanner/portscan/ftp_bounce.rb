@@ -76,6 +76,8 @@ class MetasploitModule < Msf::Auxiliary
       raise Msf::OptionValidateError, ['DELAY']
     end
 
+    vprint_warning('Scanning relay host via itself') if rhost == ip
+
     connected = connect_login
 
     if banner
