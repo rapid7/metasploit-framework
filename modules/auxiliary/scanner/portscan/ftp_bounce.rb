@@ -25,7 +25,10 @@ class MetasploitModule < Msf::Auxiliary
         via FTP bounce even on an otherwise vulnerable relay.
       },
       'Author' => 'kris katterjohn',
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'References' => [
+        [ 'CVE', '1999-0017' ]
+      ]
     )
 
     register_options([
