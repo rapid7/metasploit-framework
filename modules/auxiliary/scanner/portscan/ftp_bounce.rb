@@ -62,19 +62,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
-    if ports.empty?
-      raise Msf::OptionValidateError, ['PORTS']
-    end
+    raise Msf::OptionValidateError, ['PORTS'] if ports.empty?
 
     jitter_value = datastore['JITTER'].to_i
-    if jitter_value < 0
-      raise Msf::OptionValidateError, ['JITTER']
-    end
+    raise Msf::OptionValidateError, ['JITTER'] if jitter_value < 0
 
     delay_value = datastore['DELAY'].to_i
-    if delay_value < 0
-      raise Msf::OptionValidateError, ['DELAY']
-    end
+    raise Msf::OptionValidateError, ['DELAY'] if delay_value < 0
 
     vprint_warning('Scanning relay host via itself') if rhost == ip
 
@@ -136,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
           vprint_warning("#{rhost}:#{rport} -> #{ip}:#{port}: PORT rejected (port <= 1023/TCP blocked by server, which is expected) -- #{resp.strip}")
           next
         elsif resp =~ /^5/
-          vprint_error("#{rhost}:#{rport} -> #{ip}:#{port}: PORT rejected -- #{resp.strip}")
+          vprint_warning("#{rhost}:#{rport} -> #{ip}:#{port}: PORT rejected -- #{resp.strip}")
           next
         elsif !resp
           print_error("#{rhost}:#{rport} -> #{ip}:#{port}: No response!")
@@ -170,5 +164,9 @@ class MetasploitModule < Msf::Auxiliary
         refs: references
       )
     end
+  rescue ::Interrupt
+    raise $ERROR_INFO
+  ensure
+    disconnect
   end
 end
