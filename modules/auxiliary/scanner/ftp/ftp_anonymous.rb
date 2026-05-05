@@ -90,10 +90,11 @@ class MetasploitModule < Msf::Auxiliary
       print_warning("FTP service, but no Anonymous access (#{sanitize_ftp_response(banner)})")
       report_ftp_service
     end
+  rescue ::Rex::TimeoutError, ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNREFUSED => e
+    vprint_error(e.message)
+    report_host(host: rhost)
   rescue ::Interrupt
     raise $ERROR_INFO
-  rescue ::Rex::ConnectionError, ::IOError => e
-    vprint_error(e.message)
   ensure
     disconnect
   end
