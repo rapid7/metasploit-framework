@@ -24,9 +24,12 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
+      OptAddressRange.new('RHOSTS', [true, 'The host(s) to scan via BOUNCEHOST (FTP relay)']), # Overwrite the mixin default value
       OptString.new('PORTS', [true, 'Ports to scan (e.g. 22-25,80,110-900)', '1-10000']),
       OptAddress.new('BOUNCEHOST', [true, 'FTP relay host']),
       OptPort.new('BOUNCEPORT', [true, 'FTP relay port', 21]),
+      OptString.new('FTPUSER', [false, 'Username for the FTP relay (BOUNCEHOST)', 'anonymous']), # Already defined in Msf::Exploit::Remote::Ftp, but in advanced section
+      OptString.new('FTPPASS', [false, 'Password for the FTP relay (BOUNCEHOST)', 'mozilla@example.com']), # Already defined in Msf::Exploit::Remote::Ftp, but in advanced section
       OptInt.new('DELAY', [true, 'The delay between connections, per thread, in milliseconds', 0]),
       OptInt.new('JITTER', [true, 'The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds.', 0])
     ])
@@ -49,19 +52,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
-    if ports.empty?
-      raise Msf::OptionValidateError, ['PORTS']
-    end
+    raise Msf::OptionValidateError, ['PORTS'] if ports.empty?
 
     jitter_value = datastore['JITTER'].to_i
-    if jitter_value < 0
-      raise Msf::OptionValidateError, ['JITTER']
-    end
+    raise Msf::OptionValidateError, ['JITTER'] if jitter_value < 0
 
     delay_value = datastore['DELAY'].to_i
-    if delay_value < 0
-      raise Msf::OptionValidateError, ['DELAY']
-    end
+    raise Msf::OptionValidateError, ['DELAY'] if delay_value < 0
 
     return if !connect_login
 
@@ -98,5 +95,9 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Unknown error: #{$ERROR_INFO}")
       end
     end
+  rescue ::Interrupt
+    raise $ERROR_INFO
+  ensure
+    disconnect
   end
 end
