@@ -87,6 +87,14 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'tcp',
         info: sanitize_ftp_response(banner)
       )
+
+      report_note(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        type: 'ftp.banner',
+        data: { banner: banner.strip }
+      )
     end
 
     unless connected
