@@ -36,6 +36,8 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('PORTS', [true, 'Ports to scan (e.g. 22-25,80,110-900)', '1024-10000']),
       OptAddress.new('BOUNCEHOST', [true, 'FTP relay host']),
       OptPort.new('BOUNCEPORT', [true, 'FTP relay port', 21]),
+      OptString.new('FTPUSER', [false, 'Username for the FTP relay (BOUNCEHOST)', 'anonymous']), # Already defined in Msf::Exploit::Remote::Ftp, but in advanced section
+      OptString.new('FTPPASS', [false, 'Password for the FTP relay (BOUNCEHOST)', 'mozilla@example.com']), # Already defined in Msf::Exploit::Remote::Ftp, but in advanced section
       OptInt.new('DELAY', [true, 'The delay between connections, per thread, in milliseconds', 0]),
       OptInt.new('JITTER', [true, 'The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds.', 0])
     ])
@@ -56,10 +58,6 @@ class MetasploitModule < Msf::Auxiliary
     datastore['BOUNCEPORT']
   end
 
-  def sanitize_ftp_response(str)
-    Rex::Text.to_hex_ascii(str.to_s.gsub(/^\d{3}[\s-]/, '').strip.gsub(/\A\(|\)\z/, ''))
-  end
-
   def run_host(ip)
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
     raise Msf::OptionValidateError, ['PORTS'] if ports.empty?
@@ -73,25 +71,6 @@ class MetasploitModule < Msf::Auxiliary
     vprint_warning('Scanning relay host via itself') if rhost == ip
 
     connected = connect_login
-
-    if banner
-      # This is the FTP relay (BOUNCEHOST/BOUNCEPORT)
-      report_service(
-        host: rhost,
-        port: rport,
-        name: 'ftp',
-        proto: 'tcp',
-        info: sanitize_ftp_response(banner)
-      )
-
-      report_note(
-        host: rhost,
-        port: rport,
-        proto: 'tcp',
-        type: 'ftp.banner',
-        data: { banner: banner.strip }
-      )
-    end
 
     unless connected
       print_error("Could not authenticate to relay #{rhost}:#{rport} (check FTPUSER/FTPPASS)")
