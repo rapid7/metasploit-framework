@@ -17,7 +17,7 @@ module Msf::Util::EXE::Linux::Mips64
     # @option           [String] :template
     # @return           [String] Returns an elf
     def to_linux_mips64_elf(framework, code, opts = {})
-      Msf::Util::EXE::Common.to_exe_elf(framework, opts, "template_mips64_linux.bin", code)
+      Msf::Util::EXE::Common.to_exe_elf(framework, opts, "template_mips64_linux.bin", code, true)
     end
   end
 
