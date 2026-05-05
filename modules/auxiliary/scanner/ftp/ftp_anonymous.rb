@@ -75,7 +75,6 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      report_ftp_service
       report_vuln(
         host: rhost,
         port: rport,
@@ -88,8 +87,11 @@ class MetasploitModule < Msf::Auxiliary
       register_creds(target_host, access_type)
     elsif banner
       print_warning("FTP service, but no Anonymous access (#{sanitize_ftp_response(banner)})")
-      report_ftp_service
+    else
+      vprint_warning('No FTP banner received')
     end
+
+    report_ftp_service
   rescue ::Rex::TimeoutError, ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNREFUSED => e
     vprint_error(e.message)
     report_host(host: rhost)
