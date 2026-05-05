@@ -6,7 +6,6 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
-  include Msf::Auxiliary::Report
   include Msf::Module::Deprecated
   moved_from 'auxiliary/scanner/ftp/anonymous'
 
@@ -38,10 +37,6 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def sanitize_ftp_response(str)
-    Rex::Text.to_hex_ascii(str.to_s.gsub(/^\d{3}[\s-]/, '').strip.gsub(/\A\(|\)\z/, ''))
-  end
-
   def run_host(target_host)
     res = connect_login(true, false)
 
@@ -59,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
         access_type = 'Read-only'
       end
 
-      print_good("Anonymous #{access_type} access (#{sanitize_ftp_response(banner)})")
+      print_good("Anonymous #{access_type} access (#{@banner_version})")
 
       if datastore['STORE_LOOT']
         vprint_status('Listing directory contents')
@@ -86,12 +81,10 @@ class MetasploitModule < Msf::Auxiliary
       )
       register_creds(target_host, access_type)
     elsif banner
-      print_warning("FTP service, but no Anonymous access (#{sanitize_ftp_response(banner)})")
+      print_warning("FTP service, but no anonymous access (#{@banner_version})")
     else
       vprint_warning('No FTP banner received')
     end
-
-    report_ftp_service
   rescue ::Rex::TimeoutError, ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNREFUSED => e
     vprint_error(e.message)
     report_host(host: rhost)
@@ -99,16 +92,6 @@ class MetasploitModule < Msf::Auxiliary
     raise $ERROR_INFO
   ensure
     disconnect
-  end
-
-  def report_ftp_service
-    report_service(
-      host: rhost,
-      port: rport,
-      proto: 'tcp',
-      name: 'ftp',
-      info: sanitize_ftp_response(banner)
-    )
   end
 
   def register_creds(target_host, access_type)
