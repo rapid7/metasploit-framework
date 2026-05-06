@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       register_creds(target_host, access_type)
     elsif banner
-      print_warning("FTP service, but no anonymous access (#{@banner_version})")
+      print_warning("FTP service, but no anonymous access (#{banner_version})")
     else
       vprint_warning('No FTP banner received')
     end
