@@ -52,7 +52,7 @@ This module allows us to scan through a series of IP Addresses and provide detai
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/ftp/anonymous```
+1. Do: ```use auxiliary/scanner/ftp/ftp_anonymous```
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```set RPORT [IP]```
 4. Do: ```run```
@@ -62,17 +62,17 @@ This module allows us to scan through a series of IP Addresses and provide detai
 ### vsFTPd 3.0.3 on Kali
 
 ```
-msf > use auxiliary/scanner/ftp/anonymous
-msf auxiliary(anonymous) > set RHOSTS 127.0.0.1
+msf > use auxiliary/scanner/ftp/ftp_anonymous
+msf auxiliary(ftp_anonymous) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
-msf auxiliary(anonymous) > set RPORT 21
+msf auxiliary(ftp_anonymous) > set RPORT 21
 RPORT => 21
-msf auxiliary(anonymous) > exploit
+msf auxiliary(ftp_anonymous) > exploit
 
 [+] 127.0.0.1:21          - 127.0.0.1:21 - Anonymous READ (220 (vsFTPd 3.0.3))
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf auxiliary(anonymous) > 
+msf auxiliary(ftp_anonymous) >
 ```
 
 ## Confirming using NMAP
