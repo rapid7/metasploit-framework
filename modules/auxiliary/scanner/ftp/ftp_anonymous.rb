@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -19,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'Author' => [
         'Matteo Cantoni <goony[at]nothink.org>',
-        'g0tmi1k' # @g0tmi1k // https://blog.g0tmi1k.com/ - additional features
+        'g0tmi1k' # @g0tmi1k - additional features
       ],
       'License' => MSF_LICENSE,
       'Notes' => {
