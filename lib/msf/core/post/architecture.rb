@@ -4,6 +4,7 @@ module Msf::Post::Architecture
 
   # Get the architecture of the target's operating system.
   # @return [String, Nil] Returns a string containing the target OS architecture if known, or Nil if its not known.
+  #
   def get_os_architecture
     if session.type == 'meterpreter'
       os_architecture = sysinfo['Architecture']
@@ -31,6 +32,9 @@ module Msf::Post::Architecture
           print_error('Target is running Windows on an unsupported architecture!')
           return nil
         end
+      when 'linux', 'bsd', 'osx'
+        uname_m = cmd_exec('uname -m').to_s.strip
+        Rex::Arch.from_uname(uname_m)
       end
     end
   end
