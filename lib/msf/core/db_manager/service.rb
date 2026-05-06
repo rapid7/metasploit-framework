@@ -40,6 +40,16 @@ module Msf::DBManager::Service
     report_service(opts)
   end
 
+  # Maps well-known protocol symbols to their parent chain.
+  # Each entry lists the immediate parent(s) that should be auto-created.
+  # The chain is resolved recursively, e.g. :https → :ssl → :tcp.
+  SERVICE_PARENT_MAP = {
+    tcp:   [],
+    ssl:   [:tcp],
+    http:  [:tcp],
+    https: [:ssl]
+  }.freeze
+
   #
   # Record a service in the database.
   #
@@ -58,11 +68,15 @@ module Msf::DBManager::Service
   #               base URI for a web application, pipe name for DCERPC service, etc.
   # +:parents+::  a single service Hash or an Array of service Hash representing the parent services this
   #               service is associated with, such as a HTTP service for a web application.
+  #               This can also be an array of symbols, with one or more values from :http, :https, :ssl, :tcp
+  #               This helps avoid the need to explicitly create Mdm::Service objects, and lets this method take care of that
+  #               The symbol and Mdm::Service objects cannot be mix-and-matched.
   #`
   # @return [Mdm::Service,nil]
   def report_service(opts)
     return if !active
-  ::ApplicationRecord.connection_pool.with_connection { |conn|
+
+  ::ApplicationRecord.connection_pool.with_connection do |conn|
     opts = opts.clone() # protect the original caller's opts
     addr  = opts.delete(:host) || return
     hname = opts.delete(:host_name)
@@ -115,10 +129,27 @@ module Msf::DBManager::Service
 
     service.state ||= Msf::ServiceState::Open
     service.info  ||= ""
-    parents = process_service_chain(host, opts.delete(:parents)) if opts[:parents]
-    if parents
-      parents.each do |parent|
-        service.parents << parent if parent && !service.parents.include?(parent)
+
+    # Determine parent services:
+    # 1. If explicit parents are provided, use those
+    # 2. If the service name is a known protocol (http, https, ssl), auto-create the parent chain
+    # 3. If the service proto is 'tcp' and no parents are otherwise determined, auto-create a TCP parent
+    # 4. Otherwise, no parents (current behaviour)
+    explicit_parents = opts.delete(:parents)
+    parent_refs = if explicit_parents
+                    explicit_parents
+                  elsif opts[:name] && SERVICE_PARENT_MAP.key?(opts[:name].to_sym)
+                    SERVICE_PARENT_MAP[opts[:name].to_sym]
+                  elsif proto == 'tcp'
+                    [:tcp]
+                  end
+
+    if parent_refs&.any?
+      parents = process_service_chain(host, parent_refs, port: opts[:port].to_i, proto: proto)
+      if parents
+        parents.each do |parent|
+          service.parents << parent if parent && !service.parents.include?(parent)
+        end
       end
     end
 
@@ -148,7 +179,7 @@ module Msf::DBManager::Service
     end
 
     service
-  }
+  end
   end
 
   # Returns a list of all services in the database
@@ -190,7 +221,19 @@ module Msf::DBManager::Service
   }
   end
 
-  def process_service_chain(host, services)
+  # Resolves an array of parent service references into Mdm::Service objects.
+  #
+  # Each element can be:
+  # - A Symbol (:tcp, :ssl, :http, :https) — auto-created using SERVICE_PARENT_MAP
+  # - An Mdm::Service object — used directly
+  # - A Hash with service attributes — found or created
+  #
+  # @param host [Mdm::Host] the host to associate services with
+  # @param services [Array, Hash, Symbol, Mdm::Service, nil] parent service reference(s)
+  # @param port [Integer] the port to use when resolving symbol parents (inherited from the child)
+  # @param proto [String] the protocol to use when resolving symbol parents
+  # @return [Array<Mdm::Service>, nil] resolved parent service objects
+  def process_service_chain(host, services, port: nil, proto: 'tcp')
     return unless host.is_a?(Mdm::Host)
 
     return if services.nil?
@@ -198,40 +241,81 @@ module Msf::DBManager::Service
     services = [services] unless services.is_a?(Array)
     services.map do |service|
       case service
+      when ::Symbol
+        resolve_symbol_service(host, service, port: port, proto: proto)
       when ::Mdm::Service
-        service_obj = service
+        service
       when ::Hash
         next if service[:port].nil? || service[:proto].nil?
 
         parents = nil
         if service[:parents]&.any?
-          parents = process_service_chain(host, service[:parents])
+          parents = process_service_chain(host, service[:parents], port: service[:port].to_i, proto: service[:proto].to_s.downcase)
         end
 
         service_info = {
           port: service[:port].to_i,
-          proto: service[:proto].to_s.downcase,
+          proto: service[:proto].to_s.downcase
         }
         service_info[:name] = service[:name].downcase if service[:name]
         service_info[:resource] = service[:resource] if service[:resource]
         service_obj = host.services.find_or_create_by(service_info)
         if service_obj.id.nil?
           elog("Failed to create service #{service_info.inspect} for host #{host.name} (#{host.address})")
-          return
+          next
         end
         service_obj.state ||= Msf::ServiceState::Open
-        service_obj.info = service[:info] ? service[:info] : ''
+        service_obj.info = service[:info] || ''
 
         if parents
           parents.each do |parent|
             service_obj.parents << parent if parent && !service_obj.parents.include?(parent)
           end
         end
+
+        service_obj.save! if service_obj.changed?
+        service_obj
       else
         next
       end
-
-      service_obj
     end.compact
+  end
+
+  private
+
+  # Resolves a symbol (e.g. :https, :http, :ssl, :tcp) into an Mdm::Service record,
+  # recursively creating any parent services defined in SERVICE_PARENT_MAP.
+  #
+  # @param host [Mdm::Host] the host to associate the service with
+  # @param sym [Symbol] the service symbol to resolve
+  # @param port [Integer] the port number (inherited from the child service)
+  # @param proto [String] the transport protocol
+  # @return [Mdm::Service] the resolved or created service record
+  def resolve_symbol_service(host, sym, port:, proto: 'tcp')
+    unless SERVICE_PARENT_MAP.key?(sym)
+      elog("Unknown service symbol '#{sym}' passed to resolve_symbol_service")
+      return nil
+    end
+
+    # Recursively resolve this symbol's own parents first
+    parent_syms = SERVICE_PARENT_MAP[sym]
+    parents = if parent_syms.any?
+                process_service_chain(host, parent_syms, port: port, proto: proto)
+              end
+
+    service_info = {
+      port: port,
+      proto: proto,
+      name: sym.to_s
+    }
+    service_obj = host.services.where(service_info).first_or_create!(state: Msf::ServiceState::Open)
+
+    if parents&.any?
+      parents.each do |parent|
+        service_obj.parents << parent if parent && !service_obj.parents.include?(parent)
+      end
+    end
+
+    service_obj
   end
 end

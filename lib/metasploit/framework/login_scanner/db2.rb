@@ -21,6 +21,10 @@ module Metasploit
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = Metasploit::Model::Realm::Key::DB2_DATABASE
 
+        def report_db2_service
+          report_service(host: host, port: port, name: 'DB2', proto: 'tcp', workspace_id: myworkspace_id, parents: [:tcp])
+        end
+
         # @see Base#attempt_login
         def attempt_login(credential)
           result_options = {
@@ -38,6 +42,7 @@ module Metasploit
               else
                 result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
               end
+              report_db2_service
             end
           rescue ::Rex::ConnectionError, ::Rex::Proto::DRDA::RespError, ::Timeout::Error => e
             result_options.merge!({

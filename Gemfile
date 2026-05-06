@@ -56,3 +56,5 @@ group :test do
   # stub and set expectations on HTTP requests
   gem 'webmock', '~> 3.18'
 end
+
+gem 'metasploit-credential', '6.0.24', git: 'https://github.com/sjanusz-r7/metasploit-credential', branch: 'parent-services-when-creadting-creds'

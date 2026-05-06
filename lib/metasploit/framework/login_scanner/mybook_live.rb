@@ -12,6 +12,10 @@ module Metasploit
         DEFAULT_PORT    = 80
         PRIVATE_TYPES   = [ :password ]
 
+        def report_mybook_service
+          report_service(host: host, port: port, name: 'MyBook Live', proto: 'tcp', resource: uri, workspace_id: myworkspace_id, parents: [ ssl ? :https : :http ])
+        end
+
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           self.uri = '/UI/login' if self.uri.nil?
@@ -22,16 +26,14 @@ module Metasploit
 
         def attempt_login(credential)
           result_opts = {
+            service_name: 'MyBook Live',
             credential: credential,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
+
           begin
             res = send_request({
               'method' => method,
@@ -49,6 +51,7 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res.headers)
             end
+            report_mybook_service
           rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
           end

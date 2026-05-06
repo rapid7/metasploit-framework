@@ -17,6 +17,10 @@ module Metasploit
         PRIVATE_TYPES = %i[ password ].freeze
         CAN_GET_SESSION = true
 
+        def report_kerberos_service
+          report_service(host: host, port: port, name: 'kerberos', proto: 'tcp', workspace_id: myworkspace_id, parents: [ :tcp ])
+        end
+
         def attempt_login(credential)
           result_options = {
             credential: credential,
@@ -55,11 +59,13 @@ module Metasploit
                 proof: res
               }
             )
+            report_kerberos_service
             return Metasploit::Framework::LoginScanner::Result.new(result_options)
           rescue ::EOFError => e
             result_options = result_options.merge({ status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e })
             return Metasploit::Framework::LoginScanner::Result.new(result_options)
           rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+            report_kerberos_service
             status = self.class.login_status_for_kerberos_error(e)
             result_options = result_options.merge({ status: status, proof: e })
             return Metasploit::Framework::LoginScanner::Result.new(result_options)

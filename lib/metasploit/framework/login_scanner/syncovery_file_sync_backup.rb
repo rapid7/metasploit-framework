@@ -10,6 +10,10 @@ module Metasploit
         PRIVATE_TYPES = [ :password ].freeze
         LOGIN_STATUS = Metasploit::Model::Login::Status # Shorter name
 
+        def report_syncovery_service
+          report_service(host: host, port: port, name: 'Syncovery File Sync Backup', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        end
+
         # Checks if the target is correct
         #
         # @return [false] Indicates there were no errors
@@ -20,6 +24,7 @@ module Metasploit
           res = send_request({ 'uri' => login_uri })
 
           if res && res.code == 200 && res.body.include?('Syncovery')
+            report_syncovery_service
             return false
           end
 
@@ -97,18 +102,21 @@ module Metasploit
           end
         end
 
+        # TODO: Maybe we can override this attempt_login method?
         # Attempts to login to Syncovery File Sync & Backup Software. This is called first.
         #
         # @param credential [Metasploit::Framework::Credential] The credential object
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
           result_opts = {
+            service_name: 'Syncovery File Sync Backup',
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           begin
@@ -118,6 +126,7 @@ module Metasploit
             result_opts.merge!(status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: e.message)
           end
 
+          report_syncovery_service if should_report_service?(result_opts)
           Result.new(result_opts)
         end
 

@@ -41,6 +41,10 @@ module Metasploit
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE
 
+        def report_postgres_service
+          report_service(host: host, port: port, name: 'Postgres', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        end
+
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attempt to login with
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
@@ -50,7 +54,8 @@ module Metasploit
               host: host,
               port: port,
               protocol: 'tcp',
-              service_name: 'postgres'
+              service_name: 'postgres',
+              ssl: ssl
           }
 
           db_name = credential.realm || 'template1'
@@ -120,6 +125,7 @@ module Metasploit
             result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
           end
 
+          report_postgres_service if should_report_service?(result_options)
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
         end
 

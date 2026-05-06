@@ -36,10 +36,12 @@ module Metasploit
             host: host,
             port: port,
             protocol: 'tcp',
-            service_name: 'ldap'
+            service_name: 'ldap',
+            ssl: ssl
           }
 
           result_opts.merge!(do_login(credential))
+          report_ldap_service(opts: { host: host, port: port, ssl: ssl }) if result_opts[:status].in? [::Metasploit::Model::Login::Status::SUCCESSFUL, ::Metasploit::Model::Login::Status::INCORRECT]
           Result.new(result_opts)
         end
 

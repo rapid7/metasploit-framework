@@ -10,6 +10,10 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
 
 
+        def report_directadmin_service
+          report_service(host: host, port: port, name: 'DirectAdmin', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http])
+        end
+
         # Checks if the target is correct
         #
         # @return [false] Indicates there were no errors
@@ -20,6 +24,7 @@ module Metasploit
           res = send_request({'uri'=> login_uri})
 
           if res && res.body.include?('DirectAdmin Login')
+            report_directadmin_service
             return false
           end
 
@@ -83,9 +88,11 @@ module Metasploit
           @last_sid = sid # Update our SID
 
           if res.headers['Location'].to_s.include?('/') && !sid.blank?
+            report_directadmin_service
             return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.to_s}
           end
 
+          report_directadmin_service
           {:status => Metasploit::Model::Login::Status::INCORRECT, :proof => res.to_s}
         end
 
@@ -102,7 +109,8 @@ module Metasploit
             host: host,
             port: port,
             protocol: 'tcp',
-            service_name: ssl ? 'https' : 'http'
+            service_name: 'DirecTadmin',
+            ssl: ssl
           }
 
           begin

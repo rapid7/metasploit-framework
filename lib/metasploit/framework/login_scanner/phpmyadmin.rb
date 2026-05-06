@@ -8,6 +8,10 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS = Metasploit::Model::Login::Status
 
+        def report_php_service
+          report_service(host: host, port: port, name: 'PhpMyAdmin', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        end
+
         def check_setup
           res = send_request({ 'uri' => uri })
 
@@ -15,6 +19,7 @@ module Metasploit
             version = Rex::Version.new($1).to_s
             if version.present?
               framework_module.print_status("PhpMyAdmin Version: #{version}") if framework_module
+              report_php_service
               return false
             end
           end
@@ -69,16 +74,18 @@ module Metasploit
 
         def attempt_login(credential)
           result_opts = {
+            service_name: 'pfSense',
             credential: credential,
             status: LOGIN_STATUS::INCORRECT,
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           result_opts.merge!(do_login(credential.public, credential.private))
-
+          report_php_service if should_report_service?(result_opts)
           Result.new(result_opts)
         end
       end

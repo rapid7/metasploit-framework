@@ -57,13 +57,18 @@ module Metasploit
         validates :tdsencryption,
           inclusion: { in: [true, false] }
 
+        def report_mssql_service
+          report_service(host: host, port: port, name: 'MSSQL', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        end
+
         def attempt_login(credential)
           result_options = {
               credential: credential,
               host: host,
               port: port,
               protocol: 'tcp',
-              service_name: 'mssql'
+              service_name: 'mssql',
+              ssl: ssl
           }
 
           begin
@@ -79,6 +84,7 @@ module Metasploit
             else
               result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
             end
+            report_mssql_service
           rescue ::Rex::ConnectionError => e
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             result_options[:proof] = e

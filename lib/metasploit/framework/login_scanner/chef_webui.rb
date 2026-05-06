@@ -19,6 +19,10 @@ module Metasploit
         #   @return [String] Cookie value
         attr_accessor :session_id
 
+        def report_chef_service
+          report_service(host: host, port: port, name: 'Chef WebUI', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http])
+        end
+
         # Decides which login routine and returns the results
         #
         # @param credential [Metasploit::Framework::Credential] The credential object
@@ -30,7 +34,8 @@ module Metasploit
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           begin
@@ -63,6 +68,7 @@ module Metasploit
             return "Unable to connect to target"
           end
 
+          report_chef_service
           false
         end
 
@@ -137,10 +143,12 @@ module Metasploit
             }
             res = send_request(opts)
             if (res && res.code == 200 && res.body.to_s =~ /New password for the User/)
+              report_chef_service
               return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
             end
           end
 
+          report_chef_service
           {:status => Metasploit::Model::Login::Status::INCORRECT, :proof => res.body}
         end
 

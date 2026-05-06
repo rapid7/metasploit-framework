@@ -20,6 +20,10 @@ module Metasploit
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = nil
 
+        def report_pop3_service
+          report_service(host: host, port: port, name: 'POP3', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        end
+
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attempt to login with
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
@@ -30,7 +34,8 @@ module Metasploit
             host: host,
             port: port,
             protocol: 'tcp',
-            service_name: 'pop3'
+            service_name: 'pop3',
+            ssl: ssl
           }
 
           disconnect if self.sock
@@ -69,7 +74,7 @@ module Metasploit
           end
 
           disconnect if self.sock
-
+          report_pop3_service if should_report_service?(result_options)
           Result.new(result_options)
         end
 

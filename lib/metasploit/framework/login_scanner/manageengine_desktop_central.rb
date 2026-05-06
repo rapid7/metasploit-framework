@@ -11,6 +11,9 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
+        def report_manageengine_service
+          report_service(host: host, port: port, name: 'ManageEngine Desktop Central', proto: 'tcp', resource: uri, workspace_id: myworkspace_id, parents: [ ssl ? :https : :http ])
+        end
 
         # Checks if the target is ManageEngine Desktop Central.
         #
@@ -23,6 +26,7 @@ module Metasploit
 
           fingerprint = 'ManageEngine Desktop Central'
           if res && res.body.include?(fingerprint)
+            report_manageengine_service
             return false
           end
 
@@ -101,7 +105,6 @@ module Metasploit
           if res.code == 302
             return {:status => LOGIN_STATUS::SUCCESSFUL, :proof => res.to_s}
           end
-
           {:status => LOGIN_STATUS::INCORRECT, :proof => res.to_s}
         end
 
@@ -118,11 +121,13 @@ module Metasploit
             host: host,
             port: port,
             protocol: 'tcp',
-            service_name: ssl ? 'https' : 'http',
+            service_name: 'ManageEngine Desktop Central',
+            ssl: ssl
           }
 
           begin
             result_opts.merge!(get_login_state(credential.public, credential.private))
+            report_manageengine_service
           rescue ::Rex::ConnectionError => e
             # Something went wrong during login. 'e' knows what's up.
             result_opts.merge!(status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: e.message)

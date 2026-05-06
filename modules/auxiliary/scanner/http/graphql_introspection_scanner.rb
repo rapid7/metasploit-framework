@@ -175,8 +175,11 @@ class MetasploitModule < Msf::Auxiliary
     report_service(
       host: rhost,
       port: rport,
-      name: (ssl ? 'https' : 'http'),
-      proto: 'tcp'
+      name: 'GraphQL',
+      proto: 'tcp',
+      ssl: ssl,
+      resource: target_uri.path,
+      parents: [ ssl ? :https : :http ]
     )
   end
 

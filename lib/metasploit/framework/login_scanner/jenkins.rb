@@ -12,6 +12,10 @@ module Metasploit
         PRIVATE_TYPES = [:password].freeze
         LOGIN_PATH_REGEX = /action="(j_([a-z0-9_]+))"/
 
+        def report_jenkins_service
+          report_service(host: host, port: port, name: 'Jenkins', proto: 'tcp', resource: uri, workspace_id: myworkspace_id, parents: [ ssl ? :https : :http ])
+        end
+
         # Checks the setup for the Jenkins Login scanner.
         #
         # @return [String, false] Always returns false.
@@ -21,6 +25,8 @@ module Metasploit
           return 'Unable to locate the Jenkins login path' if login_uri.nil?
 
           self.uri = normalize_uri(login_uri)
+
+          report_jenkins_service
 
           false
         end
@@ -38,19 +44,17 @@ module Metasploit
 
         def attempt_login(credential)
           result_opts = {
+            service_name: 'Jenkins',
             credential: credential,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
-
           status, proof = jenkins_login(credential.public, credential.private)
+
+          report_jenkins_service if status.in? [::Metasploit::Model::Login::Status::SUCCESSFUL, ::Metasploit::Model::Login::Status::INCORRECT]
 
           result_opts.merge!(status: status, proof: proof)
 

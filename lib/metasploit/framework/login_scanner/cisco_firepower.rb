@@ -11,6 +11,10 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
+        def report_cisco_service
+          report_service(host: host, port: port, name: 'Cisco FirePower', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http])
+        end
+
         def check_setup
           res = send_request({
             'method' => 'GET',
@@ -18,6 +22,7 @@ module Metasploit
           })
 
           if res && res.code == 200 && res.body.include?('/img/favicon.png?v=6.0.1-1213')
+            report_cisco_service
             return false
           end
 
@@ -43,9 +48,11 @@ module Metasploit
           end
 
           if res.code == 302 && res.get_cookies.include?('CGISESSID')
+            report_cisco_service
             return {status: LOGIN_STATUS::SUCCESSFUL, proof: res.body}
           end
 
+          report_cisco_service
           {status: LOGIN_STATUS::INCORRECT, proof: res.body}
         end
 
@@ -55,12 +62,14 @@ module Metasploit
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
           result_opts = {
+            service_name: 'Cisco FirePower',
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           begin

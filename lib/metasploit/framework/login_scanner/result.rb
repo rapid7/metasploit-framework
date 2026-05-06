@@ -35,6 +35,9 @@ module Metasploit
         # @!attribute connection
         #   @return [Object] the post-authenticated connection object (if the scanner chooses to leave it open)
         attr_accessor :connection
+        # @!attribute ssl
+        #   @return [TrueClass|FalseClass] True if SSL was used for this result
+        attr_accessor :ssl
 
         validates :status,
           inclusion: {

@@ -21,6 +21,10 @@ module Metasploit
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY           = nil
 
+        def report_varnish_server
+          report_service(host: host, port: port, name: 'VarnishCLI', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        end
+
         def attempt_login(credential)
           begin
             connect
@@ -32,13 +36,17 @@ module Metasploit
           rescue Rex::ConnectionError, EOFError, Timeout::Error
             status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           end
-          status = (success == true) ? Metasploit::Model::Login::Status::SUCCESSFUL : Metasploit::Model::Login::Status::INCORRECT
+          status ||= (success == true) ? Metasploit::Model::Login::Status::SUCCESSFUL : Metasploit::Model::Login::Status::INCORRECT
 
           result = Result.new(credential: credential, status: status)
           result.host         = host
           result.port         = port
           result.protocol     = 'tcp'
           result.service_name = 'varnishcli'
+          result.ssl = ssl
+
+          report_varnish_server if should_report_service?(result)
+
           result
         end
 

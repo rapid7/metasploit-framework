@@ -10,6 +10,10 @@ module Metasploit
         DEFAULT_PORT    = 80
         PRIVATE_TYPES   = [ :password ]
 
+        def report_gitlab_service
+          report_service(host: host, port: port, name: 'GitLab', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        end
+
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           self.uri = '/users/sign_in' if uri.nil?
@@ -24,7 +28,8 @@ module Metasploit
             host: host,
             port: port,
             protocol: 'tcp',
-            service_name: ssl ? 'https' : 'http'
+            service_name: 'GitLab',
+            ssl: ssl
           }
           begin 
             # Get a valid session cookie and authenticity_token for the next step
@@ -72,6 +77,8 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res)
             end
+
+            report_gitlab_service
           rescue ::EOFError, Errno::ETIMEDOUT ,Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end

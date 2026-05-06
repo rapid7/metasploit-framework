@@ -13,6 +13,10 @@ module Metasploit
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
 
+        def report_nessus_service
+          report_service(host: host, port: port, name: 'Nessus', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        end
+
         # Checks if the target is correct
         #
         # @return [false] Indicates there were no errors
@@ -22,6 +26,7 @@ module Metasploit
           login_uri = "/server/properties"
           res = send_request({'uri'=> login_uri})
           if res && res.body.include?('Nessus')
+            report_nessus_service
             return false
           end
 
@@ -64,12 +69,14 @@ module Metasploit
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
           result_opts = {
+            service_name: 'Nessus',
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           begin
@@ -78,6 +85,8 @@ module Metasploit
             # Something went wrong during login. 'e' knows what's up.
             result_opts.merge!(status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: e.message)
           end
+
+          report_nessus_service if result_opts[:status].in? [::Metasploit::Model::Login::Status::INCORRECT, ::Metasploit::Model::Login::Status::SUCCESSFUL]
 
           Result.new(result_opts)
         end

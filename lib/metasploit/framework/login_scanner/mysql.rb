@@ -25,6 +25,10 @@ module Metasploit
         PRIVATE_TYPES        = [:password]
         REALM_KEY            = nil
 
+        def report_mysql_service
+          report_service(host: host, port: port, name: 'MySQL', proto: 'tcp', workspace_id: myworkspace_id, parents: [ :tcp ])
+        end
+
         def attempt_login(credential)
           result_options = {
             credential:   credential,
@@ -81,6 +85,8 @@ module Metasploit
               mysql_conn.close
             end
           end
+
+          report_mysql_service if result_options[:status].in? [::Metasploit::Model::Login::Status::SUCCESSFUL, Metasploit::Model::Login::Status::INCORRECT]
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
         end

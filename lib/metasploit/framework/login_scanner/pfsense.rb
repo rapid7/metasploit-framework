@@ -10,6 +10,10 @@ module Metasploit
       class PfSense < HTTP
         LOGIN_ENDPOINT = 'index.php'
 
+        def report_pfsense_service
+          report_service(host: host, port: port, name: 'pfSense', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        end
+
         # Checks if the target is pfSense. The login module should call this.
         #
         # @return [Boolean, String] FalseClass if target is pfSense, otherwise String
@@ -21,6 +25,7 @@ module Metasploit
           res = send_request(request_params)
 
           if res&.code == 200 && res.body&.include?('Login to pfSense')
+            report_pfsense_service
             return false
           end
 
@@ -78,7 +83,8 @@ module Metasploit
             host:         @host,
             port:         @port,
             protocol:     'tcp',
-            service_name: 'pfsense'
+            service_name: 'pfsense',
+            ssl: ssl
           }
 
           # Each login needs its own csrf magic tokens
@@ -99,11 +105,13 @@ module Metasploit
           # 200 is incorrect result
           if login_result[:result].code == 200 || login_result[:result].body.include?('Username or Password incorrect')
             result_options.merge!(status: ::Metasploit::Model::Login::Status::INCORRECT, proof: 'Username or Password incorrect')
+            report_pfsense_service if should_report_service?(result_options)
             return Result.new(result_options)
           end
 
           login_status = login_result[:result].code == 302 ? ::Metasploit::Model::Login::Status::SUCCESSFUL : ::Metasploit::Model::Login::Status::INCORRECT
           result_options.merge!(status: login_status, proof: login_result[:result])
+          report_pfsense_service if should_report_service?(result_options)
           Result.new(result_options)
 
         rescue ::Rex::ConnectionError => _e

@@ -141,6 +141,10 @@ module Metasploit
         class DecryptionError < TeamCityError; end
         class ServerNeedsSetupError < TeamCityError; end
 
+        def report_teamcity_service
+          report_service(host: host, port: port, name: 'TeamCity', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        end
+
         # Checks if the target is JetBrains TeamCity. The login module should call this.
         #
         # @return [Boolean] TrueClass if target is TeamCity, otherwise FalseClass
@@ -152,6 +156,7 @@ module Metasploit
           res = send_request(request_params)
 
           if res && res.code == 200 && res.body&.include?('Log in to TeamCity')
+            report_teamcity_service
             return false
           end
 
@@ -268,7 +273,8 @@ module Metasploit
             host:         @host,
             port:         @port,
             protocol:     'tcp',
-            service_name: 'teamcity'
+            service_name: 'teamcity',
+            ssl: ssl
           }
 
           if @public_key.nil?
@@ -279,12 +285,14 @@ module Metasploit
           end
 
           login_result = try_login(credential.public, credential.private, @public_key)
+          report_teamcity_service if should_report_service?(result_options.merge(login_result))
           return Result.new(result_options.merge(login_result)) if login_result[:status] != :success
 
           # Ensure we log the user out, so that our logged in session does not appear under the user's profile.
           logout_with_headers(login_result[:proof].headers)
 
           result_options[:status] = ::Metasploit::Model::Login::Status::SUCCESSFUL
+          report_teamcity_service if should_report_service?(result_options)
           Result.new(result_options)
         end
 

@@ -53,6 +53,10 @@ module Metasploit
                       greater_than_or_equal_to: 1
                   }
 
+        def report_telnet_service
+          report_service(host: host, port: port, name: 'Telnet', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        end
+
         # (see {Base#attempt_login})
         def attempt_login(credential)
           result_options = {
@@ -60,7 +64,8 @@ module Metasploit
               host: host,
               port: port,
               protocol: 'tcp',
-              service_name: 'telnet'
+              service_name: 'telnet',
+              ssl: ssl
           }
 
           begin
@@ -108,6 +113,7 @@ module Metasploit
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           end
 
+          report_telnet_service if should_report_service?(result_options)
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
         end
 

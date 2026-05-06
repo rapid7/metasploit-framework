@@ -10,6 +10,10 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS = Metasploit::Model::Login::Status
 
+        def report_softing_service
+          report_service(host: host, port: port, name: 'Softing Secure Integration Server', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        end
+
         # Check if the target is Softing Secure Integration Server
         #
         # @return [Boolean] TrueClass if target is SIS, otherwise FalseClass
@@ -26,6 +30,7 @@ module Metasploit
             if res_json['version']
               # report the version
               framework_module.print_brute(level: :good, ip: ip, msg: "Softing Secure Integration Server #{res_json['version']}") if framework_module
+              report_softing_service
               return false
             end
           end
@@ -146,12 +151,14 @@ module Metasploit
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
           result_opts = {
+            service_name: 'Softing Secure Integration Server',
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           begin
@@ -161,6 +168,7 @@ module Metasploit
             result_opts.merge!(status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: e.message)
           end
 
+          report_softing_service if should_report_service?(result_opts)
           Result.new(result_opts)
         end
 

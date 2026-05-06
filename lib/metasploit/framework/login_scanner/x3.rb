@@ -16,6 +16,10 @@ module Metasploit
         DEFAULT_PORT = 1818
         REALM_KEY = nil
 
+        def report_x3_service
+          report_service(host: host, port: port, name: 'X3 AdxAdmin', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        end
+
         def encrypt_pass(inp)
           # check if it's already encrypted
           return inp if inp.start_with?('CRYPT:')
@@ -50,7 +54,8 @@ module Metasploit
             host: host,
             port: port,
             protocol: 'tcp',
-            service_name: 'X3 AdxAdmin'
+            service_name: 'X3 AdxAdmin',
+            ssl: ssl
           }
 
           # encrypt the password
@@ -93,6 +98,7 @@ module Metasploit
 
           disconnect if sock
 
+          report_x3_service if should_report_service?(result_options)
           Result.new(result_options)
         end
 

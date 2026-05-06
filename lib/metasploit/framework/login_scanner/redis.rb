@@ -26,6 +26,10 @@ module Metasploit
         PRIVATE_TYPES         = [ :password ]
         REALM_KEY             = nil
 
+        def report_redis_server
+          report_service(host: host, port: port, name: 'Redis', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        end
+
         # Attempt to login with every {Credential credential} in
         # {#cred_details}, by calling {#attempt_login} once for each.
         #
@@ -70,7 +74,8 @@ module Metasploit
             host: host,
             port: port,
             protocol: 'tcp',
-            service_name: 'redis'
+            service_name: 'redis',
+            ssl: ssl
           }
 
           disconnect if sock
@@ -102,6 +107,7 @@ module Metasploit
 
           disconnect if sock
 
+          report_redis_server if should_report_service?(result_options)
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
         end
 

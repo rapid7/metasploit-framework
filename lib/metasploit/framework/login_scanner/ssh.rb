@@ -48,6 +48,10 @@ module Metasploit
           presence: true,
           inclusion: { in: VERBOSITIES }
 
+        def report_ssh_service
+          report_service(host: host, port: port, name: 'SSH', proto: 'tcp', workspace_id: myworkspace_id, parents: [ :tcp ])
+        end
+
         # (see {Base#attempt_login})
         # @note The caller *must* close {#ssh_socket}
         def attempt_login(credential)
@@ -109,6 +113,7 @@ module Metasploit
           result.port         = port
           result.protocol     = 'tcp'
           result.service_name = 'ssh'
+          report_ssh_service if should_report_service?(result)
           result
         end
 

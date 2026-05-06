@@ -199,6 +199,10 @@ module Metasploit
                   presence: true,
                   length: { minimum: 1 }
 
+        def report_http_service
+          report_service(host: host, port: port, name: ssl ? 'https' : 'http', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ :tcp ])
+        end
+
         # (see Base#check_setup)
         def check_setup
           http_client = Rex::Proto::Http::Client.new(
@@ -218,6 +222,7 @@ module Metasploit
           end
 
           if authentication_required?(response)
+            report_http_service
             return false
           end
 
@@ -277,7 +282,8 @@ module Metasploit
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           if ssl
@@ -293,6 +299,7 @@ module Metasploit
 
           begin
             response = send_request(request_opts)
+            report_http_service if response
             if response && http_success_codes.include?(response.code)
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end

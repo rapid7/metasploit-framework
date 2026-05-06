@@ -11,6 +11,9 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
+        def report_symantec_service
+          report_service(host: host, port: port, name: 'Symantec Web Gateway', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        end
 
         # Checks if the target is correct
         #
@@ -22,6 +25,7 @@ module Metasploit
           res = send_request({'uri'=> login_uri})
 
           if res && res.body.include?('Symantec Web Gateway')
+            report_symantec_service
             return false
           end
 
@@ -98,12 +102,14 @@ module Metasploit
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
           result_opts = {
+            service_name: 'Symantec Web Gateway',
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           begin
@@ -113,6 +119,7 @@ module Metasploit
             result_opts.merge!(status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: e.message)
           end
 
+          report_symantec_service if should_report_service?(result_opts)
           Result.new(result_opts)
         end
 

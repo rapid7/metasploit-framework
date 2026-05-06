@@ -9,6 +9,10 @@ module Metasploit
       # and attempting them. It then saves the results.
       class OPNSense < HTTP
 
+        def report_opnsense_service
+          report_service(host: host, port: port, name: 'OPNSense', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        end
+
         # Retrieve the wanted cookie value by name from the HTTP response.
         #
         # @param [Rex::Proto::Http::Response] response The response from which to extract cookie values
@@ -17,6 +21,14 @@ module Metasploit
           response.get_cookies.split('; ').find { |cookie| cookie.start_with?(wanted_cookie_name) }.split('=').last
         end
 
+        # TODO: Maybe we can have a def check_setup
+        # that calls to super:
+        # if super
+        #   failed the check
+        # else
+        #   report_underlying_service
+        # end
+        # But what about modules that don't have a check_setup method?
         # Checks if the target is OPNSense. The login module should call this.
         #
         # @return [Boolean, String] FalseClass if target is OPNSense, otherwise String
@@ -28,6 +40,7 @@ module Metasploit
           res = send_request(request_params)
 
           if res && res.code == 200 && res.body&.include?('Login | OPNsense')
+            report_opnsense_service
             return false
           end
 
@@ -100,7 +113,8 @@ module Metasploit
             host:         @host,
             port:         @port,
             protocol:     'tcp',
-            service_name: 'opnsense'
+            service_name: 'opnsense',
+            ssl: ssl
           }
 
           # Each login needs its own magic name and value
@@ -121,11 +135,13 @@ module Metasploit
           # 200 is incorrect result
           if login_result[:result].code == 200 || login_result[:result].body.include?('Username or Password incorrect')
             result_options.merge!(status: ::Metasploit::Model::Login::Status::INCORRECT, proof: 'Username or Password incorrect')
+            report_opnsense_service if should_report_service?(result_options)
             return Result.new(result_options)
           end
 
           login_status = login_result[:result].code == 302 ? ::Metasploit::Model::Login::Status::SUCCESSFUL : ::Metasploit::Model::Login::Status::INCORRECT
           result_options.merge!(status: login_status, proof: login_result[:result])
+          report_opnsense_service if should_report_service?(result_options)
           Result.new(result_options)
 
         rescue ::Rex::ConnectionError => _e

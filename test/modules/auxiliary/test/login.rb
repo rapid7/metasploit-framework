@@ -65,7 +65,8 @@ class MetasploitModule < Msf::Auxiliary
         port: port,
         protocol: 'tcp',
         credential: credential,
-        status: Metasploit::Model::Login::Status::SUCCESSFUL
+        status: Metasploit::Model::Login::Status::SUCCESSFUL,
+        ssl: ssl
       )
     end
   end

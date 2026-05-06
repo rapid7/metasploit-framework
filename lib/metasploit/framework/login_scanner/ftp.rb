@@ -32,6 +32,9 @@ module Metasploit
                   }
 
 
+        def report_ftp_service
+          report_service(host: host, port: port, name: 'FTP', proto: 'tcp', workspace_id: myworkspace_id, parents: [:tcp])
+        end
 
         # (see Base#attempt_login)
         def attempt_login(credential)
@@ -49,8 +52,10 @@ module Metasploit
           end
 
           if success
+            report_ftp_service
             result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
           elsif !(result_options.has_key? :status)
+            report_ftp_service
             result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
           end
 

@@ -17,6 +17,10 @@ module Metasploit
 
         attr_accessor :domain
 
+        def report_sonicwall_service
+          report_service(host: host, port: port, name: 'SonicWall Network Security', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        end
+
         def req_params_base
           {
             'method' => 'POST',
@@ -81,6 +85,7 @@ module Metasploit
           }
           res = send_request(request_params)
           if res&.code == 200 && res.body&.include?('SonicWall')
+            report_sonicwall_service
             return false
           end
 
@@ -142,9 +147,11 @@ module Metasploit
             host: @host,
             port: @port,
             protocol: 'tcp',
-            service_name: 'sonicwall'
+            service_name: 'sonicwall',
+            ssl: ssl
           }
           result_options.merge!(do_login(credential.public, credential.private, 1))
+          report_sonicwall_service if should_report_service?(result_options)
           Result.new(result_options)
         end
       end

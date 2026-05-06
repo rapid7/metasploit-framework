@@ -18,6 +18,10 @@ module Metasploit
 
         attr_accessor :use_admin_endpoint
 
+        def report_ivanti_service
+          report_service(host: host, port: port, name: 'Ivanti Connect Secure', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        end
+
         def check_setup
           request_params = {
             'method' => 'GET',
@@ -27,6 +31,7 @@ module Metasploit
           res = send_request(request_params)
 
           if res && res.code == 200 && res.body&.include?('Ivanti Connect Secure')
+            report_ivanti_service
             return false
           end
 
@@ -172,7 +177,8 @@ module Metasploit
             host: @host,
             port: @port,
             protocol: 'tcp',
-            service_name: 'ivanti'
+            service_name: 'Ivanti Connect Secure',
+            ssl: ssl
           }
 
           if @use_admin_endpoint
@@ -180,6 +186,8 @@ module Metasploit
           else
             login_result = do_login(credential.public, credential.private)
           end
+
+          report_ivanti_service if login_result[:status].in? [::Metasploit::Model::Login::Status::SUCCESSFUL, ::Metasploit::Model::Login::Status::INCORRECT]
 
           result_options.merge!(login_result)
           Result.new(result_options)

@@ -67,6 +67,11 @@ module Metasploit
         #   and the socket is not immediately closed
         attr_accessor :use_client_as_proof
 
+        def report_smb_service
+          # TODO: SMB over QUIC runs over UDP port 443
+          report_service(host: host, port: port, name: 'SMB', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        end
+
         # If login is successful and {Result#access_level} is not set
         # then arbitrary credentials are accepted. If it is set to
         # Guest, then arbitrary credentials are accepted, but given
@@ -100,7 +105,8 @@ module Metasploit
               host: host,
               port: port,
               protocol: 'tcp',
-              service_name: 'smb'
+              service_name: 'smb',
+              ssl: ssl
             )
             return result
           end
@@ -194,6 +200,10 @@ module Metasploit
           result.port = port
           result.protocol = 'tcp'
           result.service_name = 'smb'
+          result.ssl = ssl
+
+          report_smb_service if should_report_service?(result)
+
           result
         end
 
