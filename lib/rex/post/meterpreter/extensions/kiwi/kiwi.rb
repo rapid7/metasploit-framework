@@ -401,6 +401,7 @@ class Kiwi < Extension
   #
   def kerberos_ticket_use(base64_ticket)
     result = exec_cmd("\"kerberos::ptt #{base64_ticket}\"")
+    puts("HERES THE RESULT: #{result}")
     result.strip.end_with?(': OK')
   end
 
