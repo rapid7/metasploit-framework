@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
         access_type = 'Read-only'
       end
 
-      print_good("Anonymous #{access_type} access (#{@banner_version})")
+      print_good("Anonymous #{access_type} access (#{banner_version})")
 
       if datastore['STORE_LOOT']
         vprint_status('Listing directory contents')
