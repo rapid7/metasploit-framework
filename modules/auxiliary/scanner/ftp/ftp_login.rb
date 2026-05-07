@@ -51,7 +51,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(21),
         OptBool.new('ANONYMOUS_LOGIN', [ false, 'Attempt to login using various anonymous FTP users', false ]), # Overwrite the AuthBrute mixin, as its not sending blank/empty user/pass
         OptBool.new('CHECK_ACCESS', [ false, 'Check READ/WRITE access for successful logins', true ]),
-        OptBool.new('STORE_LOOT', [false, 'Store the directory listing as loot', true])
+        OptBool.new('STORE_LOOT', [false, 'Store the directory listing as loot', true]),
+        OptBool.new('EXTENDED_CHECKS', [false, 'Gather service info via FEAT, STAT and SYST', false])
       ]
     )
 
@@ -101,6 +102,44 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Directory listing:\n#{listing[1]}")
       path = store_loot('ftp.dir_listing', 'text/plain', rhost, listing[1], "ftp_#{username}.txt", "FTP directory listing for #{username}")
       print_good("Directory listing stored to: #{path}")
+    end
+  end
+
+  def fingerprint_server(username = 'anonymous')
+    print_status("Fingerprinting FTP service (as #{username})")
+
+    [
+      ['FEAT', 'ftp.cmd.feat'], # server-level
+      ['STAT', 'ftp.cmd.stat'], # user-level
+      ['SYST', 'ftp.cmd.syst'] # server-level
+    ].each do |cmd, note_type|
+      vprint_status("Sending FTP command: #{cmd}")
+      response = send_cmd([cmd], true).to_s
+      next if response.empty?
+
+      response.strip.each_line.with_index do |line, i|
+        prefix = i == 0 ? "FTP #{cmd}: " : '  '
+        print_status("#{prefix}#{line.strip}")
+      end
+
+      # 215 UNIX Type: L8
+      # 215 Windows_NT
+      if cmd == 'SYST'
+        os_name = if response.match?(/emulated/i) then nil
+                  elsif response.match?(/Windows_NT/i) then 'Windows'
+                  elsif response.match?(/UNIX/i) then 'Linux'
+                  end
+        report_host(host: rhost, os_name: os_name) if os_name
+      end
+
+      report_note(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        sname: 'ftp',
+        type: note_type,
+        data: { username: username, output: response.strip }
+      )
     end
   end
 
@@ -155,7 +194,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
 
-        if datastore['CHECK_ACCESS'] || datastore['STORE_LOOT'] || datastore['FINGERPRINT']
+        if datastore['CHECK_ACCESS'] || datastore['STORE_LOOT'] || datastore['EXTENDED_CHECKS']
           begin
             connect(true, false)
             send_user(result.credential.public)
@@ -167,7 +206,7 @@ class MetasploitModule < Msf::Auxiliary
 
               ls_ftp_dir(result.credential.public) if datastore['STORE_LOOT']
 
-              fingerprint_server(result.credential.public) if datastore['FINGERPRINT']
+              fingerprint_server(result.credential.public) if datastore['EXTENDED_CHECKS']
             end
           rescue ::IOError, Errno::ECONNRESET, ::Timeout::Error => e
             vprint_error(e.message)
