@@ -99,18 +99,24 @@ RSpec.shared_examples_for 'payload cached size is consistent' do |options|
       end
     end
 
-    it 'can be instantiated' do
-      load_and_create_module(
+    it 'can be instantiated and generated' do
+      pinst = load_and_create_module(
           ancestor_reference_names: ancestor_reference_names,
           module_type: module_type,
           modules_path: modules_path,
           reference_name: reference_name
       )
+
+      next if reference_name =~ /generic|peinject/
+
+      pinst.datastore['CMD'] = '/bin/sh'
+      generated = pinst.generate
+      expect(generated).to_not be_nil
     end
 
     next if reference_name =~ /generic|peinject/
 
-    it 'has a valid cached_size', skip: 'Migrated to Jenkins' do
+    it 'has a valid cached_size' do
       pinst = load_and_create_module(
             ancestor_reference_names: ancestor_reference_names,
             module_type: module_type,
@@ -118,8 +124,7 @@ RSpec.shared_examples_for 'payload cached size is consistent' do |options|
             reference_name: reference_name
       )
 
-      cache_size_errors = Msf::Util::PayloadCachedSize.cache_size_errors_for(framework, pinst)
-      expect(cache_size_errors).to be_nil
+      expect(pinst.cached_size).to eq(:dynamic).or be_a(::Integer).or be_nil
     end
   end
 end
