@@ -842,10 +842,15 @@ module Msf
                   return false
                 end
               end
-            rescue Rex::AmbiguousArgumentError => info
-              print_error(info.to_s)
-            rescue NameError => info
-              log_error("The supplied module name is ambiguous: #{$!}.")
+            rescue Rex::AmbiguousArgumentError => e
+              print_error(e.to_s)
+            rescue LoadError, NameError => e
+              print_error("Failed to load module #{mod_name}: #{e.message}")
+              elog("Failure while activating module #{mod_name}", 'core', 0, error: e)
+              print_warning(
+                'The http-cookie Ruby gem may be missing or broken. Reinstall framework gems (for example `bundle install` ' \
+                'in the source tree) or your OS metasploit / ruby-http-cookie package.'
+              ) if hint_http_cookie_dependency?(e)
             end
 
             return false if (mod == nil)
@@ -913,6 +918,17 @@ module Msf
             end
 
             mod.init_ui(driver.input, driver.output)
+          end
+
+          # @param err [Exception]
+          # @return [Boolean] whether to show the http-cookie reinstall hint (avoids duplicating {Msf::Exploit::Remote::HTTP::HttpCookieDependency} +LoadError+ text)
+          def hint_http_cookie_dependency?(err)
+            return false unless err.is_a?(NameError)
+
+            msg = err.message.to_s
+            msg.match?(/\Auninitialized constant (?:\:?:)?HTTP\b/o) ||
+              msg.include?('HTTP::CookieJar') ||
+              msg.include?('::HTTP::Cookie')
           end
 
           #
