@@ -126,7 +126,8 @@ class MetasploitModule < Msf::Auxiliary
         report_vuln(
           :host => shost,
           :port => datastore['RPORT'],
-          :proto => 'udp', :name => "DNS",
+          :proto => 'udp',
+          :name => "DNS",
           :info => "DNS amplification -  #{data.length} bytes [#{amp.round(2)}x Amplification]",
           :refs => self.references
         )
