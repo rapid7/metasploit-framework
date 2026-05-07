@@ -40,6 +40,8 @@ module MetasploitModule
   # Construct the payload
   #
   def generate(_opts = {})
+    title = (datastore['TITLE'] || '').bytes.map { |byte| '0x%02x' % byte }.join(', ')
+    text = (datastore['TEXT'] || '').bytes.map { |byte| '0x%02x' % byte }.join(', ')
     style = 0x00
     case datastore['ICON'].upcase.strip
       # default = NO
@@ -89,10 +91,10 @@ module MetasploitModule
       call ebp
       push #{style}
       call get_title
-      db "#{datastore['TITLE']}", 0x00
+      db #{title}, 0x00
     get_title:
       call get_text
-      db "#{datastore['TEXT']}", 0x00
+      db #{text}, 0x00
     get_text:
       push 0
       push #{block_api_hash('user32.dll', 'MessageBoxA')}

