@@ -83,6 +83,8 @@ class MetasploitModule < Msf::Auxiliary
     else
       vprint_warning('No FTP banner received')
     end
+  rescue ::Rex::ConnectionRefused
+    vprint_error('Connection refused')
   rescue ::Rex::TimeoutError, ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNREFUSED => e
     vprint_error(e.message)
   rescue ::Interrupt
