@@ -40,8 +40,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def humanize(bytes)
+    return '0 B' if bytes <= 0
+
     units = ['B', 'KB', 'MB', 'GB', 'TB']
-    i = (Math.log2(bytes) / 10).to_i
+    i = [(Math.log2(bytes) / 10).to_i, units.length - 1].min
     '%.2f %s' % [bytes.to_f / (1024**i), units[i]]
   end
 
