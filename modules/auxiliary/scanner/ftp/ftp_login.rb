@@ -50,7 +50,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::Proxies,
         Opt::RPORT(21),
         OptBool.new('ANONYMOUS_LOGIN', [ false, 'Attempt to login using various anonymous FTP users', false ]), # Overwrite the AuthBrute mixin, as its not sending blank/empty user/pass
-        OptBool.new('CHECK_ACCESS', [ false, 'Check READ/WRITE access for successful logins', true ])
+        OptBool.new('CHECK_ACCESS', [ false, 'Check READ/WRITE access for successful logins', true ]),
+        OptBool.new('STORE_LOOT', [false, 'Store the directory listing as loot', true])
       ]
     )
 
@@ -84,6 +85,23 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     vprint_status("FTP Banner: #{banner_version}")
+  end
+
+  def ls_ftp_dir(username = 'anonymous')
+    vprint_status('Listing directory contents')
+
+    username = username.downcase
+
+    listing = send_cmd_data(['LS'], nil)
+    if listing.nil?
+      print_warning('Could not retrieve directory listing (data connection failed)')
+    elsif listing[1].nil? || listing[1].empty?
+      vprint_status('Directory listing: (empty)')
+    else
+      vprint_status("Directory listing:\n#{listing[1]}")
+      path = store_loot('ftp.dir_listing', 'text/plain', rhost, listing[1], "ftp_#{username}.txt", "FTP directory listing for #{username}")
+      print_good("Directory listing stored to: #{path}")
+    end
   end
 
   def run_host(ip)
@@ -137,8 +155,27 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
 
-        vprint_status('Checking read/write access') if datastore['CHECK_ACCESS']
-        access_level = test_ftp_access(result.credential.public, result.credential.private) if datastore['CHECK_ACCESS']
+        if datastore['CHECK_ACCESS'] || datastore['STORE_LOOT'] || datastore['FINGERPRINT']
+          begin
+            connect(true, false)
+            send_user(result.credential.public)
+            if send_pass(result.credential.private).to_s.start_with?('2')
+              if datastore['CHECK_ACCESS']
+                vprint_status('Checking read/write access')
+                access_level = test_ftp_access
+              end
+
+              ls_ftp_dir(result.credential.public) if datastore['STORE_LOOT']
+
+              fingerprint_server(result.credential.public) if datastore['FINGERPRINT']
+            end
+          rescue ::IOError, Errno::ECONNRESET, ::Timeout::Error => e
+            vprint_error(e.message)
+          ensure
+            disconnect
+          end
+        end
+
         credential_data[:access_level] = access_level if access_level
 
         create_credential_login(credential_data)
@@ -165,24 +202,15 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def test_ftp_access(user, pass)
-    connect(true, false)
-    send_user(user)
-    res = send_pass(pass)
-    return nil unless res =~ /^2/
-
+  def test_ftp_access
     dir = Rex::Text.rand_text_alpha(8)
     write_check = send_cmd(['MKD', dir], true)
-    if write_check && write_check =~ /^2/
+    if write_check && write_check.start_with?('2')
       send_cmd(['RMD', dir], true)
       'Read/Write'
     else
       'Read-only'
     end
-  rescue StandardError
-    nil
-  ensure
-    disconnect
   end
 
 end
