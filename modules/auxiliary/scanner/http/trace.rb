@@ -46,6 +46,8 @@ class MetasploitModule < Msf::Auxiliary
           :port => rport,
           :proto => 'tcp',
           :sname => (ssl ? 'https' : 'http'),
+          :name => 'HTTP TRACE Method Enabled (Cross-Site Tracing)',
+          :refs => references,
           :info => "Vulnerable to Cross-Site Tracing"
         )
       else
