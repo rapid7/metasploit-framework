@@ -55,13 +55,14 @@ class MetasploitModule < Msf::Auxiliary
     nil
   end
 
-  def generate
-    res = send_request_cgi({ 'uri' => normalize_uri(datastore['TARGETURI'], 'api', 'generate') })
-
-    return res.get_json_document if res && res.code == 200
-
-    nil
-  end
+  # documenting that this is here, but nunused
+  # def generate
+  #   res = send_request_cgi({ 'uri' => normalize_uri(datastore['TARGETURI'], 'api', 'generate') })
+  #
+  #   return res.get_json_document if res && res.code == 200
+  #
+  #   nil
+  # end
 
   def list_local_models
     res = send_request_cgi({ 'uri' => normalize_uri(datastore['TARGETURI'], 'api', 'tags') })
@@ -137,9 +138,12 @@ class MetasploitModule < Msf::Auxiliary
         'System Prompt'
       ]
     )
-    running = []
-    local_models = list_running_models
-    local_models['models'].each do |model|
+    running_names = []
+    running_models_res = list_running_models
+    if running_models_res.nil?
+      vprint_error('Could not retrieve running models (endpoint unreachable or returned non-200)')
+    end
+    (running_models_res&.fetch('models', nil) || []).each do |model|
       vprint_status("  Found model: #{model['name']}")
       details = get_model_info(model['name'])
       temperature = get_temperature(details)
@@ -154,11 +158,15 @@ class MetasploitModule < Msf::Auxiliary
         temperature,
         system_prompt
       ]
-      running << model['name']
+      running_names << model['name']
     end
-    local_models = list_local_models
-    local_models['models'].each do |model|
-      next if running.include?(model['name'])
+    installed_models_res = list_local_models
+    if installed_models_res.nil?
+      vprint_error('Could not retrieve local models (endpoint unreachable or returned non-200)')
+      return
+    end
+    (installed_models_res['models'] || []).each do |model|
+      next if running_names.include?(model['name'])
 
       vprint_status("  Found model: #{model['name']}")
       details = get_model_info(model['name'])
