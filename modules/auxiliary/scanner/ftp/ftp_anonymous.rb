@@ -34,9 +34,48 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(21),
-        OptBool.new('STORE_LOOT', [false, 'Store the directory listing as loot', true])
+        OptBool.new('STORE_LOOT', [false, 'Store the directory listing as loot', true]),
+        OptBool.new('FINGERPRINT', [false, 'Gather server info via FEAT, STAT and SYST', true])
       ]
     )
+  end
+
+  def fingerprint_server(username = 'anonymous')
+    print_status("Fingerprinting FTP service (as #{username})")
+
+    [
+      ['FEAT', 'ftp.cmd.feat'], # server-level
+      ['STAT', 'ftp.cmd.stat'], # user-level
+      ['SYST', 'ftp.cmd.syst'] # server-level
+    ].each do |cmd, note_type|
+      vprint_status("Sending FTP command: #{cmd}")
+      response = send_cmd([cmd], true).to_s
+      next if response.empty?
+
+      response.strip.each_line.with_index do |line, i|
+        prefix = i == 0 ? "FTP #{cmd}: " : '  '
+        vprint_status("#{prefix}#{line.strip}")
+      end
+
+      # 215 UNIX Type: L8
+      # 215 Windows_NT
+      if cmd == 'SYST'
+        os_name = if response.match?(/emulated/i) then nil
+                  elsif response.match?(/Windows_NT/i) then 'Windows'
+                  elsif response.match?(/UNIX/i) then 'Linux'
+                  end
+        report_host(host: rhost, os_name: os_name) if os_name
+      end
+
+      report_note(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        sname: 'ftp',
+        type: note_type,
+        data: { username: username, output: response.strip }
+      )
+    end
   end
 
   def run_host(target_host)
@@ -71,6 +110,8 @@ class MetasploitModule < Msf::Auxiliary
           print_good("Directory listing stored to: #{path}")
         end
       end
+
+      fingerprint_server(datastore['FTPUSER']) if datastore['FINGERPRINT']
 
       report_vuln(
         host: rhost,
