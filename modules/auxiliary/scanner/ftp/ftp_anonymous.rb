@@ -34,7 +34,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(21),
-        OptBool.new('STORE_LOOT', [false, 'Store the directory listing as loot', true])
+        OptBool.new('STORE_LOOT', [false, 'Store the directory listing as loot', true]),
+        OptBool.new('EXTENDED_CHECKS', [false, 'Gather service info via FEAT, STAT and SYST', true])
       ]
     )
 
@@ -65,6 +66,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Anonymous #{access_type} access (#{banner_version})")
 
       ftp_list_directory(username: datastore['FTPUSER'], save_loot: true) if datastore['STORE_LOOT']
+      ftp_fingerprint(username: datastore['FTPUSER']) if datastore['EXTENDED_CHECKS']
 
       report_vuln(
         host: rhost,
