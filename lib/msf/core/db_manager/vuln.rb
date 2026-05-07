@@ -101,9 +101,10 @@ module Msf::DBManager::Vuln
   #
   def report_vuln(opts)
     return if not active
-    raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
-    raise ArgumentError.new("Deprecated data column for vuln, use .info instead") if opts[:data]
-    name = opts[:name] || return
+    raise ArgumentError.new("report_vuln Missing required option :host") if opts[:host].nil?
+    raise ArgumentError.new("report_vuln Deprecated data column for vuln, use .info instead") if opts[:data]
+    raise ArgumentError.new("report_vuln Missing required option :name") if opts[:name].nil?
+    name = opts[:name]
     info = opts[:info]
 
   ::ApplicationRecord.connection_pool.with_connection {
@@ -333,7 +334,7 @@ module Msf::DBManager::Vuln
   # @param opts[:ids] [Array] Array containing Integers corresponding to the IDs of the Vuln entries to delete.
   # @return [Array] Array containing the Mdm::Vuln objects that were successfully deleted.
   def delete_vuln(opts)
-    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
+    raise ArgumentError.new("delete_vuln The following options are required: :ids") if opts[:ids].nil?
 
   ::ApplicationRecord.connection_pool.with_connection {
     deleted = []
