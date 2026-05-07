@@ -58,6 +58,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("FTP banner: #{sanitize_ftp_response(banner)}") if banner
 
     s = ''
+    stat_output = ''
     attempts = 0
     max = datastore['MAX_ATTEMPTS']
     loop do
@@ -67,6 +68,7 @@ class MetasploitModule < Msf::Auxiliary
       s = send_cmd(['STAT'], true)
       return Exploit::CheckCode::Unknown('No response received for STAT') unless s
 
+      stat_output << s
       break if (s =~ /vsFTPd \d+\.\d+\.\d+/) || (s == "211 End of status\r\n")
 
       if max > 0 && attempts >= max
@@ -75,7 +77,19 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    vprint_status("STAT: #{s}")
+    stat_output.strip.each_line.with_index do |line, i|
+      prefix = i == 0 ? 'STAT: ' : '  '
+      vprint_status("#{prefix}#{line.strip}")
+    end
+
+    report_note(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      sname: 'ftp',
+      type: 'ftp.cmd.stat',
+      data: { username: user, output: stat_output.strip }
+    )
 
     # check if version was found
     if s !~ /vsFTPd \d+\.\d+\.\d+/
