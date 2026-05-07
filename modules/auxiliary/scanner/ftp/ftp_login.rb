@@ -33,6 +33,11 @@ class MetasploitModule < Msf::Auxiliary
         [ 'CVE', '1999-0502' ] # Weak password
       ],
       'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [ARTIFACTS_ON_DISK, IOC_IN_LOGS, ACCOUNT_LOCKOUTS],
+        'Reliability' => []
+      },
       'DefaultOptions' => {
         'ConnectTimeout' => 30
       }
