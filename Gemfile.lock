@@ -549,7 +549,7 @@ GEM
       rex-socket
       rex-text
     rex-struct2 (0.1.5)
-    rex-text (0.2.62)
+    rex-text (0.2.63)
       bigdecimal
     rex-zip (0.1.6)
       rex-text
