@@ -232,7 +232,17 @@ class MetasploitModule < Msf::Auxiliary
       server_data = transport.algorithms.instance_variable_get(:@server_data)
       host_keys = transport.algorithms.session.instance_variable_get(:@host_keys).instance_variable_get(:@host_keys)
       host_keys.each do |host_key|
-        print_status("#{target_host} - Key Fingerprint: #{host_key.ssh_type} #{Base64.strict_encode64(host_key.to_blob)}")
+        fingerprint = Base64.strict_encode64(host_key.to_blob)
+        print_status("#{target_host} - Key Fingerprint: #{host_key.ssh_type} #{fingerprint}")
+        report_note(
+          host: target_host,
+          port: rport,
+          proto: 'tcp',
+          sname: 'ssh',
+          type: 'ssh.hostkey',
+          data: { type: host_key.ssh_type, fingerprint: fingerprint },
+          update: :unique_data
+        )
       end
 
       ident = transport.server_version.version
@@ -297,6 +307,16 @@ class MetasploitModule < Msf::Auxiliary
       # https://www.tenable.com/plugins/nessus/153954
 
       print_status("#{target_host} - #{table}")
+
+      report_note(
+        host: target_host,
+        port: rport,
+        proto: 'tcp',
+        sname: 'ssh',
+        type: 'ssh.algorithms',
+        data: { algorithms: table.rows.map { |r| { type: r[0], value: r[1], note: r[2] } } },
+        update: :unique_data
+      )
 
       flagged_rows = table.rows.reject { |r| r[2].to_s.empty? }
       if flagged_rows.any?
