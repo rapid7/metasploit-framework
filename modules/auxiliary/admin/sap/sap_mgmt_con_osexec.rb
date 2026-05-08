@@ -78,12 +78,12 @@ class MetasploitModule < Msf::Auxiliary
           }
       }, 60)
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP] Unable to communicate")
+      print_error("Unable to communicate")
       return :abort
     end
 
     if !res
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     elsif res.code == 200
       body = res.body
@@ -161,19 +161,19 @@ class MetasploitModule < Msf::Auxiliary
           fault = true
         end
       else
-        print_error("#{rhost}:#{rport} [SAP] Unknown response received")
+        print_error("Unknown response received")
         return
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP] Unable to attempt authentication")
+      print_error("Unable to attempt authentication")
       return :abort
     end
 
     if success
       if exitcode > 0
-        print_error("#{rhost}:#{rport} [SAP] Command exitcode: #{exitcode}")
+        print_error("Command exitcode: #{exitcode}")
       else
-        print_good("#{rhost}:#{rport} [SAP] Command exitcode: #{exitcode}")
+        print_good("Command exitcode: #{exitcode}")
       end
 
       saptbl = Msf::Ui::Console::Table.new(
@@ -187,13 +187,13 @@ class MetasploitModule < Msf::Auxiliary
         saptbl << [ output[0] ]
       end
 
-      print_good("#{rhost}:#{rport} [SAP] Command (#{cmd_to_run}) ran as PID: #{pid}\n#{saptbl}")
+      print_good("Command (#{cmd_to_run}) ran as PID: #{pid}\n#{saptbl}")
 
     elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
+      print_error("Error code: #{faultcode}")
       return
     else
-      print_error("#{rhost}:#{rport} [SAP] failed to run command")
+      print_error("failed to run command")
       return
     end
   end

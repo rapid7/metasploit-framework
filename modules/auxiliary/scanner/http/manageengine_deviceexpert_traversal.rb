@@ -68,9 +68,9 @@ class MetasploitModule < Msf::Auxiliary
     if res
       case res.code
       when 200
-        print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
+        print_status("returns: #{res.code.to_s}")
       when 404
-        print_error("#{ip}:#{rport} - file not found")
+        print_error("file not found")
         return
       end
     else
@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.body.empty?
-      print_error("#{ip}:#{rport} - no file downloaded (empty)")
+      print_error("no file downloaded (empty)")
     else
       fname = File.basename(datastore['FILEPATH'])
       path = store_loot(
@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
         fname
       )
 
-      print_good("#{ip}:#{rport} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     end
   end
 end

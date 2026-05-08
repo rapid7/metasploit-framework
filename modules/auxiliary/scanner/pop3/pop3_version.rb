@@ -25,13 +25,13 @@ class MetasploitModule < Msf::Auxiliary
       connect
       banner = sock.get_once(-1, 30)
       banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
-      print_good("#{ip}:#{rport} POP3 #{banner_sanitized}")
+      print_good("POP3 #{banner_sanitized}")
       report_service(:host => rhost, :port => rport, :name => "pop3", :info => banner)
     rescue ::Rex::ConnectionError
     rescue ::EOFError
-      print_error("#{ip}:#{rport} - The service failed to respond")
+      print_error("The service failed to respond")
     rescue ::Exception => e
-      print_error("#{ip}:#{rport} - #{e} #{e.backtrace}")
+      print_error("#{e} #{e.backtrace}")
     end
   end
 end

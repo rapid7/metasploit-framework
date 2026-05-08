@@ -42,16 +42,16 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     unless check_conn?
-      print_error("#{rhost}:#{rport} - Connection failed, Aborting...")
+      print_error("Connection failed, Aborting...")
       return
     end
 
     unless is_app_ironport?
-      print_error("#{rhost}:#{rport} - Application does not appear to be Cisco Ironport. Module will not continue.")
+      print_error("Application does not appear to be Cisco Ironport. Module will not continue.")
       return
     end
 
-    print_status("#{rhost}:#{rport} - Starting login brute force...")
+    print_status("Starting login brute force...")
     each_user_pass do |user, pass|
       do_login(user, pass)
     end
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
       if res
-        print_good("#{rhost}:#{rport} - Server is responsive...")
+        print_good("Server is responsive...")
         return true
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
@@ -106,13 +106,13 @@ class MetasploitModule < Msf::Auxiliary
 
         if (product == 'Security Management Appliances')
           p_name = 'Cisco IronPort Security Management Appliance (SMA)'
-          print_good("#{rhost}:#{rport} - Running Cisco IronPort #{product} (SMA) - AsyncOS v#{version}")
+          print_good("Running Cisco IronPort #{product} (SMA) - AsyncOS v#{version}")
         elsif (product == 'Cisco IronPort Web Security Appliances')
           p_name = 'Cisco IronPort Web Security Appliance (WSA)'
-          print_good("#{rhost}:#{rport} - Running #{product} (WSA) - AsyncOS v#{version}")
+          print_good("Running #{product} (WSA) - AsyncOS v#{version}")
         elsif (product == 'Cisco IronPort Appliances')
           p_name = 'Cisco IronPort Email Security Appliance (ESA)'
-          print_good("#{rhost}:#{rport} - Running #{product} (ESA) - AsyncOS v#{version}")
+          print_good("Running #{product} (ESA) - AsyncOS v#{version}")
         end
 
         return true
@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def do_login(user, pass)
-    vprint_status("#{rhost}:#{rport} - Trying username:#{user.inspect} with password:#{pass.inspect}")
+    vprint_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
       res = send_request_cgi(
         {
@@ -151,16 +151,16 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       if res and res.get_cookies.include?('authenticated=')
-        print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
+        print_good("SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
         store_valid_credential(user: user, private: pass, proof: res.get_cookies.inspect)
         return :next_user
 
       else
-        vprint_error("#{rhost}:#{rport} - FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
+        vprint_error("FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      print_error("#{rhost}:#{rport} - HTTP Connection Failed, Aborting")
+      print_error("HTTP Connection Failed, Aborting")
       return :abort
     end
   end

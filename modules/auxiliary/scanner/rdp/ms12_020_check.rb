@@ -194,9 +194,9 @@ class MetasploitModule < Msf::Auxiliary
     # Allow the run command to call the check command
     status = check_host(ip)
     if status == Exploit::CheckCode::Vulnerable
-      print_good("#{ip}:#{rport} - #{status[1]}")
+      print_good("#{status[1]}")
     else
-      print_status("#{ip}:#{rport} - #{status[1]}")
+      print_status("#{status[1]}")
     end
   end
 end

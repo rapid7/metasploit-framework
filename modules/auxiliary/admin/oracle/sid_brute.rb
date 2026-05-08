@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
         },
         update: :unique_data
       )
-      print_good("#{rhost}:#{rport} Found SID '#{sid.strip}'")
+      print_good("Found SID '#{sid.strip}'")
     end
 
     print_status('Done with brute force...')

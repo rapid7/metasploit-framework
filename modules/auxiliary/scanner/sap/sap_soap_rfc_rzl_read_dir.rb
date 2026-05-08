@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
     data << '</SOAP-ENV:Envelope>'
 
     begin
-      vprint_status("#{rhost}:#{rport} - Sending request to enumerate #{datastore['DIR']}")
+      vprint_status("Sending request to enumerate #{datastore['DIR']}")
       res = send_request_cgi({
         'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
@@ -116,13 +116,13 @@ class MetasploitModule < Msf::Auxiliary
       if res && (res.code == 200) && res.body =~ /rfc:RZL_READ_DIR_LOCAL.Response/
         files = parse_xml(res.body)
         path = store_loot('sap.soap.rfc.dir', 'text/xml', rhost, res.body, datastore['DIR'])
-        print_good("#{rhost}:#{rport} - #{datastore['DIR']} successfully enumerated, results stored on #{path}")
+        print_good("#{datastore['DIR']} successfully enumerated, results stored on #{path}")
         files.each do |f|
           vprint_line("Entry: #{f['name']}, Size: #{f['size'].to_i}")
         end
       end
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Unable to connect")
+      vprint_error("Unable to connect")
       return
     end
   end

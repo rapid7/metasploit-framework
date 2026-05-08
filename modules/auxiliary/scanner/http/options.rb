@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if allowed_methods.index('TRACE')
-      print_good "#{target_host}:#{rport} - TRACE method allowed."
+      print_good "TRACE method allowed."
       report_vuln(
         host: target_host,
         port: rport,

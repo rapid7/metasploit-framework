@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if !res
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP] Unable to attempt authentication")
+      print_error("Unable to attempt authentication")
       return
     end
 
@@ -136,12 +136,12 @@ class MetasploitModule < Msf::Auxiliary
         '.xml'
       )
 
-      print_good("#{rhost}:#{rport} [SAP] Access Point List: #{env.length} entries extracted\n#{saptbl}")
+      print_good("Access Point List: #{env.length} entries extracted\n#{saptbl}")
 
     elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
+      print_error("Error code: #{faultcode}")
     else
-      print_error("#{rhost}:#{rport} [SAP] failed to request environment")
+      print_error("failed to request environment")
     end
   end
 end

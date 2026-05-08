@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if not res
-      print_error("#{rhost}:#{rport} Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def accessfile(rhost)
     uri = normalize_uri(target_uri.path)
-    print_status("#{rhost}:#{rport} Connecting to Crowd SOAP Interface")
+    print_status("Connecting to Crowd SOAP Interface")
 
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
     xmlaut = 'http://authentication.integration.crowd.atlassian.com'
@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
         end
         f = ::File.basename(datastore['RFILE'])
         path = store_loot('atlassian.crowd.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-        print_good("#{rhost}:#{rport} Atlassian Crowd - #{datastore['RFILE']} saved in #{path}")
+        print_good("Atlassian Crowd - #{datastore['RFILE']} saved in #{path}")
         return
       end
     end

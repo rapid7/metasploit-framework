@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Timeout or no connection on #{rhost}:#{rport}")
       return
     rescue ::Exception => e
-      print_error("#{rhost}:#{rport} Error: #{e.class} #{e} #{e.backtrace}")
+      print_error("Error: #{e.class} #{e} #{e.backtrace}")
       return
     ensure
       disconnect
@@ -191,16 +191,16 @@ class MetasploitModule < Msf::Auxiliary
 
     # Analyze the response
     if res == "\x00\x01\x03\x01\x00\x00\x00\x00" # Failed Password
-      vprint_error("#{rhost}:#{rport}  Failed login as: '#{user}'")
+      vprint_error("Failed login as: '#{user}'")
       return
 
     elsif res == "\x00\x01\x02\x01\x00\x00\x00\x00" # Invalid User
-      vprint_error("#{rhost}:#{rport}  Invalid user: '#{user}'")
+      vprint_error("Invalid user: '#{user}'")
       # Stop attempting passwords for this user since it doesn't exist
       return :skip_user
 
     elsif res == "\x00\x01\x05\x01\x00\x00\x00\x00" or res == "\x00\x01\x01\x01\x00\x00\x00\x00"
-      print_good("#{rhost}:#{rport}  Successful login: '#{user}' : '#{pass}'")
+      print_good("Successful login: '#{user}' : '#{pass}'")
 
       # Report valid credentials under the CCTV DVR admin port (5920/TCP).
       # This is a proprietary protocol.
@@ -210,7 +210,7 @@ class MetasploitModule < Msf::Auxiliary
       return :next_user
 
     else
-      vprint_error("#{rhost}:#{rport}  Failed login as: '#{user}' - Unclassified Response: #{res.inspect}")
+      vprint_error("Failed login as: '#{user}' - Unclassified Response: #{res.inspect}")
       return
     end
   end

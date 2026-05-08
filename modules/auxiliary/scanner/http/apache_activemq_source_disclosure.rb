@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{rhost}:#{rport} - Sending request...")
+    print_status("Sending request...")
     uri = normalize_uri(target_uri.path)
     res = send_request_cgi({
       'uri' => uri,
@@ -64,9 +64,9 @@ class MetasploitModule < Msf::Auxiliary
         contents,
         fname
       )
-      print_status("#{rhost}:#{rport} - File saved in: #{path}")
+      print_status("File saved in: #{path}")
     else
-      print_error("#{rhost}:#{rport} - Failed to retrieve file")
+      print_error("Failed to retrieve file")
       return
     end
   end

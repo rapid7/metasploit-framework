@@ -199,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless success
-      print_error("#{rhost}:#{rport} [Typo3] Failed to retrieve file #{datastore['RFILE']}")
+      print_error("Failed to retrieve file #{datastore['RFILE']}")
       print_error("Maybe try checking the ACTIONS - Currently using  #{action.name}")
     end
   end

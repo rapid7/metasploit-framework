@@ -52,20 +52,20 @@ class MetasploitModule < Msf::Auxiliary
         split_hex = hex_packet.split(':')
         find_packet = /\(ERROR_STACK=\(ERROR=/ === packet
         if find_packet == true # TNS Packet returned ERROR
-          print_error("#{ip}:#{rport} is not vulnerable")
+          print_error("is not vulnerable")
         elsif split_hex[5] == '02' # TNS Packet Type: ACCEPT
-          print_good("#{ip}:#{rport} is vulnerable")
+          print_good("is vulnerable")
         elsif split_hex[5] == '04' # TNS Packet Type: REFUSE
-          print_error("#{ip}:#{rport} is not vulnerable")
+          print_error("is not vulnerable")
         else # All other TNS packet types or non-TNS packet type response cannot guarantee vulnerability
-          print_error("#{ip}:#{rport} might not be vulnerable")
+          print_error("might not be vulnerable")
         end
       else
-        print_error("#{ip}:#{rport} is not vulnerable")
+        print_error("is not vulnerable")
       end
       # TODO: Module should report_vuln if this finding is solid.
     rescue ::Rex::ConnectionError, ::Errno::EPIPE
-      print_error("#{ip}:#{rport} unable to connect to the server")
+      print_error("unable to connect to the server")
     end
   end
 end

@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
 
     if env_vars
-      print_good("#{ip}:#{rport} - #{env_vars}")
+      print_good("#{env_vars}")
       report_note(
         :host => ip,
         :port => rport,

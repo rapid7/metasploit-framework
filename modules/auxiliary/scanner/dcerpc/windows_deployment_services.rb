@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue ::Rex::ConnectionError => e
-    print_error("#{ip}:#{rport} Connection Error: #{e}")
+    print_error("Connection Error: #{e}")
   ensure
     # Ensure socket is pulled down afterwards
     begin

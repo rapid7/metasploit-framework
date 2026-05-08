@@ -357,7 +357,7 @@ class MetasploitModule < Msf::Auxiliary
     check_vulnerabilities(ip, ssl_version, cipher_name, cert)
 
     if is_weak_cipher
-      print_good("#{ip}:#{rport} - Weak cipher detected: #{cipher_name}")
+      print_good("Weak cipher detected: #{cipher_name}")
       report_vuln(
         host: ip,
         port: rport,
@@ -416,7 +416,7 @@ class MetasploitModule < Msf::Auxiliary
       accepted_ciphers = scan_result.accepted(version)
       next if accepted_ciphers.empty?
 
-      print_good("#{ip}:#{rport} - #{version} supported with #{accepted_ciphers.length} cipher(s)")
+      print_good("#{version} supported with #{accepted_ciphers.length} cipher(s)")
 
       key_size = public_key_size(scan_result.cert)
       if key_size > 0
@@ -459,7 +459,7 @@ class MetasploitModule < Msf::Auxiliary
     # Report weak ciphers summary
     weak_ciphers = scan_result.weak_ciphers
     if weak_ciphers.any?
-      print_bad("#{ip}:#{rport} - #{weak_ciphers.length} weak cipher(s) detected")
+      print_bad("#{weak_ciphers.length} weak cipher(s) detected")
     end
 
     # Store comprehensive scan results in loot
@@ -483,15 +483,15 @@ class MetasploitModule < Msf::Auxiliary
 
       # Check if SSL/TLS is supported
       unless scan_result.supports_ssl?
-        print_error("#{ip}:#{rport} - Server does not appear to support SSL/TLS")
+        print_error("Server does not appear to support SSL/TLS")
         return
       end
 
       # Process and report results
       process_rex_sslscan_results(ip, scan_result)
     rescue StandardError => e
-      print_error("#{ip}:#{rport} - Scan error: #{e.message}")
-      vprint_error("#{ip}:#{rport} - Backtrace: #{e.backtrace}")
+      print_error("Scan error: #{e.message}")
+      vprint_error("Backtrace: #{e.backtrace}")
     end
   end
 end
