@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
         unattend_data = request_client_unattend(architecture)
       rescue ::Rex::Proto::DCERPC::Exceptions::Fault => e
         vprint_error(e.to_s)
-        print_error("#{rhost} DCERPC Fault - Windows Deployment Services is present but not configured. Perhaps an SCCM installation.")
+        print_error("DCERPC Fault - Windows Deployment Services is present but not configured. Perhaps an SCCM installation.")
         next
       end
 

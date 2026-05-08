@@ -166,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
         if resp.headers["WWW-Authenticate"]
           t2hash = resp.headers["WWW-Authenticate"].split(" ")[1]
         else
-          print_error "#{rhost} is not requesting authentication."
+          print_error "is not requesting authentication."
           cli_sock.close
           ser_sock.close
           return false

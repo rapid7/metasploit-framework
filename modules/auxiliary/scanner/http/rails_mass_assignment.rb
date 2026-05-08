@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
     data_base_params = get_base_params(parsed_data)
 
     if data_base_params.blank?
-      vprint_error("#{ip} - Non-standart rails params schema (maybe not a RoR website)")
+      vprint_error("Non-standart rails params schema (maybe not a RoR website)")
       return
     end
 
@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
       }, 20)
 
       if resp and resp.code == 500
-        print_good("#{ip} - Possible attributes mass assignment in attribute #{param}[...] at #{datastore['PATH']}")
+        print_good("Possible attributes mass assignment in attribute #{param}[...] at #{datastore['PATH']}")
         report_web_vuln(
           :host => rhost,
           :port => rport,

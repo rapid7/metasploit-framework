@@ -96,18 +96,18 @@ class MetasploitModule < Msf::Auxiliary
     elsif res.code == 200
       body = res.body
       if body.match(/success/i)
-        print_good("#{rhost} - Success! Password has been changed.")
+        print_good("Success! Password has been changed.")
       elsif body.match(/Password has already been used/)
-        print_error("#{rhost} - Failed! The supplied password has already been used.")
+        print_error("Failed! The supplied password has already been used.")
         print_error('Please change the password and try again.')
       elsif body.match(/Invalid credntials for user/)
-        print_error("#{rhost} - Failed! Either the username does not exist or target is not vulnerable.")
+        print_error("Failed! Either the username does not exist or target is not vulnerable.")
         print_error('Please change the username and try again.')
       else
-        print_error("#{rhost} - Failed!  An unknown error has occurred.")
+        print_error("Failed!  An unknown error has occurred.")
       end
     else
-      print_error("#{rhost} - Failed! The webserver issued a #{res.code} response.")
+      print_error("Failed! The webserver issued a #{res.code} response.")
       print_error('Please validate the TARGETURI option and try again.')
     end
   end

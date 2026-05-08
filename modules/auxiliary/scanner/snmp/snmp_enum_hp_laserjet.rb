@@ -138,14 +138,14 @@ class MetasploitModule < Msf::Auxiliary
 
     disconnect_snmp
   rescue SNMP::RequestTimeout
-    print_error("#{ip}, SNMP request timeout.")
+    print_error("SNMP request timeout.")
   rescue Errno::ECONNREFUSED, Errno::ECONNRESET
-    print_error("#{ip}, Connection refused.")
+    print_error("Connection refused.")
   rescue SNMP::InvalidIpAddress
-    print_error("#{ip}, Invalid IP address. Check it with 'snmpwalk tool'.")
+    print_error("Invalid IP address. Check it with 'snmpwalk tool'.")
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue StandardError => e
-    print_error("#{ip}, Unknown error: #{e.class} #{e}")
+    print_error("Unknown error: #{e.class} #{e}")
   end
 end

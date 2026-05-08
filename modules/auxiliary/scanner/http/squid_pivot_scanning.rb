@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
       }, 10)
 
       if res_test && res_test.body && (res_test.code == 200)
-        print_error("#{rhost} likely answers positively to every request, check it manually.")
+        print_error("likely answers positively to every request, check it manually.")
         print_error("\t\t Proceeding with the scan may increase false positives.")
         manual = true
       end

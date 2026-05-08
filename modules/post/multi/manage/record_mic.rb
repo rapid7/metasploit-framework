@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Post
     duration.times do |i|
       if i % m == 0
         p = ((Float((i == 0) ? 1 : i + 1) / duration) * 100).round
-        print_status("#{rhost} - #{p}%...")
+        print_status("#{p}%...")
       end
       select(nil, nil, nil, 1)
     end
@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Post
     end
 
     if data
-      print_status("#{rhost} - Audio size: (#{data.length} bytes)")
+      print_status("Audio size: (#{data.length} bytes)")
       p = store_loot(
         "#{rhost}.audio",
         'application/octet-stream',
@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Post
         "#{rhost} Audio Recording"
       )
 
-      print_good("#{rhost} - Audio recording saved: #{p}")
+      print_good("Audio recording saved: #{p}")
     end
   end
 end

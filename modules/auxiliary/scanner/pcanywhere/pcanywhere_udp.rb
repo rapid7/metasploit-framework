@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
 
       @results[shost][:stat] = stat
     else
-      print_error("#{shost} Unknown: #{data.inspect}")
+      print_error("Unknown: #{data.inspect}")
     end
   end
 end

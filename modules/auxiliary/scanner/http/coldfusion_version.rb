@@ -91,10 +91,10 @@ class MetasploitModule < Msf::Auxiliary
       return if not out
 
       if (out =~ /^Unknown/)
-        print_status("#{ip} " << out)
+        print_status("" << out)
         return
       else
-        print_good("#{ip}: " << out)
+        print_good("" << out)
         report_note(
           :host => ip,
           :port => datastore['RPORT'],
@@ -105,13 +105,13 @@ class MetasploitModule < Msf::Auxiliary
       end
     elsif (res.code.to_i == 403 and datastore['VERBOSE'])
       if (res.body =~ /secured with Secure Sockets Layer/ or res.body =~ /Secure Channel Required/ or res.body =~ /requires a secure connection/)
-        print_status("#{ip} denied access to #{url} (SSL Required)")
+        print_status("denied access to #{url} (SSL Required)")
       elsif (res.body =~ /has a list of IP addresses that are not allowed/)
-        print_status("#{ip} restricted access by IP")
+        print_status("restricted access by IP")
       elsif (res.body =~ /SSL client certificate is required/)
-        print_status("#{ip} requires a SSL client certificate")
+        print_status("requires a SSL client certificate")
       else
-        print_status("#{ip} denied access to #{url} #{res.code} #{res.message}")
+        print_status("denied access to #{url} #{res.code} #{res.message}")
       end
     end
   rescue OpenSSL::SSL::SSLError

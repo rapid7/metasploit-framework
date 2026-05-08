@@ -70,17 +70,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    vprint_status("#{ip} - scanning for ReDoc")
+    vprint_status("scanning for ReDoc")
 
     # REDOC_PATHS is required and has defaults; always use it directly
     paths = datastore['REDOC_PATHS'].split(',').map(&:strip)
 
     hit = paths.find { |p| check_path(p) }
     if hit
-      print_good("#{ip} - ReDoc likely exposed at #{hit}")
+      print_good("ReDoc likely exposed at #{hit}")
       report_service(host: ip, port: rport, proto: 'tcp', name: 'http')
     else
-      vprint_status("#{ip} - no ReDoc found")
+      vprint_status("no ReDoc found")
     end
   end
 end

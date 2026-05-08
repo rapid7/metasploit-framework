@@ -129,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
           report_service(host: ip, port: port, name: name)
         end
       end
-      print_good("#{ip} - #{ports.join(',')}")
+      print_good("#{ports.join(',')}")
       certs.each { |cert| print_status(cert) }
     end
   end

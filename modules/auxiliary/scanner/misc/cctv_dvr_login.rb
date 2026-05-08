@@ -156,7 +156,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login(user = nil, pass = nil)
-    vprint_status("#{rhost} - Trying username:'#{user}' with password:'#{pass}'")
+    vprint_status("Trying username:'#{user}' with password:'#{pass}'")
 
     fill_length1 = 64 - user.length
 
@@ -185,7 +185,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if not (res)
       disconnect
-      vprint_error("#{rhost}  No Response")
+      vprint_error("No Response")
       return :abort
     end
 

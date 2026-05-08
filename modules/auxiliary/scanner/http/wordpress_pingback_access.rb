@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_xml_rpc_url(ip)
     # code to find the xmlrpc url when passed in IP
-    vprint_status("#{ip} - Enumerating XML-RPC URI...")
+    vprint_status("Enumerating XML-RPC URI...")
 
     begin
       uri = target_uri.path
@@ -81,14 +81,14 @@ class MetasploitModule < Msf::Auxiliary
         if res['X-Pingback']
           return res['X-Pingback']
         else
-          vprint_status("#{ip} - X-Pingback header not found")
+          vprint_status("X-Pingback header not found")
           return nil
         end
       else
         return nil
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      vprint_error("#{ip} - Unable to connect")
+      vprint_error("Unable to connect")
       return nil
     end
   end
@@ -114,10 +114,10 @@ class MetasploitModule < Msf::Auxiliary
       if pingback_response
         pingback_disabled_match = pingback_response.body.match(/<value><int>33<\/int><\/value>/i)
         if pingback_response.code == 200 and pingback_disabled_match.nil?
-          print_good("#{ip} - Pingback enabled: #{blog_post}")
+          print_good("Pingback enabled: #{blog_post}")
           return blog_post
         else
-          vprint_status("#{ip} - Pingback disabled: #{blog_post}")
+          vprint_status("Pingback disabled: #{blog_post}")
         end
       end
     end
@@ -160,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
   # main control method
   def run_host(ip)
     unless wordpress_and_online?
-      print_error("#{ip} does not seem to be Wordpress site")
+      print_error("does not seem to be Wordpress site")
       return
     end
 
@@ -169,14 +169,14 @@ class MetasploitModule < Msf::Auxiliary
 
     # once xmlrpc url is found, get_blog_posts
     if xmlrpc.nil?
-      print_error("#{ip} - It doesn't appear to be vulnerable")
+      print_error("It doesn't appear to be vulnerable")
     else
       hash = get_blog_posts(xmlrpc, ip)
 
       if hash
         store_vuln(ip, hash) if @db_active
       else
-        print_status("#{ip} - X-Pingback enabled but no vulnerable blogs found")
+        print_status("X-Pingback enabled but no vulnerable blogs found")
       end
     end
   end

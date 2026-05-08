@@ -278,7 +278,7 @@ class MetasploitModule < Msf::Auxiliary
 
         # TODO: check if data.blank?
 
-        print_line("#{ip} - UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['RPORT']} ACCESS #{access} #{data.unpack('H*')[0]}")
+        print_line("UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['RPORT']} ACCESS #{access} #{data.unpack('H*')[0]}")
         data_report = {
           port: datastore['RPORT'],
           access: "#{access} #{data.unpack('H*')[0]}"
