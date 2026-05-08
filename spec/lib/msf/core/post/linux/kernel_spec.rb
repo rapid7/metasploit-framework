@@ -54,6 +54,14 @@ RSpec.describe Msf::Post::Linux::Kernel do
 
   describe '#kernel_arch' do
     context 'it returns an ubuntu kernel arch' do
+      subject do
+        mod = Msf::Module.new
+        mod.extend(Msf::Post::Linux::Kernel)
+        mod.define_singleton_method(:session) { @session }
+        mod.instance_variable_set(:@session, double('session', type: 'shell', platform: 'linux'))
+        mod
+      end
+
       it 'returns x64' do
         allow(subject).to receive(:cmd_exec).and_return('x86_64 ')
         expect(subject.kernel_arch).to eq('x64')
@@ -62,8 +70,8 @@ RSpec.describe Msf::Post::Linux::Kernel do
         allow(subject).to receive(:cmd_exec).and_return('aarch64 ')
         expect(subject.kernel_arch).to eq('aarch64')
       end
-      it 'returns aarch64' do
-        allow(subject).to receive(:cmd_exec).and_return('arm ')
+      it 'returns armle' do
+        allow(subject).to receive(:cmd_exec).and_return('armv7l ')
         expect(subject.kernel_arch).to eq('armle')
       end
       it 'returns x86' do
@@ -82,9 +90,9 @@ RSpec.describe Msf::Post::Linux::Kernel do
         allow(subject).to receive(:cmd_exec).and_return('ppc64le ')
         expect(subject.kernel_arch).to eq('ppc64le')
       end
-      it 'returns mips' do
+      it 'returns mipsbe' do
         allow(subject).to receive(:cmd_exec).and_return('mips ')
-        expect(subject.kernel_arch).to eq('mips')
+        expect(subject.kernel_arch).to eq('mipsbe')
       end
       it 'returns mips64' do
         allow(subject).to receive(:cmd_exec).and_return('mips64 ')
