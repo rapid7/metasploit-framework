@@ -86,12 +86,12 @@ class MetasploitModule < Msf::Auxiliary
           }
       }, 60)
     rescue ::Rex::ConnectionError
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [ACS] Unable to communicate")
+      print_error("Unable to communicate")
       return :abort
     end
 
     if !res
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [ACS] Unable to connect")
+      print_error("Unable to connect")
       return
     elsif res.code == 200
       body = res.body

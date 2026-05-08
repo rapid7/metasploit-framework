@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scan_host(ip)
-    vprint_status "#{ip}:#{rport} - Sending WS-Discovery probe"
+    vprint_status "Sending WS-Discovery probe"
     scanner_send wsdd_probe, ip, datastore['RPORT']
   end
 

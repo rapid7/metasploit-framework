@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
         loop do
           data = sock.get_once(-1, to) rescue nil
           if not data
-            print_status("#{ip}:#{rport} Does not support encryption: #{banner_sanitized} #{data.to_s.unpack("H*")[0]}")
+            print_status("Does not support encryption: #{banner_sanitized} #{data.to_s.unpack("H*")[0]}")
             return
           end
           break if data.index("\xff\xfa\x26\x02\x01")
@@ -66,12 +66,12 @@ class MetasploitModule < Msf::Auxiliary
           sock.put(buff_good)
           data = sock.get_once(-1, 5) rescue nil
           unless data
-            print_status("#{ip}:#{rport} UNKNOWN: No response to the initial probe: #{banner_sanitized}")
+            print_status("UNKNOWN: No response to the initial probe: #{banner_sanitized}")
             return
           end
 
           unless data.index("\xff\xfa\x26\x08\xff\xf0")
-            print_status("#{ip}:#{rport} UNKNOWN: Invalid reply to Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
+            print_status("UNKNOWN: Invalid reply to Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
             return
           end
 
@@ -81,12 +81,12 @@ class MetasploitModule < Msf::Auxiliary
           sock.put(buff_long)
           data = sock.get_once(-1, 5)
           unless data
-            print_status("#{ip}:#{rport} NOT VULNERABLE: No reply to first long Key ID: #{banner_sanitized}")
+            print_status("NOT VULNERABLE: No reply to first long Key ID: #{banner_sanitized}")
             return
           end
 
           unless data.index("\xff\xfa\x26\x08\xff\xf0")
-            print_status("#{ip}:#{rport} UNKNOWN: Invalid reply to first Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
+            print_status("UNKNOWN: Invalid reply to first Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
             return
           end
 
@@ -96,22 +96,22 @@ class MetasploitModule < Msf::Auxiliary
           sock.put(buff_long)
           data = sock.get_once(-1, 5)
           unless data
-            print_status("#{ip}:#{rport} NOT VULNERABLE: No reply to second long Key ID: #{banner_sanitized}")
+            print_status("NOT VULNERABLE: No reply to second long Key ID: #{banner_sanitized}")
             return
           end
 
           unless data.index("\xff\xfa\x26\x08\xff\xf0")
-            print_status("#{ip}:#{rport} UNKNOWN: Invalid reply to second Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
+            print_status("UNKNOWN: Invalid reply to second Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
             return
           end
 
-          print_status("#{ip}:#{rport} NOT VULNERABLE: Service did not disconnect: #{banner_sanitized}")
+          print_status("NOT VULNERABLE: Service did not disconnect: #{banner_sanitized}")
           return
         rescue ::EOFError
         end
 
         # EOFError or response to 64-byte Key Id indicates vulnerable systems
-        print_good("#{ip}:#{rport} VULNERABLE: #{banner_sanitized}")
+        print_good("VULNERABLE: #{banner_sanitized}")
         report_vuln(
           {
             :host	=> ip,
@@ -126,10 +126,10 @@ class MetasploitModule < Msf::Auxiliary
       print_error("A network issue has occurred: #{e.message}")
       elog('A network issue has occurred', error: e)
     rescue Timeout::Error => e
-      print_error("#{target_host}:#{rport} Timed out after #{to} seconds")
+      print_error("Timed out after #{to} seconds")
       elog("#{target_host}:#{rport} Timed out after #{to} seconds", error: e)
     rescue ::Exception => e
-      print_error("#{target_host}:#{rport} Error: #{e} #{e.backtrace}")
+      print_error("Error: #{e} #{e.backtrace}")
       elog("#{target_host}:#{rport} Error: #{e} #{e.backtrace}", error: e)
     ensure
       disconnect

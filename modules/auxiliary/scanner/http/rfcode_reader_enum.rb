@@ -48,13 +48,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     unless is_app_rfreader?
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Application does not appear to be RFCode Reader. Module will not continue.")
+      print_error("Application does not appear to be RFCode Reader. Module will not continue.")
       return
     end
 
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking if authentication is required...")
+    print_status("Checking if authentication is required...")
     unless is_auth_required?
-      print_warning("#{Rex::Socket.to_authority(rhost, rport)} - Application does not require authentication.")
+      print_warning("Application does not require authentication.")
       user = ''
       pass = ''
 
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Brute-forcing...")
+    print_status("Brute-forcing...")
     each_user_pass do |user, pass|
       do_login(user, pass)
     end
@@ -112,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
   # Brute-force the login page
   #
   def do_login(user, pass)
-    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Trying username:#{user.inspect} with password:#{pass.inspect}")
+    vprint_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
       res = send_request_cgi(
         {
@@ -127,9 +127,9 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       if not res or res.code == 401
-        vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - FAILED LOGIN - #{user.inspect}:#{pass.inspect} with code #{res.code}")
+        vprint_error("FAILED LOGIN - #{user.inspect}:#{pass.inspect} with code #{res.code}")
       else
-        print_good("#{Rex::Socket.to_authority(rhost, rport)} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
+        print_good("SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
         collect_info(user, pass)
 
@@ -144,7 +144,7 @@ class MetasploitModule < Msf::Auxiliary
         return :next_user
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - HTTP Connection Failed, Aborting")
+      print_error("HTTP Connection Failed, Aborting")
       return :abort
     end
   end
@@ -180,7 +180,7 @@ class MetasploitModule < Msf::Auxiliary
   # Collect target info
   #
   def collect_info(user, pass)
-    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Collecting information from app as #{user.inspect}:#{pass.inspect}...")
+    vprint_status("Collecting information from app as #{user.inspect}:#{pass.inspect}...")
     begin
       res = send_request_cgi(
         {
@@ -198,8 +198,8 @@ class MetasploitModule < Msf::Auxiliary
         release_ver = JSON.parse(res.body)["release"]
         product_name = JSON.parse(res.body)["product"]
 
-        vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Collecting device platform info...")
-        vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - Release version: '#{release_ver}', Product Name: '#{product_name}'")
+        vprint_status("Collecting device platform info...")
+        vprint_good("Release version: '#{release_ver}', Product Name: '#{product_name}'")
 
         report_note(
           :host => rhost,
@@ -228,8 +228,8 @@ class MetasploitModule < Msf::Auxiliary
 
       if res and res.body
         userlist = JSON.parse(res.body)
-        vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Collecting user list...")
-        vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - User list & role: #{userlist}")
+        vprint_status("Collecting user list...")
+        vprint_good("User list & role: #{userlist}")
 
         report_note(
           :host => rhost,
@@ -255,8 +255,8 @@ class MetasploitModule < Msf::Auxiliary
 
       if res and res.body
         eth0_info = JSON.parse(res.body)["eth0"]
-        vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Collecting interface info...")
-        vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - Interface eth0 info: #{eth0_info}")
+        vprint_status("Collecting interface info...")
+        vprint_good("Interface eth0 info: #{eth0_info}")
 
         report_note(
           :host	=> rhost,
@@ -270,10 +270,10 @@ class MetasploitModule < Msf::Auxiliary
 
       return
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - HTTP Connection Failed while collecting info")
+      vprint_error("HTTP Connection Failed while collecting info")
       return
     rescue JSON::ParserError
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to parse JSON response while collecting info")
+      vprint_error("Unable to parse JSON response while collecting info")
       return
     end
   end

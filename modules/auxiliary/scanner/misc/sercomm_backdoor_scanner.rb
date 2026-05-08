@@ -59,16 +59,16 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
 
       if (res && res.start_with?("MMcS"))
-        print_good("#{ip}:#{rport} - Possible backdoor detected - Big Endian")
+        print_good("Possible backdoor detected - Big Endian")
         do_report(ip, "Big Endian")
       elsif (res && res.start_with?("ScMM"))
-        print_good("#{ip}:#{rport} - Possible backdoor detected - Little Endian")
+        print_good("Possible backdoor detected - Little Endian")
         do_report(ip, "Little Endian")
       else
-        vprint_status("#{ip}:#{rport} - Backdoor not detected.")
+        vprint_status("Backdoor not detected.")
       end
     rescue Rex::ConnectionError => e
-      vprint_error("#{ip}:#{rport} - Connection failed: #{e.class}: #{e}")
+      vprint_error("Connection failed: #{e.class}: #{e}")
     end
   end
 end

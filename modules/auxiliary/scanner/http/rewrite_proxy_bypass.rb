@@ -57,15 +57,15 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if response.nil?
-      vprint_error "#{Rex::Socket.to_authority(rhost, rport)} Request timed out"
+      vprint_error "Request timed out"
       return nil
     end
 
     seconds_transpired = (responded_at - requested_at).to_f
-    vprint_status "#{Rex::Socket.to_authority(rhost, rport)} Server took #{seconds_transpired} seconds to respond to URI #{uri}"
+    vprint_status "Server took #{seconds_transpired} seconds to respond to URI #{uri}"
 
     status_code = response.code
-    vprint_status "#{Rex::Socket.to_authority(rhost, rport)} Server responded with status code #{status_code} to URI #{uri}"
+    vprint_status "Server responded with status code #{status_code} to URI #{uri}"
 
     return {
       :requested_at => requested_at,
@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if baseline[:status_code] == test_status_code
-      vprint_error "#{Rex::Socket.to_authority(rhost, rport)} The baseline status code for #{host} matches our test's"
+      vprint_error "The baseline status code for #{host} matches our test's"
       return
     end
 
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
 
     status_code = injection_info[:status_code]
     if status_code == test_status_code
-      print_good "#{Rex::Socket.to_authority(rhost, rport)} Server appears to be vulnerable!"
+      print_good "Server appears to be vulnerable!"
       report_vuln(
         :host => host,
         :port => rport,

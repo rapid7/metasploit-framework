@@ -312,15 +312,15 @@ class MetasploitModule < Msf::Auxiliary
     res = send_graphql_request(query)
 
     if res.nil?
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - The server did not send a response.")
+      print_error("The server did not send a response.")
       return
     end
 
     if res.code == 200
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Server responded with introspected data. Reporting a vulnerability, and storing it as loot.")
+      print_good("Server responded with introspected data. Reporting a vulnerability, and storing it as loot.")
       # validate the JSON response has the expected structure of an introspection response, to avoid false positives.
       unless valid_graphql_response?(res.get_json_document)
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Server responded with a 200 status code, but the response did not have the expected structure of an introspection response")
+        print_error("Server responded with a 200 status code, but the response did not have the expected structure of an introspection response")
         return
       end
       graphql_service = report_graphql_service
@@ -330,14 +330,14 @@ class MetasploitModule < Msf::Auxiliary
     else
       json = res.get_json_document
       if json.nil?
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Server replied with an unexpected status code: '#{res.code}', and the response was not a valid JSON document.")
+        print_error("Server replied with an unexpected status code: '#{res.code}', and the response was not a valid JSON document.")
         return
       end
 
       if json.key?('errors') || json.key?('error')
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Server encountered the following error(s) (code: '#{res.code}'):\n#{process_errors(json['errors'] || Array.wrap(json['error']))}")
+        print_error("Server encountered the following error(s) (code: '#{res.code}'):\n#{process_errors(json['errors'] || Array.wrap(json['error']))}")
       else
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Server replied with an unexpected status code: '#{res.code}'")
+        print_error("Server replied with an unexpected status code: '#{res.code}'")
       end
     end
   end

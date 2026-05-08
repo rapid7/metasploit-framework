@@ -286,7 +286,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(rhost)
-    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Connecting to SAP Host Control service")
+    vprint_status("Connecting to SAP Host Control service")
 
     data = '<?xml version="1.0" encoding="utf-8"?>'
     data << '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"'
@@ -309,38 +309,38 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     rescue ::Rex::ConnectionError
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to connect to service")
+      vprint_error("Unable to connect to service")
       return
     end
 
     if res && (res.code == 500) && res.body =~ %r{<faultstring>(.*)</faultstring>}i
       faultcode = ::Regexp.last_match(1).strip
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Error code: #{faultcode}")
+      vprint_error("Error code: #{faultcode}")
       return
 
     elsif res && (res.code != 200)
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Error in response")
+      vprint_error("Error in response")
       return
     end
 
     initialize_tables
 
-    vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - Connected. Retrieving info")
+    vprint_good("Connected. Retrieving info")
 
     begin
       response_xml = REXML::Document.new(res.body)
       computer_info = response_xml.elements.to_a('//mProperties/') # Computer info
       detailed_info = response_xml.elements.to_a('//item/mProperties/') # all other info
     rescue StandardError
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to parse XML response")
+      print_error("Unable to parse XML response")
       return
     end
 
     success = parse_computer_info(computer_info)
     if success
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Information retrieved successfully")
+      print_good("Information retrieved successfully")
     else
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to parse reply")
+      print_error("Unable to parse reply")
       return
     end
 
@@ -353,7 +353,7 @@ class MetasploitModule < Msf::Auxiliary
       sap_tables_clean << t.to_s
     end
 
-    vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - Information retrieved:\n" + sap_tables_clean)
+    vprint_good("Information retrieved:\n" + sap_tables_clean)
 
     xml_raw = store_loot(
       'sap.getcomputersystem',
@@ -373,6 +373,6 @@ class MetasploitModule < Msf::Auxiliary
       'SAP GetComputerSystem XML'
     )
 
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Response stored in #{xml_raw} (XML) and #{xml_parsed} (TXT)")
+    print_status("Response stored in #{xml_raw} (XML) and #{xml_parsed} (TXT)")
   end
 end

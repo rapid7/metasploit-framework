@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
             ''
           end
         elsif (res.code and res.headers['Location'])
-          print_error("#{ip}:#{rport} #{res.code} Redirect to #{res.headers['Location']}")
+          print_error("#{res.code} Redirect to #{res.headers['Location']}")
         else
           ''
         end
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
       if currentversion.length == 0 then
         ''
       else
-        print_good("#{ip}:#{rport} Lotus Domino Current Version: #{currentversion}")
+        print_good("Lotus Domino Current Version: #{currentversion}")
       end
 
       check2.each do |check|
@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
           # string we are regexing: <title>IBM Lotus Notes/Domino 6.5.6 Release Notes</title>
           if match = res.body.match(/\<title\>(.*)Lotus Notes\/Domino (.*) Release Notes\<\/title\>/);
             server2 = $2
-            print_good("#{ip}:#{rport} Lotus Domino Release Notes Version: " + $2)
+            print_good("Lotus Domino Release Notes Version: " + $2)
             report_note(
               :host	=> ip,
               :proto => 'tcp',
@@ -112,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
             ''
           end
         elsif if (res.code and res.headers['Location'])
-                print_error("#{ip}:#{rport} #{res.code} Redirect to #{res.headers['Location']}")
+                print_error("#{res.code} Redirect to #{res.headers['Location']}")
               else
                 ''
               end
@@ -153,7 +153,7 @@ class MetasploitModule < Msf::Auxiliary
             ''
           end
         elsif if (res.code and res.headers['Location'])
-                print_error("#{ip}:#{rport} #{res.code} Redirect to #{res.headers['Location']}")
+                print_error("#{res.code} Redirect to #{res.headers['Location']}")
               else
                 ''
               end
@@ -164,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
       if baseversion.length == 0 then
         ''
       else
-        print_good("#{ip}:#{rport} Lotus Domino Base Install Version: #{baseversion}")
+        print_good("Lotus Domino Base Install Version: #{baseversion}")
       end
     end
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

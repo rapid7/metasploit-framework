@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Trying to login with '#{user}' : '#{pass}'")
+    vprint_status("Trying to login with '#{user}' : '#{pass}'")
 
     uri = target_uri.path
 
@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
     return if res.code == 404
 
     if [200, 301, 302].include?(res.code)
-      vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - Successful login with '#{user}' : '#{pass}'")
+      vprint_good("Successful login with '#{user}' : '#{pass}'")
     end
   rescue ::Rex::ConnectionError
     vprint_error("'#{rhost}':'#{rport}' - Failed to connect to the web server")

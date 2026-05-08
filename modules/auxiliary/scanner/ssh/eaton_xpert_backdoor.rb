@@ -75,13 +75,13 @@ class MetasploitModule < Msf::Auxiliary
         Net::SSH.start(ip, 'admin', ssh_opts)
       end
     rescue Net::SSH::Exception => e
-      vprint_error("#{ip}:#{rport} - #{e.class}: #{e.message}")
+      vprint_error("#{e.class}: #{e.message}")
       return
     end
 
     return unless ssh
 
-    print_good("#{ip}:#{rport} - Logged in as admin")
+    print_good("Logged in as admin")
 
     version = ssh.transport.server_version.version
 
@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
     sleep 0.1
 
     if (e = shell.error)
-      print_error("#{ip}:#{rport} - #{e.class}: #{e.message}")
+      print_error("#{e.class}: #{e.message}")
       return
     end
 

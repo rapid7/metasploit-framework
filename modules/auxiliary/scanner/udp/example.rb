@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
   # necessary probes.  If something different must be done for each IP, do it
   # here, otherwise remove it.
   def scan_host(ip)
-    vprint_status("#{ip}:#{rport} - Sending probe")
+    vprint_status("Sending probe")
 
     super
   end

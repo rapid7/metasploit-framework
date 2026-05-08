@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if !res
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def enum_instance(rhost)
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Connecting to SAP Management Console SOAP Interface")
+    print_status("Connecting to SAP Management Console SOAP Interface")
     success = false
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
       }, 15)
 
       if res.nil?
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
+        print_error("Unable to connect")
         return
       end
 
@@ -144,26 +144,26 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue ::Rex::ConnectionError
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
     if fault
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Error code: #{faultcode}")
+      print_error("Error code: #{faultcode}")
       return
     end
 
     unless success
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Failed to identify instance properties")
+      print_error("Failed to identify instance properties")
       return
     end
 
-    print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Instance Properties Extracted")
+    print_good("Instance Properties Extracted")
     if centralservices
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Central Services: #{centralservices}")
+      print_good("Central Services: #{centralservices}")
     end
     if sapsystem
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] SAP System Number: #{sapsystem}")
+      print_good("SAP System Number: #{sapsystem}")
       report_note(host: rhost,
                   proto: 'tcp',
                   port: rport,
@@ -171,7 +171,7 @@ class MetasploitModule < Msf::Auxiliary
                   data: { proto: 'soap', sapsystem: sapsystem })
     end
     if sapsystemname
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] SAP System Name: #{sapsystemname}")
+      print_good("SAP System Name: #{sapsystemname}")
       report_note(host: rhost,
                   proto: 'tcp',
                   port: rport,
@@ -179,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
                   data: { proto: 'soap', sapsystemname: sapsystemname })
     end
     if saplocalhost
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] SAP Localhost: #{saplocalhost}")
+      print_good("SAP Localhost: #{saplocalhost}")
       report_note(host: rhost,
                   proto: 'tcp',
                   port: rport,
@@ -187,7 +187,7 @@ class MetasploitModule < Msf::Auxiliary
                   data: { proto: 'soap', saplocalhost: saplocalhost })
     end
     if instancename
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Instance Name: #{instancename}")
+      print_good("Instance Name: #{instancename}")
       report_note(host: rhost,
                   proto: 'tcp',
                   port: rport,
@@ -195,7 +195,7 @@ class MetasploitModule < Msf::Auxiliary
                   data: { proto: 'soap', instancename: instancename })
     end
     if icmurl
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] ICM URL: #{icmurl}")
+      print_good("ICM URL: #{icmurl}")
       report_note(host: rhost,
                   proto: 'tcp',
                   port: rport,
@@ -203,7 +203,7 @@ class MetasploitModule < Msf::Auxiliary
                   data: { proto: 'soap', icmurl: icmurl })
     end
     if igsurl
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] IGS URL: #{igsurl}")
+      print_good("IGS URL: #{igsurl}")
       report_note(host: rhost,
                   proto: 'tcp',
                   port: rport,
@@ -211,7 +211,7 @@ class MetasploitModule < Msf::Auxiliary
                   data: { proto: 'soap', igsurl: igsurl })
     end
     if dbstring
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] ABAP DATABASE: #{dbstring}")
+      print_good("ABAP DATABASE: #{dbstring}")
       report_note(host: rhost,
                   proto: 'tcp',
                   port: rport,
@@ -220,7 +220,7 @@ class MetasploitModule < Msf::Auxiliary
                   update: :unique_data)
     end
     if j2eedbstring
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] J2EE DATABASE: #{j2eedbstring}")
+      print_good("J2EE DATABASE: #{j2eedbstring}")
       report_note(host: rhost,
                   proto: 'tcp',
                   port: rport,
@@ -230,7 +230,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     if protectedweb
       protectedweb_arr = protectedweb.split(',')
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Protected Webmethods (auth required) :::")
+      print_good("Protected Webmethods (auth required) :::")
       print_status(protectedweb.to_s)
       report_note(host: rhost,
                   proto: 'tcp',
@@ -247,7 +247,7 @@ class MetasploitModule < Msf::Auxiliary
         webmethods_output << webm unless protectedweb_arr && protectedweb_arr.include?(webm)
       end
       if webmethods_output
-        print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unprotected Webmethods :::")
+        print_good("Unprotected Webmethods :::")
         print_status(webmethods_output.join(',').to_s)
       end
       report_note(host: rhost,

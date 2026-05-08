@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
     res[:banner] = Rex::Proto::ADDP.reply_to_string(res)
 
     unless @results[shost]
-      print_good("#{shost}:#{datastore['RPORT']} ADDP #{res[:banner]}")
+      print_good("ADDP #{res[:banner]}")
       report_service(
         :host => shost,
         :mac => res[:mac],

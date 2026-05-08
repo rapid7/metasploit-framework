@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       banner_resp = sock.get_once
       if banner_resp && banner_resp =~ /^Welcome to the perfd server/
         banner_resp.strip!
-        print_good("#{target_host}:#{rport}, Perfd server banner: #{banner_resp}")
+        print_good("Perfd server banner: #{banner_resp}")
         perfd_service = report_service(host: rhost, port: rport, name: "perfd", proto: "tcp", info: banner_resp)
         sock.puts("\n")
 
@@ -72,10 +72,10 @@ class MetasploitModule < Msf::Auxiliary
             "HP Ops Agent perfd #{command}",
             perfd_service
           )
-          print_status("#{target_host}:#{rport} - #{loot_name} saved in: #{path}")
+          print_status("#{loot_name} saved in: #{path}")
         end
       else
-        print_error("#{target_host}:#{rport}, Perfd server banner detection failed!")
+        print_error("Perfd server banner detection failed!")
       end
       disconnect
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

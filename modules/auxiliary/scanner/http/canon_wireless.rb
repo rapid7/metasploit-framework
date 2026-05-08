@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => '/English/pages_MacUS/lan_set_content.html',
       })
     rescue
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} Could not connect.")
+      print_error("Could not connect.")
       return
     end
 
@@ -74,13 +74,13 @@ class MetasploitModule < Msf::Auxiliary
 
           return lan_setting, ssid
         else
-          print_error("#{Rex::Socket.to_authority(rhost, rport)} Could not determine LAN Settings.")
+          print_error("Could not determine LAN Settings.")
         end
 
       elsif res.code == 401
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} Authentication failed")
+        print_error("Authentication failed")
       elsif res.code == 404
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} File not found")
+        print_error("File not found")
       end
     end
   end
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => "/English/pages_MacUS/wls_set_content.html",
       })
     rescue
-      print_error("#{ip}:#{rport} Could not connect.")
+      print_error("Could not connect.")
       return
     end
 
@@ -123,9 +123,9 @@ class MetasploitModule < Msf::Auxiliary
         return encryption_setting, encryption_key
 
       elsif res.code == 401
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} Authentication failed")
+        print_error("Authentication failed")
       elsif res.code == 404
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} File not found")
+        print_error("File not found")
       end
     end
   end

@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
 
     lbuff = sock.get_once(4, 5)
     if !lbuff
-      print_error("#{ip}:#{rport} UNKNOWN: No response to the directory listing request")
+      print_error("UNKNOWN: No response to the directory listing request")
       disconnect
       return
     end
@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
     # Required to prevent the server from spinning a loop
     sock.put(trojan_command(:nop))
 
-    print_good("#{ip}:#{rport} FOUND: #{files.inspect}")
+    print_good("FOUND: #{files.inspect}")
     # Add Vulnerability and Report
     report_vuln({
       host: ip,

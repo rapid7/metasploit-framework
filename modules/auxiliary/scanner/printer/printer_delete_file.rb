@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
     pjl.fsinit(path[0..1])
 
     if pjl.fsdelete(path)
-      print_good("#{ip}:#{rport} - Deleted #{path}")
+      print_good("Deleted #{path}")
     end
 
     pjl.end_job

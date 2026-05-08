@@ -108,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     print_good("Found #{nbr_contact} contacts.")
-    print_good("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path_json_file}")
+    print_good("File saved in: #{path_json_file}")
 
     csv_string = CSV.generate do |csv| # Loop to write into csv
       csv << contact_fields
@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
       '.csv'
     )
 
-    print_good("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path_csv_file}")
+    print_good("File saved in: #{path_csv_file}")
   end
 
 end

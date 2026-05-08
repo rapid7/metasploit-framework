@@ -84,13 +84,13 @@ class MetasploitModule < Msf::Auxiliary
     packet << cmd
 
     begin
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending command...")
+      print_status("Sending command...")
       connect
       sock.put(packet)
       res = sock.get_once
       print_status(res.to_s) if res && !res.empty?
     rescue StandardError
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to connect")
+      print_error("Unable to connect")
     ensure
       disconnect
     end

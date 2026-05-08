@@ -52,10 +52,10 @@ class MetasploitModule < Msf::Auxiliary
     return if not res
 
     if res.code == 400
-      vprint_status("#{ip}:#{datastore['RPORT']} - Server Responeded 400, It's Likely Patched")
+      vprint_status("Server Responeded 400, It's Likely Patched")
       return
     elsif res.code != 200
-      vprint_status("#{ip}:#{datastore['RPORT']} - Server Responeded With An Unknown Response Code Of #{res.code}")
+      vprint_status("Server Responeded With An Unknown Response Code Of #{res.code}")
       return
     end
 
@@ -81,10 +81,10 @@ class MetasploitModule < Msf::Auxiliary
 
     if (info[:username] and info[:password])
       if (info[:domain] and info[:basedir])
-        print_good("#{ip}:#{datastore['RPORT']} - Domain: #{info[:domain]}")
-        print_good("#{ip}:#{datastore['RPORT']} - Base Directory: #{info[:basedir]}")
+        print_good("Domain: #{info[:domain]}")
+        print_good("Base Directory: #{info[:basedir]}")
       end
-      print_good("#{ip}:#{datastore['RPORT']} - Admin Credentials: '#{info[:username]}:#{info[:password]}'")
+      print_good("Admin Credentials: '#{info[:username]}:#{info[:password]}'")
       report_cred(
         ip: ip,
         port: datastore['RPORT'],

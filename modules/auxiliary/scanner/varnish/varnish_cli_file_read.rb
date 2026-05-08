@@ -50,10 +50,10 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
       connect
       if !challenge
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: No Authentication Required"
+        print_good "LOGIN SUCCESSFUL: No Authentication Required"
       else
         if not login(datastore['PASSWORD'])
-          vprint_error "#{ip}:#{rport} - Unable to Login"
+          vprint_error "Unable to Login"
           return
         end
       end
@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
       close_session
       disconnect
     rescue Rex::ConnectionError, EOFError, Timeout::Error
-      print_error "#{ip}:#{rport} - Unable to connect"
+      print_error "Unable to connect"
     end
   end
 end

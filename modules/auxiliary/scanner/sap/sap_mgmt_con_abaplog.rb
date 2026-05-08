@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if !res
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def extractabap(rhost)
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Connecting to SAP Management Console SOAP Interface")
+    print_status("Connecting to SAP Management Console SOAP Interface")
     success = false
 
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -92,13 +92,13 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue ::Rex::ConnectionError
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
     if success
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} [SAP] ABAP syslog downloading")
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Storing looted SAP ABAP syslog XML file")
+      print_status("ABAP syslog downloading")
+      print_status("Storing looted SAP ABAP syslog XML file")
       path = store_loot(
         'sap.abap.syslog',
         'text/xml',
@@ -107,12 +107,12 @@ class MetasploitModule < Msf::Auxiliary
         'sap_abap_syslog.xml',
         'SAP ABAP syslog'
       )
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] SAP ABAP syslog XML file stored at #{path}")
+      print_good("SAP ABAP syslog XML file stored at #{path}")
     elsif fault
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Error code: #{faultcode}")
+      print_error("Error code: #{faultcode}")
       return
     else
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] failed to access ABAPSyslog")
+      print_error("failed to access ABAPSyslog")
       return
     end
   end

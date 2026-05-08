@@ -86,15 +86,15 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if res && res.code == 200 && res.headers['content-disposition']
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - dumping device configuration")
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Configfile.cfg retrieved successfully!")
+      print_status("dumping device configuration")
+      print_good("Configfile.cfg retrieved successfully!")
       loot_name = 'Configfile.cfg'
       loot_type = 'text/plain'
       loot_desc = 'Cambium cnPilot Config'
       path = store_loot(loot_name, loot_type, datastore['RHOST'], res.body, loot_desc)
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to retrieve config. Set a higher HTTPCLIENTTIMEOUT and try again.")
+      print_error("Failed to retrieve config. Set a higher HTTPCLIENTTIMEOUT and try again.")
       return
     end
   end

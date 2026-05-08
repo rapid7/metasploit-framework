@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
     file = file[1, file.length] if file[0, 1] == "\\"
 
     uri = "/#{trav}#{file}"
-    print_status("#{ip}:#{rport} - Retrieving #{file}")
+    print_status("Retrieving #{file}")
 
     res = send_request_raw({
       'method' => 'GET',
@@ -64,9 +64,9 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if res
-      print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
+      print_status("returns: #{res.code.to_s}")
     else
-      print_error("#{ip}:#{rport} - No response")
+      print_error("No response")
       return
     end
 

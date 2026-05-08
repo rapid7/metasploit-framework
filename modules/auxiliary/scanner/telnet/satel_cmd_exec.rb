@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good("File saved in: #{p}")
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Connection Failed...")
+      print_error("Connection Failed...")
       return false
     ensure
       disconnect

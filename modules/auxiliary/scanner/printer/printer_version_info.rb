@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
 
     if id
-      print_good("#{ip}:#{rport} - #{id}")
+      print_good("#{id}")
       report_service(
         :host => ip,
         :port => rport,
