@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if !res
-      print_error("#{peer} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
@@ -155,17 +155,17 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue ::Rex::ConnectionError
-      print_error("#{peer} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
     if success
-      print_good("#{peer} [SAP] Successful login '#{user}' password: '#{pass}'")
+      print_good("Successful login '#{user}' password: '#{pass}'")
 
       if permission
-        vprint_good("#{peer} [SAP] Login '#{user}' authorized to perform OSExecute calls")
+        vprint_good("Login '#{user}' authorized to perform OSExecute calls")
       else
-        vprint_error("#{peer} [SAP] Login '#{user}' NOT authorized to perform OSExecute calls")
+        vprint_error("Login '#{user}' NOT authorized to perform OSExecute calls")
       end
 
       report_cred(
@@ -177,7 +177,7 @@ class MetasploitModule < Msf::Auxiliary
         proof: res.body
       )
     else
-      vprint_error("#{peer} [SAP] failed to login as '#{user}':'#{pass}'")
+      vprint_error("failed to login as '#{user}':'#{pass}'")
     end
   end
 end

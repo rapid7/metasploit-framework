@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with Failure::Unreachable, 'Connection failed' unless res
     end
     unless @sqli.test_vulnerable
-      print_bad("#{peer} - Testing of SQLi failed.  If this is time based, try increasing SqliDelay.")
+      print_bad("Testing of SQLi failed.  If this is time based, try increasing SqliDelay.")
       return
     end
 

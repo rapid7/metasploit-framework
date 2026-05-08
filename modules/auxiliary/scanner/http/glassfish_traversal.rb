@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    vprint_good("#{peer} - #{res.body}")
+    vprint_good("#{res.body}")
     path = store_loot(
       'oracle.traversal',
       'text/plain',

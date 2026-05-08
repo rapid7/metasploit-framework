@@ -121,9 +121,9 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       if relevant_responses.empty?
-        vprint_status("#{peer} Not vulnerable to something")
+        vprint_status("Not vulnerable to something")
       else
-        print_good("#{peer} Vulnerable to something!")
+        print_good("Vulnerable to something!")
         report_vuln(
           host: host,
           port: rport,

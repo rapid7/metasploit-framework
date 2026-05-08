@@ -89,14 +89,14 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     client_list.each do |c|
-      print_status("#{peer} [SAP] Trying client: #{c}")
+      print_status("Trying client: #{c}")
       each_user_pass do |u, p|
-        vprint_status("#{peer} [SAP] Trying #{c}:#{u}:#{p}")
+        vprint_status("Trying #{c}:#{u}:#{p}")
         begin
           success = bruteforce(u, p, c)
           saptbl << [ rhost, rport, c, u, p] if success
         rescue ::Rex::ConnectionError
-          print_error("#{peer} [SAP] Not responding")
+          print_error("Not responding")
           break
         end
       end
@@ -164,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if res && res.code == 200 && res.body.include?('RFC_PING')
-      print_good("#{peer} [SAP] Client #{client}, valid credentials #{username}:#{password}")
+      print_good("Client #{client}, valid credentials #{username}:#{password}")
       report_cred(
         ip: rhost,
         port: rport,

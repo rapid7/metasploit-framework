@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
       return if res.nil?
       return if res.headers['X-Influxdb-Version'].nil?
 
-      print_good("#{peer} - Influx Version: #{res.headers['X-Influxdb-Version']}")
+      print_good("Influx Version: #{res.headers['X-Influxdb-Version']}")
 
       # Send http auth to the target
       # curl http://127.0.0.1:8086/query?q=SHOW+DATABASES
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
           return if jsonres['results'].nil?
 
           result = JSON.pretty_generate(jsonres)
-          vprint_good("#{peer} - Influx DB Found:\n\n#{result}\n")
+          vprint_good("Influx DB Found:\n\n#{result}\n")
           path = store_loot(
             'influxdb.enum',
             'text/plain',

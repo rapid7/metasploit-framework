@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
       vulnerable, proof = prove_amplification(response_map)
       what = 'R7-2014-12 NTP Mode 6 UNSETTRAP DRDoS'
       if vulnerable
-        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
+        print_good("Vulnerable to #{what}: #{proof}")
         report_vuln({
           :host => k,
           :port => rport,
@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
           :refs => self.references
         })
       else
-        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
+        vprint_status("Not vulnerable to #{what}: #{proof}")
       end
     end
   end

@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
         file = get_file(datastore['TRAVERSAL_PATH'], 1)
       end
       if file.nil?
-        print_error("#{peer} - Failed to download the specified file.")
+        print_error("Failed to download the specified file.")
         return
       else
         vprint_line(file)

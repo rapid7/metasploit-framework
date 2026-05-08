@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
       vulnerable, proof = prove_amplification(response_map)
       what = 'NTP Mode 6 READVAR DRDoS'
       if vulnerable
-        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
+        print_good("Vulnerable to #{what}: #{proof}")
         report_vuln(
           host: k,
           port: rport,
@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
           refs: references
         )
       else
-        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
+        vprint_status("Not vulnerable to #{what}: #{proof}")
       end
     end
   end

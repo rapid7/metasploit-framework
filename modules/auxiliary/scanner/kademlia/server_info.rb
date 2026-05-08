@@ -69,12 +69,12 @@ class MetasploitModule < Msf::Auxiliary
           version: bootstrap_res.version,
           peers: bootstrap_res.peers
         }
-        print_good("#{peer} ID #{bootstrap_res.peer_id}, TCP port #{bootstrap_res.tcp_port}," +
+        print_good("ID #{bootstrap_res.peer_id}, TCP port #{bootstrap_res.tcp_port}," +
                    " version #{bootstrap_res.version}, #{bootstrap_res.peers.size} peers")
       end
     when 'PING'
       if pong = Pong.from_data(response)
-        print_good("#{peer} PONG port #{pong.port}")
+        print_good("PONG port #{pong.port}")
         # port should match the port we contacted it from.  TODO: validate this?
         info = { udp_port: pong.port }
       end
