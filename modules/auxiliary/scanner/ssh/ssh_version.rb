@@ -94,6 +94,7 @@ class MetasploitModule < Msf::Auxiliary
       'ecdsa-sha2-nistp521' => { note: 'Weak elliptic curve', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#host-keys'] },
       'ecdsa-sha2-nistp384' => { note: 'Weak elliptic curve', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#host-keys'] },
       'ecdsa-sha2-nistp256' => { note: 'Weak elliptic curve', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#host-keys'] },
+      'ssh-dss' => { note: 'Deprecated SHA-1', refs: ['https://www.openssh.com/legacy.html'] }
     }
 
     server_data[:host_key].each do |host_key|
@@ -117,29 +118,29 @@ class MetasploitModule < Msf::Auxiliary
     deprecated = []
 
     encryption_checks = {
-      'arcfour' => ['https://datatracker.ietf.org/doc/html/rfc8758#name-iana-considerations'],
-      'arcfour128' => ['https://datatracker.ietf.org/doc/html/rfc8758#name-iana-considerations'],
-      'arcfour256' => ['https://datatracker.ietf.org/doc/html/rfc8758#name-iana-considerations'],
-      'aes256-cbc' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'],
-      'aes192-cbc' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'],
-      'aes128-cbc' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'],
-      'rijndael-cbc@lysator.liu.se' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'],
-      'blowfish-cbc' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'],
-      'cast128-cbc' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'],
-      '3des-cbc' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'],
-      'idea-cbc' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'],
-      'twofish-cbc' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'],
-      'twofish128-cbc' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'],
-      'twofish256-cbc' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'],
-      'blowfish-ctr' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers'],
-      'cast128-ctr' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers'],
-      '3des-ctr' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers'],
-      'none' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers']
+      'arcfour' => { note: 'RC4 stream cipher', refs: ['https://datatracker.ietf.org/doc/html/rfc8758#name-iana-considerations'] },
+      'arcfour128' => { note: 'RC4 stream cipher', refs: ['https://datatracker.ietf.org/doc/html/rfc8758#name-iana-considerations'] },
+      'arcfour256' => { note: 'RC4 stream cipher', refs: ['https://datatracker.ietf.org/doc/html/rfc8758#name-iana-considerations'] },
+      'aes256-cbc' => { note: 'CBC padding oracle', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'] },
+      'aes192-cbc' => { note: 'CBC padding oracle', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'] },
+      'aes128-cbc' => { note: 'CBC padding oracle', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'] },
+      'rijndael-cbc@lysator.liu.se' => { note: 'CBC padding oracle', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'] },
+      'blowfish-cbc' => { note: 'CBC padding oracle', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'] },
+      'cast128-cbc' => { note: 'CBC padding oracle', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'] },
+      '3des-cbc' => { note: 'CBC padding oracle', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'] },
+      'idea-cbc' => { note: 'CBC padding oracle', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'] },
+      'twofish-cbc' => { note: 'CBC padding oracle', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'] },
+      'twofish128-cbc' => { note: 'CBC padding oracle', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'] },
+      'twofish256-cbc' => { note: 'CBC padding oracle', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers', 'CVE-2008-5161'] },
+      'blowfish-ctr' => { note: 'Removed from spec', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers'] },
+      'cast128-ctr' => { note: 'Removed from spec', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers'] },
+      '3des-ctr' => { note: 'Removed from spec', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers'] },
+      'none' => { note: 'No encryption', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#encryption-algorithms-ciphers'] }
     }
 
     server_data[:encryption_server].each do |encryption|
       note = ''
-      encryption_checks.each do |bad_enc, refs|
+      encryption_checks.each do |bad_enc, data|
         next unless encryption.downcase == bad_enc
 
         vprint_good("#{target_host} - Encryption #{encryption} is deprecated and should not be used")
@@ -158,20 +159,20 @@ class MetasploitModule < Msf::Auxiliary
     deprecated = []
 
     kex_checks = {
-      'gss-group1-sha1-*' => ['https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'],
-      'gss-group14-sha1-gss-gex-sha1-*' => ['https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'],
-      'gss-gex-sha1-*' => ['https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'],
-      'ecdsa-sha2-nistp521' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#key-exchange'],
-      'ecdsa-sha2-nistp384' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#key-exchange'],
-      'ecdsa-sha2-nistp256' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#key-exchange'],
-      'diffie-hellman-group-exchange-sha1' => ['https://datatracker.ietf.org/doc/html/draft-ietf-curdle-ssh-kex-sha2-20#page-16'],
-      'diffie-hellman-group1-sha1' => ['https://datatracker.ietf.org/doc/html/draft-ietf-curdle-ssh-kex-sha2-20#page-16'],
-      'rsa1024-sha1' => ['https://datatracker.ietf.org/doc/html/draft-ietf-curdle-ssh-kex-sha2-20#page-16']
+      'gss-group1-sha1-*' => { note: 'SHA-1 weakness', refs: ['https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'] },
+      'gss-group14-sha1-gss-gex-sha1-*' => { note: 'SHA-1 weakness', refs: ['https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'] },
+      'gss-gex-sha1-*' => { note: 'SHA-1 weakness', refs: ['https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'] },
+      'ecdsa-sha2-nistp521' => { note: 'Weak elliptic curve', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#key-exchange'] },
+      'ecdsa-sha2-nistp384' => { note: 'Weak elliptic curve', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#key-exchange'] },
+      'ecdsa-sha2-nistp256' => { note: 'Weak elliptic curve', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#key-exchange'] },
+      'diffie-hellman-group-exchange-sha1' => { note: 'SHA-1 weakness', refs: ['https://datatracker.ietf.org/doc/html/draft-ietf-curdle-ssh-kex-sha2-20#page-16'] },
+      'diffie-hellman-group1-sha1' => { note: 'SHA-1 weakness', refs: ['https://datatracker.ietf.org/doc/html/draft-ietf-curdle-ssh-kex-sha2-20#page-16'] },
+      'rsa1024-sha1' => { note: 'SHA-1 weakness', refs: ['https://datatracker.ietf.org/doc/html/draft-ietf-curdle-ssh-kex-sha2-20#page-16'] }
     }
 
     server_data[:kex].each do |kex|
       note = ''
-      kex_checks.each do |bad_kex, refs|
+      kex_checks.each do |bad_kex, data|
         if bad_kex.ends_with? '*'
           next unless kex.downcase.start_with? bad_kex[0..-2]
         else
@@ -194,18 +195,18 @@ class MetasploitModule < Msf::Auxiliary
     deprecated = []
 
     hmac_checks = {
-      'hmac-sha2-512-96' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'],
-      'hmac-sha2-256-96' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'],
-      'hmac-sha1-96' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'],
-      'hmac-ripemd160' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'],
-      'hmac-md5' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'],
-      'hmac-md5-96' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'],
-      'none' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms']
+      'hmac-sha2-512-96' => { note: 'Truncated HMAC', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'] },
+      'hmac-sha2-256-96' => { note: 'Truncated HMAC', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'] },
+      'hmac-sha1-96' => { note: 'Truncated HMAC', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'] },
+      'hmac-ripemd160' => { note: 'RIPEMD-160 weakness', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'] },
+      'hmac-md5' => { note: 'MD5 collision', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'] },
+      'hmac-md5-96' => { note: 'MD5 collision', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'] },
+      'none' => { note: 'No authentication', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'] }
     }
 
     server_data[:hmac_server].each do |hmac|
       note = ''
-      hmac_checks.each do |bad_hmac, refs|
+      hmac_checks.each do |bad_hmac, data|
         next unless hmac.downcase == bad_hmac
 
         vprint_good("#{target_host} - HMAC #{hmac} is deprecated and should not be used")
