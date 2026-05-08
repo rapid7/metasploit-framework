@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif fault
       print_error("Error code: #{faultcode}")
     else
-      print_error("#{rhost}#{rport} [SAP] failed to access ABAPSyslog on #{rhost}:#{rport}")
+      print_error("failed to access ABAPSyslog on #{rhost}:#{rport}")
     end
   end
 end
