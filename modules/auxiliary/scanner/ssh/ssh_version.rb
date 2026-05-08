@@ -91,17 +91,15 @@ class MetasploitModule < Msf::Auxiliary
     deprecated = []
 
     host_key_checks = {
-      %w[
-        ecdsa-sha2-nistp521 ecdsa-sha2-nistp384
-        ecdsa-sha2-nistp256
-      ] => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#host-keys']
+      'ecdsa-sha2-nistp521' => { note: 'Weak elliptic curve', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#host-keys'] },
+      'ecdsa-sha2-nistp384' => { note: 'Weak elliptic curve', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#host-keys'] },
+      'ecdsa-sha2-nistp256' => { note: 'Weak elliptic curve', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#host-keys'] },
     }
 
     server_data[:host_key].each do |host_key|
       note = ''
-      host_key_checks.each do |host_key_check, refs|
-        host_key_check.each do |bad_key|
-          next unless host_key.downcase == bad_key
+      host_key_checks.each do |bad_key, data|
+        next unless host_key.downcase == bad_key
 
         vprint_good("#{target_host} - Host Key #{host_key} is deprecated and should not be used")
         deprecated << { name: host_key, refs: data[:refs] }
