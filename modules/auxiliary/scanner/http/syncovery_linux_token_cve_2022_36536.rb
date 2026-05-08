@@ -76,13 +76,13 @@ class MetasploitModule < Msf::Auxiliary
       if json_res['isSyncoveryWindows'] == 'false'
         version = json_res['SyncoveryTitle']&.scan(/Syncovery\s([A-Za-z0-9.]+)/)&.flatten&.first || ''
         if version.empty?
-          vprint_warning("#{peer} - Could not identify version")
+          vprint_warning("Could not identify version")
           Exploit::CheckCode::Detected('Syncovery Linux detected but version could not be determined')
         elsif Rex::Version.new(version) < Rex::Version.new('9.48j') || Rex::Version.new(version) == Rex::Version.new('9.48')
-          vprint_good("#{peer} - Syncovery #{version}")
+          vprint_good("Syncovery #{version}")
           Exploit::CheckCode::Appears("Syncovery Linux #{version} appears to be vulnerable")
         else
-          vprint_status("#{peer} - Syncovery #{version}")
+          vprint_status("Syncovery #{version}")
           Exploit::CheckCode::Safe("Syncovery Linux #{version} is not vulnerable")
         end
       else

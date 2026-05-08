@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
         'vars_get' => { 'query' => 'ADMINID' }
       })
       unless res
-        print_error("#{peer} Unable to connect to #{url}")
+        print_error("Unable to connect to #{url}")
         return
       end
 
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
         )
       end
     rescue ::Rex::ConnectionError
-      print_error("#{peer} Unable to connect to site")
+      print_error("Unable to connect to site")
       return
     end
   end

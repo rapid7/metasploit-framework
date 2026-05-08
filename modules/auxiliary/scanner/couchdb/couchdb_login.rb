@@ -128,7 +128,7 @@ class MetasploitModule < Msf::Auxiliary
 
     return :skip_pass unless res.code == 200
 
-    print_good("#{peer} - Successful login with: '#{user}' : '#{pass}'")
+    print_good("Successful login with: '#{user}' : '#{pass}'")
 
     report_cred(
       ip: rhost,

@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
 
     sys_desc = snmp.get_value('sysDescr.0')
     if sys_desc.blank? || sys_desc.to_s == 'Null'
-      vprint_error("#{peer} No sysDescr received")
+      vprint_error("No sysDescr received")
       return
     end
     sys_desc = sys_desc.split(/[\r\n]/).join(' ')
@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
 
     matching_oids = sys_desc_map.select { |re, _| sys_desc =~ re }.values
     if matching_oids.empty?
-      vprint_warning("#{peer} Skipping unsupported sysDescr: '#{sys_desc}'")
+      vprint_warning("Skipping unsupported sysDescr: '#{sys_desc}'")
       return
     end
     users = []
@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
     unless users.empty?
       users.sort!
       users.uniq!
-      print_good("#{peer} Found #{users.size} users: #{users.join(', ')}")
+      print_good("Found #{users.size} users: #{users.join(', ')}")
     end
 
     report_note(

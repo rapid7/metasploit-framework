@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(_target_host)
     if (banner = fingerprint_service(target_uri.to_s))
-      print_good("#{peer}: #{banner}")
+      print_good("#{banner}")
     end
   end
 end

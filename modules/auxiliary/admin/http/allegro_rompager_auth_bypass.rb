@@ -258,7 +258,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Fingerprint: #{fp}")
     # ensure the fingerprint at least appears vulnerable
     if %r{RomPager/(?<version>[\d.]+)} =~ fp
-      vprint_status("#{peer} is RomPager #{version}")
+      vprint_status("is RomPager #{version}")
       if Rex::Version.new(version) < Rex::Version.new('4.34') && /realm="(?<model>.+)"/ =~ fp
         return model
       end

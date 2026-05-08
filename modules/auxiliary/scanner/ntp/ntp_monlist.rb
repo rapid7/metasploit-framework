@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
 
       peers = @results[k][:peers].flatten(1)
       unless peers.empty?
-        print_good("#{peer} NTP monlist request permitted (#{peers.length} entries)")
+        print_good("NTP monlist request permitted (#{peers.length} entries)")
         # store the peers found from the monlist
         report_note(
           :host => k,
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
         # print out peers if desired
         if datastore['SHOW_LIST']
           peers.each do |ntp_peer|
-            print_status("#{peer} #{ntp_peer}")
+            print_status("#{ntp_peer}")
           end
         end
         # store any aliases for our target
@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
         )
 
         if (datastore['StoreNTPClients'])
-          print_status("#{peer} Storing #{peers.length} NTP client hosts in the database...")
+          print_status("Storing #{peers.length} NTP client hosts in the database...")
           peers.each do |r|
             maddr, mport, mserv = r
             next if maddr == '127.0.0.1' # some NTP servers peer with themselves..., but we can't store loopback
@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
       vulnerable, proof = prove_amplification(response_map)
       what = 'NTP Mode 7 monlist DRDoS (CVE-2013-5211)'
       if vulnerable
-        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
+        print_good("Vulnerable to #{what}: #{proof}")
         report_vuln({
           :host => k,
           :port => rport,
@@ -129,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
           :refs => self.references
         })
       else
-        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
+        vprint_status("Not vulnerable to #{what}: #{proof}")
       end
     end
   end

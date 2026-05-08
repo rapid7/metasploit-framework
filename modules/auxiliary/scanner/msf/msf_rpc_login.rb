@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Connection refused : #{e}")
       return :abort
     rescue => e
-      vprint_status("#{peer} - Bad login")
+      vprint_status("Bad login")
       return :skip_pass
     end
   ensure

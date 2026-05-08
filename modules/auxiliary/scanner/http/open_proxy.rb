@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def verify_target(target_host, target_port, target_method, check_url, target_proxy_headers)
-    vprint_status("#{peer} - Sending a web request... [#{target_method}][#{check_url}]")
+    vprint_status("Sending a web request... [#{target_method}][#{check_url}]")
 
     datastore['RPORT'] = target_port
 
@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
 
       return if not res
 
-      vprint_status("#{peer} - Returns with '#{res.code}' status code [#{target_method}][#{check_url}]")
+      vprint_status("Returns with '#{res.code}' status code [#{target_method}][#{check_url}]")
 
       valid_codes = datastore['VALIDCODES'].split(/,/)
 
@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
         # Verifying CONNECT we check only the return code
         if valid_codes.include?(res.code.to_s)
 
-          print_good("#{peer} - Potentially open proxy [#{res.code}][#{target_method}]#{proxy_headers}")
+          print_good("Potentially open proxy [#{res.code}][#{target_method}]#{proxy_headers}")
 
           report_note(
             :host => target_host,
@@ -137,7 +137,7 @@ class MetasploitModule < Msf::Auxiliary
         # Verify return code && (headers.pattern or body.pattern)
         if valid_codes.include?(res.code.to_s) && (res.headers.include?(datastore['VALIDPATTERN']) || res.body.include?(datastore['VALIDPATTERN']))
 
-          print_good("#{peer} - Potentially open proxy [#{res.code}][#{target_method}]#{proxy_headers}")
+          print_good("Potentially open proxy [#{res.code}][#{target_method}]#{proxy_headers}")
 
           report_note(
             :host => target_host,
@@ -152,7 +152,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE => e
-      vprint_error("#{peer} - The port '#{target_port}' is unreachable!")
+      vprint_error("The port '#{target_port}' is unreachable!")
       return nil
     end
   end

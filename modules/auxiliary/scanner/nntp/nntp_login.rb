@@ -68,12 +68,12 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Interrupt
       raise $ERROR_INFO
     rescue EOFError, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      print_error "#{peer} Connection failed"
+      print_error "Connection failed"
       return
     rescue OpenSSL::SSL::SSLError => e
       print_error "SSL negotiation failed: #{e}"
     rescue => e
-      print_error "#{peer} Error: #{e.class} #{e} #{e.backtrace}"
+      print_error "Error: #{e.class} #{e} #{e.backtrace}"
       return
     ensure
       disconnect
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     banner = sock.get_once
 
     if !banner
-      vprint_error "#{peer} No response"
+      vprint_error "No response"
       return false
     end
 
@@ -132,29 +132,29 @@ class MetasploitModule < Msf::Auxiliary
       sock.put "AUTHINFO USER #{user}\r\n"
       res = sock.get_once
       unless res
-        vprint_error "#{peer} No response"
+        vprint_error "No response"
         return :abort
       end
 
       code = res.scan(/\A(\d+)\s/).flatten.first.to_i
       if code != 381
-        vprint_error "#{peer} Unexpected reply. Skipping user..."
+        vprint_error "Unexpected reply. Skipping user..."
         return :skip_user
       end
 
       sock.put "AUTHINFO PASS #{pass}\r\n"
       res = sock.get_once
       unless res
-        vprint_error "#{peer} No response"
+        vprint_error "No response"
         return :abort
       end
 
       code = res.scan(/\A(\d+)\s/).flatten.first.to_i
       if code == 452 || code == 481
-        vprint_error "#{peer} Login failed"
+        vprint_error "Login failed"
         return
       elsif code == 281
-        print_good "#{peer} Successful login with: '#{user}' : '#{pass}'"
+        print_good "Successful login with: '#{user}' : '#{pass}'"
         report_cred ip: rhost,
                     port: rport,
                     service_name: 'nntp',
@@ -163,7 +163,7 @@ class MetasploitModule < Msf::Auxiliary
                     proof: code.to_s
         return :next_user
       else
-        vprint_error "#{peer} Failed login as: '#{user}' - Unexpected reply: #{res.inspect}"
+        vprint_error "Failed login as: '#{user}' - Unexpected reply: #{res.inspect}"
         return
       end
     rescue EOFError, ::Rex::ConnectionError, ::Errno::ECONNREFUSED, ::Errno::ETIMEDOUT

@@ -68,9 +68,9 @@ class MetasploitModule < Msf::Auxiliary
     when Exploit::CheckCode::Appears
     when Exploit::CheckCode::Detected
     when Exploit::CheckCode::Vulnerable
-      print_good("#{peer} #{status.last}")
+      print_good("#{status.last}")
     else
-      vprint_status("#{peer} #{status.last}")
+      vprint_status("#{status.last}")
     end
   end
 
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
   def check_response_fingerprint(res, fallback_status)
     fp = http_fingerprint(response: res)
     if /RomPager\/(?<version>[\d\.]+)/ =~ fp
-      vprint_status("#{peer} is RomPager #{version}")
+      vprint_status("is RomPager #{version}")
       if Rex::Version.new(version) < Rex::Version.new('4.34')
         return Exploit::CheckCode::Appears
       end
@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def find_canary
-    vprint_status("#{peer} locating suitable canary URI")
+    vprint_status("locating suitable canary URI")
     canaries = []
     if datastore['CANARY_URI']
       canaries << datastore['CANARY_URI']
@@ -133,9 +133,9 @@ class MetasploitModule < Msf::Auxiliary
     # find a usable canary URI (one that returns an acceptable status code already)
     if canary = find_canary
       canary_value, canary_code = canary
-      vprint_status("#{peer} found canary URI #{canary_value} with code #{canary_code}")
+      vprint_status("found canary URI #{canary_value} with code #{canary_code}")
     else
-      vprint_error("#{peer} Unable to find a suitable canary URI")
+      vprint_error("Unable to find a suitable canary URI")
       return Exploit::CheckCode::Unknown
     end
 

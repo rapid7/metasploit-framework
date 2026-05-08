@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     unless requires_password?(ip)
-      print_good "#{peer} - No password is required."
+      print_good "No password is required."
       report_vuln(
         host: ip,
         port: rport,
@@ -113,16 +113,16 @@ class MetasploitModule < Msf::Auxiliary
         create_credential_login(credential_data)
 
         if datastore['VERBOSE']
-          vprint_good "#{peer} - Login Successful: #{result.credential} (#{result.status}: #{result.proof.strip})"
+          vprint_good "Login Successful: #{result.credential} (#{result.status}: #{result.proof.strip})"
         else
-          print_good "#{peer} - Login Successful: #{result.credential}"
+          print_good "Login Successful: #{result.credential}"
         end
       when Metasploit::Model::Login::Status::NO_AUTH_REQUIRED
-        vprint_error "#{peer} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof.strip})"
+        vprint_error "LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof.strip})"
         break
       else
         invalidate_login(credential_data)
-        vprint_error "#{peer} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof.strip})"
+        vprint_error "LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof.strip})"
       end
     end
   end

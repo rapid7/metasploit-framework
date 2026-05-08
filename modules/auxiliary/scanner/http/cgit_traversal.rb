@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    vprint_good("#{peer} - \n#{res.body}")
+    vprint_good("\n#{res.body}")
     path = store_loot(
       'cgit.traversal',
       'text/plain',

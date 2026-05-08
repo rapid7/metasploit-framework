@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
 
     peer = "#{shost}:#{sport}"
     if (ver == 0 && op == 128 && result == 0)
-      print_good("#{peer} -- external address #{external_address}")
+      print_good("- external address #{external_address}")
       # report its external address as alive
       if inside_workspace_boundary?(external_address)
         report_host(
@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         )
       end
     else
-      print_error("#{peer} -- unexpected version/opcode/result/address: #{ver}/#{op}/#{result}/#{external_address}")
+      print_error("- unexpected version/opcode/result/address: #{ver}/#{op}/#{result}/#{external_address}")
     end
 
     # report the host we scanned as alive

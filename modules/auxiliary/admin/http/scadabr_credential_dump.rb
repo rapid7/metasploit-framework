@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if res.code == 302 && !res.headers['location'].include?('/login.htm') && res.get_cookies =~ /JSESSIONID=([^;]+);/
       @cookie = res.get_cookies.scan(/JSESSIONID=([^;]+);/).flatten.first
-      print_good("#{peer} Authenticated successfully as '#{user}'")
+      print_good("Authenticated successfully as '#{user}'")
     else
       fail_with(Failure::NoAccess, "#{peer} Authentication failed")
     end
@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, "#{peer} Export failed")
     end
 
-    print_good("#{peer} Export successful (#{config_data.length} bytes)")
+    print_good("Export successful (#{config_data.length} bytes)")
 
     config_data
   end

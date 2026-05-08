@@ -155,7 +155,7 @@ class MetasploitModule < Msf::Auxiliary
     peer = "#{host}:#{rport}"
     vulnerable, proof = prove_amplification(map)
     if vulnerable
-      print_good("#{peer} - Vulnerable to #{attack}: #{proof}")
+      print_good("Vulnerable to #{attack}: #{proof}")
       report_vuln(
         host: host,
         port: rport,
@@ -164,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
         refs: references
       )
     else
-      vprint_status("#{peer} - Not vulnerable to #{attack}: #{proof}")
+      vprint_status("Not vulnerable to #{attack}: #{proof}")
     end
   end
 end

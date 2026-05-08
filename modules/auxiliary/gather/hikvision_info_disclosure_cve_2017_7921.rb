@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
     })
     return res
   rescue StandardError => e
-    print_error("#{peer} - Communication error occurred: #{e.message}")
+    print_error("Communication error occurred: #{e.message}")
     elog("#{peer} - Communication error occurred: #{e.message}", error: e)
     return nil
   end

