@@ -107,11 +107,10 @@ RSpec.shared_examples_for 'payload cached size is consistent' do |options|
           reference_name: reference_name
       )
 
-      next if reference_name =~ /generic|peinject/
+      next if reference_name =~ /generic/
 
-      pinst.datastore['CMD'] = '/bin/sh'
-      generated = pinst.generate
-      expect(generated).to_not be_nil
+      generated_size = ::Msf::Util::PayloadCachedSize.compute_cached_size(framework, pinst, generation_count: 1)
+      expect(generated_size).to eq(':dynamic').or be_a(::Integer)
     end
 
     next if reference_name =~ /generic|peinject/

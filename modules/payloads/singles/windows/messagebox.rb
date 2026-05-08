@@ -40,8 +40,8 @@ module MetasploitModule
   # Construct the payload
   #
   def generate(_opts = {})
-    title = (datastore['TITLE'] || '').bytes.map { |byte| '0x%02x' % byte }.join(', ')
-    text = (datastore['TEXT'] || '').bytes.map { |byte| '0x%02x' % byte }.join(', ')
+    title = Rex::Text.to_hex_cstring(datastore['TITLE'] || '')
+    text = Rex::Text.to_hex_cstring(datastore['TEXT'] || '')
     style = 0x00
     case datastore['ICON'].upcase.strip
       # default = NO
@@ -91,10 +91,10 @@ module MetasploitModule
       call ebp
       push #{style}
       call get_title
-      db #{title}, 0x00
+      db #{title}
     get_title:
       call get_text
-      db #{text}, 0x00
+      db #{text}
     get_text:
       push 0
       push #{block_api_hash('user32.dll', 'MessageBoxA')}

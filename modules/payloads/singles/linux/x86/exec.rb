@@ -53,7 +53,6 @@ module MetasploitModule
   def generate(_opts = {})
     cmd = datastore['CMD'] || ''
     cmd_length = cmd.bytesize
-    cmd = cmd.bytes.map { |byte| '0x%02x' % byte }.join(', ')
     nullfreeversion = datastore['NullFreeVersion']
     if cmd.empty?
       #
@@ -95,12 +94,14 @@ module MetasploitModule
           raise RangeError, 'CMD length has to be smaller than %d' % 0xffff, caller
         end
 
+        # Null-free: raw bytes without terminator (patched at runtime)
+        cmd_bytes = Rex::Text.to_hex_cstring(cmd, nullbyte: false)
         if cmd_length <= 0xff # 255
           breg = 'bl'
         else
           breg = 'bx'
           if (cmd_length & 0xff) == 0 # let's avoid zeroed bytes
-            cmd += ', 0x20'
+            cmd_bytes += ', 0x20'
             cmd_length += 1
           end
         end
@@ -130,9 +131,11 @@ module MetasploitModule
             int 0x80
           tocall:
             call afterjmp          ; call/pop cmd address
-            db #{cmd}
+            db #{cmd_bytes}
         EOS
       else
+        # Non-null-free: null-terminated cstring
+        cmd_cstring = Rex::Text.to_hex_cstring(cmd)
         # 36 bytes without cmd (not null-free)
         payload = <<-EOS
             push 0xb
@@ -146,7 +149,7 @@ module MetasploitModule
             mov ebx, esp
             push edx
             call continue
-            db #{cmd}, 0x00
+            db #{cmd_cstring}
           continue:
             push edi
             push ebx

@@ -34,7 +34,7 @@ module MetasploitModule
 
   def generate(_opts = {})
     fd = datastore['FD']
-    path = (datastore['PATH'] || '').bytes.map { |byte| '0x%02x' % byte }.join(', ')
+    path = Rex::Text.to_hex_cstring(datastore['PATH'] || '')
 
     payload_data = <<-EOS
       jmp file
@@ -66,7 +66,7 @@ module MetasploitModule
 
       file:
         call open
-        db #{path}, 0x00
+        db #{path}
     EOS
 
     Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string

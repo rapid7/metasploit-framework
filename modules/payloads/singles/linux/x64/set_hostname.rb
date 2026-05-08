@@ -36,7 +36,7 @@ module MetasploitModule
     if length > 0xff
       fail_with(Msf::Module::Failure::BadConfig, 'HOSTNAME must be less than 255 characters.')
     end
-    hostname = hostname.bytes.map { |byte| '0x%02x' % byte }.join(', ')
+    hostname = Rex::Text.to_hex_cstring(hostname, nullbyte: false)
 
     payload = %^
       push 0xffffffffffffff56 ; sethostname() syscall number.

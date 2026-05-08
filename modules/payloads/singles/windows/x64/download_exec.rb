@@ -42,8 +42,8 @@ module MetasploitModule
     display = datastore['DISPLAY'] || 'HIDE'
     url_length = url.bytesize
     file_length = file.bytesize
-    url = url.bytes.map { |byte| '0x%02x' % byte }.join(', ')
-    file = file.bytes.map { |byte| '0x%02x' % byte }.join(', ')
+    url = Rex::Text.to_hex_cstring(url, nullbyte: false)
+    file = Rex::Text.to_hex_cstring(file, nullbyte: false)
 
     payload = %^
             cld
