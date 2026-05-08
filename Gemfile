@@ -56,4 +56,3 @@ group :test do
   # stub and set expectations on HTTP requests
   gem 'webmock', '~> 3.18'
 end
-

@@ -168,8 +168,8 @@ class PayloadCachedSize
   #
   # @param mod [Msf::Payload] The class of the payload module to update
   # @return [Integer, String]
-  def self.compute_cached_size(framework, mod)
-    return ":dynamic" if is_dynamic?(framework, mod)
+  def self.compute_cached_size(framework, mod, generation_count: 10)
+    return ":dynamic" if is_dynamic?(framework, mod, generation_count: generation_count)
 
     mod.replicant.generate_simple(module_options(mod)).bytesize
   end
@@ -180,7 +180,7 @@ class PayloadCachedSize
   # @param generation_count [Integer] The number of iterations to use to
   #   verify that the size is static.
   # @return [Boolean]
-  def self.is_dynamic?(framework, mod, generation_count=10)
+  def self.is_dynamic?(framework, mod, generation_count: 10)
     return true if mod.class.const_defined?('ForceDynamicCachedSize') && mod.class::ForceDynamicCachedSize
     opts = module_options(mod)
     last_bytesize = nil
