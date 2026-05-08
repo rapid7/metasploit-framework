@@ -229,14 +229,14 @@ class MetasploitModule < Msf::Auxiliary
 
       ident = transport.server_version.version
 
-      print_status("#{target_host} - SSH server version: #{ident}")
+      print_status("#{target_host} - SSH banner: #{ident}")
 
       report_service(host: target_host, port: rport, name: 'ssh', proto: 'tcp', info: ident)
 
       return unless datastore['EXTENDED_CHECKS']
 
       table = Rex::Text::Table.new(
-        'Header' => 'Server Information and Encryption',
+        'Header' => 'SSH Server Details',
         'Indent' => 2,
         'SortIndex' => 0,
         'Columns' => %w[Type Value Note]
