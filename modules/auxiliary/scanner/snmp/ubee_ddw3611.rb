@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     snmp = connect_snmp
 
     unless snmp.get_value('1.2.840.10036.2.1.1.9.12') =~ /DDW3611/
-      vprint_eror("#{ip} system is not DDW3611")
+      vprint_eror("system is not DDW3611")
       return
     end
 
@@ -156,7 +156,7 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue Standarderror => e
-    print_error("#{ip} - Error: #{e.class} #{e}")
+    print_error("Error: #{e.class} #{e}")
     disconnect_snmp
   end
 end

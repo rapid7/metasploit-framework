@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
 
     return if @shares.empty?
 
-    print_good("#{ip} #{@shares.map { |x| "\n\t#{x[0]} - #{x[2]} (#{x[1]})" }.join}")
+    print_good("#{@shares.map { |x| "\n\t#{x[0]} - #{x[2]} (#{x[1]})" }.join}")
     report_note(
       host: ip,
       proto: 'udp',
@@ -55,15 +55,15 @@ class MetasploitModule < Msf::Auxiliary
       update: :unique_data
     )
   rescue SNMP::ParseError
-    print_error("#{ip} Encountered an SNMP parsing error while trying to enumerate the host.")
+    print_error("Encountered an SNMP parsing error while trying to enumerate the host.")
   rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout => e
-    vprint_error("#{ip} #{e.message}")
+    vprint_error("#{e.message}")
   rescue ::SNMP::UnsupportedVersion => e
-    vprint_error("#{ip} #{e.message}")
+    vprint_error("#{e.message}")
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue StandardError => e
-    print_error("#{ip} Unknown error: #{e.class} #{e}")
+    print_error("Unknown error: #{e.class} #{e}")
   ensure
     disconnect_snmp
   end

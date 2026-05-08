@@ -155,7 +155,7 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue ::StandardError => e
-    print_error("#{ip} Error: #{e.class} #{e} #{e.backtrace}")
+    print_error("Error: #{e.class} #{e} #{e.backtrace}")
   ensure
     disconnect_snmp
   end

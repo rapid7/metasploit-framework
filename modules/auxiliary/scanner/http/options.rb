@@ -52,13 +52,13 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless res.headers['Allow']
-      vprint_error("#{target_host} missing Allow header")
+      vprint_error("missing Allow header")
       return
     end
 
     allowed_methods = res.headers['Allow']
 
-    print_good("#{target_host} allows #{allowed_methods} methods")
+    print_good("allows #{allowed_methods} methods")
 
     report_note(
       host: target_host,

@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
         host_key_check.each do |bad_key|
           next unless host_key.downcase == bad_key
 
-          vprint_good("#{target_host} - Host Key Encryption #{host_key} uses a weak elliptic curve and should not be used.")
+          vprint_good("Host Key Encryption #{host_key} uses a weak elliptic curve and should not be used.")
           report_vuln(
             host: target_host,
             port: rport,
@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
       encryption_checks.each do |bad_enc, refs|
         next unless encryption.downcase == bad_enc
 
-        vprint_good("#{target_host} - Encryption #{encryption} is deprecated and should not be used.")
+        vprint_good("Encryption #{encryption} is deprecated and should not be used.")
         report_vuln(
           host: target_host,
           port: rport,
@@ -171,7 +171,7 @@ class MetasploitModule < Msf::Auxiliary
           next unless kex.downcase == bad_kex
         end
 
-        vprint_good("#{target_host} - Key Exchange (kex) #{kex} is deprecated and should not be used.")
+        vprint_good("Key Exchange (kex) #{kex} is deprecated and should not be used.")
         report_vuln(
           host: target_host,
           port: rport,
@@ -206,7 +206,7 @@ class MetasploitModule < Msf::Auxiliary
       hmac_checks.each do |bad_hmac, refs|
         next unless hmac.downcase == bad_hmac
 
-        vprint_good("#{target_host} - HMAC #{hmac} is deprecated and should not be used.")
+        vprint_good("HMAC #{hmac} is deprecated and should not be used.")
         report_vuln(
           host: target_host,
           port: rport,
@@ -230,12 +230,12 @@ class MetasploitModule < Msf::Auxiliary
       server_data = transport.algorithms.instance_variable_get(:@server_data)
       host_keys = transport.algorithms.session.instance_variable_get(:@host_keys).instance_variable_get(:@host_keys)
       host_keys.each do |host_key|
-        print_status("#{target_host} - Key Fingerprint: #{host_key.ssh_type} #{Base64.strict_encode64(host_key.to_blob)}")
+        print_status("Key Fingerprint: #{host_key.ssh_type} #{Base64.strict_encode64(host_key.to_blob)}")
       end
 
       ident = transport.server_version.version
 
-      print_status("#{target_host} - SSH server version: #{ident}")
+      print_status("SSH server version: #{ident}")
 
       report_service(host: target_host, port: rport, name: 'ssh', proto: 'tcp', info: ident)
 
@@ -272,11 +272,11 @@ class MetasploitModule < Msf::Auxiliary
       # h00die - not sure how to get that info from the library.
       # https://www.tenable.com/plugins/nessus/153954
 
-      print_status("#{target_host} - #{table}")
+      print_status("#{table}")
     end
   rescue EOFError, Rex::ConnectionError => e
-    vprint_error("#{target_host} - #{e.message}") # This may be a little noisy, but it is consistent
+    vprint_error("#{e.message}") # This may be a little noisy, but it is consistent
   rescue Timeout::Error
-    vprint_warning("#{target_host} - Timed out after #{timeout} seconds. Skipping.")
+    vprint_warning("Timed out after #{timeout} seconds. Skipping.")
   end
 end

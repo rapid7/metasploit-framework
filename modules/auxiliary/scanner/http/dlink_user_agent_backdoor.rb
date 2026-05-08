@@ -51,9 +51,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     if is_alpha_web_server?
-      vprint_good("#{ip} - Alphanetworks web server detected")
+      vprint_good("Alphanetworks web server detected")
     else
-      vprint_error("#{ip} - Alphanetworks web server doesn't detected")
+      vprint_error("Alphanetworks web server doesn't detected")
       return
     end
 

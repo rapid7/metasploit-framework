@@ -59,23 +59,23 @@ class MetasploitModule < Msf::Auxiliary
     return :abort unless res # prints default connection error messages
 
     if res.code == 301
-      vprint_error("#{ip} - Page redirect to #{res.headers['Location']}")
+      vprint_error("Page redirect to #{res.headers['Location']}")
       return :abort
     end
 
     unless res.code == 200
-      vprint_bad("#{ip} - No version of FortiMail detected")
+      vprint_bad("No version of FortiMail detected")
       return :abort
     end
 
     version_raw = res.body[/fml-admin-login-(\d+).js/, 1]
     version = version_raw.to_i
     unless res.body.include?('newpassword') && (version.between?(140, 160) || version.between?(730, 745) || version.between?(250, 263))
-      print_bad("#{ip} - Not vulnerable version (Build: #{version_raw}) of FortiMail detected")
+      print_bad("Not vulnerable version (Build: #{version_raw}) of FortiMail detected")
       return :abort
     end
 
-    print_good("#{ip} - Vulnerable version (Build: #{version_raw}) of FortiMail detected")
+    print_good("Vulnerable version (Build: #{version_raw}) of FortiMail detected")
 
     report_vuln(
       host: rhost,

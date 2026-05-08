@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     sys_desc = snmp.get_value('sysDescr.0')
 
     unless sys_desc =~ /Xerox/
-      print_error("#{ip} is not Xerox: #{sys_desc}")
+      print_error("is not Xerox: #{sys_desc}")
       return
     end
 
@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    print_good("#{ip} Found Users: #{@users.uniq.sort.join(', ')} ")
+    print_good("Found Users: #{@users.uniq.sort.join(', ')} ")
 
     @users.each do |user|
       report_note(
@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue StandardError => e
-    print_error("#{ip} Error: #{e.class} #{e} #{e.backtrace}")
+    print_error("Error: #{e.class} #{e} #{e.backtrace}")
   ensure
     disconnect_snmp
   end

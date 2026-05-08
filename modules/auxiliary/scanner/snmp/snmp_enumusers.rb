@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
       data: { users: users }
     )
   rescue SNMP::ParseError
-    print_error("#{ip} Encountered an SNMP parsing error while trying to enumerate the host.")
+    print_error("Encountered an SNMP parsing error while trying to enumerate the host.")
   rescue ::SNMP::RequestTimeout
     # too noisy for a scanner
   rescue ::SNMP::UnsupportedVersion => e
