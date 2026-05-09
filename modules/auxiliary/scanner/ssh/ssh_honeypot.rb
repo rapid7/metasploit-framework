@@ -64,7 +64,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(22),
-      OptInt.new('TIMEOUT', [true, 'Timeout for the SSH probe', 30])
+      OptInt.new('TIMEOUT', [true, 'Timeout for the SSH probe', 30]),
+      OptBool.new('EXTENDED_CHECKS', [true, 'Attempt to check the expected OS via the SSH banner', true])
     ])
   end
 
@@ -82,6 +83,13 @@ class MetasploitModule < Msf::Auxiliary
       info: info.to_s.strip,
       refs: references
     )
+  end
+
+  def display_host_os(banner)
+    os_info = report_ssh_host(banner)
+    return unless os_info
+
+    print_status("SSH banner suggests: #{os_info.values.compact.join(', ')}")
   end
 
   def check_kippo(banner, response)
@@ -165,6 +173,7 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status("SSH banner: #{banner.strip}")
     report_ssh_service(rhost, rport, info: banner) unless banner.empty?
+    display_host_os(banner) if datastore['EXTENDED_CHECKS']
 
     return if check_kippo(banner, response)
     return if check_cowrie(banner)
