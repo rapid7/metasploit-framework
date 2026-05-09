@@ -3,6 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'recog'
 require 'net/ssh/transport/session'
 
 class MetasploitModule < Msf::Auxiliary
@@ -23,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'SSH Honeypot Detector (Cowrie/Kippo)',
+        'Name' => 'SSH Honeypot Detector (Kippo/Cowrie)',
         'Description' => %q{
           This module will attempt to detect if an SSH service is a SSH honeypot,
           such as Kippo or Cowrie, pre-authentication.
@@ -54,7 +55,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(22),
-      OptInt.new('TIMEOUT', [true, 'Timeout for the SSH probe', 30])
+      OptInt.new('TIMEOUT', [true, 'Timeout for the SSH probe', 30]),
+      OptBool.new('EXTENDED_CHECKS', [true, 'Attempt to check the expected OS via the SSH banner', true])
     ])
   end
 
@@ -84,6 +86,40 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  def report_host_os(banner)
+    return unless banner =~ /^SSH-\d+\.\d+-(.*)$/
+
+    recog_match = Recog::Nizer.match('ssh.banner', ::Regexp.last_match(1))
+    return unless recog_match
+
+    # This is the same as ssh_honeypot & ssh_version
+    os_info = {}
+    recog_match.each_pair do |k, v|
+      next if k == 'matched'
+
+      case k
+      when 'os.product' then os_info[:os_name] = v
+      when 'os.vendor' then os_info[:os_flavor] = v
+      when 'os.version' then os_info[:os_sp] = v
+      when 'os.cpe23'
+        report_note(
+          host: rhost,
+          port: rport,
+          proto: 'tcp',
+          sname: 'ssh',
+          type: 'ssh.cpe',
+          data: { cpe: v },
+          update: :unique_data
+        )
+      end
+    end
+
+    return if os_info.empty?
+
+    report_host({ host: rhost }.merge(os_info))
+    print_status("SSH banner suggests: #{os_info.values.compact.join(', ')}")
+  end
+
   def run_host(_ip)
     connect
     banner = sock.get_once || ''
@@ -91,11 +127,12 @@ class MetasploitModule < Msf::Auxiliary
     response = sock.get_once || ''
 
     print_status("SSH banner: #{banner.strip}")
+    report_host_os(banner) if datastore['EXTENDED_CHECKS']
 
     return if check_kippo(banner, response)
     return if check_cowrie(banner)
 
-    print_status('No SSH honeypot detected')
+    print_status('No SSH honeypot (Kippo/Cowrie) detected')
     report_ssh_service(info: banner)
   rescue Rex::ConnectionError
     print_error('Connection refused or timed out')
@@ -109,7 +146,7 @@ class MetasploitModule < Msf::Auxiliary
       return false
     end
 
-    print_good("SSH honeypot detected: Kippo (highly likely)")
+    print_good('SSH honeypot detected: Kippo (highly likely)')
     report_ssh_service(info: "SSH honeypot: Kippo (#{banner.strip})")
     report_ssh_vuln(info: 'SSH honeypot: Kippo - Server gave incorrect response when probed')
     true
