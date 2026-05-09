@@ -152,8 +152,14 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless entries
-      vprint_status('NBNS: no usable response from any UDP path')
-      return
+      vprint_status('NBNS: no usable response from any UDP path, trying raw socket')
+      begin
+        entries = RubySMB::Nbss::NodeStatus.query_via_raw_socket(rhost)
+        vprint_status(entries ? 'NBNS: raw socket returned a name table' : 'NBNS: raw socket returned no data')
+      rescue StandardError => e
+        vprint_error("NBNS: raw socket lookup raised: #{e.class}: #{e}")
+      end
+      return unless entries
     end
 
     vprint_status("NBNS name table (#{entries.length} entries):")
