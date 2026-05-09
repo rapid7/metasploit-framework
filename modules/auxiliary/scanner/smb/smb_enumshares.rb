@@ -337,14 +337,6 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # Maps RAP integer share types to the string names used by SRVSVC.
-  RAP_SHARE_TYPES = {
-    0 => 'DISK',
-    1 => 'PRINTER',
-    2 => 'DEVICE',
-    3 => 'IPC'
-  }.freeze
-
   def enum_shares(ip)
     shares = []
 
@@ -359,19 +351,12 @@ class MetasploitModule < Msf::Auxiliary
       begin
         tree = simple.client.tree_connect("\\\\#{ip}\\IPC$")
         begin
-          raw_shares = tree.net_share_enum
+          all_shares = tree.net_share_enum
         ensure
           begin
             tree.disconnect!
           rescue StandardError # rubocop:disable Lint/SuppressedException
           end
-        end
-        all_shares = raw_shares.map do |s|
-          {
-            name: s[:name],
-            type: RAP_SHARE_TYPES.fetch(s[:type], "UNKNOWN(#{s[:type]})"),
-            comment: ''
-          }
         end
       rescue StandardError => e
         print_error("RAP share enumeration also failed - #{e}")
