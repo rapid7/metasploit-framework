@@ -25,11 +25,6 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     ['-d', '--debug'] => [true,  'Debug the current history manager contexts.']
   )
 
-  def initialize(driver)
-    super
-    @modified_files = modified_file_paths(print_errors: false)
-  end
-
   def name
     'Developer'
   end
@@ -83,13 +78,13 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     load full_path
   end
 
-  # @return [Array<String>] The list of modified file paths since startup
+  # @return [Array<String>] The list of modified file paths relative to upstream
   def modified_file_paths(print_errors: true)
     files, is_success = modified_files
 
     unless is_success
-      print_error("Git is not available") if print_errors
-      files = []
+      print_error('Git is not available') if print_errors
+      return []
     end
 
     ignored_patterns = %w[
@@ -98,11 +93,9 @@ class Msf::Ui::Console::CommandDispatcher::Developer
       **/*_spec.rb
       **/spec_helper.rb
     ]
-    @modified_files ||= []
-    @modified_files |= files.reject do |file|
+    files.reject do |file|
       ignored_patterns.any? { |pattern| File.fnmatch(pattern, file) }
     end
-    @modified_files
   end
 
   def cmd_irb_help
