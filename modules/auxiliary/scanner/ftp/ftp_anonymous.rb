@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(21),
         OptBool.new('STORE_LOOT', [false, 'Store the directory listing as loot', true]),
-        OptBool.new('FINGERPRINT', [false, 'Gather server info via FEAT, STAT and SYST', true])
+        OptBool.new('EXTENDED_CHECKS', [false, 'Gather service info via FEAT, STAT and SYST', true])
       ]
     )
   end
@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Anonymous #{access_type} access (#{banner_version})")
 
       get_loot(datastore['FTPUSER']) if datastore['STORE_LOOT']
-      fingerprint_server(datastore['FTPUSER']) if datastore['FINGERPRINT']
+      fingerprint_server(datastore['FTPUSER']) if datastore['EXTENDED_CHECKS']
 
       report_vuln(
         host: rhost,
