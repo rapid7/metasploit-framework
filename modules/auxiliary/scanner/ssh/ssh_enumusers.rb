@@ -192,7 +192,17 @@ class MetasploitModule < Msf::Auxiliary
     Rex::Text.rand_text_english(64_000..65_000)
   end
 
-  def do_report(ip, user, _port)
+  def do_report(ip, rport, user)
+    report_vuln(
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      sname: 'ssh',
+      name: name,
+      info: "Found user '#{user}' via #{action.name}",
+      refs: references
+    )
+
     service_data = {
       address: ip,
       port: rport,
@@ -259,7 +269,7 @@ class MetasploitModule < Msf::Auxiliary
     case attempt_result
     when :success
       print_good("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' found")
-      do_report(ip, user, rport)
+      do_report(ip, rport, user)
     when :connection_error
       vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' could not connect")
     when :fail
