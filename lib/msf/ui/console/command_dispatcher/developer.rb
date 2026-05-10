@@ -105,6 +105,14 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     @modified_files
   end
 
+  def reload_modified_lib_files
+    files = modified_file_paths
+    return if files.empty?
+
+    print_status("Reloading #{files.length} modified library #{'file'.pluralize(files.length)}...")
+    files.each { |file| reload_file(file) }
+  end
+
   def cmd_irb_help
     print_line 'Usage: irb'
     print_line
@@ -283,7 +291,8 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
       opts.on '-a', '--all', 'Reload all* changed files in your current Git working tree.
                                      *Excludes modules and non-Ruby files.' do
-        files.concat(modified_file_paths)
+        reload_modified_lib_files
+        return
       end
     end
 
