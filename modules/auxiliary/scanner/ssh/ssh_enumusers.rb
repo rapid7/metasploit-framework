@@ -173,7 +173,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue Net::SSH::AuthenticationFailed
       return :fail if technique == :malformed_packet
     rescue Net::SSH::Exception => e
-      vprint_error("#{e.class}: #{e.message}")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - #{e.class}: #{e.message}")
     end
 
     finish_time = Time.new
@@ -215,12 +215,6 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  # Because this isn't using the AuthBrute mixin, we don't have the
-  # usual peer method
-  def peer(rhost = nil)
-    "#{rhost}:#{rport} - SSH -"
-  end
-
   def user_list
     users = []
 
@@ -251,7 +245,7 @@ class MetasploitModule < Msf::Auxiliary
     while (attempt_num <= retry_num) && (ret.nil? || (ret == :connection_error))
       if attempt_num > 0
         Rex.sleep(2**attempt_num)
-        vprint_status("#{peer(ip)} Retrying '#{user}' due to connection error")
+        vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Retrying '#{user}' due to connection error")
       end
 
       ret = check_user(ip, user, rport)
@@ -264,12 +258,12 @@ class MetasploitModule < Msf::Auxiliary
   def show_result(attempt_result, user, ip)
     case attempt_result
     when :success
-      print_good("#{peer(ip)} User '#{user}' found")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' found")
       do_report(ip, user, rport)
     when :connection_error
-      vprint_error("#{peer(ip)} User '#{user}' could not connect")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' could not connect")
     when :fail
-      vprint_error("#{peer(ip)} User '#{user}' not found")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' not found")
     end
   end
 
@@ -282,19 +276,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{peer(ip)} Using #{action.name.downcase} technique")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Using #{action.name.downcase} technique")
 
     if datastore['CHECK_FALSE']
-      print_status("#{peer(ip)} Checking for false positives")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking for false positives")
       if check_false_positive(ip)
-        print_error("#{peer(ip)} throws false positive results. Aborting.")
+        print_error('False positive results. Aborting.')
         return
       end
     end
 
     users = user_list
 
-    print_status("#{peer(ip)} Starting scan")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Starting scan")
     users.each { |user| show_result(attempt_user(user, ip), user, ip) }
   end
 end
