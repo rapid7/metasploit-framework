@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# MSF MCP Server - Model Context Protocol server for Metasploit Framework
+#
+# This executable provides a MCP server that exposes Metasploit
+# functionality to AI agents and LLM applications.
+#
+# Usage:
+#   msfmcpd [options]
+#
+# Options:
+#   --config PATH                Path to configuration file
+#   --enable-logging             Enable file logging with sanitization
+#   --log-file PATH              Log file path (overrides config file)
+#   --user USER                  MSF API username (for MessagePack auth)
+#   --password PASS              MSF API password (for MessagePack auth)
+#   --no-auto-start-rpc          Disable automatic RPC server startup
+#   -h, --help                   Show this help message
+#   -v, --version                Show version information
+#
+# Settings can be overridden by environment variables:
+#   MSF_API_TYPE                Metasploit RPC API connection type ('messagepack' or 'json-rpc')
+#   MSF_API_HOST                Metasploit RPC API host
+#   MSF_API_PORT                Metasploit RPC API port
+#   MSF_API_SSL                 Use SSL for Metasploit RPC API
+#   MSF_API_ENDPOINT            Metasploit RPC API endpoint
+#   MSF_API_USER                Metaspoit RPC API username (for MessagePack auth)
+#   MSF_API_PASSWORD            Metaspoit RPC API password (for MessagePack auth)
+#   MSF_API_TOKEN               Metaspoit RPC API token (for JSON-RPC auth)
+#   MSF_AUTO_START_RPC          Auto-start Metasploit RPC server ('true' or 'false')
+#   MSF_MCP_TRANSPORT           MCP server transport type ('stdio' or 'http')
+#   MSF_MCP_HOST                MCP server host
+#   MSF_MCP_PORT                MCP server port
+#
+# Examples:
+#   # Start with default configuration (default: MessagePack connection type, so credentials must be provided)
+#   msfmcpd --user msf_user --password msf_pass
+#
+#   # Start with custom configuration and logging
+#   msfmcpd --config ./config/mcp_config.yaml --enable-logging
+#
+#   # Use environment variables to override the configuration
+#   MSF_API_HOST=192.168.33.44 msfmcpd --config ./config/mcp_config.yaml
+
+require 'bundler/setup'
+
+lib_path = File.join(File.dirname(__dir__), 'lib')
+$LOAD_PATH.unshift(lib_path) unless $LOAD_PATH.include?(lib_path)
+
+require 'msf/core/mcp'
+
+Msf::MCP::Application.new(ARGV).run

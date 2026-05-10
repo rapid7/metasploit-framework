@@ -20,7 +20,17 @@ module Auxiliary::MultipleTargetHosts
     return Exploit::CheckCode::Unsupported unless has_check?
 
     nmod = replicant
-    nmod.check_host(datastore['RHOST'])
+    result = nmod.check_host(datastore['RHOST'])
+
+    # Propagate the last_vuln_attempt (which may be the actual VulnAttempt
+    # object) back from the replicant so that the ensure block in
+    # job_run_proc (which calls report_failure on the *original* instance)
+    # knows a vuln attempt was already created and can enrich it directly.
+    if nmod.respond_to?(:last_vuln_attempt) && nmod.last_vuln_attempt && respond_to?(:last_vuln_attempt=)
+      self.last_vuln_attempt = nmod.last_vuln_attempt
+    end
+
+    result
   end
 
 end

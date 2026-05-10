@@ -36,6 +36,7 @@ module MetasploitModule
     if length > 0xff
       fail_with(Msf::Module::Failure::BadConfig, 'HOSTNAME must be less than 255 characters.')
     end
+    hostname = Rex::Text.to_hex_cstring(hostname, nullbyte: false)
 
     payload = %^
       push 0xffffffffffffff56 ; sethostname() syscall number.
@@ -57,7 +58,7 @@ module MetasploitModule
 
     str:
       call end
-      db "#{hostname}A"
+      db #{hostname}, 0x41
     ^
 
     Metasm::Shellcode.assemble(Metasm::X64.new, payload).encode_string

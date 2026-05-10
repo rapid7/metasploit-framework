@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
     # check if rdp is open
     unless check_rdp
       vprint_status "Could not connect to RDP."
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Could not connect to RDP')
     end
 
     # send connectInitial
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
     # send userRequest
     sock.put(user_request)
     res = sock.get_once(-1, 5)
-    return Exploit::CheckCode::Unknown unless res # nil due to a timeout
+    return Exploit::CheckCode::Unknown('No response to first userRequest') unless res # nil due to a timeout
 
     user1 = res[9, 2].unpack("n").first
     chan1 = user1 + 1001
@@ -149,7 +149,7 @@ class MetasploitModule < Msf::Auxiliary
     # send 2nd userRequest
     sock.put(user_request)
     res = sock.get_once(-1, 5)
-    return Exploit::CheckCode::Unknown unless res # nil due to a timeout
+    return Exploit::CheckCode::Unknown('No response to second userRequest') unless res # nil due to a timeout
 
     user2 = res[9, 2].unpack("n").first
     chan2 = user2 + 1001
@@ -157,20 +157,17 @@ class MetasploitModule < Msf::Auxiliary
     # send channel request one
     sock.put(channel_request << [user1, chan2].pack("nn"))
     res = sock.get_once(-1, 5)
-    return Exploit::CheckCode::Unknown unless res # nil due to a timeout
+    return Exploit::CheckCode::Unknown('No response to channel request') unless res # nil due to a timeout
 
     if res[7, 2] == "\x3e\x00"
       # send ChannelRequestTwo - prevent BSoD
       sock.put(channel_request << [user2, chan2].pack("nn"))
 
       report_goods
-      return Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Vulnerable('Response confirmed vulnerability presence')
     else
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Not vulnerable')
     end
-
-    # Can't determine, but at least I know the service is running
-    return Exploit::CheckCode::Detected
   end
 
   def check_host(ip)

@@ -53,5 +53,6 @@ group :test do
   gem 'allure-rspec'
   # Manipulate Time.now in specs
   gem 'timecop'
+  # stub and set expectations on HTTP requests
+  gem 'webmock', '~> 3.18'
 end
-

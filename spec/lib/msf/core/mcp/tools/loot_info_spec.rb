@@ -1,0 +1,200 @@
+# frozen_string_literal: true
+
+require 'msf/core/mcp'
+
+RSpec.describe Msf::MCP::Tools::LootInfo do
+  let(:msf_client) { double('Msf::MCP::Metasploit::Client') }
+  let(:rate_limiter) { double('Msf::MCP::Security::RateLimiter') }
+  let(:server_context) do
+    {
+      msf_client: msf_client,
+      rate_limiter: rate_limiter,
+      config: {}
+    }
+  end
+
+  let(:msf_response) do
+    {
+      'loots' => [
+        {
+          'id' => 1,
+          'host' => '192.168.1.100',
+          'service' => 'ssh',
+          'ltype' => 'credentials',
+          'path' => '/path/to/loot',
+          'ctype' => 'text/plain',
+          'name' => 'passwords.txt',
+          'info' => 'Collected passwords',
+          'data' => 'some data',
+          'created_at' => 1609459200,
+          'updated_at' => 1640995200
+        },
+        {
+          'id' => 2,
+          'host' => '192.168.1.101',
+          'service' => 'http',
+          'ltype' => 'file',
+          'path' => '/path/to/file',
+          'ctype' => 'application/octet-stream',
+          'name' => 'upload.exe',
+          'info' => 'Downloaded file',
+          'data' => 'file data',
+          'created_at' => 1609459300,
+          'updated_at' => 1640995300
+        }
+      ]
+    }
+  end
+
+  before do
+    allow(rate_limiter).to receive(:check_rate_limit!)
+    allow(msf_client).to receive(:db_loot).and_return(msf_response)
+  end
+
+  describe 'Tool Name' do
+    it 'has the correct tool name' do
+      expect(described_class.tool_name).to eq('msf_loot_info')
+    end
+  end
+
+  describe 'Input Schema Validation' do
+    it 'defines workspace as required parameter' do
+      input_schema = described_class.input_schema
+      expect(input_schema.schema[:required]).to include('workspace')
+    end
+
+    it 'supports pagination parameters' do
+      properties = described_class.input_schema.schema[:properties]
+      expect(properties[:limit]).not_to be_nil
+      expect(properties[:offset]).not_to be_nil
+    end
+  end
+
+  describe 'Output Schema' do
+    it 'returns loot with type, name, content_type, size' do
+      data_items = described_class.output_schema.schema[:properties][:data][:items][:properties]
+
+      expect(data_items[:host]).to eq({ type: 'string' })
+      expect(data_items[:service_name_or_port]).to eq({ type: 'string' })
+      expect(data_items[:loot_type]).to eq({ type: 'string' })
+      expect(data_items[:content_type]).to eq({ type: 'string' })
+      expect(data_items[:name]).to eq({ type: 'string' })
+      expect(data_items[:info]).to eq({ type: 'string' })
+      expect(data_items[:data]).to eq({ type: 'string' })
+      expect(data_items[:created_at]).to eq({ type: 'string' })
+      expect(data_items[:updated_at]).to eq({ type: 'string' })
+    end
+  end
+
+  describe '.call' do
+    it 'checks rate limit' do
+      described_class.call(server_context: server_context)
+      expect(rate_limiter).to have_received(:check_rate_limit!).with('loot_info')
+    end
+
+    it 'calls Metasploit client with workspace' do
+      described_class.call(workspace: 'test_ws', server_context: server_context)
+      expect(msf_client).to have_received(:db_loot).with(hash_including(workspace: 'test_ws'))
+    end
+
+    it 'uses default workspace' do
+      described_class.call(server_context: server_context)
+      expect(msf_client).to have_received(:db_loot).with(hash_including(workspace: 'default'))
+    end
+
+    it 'returns MCP::Tool::Response' do
+      result = described_class.call(server_context: server_context)
+      expect(result).to be_a(MCP::Tool::Response)
+    end
+
+    it 'includes metadata in response' do
+      result = described_class.call(workspace: 'default', server_context: server_context)
+
+      metadata = result.structured_content[:metadata]
+      expect(metadata[:workspace]).to eq('default')
+      expect(metadata[:query_time]).to be_a(Float)
+      expect(metadata[:total_items]).to eq(2)
+      expect(metadata[:returned_items]).to eq(2)
+      expect(metadata[:limit]).to eq(100)
+      expect(metadata[:offset]).to eq(0)
+    end
+
+    it 'includes transformed data in response' do
+      result = described_class.call(server_context: server_context)
+
+      data = result.structured_content[:data]
+      expect(data).to be_an(Array)
+      expect(data.length).to eq(2)
+      expect(data.first[:host]).to eq('192.168.1.100')
+      expect(data.first[:loot_type]).to eq('credentials')
+      expect(data.first[:content_type]).to eq('text/plain')
+      expect(data.first[:name]).to eq('passwords.txt')
+    end
+
+    it 'handles pagination with limit' do
+      result = described_class.call(limit: 1, server_context: server_context)
+
+      metadata = result.structured_content[:metadata]
+      expect(metadata[:limit]).to eq(1)
+      expect(metadata[:returned_items]).to eq(1)
+      expect(result.structured_content[:data].length).to eq(1)
+    end
+
+    it 'handles pagination with offset' do
+      result = described_class.call(offset: 1, server_context: server_context)
+
+      metadata = result.structured_content[:metadata]
+      expect(metadata[:offset]).to eq(1)
+      expect(metadata[:returned_items]).to eq(1)
+      expect(result.structured_content[:data].length).to eq(1)
+    end
+
+    it 'handles empty results' do
+      allow(msf_client).to receive(:db_loot).and_return({ 'loots' => [] })
+
+      result = described_class.call(server_context: server_context)
+
+      expect(result.structured_content[:data]).to eq([])
+      expect(result.structured_content[:metadata][:total_items]).to eq(0)
+      expect(result.structured_content[:metadata][:returned_items]).to eq(0)
+    end
+
+    it 'returns error response for rate limit exceeded' do
+      allow(rate_limiter).to receive(:check_rate_limit!)
+        .and_raise(Msf::MCP::Security::RateLimitExceededError.new(60))
+
+      result = described_class.call(server_context: server_context)
+      expect(result.error?).to be true
+      expect(result.content.first[:text]).to match(/Rate limit exceeded/)
+    end
+
+    it 'returns error response for API errors' do
+      allow(msf_client).to receive(:db_loot)
+        .and_raise(Msf::MCP::Metasploit::APIError, 'Database error')
+
+      result = described_class.call(server_context: server_context)
+      expect(result.error?).to be true
+      expect(result.content.first[:text]).to match(/Metasploit API error/)
+    end
+
+    it 'returns error response for authentication errors' do
+      allow(msf_client).to receive(:db_loot).and_raise(
+        Msf::MCP::Metasploit::AuthenticationError.new('Invalid token')
+      )
+
+      result = described_class.call(server_context: server_context)
+      expect(result.error?).to be true
+      expect(result.content.first[:text]).to match(/Authentication failed/)
+    end
+
+    it 'passes pagination parameters to MSF client' do
+      # Pagination is applied client-side, not in the API call
+      described_class.call(limit: 50, offset: 10, server_context: server_context)
+
+      # API call only receives workspace parameter
+      expect(msf_client).to have_received(:db_loot).with(
+        hash_including(workspace: 'default')
+      )
+    end
+  end
+end

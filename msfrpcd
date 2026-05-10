@@ -203,6 +203,11 @@ if $PROGRAM_NAME == __FILE__
     end
   }
 
+  # Allow credentials via environment variables (used by msfmcpd auto-start
+  # to avoid passing secrets on the command line).
+  opts['User'] ||= ENV['MSF_RPC_USER'] if ENV['MSF_RPC_USER']
+  opts['Pass'] ||= ENV['MSF_RPC_PASS'] if ENV['MSF_RPC_PASS']
+
   $0 = "msfrpcd"
 
   begin

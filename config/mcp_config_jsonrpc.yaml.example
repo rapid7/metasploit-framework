@@ -1,0 +1,32 @@
+# Metasploit RPC API connection (JSON-RPC)
+msf_api:
+  type: json-rpc
+  host: localhost
+  port: 8081
+  ssl: true
+  endpoint: /api/v1/json-rpc
+  token: YOUR_BEARER_TOKEN_HERE
+  # auto_start_rpc is not supported for JSON-RPC (only MessagePack)
+
+# MCP server configuration
+mcp:
+  transport: stdio  # stdio (default) or http
+  # MCP server network configuration (for HTTP transport only)
+  host: localhost  # Host to bind to (default: localhost)
+  port: 3000       # Port to listen on (default: 3000)
+
+# Rate limiting (optional - defaults shown)
+rate_limit:
+  enabled: true
+  requests_per_minute: 60
+  # If the `burst_size` is greater than `requests_per_minute`, a user will be allowed to exceed the rate limit temporarily.
+  # For example, with `requests_per_minute=5` and `burst_size=10`, a user could make 10 requests in a short period,
+  # but then would be limited to 5 requests per minute thereafter.
+  burst_size: 10
+
+# Logging (optional - defaults shown)
+logging:
+  enabled: false
+  level: INFO  # DEBUG, INFO, WARN, ERROR
+  log_file: ~/.msf4/logs/msfmcp.log
+  sanitize: true

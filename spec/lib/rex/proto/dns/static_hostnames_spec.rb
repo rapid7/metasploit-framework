@@ -3,6 +3,18 @@ require 'dnsruby'
 require 'spec_helper'
 
 RSpec.describe Rex::Proto::DNS::StaticHostnames do
+  describe '::TYPE_A' do
+    it 'matches Dnsruby::Types::A' do
+      expect(described_class::TYPE_A).to eq Dnsruby::Types::A
+    end
+  end
+
+  describe '::TYPE_AAAA' do
+    it 'matches Dnsruby::Types::AAAA' do
+      expect(described_class::TYPE_AAAA).to eq Dnsruby::Types::AAAA
+    end
+  end
+
   describe '#parse_hosts_file' do
     context 'when parsing a file' do
       let(:subject) { described_class.new }

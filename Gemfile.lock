@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.4.130)
+    metasploit-framework (6.4.133)
       aarch64
       abbrev
       actionpack (~> 7.2.0)
@@ -42,6 +42,7 @@ PATH
       jsobfu
       json
       lru_redux
+      mcp (= 0.13.0)
       metasm
       metasploit-concern
       metasploit-credential (>= 6.0.21)
@@ -223,6 +224,9 @@ GEM
     concurrent-ruby (1.3.5)
     connection_pool (2.5.4)
     cookiejar (0.3.4)
+    crack (1.0.1)
+      bigdecimal
+      rexml
     crass (1.0.6)
     csv (3.3.2)
     daemons (1.4.1)
@@ -281,6 +285,7 @@ GEM
     gyoku (1.4.0)
       builder (>= 2.1.2)
       rexml (~> 3.0)
+    hashdiff (1.2.1)
     hashery (2.1.2)
     hrr_rb_ssh (0.4.2)
     hrr_rb_ssh-ed25519 (0.4.2)
@@ -304,6 +309,9 @@ GEM
     jsobfu (0.4.2)
       rkelly-remix
     json (2.15.1)
+    json-schema (6.2.0)
+      addressable (~> 2.8)
+      bigdecimal (>= 3.1, < 5)
     language_server-protocol (3.17.0.5)
     license_finder (5.11.1)
       bundler
@@ -322,6 +330,8 @@ GEM
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     lru_redux (1.1.0)
+    mcp (0.13.0)
+      json-schema (>= 4.1)
     memory_profiler (1.1.0)
     metasm (1.0.5)
     metasploit-concern (5.0.5)
@@ -331,7 +341,7 @@ GEM
       mutex_m
       railties (~> 7.0)
       zeitwerk
-    metasploit-credential (6.0.21)
+    metasploit-credential (6.0.23)
       bigdecimal
       csv
       drb
@@ -353,17 +363,17 @@ GEM
       mutex_m
       railties (~> 7.0)
     metasploit-payloads (2.0.245)
-    metasploit_data_models (6.0.15)
-      activerecord (~> 7.0)
-      activesupport (~> 7.0)
+    metasploit_data_models (6.0.18)
+      activerecord (>= 7.0, < 8.1)
+      activesupport (>= 7.0, < 8.1)
       arel-helpers
       bigdecimal
       drb
       metasploit-concern
-      metasploit-model (~> 5.0.4)
+      metasploit-model (>= 5.0.4)
       mutex_m
       pg
-      railties (~> 7.0)
+      railties (>= 7.0, < 8.1)
       recog
       webrick
     metasploit_payloads-mettle (1.0.46)
@@ -489,7 +499,7 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
-    rex-arch (0.1.19)
+    rex-arch (0.1.20)
       rex-text
     rex-bin_tools (0.1.16)
       metasm
@@ -498,7 +508,7 @@ GEM
       rex-struct2
       rex-text
     rex-core (0.1.36)
-    rex-encoder (0.1.8)
+    rex-encoder (0.1.10)
       metasm
       rex-arch
       rex-text
@@ -531,7 +541,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.64)
+    rex-socket (0.1.65)
       dnsruby
       rex-core
     rex-sslscan (0.1.13)
@@ -539,7 +549,7 @@ GEM
       rex-socket
       rex-text
     rex-struct2 (0.1.5)
-    rex-text (0.2.62)
+    rex-text (0.2.63)
       bigdecimal
     rex-zip (0.1.6)
       rex-text
@@ -649,6 +659,10 @@ GEM
     useragent (0.16.11)
     warden (1.2.9)
       rack (>= 2.0.9)
+    webmock (3.26.2)
+      addressable (>= 2.8.0)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
     webrick (1.9.1)
     websocket-driver (0.7.7)
       base64
@@ -699,6 +713,7 @@ DEPENDENCIES
   simplecov (= 0.18.2)
   test-prof
   timecop
+  webmock (~> 3.18)
   yard
 
 BUNDLED WITH

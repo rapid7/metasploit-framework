@@ -14,9 +14,9 @@ module Msf
 
         register_advanced_options(
           [
-            OptString.new(
+            OptArray.new(
               'AutoLoadExtensions',
-              [true, "Automatically load extensions on bootstrap, comma separated.", 'priv,stdapi']
+              [true, "Automatically load extensions on bootstrap.", ['priv', 'stdapi']]
             )
           ],
           self.class

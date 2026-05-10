@@ -241,6 +241,7 @@ class MetasploitModule < Msf::Post
     end
   
     it 'should deal with weird windows edge cases' do
+      skip 'Windows-specific edge cases only apply to Windows sessions' unless ['windows', 'win'].include?(session.platform)
       output = create_process(show_args_binary[:cmd], args: ['"test"', 'test\\"', 'test\\\\"', 'test words\\\\\\\\', 'test words\\\\\\', '\\\\'])
       valid_show_args_response?(output, expected: [show_args_binary[:upload_path], '"test"', 'test\\"', 'test\\\\"', 'test words\\\\\\\\', 'test words\\\\\\', '\\\\'])
     end

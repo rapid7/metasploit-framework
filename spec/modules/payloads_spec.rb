@@ -1712,6 +1712,15 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/aarch64/chmod'
   end
 
+  context 'linux/aarch64/exec' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/aarch64/exec'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/aarch64/exec'
+  end
+
   context 'linux/aarch64/shell_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
