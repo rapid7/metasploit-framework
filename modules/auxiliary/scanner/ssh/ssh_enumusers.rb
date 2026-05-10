@@ -234,7 +234,9 @@ class MetasploitModule < Msf::Auxiliary
 
     if datastore['USER_FILE']
       fail_with(Failure::BadConfig, 'The USER_FILE is not readable') unless File.readable?(datastore['USER_FILE'])
-      users += File.read(datastore['USER_FILE']).split
+      file_users = File.read(datastore['USER_FILE']).split
+      vprint_status("Loaded #{file_users.size} users from #{datastore['USER_FILE']}")
+      users += file_users
     end
 
     if datastore['DB_ALL_USERS']
@@ -280,9 +282,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if user_list.empty?
-      fail_with(Failure::BadConfig, 'Please populate DB_ALL_USERS, USER_FILE and/or USERNAME')
-    end
+    fail_with(Failure::BadConfig, 'Please populate DB_ALL_USERS, USER_FILE and/or USERNAME') unless datastore['USERNAME'].present? || datastore['USER_FILE'] || datastore['DB_ALL_USERS']
 
     super
   end
