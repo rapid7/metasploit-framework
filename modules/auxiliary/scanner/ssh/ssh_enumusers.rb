@@ -182,7 +182,9 @@ class MetasploitModule < Msf::Auxiliary
     when :malformed_packet
       return :success if ssh
     when :timing_attack
-      return :success if (finish_time - start_time > threshold)
+      elapsed = finish_time - start_time
+      vprint_status("User '#{user}' - #{elapsed.round(2)}s (threshold: #{threshold}s)")
+      return :success if elapsed > threshold
     end
 
     :fail
@@ -237,9 +239,9 @@ class MetasploitModule < Msf::Auxiliary
 
     if datastore['DB_ALL_USERS']
       if framework.db.active
-        framework.db.creds(workspace: myworkspace.name).each do |o|
-          users << o.public.username if o.public
-        end
+        db_users = framework.db.creds(workspace: myworkspace.name).filter_map { |o| o.public&.username }
+        vprint_status("Loaded #{db_users.size} users from database")
+        users += db_users
       else
         print_warning('No active DB -- The following option will be ignored: DB_ALL_USERS')
       end
@@ -279,7 +281,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     if user_list.empty?
-      fail_with(Failure::BadConfig, 'Please populate DB_ALL_USERS, USER_FILE, USERNAME')
+      fail_with(Failure::BadConfig, 'Please populate DB_ALL_USERS, USER_FILE and/or USERNAME')
     end
 
     super
@@ -291,15 +293,16 @@ class MetasploitModule < Msf::Auxiliary
 
     if datastore['CHECK_FALSE']
       print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking for false positives")
+      vprint_warning("#{Rex::Socket.to_authority(rhost, rport)} - #{action.name} may be unreliable on low-latency networks") if action['Type'] == :timing_attack
       if check_false_positive(ip)
-        print_error('False positive results. Aborting.')
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} - False positive check failed as server returned valid for a random username")
         return
       end
     end
 
     users = user_list
 
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Starting scan")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Starting SSH username enumeration")
     users.each { |user| show_result(attempt_user(user, ip), user, ip) }
   end
 end
