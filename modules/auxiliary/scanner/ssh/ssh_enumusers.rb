@@ -287,9 +287,50 @@ class MetasploitModule < Msf::Auxiliary
     super
   end
 
+  def grab_banner(ip)
+    sock = Rex::Socket::Tcp.create(
+      'PeerHost' => ip,
+      'PeerPort' => rport,
+      'Context' => { 'Msf' => framework }
+    )
+    sock.get_once(256, 10)&.strip
+  rescue StandardError
+    nil
+  ensure
+    begin
+      sock&.close
+    rescue StandardError
+      nil
+    end
+  end
+
+  def check_banner_version(ip, banner)
+    return unless banner
+
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - SSH banner: #{banner}")
+    report_service(host: ip, port: rport, name: 'ssh', proto: 'tcp', info: banner)
+
+    match = banner.match(/OpenSSH[_ ](\d+\.\d+)/i)
+    return unless match
+
+    version = Rex::Version.new(match[1])
+    max_version, cve = case action['Type']
+                       when :malformed_packet then ['7.6', 'CVE-2018-15473']
+                       when :timing_attack then ['7.2', 'CVE-2016-6210']
+                       end
+
+    if version > Rex::Version.new(max_version)
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - OpenSSH #{match[1]} may NOT be vulnerable (#{action.name}/#{cve} affects <= #{max_version})")
+    else
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - OpenSSH #{match[1]} may be vulnerable to #{action.name}/#{cve}")
+    end
+  end
+
   def run_host(ip)
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Using #{action.name.downcase} technique")
-    report_service(host: ip, port: rport, name: 'ssh', proto: 'tcp')
+    users = user_list
+
+    banner = grab_banner(ip)
+    check_banner_version(ip, banner)
 
     if datastore['CHECK_FALSE']
       print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking for false positives")
@@ -299,8 +340,6 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
     end
-
-    users = user_list
 
     print_status("#{Rex::Socket.to_authority(rhost, rport)} - Starting SSH username enumeration")
     users.each { |user| show_result(attempt_user(user, ip), user, ip) }
