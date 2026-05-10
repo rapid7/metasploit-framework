@@ -277,6 +277,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     print_status("#{Rex::Socket.to_authority(rhost, rport)} - Using #{action.name.downcase} technique")
+    report_service(host: ip, port: rport, name: 'ssh', proto: 'tcp')
 
     if datastore['CHECK_FALSE']
       print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking for false positives")
