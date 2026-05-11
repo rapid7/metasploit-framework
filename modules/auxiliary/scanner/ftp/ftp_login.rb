@@ -19,10 +19,9 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'FTP Authentication Scanner',
       'Description' => %q{
-        This module will test FTP logins on a range of machines and
-        report successful logins. If you have loaded a database plugin
-        and connected to a database this module will record successful
-        logins and hosts so you can track your access.
+        This module tests FTP logins on a range of machines. Successful
+        logins are recorded in the database as credentials, along with
+        host information.
       },
       'Author' => [
           'todb',
@@ -64,7 +63,6 @@ class MetasploitModule < Msf::Auxiliary
 
     deregister_options('FTPUSER', 'FTPPASS') # Can use these, but should use 'username' and 'password'
   end
-
 
   def ls_ftp_dir(username = 'anonymous')
     vprint_status('Listing directory contents')
