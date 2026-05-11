@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
     # Grab the first occurrence of a v5.0.x version; obfuscated response contains other version identifiers too for other components
     match = data.match(/'v(5\.0\.\d+)'/i) || data.match(/v(5\.0\.\d+)/i)
 
-    return Exploit::CheckCode::Unknown('No version string found') unless match
+    return Exploit::CheckCode::Detected('No version string found') unless match
 
     version = Rex::Version.new(match[1])
 
