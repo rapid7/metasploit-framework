@@ -305,7 +305,7 @@ class MetasploitModule < Msf::Auxiliary
         origin_type: :service,
         private_data: key[:data][:private],
         private_type: :ssh_key,
-        username: key[:key][:user]
+        username: user
       }.merge(service_data)
 
       login_data = {
