@@ -275,7 +275,8 @@ class MetasploitModule < Msf::Auxiliary
   def do_report(ip, port, user, key)
     return unless framework.db.active
 
-    store_public_keyfile(ip, user, key[:fingerprint], key[:data][:public])
+    key_fingerprint = key[:key].fingerprint
+    store_public_keyfile(ip, user, key_fingerprint, key[:data][:public])
     private_key_present = (key[:data][:private] != '') ? 'Yes' : 'No'
 
     # Store a note relating to the public key test
@@ -289,7 +290,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if key[:data][:private] != ''
       # Store these keys in loot
-      private_keyfile_path = store_private_keyfile(ip, user, key[:fingerprint], key[:data][:private])
+      private_keyfile_path = store_private_keyfile(ip, user, key_fingerprint, key[:data][:private])
 
       # Use the proper credential method to store credentials that we have
       service_data = {
