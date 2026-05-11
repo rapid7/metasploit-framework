@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Appears("Vulnerable version detected: #{version}")
     end
 
-    Exploit::CheckCode::Detected("QConvergeConsole detected (version #{version})")
+    Exploit::CheckCode::Safe("QConvergeConsole detected (version #{version})")
   end
 
   def run
