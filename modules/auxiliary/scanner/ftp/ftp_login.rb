@@ -65,37 +65,37 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def ls_ftp_dir(username = 'anonymous')
-    vprint_status('Listing directory contents')
+    print_brute level: :vstatus, ip: rhost, msg: 'Listing directory contents'
 
     username = username.downcase
 
     listing = send_cmd_data(['LS'], nil)
     if listing.nil?
-      print_warning('Could not retrieve directory listing (data connection failed)')
+      print_brute level: :warning, ip: rhost, msg: 'Could not retrieve directory listing (data connection failed)'
     elsif listing[1].nil? || listing[1].empty?
-      vprint_status('Directory listing: (empty)')
+      print_brute level: :vstatus, ip: rhost, msg: 'Directory listing: (empty)'
     else
-      vprint_status("Directory listing:\n#{listing[1]}")
+      print_brute level: :vstatus, ip: rhost, msg: "Directory listing:\n#{listing[1]}"
       path = store_loot('ftp.dir_listing', 'text/plain', rhost, listing[1], "ftp_#{username}.txt", "FTP directory listing for #{username}")
-      print_good("Directory listing stored to: #{path}")
+      print_brute level: :good, ip: rhost, msg: "Directory listing stored to: #{path}"
     end
   end
 
   def fingerprint_server(username = 'anonymous')
-    print_status("Fingerprinting FTP service (as #{username})")
+    print_brute level: :status, ip: rhost, msg: "Fingerprinting FTP service (as #{username})"
 
     [
       ['FEAT', 'ftp.cmd.feat'], # server-level
       ['STAT', 'ftp.cmd.stat'], # user-level
       ['SYST', 'ftp.cmd.syst'] # server-level
     ].each do |cmd, note_type|
-      vprint_status("Sending FTP command: #{cmd}")
+      print_brute level: :vstatus, ip: rhost, msg: "Sending FTP command: #{cmd}"
       response = send_cmd([cmd], true).to_s
       next if response.empty?
 
       response.strip.each_line.with_index do |line, i|
         prefix = i == 0 ? "FTP #{cmd}: " : '  '
-        print_status("#{prefix}#{line.strip}")
+        print_brute level: :vstatus, ip: ip, msg: "#{prefix}#{line.strip}"
       end
 
       # 215 UNIX Type: L8
@@ -122,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     @reported_service = false
 
-    print_status('Starting FTP login sweep')
+    print_brute level: :status, ip: ip, msg: 'Starting FTP login sweep'
 
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if cred_collection.empty?
-      print_error('No credentials specified. Set USERNAME/PASSWORD, USER_FILE/PASS_FILE, or ANONYMOUS_LOGIN.')
+      print_brute level: :error, ip: ip, msg: 'No credentials specified. Set USERNAME/PASSWORD, USER_FILE/PASS_FILE, or ANONYMOUS_LOGIN.'
       return
     end
 
@@ -166,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
         banner_reported = true
         if scanner.banner&.match?(/^(120|220)[\s-]/)
           self.banner = scanner.banner
-          vprint_status("FTP Banner: #{banner_version}")
+          print_brute level: :vstatus, ip: ip, msg: "FTP Banner: #{banner_version}"
           report_note(host: rhost, port: rport, proto: 'tcp', sname: 'ftp', type: 'ftp.banner', data: { banner: Rex::Text.to_hex_ascii(scanner.banner.strip) })
         end
       end
@@ -189,7 +189,7 @@ class MetasploitModule < Msf::Auxiliary
             send_user(result.credential.public)
             if send_pass(result.credential.private).to_s.start_with?('2')
               if datastore['CHECK_ACCESS']
-                vprint_status('Checking read/write access')
+                print_brute level: :vstatus, ip: ip, msg: 'Checking read/write access'
                 access_level = test_ftp_access
               end
 
@@ -198,7 +198,7 @@ class MetasploitModule < Msf::Auxiliary
               fingerprint_server(result.credential.public) if datastore['EXTENDED_CHECKS']
             end
           rescue ::IOError, Errno::ECONNRESET, ::Timeout::Error => e
-            vprint_error(e.message)
+            print_brute level: :verror, ip: ip, msg: e.message
           ensure
             disconnect
           end
@@ -209,7 +209,7 @@ class MetasploitModule < Msf::Auxiliary
 
         msg = "Success: #{result.credential}"
         msg << " (#{access_level})" if access_level
-        print_good(msg)
+        print_brute level: :good, ip: ip, msg: msg
       else
         invalidate_login(credential_data)
 
@@ -220,7 +220,7 @@ class MetasploitModule < Msf::Auxiliary
 
         proof = result.proof.to_s.strip
         proof_str = proof.empty? ? result.status.to_s : "#{result.status}: #{proof}"
-        vprint_error("Login Failed: #{result.credential} (#{proof_str})")
+        vprint_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}' (#{proof_str})"
       end
     end
   end
