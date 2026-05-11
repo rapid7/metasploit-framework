@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     })
 
-    return Exploit::CheckCode::Unknown('Could not retrieve cache file') unless res2&.code == 200
+    return Exploit::CheckCode::Detected('Could not retrieve cache file') unless res2&.code == 200
 
     data = res2.body
 
