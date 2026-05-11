@@ -72,6 +72,9 @@ module Msf::MCP
         if config[:mcp][:transport] == 'http'
           config[:mcp][:host] ||= Defaults::MCP_HOST
           config[:mcp][:port] ||= Defaults::MCP_PORT
+          config[:mcp][:min_threads] ||= 0
+          config[:mcp][:max_threads] ||= 5
+          config[:mcp][:workers] ||= 0
         end
 
         config[:rate_limit][:enabled] = config[:rate_limit].fetch(:enabled, true)
@@ -109,6 +112,11 @@ module Msf::MCP
         # MCP server network overrides
         config[:mcp][:host] = ENV['MSF_MCP_HOST'] if ENV['MSF_MCP_HOST']
         config[:mcp][:port] = ENV['MSF_MCP_PORT'].to_i if ENV['MSF_MCP_PORT']
+
+        # MCP Puma server tuning overrides
+        config[:mcp][:min_threads] = ENV['MSF_MCP_MIN_THREADS'].to_i if ENV['MSF_MCP_MIN_THREADS']
+        config[:mcp][:max_threads] = ENV['MSF_MCP_MAX_THREADS'].to_i if ENV['MSF_MCP_MAX_THREADS']
+        config[:mcp][:workers] = ENV['MSF_MCP_WORKERS'].to_i if ENV['MSF_MCP_WORKERS']
       end
 
       # Parse a string value into a boolean

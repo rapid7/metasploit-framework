@@ -180,17 +180,63 @@ RSpec.describe Msf::MCP::Server do
       let(:mock_http_transport) do
         instance_double(::MCP::Server::Transports::StreamableHTTPTransport)
       end
-
       let(:rack_app) { double('rack_app') }
+      let(:rack_builder) { double('rack_builder', use: nil, run: nil) }
 
       before do
-        require 'rackup'
-        require 'rack/handler/puma'
+        require 'rack'
+        require 'puma'
+        require 'puma/configuration'
+        require 'puma/launcher'
+        require 'puma/log_writer'
+
+        stub_const('Puma::Configuration', puma_config_class)
+        stub_const('Puma::Launcher', puma_launcher_class)
+        stub_const('Puma::LogWriter', puma_log_writer_class)
 
         allow(::MCP::Server::Transports::StreamableHTTPTransport).to receive(:new).and_return(mock_http_transport)
-        allow(Rack::Builder).to receive(:new).and_return(rack_app)
+        allow(Rack::Builder).to receive(:new) do |&block|
+          rack_builder.instance_eval(&block) if block
+          rack_app
+        end
+        allow(File).to receive(:open).with(File::NULL, 'w').and_return(StringIO.new)
+      end
 
-        allow(Rackup::Handler::Puma).to receive(:run)
+      after do
+        server.shutdown
+      end
+
+      let(:puma_config_class) do
+        Class.new do
+          attr_reader :bound_url
+
+          def initialize(&block)
+            block.call(self) if block
+          end
+
+          def bind(url)
+            @bound_url = url
+          end
+
+          def threads(_min, _max); end
+          def workers(_n); end
+          def log_requests(_v); end
+          def app(_a = nil); end
+        end
+      end
+
+      let(:puma_launcher_class) do
+        Class.new do
+          def initialize(_config, **_opts); end
+          def run; end
+          def stop; end
+        end
+      end
+
+      let(:puma_log_writer_class) do
+        Class.new do
+          def initialize(_stdout, _stderr); end
+        end
       end
 
       it 'creates http transport' do
@@ -199,32 +245,47 @@ RSpec.describe Msf::MCP::Server do
         server.start(transport: :http, port: 3000)
       end
 
-      it 'starts Puma server via Rack handler' do
-        expect(Rackup::Handler::Puma).to receive(:run).with(
-          anything,  # Rack app
-          hash_including(
-            Port: 3000,
-            Host: 'localhost'
-          )
-        )
+      it 'starts Puma via Launcher' do
+        expect(puma_launcher_class).to receive(:new).and_call_original
 
         server.start(transport: :http, port: 3000)
       end
 
-      it 'allows custom port' do
-        expect(Rackup::Handler::Puma).to receive(:run).with(
-          anything,
-          hash_including(Port: 8080)
-        )
+      it 'binds to the configured host and port' do
+        config_instance = nil
+        allow(puma_config_class).to receive(:new) do |&block|
+          config_instance = puma_config_class.allocate
+          config_instance.send(:initialize, &block)
+          config_instance
+        end
 
-        server.start(transport: :http, port: 8080)
+        server.start(transport: :http, port: 8080, host: '0.0.0.0')
+
+        expect(config_instance.bound_url).to eq('tcp://0.0.0.0:8080')
+      end
+
+      it 'wraps IPv6 hosts in brackets for the bind URL' do
+        config_instance = nil
+        allow(puma_config_class).to receive(:new) do |&block|
+          config_instance = puma_config_class.allocate
+          config_instance.send(:initialize, &block)
+          config_instance
+        end
+
+        server.start(transport: :http, port: 3000, host: '::1')
+
+        expect(config_instance.bound_url).to eq('tcp://[::1]:3000')
       end
 
       it 'creates a Rack application' do
-        expect(Rackup::Handler::Puma).to receive(:run) do |rack_app, options|
-          expect(rack_app).to be(rack_app)
-          expect(options).to include(Port: 3000, Host: 'localhost')
-        end
+        expect(Rack::Builder).to receive(:new).and_return(rack_app)
+
+        server.start(transport: :http, port: 3000)
+      end
+
+      it 'wires up the RequestLogger middleware and transport' do
+        expect(rack_builder).to receive(:use).with(Msf::MCP::Middleware::RequestLogger)
+        expect(rack_builder).to receive(:run).with(mock_http_transport)
 
         server.start(transport: :http, port: 3000)
       end
@@ -277,6 +338,37 @@ RSpec.describe Msf::MCP::Server do
         server.shutdown
         server.shutdown
       }.not_to raise_error
+    end
+
+    it 'stops the Puma launcher when HTTP transport was used' do
+      mock_launcher = double('Puma::Launcher', stop: nil)
+      server.instance_variable_set(:@puma_launcher, mock_launcher)
+
+      expect(mock_launcher).to receive(:stop)
+      server.shutdown
+      expect(server.instance_variable_get(:@puma_launcher)).to be_nil
+    end
+
+    it 'closes the log IO handle on shutdown' do
+      mock_io = double('IO', close: nil, closed?: false)
+      server.instance_variable_set(:@puma_log_io, mock_io)
+
+      expect(mock_io).to receive(:close)
+      server.shutdown
+      expect(server.instance_variable_get(:@puma_log_io)).to be_nil
+    end
+
+    it 'still cleans up if puma_launcher.stop raises' do
+      mock_launcher = double('Puma::Launcher')
+      allow(mock_launcher).to receive(:stop).and_raise(StandardError, 'stop failed')
+      mock_io = double('IO', close: nil, closed?: false)
+      server.instance_variable_set(:@puma_launcher, mock_launcher)
+      server.instance_variable_set(:@puma_log_io, mock_io)
+
+      expect(mock_io).to receive(:close)
+      expect { server.shutdown }.not_to raise_error
+      expect(server.instance_variable_get(:@puma_launcher)).to be_nil
+      expect(server.instance_variable_get(:@puma_log_io)).to be_nil
     end
   end
 

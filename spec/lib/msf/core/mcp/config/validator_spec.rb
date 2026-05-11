@@ -173,6 +173,80 @@ RSpec.describe Msf::MCP::Config::Validator do
       end
     end
 
+    context 'with Puma thread/worker validation' do
+      let(:valid_base) do
+        {
+          msf_api: {
+            type: 'messagepack',
+            host: 'localhost',
+            user: 'msf',
+            password: 'password'
+          },
+          mcp: { transport: 'http' }
+        }
+      end
+
+      it 'accepts valid min_threads value' do
+        config = valid_base.merge(mcp: { transport: 'http', min_threads: 2 })
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'accepts valid max_threads value' do
+        config = valid_base.merge(mcp: { transport: 'http', max_threads: 16 })
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'accepts valid workers value' do
+        config = valid_base.merge(mcp: { transport: 'http', workers: 4 })
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'rejects negative min_threads' do
+        config = valid_base.merge(mcp: { transport: 'http', min_threads: -1 })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.min_threads']).to include('>= 0')
+        end
+      end
+
+      it 'rejects zero max_threads' do
+        config = valid_base.merge(mcp: { transport: 'http', max_threads: 0 })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.max_threads']).to include('>= 1')
+        end
+      end
+
+      it 'rejects negative workers' do
+        config = valid_base.merge(mcp: { transport: 'http', workers: -1 })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.workers']).to include('>= 0')
+        end
+      end
+
+      it 'rejects min_threads greater than max_threads' do
+        config = valid_base.merge(mcp: { transport: 'http', min_threads: 10, max_threads: 5 })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.min_threads']).to include('less than or equal')
+        end
+      end
+
+      it 'rejects non-integer min_threads' do
+        config = valid_base.merge(mcp: { transport: 'http', min_threads: 'abc' })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.min_threads']).to include('>= 0')
+        end
+      end
+    end
+
     context 'with port validation' do
       it 'accepts port 8080' do
         config = {

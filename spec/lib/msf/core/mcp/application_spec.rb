@@ -396,14 +396,20 @@ RSpec.describe Msf::MCP::Application do
       http_config[:mcp] = {
         transport: 'http',
         host: '0.0.0.0',
-        port: 3000
+        port: 3000,
+        min_threads: 0,
+        max_threads: 5,
+        workers: 0
       }
 
       app = described_class.new([], output: output)
       app.instance_variable_set(:@config, http_config)
       app.instance_variable_set(:@mcp_server, mock_mcp_server)
 
-      expect(mock_mcp_server).to receive(:start).with(transport: :http, host: '0.0.0.0', port: 3000)
+      expect(mock_mcp_server).to receive(:start).with(
+        transport: :http, host: '0.0.0.0', port: 3000,
+        min_threads: 0, max_threads: 5, workers: 0
+      )
 
       app.send(:start_mcp_server)
 
@@ -419,7 +425,12 @@ RSpec.describe Msf::MCP::Application do
       app.instance_variable_set(:@config, http_config)
       app.instance_variable_set(:@mcp_server, mock_mcp_server)
 
-      expect(mock_mcp_server).to receive(:start).with(transport: :http, host: 'localhost', port: 3000)
+      expect(mock_mcp_server).to receive(:start).with(
+        transport: :http, host: 'localhost', port: 3000,
+        min_threads: Msf::MCP::Server::PUMA_MIN_THREADS,
+        max_threads: Msf::MCP::Server::PUMA_MAX_THREADS,
+        workers: Msf::MCP::Server::PUMA_WORKERS
+      )
 
       app.send(:start_mcp_server)
     end

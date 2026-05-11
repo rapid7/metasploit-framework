@@ -273,10 +273,14 @@ module Msf::MCP
       port = @config.dig(:mcp, :port) || 3000
 
       if transport == :http
+        min_threads = @config.dig(:mcp, :min_threads) || Msf::MCP::Server::PUMA_MIN_THREADS
+        max_threads = @config.dig(:mcp, :max_threads) || Msf::MCP::Server::PUMA_MAX_THREADS
+        workers = @config.dig(:mcp, :workers) || Msf::MCP::Server::PUMA_WORKERS
+
         @output.puts "Starting MCP server on HTTP transport..."
         @output.puts "Server listening on http://#{host}:#{port}"
         @output.puts "Press Ctrl+C to shutdown"
-        @mcp_server.start(transport: :http, host: host, port: port)
+        @mcp_server.start(transport: :http, host: host, port: port, min_threads: min_threads, max_threads: max_threads, workers: workers)
       else
         @output.puts "Starting MCP server on stdio transport..."
         @output.puts "Server ready - waiting for MCP requests"
