@@ -64,6 +64,33 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('FTPUSER', 'FTPPASS') # Can use these, but should use 'username' and 'password'
   end
 
+  def report_ftp_service(ip)
+    report_service(
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      name: 'ftp',
+      info: banner ? Rex::Text.to_hex_ascii(banner_version) : nil,
+      parents: {
+        host: ip,
+        port: rport,
+        proto: 'tcp',
+        name: 'tcp'
+      }
+    )
+
+    return unless banner
+
+    report_note(
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      sname: 'ftp',
+      type: 'ftp.banner',
+      data: { banner: banner.strip }
+    )
+  end
+
   def ls_ftp_dir(ip, username = 'anonymous')
     print_brute level: :vstatus, ip: ip, msg: 'Listing directory contents'
 
@@ -119,8 +146,56 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def run_scanner(ip, scanner)
+    scanner.scan! do |result|
+      unless @reported_banner
+        @reported_banner = true
+        if scanner.banner&.match?(/^(120|220)[\s-]/)
+          self.banner = scanner.banner
+          print_brute level: :vstatus, ip: ip, msg: "FTP Banner: #{banner_version}"
+        end
+      end
+
+      credential_data = result.to_h
+      credential_data.merge!(
+        module_fullname: fullname,
+        workspace_id: myworkspace_id
+      )
+
+      case result.status
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        report_ftp_service(ip)
+        yield result, credential_data
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        vprint_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
+        report_host(host: ip) unless result.proof.to_s.empty?
+
+        invalidate_login(credential_data)
+      when Metasploit::Model::Login::Status::INCORRECT
+        invalidate_login(credential_data)
+
+        unless @reported_service
+          report_ftp_service(ip)
+          @reported_service = true
+        end
+
+        proof = result.proof.to_s.strip
+        proof_str = proof.empty? ? result.status.to_s : "#{result.status}: #{proof}"
+        vprint_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}' (#{proof_str})"
+      else
+        invalidate_login(credential_data)
+
+        proof = result.proof.to_s.strip
+        proof_str = proof.empty? ? result.status.to_s : "#{result.status}: #{proof}"
+        vprint_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}' (#{proof_str})"
+      end
+    end
+  end
+
   def run_host(ip)
+    # May not use Msf::Exploit::Remote::Ftp for report_note/report_service (only does for CHECK_ACCESS/STORE_LOOT/EXTENDED_CHECKS)
     @reported_service = false
+    @reported_banner = false
 
     print_brute level: :status, ip: ip, msg: 'Starting FTP login sweep'
 
@@ -159,75 +234,41 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
-    banner_reported = false
+    run_scanner(ip, scanner) do |result, credential_data|
+      access_level = nil
 
-    scanner.scan! do |result|
-      unless banner_reported
-        banner_reported = true
-        if scanner.banner&.match?(/^(120|220)[\s-]/)
-          self.banner = scanner.banner
-          print_brute level: :vstatus, ip: ip, msg: "FTP Banner: #{banner_version}"
-          report_note(host: ip, port: rport, proto: 'tcp', sname: 'ftp', type: 'ftp.banner', data: { banner: Rex::Text.to_hex_ascii(scanner.banner.strip) })
-        end
-      end
+      credential_core = create_credential(credential_data)
+      credential_data[:core] = credential_core
 
-      credential_data = result.to_h
-      credential_data.merge!(
-        module_fullname: fullname,
-        workspace_id: myworkspace_id
-      )
-      case result.status
-      when Metasploit::Model::Login::Status::SUCCESSFUL
-        credential_data[:private_type] = :password
-        credential_core = create_credential(credential_data)
-        credential_data[:core] = credential_core
-
-        report_service(host: ip, port: rport, proto: 'tcp', name: 'ftp', info: self.banner ? Rex::Text.to_hex_ascii(banner_version) : nil)
-
-        if datastore['CHECK_ACCESS'] || datastore['STORE_LOOT'] || datastore['EXTENDED_CHECKS']
-          begin
-            connect(true, false)
-            send_user(result.credential.public)
-            if send_pass(result.credential.private).to_s.start_with?('2')
-              if datastore['CHECK_ACCESS']
-                print_brute level: :vstatus, ip: ip, msg: 'Checking read/write access'
-                access_level = test_ftp_access
-              end
-
-              ls_ftp_dir(ip, result.credential.public) if datastore['STORE_LOOT']
-
-              fingerprint_server(ip, result.credential.public) if datastore['EXTENDED_CHECKS']
+      if datastore['CHECK_ACCESS'] || datastore['STORE_LOOT'] || datastore['EXTENDED_CHECKS']
+        begin
+          connect(true, false)
+          send_user(result.credential.public)
+          if send_pass(result.credential.private).to_s.start_with?('2')
+            if datastore['CHECK_ACCESS']
+              print_brute level: :vstatus, ip: ip, msg: 'Checking read/write access'
+              access_level = test_ftp_access
             end
-          rescue ::IOError, Errno::ECONNRESET, ::Timeout::Error => e
-            print_brute level: :verror, ip: ip, msg: e.message
-          ensure
-            disconnect
+
+            ls_ftp_dir(ip, result.credential.public) if datastore['STORE_LOOT']
+
+            fingerprint_server(ip, result.credential.public) if datastore['EXTENDED_CHECKS']
           end
+        rescue ::IOError, Errno::ECONNRESET, ::Timeout::Error => e
+          print_brute level: :verror, ip: ip, msg: e.message
+        ensure
+          disconnect
         end
-
-        credential_data[:access_level] = access_level if access_level
-        create_credential_login(credential_data)
-
-        msg = "Success: #{result.credential}"
-        msg << " (#{access_level})" if access_level
-        print_brute level: :good, ip: ip, msg: msg
-      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
-        report_host(host: ip) if result.proof.to_s.include?('refused')
-        invalidate_login(credential_data)
-        :abort
-      else
-        invalidate_login(credential_data)
-
-        unless @reported_service
-          report_service(host: ip, port: rport, proto: 'tcp', name: 'ftp', info: self.banner ? Rex::Text.to_hex_ascii(banner_version) : nil)
-          @reported_service = true
-        end
-
-        proof = result.proof.to_s.strip
-        proof_str = proof.empty? ? result.status.to_s : "#{result.status}: #{proof}"
-        vprint_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}' (#{proof_str})"
       end
+
+      credential_data[:access_level] = access_level if access_level
+      create_credential_login(credential_data)
+
+      report_ftp_proof(ip, result, access_level: access_level)
+
+      msg = "Login Successful: #{result.credential}"
+      msg << " (#{access_level})" if access_level
+      print_brute level: :good, ip: ip, msg: msg
     end
   end
 

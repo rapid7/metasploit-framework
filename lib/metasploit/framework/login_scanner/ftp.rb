@@ -45,16 +45,19 @@ module Metasploit
             ftpsock = connect(true)
             res = send_user(credential.public, ftpsock)
             res = send_pass(credential.private, ftpsock) if res =~ /^(331|2)/
-            result_options[:proof] = res.to_s.strip
-            result_options[:status] = if res.nil?
-                                        Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-                                      elsif res.start_with?('2')
-                                        Metasploit::Model::Login::Status::SUCCESSFUL
-                                      else
-                                        Metasploit::Model::Login::Status::INCORRECT
-                                      end
-          rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error
+            if res.nil?
+              result_options[:proof] = 'No response to login command'
+              result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+            elsif res.start_with?('2')
+              result_options[:proof] = res.strip
+              result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
+            else
+              result_options[:proof] = res.strip
+              result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
+            end
+          rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error => e
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+            result_options[:proof] = e.message
           ensure
             disconnect
           end
