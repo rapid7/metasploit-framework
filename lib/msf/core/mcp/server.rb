@@ -14,6 +14,11 @@ module Msf::MCP
   #
   class Server
 
+    # Puma thread pool configuration defaults
+    PUMA_MIN_THREADS = 0
+    PUMA_MAX_THREADS = 5
+    PUMA_WORKERS = 0
+
     ##
     # Initialize the MCP server with required dependencies
     #
@@ -64,12 +69,12 @@ module Msf::MCP
     # @return [MCP::Server] The MCP server instance (for testing purposes)
     # @raise [ArgumentError] If an unknown transport is specified
     #
-    def start(transport: :stdio, host: 'localhost', port: 3000)
+    def start(transport: :stdio, host: 'localhost', port: 3000, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
       case transport
       when :stdio
         start_stdio
       when :http
-        start_http(host, port)
+        start_http(host, port, min_threads: min_threads, max_threads: max_threads, workers: workers)
       else
         raise ArgumentError, "Unknown transport: #{transport}. Use :stdio or :http"
       end
@@ -79,6 +84,13 @@ module Msf::MCP
     # Shutdown the MCP server and cleanup resources
     #
     def shutdown
+      @puma_launcher&.stop
+    rescue StandardError => e
+      elog("Error stopping Puma: #{e.message}", LOG_SOURCE)
+    ensure
+      @puma_log_io&.close
+      @puma_launcher = nil
+      @puma_log_io = nil
       @msf_client&.shutdown
       @mcp_server = nil
     end
@@ -108,9 +120,12 @@ module Msf::MCP
     #
     # @return [MCP::Server] The MCP server instance (for testing purposes)
     #
-    def start_http(host, port)
-      require 'rackup'
-      require 'rack/handler/puma'
+    def start_http(host, port, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
+      require 'rack'
+      require 'puma'
+      require 'puma/configuration'
+      require 'puma/launcher'
+      require 'puma/log_writer'
 
       transport = ::MCP::Server::Transports::StreamableHTTPTransport.new(@mcp_server)
 
@@ -121,12 +136,33 @@ module Msf::MCP
         run transport
       end
 
-      Rackup::Handler::Puma.run(
-        rack_app,
-        Port: port,
-        Host: host,
-        Silent: true
-      )
+      # Use Puma's server API directly so we can stop it gracefully on shutdown.
+      bind_host = host.include?(':') ? "[#{host}]" : host
+      @puma_log_io = File.open(File::NULL, 'w')
+      begin
+        puma_config = Puma::Configuration.new do |config|
+          config.bind "tcp://#{bind_host}:#{port}"
+          config.threads min_threads, max_threads
+          config.workers workers
+          config.log_requests false
+          config.app rack_app
+        end
+
+        # Suppress Puma's startup banner by providing a silent log writer
+        log_writer = Puma::LogWriter.new(@puma_log_io, @puma_log_io)
+        @puma_launcher = Puma::Launcher.new(puma_config, log_writer: log_writer)
+        @puma_launcher.run
+      rescue StandardError
+        begin
+          @puma_launcher&.stop
+        rescue StandardError
+          nil
+        end
+        @puma_launcher = nil
+        @puma_log_io&.close
+        @puma_log_io = nil
+        raise
+      end
 
       @mcp_server
     end
