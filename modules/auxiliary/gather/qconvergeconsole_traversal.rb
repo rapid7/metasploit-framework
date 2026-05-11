@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
     strong_name = res.body.match(/Sb='([A-Fa-f0-9]{32})'/)&.captures&.first
     strong_name ||= res.body.match(/([A-Fa-f0-9]{32})\.cache\.html/)&.captures&.first
 
-    return Exploit::CheckCode::Unknown('Could not determine GWT strong name') unless strong_name
+    return Exploit::CheckCode::Detected('Could not determine GWT strong name') unless strong_name
 
     vprint_status("GWT strong name: #{strong_name}")
 
