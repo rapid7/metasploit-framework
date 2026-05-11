@@ -30,7 +30,9 @@ class MetasploitModule < Msf::Auxiliary
 
       ],
       'References' => [
-        [ 'CVE', '1999-0502' ] # Weak password
+        [ 'CVE', '1999-0502' ], # Weak password
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_REMOTE_SERVICES ],
+        [ 'ATT&CK', Mitre::Attack::Technique::T1110_001_PASSWORD_GUESSING ]
       ],
       'License' => MSF_LICENSE,
       'Notes' => {
