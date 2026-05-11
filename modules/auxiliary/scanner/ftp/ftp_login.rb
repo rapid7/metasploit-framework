@@ -176,7 +176,8 @@ class MetasploitModule < Msf::Auxiliary
         module_fullname: fullname,
         workspace_id: myworkspace_id
       )
-      if result.success?
+      case result.status
+      when Metasploit::Model::Login::Status::SUCCESSFUL
         credential_data[:private_type] = :password
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
@@ -210,6 +211,11 @@ class MetasploitModule < Msf::Auxiliary
         msg = "Success: #{result.credential}"
         msg << " (#{access_level})" if access_level
         print_brute level: :good, ip: ip, msg: msg
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        vprint_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
+        report_host(host: ip) if result.proof.to_s.include?('refused')
+        invalidate_login(credential_data)
+        :abort
       else
         invalidate_login(credential_data)
 
