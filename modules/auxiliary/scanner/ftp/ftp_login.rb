@@ -64,32 +64,32 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('FTPUSER', 'FTPPASS') # Can use these, but should use 'username' and 'password'
   end
 
-  def ls_ftp_dir(username = 'anonymous')
-    print_brute level: :vstatus, ip: rhost, msg: 'Listing directory contents'
+  def ls_ftp_dir(ip, username = 'anonymous')
+    print_brute level: :vstatus, ip: ip, msg: 'Listing directory contents'
 
     username = username.downcase
 
     listing = send_cmd_data(['LS'], nil)
     if listing.nil?
-      print_brute level: :warning, ip: rhost, msg: 'Could not retrieve directory listing (data connection failed)'
+      print_brute level: :warning, ip: ip, msg: 'Could not retrieve directory listing (data connection failed)'
     elsif listing[1].nil? || listing[1].empty?
-      print_brute level: :vstatus, ip: rhost, msg: 'Directory listing: (empty)'
+      print_brute level: :vstatus, ip: ip, msg: 'Directory listing: (empty)'
     else
-      print_brute level: :vstatus, ip: rhost, msg: "Directory listing:\n#{listing[1]}"
-      path = store_loot('ftp.dir_listing', 'text/plain', rhost, listing[1], "ftp_#{username}.txt", "FTP directory listing for #{username}")
-      print_brute level: :good, ip: rhost, msg: "Directory listing stored to: #{path}"
+      print_brute level: :vstatus, ip: ip, msg: "Directory listing:\n#{listing[1]}"
+      path = store_loot('ftp.dir_listing', 'text/plain', ip, listing[1], "ftp_#{username}.txt", "FTP directory listing for #{username}")
+      print_brute level: :good, ip: ip, msg: "Directory listing stored to: #{path}"
     end
   end
 
-  def fingerprint_server(username = 'anonymous')
-    print_brute level: :status, ip: rhost, msg: "Fingerprinting FTP service (as #{username})"
+  def fingerprint_server(ip, username = 'anonymous')
+    print_brute level: :status, ip: ip, msg: "Fingerprinting FTP service (as #{username})"
 
     [
       ['FEAT', 'ftp.cmd.feat'], # server-level
       ['STAT', 'ftp.cmd.stat'], # user-level
       ['SYST', 'ftp.cmd.syst'] # server-level
     ].each do |cmd, note_type|
-      print_brute level: :vstatus, ip: rhost, msg: "Sending FTP command: #{cmd}"
+      print_brute level: :vstatus, ip: ip, msg: "Sending FTP command: #{cmd}"
       response = send_cmd([cmd], true).to_s
       next if response.empty?
 
@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       report_note(
-        host: rhost,
+        host: ip,
         port: rport,
         proto: 'tcp',
         sname: 'ftp',
@@ -167,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
         if scanner.banner&.match?(/^(120|220)[\s-]/)
           self.banner = scanner.banner
           print_brute level: :vstatus, ip: ip, msg: "FTP Banner: #{banner_version}"
-          report_note(host: rhost, port: rport, proto: 'tcp', sname: 'ftp', type: 'ftp.banner', data: { banner: Rex::Text.to_hex_ascii(scanner.banner.strip) })
+          report_note(host: ip, port: rport, proto: 'tcp', sname: 'ftp', type: 'ftp.banner', data: { banner: Rex::Text.to_hex_ascii(scanner.banner.strip) })
         end
       end
 
@@ -194,9 +194,9 @@ class MetasploitModule < Msf::Auxiliary
                 access_level = test_ftp_access
               end
 
-              ls_ftp_dir(result.credential.public) if datastore['STORE_LOOT']
+              ls_ftp_dir(ip, result.credential.public) if datastore['STORE_LOOT']
 
-              fingerprint_server(result.credential.public) if datastore['EXTENDED_CHECKS']
+              fingerprint_server(ip, result.credential.public) if datastore['EXTENDED_CHECKS']
             end
           rescue ::IOError, Errno::ECONNRESET, ::Timeout::Error => e
             print_brute level: :verror, ip: ip, msg: e.message
