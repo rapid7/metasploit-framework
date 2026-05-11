@@ -7,12 +7,14 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SSH
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Module::Deprecated
+  moved_from 'auxiliary/scanner/ssh/ssh_enumusers'
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => 'SSH Username Enumeration',
+        'Name' => 'OpenSSH 7.6 And Earlier Username Enumeration',
         'Description' => %q{
           This module uses a malformed packet or timing attack to enumerate users on
           an OpenSSH server.
@@ -36,7 +38,8 @@ class MetasploitModule < Msf::Auxiliary
           'Dariusz Tytko', # Malformed packet
           'Michal Sajdak', # Malformed packet
           'Qualys',        # Malformed packet
-          'wvu'            # Malformed packet
+          'wvu',           # Malformed packet
+          'g0tmi1k' # @g0tmi1k - additional features
         ],
         'References' => [
           ['CVE', '2003-0190'],
