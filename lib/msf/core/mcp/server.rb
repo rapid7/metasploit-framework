@@ -79,6 +79,10 @@ module Msf::MCP
     # Shutdown the MCP server and cleanup resources
     #
     def shutdown
+      @puma_launcher&.stop
+      @puma_log_io&.close
+      @puma_launcher = nil
+      @puma_log_io = nil
       @msf_client&.shutdown
       @mcp_server = nil
     end
@@ -110,7 +114,10 @@ module Msf::MCP
     #
     def start_http(host, port)
       require 'rack'
-      require 'rack/handler/puma'
+      require 'puma'
+      require 'puma/configuration'
+      require 'puma/launcher'
+      require 'puma/log_writer'
 
       transport = ::MCP::Server::Transports::StreamableHTTPTransport.new(@mcp_server)
 
@@ -121,20 +128,28 @@ module Msf::MCP
         run transport
       end
 
-      # Start Puma server using the handler appropriate for the Rack version.
-      # Rackup::Handler is available with rackup >= 2.x / Rack 3+;
-      # Rack::Handler is used with Rack < 3 and rackup 1.x.
-      puma_handler = if defined?(Rackup::Handler)
-                       Rackup::Handler::Puma
-                     else
-                       Rack::Handler::Puma
-                     end
-      puma_handler.run(
-        rack_app,
-        Port: port,
-        Host: host,
-        Silent: true
-      )
+      # Use Puma's server API directly so we can stop it gracefully on shutdown.
+      bind_host = host.include?(':') ? "[#{host}]" : host
+      @puma_log_io = File.open(File::NULL, 'w')
+      begin
+        puma_config = Puma::Configuration.new do |config|
+          config.bind "tcp://#{bind_host}:#{port}"
+          config.threads 0, 5
+          config.workers 0
+          config.log_requests false
+          config.app rack_app
+        end
+
+        # Suppress Puma's startup banner by providing a silent log writer
+        log_writer = Puma::LogWriter.new(@puma_log_io, @puma_log_io)
+        @puma_launcher = Puma::Launcher.new(puma_config, log_writer: log_writer)
+        @puma_launcher.run
+      rescue StandardError
+        @puma_log_io&.close
+        @puma_log_io = nil
+        @puma_launcher = nil
+        raise
+      end
 
       @mcp_server
     end
