@@ -221,13 +221,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login(ip, port, user)
-    cleartext_keys = load_cleartext_keys
-    return :missing_keyfile if cleartext_keys.empty?
+    return :missing_keyfile unless @cleartext_keys&.any?
 
-    unless @alerted_with_msg
-      print_status "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{cleartext_keys.size > 1 ? 's' : ''} per user."
-      @alerted_with_msg = true
-    end
+    cleartext_keys = @cleartext_keys
 
     cleartext_keys.each_with_index do |key_data, key_idx|
       key_info = ''
@@ -421,6 +417,10 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
+    @cleartext_keys = load_cleartext_keys
+    return if @cleartext_keys.empty?
+
+    print_status("Loaded #{@cleartext_keys.size} cleartext key#{@cleartext_keys.size == 1 ? '' : 's'}")
     super
   end
 
