@@ -214,7 +214,9 @@ class MetasploitModule < Msf::Auxiliary
       origin_type: :service,
       private_data: hash,
       private_type: :nonreplayable_hash,
-      jtr_format: jtr_format
+      jtr_format: jtr_format,
+      realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+      realm_value: session ? session.client.realm : datastore['LDAPDomain']
     }.merge(service_data)
 
     credential_core = create_credential(credential_data)
