@@ -117,8 +117,21 @@ class MetasploitModule < Msf::Auxiliary
         next unless ::File.readable? dir_entry
 
         content = ::File.open(dir_entry, 'rb') { |f| f.read(f.stat.size) }
-        keys.concat(validate_keys(extract_raw_keys(content), source: File.basename(dir_entry)))
+        found = validate_keys(extract_raw_keys(content), source: File.basename(dir_entry))
+        if found.empty?
+          print_status("Skipping: #{File.basename(dir_entry)} (no valid keys found)")
+        else
+          keys.concat(found)
+        end
       end
+
+      seen = {}
+      keys.each do |k|
+        key_id = k[:public].to_s.split[0..1].join(' ')
+        existing = seen[key_id]
+        seen[key_id] = k if existing.nil? || (existing[:private].to_s.empty? && !k[:private].to_s.empty?)
+      end
+      keys.replace(seen.values)
     else
       content = ::File.open(file, 'rb') { |f| f.read(f.stat.size) }
       keys = validate_keys(extract_raw_keys(content), source: File.basename(file))
@@ -198,7 +211,8 @@ class MetasploitModule < Msf::Auxiliary
                return []
              end
 
-             key_files = Dir.entries(key_dir).reject { |f| f =~ /^\x2e/ }
+             key_files = Dir.entries(key_dir).reject { |f| f.start_with?('.') || File.directory?(File.join(key_dir, f)) }
+             print_status("#{key_dir}: #{key_files.size} file#{key_files.size == 1 ? '' : 's'} (#{key_files.join(', ')})")
              pull_cleartext_keys(read_keyfile(key_files.map { |f| File.join(key_dir, f) }))
            else
              []
