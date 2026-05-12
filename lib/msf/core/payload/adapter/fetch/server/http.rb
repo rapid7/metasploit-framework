@@ -65,7 +65,6 @@ module Msf
     def on_request_uri(cli, request, srv_entry)
       vprint_status("#{__method__}:#{__LINE__}")
       opts = srv_entry[:opts]
-      vprint_status(opts.to_s)
       client = cli.peerhost
       vprint_status("Client #{client} requested #{request.uri}")
       if (user_agent = request.headers['User-Agent'])
