@@ -5711,6 +5711,15 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/mips64/meterpreter_reverse_https'
   end
 
+  context 'linux/mips64/exec' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/mips64/exec'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/mips64/exec'
+  end
+
   context 'linux/mipsbe/meterpreter_reverse_http' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
