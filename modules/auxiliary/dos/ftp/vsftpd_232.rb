@@ -44,6 +44,18 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
+  def report_ftp_vuln(version = nil)
+    report_vuln(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      sname: 'ftp',
+      name: name,
+      info: version ? "VSFTPD #{version} is vulnerable to STAT DoS" : 'VSFTPD is vulnerable to STAT DoS',
+      refs: references
+    )
+  end
+
   def check
     # attempt to connect
     begin
@@ -83,6 +95,7 @@ class MetasploitModule < Msf::Auxiliary
     # pull out version and check if its in range of vulnerability
     version = s[/vsFTPd (\d+\.\d+\.\d+)/, 1]
     if Rex::Version.new(version) < Rex::Version.new('2.3.3')
+      report_ftp_vuln(version)
       Exploit::CheckCode::Appears("VSFTPD #{version} is vulnerable (affected: <= 2.3.2)")
     else
       Exploit::CheckCode::Safe("VSFTPD #{version} is not vulnerable (affected: <= 2.3.2)")
@@ -120,9 +133,11 @@ class MetasploitModule < Msf::Auxiliary
       print_error('Connection reset!')
     rescue Rex::ConnectionRefused
       print_good('Connection refused! Appears DoS attack succeeded')
+      report_ftp_vuln
       break
     rescue EOFError
       print_good('Stream was cut off abruptly. Appears DoS attack succeeded')
+      report_ftp_vuln
       break
     end
   ensure
