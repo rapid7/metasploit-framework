@@ -105,6 +105,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
+        OptInt.new('CALIBRATE_COUNT',
+                   [
+                     false, 'Number of random-username samples used to auto-calibrate ' \
+                     'the timing threshold (timing attack only, 0 to disable)', 5
+                   ]),
         OptInt.new('RETRY_NUM',
                    [
                      true, 'The number of attempts to connect to a SSH server' \
@@ -133,7 +138,26 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def threshold
-    datastore['THRESHOLD']
+    @calibrated_threshold || datastore['THRESHOLD']
+  end
+
+  def calibrate_threshold(ip)
+    sample_count = datastore['CALIBRATE_COUNT']
+    return if sample_count.zero?
+
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Calibrating timing threshold with #{sample_count} samples...")
+    times = Array.new(sample_count) do
+      user = Rex::Text.rand_text_alphanumeric(8..32)
+      t0 = Time.now
+      attempt_user(user, ip)
+      Time.now - t0
+    end
+
+    mean = times.sum / times.size
+    variance = times.sum { |t| (t - mean)**2 } / times.size
+    stddev = Math.sqrt(variance)
+    @calibrated_threshold = (mean + 2 * stddev).ceil(2)
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Calibrated threshold: #{@calibrated_threshold}s (mean: #{mean.round(2)}s, jitter: #{stddev.round(2)}s)")
   end
 
   # Returns true if a nonsense username appears active.
@@ -335,9 +359,11 @@ class MetasploitModule < Msf::Auxiliary
     banner = grab_banner(ip)
     check_banner_version(ip, banner)
 
+    calibrate_threshold(ip) if action['Type'] == :timing_attack
+    print_warning("#{Rex::Socket.to_authority(rhost, rport)} - #{action.name} may be unreliable on low-latency networks (#{@calibrated_threshold}s)") if action['Type'] == :timing_attack && @calibrated_threshold && @calibrated_threshold < 3.0
+
     if datastore['CHECK_FALSE']
       print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking for false positives")
-      vprint_warning("#{Rex::Socket.to_authority(rhost, rport)} - #{action.name} may be unreliable on low-latency networks") if action['Type'] == :timing_attack
       if check_false_positive(ip)
         print_error("#{Rex::Socket.to_authority(rhost, rport)} - False positive check failed as server returned valid for a random username")
         return
