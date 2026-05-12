@@ -55,6 +55,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
+        OptBool.new('CHECK_SUPPORTED_KEYS', [true, 'Probe the server KEX to skip key types it does not support', true]),
         OptString.new('SSH_KEYFILE_B64', [false, 'Base64-encoded SSH public or unencrypted private key data (intended for programmatic use only)', '']),
         OptBool.new('SSH_BYPASS', [ false, 'When a key is accepted, test whether the server allows command execution without completing authentication', false]),
         OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
@@ -83,6 +84,50 @@ class MetasploitModule < Msf::Auxiliary
 
   def ip
     datastore['RHOST']
+  end
+
+  def probe_server_capabilities(ip, port)
+    return @server_supported_key_types if @server_supported_key_types
+
+    factory = ssh_socket_factory
+    opt_hash = {
+      port: port,
+      use_agent: false,
+      config: false,
+      proxy: factory,
+      non_interactive: true,
+      verify_host_key: :never,
+      timeout: datastore['SSH_TIMEOUT']
+    }
+
+    transport = nil
+    begin
+      ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+        transport = Net::SSH::Transport::Session.new(ip, opt_hash)
+      end
+      vprint_status("#{ip}:#{rport} - Banner: #{transport.server_version.version.to_s.strip}")
+
+      server_data = transport.algorithms.instance_variable_get(:@server_data)
+      @server_supported_key_types = server_data[:host_key]
+      vprint_status("#{ip}:#{rport} - Supported key types: #{@server_supported_key_types.join(', ')}")
+    rescue Rex::ConnectionError
+      @server_supported_key_types = nil
+    rescue StandardError => e
+      vprint_status("#{ip}:#{rport} - Could not determine supported key types (#{e.message}), trying all")
+      @server_supported_key_types = nil
+    ensure
+      begin
+        transport&.close
+      rescue StandardError
+        nil
+      end
+    end
+
+    @server_supported_key_types
+  end
+
+  def key_type_from_public(public_key)
+    public_key.to_s.split.first
   end
 
   def extract_raw_keys(content)
@@ -225,13 +270,37 @@ class MetasploitModule < Msf::Auxiliary
 
     cleartext_keys = @cleartext_keys
 
-    cleartext_keys.each_with_index do |key_data, key_idx|
+    unless @testable_keys
+      if datastore['CHECK_SUPPORTED_KEYS']
+        supported_key_types = probe_server_capabilities(ip, port)
+        return :connection_error unless supported_key_types
+
+        testable = cleartext_keys.select do |key_data|
+          key_type = key_type_from_public(key_data[:public])
+          key_type.nil? || supported_key_types.include?(key_type)
+        end
+
+        (cleartext_keys - testable).group_by { |k| key_type_from_public(k[:public]) }.each do |key_type, keys|
+          labels = keys.map { |k| k[:source] || k[:public].to_s.split.first }.join(', ')
+          print_status("#{ip}:#{rport} - Server does not support #{key_type}, skipping: #{labels}")
+        end
+
+        @testable_keys = testable
+      else
+        @testable_keys = cleartext_keys
+      end
+    end
+
+    testable_keys = @testable_keys
+
+    testable_keys.each_with_index do |key_data, key_idx|
       key_info = ''
       if key_data[:public] =~ /ssh-(rsa|dss)\s+([^\s]+)\s+(.*)/
         key_info = "- #{::Regexp.last_match(3).strip}"
       end
 
       factory = ssh_socket_factory
+
       opt_hash = {
         auth_methods: ['publickey'],
         port: port,
