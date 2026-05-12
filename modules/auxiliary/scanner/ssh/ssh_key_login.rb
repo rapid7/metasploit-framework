@@ -117,11 +117,11 @@ class MetasploitModule < Msf::Auxiliary
         next unless ::File.readable? dir_entry
 
         content = ::File.open(dir_entry, 'rb') { |f| f.read(f.stat.size) }
-        keys.concat(validate_keys(extract_raw_keys(content)))
+        keys.concat(validate_keys(extract_raw_keys(content), source: File.basename(dir_entry)))
       end
     else
       content = ::File.open(file, 'rb') { |f| f.read(f.stat.size) }
-      keys = validate_keys(extract_raw_keys(content))
+      keys = validate_keys(extract_raw_keys(content), source: File.basename(file))
     end
     if keys.empty?
       print_error "#{ip}:#{rport} SSH - No valid keys found"
@@ -131,11 +131,11 @@ class MetasploitModule < Msf::Auxiliary
 
   # Validates that the key isn't total garbage, and converts PEM formatted
   # keys to SSH formatted keys.
-  def validate_keys(keys)
+  def validate_keys(keys, source: nil)
     keepers = []
     keys.each do |key|
       if key =~ /(?:ssh-|ecdsa-)\S+/
-        keepers << { public: key, private: '' }
+        keepers << { public: key, private: '', source: source }
       elsif key =~ /-----BEGIN (?:OPENSSH|EC) PRIVATE KEY-----/
         ssh_key = Tempfile.open('msf_ssh_key') do |f|
           f.write(key)
@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
 
         if ssh_key
           public_key = "#{ssh_key.ssh_type} #{[ssh_key.to_blob].pack('m0')}"
-          keepers << { public: public_key, private: key }
+          keepers << { public: public_key, private: key, source: source, converted: true }
         end
       else
         # Use the mighty SSHKey library from James Miller to convert them on the fly.
@@ -160,7 +160,11 @@ class MetasploitModule < Msf::Auxiliary
         rescue StandardError
           nil
         end
-        keepers << { public: ssh_version, private: key } if ssh_version
+
+        if ssh_version
+          print_status("No conversion needed: #{source}")
+          keepers << { public: ssh_version, private: key, source: source }
+        end
       end
     end
     if keepers.empty?
@@ -175,40 +179,41 @@ class MetasploitModule < Msf::Auxiliary
       next unless key[:public]
       next if key[:private] =~ /Proc-Type:.*ENCRYPTED/
 
-      this_key = { public: key[:public].gsub(/\x0d/, ''), private: key[:private] }
-      next if cleartext_keys.include? this_key
-
-      cleartext_keys << this_key
+      cleartext_keys << { public: key[:public].gsub(/\x0d/, ''), private: key[:private], source: key[:source], converted: key[:converted] }
     end
     if cleartext_keys.empty?
       print_error "#{ip}:#{rport} SSH - No valid cleartext keys found"
     end
-    return cleartext_keys
+    cleartext_keys
+  end
+
+  def load_cleartext_keys
+    keys = if key_file && File.readable?(key_file)
+             pull_cleartext_keys(read_keyfile(key_file))
+           elsif datastore['SSH_KEYFILE_B64'] && !datastore['SSH_KEYFILE_B64'].empty?
+             pull_cleartext_keys(read_keyfile(:keyfile_b64))
+           elsif datastore['KEY_DIR']
+             unless File.directory?(key_dir) && File.readable?(key_dir)
+               print_error("Cannot read KEY_DIR: #{key_dir}")
+               return []
+             end
+
+             key_files = Dir.entries(key_dir).reject { |f| f =~ /^\x2e/ }
+             pull_cleartext_keys(read_keyfile(key_files.map { |f| File.join(key_dir, f) }))
+           else
+             []
+           end
+    converted = keys.select { |k| k[:converted] }.map { |k| k[:source] }.compact.uniq
+    print_status("Converting modern OpenSSH key to public key blob: #{converted.join(', ')}") unless converted.empty?
+    keys
   end
 
   def do_login(ip, port, user)
-    if key_file && File.readable?(key_file)
-      keys = read_keyfile(key_file)
-      cleartext_keys = pull_cleartext_keys(keys)
-      msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? 's' : ''} per user."
-    elsif datastore['SSH_KEYFILE_B64'] && !datastore['SSH_KEYFILE_B64'].empty?
-      keys = read_keyfile(:keyfile_b64)
-      cleartext_keys = pull_cleartext_keys(keys)
-      msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? 's' : ''} per user (read from datastore)."
-    elsif datastore['KEY_DIR']
-      return :missing_keyfile unless (File.directory?(key_dir) && File.readable?(key_dir))
-
-      @key_files ||= Dir.entries(key_dir).reject { |f| f =~ /^\x2e/ }
-      these_keys = @key_files.map { |f| File.join(key_dir, f) }
-      keys = read_keyfile(these_keys)
-      cleartext_keys = pull_cleartext_keys(keys)
-      msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? 's' : ''} per user."
-    else
-      return :missing_keyfile
-    end
+    cleartext_keys = load_cleartext_keys
+    return :missing_keyfile if cleartext_keys.empty?
 
     unless @alerted_with_msg
-      print_status msg
+      print_status "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{cleartext_keys.size > 1 ? 's' : ''} per user."
       @alerted_with_msg = true
     end
 
@@ -271,11 +276,8 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       unless success
-        if @key_files
-          print_brute level: :verror, msg: "User #{user} does not accept key #{@key_files[key_idx + 1]} #{key_info}"
-        else
-          print_brute level: :verror, msg: "User #{user} does not accept key #{key_idx + 1} #{key_info}"
-        end
+        key_label = key_data[:source] || "key #{key_idx + 1}"
+        print_brute level: :verror, msg: "User #{user} does not accept #{key_label} #{key_info}"
         return [:fail, nil]
       end
 
