@@ -43,7 +43,12 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'The base path for QConvergeConsole', 'QConvergeConsole']),
         OptString.new('TARGET_FILE', [false, 'The file path to read from the target system.', 'win.ini']),
-        OptString.new('TARGET_DIR', [true, 'The folder where the file is located.', 'C:\Windows'])
+        OptString.new('TARGET_DIR', [true, 'The folder where the file is located.', 'C:\Windows']),
+      ]
+    )
+    register_advanced_options(
+      [
+        OptBool.new('DefangedMode', [ true, 'Run in defanged mode', true ])
       ]
     )
   end
@@ -95,6 +100,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    if datastore['DefangedMode']
+      warning = <<~EOF
+        Are you *SURE* you want to execute the module against the target?
+        Running this module will attempt to read and delete the file
+        specified by TARGET_FILE on the remote system.
+
+        If you have explicit authorisation, re-run with:
+            set DefangedMode false
+      EOF
+      fail_with(Failure::BadConfig, warning)
+    end
     folder = URI.encode_www_form_component(datastore['TARGET_DIR'])
     file = URI.encode_www_form_component(datastore['TARGET_FILE'])
 
