@@ -152,10 +152,13 @@ class MetasploitModule < Msf::Post
         'Name' => 'macOS Terminal/iTerm2 Saved State Recovery',
         'Description' => %q{
           This module enumerates the saved state files for the Terminal and iTerm2
-          applications on macOS. These files are encrypted with AES-128-CBC, but
+          applications on macOS 10.7–12 (Lion through Monterey).
+          These files are encrypted with AES-128-CBC, but
           the key is stored in plaintext in the accompanying windows.plist file.
           The decrypted files contain a copy of what was sent to and from the
           terminal, which may include sensitive information.
+
+          Tested against macOS 11.7.11.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -166,12 +169,15 @@ class MetasploitModule < Msf::Post
         'Platform' => ['osx'],
         'SessionTypes' => ['meterpreter', 'shell'],
         'References' => [
-          ['URL', 'https://github.com/CrowdStrike/automactc/blob/master/modules/mod_terminalstate_v100.py'],
-          ['URL', 'https://gist.github.com/williballenthin/ab23abd5eec5bf5a272bfcfb2342ec04']
+          # dead url, not sure what happened to it, leaving it here though since it was one of the original sources
+          # ['URL', 'https://github.com/CrowdStrike/automactc/blob/master/modules/mod_terminalstate_v100.py'],
+          ['URL', 'https://www.crowdstrike.com/en-us/blog/reconstructing-command-line-activity-on-macos/'],
+          ['URL', 'https://gist.github.com/williballenthin/ab23abd5eec5bf5a272bfcfb2342ec04'],
+          ['ATT&CK', Mitre::Attack::Technique::T1552_003_BASH_HISTORY] # Shell history according to the website https://attack.mitre.org/techniques/T1552/003/
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'SideEffects' => [ARTIFACTS_ON_DISK],
+          'SideEffects' => [],
           'Reliability' => []
         }
       )
