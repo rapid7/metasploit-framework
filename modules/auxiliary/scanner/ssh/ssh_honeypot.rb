@@ -13,11 +13,22 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Module::Deprecated
   moved_from 'auxiliary/scanner/ssh/detect_kippo'
 
-  # KEX algorithms required for a given minimum SSH version
+  # When KEX algorithms were added to the default KEX list (for OpenSSH), with their minimum SSH version
+  # This isn't when support was first added, nor when promoted to first default value, but added to default KEX list
+  # Example. sntrup761x25519 : added in v8.5, a part of default in v8.9, first default value in v9.0
   COWRIE_KEX_CHECKS = [
-    # [min_ver, required_kex]
-    ['9.0', 'sntrup761x25519-sha512@openssh.com'], # OpenSSH >= 9.0 ~ https://www.openssh.org/pq.html
-    ['9.9', 'mlkem768x25519-sha256']               # OpenSSH >= 9.9 ~ https://www.openssh.org/pq.html
+    ['6.5', 'curve25519-sha256@libssh.org'],       # OpenSSH >= v6.5 ~ https://www.openssh.org/txt/release-6.5
+    ['7.3', 'diffie-hellman-group14-sha256'],      # OpenSSH >= v7.3 ~ https://www.openssh.org/txt/release-7.3
+    ['7.3', 'diffie-hellman-group16-sha512'],      # OpenSSH >= v7.3 ~ https://www.openssh.org/txt/release-7.3
+    ['7.3', 'diffie-hellman-group18-sha512'],      # OpenSSH >= v7.3 ~ https://www.openssh.org/txt/release-7.3
+    ['7.4', 'curve25519-sha256'],                  # OpenSSH >= v7.4 ~ https://www.openssh.org/txt/release-7.4
+    ['8.9', 'sntrup761x25519-sha512@openssh.com'], # OpenSSH >= v8.9 ~ https://www.openssh.org/txt/release-8.9 (first added to default KEX) // OpenSSH >= v9.0 https://www.openssh.org/pq.html (Made as default)
+    ['9.9', 'mlkem768x25519-sha256']               # OpenSSH >= v9.9 ~ https://www.openssh.org/txt/release-9.9 // OpenSSH >= v9.9 https://www.openssh.org/pq.html
+  ].freeze
+
+  # KEX algorithms never in OpenSSH's default at any version
+  COWRIE_KEX_PHANTOM = [
+    'sntrup4591761x25519-sha512@tinyssh.org' # Added in v8.0, removed in v8.5
   ].freeze
 
   def initialize(info = {})
@@ -120,6 +131,12 @@ class MetasploitModule < Msf::Auxiliary
     print_status("SSH banner suggests: #{os_info.values.compact.join(', ')}")
   end
 
+  def report_honeypot_detected(banner, reason, honeypot:, confidence: 'likely')
+    print_good("SSH honeypot detected: #{honeypot} (#{confidence}) - #{reason}")
+    report_ssh_service(info: "SSH honeypot: #{honeypot} (#{banner.strip})")
+    report_ssh_vuln(info: "SSH honeypot: #{honeypot} - #{reason}")
+  end
+
   def run_host(_ip)
     connect
     banner = sock.get_once || ''
@@ -146,9 +163,8 @@ class MetasploitModule < Msf::Auxiliary
       return false
     end
 
-    print_good('SSH honeypot detected: Kippo (highly likely)')
-    report_ssh_service(info: "SSH honeypot: Kippo (#{banner.strip})")
-    report_ssh_vuln(info: 'SSH honeypot: Kippo - Server gave incorrect response when probed')
+    reason = 'Server gave incorrect response when probed'
+    report_honeypot_detected(banner, reason, honeypot: 'Kippo', confidence: 'highly likely')
     true
   end
 
@@ -163,10 +179,6 @@ class MetasploitModule < Msf::Auxiliary
 
     required_kex = COWRIE_KEX_CHECKS.filter_map do |min_ver, kex|
       kex if banner_ver >= Rex::Version.new(min_ver)
-    end
-    if required_kex.empty?
-      vprint_status("Not thought to be Cowrie - OpenSSH #{banner_ver} predates post-quantum KEX")
-      return false
     end
 
     server_kex = ::Timeout.timeout(timeout) do
@@ -184,16 +196,26 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status("SSH KEX algorithms: #{server_kex.join(', ')}")
 
+    phantom = COWRIE_KEX_PHANTOM.select { |k| server_kex.include?(k) }
+    if phantom.any?
+      reason = "Advertises KEX never in OpenSSH default: #{phantom.join(', ')}"
+      report_honeypot_detected(banner, reason, honeypot: 'Cowrie', confidence: 'possible')
+      return true
+    end
+
+    if required_kex.empty?
+      vprint_status("Not thought to be Cowrie - OpenSSH #{banner_ver} predates tracked KEX milestones")
+      return false
+    end
+
     missing = required_kex.reject { |k| server_kex.include?(k) }
     if missing.empty?
-      vprint_status('Not thought to be Cowrie - Every KEX is expected')
+      vprint_status('Not thought to be Cowrie - Every expected KEX is present')
       return false
     end
 
     reason = "Claims OpenSSH #{banner_ver} but missing expected KEX: #{missing.join(', ')}"
-    print_good("SSH honeypot detected: Cowrie (likely) - #{reason}")
-    report_ssh_service(info: "SSH honeypot: Cowrie (#{banner.strip})")
-    report_ssh_vuln(info: "SSH honeypot: Cowrie - #{reason}")
+    report_honeypot_detected(banner, reason, honeypot: 'Cowrie')
     true
   rescue Rex::ConnectionError, Net::SSH::Exception, Timeout::Error => e
     print_error("Cowrie check error: #{e.message}")
