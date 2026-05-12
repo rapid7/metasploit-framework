@@ -346,14 +346,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def store_public_keyfile(ip, user, key_id, key_data)
     safe_username = user.gsub(/[^A-Za-z0-9]/, '_')
-    ktype = begin
-      key_data.match(/ssh-(rsa|dss)/)[1]
-    rescue StandardError
-      nil
-    end
+    ktype = case key_data
+            when /ssh-rsa/ then 'rsa'
+            when /ssh-dss/ then 'dsa'
+            when /ssh-ed25519/ then 'ed25519'
+            when /ecdsa-sha2-(\S+)/ then ::Regexp.last_match(1)
+            end
     return unless ktype
 
-    ktype = 'dsa' if ktype == 'dss'
     ltype = "host.unix.ssh.#{user}_#{ktype}_public"
     keyfile = existing_loot(ltype, key_id)
     return keyfile.path if keyfile
@@ -372,7 +372,8 @@ class MetasploitModule < Msf::Auxiliary
   def store_private_keyfile(ip, user, key_id, key_data)
     safe_username = user.gsub(/[^A-Za-z0-9]/, '_')
     ktype = begin
-      key_data.match(/-----BEGIN ([RD]SA) (?:PRIVATE|PUBLIC) KEY-----/)[1].downcase
+      key = Net::SSH::KeyFactory.load_data_private_key(key_data, nil, false)
+      key.ssh_type.delete_prefix('ssh-').sub(/\Aecdsa-sha2-\S+/, 'ecdsa')
     rescue StandardError
       nil
     end
