@@ -20,15 +20,22 @@ class MetasploitModule < Msf::Auxiliary
         proxy a port scan through a "FTP relay host" (BOUNCEHOST/BOUNCEPORT) to
         enumerate TCP services (RHOSTS/PORTS).
 
-        Note: Per RFC 2577, a compliant FTP server should refuse PORT commands that
+        NOTE: Per RFC 2577, a compliant FTP server should refuse PORT commands that
         target privileged ports (<= 1023/TCP), so those ports may not be scannable
         via FTP bounce even on an otherwise vulnerable relay.
+
+        NOTE: IPv6 targets are not supported.
       },
       'Author' => 'kris katterjohn',
       'License' => MSF_LICENSE,
       'References' => [
         [ 'CVE', '1999-0017' ]
-      ]
+      ],
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
 
     register_options([
