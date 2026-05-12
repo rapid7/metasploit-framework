@@ -91,6 +91,41 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  def check_host_key_size(host_keys)
+    table = []
+    deprecated = []
+
+    key_size_checks = {
+      'ssh-rsa' => {
+        min_bits: 2048,
+        bits: ->(k) { k.n.num_bits },
+        standard: 'NIST SP 800-131A',
+        refs: ['https://csrc.nist.gov/publications/detail/sp/800-131a/rev-2/final']
+      },
+      'ssh-dss' => {
+        min_bits: 2048,
+        bits: ->(k) { k.p.num_bits },
+        standard: 'NIST SP 800-131A',
+        refs: ['https://csrc.nist.gov/publications/detail/sp/800-131a/rev-2/final']
+      }
+    }
+
+    host_keys.each do |host_key|
+      check = key_size_checks[host_key.ssh_type]
+      next unless check
+
+      bits = check[:bits].call(host_key)
+      next if bits >= check[:min_bits]
+
+      vprint_good("#{target_host} - #{host_key.ssh_type} host key is #{bits}-bit (weak, minimum #{check[:min_bits]}-bit per #{check[:standard]})")
+      deprecated << { name: "#{host_key.ssh_type} (#{bits}-bit)", refs: check[:refs] }
+      table << ['encryption.host_key', "#{host_key.ssh_type} (#{bits}-bit)", "Weak key size (min #{check[:min_bits]}-bit)"]
+    end
+
+    report_weak_algo_vuln('SSH Weak Host Key Size', 'Host Key Size', deprecated)
+    table
+  end
+
   def check_host_key(server_data)
     table = []
     deprecated = []
@@ -296,15 +331,13 @@ class MetasploitModule < Msf::Auxiliary
 
       table.rows.concat check_host_key(server_data)
 
+      table.rows.concat check_host_key_size(host_keys)
+
       table.rows.concat check_hmac(server_data)
 
       table.rows.concat check_encryption(server_data)
 
       table.rows.concat recog_data
-
-      # XXX check for host key size?
-      # h00die - not sure how to get that info from the library.
-      # https://www.tenable.com/plugins/nessus/153954
 
       print_status("#{target_host} - #{table}")
 
