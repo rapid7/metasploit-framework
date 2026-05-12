@@ -628,6 +628,14 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/linux/http/mipsle'
   end
 
+  context 'cmd/linux/http/multi' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/multi'
+                          ],
+                          reference_name: 'cmd/linux/http/multi'
+  end
+
   context 'cmd/linux/https/mipsle' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -5957,6 +5965,15 @@ RSpec.describe 'modules/payloads', :content do
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsle/meterpreter_reverse_tcp'
+  end
+
+  context 'linux/multi/meterpreter_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/multi/meterpreter_reverse_tcp'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/multi/meterpreter_reverse_tcp'
   end
 
   context 'linux/x64/meterpreter/bind_tcp' do

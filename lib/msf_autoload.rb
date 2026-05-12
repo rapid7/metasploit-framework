@@ -39,6 +39,8 @@ class MsfAutoload
         'MYSQL'
       elsif basename == 'ssh' && abspath.end_with?("#{__dir__}/rex/proto/ssh")
         'Ssh'
+      elsif basename == 'ftp' && abspath.end_with?("#{__dir__}/rex/proto/ftp")
+        'Ftp'
       elsif basename == 'http' && abspath.end_with?("#{__dir__}/rex/proto/http")
         'Http'
       elsif basename == 'rftransceiver' && abspath.end_with?("#{__dir__}/rex/post/hwbridge/ui/console/command_dispatcher/rftransceiver.rb")
@@ -136,6 +138,7 @@ class MsfAutoload
       'mssql' => 'MSSQL',
       'pdf' => 'PDF',
       'fileformat' => 'FILEFORMAT',
+      'ftp' => 'FTP',
       'http' => 'HTTP',
       'html' => 'HTML',
       'pdf_parse' => 'PDF_Parse',
