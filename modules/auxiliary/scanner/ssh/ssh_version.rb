@@ -232,7 +232,7 @@ class MetasploitModule < Msf::Auxiliary
       server_data = transport.algorithms.instance_variable_get(:@server_data)
       host_keys = transport.algorithms.session.instance_variable_get(:@host_keys).instance_variable_get(:@host_keys)
       host_keys.each do |host_key|
-        fingerprint = Base64.strict_encode64(host_key.to_blob)
+        fingerprint = 'SHA256:' + Base64.strict_encode64(OpenSSL::Digest::SHA256.digest(host_key.to_blob)).chomp('=')
         print_status("#{target_host} - Key Fingerprint: #{host_key.ssh_type} #{fingerprint}")
         report_note(
           host: target_host,
