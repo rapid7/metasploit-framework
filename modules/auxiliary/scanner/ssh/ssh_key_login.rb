@@ -8,6 +8,7 @@
 require 'net/ssh'
 require 'sshkey'
 require 'net/ssh/pubkey_verifier'
+require 'tempfile'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
@@ -67,8 +68,6 @@ class MetasploitModule < Msf::Auxiliary
       'PASSWORD', 'PASS_FILE', 'BLANK_PASSWORDS', 'USER_AS_PASS', 'USERPASS_FILE', 'DB_ALL_PASS', 'DB_ALL_CREDS'
     )
 
-    @good_credentials = {}
-    @good_key = ''
     @strip_passwords = true
   end
 
@@ -88,39 +87,46 @@ class MetasploitModule < Msf::Auxiliary
     datastore['RHOST']
   end
 
-  def read_keyfile(file)
-    if file == :keyfile_b64
-      keyfile = datastore['SSH_KEYFILE_B64'].unpack('m*').first
-    elsif file.is_a? Array
-      keyfile = ''
-      file.each do |dir_entry|
-        next unless ::File.readable? dir_entry
-
-        keyfile << ::File.open(dir_entry, 'rb') { |f| f.read(f.stat.size) }
-      end
-    else
-      keyfile = ::File.open(file, 'rb') { |f| f.read(f.stat.size) }
-    end
+  def extract_raw_keys(content)
     keys = []
     this_key = []
     in_key = false
-    keyfile.split("\n").each do |line|
-      if /(?<key>ssh-(?:dss|rsa)\s+.*)/ =~ line
+    content.split("\n").each do |line|
+      if /(?<key>(?:ssh-|ecdsa-)\S+\s+\S+.*)/ =~ line
         keys << key
         next
       end
-      in_key = true if (line =~ /^-----BEGIN [RD]SA (PRIVATE|PUBLIC) KEY-----/)
+      in_key = true if line =~ /^-----BEGIN (?:[RD]SA|EC|OPENSSH) (?:PRIVATE|PUBLIC) KEY-----/
       this_key << line if in_key
-      next unless (line =~ /^-----END [RD]SA (PRIVATE|PUBLIC) KEY-----/)
+      next unless line =~ /^-----END (?:[RD]SA|EC|OPENSSH) (?:PRIVATE|PUBLIC) KEY-----/
 
       in_key = false
       keys << (this_key.join("\n") + "\n")
       this_key = []
     end
+    keys
+  end
+
+  def read_keyfile(file)
+    if file == :keyfile_b64
+      content = datastore['SSH_KEYFILE_B64'].unpack('m*').first
+      keys = validate_keys(extract_raw_keys(content))
+    elsif file.is_a? Array
+      keys = []
+      file.each do |dir_entry|
+        next unless ::File.readable? dir_entry
+
+        content = ::File.open(dir_entry, 'rb') { |f| f.read(f.stat.size) }
+        keys.concat(validate_keys(extract_raw_keys(content)))
+      end
+    else
+      content = ::File.open(file, 'rb') { |f| f.read(f.stat.size) }
+      keys = validate_keys(extract_raw_keys(content))
+    end
     if keys.empty?
       print_error "#{ip}:#{rport} SSH - No valid keys found"
     end
-    return validate_keys(keys)
+    keys
   end
 
   # Validates that the key isn't total garbage, and converts PEM formatted
@@ -128,9 +134,24 @@ class MetasploitModule < Msf::Auxiliary
   def validate_keys(keys)
     keepers = []
     keys.each do |key|
-      if key =~ /ssh-(dss|rsa)/
-        # A public key has been provided
+      if key =~ /(?:ssh-|ecdsa-)\S+/
         keepers << { public: key, private: '' }
+      elsif key =~ /-----BEGIN (?:OPENSSH|EC) PRIVATE KEY-----/
+        ssh_key = Tempfile.open('msf_ssh_key') do |f|
+          f.write(key)
+          f.flush
+
+          begin
+            Net::SSH::KeyFactory.load_private_key(f.path)
+          rescue StandardError
+            nil
+          end
+        end
+
+        if ssh_key
+          public_key = "#{ssh_key.ssh_type} #{[ssh_key.to_blob].pack('m0')}"
+          keepers << { public: public_key, private: key }
+        end
       else
         # Use the mighty SSHKey library from James Miller to convert them on the fly.
         # This is where a PRIVATE key has been provided
@@ -145,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
     if keepers.empty?
       print_error "#{ip}:#{rport} SSH - No valid keys found"
     end
-    return keepers.uniq
+    keepers.uniq
   end
 
   def pull_cleartext_keys(keys)
@@ -327,14 +348,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def store_public_keyfile(ip, user, key_id, key_data)
     safe_username = user.gsub(/[^A-Za-z0-9]/, '_')
-    ktype = begin
-      key_data.match(/ssh-(rsa|dss)/)[1]
-    rescue StandardError
-      nil
-    end
+    ktype = case key_data
+            when /ssh-rsa/ then 'rsa'
+            when /ssh-dss/ then 'dsa'
+            when /ssh-ed25519/ then 'ed25519'
+            when /ecdsa-sha2-(\S+)/ then ::Regexp.last_match(1)
+            end
     return unless ktype
 
-    ktype = 'dsa' if ktype == 'dss'
     ltype = "host.unix.ssh.#{user}_#{ktype}_public"
     keyfile = existing_loot(ltype, key_id)
     return keyfile.path if keyfile
@@ -353,7 +374,8 @@ class MetasploitModule < Msf::Auxiliary
   def store_private_keyfile(ip, user, key_id, key_data)
     safe_username = user.gsub(/[^A-Za-z0-9]/, '_')
     ktype = begin
-      key_data.match(/-----BEGIN ([RD]SA) (?:PRIVATE|PUBLIC) KEY-----/)[1].downcase
+      key = Net::SSH::KeyFactory.load_data_private_key(key_data, nil, false)
+      key.ssh_type.delete_prefix('ssh-').sub(/\Aecdsa-sha2-\S+/, 'ecdsa')
     rescue StandardError
       nil
     end
