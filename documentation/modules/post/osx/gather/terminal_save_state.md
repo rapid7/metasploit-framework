@@ -17,7 +17,7 @@ Tested against macOS 11.7.11.
 4. Do: `use post/osx/gather/terminal_save_state`
 5. Do: `set session [#]`
 6. Do: `run`
-7. You should decrypted terminal sessions
+7. You should get decrypted terminal sessions
 
 ## Options
 
