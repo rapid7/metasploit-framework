@@ -152,7 +152,7 @@ class MetasploitModule < Msf::Post
         'Name' => 'macOS Terminal/iTerm2 Saved State Recovery',
         'Description' => %q{
           This module enumerates the saved state files for the Terminal and iTerm2
-          applications on macOS 10.7–12 (Lion through Monterey).
+          applications on macOS 10.7-12 (Lion through Monterey).
           These files are encrypted with AES-128-CBC, but
           the key is stored in plaintext in the accompanying windows.plist file.
           The decrypted files contain a copy of what was sent to and from the
