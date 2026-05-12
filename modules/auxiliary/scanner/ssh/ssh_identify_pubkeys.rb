@@ -372,6 +372,20 @@ class MetasploitModule < Msf::Auxiliary
     return keyfile_path
   end
 
+  def run
+    unless key_file || datastore['KEY_DIR'] || !datastore['SSH_KEYFILE_B64'].to_s.empty?
+      print_error('Please set KEY_FILE or KEY_DIR (or SSH_KEYFILE_B64)')
+      return
+    end
+
+    if datastore['USERNAME'].to_s.empty? && datastore['USER_FILE'].to_s.empty? && !datastore['DB_ALL_USERS']
+      print_error('Please set USERNAME or USER_FILE')
+      return
+    end
+
+    super
+  end
+
   def run_host(ip)
     # Since SSH collects keys and tries them all on one authentication session,
     # it doesn't make sense to iteratively go through all the keys
