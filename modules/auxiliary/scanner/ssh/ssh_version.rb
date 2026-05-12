@@ -50,6 +50,7 @@ class MetasploitModule < Msf::Auxiliary
   def perform_recog(ident)
     table = []
     recog_info = []
+
     if /^SSH-\d+\.\d+-(.*)$/ =~ ident
       recog_match = Recog::Nizer.match('ssh.banner', ::Regexp.last_match(1))
       if recog_match
@@ -70,8 +71,24 @@ class MetasploitModule < Msf::Auxiliary
     table
   end
 
+  def report_weak_algo_vuln(vuln_name, algo_label, deprecated)
+    return if deprecated.empty?
+
+    report_vuln(
+      host: target_host,
+      port: rport,
+      proto: 'tcp',
+      sname: 'ssh',
+      name: vuln_name,
+      info: "Module #{fullname} confirmed deprecated SSH #{algo_label} algorithms: #{deprecated.map { |d| d[:name] }.join(', ')}",
+      refs: deprecated.flat_map { |d| d[:refs] }.uniq,
+      check_code: Msf::Exploit::CheckCode.Appears("Deprecated SSH #{algo_label} algorithms detected")
+    )
+  end
+
   def check_host_key(server_data)
     table = []
+    deprecated = []
 
     host_key_checks = {
       %w[
@@ -79,32 +96,27 @@ class MetasploitModule < Msf::Auxiliary
         ecdsa-sha2-nistp256
       ] => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#host-keys']
     }
+
     server_data[:host_key].each do |host_key|
       note = ''
       host_key_checks.each do |host_key_check, refs|
         host_key_check.each do |bad_key|
           next unless host_key.downcase == bad_key
 
-          vprint_good("#{target_host} - Host Key Encryption #{host_key} uses a weak elliptic curve and should not be used.")
-          report_vuln(
-            host: target_host,
-            port: rport,
-            proto: 'tcp',
-            name: 'SSH Weak Host Key Algorithm',
-            info: "Module #{fullname} confirmed SSH Host Key Encryption #{host_key} is available, but should be deprecated",
-            refs: refs,
-            check_code: Msf::Exploit::CheckCode.Appears("SSH Host Key Encryption #{host_key} is available, but should be deprecated")
-          )
-          note = 'Weak elliptic curve'
-        end
+        vprint_good("#{target_host} - Host Key #{host_key} is deprecated and should not be used")
+        deprecated << { name: host_key, refs: data[:refs] }
+        note = data[:note].presence || 'Deprecated'
       end
       table << ['encryption.host_key', host_key, note]
     end
+
+    report_weak_algo_vuln('SSH Weak Host Key Algorithm', 'Host Key', deprecated)
     table
   end
 
   def check_encryption(server_data)
     table = []
+    deprecated = []
 
     encryption_checks = {
       'arcfour' => ['https://datatracker.ietf.org/doc/html/rfc8758#name-iana-considerations'],
@@ -132,25 +144,21 @@ class MetasploitModule < Msf::Auxiliary
       encryption_checks.each do |bad_enc, refs|
         next unless encryption.downcase == bad_enc
 
-        vprint_good("#{target_host} - Encryption #{encryption} is deprecated and should not be used.")
-        report_vuln(
-          host: target_host,
-          port: rport,
-          proto: 'tcp',
-          name: 'SSH Weak Encryption Cipher',
-          info: "Module #{fullname} confirmed SSH Encryption #{encryption} is available, but should be deprecated",
-          refs: refs,
-          check_code: Msf::Exploit::CheckCode.Appears("SSH Encryption #{encryption} is available, but should be deprecated")
-        )
-        note = 'Deprecated'
+        vprint_good("#{target_host} - Encryption #{encryption} is deprecated and should not be used")
+        deprecated << { name: encryption, refs: data[:refs] }
+        note = data[:note].presence || 'Deprecated'
       end
       table << ['encryption.encryption', encryption, note]
     end
+
+    report_weak_algo_vuln('SSH Weak Encryption Cipher', 'Encryption', deprecated)
     table
   end
 
   def check_kex(server_data)
     table = []
+    deprecated = []
+
     kex_checks = {
       'gss-group1-sha1-*' => ['https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'],
       'gss-group14-sha1-gss-gex-sha1-*' => ['https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'],
@@ -162,6 +170,7 @@ class MetasploitModule < Msf::Auxiliary
       'diffie-hellman-group1-sha1' => ['https://datatracker.ietf.org/doc/html/draft-ietf-curdle-ssh-kex-sha2-20#page-16'],
       'rsa1024-sha1' => ['https://datatracker.ietf.org/doc/html/draft-ietf-curdle-ssh-kex-sha2-20#page-16']
     }
+
     server_data[:kex].each do |kex|
       note = ''
       kex_checks.each do |bad_kex, refs|
@@ -171,25 +180,20 @@ class MetasploitModule < Msf::Auxiliary
           next unless kex.downcase == bad_kex
         end
 
-        vprint_good("#{target_host} - Key Exchange (kex) #{kex} is deprecated and should not be used.")
-        report_vuln(
-          host: target_host,
-          port: rport,
-          proto: 'tcp',
-          name: 'SSH Weak Key Exchange Algorithm',
-          info: "Module #{fullname} confirmed SSH Key Exchange #{kex} is available, but should be deprecated",
-          refs: refs,
-          check_code: Msf::Exploit::CheckCode.Appears("SSH Key Exchange #{kex} is available, but should be deprecated")
-        )
-        note = 'Deprecated'
+        vprint_good("#{target_host} - Key Exchange (kex) #{kex} is deprecated and should not be used")
+        deprecated << { name: kex, refs: data[:refs] }
+        note = data[:note].presence || 'Deprecated'
       end
       table << ['encryption.key_exchange', kex, note]
     end
+
+    report_weak_algo_vuln('SSH Weak Key Exchange Algorithm', 'Key Exchange', deprecated)
     table
   end
 
   def check_hmac(server_data)
     table = []
+    deprecated = []
 
     hmac_checks = {
       'hmac-sha2-512-96' => ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#message-authentication-code-algorithms'],
@@ -206,20 +210,14 @@ class MetasploitModule < Msf::Auxiliary
       hmac_checks.each do |bad_hmac, refs|
         next unless hmac.downcase == bad_hmac
 
-        vprint_good("#{target_host} - HMAC #{hmac} is deprecated and should not be used.")
-        report_vuln(
-          host: target_host,
-          port: rport,
-          proto: 'tcp',
-          name: 'SSH Weak HMAC Algorithm',
-          info: "Module #{fullname} confirmed SSH HMAC #{hmac} is available, but should be deprecated",
-          refs: refs,
-          check_code: Msf::Exploit::CheckCode.Appears("SSH HMAC #{hmac} is available, but should be deprecated")
-        )
-        note = 'Deprecated'
+        vprint_good("#{target_host} - HMAC #{hmac} is deprecated and should not be used")
+        deprecated << { name: hmac, refs: data[:refs] }
+        note = data[:note].presence || 'Deprecated'
       end
       table << ['encryption.hmac', hmac, note]
     end
+
+    report_weak_algo_vuln('SSH Weak HMAC Algorithm', 'HMAC', deprecated)
     table
   end
 
