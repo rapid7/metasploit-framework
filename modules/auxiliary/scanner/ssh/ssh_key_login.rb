@@ -295,6 +295,7 @@ class MetasploitModule < Msf::Auxiliary
 
     testable_keys = @testable_keys
 
+    any_accepted = false
     testable_keys.each_with_index do |key_data, key_idx|
       key_info = ''
       if key_data[:public] =~ /ssh-(rsa|dss)\s+([^\s]+)\s+(.*)/
@@ -350,14 +351,16 @@ class MetasploitModule < Msf::Auxiliary
         return :connection_disconnect
       rescue Net::SSH::AuthenticationFailed
         nil
-      rescue Net::SSH::Exception
-        return [:fail, nil] # For whatever reason.
+      rescue Net::SSH::Exception => e
+        key_label = key_data[:source] || "key #{key_idx + 1}"
+        print_brute level: :verror, msg: "#{ip}:#{rport} - #{key_label} raised SSH exception: #{e.message}"
+        next
       end
 
       unless success
         key_label = key_data[:source] || "key #{key_idx + 1}"
         print_brute level: :verror, msg: "User #{user} does not accept #{key_label} #{key_info}"
-        return [:fail, nil]
+        next
       end
 
       key = verifier.key
@@ -365,6 +368,7 @@ class MetasploitModule < Msf::Auxiliary
       user = verifier.user
       private_key_present = (key_data[:private] != '') ? 'Yes' : 'No'
 
+      any_accepted = true
       print_brute level: :good, msg: "Public key accepted: '#{user}' with key '#{key_fingerprint}' (Private Key: #{private_key_present}) #{key_info}"
 
       key_hash = {
@@ -374,6 +378,7 @@ class MetasploitModule < Msf::Auxiliary
       }
       do_report(ip, rport, user, key_hash)
     end
+    return [:fail, nil] unless any_accepted
   end
 
   def do_report(ip, port, user, key)
