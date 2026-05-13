@@ -116,7 +116,11 @@ private
       c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_PASS, opts[:proxy_pass]) unless (opts[:proxy_pass] || '').empty?
 
       c2_tlv.add_tlv(MET::TLV_TYPE_C2_CERT_HASH, opts[:ssl_cert_hash]) unless (opts[:ssl_cert_hash] || '').empty?
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_HEADER, opts[:custom_headers]) unless (opts[:custom_headers] || '').empty?
+      c2_tlv.add_tlv(MET::TLV_TYPE_C2_HEADERS, opts[:custom_headers]) unless (opts[:custom_headers] || '').empty?
+
+      # Per-transport UUID for C2 profile placement (uuid_get/header/cookie).
+      # Payloads fall back to URL-path extraction when this TLV is absent.
+      c2_tlv.add_tlv(MET::TLV_TYPE_C2_UUID, @opts[:uuid].to_s) if @opts[:uuid]
     end
 
     tlv.tlvs << c2_tlv
