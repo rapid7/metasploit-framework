@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
       ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
         transport = Net::SSH::Transport::Session.new(ip, opt_hash)
       end
-      vprint_status("#{ip}:#{rport} - Banner: #{transport.server_version.version.to_s.strip}")
+      print_status("#{ip}:#{rport} - SSH banner: #{transport.server_version.version.to_s.strip}")
 
       server_data = transport.algorithms.instance_variable_get(:@server_data)
       @server_supported_key_types = server_data[:host_key]
@@ -297,10 +297,7 @@ class MetasploitModule < Msf::Auxiliary
 
     any_accepted = false
     testable_keys.each_with_index do |key_data, key_idx|
-      key_info = ''
-      if key_data[:public] =~ /ssh-(rsa|dss)\s+([^\s]+)\s+(.*)/
-        key_info = "- #{::Regexp.last_match(3).strip}"
-      end
+      key_label = key_data[:source] || "key #{key_idx + 1}"
 
       factory = ssh_socket_factory
 
@@ -362,23 +359,23 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       unless success
-        key_label = key_data[:source] || "key #{key_idx + 1}"
-        print_brute level: :verror, msg: "User #{user} does not accept #{key_label} #{key_info}"
+        print_brute level: :verror, msg: "#{ip}:#{rport} - [#{key_idx + 1}/#{testable_keys.size}] #{key_label}: not accepted for #{user}"
         next
       end
 
       key = verifier.key
       key_fingerprint = key.fingerprint('SHA256')
       user = verifier.user
-      private_key_present = (key_data[:private] != '') ? 'Yes' : 'No'
+      private_key_present = key_data[:private] != ''
 
       any_accepted = true
-      print_brute level: :good, msg: "Public key accepted: '#{user}' with key '#{key_fingerprint}' (Private Key: #{private_key_present}) #{key_info}"
+      key_label = key_data[:source] || "key #{key_idx + 1}"
+      print_good "#{ip}:#{rport} - [#{key_idx + 1}/#{testable_keys.size}] #{key_label}: accepted for #{user} (#{key_fingerprint}) - Private Key: #{private_key_present ? 'Yes' : 'No'}"
 
       key_hash = {
         data: key_data,
         key: key,
-        info: key_info
+        private_key_present: private_key_present
       }
       do_report(ip, rport, user, key_hash)
     end
@@ -513,17 +510,17 @@ class MetasploitModule < Msf::Auxiliary
       ret, = do_login(ip, rport, user)
       case ret
       when :connection_error
-        vprint_error "#{ip}:#{rport} SSH - Could not connect"
+        vprint_error "#{ip}:#{rport} - Could not connect"
         :abort
       when :connection_disconnect
-        vprint_error "#{ip}:#{rport} SSH - Connection timed out"
+        vprint_error "#{ip}:#{rport} - Disconnected by server"
         :abort
       when :fail
-        vprint_error "#{ip}:#{rport} SSH - Failed: '#{user}'"
+        vprint_error "#{ip}:#{rport} - Failed: '#{user}'"
       when :missing_keyfile
-        vprint_error "#{ip}:#{rport} SSH - Cannot read keyfile"
+        vprint_error "#{ip}:#{rport} - Cannot read keyfile"
       when :no_valid_keys
-        vprint_error "#{ip}:#{rport} SSH - No readable keys in keyfile"
+        vprint_error "#{ip}:#{rport} - No readable keys in keyfile"
       end
     end
   end
