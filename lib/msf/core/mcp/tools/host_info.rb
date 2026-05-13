@@ -121,12 +121,20 @@ module Msf::MCP
           # Note that `workspace` is optional in the MSF API, the default workspace is used if not provided.
           # The default value is sent anyway for clarity.
           options = { workspace: workspace }
-          options[:addresses] = addresses if addresses
+          # Only pass addresses to the API for exact IP matches; CIDR ranges are filtered in Ruby below
+          # because the underlying db_hosts API does exact string matching and cannot handle CIDR notation.
+          options[:addresses] = addresses if addresses && !addresses.include?('/')
           options[:only_up] = only_up if only_up
           raw_hosts = msf_client.db_hosts(options)
 
           # Transform response
           transformed = Metasploit::ResponseTransformer.transform_hosts(raw_hosts)
+
+          # Apply CIDR filtering in Ruby if a network range was provided
+          if addresses&.include?('/')
+            cidr = IPAddr.new(addresses)
+            transformed = transformed.select { |host| cidr.include?(host[:address]) }
+          end
 
           # Apply pagination
           #
