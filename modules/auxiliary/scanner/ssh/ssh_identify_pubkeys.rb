@@ -47,17 +47,17 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(22),
-        OptPath.new('KEY_FILE', [true, 'Filename of one or several cleartext public keys.'])
+        OptPath.new('KEY_FILE', [false, 'File containing one or more SSH public or unencrypted private keys']),
+        OptPath.new('KEY_DIR', [false, 'Directory of SSH public or unencrypted private key files (dot-prefixed filenames are ignored)'])
       ]
     )
 
     register_advanced_options(
       [
+        OptString.new('SSH_KEYFILE_B64', [false, 'Base64-encoded SSH public or unencrypted private key data (intended for programmatic use only)', '']),
+        OptBool.new('SSH_BYPASS', [ false, 'When a key is accepted, test whether the server allows command execution without completing authentication', false]),
         OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
-        OptBool.new('SSH_BYPASS', [ false, 'Verify that authentication was not bypassed when keys are found', false]),
-        OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
-        OptPath.new('KEY_DIR', [false, 'Directory of several keys. Filenames must not begin with a dot in order to be read.']),
-        OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
+        OptInt.new('SSH_TIMEOUT', [ false, 'Maximum time in seconds to negotiate an SSH session', 30])
       ]
     )
 
