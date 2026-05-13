@@ -366,7 +366,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       key = verifier.key
-      key_fingerprint = key.fingerprint
+      key_fingerprint = key.fingerprint('SHA256')
       user = verifier.user
       private_key_present = (key_data[:private] != '') ? 'Yes' : 'No'
 
@@ -386,7 +386,7 @@ class MetasploitModule < Msf::Auxiliary
   def do_report(ip, port, user, key)
     return unless framework.db.active
 
-    key_fingerprint = key[:key].fingerprint
+    key_fingerprint = key[:key].fingerprint('SHA256')
     store_public_keyfile(ip, user, key_fingerprint, key[:data][:public])
     private_key_present = (key[:data][:private] != '') ? 'Yes' : 'No'
 
