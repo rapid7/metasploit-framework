@@ -14,6 +14,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::SSH
+  include Msf::Exploit::Deprecated
+  moved_from 'auxiliary/scanner/ssh/ssh_identify_pubkeys'
 
   def initialize
     super(
