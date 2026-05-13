@@ -337,7 +337,11 @@ class MetasploitModule < Msf::Auxiliary
             nil
           end
 
-          print_brute(level: :good, msg: "User #{user} successfully bypassed authentication: #{data.inspect} ") if data
+          if data
+            print_brute(level: :good, msg: "User #{user} successfully bypassed authentication: #{data.inspect} ")
+          else
+            vprint_status("#{ip}:#{rport} - Bypass attempted for #{user} - no response, bypass not confirmed")
+          end
         end
 
         begin
