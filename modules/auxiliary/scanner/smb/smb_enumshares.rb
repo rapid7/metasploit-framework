@@ -306,7 +306,8 @@ class MetasploitModule < Msf::Auxiliary
         if rport == SMB1_PORT
           # force library in smb1 mode otherwise simple.client is a
           # `Rex::Proto::SMB::Client` that does not supply `net_share_enum_all`
-          connect(versions: [1], backend: :ruby_smb)
+          # direct: false ensures NetBIOS session setup on port 139
+          connect(versions: [1], backend: :ruby_smb, direct: false)
         else
           connect(versions: [1, 2, 3])
         end
@@ -342,23 +343,38 @@ class MetasploitModule < Msf::Auxiliary
     shares = []
 
     begin
-      # Return all shares if `Shares` option has not been set
+      all_shares = simple.client.net_share_enum_all(ip)
+    rescue RubySMB::Error::UnexpectedStatusCode, RubySMB::Error::InvalidPacket => e
+      vprint_status("SRVSVC failed (#{e}), falling back to RAP")
+      all_shares = nil
+    end
+
+    if all_shares.nil?
+      begin
+        tree = simple.client.tree_connect("\\\\#{ip}\\IPC$")
+        begin
+          all_shares = tree.net_share_enum
+        ensure
+          begin
+            tree.disconnect!
+          rescue StandardError # rubocop:disable Lint/SuppressedException
+          end
+        end
+      rescue StandardError => e
+        print_error("RAP share enumeration also failed - #{e}")
+        return []
+      end
+    end
+
+    begin
       if datastore['Share'].nil?
-        shares = simple.client.net_share_enum_all(ip)
+        shares = all_shares
       else
-        # Return specific share if the `Share` option has been set
-        simple.client.net_share_enum_all(ip).each { |share| shares = [share] if share[:name] == datastore['Share'] }
-        # Return an error if `Share` option has been set but no matches were found
+        all_shares.each { |share| shares = [share] if share[:name] == datastore['Share'] }
         if shares.empty?
           print_error("No shares match #{datastore['Share']}")
         end
       end
-    rescue RubySMB::Error::UnexpectedStatusCode => e
-      print_error("Error when trying to enumerate shares - #{e.status_code.name}")
-      return
-    rescue RubySMB::Error::InvalidPacket => e
-      print_error("Invalid packet received when trying to enumerate shares - #{e}")
-      return
     end
 
     os_info = get_os_info(ip)

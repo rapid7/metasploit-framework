@@ -445,7 +445,7 @@ GEM
     pry-byebug (3.11.0)
       byebug (~> 12.0)
       pry (>= 0.13, < 0.16)
-    psych (5.2.6)
+    psych (5.3.1)
       date
       stringio
     public_suffix (6.0.2)
