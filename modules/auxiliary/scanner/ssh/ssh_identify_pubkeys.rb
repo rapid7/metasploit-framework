@@ -86,6 +86,27 @@ class MetasploitModule < Msf::Auxiliary
     datastore['RHOST']
   end
 
+  def report_ssh_service(ip, port)
+    return if @reported_service
+    return unless @server_banner
+
+    report_service(
+      host: ip,
+      port: port,
+      proto: 'tcp',
+      name: 'ssh',
+      info: @server_banner,
+      parents: {
+        host: ip,
+        port: port,
+        proto: 'tcp',
+        name: 'tcp'
+      }
+    )
+
+    @reported_service = true
+  end
+
   def probe_server_capabilities(ip, port)
     return @server_supported_key_types if @server_supported_key_types
 
@@ -105,7 +126,8 @@ class MetasploitModule < Msf::Auxiliary
       ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
         transport = Net::SSH::Transport::Session.new(ip, opt_hash)
       end
-      print_status("#{ip}:#{rport} - SSH banner: #{transport.server_version.version.to_s.strip}")
+      @server_banner = transport.server_version.version.to_s.strip
+      print_status("#{ip}:#{rport} - SSH banner: #{@server_banner}")
 
       server_data = transport.algorithms.instance_variable_get(:@server_data)
       @server_supported_key_types = server_data[:host_key]
@@ -275,6 +297,8 @@ class MetasploitModule < Msf::Auxiliary
         supported_key_types = probe_server_capabilities(ip, port)
         return :connection_error unless supported_key_types
 
+        report_ssh_service(ip, port)
+
         testable = cleartext_keys.select do |key_data|
           key_type = key_type_from_public(key_data[:public])
           key_type.nil? || supported_key_types.include?(key_type)
@@ -339,6 +363,9 @@ class MetasploitModule < Msf::Auxiliary
           end
         end
 
+        @server_banner ||= verifier.connection&.transport&.server_version&.version.to_s.strip
+        report_ssh_service(ip, port)
+
         begin
           ::Timeout.timeout(1) { ssh_socket.close if ssh_socket }
         rescue StandardError
@@ -385,14 +412,13 @@ class MetasploitModule < Msf::Auxiliary
 
     key_fingerprint = key[:key].fingerprint('SHA256')
     store_public_keyfile(ip, user, key_fingerprint, key[:data][:public])
-    private_key_present = (key[:data][:private] != '') ? 'Yes' : 'No'
+    private_key_present = key[:private_key_present]
 
     # Store a note relating to the public key test
     note_information = {
       user: user,
       public_key: key[:data][:public],
-      private_key: private_key_present,
-      info: key[:info]
+      private_key: private_key_present
     }
     report_note(host: ip, port: port, type: 'ssh.publickey.accepted', data: note_information, update: :unique_data)
 
@@ -500,6 +526,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    @reported_service = false
     # Since SSH collects keys and tries them all on one authentication session,
     # it doesn't make sense to iteratively go through all the keys
     # individually. So, ignore the pass variable, and try all available keys
