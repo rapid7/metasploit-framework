@@ -41,6 +41,8 @@ class MsfAutoload
         'Ssh'
       elsif basename == 'ftp' && abspath.end_with?("#{__dir__}/rex/proto/ftp")
         'Ftp'
+      elsif basename == 'ftp' && abspath.end_with?("#{__dir__}/msf/core/exploit/remote/ftp.rb")
+        'Ftp'
       elsif basename == 'http' && abspath.end_with?("#{__dir__}/rex/proto/http")
         'Http'
       elsif basename == 'rftransceiver' && abspath.end_with?("#{__dir__}/rex/post/hwbridge/ui/console/command_dispatcher/rftransceiver.rb")
