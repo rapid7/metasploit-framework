@@ -6096,7 +6096,7 @@ RSpec.describe 'modules/payloads', :content do
   end
 
   context 'linux/multi/meterpreter_reverse_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
+    it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
                             'singles/linux/multi/meterpreter_reverse_tcp'
                           ],
