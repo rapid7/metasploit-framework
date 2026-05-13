@@ -138,6 +138,7 @@ TLV_TYPE_C2_UUID_COOKIE        = TLV_META_TYPE_STRING | 723 # Name of the cookie
 TLV_TYPE_C2_UUID_GET           = TLV_META_TYPE_STRING | 724 # Name of the GET parameter to put the UUID in
 TLV_TYPE_C2_UUID_HEADER        = TLV_META_TYPE_STRING | 725 # Name of the header to put the UUID in
 TLV_TYPE_C2_UUID               = TLV_META_TYPE_STRING | 726 # string representation of the UUID for C2s
+TLV_TYPE_SESSION_FLAGS         = TLV_META_TYPE_UINT   | 727 # session-level config flags (e.g. FLAG_STAGELESS, FLAG_DEBUG)
 
 #
 # C2 Encoding flags

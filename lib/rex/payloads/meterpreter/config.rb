@@ -67,6 +67,10 @@ private
     if opts[:debug_build] && opts[:log_path]
       tlv.add_tlv(MET::TLV_TYPE_DEBUG_LOG, opts[:log_path])
     end
+
+    if opts[:flags] && opts[:flags] != 0
+      tlv.add_tlv(MET::TLV_TYPE_SESSION_FLAGS, opts[:flags])
+    end
   end
 
   def add_c2_tlv(tlv, opts)
