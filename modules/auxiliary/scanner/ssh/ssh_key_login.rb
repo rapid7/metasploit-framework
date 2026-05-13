@@ -15,34 +15,45 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::SSH
+  include Msf::Exploit::Deprecated
+  moved_from 'auxiliary/scanner/ssh/ssh_identify_pubkeys'
 
   def initialize
     super(
-      'Name' => 'SSH Public Key Acceptance Scanner',
+      'Name' => 'SSH Authorized Key Login Check Scanner',
       'Description' => %q{
         This module can determine what public keys are configured for
         key-based authentication across a range of machines, users, and
         sets of known keys. The SSH protocol indicates whether a particular
         key is accepted prior to the client performing the actual signed
-        authentication request. To use this module, a text file containing
-        one or more SSH keys should be provided. These can be private or
-        public, so long as no passphrase is set on the private keys.
+        authentication request. To use this module, one or more SSH keys
+        should be provided via KEY_FILE, KEY_DIR, or SSH_KEYFILE_B64. Keys
+        can be private or public, so long as no passphrase is set on the
+        private keys.
 
         If you have loaded a database plugin and connected to a database
         this module will record authorized public keys and hosts so you can
-        track your process.
+        track your progress.
 
         Key files may be a single public (unencrypted) key, or several public
-        keys concatenated together as an ASCII text file. Non-key data should be
+        keys concatenated together as an ASCII text file. Non-key data will be
         silently ignored. Private keys will only utilize the public key component
-        stored within the key file.
+        stored within the key file. The module will probe the server banner to
+        skip key types the server does not support, such as Ed25519 on older
+        OpenSSH versions.
       },
       'Author' => [
         'todb',
         'hdm',
         'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>', # Reworked the storage (db, credentials, notes, loot) only
+        'g0tmi1k' # @g0tmi1k - additional features
       ],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'Reliability' => [],
+        'SideEffects' => [IOC_IN_LOGS]
+      }
     )
 
     register_options(
