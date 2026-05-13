@@ -2,7 +2,6 @@ module Msf
   # This mixin supports only HTTP fetch handlers.
   module Payload::Adapter::Fetch::Server::HTTP
 
-    include Payload::Adapter::Fetch::Multi
     def initialize(*args)
       super
       register_advanced_options(
@@ -84,7 +83,7 @@ module Msf
           return nil
         end
         vprint_status arch_param.to_s
-        arch = to_meterp_arch(arch_param)
+        arch = Rex::Arch.from_uname(arch_param)
         if arch.nil?
           print_error("Failed to identify the architecture in Query String #{request.uri_parts['QueryString']['arch'].to_s}")
           return nil
