@@ -13,7 +13,6 @@ module Msf
         vprint_status("Adding #{srv_entry[:uri]} for #{srv_entry[:arch]}")
         datastore['FETCH_FILENAME'] = srv_entry[:uri].dup
         vprint_status(datastore['FETCH_FILENAME'])
-        vprint_status(datastore['FETCH_FILENAME'])
         os_arches(srv_entry[:arch]).each do |os_arch|
           # placing an exit after the conditionals causes 'FETCH_FILELESS to fail'
           if datastore['FETCH_FILELESS'] == 'none'

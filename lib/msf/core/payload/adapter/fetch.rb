@@ -110,6 +110,10 @@ module Msf::Payload::Adapter::Fetch
     if opts[:dynamic_arch].nil?
       opts[:arch] ||= module_info['AdaptedArch']
       if opts[:arch] == ARCH_ANY && module_info['AdaptedPlatform'] == 'linux'
+        multi_supported_fileless = ['none', 'python3.8+']
+        multi_supported_cmd = ['WGET', 'CURL']
+        fail_with(Msf::Module::Failure::BadConfig, 'Selected option for FETCH_FILELESS is not supported on multi arch Meterpreter.') unless multi_supported_fileless.include?(datastore['FETCH_FILELESS'])
+        fail_with(Msf::Module::Failure::BadConfig, 'Selected option for FETCH_COMMAND is not supported on multi arch Meterpreter.') unless multi_supported_cmd.include?(datastore['FETCH_COMMAND'])
         opts[:dynamic_arch] = true
         # placeholder — binary is generated on demand at request time once arch is known
         add_srv_entry(srvuri, 'x', opts)
