@@ -91,23 +91,25 @@ class MetasploitModule < Msf::Auxiliary
   def probe_server_capabilities(ip, port)
     return @server_supported_key_types if @server_supported_key_types
 
-    factory = ssh_socket_factory
-    opt_hash = {
+    opt_hash = ssh_client_defaults.merge(
       port: port,
-      use_agent: false,
-      config: false,
-      proxy: factory,
-      non_interactive: true,
-      verify_host_key: :never,
       timeout: datastore['SSH_TIMEOUT']
-    }
+    )
 
     transport = nil
     begin
       ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
         transport = Net::SSH::Transport::Session.new(ip, opt_hash)
       end
-      print_status("#{ip}:#{rport} - SSH banner: #{transport.server_version.version.to_s.strip}")
+      @server_banner = transport.server_version.version.to_s.strip
+      print_status("#{ip}:#{rport} - SSH banner: #{@server_banner}")
+      report_ssh_host(@server_banner, ip, port)
+      begin
+        report_ssh_hostkeys(transport, ip, port)
+      rescue StandardError
+        nil
+      end
+      @reported_hostkeys = true
 
       server_data = transport.algorithms.instance_variable_get(:@server_data)
       @server_supported_key_types = server_data[:host_key]
@@ -277,6 +279,11 @@ class MetasploitModule < Msf::Auxiliary
         supported_key_types = probe_server_capabilities(ip, port)
         return :connection_error unless supported_key_types
 
+        unless @reported_service
+          report_ssh_service(ip, port, info: @server_banner)
+          @reported_service = true
+        end
+
         testable = cleartext_keys.select do |key_data|
           key_type = key_type_from_public(key_data[:public])
           key_type.nil? || supported_key_types.include?(key_type)
@@ -341,6 +348,22 @@ class MetasploitModule < Msf::Auxiliary
           end
         end
 
+        @server_banner ||= verifier.connection&.transport&.server_version&.version.to_s.strip
+        unless @reported_hostkeys
+          report_ssh_host(@server_banner, ip, port) if @server_banner
+          begin
+            report_ssh_hostkeys(verifier.connection, ip, port) if verifier.connection
+          rescue StandardError
+            nil
+          end
+          @reported_hostkeys = true
+        end
+
+        unless @reported_service
+          report_ssh_service(ip, port, info: @server_banner)
+          @reported_service = true
+        end
+
         begin
           ::Timeout.timeout(1) { ssh_socket.close if ssh_socket }
         rescue StandardError
@@ -387,14 +410,13 @@ class MetasploitModule < Msf::Auxiliary
 
     key_fingerprint = key[:key].fingerprint('SHA256')
     store_public_keyfile(ip, user, key_fingerprint, key[:data][:public])
-    private_key_present = (key[:data][:private] != '') ? 'Yes' : 'No'
+    private_key_present = key[:private_key_present]
 
     # Store a note relating to the public key test
     note_information = {
       user: user,
       public_key: key[:data][:public],
-      private_key: private_key_present,
-      info: key[:info]
+      private_key: private_key_present
     }
     report_note(host: ip, port: port, type: 'ssh.publickey.accepted', data: note_information, update: :unique_data)
 
@@ -505,6 +527,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    @reported_service = false
+    @reported_hostkeys = false
+    @banner = grab_ssh_banner(ip, rport)
     # Since SSH collects keys and tries them all on one authentication session,
     # it doesn't make sense to iteratively go through all the keys
     # individually. So, ignore the pass variable, and try all available keys
@@ -514,9 +539,11 @@ class MetasploitModule < Msf::Auxiliary
       case ret
       when :connection_error
         vprint_error "#{ip}:#{rport} - Could not connect"
+        report_ssh_service(ip, rport, info: @banner) if @banner
         :abort
       when :connection_disconnect
         vprint_error "#{ip}:#{rport} - Disconnected by server"
+        report_ssh_service(ip, rport, info: @banner) if @banner
         :abort
       when :fail
         vprint_error "#{ip}:#{rport} - Failed: '#{user}'"
