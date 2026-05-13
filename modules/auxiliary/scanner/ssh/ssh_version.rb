@@ -160,11 +160,8 @@ class MetasploitModule < Msf::Auxiliary
 
     kex_checks = {
       'gss-group1-sha1-*' => { note: 'SHA-1 weakness', refs: ['https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'] },
-      'gss-group14-sha1-gss-gex-sha1-*' => { note: 'SHA-1 weakness', refs: ['https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'] },
+      'gss-group14-sha1-*' => { note: 'SHA-1 weakness', refs: ['https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'] },
       'gss-gex-sha1-*' => { note: 'SHA-1 weakness', refs: ['https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'] },
-      'ecdsa-sha2-nistp521' => { note: 'Weak elliptic curve', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#key-exchange'] },
-      'ecdsa-sha2-nistp384' => { note: 'Weak elliptic curve', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#key-exchange'] },
-      'ecdsa-sha2-nistp256' => { note: 'Weak elliptic curve', refs: ['https://github.com/net-ssh/net-ssh?tab=readme-ov-file#key-exchange'] },
       'diffie-hellman-group-exchange-sha1' => { note: 'SHA-1 weakness', refs: ['https://datatracker.ietf.org/doc/html/draft-ietf-curdle-ssh-kex-sha2-20#page-16'] },
       'diffie-hellman-group1-sha1' => { note: 'SHA-1 weakness', refs: ['https://datatracker.ietf.org/doc/html/draft-ietf-curdle-ssh-kex-sha2-20#page-16'] },
       'rsa1024-sha1' => { note: 'SHA-1 weakness', refs: ['https://datatracker.ietf.org/doc/html/draft-ietf-curdle-ssh-kex-sha2-20#page-16'] }
