@@ -95,7 +95,7 @@ Gem::Specification.new do |spec|
   # https://github.com/ged/ruby-pg/commit/c90ac644e861857ae75638eb6954b1cb49617090
   spec.add_runtime_dependency 'pg'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
-  spec.add_runtime_dependency 'railties'
+  spec.add_runtime_dependency 'railties', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # required for OS fingerprinting
   spec.add_runtime_dependency 'recog'
   # required for bitlocker fvek extraction
