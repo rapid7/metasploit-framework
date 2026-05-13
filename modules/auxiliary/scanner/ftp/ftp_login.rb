@@ -91,6 +91,22 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  def report_ftp_vuln(ip, result, access_level: nil)
+    data = { credential: result.credential.to_s }
+    data[:response] = result.proof.to_s.strip if result.proof.present?
+    data[:access_level] = access_level if access_level
+
+    report_vuln(
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      name: 'Weak FTP Credentials',
+      sname: 'ftp',
+      info: "Login accepted: #{result.credential}#{" (#{access_level})" if access_level}",
+      refs: references
+    )
+  end
+
   def ls_ftp_dir(ip, username = 'anonymous')
     print_brute level: :vstatus, ip: ip, msg: 'Listing directory contents'
 
@@ -264,7 +280,7 @@ class MetasploitModule < Msf::Auxiliary
       credential_data[:access_level] = access_level if access_level
       create_credential_login(credential_data)
 
-      report_ftp_proof(ip, result, access_level: access_level)
+      report_ftp_vuln(ip, result, access_level: access_level)
 
       msg = "Login Successful: #{result.credential}"
       msg << " (#{access_level})" if access_level
