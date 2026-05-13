@@ -499,12 +499,28 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/linux/tftp/mips64'
   end
 
+  context 'cmd/linux/http/multi' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/multi'
+                          ],
+                          reference_name: 'cmd/linux/http/multi'
+  end
+
   context 'cmd/linux/http/x64' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
                             'adapters/cmd/linux/http/x64'
                           ],
                           reference_name: 'cmd/linux/http/x64'
+  end
+
+  context 'cmd/linux/https/multi' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/multi'
+                          ],
+                          reference_name: 'cmd/linux/https/multi'
   end
 
   context 'cmd/linux/https/x64' do
