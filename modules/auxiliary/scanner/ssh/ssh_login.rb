@@ -28,6 +28,8 @@ class MetasploitModule < Msf::Auxiliary
         report successful logins.  If you have loaded a database plugin
         and connected to a database this module will record successful
         logins and hosts so you can track your access.
+
+        NOTE: For SSH key logins, try: auxiliary/scanner/ssh/ssh_key_login
       },
       'Author' => ['todb', 'RageLtMan'],
       'AKA' => ['ssh_login_pubkey'],
