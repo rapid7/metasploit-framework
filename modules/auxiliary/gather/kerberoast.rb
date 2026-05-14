@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
       validate_bind_success!(ldap)
       realm = adds_get_domain_info(ldap)[:dns_name]
 
-      run_builtin_ldap_query('ENUM_USER_SPNS_KERBEROAST') do |result|
+      run_builtin_ldap_query('ENUM_USER_SPNS_KERBEROAST', ldap: ldap) do |result|
         spn = result.serviceprincipalname[0]
         username = result.samaccountname[0]
         begin
