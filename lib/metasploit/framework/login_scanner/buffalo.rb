@@ -13,9 +13,8 @@ module Metasploit
         DEFAULT_PORT    = 80
         PRIVATE_TYPES   = [ :password ]
 
-        def report_buffalo_service
-          report_service(host: host, port: port, name: 'Buffalo Linkstation NAS', proto: 'tcp', resource: uri, workspace_id: myworkspace_id, parents: [ ssl ? :https : :http ])
-
+        def service_details
+          super.merge(name: 'Buffalo Linkstation NAS', resource: uri, parents: [ssl ? :https : :http])
         end
 
         # (see Base#set_sane_defaults)
@@ -53,7 +52,6 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res)
             end
-            report_buffalo_service
           rescue ::JSON::ParserError
             result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res.body)
           rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error

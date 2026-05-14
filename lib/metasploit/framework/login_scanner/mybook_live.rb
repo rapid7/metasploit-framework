@@ -12,8 +12,8 @@ module Metasploit
         DEFAULT_PORT    = 80
         PRIVATE_TYPES   = [ :password ]
 
-        def report_mybook_service
-          report_service(host: host, port: port, name: 'MyBook Live', proto: 'tcp', resource: uri, workspace_id: myworkspace_id, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'MyBook Live', resource: uri, parents: [ssl ? :https : :http])
         end
 
         # (see Base#set_sane_defaults)
@@ -51,7 +51,6 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res.headers)
             end
-            report_mybook_service
           rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
           end

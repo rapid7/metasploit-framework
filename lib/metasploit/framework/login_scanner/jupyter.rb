@@ -12,8 +12,8 @@ module Metasploit
         DEFAULT_PORT    = 8888
         PRIVATE_TYPES   = [ :password ]
 
-        def report_jupyter_service
-          report_service(host: host, port: port, name: 'Jupyter', proto: 'tcp', resource: uri, workspace_id: myworkspace_id, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'Jupyter', resource: uri, parents: [ssl ? :https : :http])
         end
 
         # (see Base#set_sane_defaults)
@@ -55,8 +55,6 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res)
             end
-
-            report_jupyter_service
           rescue ::EOFError, Errno::ETIMEDOUT, Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end

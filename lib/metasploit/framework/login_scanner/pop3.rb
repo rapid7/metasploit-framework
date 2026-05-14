@@ -1,5 +1,6 @@
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 require 'metasploit/framework/tcp/client'
 
 module Metasploit
@@ -20,8 +21,8 @@ module Metasploit
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = nil
 
-        def report_pop3_service
-          report_service(host: host, port: port, name: 'POP3', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        def service_details
+          super.merge(name: 'POP3', parents: [ssl ? :ssl : :tcp])
         end
 
         # This method attempts a single login with a single credential against the target
@@ -74,7 +75,6 @@ module Metasploit
           end
 
           disconnect if self.sock
-          report_pop3_service if should_report_service?(result_options)
           Result.new(result_options)
         end
 

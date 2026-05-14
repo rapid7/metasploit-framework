@@ -2,6 +2,7 @@
 
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 require 'metasploit/framework/tcp/client'
 
 module Metasploit
@@ -16,8 +17,8 @@ module Metasploit
         DEFAULT_PORT = 1818
         REALM_KEY = nil
 
-        def report_x3_service
-          report_service(host: host, port: port, name: 'X3 AdxAdmin', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        def service_details
+          super.merge(name: 'X3 AdxAdmin', parents: [ssl ? :ssl : :tcp])
         end
 
         def encrypt_pass(inp)
@@ -98,7 +99,6 @@ module Metasploit
 
           disconnect if sock
 
-          report_x3_service if should_report_service?(result_options)
           Result.new(result_options)
         end
 

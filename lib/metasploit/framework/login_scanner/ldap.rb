@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'metasploit/framework/login_scanner/base'
+require 'metasploit/framework/login_scanner/report_service'
 require 'metasploit/framework/ldap/client'
 
 module Metasploit
@@ -16,6 +17,10 @@ module Metasploit
         PRIVATE_TYPES = [:password, :ntlm_hash]
 
         attr_accessor :opts, :realm_key
+
+        def service_details
+          super.merge(name: 'ldap', parents: [ssl ? :ssl : :tcp])
+        end
         # @!attribute use_client_as_proof
         #   @return [Boolean] If a login is successful and this attribute is true - an LDAP::Client instance is used as proof
         attr_accessor :use_client_as_proof
@@ -41,7 +46,6 @@ module Metasploit
           }
 
           result_opts.merge!(do_login(credential))
-          report_ldap_service(opts: { host: host, port: port, ssl: ssl }) if result_opts[:status].in? [::Metasploit::Model::Login::Status::SUCCESSFUL, ::Metasploit::Model::Login::Status::INCORRECT]
           Result.new(result_opts)
         end
 

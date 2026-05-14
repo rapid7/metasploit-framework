@@ -1,5 +1,6 @@
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 require 'rex/proto/amqp'
 
 module Metasploit
@@ -16,8 +17,8 @@ module Metasploit
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY           = nil
 
-        def report_amqp_service
-          report_service(host: host, port: port, name: 'AMQP', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        def service_details
+          super.merge(name: 'AMQP', parents: [ssl ? :ssl : :tcp])
         end
 
         # (see Base#attempt_login)
@@ -28,7 +29,6 @@ module Metasploit
 
           begin
             result_options.merge!(connect_login(credential.public, credential.private))
-            report_amqp_service
           rescue Rex::Proto::Amqp::Error::NegotiationError => e
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             result_options[:proof] = e.message

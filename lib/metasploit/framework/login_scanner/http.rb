@@ -1,5 +1,6 @@
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 
 module Metasploit
   module Framework
@@ -199,8 +200,8 @@ module Metasploit
                   presence: true,
                   length: { minimum: 1 }
 
-        def report_http_service
-          report_service(host: host, port: port, name: ssl ? 'https' : 'http', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ :tcp ])
+        def service_details
+          super.merge(name: ssl ? 'https' : 'http', parents: [:tcp], resource: uri)
         end
 
         # (see Base#check_setup)
@@ -222,7 +223,6 @@ module Metasploit
           end
 
           if authentication_required?(response)
-            report_http_service
             return false
           end
 
@@ -299,7 +299,6 @@ module Metasploit
 
           begin
             response = send_request(request_opts)
-            report_http_service if response
             if response && http_success_codes.include?(response.code)
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end

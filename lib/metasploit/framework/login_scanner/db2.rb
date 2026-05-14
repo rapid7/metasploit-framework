@@ -1,6 +1,7 @@
 require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 
 module Metasploit
   module Framework
@@ -21,8 +22,8 @@ module Metasploit
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = Metasploit::Model::Realm::Key::DB2_DATABASE
 
-        def report_db2_service
-          report_service(host: host, port: port, name: 'DB2', proto: 'tcp', workspace_id: myworkspace_id, parents: [:tcp])
+        def service_details
+          super.merge(name: 'DB2', parents: [:tcp])
         end
 
         # @see Base#attempt_login
@@ -42,7 +43,6 @@ module Metasploit
               else
                 result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
               end
-              report_db2_service
             end
           rescue ::Rex::ConnectionError, ::Rex::Proto::DRDA::RespError, ::Timeout::Error => e
             result_options.merge!({

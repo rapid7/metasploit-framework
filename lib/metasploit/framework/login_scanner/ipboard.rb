@@ -15,8 +15,8 @@ module Metasploit
         # @return [String]
         attr_accessor :http_password
 
-        def report_ipboard_service
-          report_service(host: host, port: port, name: 'IPBoard', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'IPBoard', resource: uri, parents: [ssl ? :https : :http])
         end
 
         # (see Base#attempt_login)
@@ -69,8 +69,6 @@ module Metasploit
               else
                 result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: response)
               end
-
-              report_ipboard_service
 
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: "Server nonce not present, potentially not an IP Board install or bad URI.")

@@ -11,6 +11,7 @@ module Metasploit
         extend ActiveSupport::Concern
         include ActiveModel::Validations
         include Msf::Auxiliary::Report
+        include Metasploit::Framework::LoginScanner::ReportService
 
         included do
           # @!attribute framework
@@ -115,6 +116,20 @@ module Metasploit
           #   this scanner can't run
           def check_setup
             false
+          end
+
+          # Returns a hash of service details used for reporting.
+          # Subclasses should override this and merge in their specific
+          # service metadata (e.g. name, parents, resource).
+          #
+          # @return [Hash] service details suitable for passing to `report_service`
+          def service_details
+            {
+              host: host,
+              port: port,
+              proto: 'tcp',
+              workspace_id: myworkspace_id
+            }
           end
 
           def should_report_service?(login_result)

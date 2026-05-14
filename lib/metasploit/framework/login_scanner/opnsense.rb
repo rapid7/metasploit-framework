@@ -9,8 +9,8 @@ module Metasploit
       # and attempting them. It then saves the results.
       class OPNSense < HTTP
 
-        def report_opnsense_service
-          report_service(host: host, port: port, name: 'OPNSense', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'OPNSense', resource: uri, parents: [ssl ? :https : :http])
         end
 
         # Retrieve the wanted cookie value by name from the HTTP response.
@@ -40,7 +40,6 @@ module Metasploit
           res = send_request(request_params)
 
           if res && res.code == 200 && res.body&.include?('Login | OPNsense')
-            report_opnsense_service
             return false
           end
 
@@ -135,13 +134,11 @@ module Metasploit
           # 200 is incorrect result
           if login_result[:result].code == 200 || login_result[:result].body.include?('Username or Password incorrect')
             result_options.merge!(status: ::Metasploit::Model::Login::Status::INCORRECT, proof: 'Username or Password incorrect')
-            report_opnsense_service if should_report_service?(result_options)
             return Result.new(result_options)
           end
 
           login_status = login_result[:result].code == 302 ? ::Metasploit::Model::Login::Status::SUCCESSFUL : ::Metasploit::Model::Login::Status::INCORRECT
           result_options.merge!(status: login_status, proof: login_result[:result])
-          report_opnsense_service if should_report_service?(result_options)
           Result.new(result_options)
 
         rescue ::Rex::ConnectionError => _e

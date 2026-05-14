@@ -1,5 +1,6 @@
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 require 'metasploit/framework/tcp/client'
 
 module Metasploit
@@ -21,8 +22,8 @@ module Metasploit
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = nil
 
-        def report_freeswitch_service
-          report_service(host: host, port: port, name: 'FreeSWITCH EventSocket', proto: 'tcp', workspace_id: myworkspace_id, parents: [:tcp])
+        def service_details
+          super.merge(name: 'FreeSWITCH EventSocket', parents: [:tcp])
         end
 
         # This method attempts a single login with a single credential against the target
@@ -58,7 +59,6 @@ module Metasploit
             elsif result_options[:proof]&.include?('+OK accepted')
               result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
             end
-            report_freeswitch_service
           rescue Rex::ConnectionError, EOFError, Timeout::Error, Errno::EPIPE, Rex::StreamClosedError => e
             result_options.merge!(
               proof: e.message,

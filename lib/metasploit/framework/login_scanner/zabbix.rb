@@ -20,8 +20,8 @@ module Metasploit
         #   @return [String] Cookie session
         attr_accessor :zsession
 
-        def report_zabbix_service
-          report_service(host: host, port: port, name: 'Zabbix', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'Zabbix', resource: uri, parents: [ssl ? :https : :http])
         end
 
         # Decides which login routine and returns the results
@@ -38,7 +38,6 @@ module Metasploit
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
 
-          report_zabbix_service if result_opts[:status].in? [::Metasploit::Model::Login::Status::SUCCESSFUL, ::Metasploit::Model::Login::Status::INCORRECT]
           Result.new(result_opts)
         end
 
@@ -68,7 +67,6 @@ module Metasploit
             return "Unable to connect to target"
           end
 
-          report_zabbix_service
           false
         end
 

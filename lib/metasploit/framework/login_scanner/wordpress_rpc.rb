@@ -7,8 +7,8 @@ module Metasploit
       # Wordpress XML RPC login scanner
       class WordpressRPC < HTTP
 
-        def report_wordpress_service
-          report_service(host: host, port: port, name: 'Wordpress XML RPC', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'Wordpress XML RPC', resource: uri, parents: [ssl ? :https : :http])
         end
 
         # (see Base#attempt_login)
@@ -42,8 +42,6 @@ module Metasploit
           rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
-
-          report_wordpress_service if should_report_service?(result_opts)
 
           Result.new(result_opts)
 

@@ -1,4 +1,5 @@
 require 'metasploit/framework/login_scanner/base'
+require 'metasploit/framework/login_scanner/report_service'
 require 'postgres_msf'
 
 module Metasploit
@@ -41,8 +42,8 @@ module Metasploit
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE
 
-        def report_postgres_service
-          report_service(host: host, port: port, name: 'Postgres', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        def service_details
+          super.merge(name: 'Postgres', parents: [ssl ? :ssl : :tcp])
         end
 
         # This method attempts a single login with a single credential against the target
@@ -125,7 +126,6 @@ module Metasploit
             result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
           end
 
-          report_postgres_service if should_report_service?(result_options)
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
         end
 

@@ -14,8 +14,8 @@ module Metasploit
         CAN_GET_SESSION = true
         PRIVATE_TYPES   = [ :password ]
 
-        def report_axis2_service
-          report_service(host: host, port: port, name: 'Axis2', proto: 'tcp', resource: uri, workspace_id: myworkspace_id, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'Axis2', resource: uri, parents: [ssl ? :https : :http])
         end
 
         # (see Base#attempt_login)
@@ -48,8 +48,6 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: response)
             end
-
-            report_axis2_service
           rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end

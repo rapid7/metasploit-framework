@@ -1,6 +1,7 @@
 require 'metasploit/framework/ftp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 
 module Metasploit
   module Framework
@@ -32,8 +33,8 @@ module Metasploit
                   }
 
 
-        def report_ftp_service
-          report_service(host: host, port: port, name: 'FTP', proto: 'tcp', workspace_id: myworkspace_id, parents: [:tcp])
+        def service_details
+          super.merge(name: 'FTP', parents: [:tcp])
         end
 
         # (see Base#attempt_login)
@@ -52,10 +53,8 @@ module Metasploit
           end
 
           if success
-            report_ftp_service
             result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
           elsif !(result_options.has_key? :status)
-            report_ftp_service
             result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
           end
 

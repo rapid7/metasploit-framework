@@ -13,9 +13,8 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
-
-        def report_bavision_service
-          report_service(host: host, port: port, name: 'VAVision Camera web server', proto: 'tcp', resource: uri, workspace_id: myworkspace_id, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'VAVision Camera web server', parents: [ssl ? :https : :http])
         end
 
         # Checks if the target is BAVision Camera's web server. The login module should call this.
@@ -29,7 +28,6 @@ module Metasploit
             return "Unable to locate \"realm=IPCamera Login\" in headers. (Is this really a BAVision camera?)"
           end
 
-          report_bavision_service
           false
         end
 
@@ -118,7 +116,6 @@ module Metasploit
 
           begin
             result_opts.merge!(try_digest_auth(credential))
-            report_bavision_service
           rescue ::Rex::ConnectionError, BavisionCamerasException => e
             # Something went wrong during login. 'e' knows what's up.
             result_opts.merge!(status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: e.message)
@@ -131,4 +128,3 @@ module Metasploit
     end
   end
 end
-

@@ -12,8 +12,8 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         CAN_GET_SESSION = true
 
-        def report_smh_service
-          report_service(host: host, port: port, name: 'HP System Management', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'HP System Management', resource: uri, parents: [ssl ? :https : :http])
         end
 
         # (see Base#attempt_login)
@@ -49,8 +49,6 @@ module Metasploit
           else
             result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT)
           end
-
-          report_smh_service if should_report_service?(result_opts)
 
           Result.new(result_opts)
         end

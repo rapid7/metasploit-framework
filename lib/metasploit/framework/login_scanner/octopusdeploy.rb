@@ -13,8 +13,8 @@ module Metasploit
         DEFAULT_PORT    = 80
         PRIVATE_TYPES   = [ :password ]
 
-        def report_octopus_server
-          report_service(host: host, port: port, name: 'Octopus Deploy', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'Octopus Deploy', resource: uri, parents: [ssl ? :https : :http])
         end
 
         # (see Base#set_sane_defaults)
@@ -55,7 +55,6 @@ module Metasploit
           rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
           end
-          report_octopus_server if should_report_service?(result_opts)
           Result.new(result_opts)
         end
       end

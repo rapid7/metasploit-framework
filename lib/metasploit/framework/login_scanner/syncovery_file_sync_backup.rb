@@ -10,8 +10,8 @@ module Metasploit
         PRIVATE_TYPES = [ :password ].freeze
         LOGIN_STATUS = Metasploit::Model::Login::Status # Shorter name
 
-        def report_syncovery_service
-          report_service(host: host, port: port, name: 'Syncovery File Sync Backup', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'Syncovery File Sync Backup', resource: uri, parents: [ssl ? :https : :http])
         end
 
         # Checks if the target is correct
@@ -24,7 +24,6 @@ module Metasploit
           res = send_request({ 'uri' => login_uri })
 
           if res && res.code == 200 && res.body.include?('Syncovery')
-            report_syncovery_service
             return false
           end
 
@@ -126,7 +125,6 @@ module Metasploit
             result_opts.merge!(status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: e.message)
           end
 
-          report_syncovery_service if should_report_service?(result_opts)
           Result.new(result_opts)
         end
 

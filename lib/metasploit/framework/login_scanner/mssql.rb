@@ -1,6 +1,7 @@
 require 'rex/proto/mssql/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 require 'metasploit/framework/login_scanner/ntlm'
 
 module Metasploit
@@ -57,8 +58,8 @@ module Metasploit
         validates :tdsencryption,
           inclusion: { in: [true, false] }
 
-        def report_mssql_service
-          report_service(host: host, port: port, name: 'MSSQL', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        def service_details
+          super.merge(name: 'MSSQL', parents: [ssl ? :ssl : :tcp])
         end
 
         def attempt_login(credential)
@@ -84,7 +85,6 @@ module Metasploit
             else
               result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
             end
-            report_mssql_service
           rescue ::Rex::ConnectionError => e
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             result_options[:proof] = e

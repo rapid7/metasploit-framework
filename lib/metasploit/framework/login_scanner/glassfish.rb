@@ -27,8 +27,8 @@ module Metasploit
         # @!attribute http_password
         attr_accessor :http_password
 
-        def report_glassfish_service
-          report_service(host: host, port: port, name: 'Glassfish', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'Glassfish', resource: uri, parents: [ssl ? :https : :http])
         end
 
         # (see Base#check_setup)
@@ -72,7 +72,6 @@ module Metasploit
             return "Unable to connect to target"
           end
 
-          report_glassfish_service
           false
         end
 
@@ -222,8 +221,6 @@ module Metasploit
               status = try_glassfish_9(credential)
               result_opts.merge!(status)
             end
-
-            report_glassfish_service
           rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end

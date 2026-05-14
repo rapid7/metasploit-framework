@@ -1,6 +1,7 @@
 require 'metasploit/framework/telnet/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 
 module Metasploit
   module Framework
@@ -53,8 +54,8 @@ module Metasploit
                       greater_than_or_equal_to: 1
                   }
 
-        def report_telnet_service
-          report_service(host: host, port: port, name: 'Telnet', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+        def service_details
+          super.merge(name: 'Telnet', parents: [ssl ? :ssl : :tcp])
         end
 
         # (see {Base#attempt_login})
@@ -113,7 +114,6 @@ module Metasploit
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           end
 
-          report_telnet_service if should_report_service?(result_options)
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
         end
 

@@ -2,6 +2,7 @@ require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/afp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 
 module Metasploit
   module Framework
@@ -25,8 +26,8 @@ module Metasploit
         #   @return [Integer] Number of seconds to wait before giving up
         attr_accessor :login_timeout
 
-        def report_afp_service
-          report_service(host: host, port: port, name: 'AFP', proto: 'tcp', workspace_id: myworkspace_id, parents: [:tcp])
+        def service_details
+          super.merge(name: 'AFP', parents: [:tcp])
         end
 
         def attempt_login(credential)
@@ -40,8 +41,6 @@ module Metasploit
             rescue RuntimeError => e
               return {:status => Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, :proof => e.message}
             end
-
-            report_afp_service
 
             status = (success == true) ? Metasploit::Model::Login::Status::SUCCESSFUL : Metasploit::Model::Login::Status::INCORRECT
           end

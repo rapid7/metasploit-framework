@@ -11,8 +11,8 @@ module Metasploit
         PRIVATE_TYPES      = [ :password ]
         LOGIN_STATUS       = Metasploit::Model::Login::Status # Shorter name
 
-        def report_caidao_service
-          report_service(host: host, port: port, name: 'Caidao', proto: 'tcp', resource: uri, workspace_id: myworkspace_id, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'Caidao', parents: [ssl ? :https : :http])
         end
 
         # Checks if the target is correct
@@ -28,7 +28,6 @@ module Metasploit
           case uri
           when /php$/mi
             @payload = "$_=\"#{@flag}\";echo \"#{@lmark}\".$_.\"#{@rmark}\";"
-            report_caidao_service
             return false
           when /asp$/mi
             @payload = 'execute("response.write(""'
@@ -38,13 +37,11 @@ module Metasploit
             @payload << '""):response.write(""'
             @payload << "#{@rmark}"
             @payload << '""):response.end")'
-            report_caidao_service
             return false
           when /aspx$/mi
             @payload = "Response.Write(\"#{@lmark}\");"
             @payload << "Response.Write(\"#{@flag}\");"
             @payload << "Response.Write(\"#{@rmark}\")"
-            report_caidao_service
             return false
           end
           "Unable to locate target extension in uri. (Is this really caidao?)"
@@ -72,8 +69,6 @@ module Metasploit
           unless res
             return { :status => LOGIN_STATUS::UNABLE_TO_CONNECT, :proof => res.to_s }
           end
-
-          report_caidao_service
 
           if res && res.code == 200 && res.body.to_s.include?("#{@lmark}#{@flag}#{@rmark}")
             return { :status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.to_s }

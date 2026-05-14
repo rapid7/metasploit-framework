@@ -2,6 +2,7 @@ require 'metasploit/framework'
 require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 require 'metasploit/framework/login_scanner/kerberos'
 require 'ruby_smb'
 
@@ -67,9 +68,9 @@ module Metasploit
         #   and the socket is not immediately closed
         attr_accessor :use_client_as_proof
 
-        def report_smb_service
+        def service_details
           # TODO: SMB over QUIC runs over UDP port 443
-          report_service(host: host, port: port, name: 'SMB', proto: 'tcp', workspace_id: myworkspace_id, parents: [ ssl ? :ssl : :tcp ])
+          super.merge(name: 'SMB', parents: [ssl ? :ssl : :tcp])
         end
 
         # If login is successful and {Result#access_level} is not set
@@ -201,8 +202,6 @@ module Metasploit
           result.protocol = 'tcp'
           result.service_name = 'smb'
           result.ssl = ssl
-
-          report_smb_service if should_report_service?(result)
 
           result
         end

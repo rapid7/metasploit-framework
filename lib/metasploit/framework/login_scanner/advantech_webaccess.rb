@@ -10,8 +10,8 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
-        def report_advantech_service
-          report_service(host: host, port: port, name: 'Advantech WebAccess', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'Advantech WebAccess', resource: uri, parents: [ssl ? :https : :http])
         end
 
         # Checks if the target is Advantech WebAccess
@@ -28,7 +28,6 @@ module Metasploit
           })
 
           if res && res.body =~ /Welcome to Advantech WebAccess/i
-            report_advantech_service
             return false
           end
 
@@ -55,8 +54,6 @@ module Metasploit
           unless res
             return {status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: 'Connection timed out for signin.asp'}
           end
-
-          report_advantech_service
 
           if res.headers['Location'] && res.headers['Location'] == '/broadweb/bwproj.asp'
             return {status: LOGIN_STATUS::SUCCESSFUL, proof: res.body}

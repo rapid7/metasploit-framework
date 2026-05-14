@@ -27,8 +27,8 @@ module Metasploit
         # @return [String]
         attr_accessor :wordpress_url_xmlrpc
 
-        def report_wordpress_service
-          report_service(host: host, port: port, name: 'Wordpress Multicall', proto: 'tcp', workspace_id: myworkspace_id, resource: uri, parents: [ ssl ? :https : :http ])
+        def service_details
+          super.merge(name: 'Wordpress Multicall', resource: uri, parents: [ssl ? :https : :http])
         end
 
         def set_default
@@ -130,7 +130,6 @@ module Metasploit
                   ssl: ssl
                 }
                 result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL)
-                report_wordpress_service if should_report_service?(result_opts)
                 return Result.new(result_opts)
               end
             end
@@ -146,7 +145,6 @@ module Metasploit
           }
 
           result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT)
-          report_wordpress_service if should_report_service?(result_opts)
           return Result.new(result_opts)
         end
 

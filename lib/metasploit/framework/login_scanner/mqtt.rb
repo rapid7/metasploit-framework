@@ -1,6 +1,7 @@
 require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 
 module Metasploit
   module Framework
@@ -31,8 +32,8 @@ module Metasploit
         #   @return [String] The client identifier to use when connecting to MQTT
         attr_accessor :client_id
 
-        def report_mqtt_service
-          report_service(host: host, port: port, name: 'MQTT', proto: 'tcp', workspace_id: myworkspace_id, parents: [ :tcp ])
+        def service_details
+          super.merge(name: 'MQTT', parents: [:tcp])
         end
 
         # This method attempts a single login with a single credential against the target
@@ -70,8 +71,6 @@ module Metasploit
               status = Metasploit::Model::Login::Status::INCORRECT
               proof = "Failed Connection (#{connect_res.return_code})"
             end
-
-            report_mqtt_service
 
             result_options.merge!(
               proof: proof,
