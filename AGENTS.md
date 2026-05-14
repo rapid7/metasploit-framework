@@ -73,6 +73,7 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 - `get_version` methods should return a REX version
 - `CheckCode::Vulnerable` is only used when the vulnerability has been exploited
 - `CheckCode::Appears`  is only used when the application's versions has been checked`
+- Always provide a human-readable reason string when returning a CheckCode, e.g. `CheckCode::Safe("Target is running patched version #{version}")` — never return a bare constant or empty call
 - Use specific regular expressions or `res.get_html_document` for version extraction with CSS selectors. Don't use a generic selectors like `href .*` dot star to grab the version, be more precise.
 - Do catch exceptions that may be raised and ensure a valid Check Code is returned
 - Do research and determine a minimum version where the application is vulnerable, mark prior versions as safe
