@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
 
     checkcode = check_plugin_version_from_readme('masterstudy-lms-learning-management-system', '2.7.6')
     if checkcode == Msf::Exploit::CheckCode::Safe
-      return Msf::Exploit::CheckCode::Safe('MasterStudy LMS version not vulnerable')
+      return Msf::Exploit::CheckCode::Safe('MasterStudy LMS version is not vulnerable (>= 2.7.6)')
     end
 
     checkcode
