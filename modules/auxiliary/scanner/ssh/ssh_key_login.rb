@@ -49,6 +49,9 @@ class MetasploitModule < Msf::Auxiliary
         'g0tmi1k' # @g0tmi1k - additional features
       ],
       'License' => MSF_LICENSE,
+      'References' => [
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_004_SSH ]
+      ],
       'Notes' => {
         'Stability' => [CRASH_SAFE],
         'Reliability' => [],
@@ -431,7 +434,24 @@ class MetasploitModule < Msf::Auxiliary
       public_key: key[:data][:public],
       private_key: private_key_present
     }
-    report_note(host: ip, port: port, type: 'ssh.publickey.accepted', data: note_information, update: :unique_data)
+
+    report_note(
+    	host: ip,
+    	port: port,
+    	type: 'ssh.publickey.accepted',
+    	data: note_information,
+    	update: :unique_data
+  	)
+
+    report_vuln(
+      host: ip,
+      port: port,
+      proto: 'tcp',
+      sname: 'ssh',
+      name: 'SSH Authorized Key Accepted',
+      info: "Key accepted for user '#{user}' (#{key_fingerprint})",
+      refs: references
+    )
 
     if key[:data][:private] != ''
       # Store these keys in loot
