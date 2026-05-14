@@ -18,6 +18,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::SSH
   include Msf::Sessions::CreateSessionOptions
+  include Msf::Auxiliary::ReportSummary
   include Msf::Exploit::Deprecated
   moved_from 'auxiliary/scanner/ssh/ssh_identify_pubkeys'
 
