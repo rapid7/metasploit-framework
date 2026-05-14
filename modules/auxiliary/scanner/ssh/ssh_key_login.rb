@@ -18,6 +18,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::SSH
   include Msf::Sessions::CreateSessionOptions
+  include Msf::Auxiliary::ReportSummary
   include Msf::Exploit::Deprecated
   moved_from 'auxiliary/scanner/ssh/ssh_identify_pubkeys'
 
@@ -102,6 +103,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def ip
     datastore['RHOST']
+  end
+
+  def service_details
+    { service_name: 'ssh', port: rport, protocol: 'tcp' }
   end
 
   def report_ssh_service(ip, port)
