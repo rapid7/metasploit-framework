@@ -193,8 +193,6 @@ module Rex
                         enum_etype_name(value)
                       when :name_type
                         enum_name_type_name(value, element)
-                      else
-                        nil
                       end
           return nil if enum_name.nil?
 
