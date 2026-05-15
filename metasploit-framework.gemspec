@@ -107,12 +107,12 @@ Gem::Specification.new do |spec|
   # Required for Metasploit Web Services
   spec.add_runtime_dependency 'puma'
   spec.add_runtime_dependency 'ruby-mysql'
-  # webserver - pinned due to: https://github.com/github/secure_headers/issues/514
-  spec.add_runtime_dependency 'thin', '~> 1.x'
-  # rack pinned due to authlogic warnings when setting cookie keys with a / char present: https://github.com/binarylogic/authlogic/issues/779
-  spec.add_runtime_dependency 'rack', '~> 2.2'
-  # 4.x needs tested and verified for JSON RPC service
-  spec.add_runtime_dependency 'sinatra', '~> 3.2'
+
+  spec.add_runtime_dependency 'rack', '~> 3.1'
+  # 4.x supports Rack 3 for JSON RPC service
+  spec.add_runtime_dependency 'sinatra', '~> 4.1'
+  # Web server for msfdb web services; 2.x supports Rack 3
+  spec.add_runtime_dependency 'thin', '~> 2.0'
   spec.add_runtime_dependency 'warden'
   spec.add_runtime_dependency 'swagger-blocks'
   # Required for JSON-RPC client

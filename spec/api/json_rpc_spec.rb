@@ -23,6 +23,8 @@ RSpec.describe "Metasploit's json-rpc" do
   before(:example) do
     framework.modules.add_module_path(File.join(FILE_FIXTURES_PATH, 'json_rpc'))
     app.settings.framework = framework
+    # Rack 3 / rack-test requires explicit content type for raw JSON bodies
+    header 'Content-Type', 'application/json'
   end
 
   after(:example) do
