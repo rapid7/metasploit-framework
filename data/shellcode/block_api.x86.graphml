@@ -4,6 +4,7 @@
   <key id="type" for="all" attr.name="type" attr.type="string"/>
   <key id="instruction.source" for="node" attr.name="instruction.source" attr.type="string"/>
   <key id="instruction.hex" for="node" attr.name="instruction.hex" attr.type="string"/>
+  <key id="data.hex" for="node" attr.name="data.hex" attr.type="string"/>
   <graph edgedefault="directed">
     <node id="block.0x1000">
       <data key="address">0x1000</data>
@@ -47,8 +48,11 @@
           <data key="instruction.hex">8b5214</data>
           <data key="instruction.source">mov edx, dword ptr [edx + 0x14]</data>
         </node>
-        <edge source="block.0x1000:instruction.0x1000" target="block.0x1000:instruction.0x1003"/>
         <edge source="block.0x1000:instruction.0x1000" target="block.0x1000:instruction.0x1001"/>
+        <edge source="block.0x1000:instruction.0x1000" target="block.0x1000:instruction.0x1003"/>
+        <edge source="block.0x1000:instruction.0x1000" target="block.0x1000:instruction.0x1005"/>
+        <edge source="block.0x1000:instruction.0x1000" target="block.0x1000:instruction.0x1009"/>
+        <edge source="block.0x1000:instruction.0x1000" target="block.0x1000:instruction.0x100c"/>
         <edge source="block.0x1000:instruction.0x1003" target="block.0x1000:instruction.0x1005"/>
         <edge source="block.0x1000:instruction.0x1005" target="block.0x1000:instruction.0x1009"/>
         <edge source="block.0x1000:instruction.0x1009" target="block.0x1000:instruction.0x100c"/>
@@ -80,14 +84,14 @@
         </node>
       </graph>
     </node>
-    <node id="block.0x1018">
-      <data key="address">0x1018</data>
+    <node id="block.0x101b">
+      <data key="address">0x101b</data>
       <data key="type">instructions-graph</data>
       <graph edgedefault="directed">
-        <data key="address">0x1018</data>
+        <data key="address">0x101b</data>
         <data key="type">instructions</data>
-        <node id="block.0x1018:instruction.0x1018">
-          <data key="address">0x1018</data>
+        <node id="block.0x101b:instruction.0x101b">
+          <data key="address">0x101b</data>
           <data key="type">instruction</data>
           <data key="instruction.hex">31c0</data>
           <data key="instruction.source">xor eax, eax</data>
@@ -111,32 +115,33 @@
           <data key="instruction.source">jl 0x1024</data>
         </node>
         <edge source="block.0x101b:instruction.0x101b" target="block.0x101b:instruction.0x101d"/>
+        <edge source="block.0x101b:instruction.0x101b" target="block.0x101b:instruction.0x101e"/>
         <edge source="block.0x101b:instruction.0x101d" target="block.0x101b:instruction.0x101e"/>
         <edge source="block.0x101b:instruction.0x101e" target="block.0x101b:instruction.0x1020"/>
       </graph>
     </node>
-    <node id="block.0x101f">
-      <data key="address">0x101f</data>
+    <node id="block.0x1022">
+      <data key="address">0x1022</data>
       <data key="type">instructions-graph</data>
       <graph edgedefault="directed">
-        <data key="address">0x101f</data>
+        <data key="address">0x1022</data>
         <data key="type">instructions</data>
-        <node id="block.0x101f:instruction.0x101f">
-          <data key="address">0x101f</data>
+        <node id="block.0x1022:instruction.0x1022">
+          <data key="address">0x1022</data>
           <data key="type">instruction</data>
           <data key="instruction.hex">2c20</data>
           <data key="instruction.source">sub al, 0x20</data>
         </node>
       </graph>
     </node>
-    <node id="block.0x1021">
-      <data key="address">0x1021</data>
+    <node id="block.0x1024">
+      <data key="address">0x1024</data>
       <data key="type">instructions-graph</data>
       <graph edgedefault="directed">
-        <data key="address">0x1021</data>
+        <data key="address">0x1024</data>
         <data key="type">instructions</data>
-        <node id="block.0x1021:instruction.0x1021">
-          <data key="address">0x1021</data>
+        <node id="block.0x1024:instruction.0x1024">
+          <data key="address">0x1024</data>
           <data key="type">instruction</data>
           <data key="instruction.hex">c1cf0d</data>
           <data key="instruction.source">ror edi, 0xd</data>
@@ -164,14 +169,14 @@
         <edge source="block.0x1024:instruction.0x1029" target="block.0x1024:instruction.0x102a"/>
       </graph>
     </node>
-    <node id="block.0x1029">
-      <data key="address">0x1029</data>
+    <node id="block.0x102c">
+      <data key="address">0x102c</data>
       <data key="type">instructions-graph</data>
       <graph edgedefault="directed">
-        <data key="address">0x1029</data>
+        <data key="address">0x102c</data>
         <data key="type">instructions</data>
-        <node id="block.0x1029:instruction.0x1029">
-          <data key="address">0x1029</data>
+        <node id="block.0x102c:instruction.0x102c">
+          <data key="address">0x102c</data>
           <data key="type">instruction</data>
           <data key="instruction.hex">52</data>
           <data key="instruction.source">push edx</data>
@@ -220,23 +225,26 @@
         </node>
         <edge source="block.0x102c:instruction.0x102c" target="block.0x102c:instruction.0x102d"/>
         <edge source="block.0x102c:instruction.0x102c" target="block.0x102c:instruction.0x102e"/>
-        <edge source="block.0x102c:instruction.0x102d" target="block.0x102c:instruction.0x103b"/>
+        <edge source="block.0x102c:instruction.0x102d" target="block.0x102c:instruction.0x102e"/>
+        <edge source="block.0x102c:instruction.0x102d" target="block.0x102c:instruction.0x1031"/>
+        <edge source="block.0x102c:instruction.0x102d" target="block.0x102c:instruction.0x1036"/>
         <edge source="block.0x102c:instruction.0x102e" target="block.0x102c:instruction.0x1031"/>
         <edge source="block.0x102c:instruction.0x102e" target="block.0x102c:instruction.0x1034"/>
         <edge source="block.0x102c:instruction.0x1031" target="block.0x102c:instruction.0x1034"/>
         <edge source="block.0x102c:instruction.0x1034" target="block.0x102c:instruction.0x1036"/>
+        <edge source="block.0x102c:instruction.0x1034" target="block.0x102c:instruction.0x1039"/>
         <edge source="block.0x102c:instruction.0x1036" target="block.0x102c:instruction.0x1039"/>
         <edge source="block.0x102c:instruction.0x1039" target="block.0x102c:instruction.0x103b"/>
       </graph>
     </node>
-    <node id="block.0x103a">
-      <data key="address">0x103a</data>
+    <node id="block.0x103d">
+      <data key="address">0x103d</data>
       <data key="type">instructions-graph</data>
       <graph edgedefault="directed">
-        <data key="address">0x103a</data>
+        <data key="address">0x103d</data>
         <data key="type">instructions</data>
-        <node id="block.0x103a:instruction.0x103a">
-          <data key="address">0x103a</data>
+        <node id="block.0x103d:instruction.0x103d">
+          <data key="address">0x103d</data>
           <data key="type">instruction</data>
           <data key="instruction.hex">01d0</data>
           <data key="instruction.source">add eax, edx</data>
@@ -268,17 +276,20 @@
         <edge source="block.0x103d:instruction.0x103d" target="block.0x103d:instruction.0x103f"/>
         <edge source="block.0x103d:instruction.0x103d" target="block.0x103d:instruction.0x1040"/>
         <edge source="block.0x103d:instruction.0x103d" target="block.0x103d:instruction.0x1043"/>
+        <edge source="block.0x103d:instruction.0x103d" target="block.0x103d:instruction.0x1046"/>
+        <edge source="block.0x103d:instruction.0x103f" target="block.0x103d:instruction.0x1040"/>
+        <edge source="block.0x103d:instruction.0x103f" target="block.0x103d:instruction.0x1043"/>
         <edge source="block.0x103d:instruction.0x1043" target="block.0x103d:instruction.0x1046"/>
       </graph>
     </node>
-    <node id="block.0x1045">
-      <data key="address">0x1045</data>
+    <node id="block.0x1048">
+      <data key="address">0x1048</data>
       <data key="type">instructions-graph</data>
       <graph edgedefault="directed">
-        <data key="address">0x1045</data>
+        <data key="address">0x1048</data>
         <data key="type">instructions</data>
-        <node id="block.0x1045:instruction.0x1045">
-          <data key="address">0x1045</data>
+        <node id="block.0x1048:instruction.0x1048">
+          <data key="address">0x1048</data>
           <data key="type">instruction</data>
           <data key="instruction.hex">85c9</data>
           <data key="instruction.source">test ecx, ecx</data>
@@ -292,14 +303,14 @@
         <edge source="block.0x1048:instruction.0x1048" target="block.0x1048:instruction.0x104a"/>
       </graph>
     </node>
-    <node id="block.0x1049">
-      <data key="address">0x1049</data>
+    <node id="block.0x104c">
+      <data key="address">0x104c</data>
       <data key="type">instructions-graph</data>
       <graph edgedefault="directed">
-        <data key="address">0x1049</data>
+        <data key="address">0x104c</data>
         <data key="type">instructions</data>
-        <node id="block.0x1049:instruction.0x1049">
-          <data key="address">0x1049</data>
+        <node id="block.0x104c:instruction.0x104c">
+          <data key="address">0x104c</data>
           <data key="type">instruction</data>
           <data key="instruction.hex">49</data>
           <data key="instruction.source">dec ecx</data>
@@ -322,19 +333,19 @@
           <data key="instruction.hex">8b7df8</data>
           <data key="instruction.source">mov edi, dword ptr [ebp - 8]</data>
         </node>
-        <edge source="block.0x104c:instruction.0x104c" target="block.0x104c:instruction.0x1050"/>
         <edge source="block.0x104c:instruction.0x104c" target="block.0x104c:instruction.0x104d"/>
+        <edge source="block.0x104c:instruction.0x104c" target="block.0x104c:instruction.0x1050"/>
         <edge source="block.0x104c:instruction.0x104d" target="block.0x104c:instruction.0x1050"/>
       </graph>
     </node>
-    <node id="block.0x1051">
-      <data key="address">0x1051</data>
+    <node id="block.0x1055">
+      <data key="address">0x1055</data>
       <data key="type">instructions-graph</data>
       <graph edgedefault="directed">
-        <data key="address">0x1051</data>
+        <data key="address">0x1055</data>
         <data key="type">instructions</data>
-        <node id="block.0x1051:instruction.0x1051">
-          <data key="address">0x1051</data>
+        <node id="block.0x1055:instruction.0x1055">
+          <data key="address">0x1055</data>
           <data key="type">instruction</data>
           <data key="instruction.hex">31c0</data>
           <data key="instruction.source">xor eax, eax</data>
@@ -379,20 +390,14 @@
         <edge source="block.0x1055:instruction.0x105d" target="block.0x1055:instruction.0x105f"/>
       </graph>
     </node>
-    <node id="block.0x105d">
-      <data key="address">0x105d</data>
+    <node id="block.0x1061">
+      <data key="address">0x1061</data>
       <data key="type">instructions-graph</data>
       <graph edgedefault="directed">
-        <data key="address">0x105d</data>
+        <data key="address">0x1061</data>
         <data key="type">instructions</data>
-        <node id="block.0x105d:instruction.0x105d">
-          <data key="address">0x105d</data>
-          <data key="type">instruction</data>
-          <data key="instruction.hex">037df8</data>
-          <data key="instruction.source">add edi, dword ptr [ebp - 8]</data>
-        </node>
-        <node id="block.0x105d:instruction.0x1060">
-          <data key="address">0x1060</data>
+        <node id="block.0x1061:instruction.0x1061">
+          <data key="address">0x1061</data>
           <data key="type">instruction</data>
           <data key="instruction.hex">3b7d24</data>
           <data key="instruction.source">cmp edi, dword ptr [ebp + 0x24]</data>
@@ -406,14 +411,14 @@
         <edge source="block.0x1061:instruction.0x1061" target="block.0x1061:instruction.0x1064"/>
       </graph>
     </node>
-    <node id="block.0x1065">
-      <data key="address">0x1065</data>
+    <node id="block.0x1066">
+      <data key="address">0x1066</data>
       <data key="type">instructions-graph</data>
       <graph edgedefault="directed">
-        <data key="address">0x1065</data>
+        <data key="address">0x1066</data>
         <data key="type">instructions</data>
-        <node id="block.0x1065:instruction.0x1065">
-          <data key="address">0x1065</data>
+        <node id="block.0x1066:instruction.0x1066">
+          <data key="address">0x1066</data>
           <data key="type">instruction</data>
           <data key="instruction.hex">58</data>
           <data key="instruction.source">pop eax</data>
@@ -508,52 +513,46 @@
           <data key="instruction.hex">ffe0</data>
           <data key="instruction.source">jmp eax</data>
         </node>
-        <edge source="block.0x1065:instruction.0x1065" target="block.0x1065:instruction.0x107d"/>
-        <edge source="block.0x1065:instruction.0x1065" target="block.0x1065:instruction.0x1066"/>
-        <edge source="block.0x1065:instruction.0x1065" target="block.0x1065:instruction.0x106f"/>
-        <edge source="block.0x1065:instruction.0x1065" target="block.0x1065:instruction.0x1079"/>
-        <edge source="block.0x1065:instruction.0x1066" target="block.0x1065:instruction.0x1074"/>
-        <edge source="block.0x1065:instruction.0x1066" target="block.0x1065:instruction.0x1069"/>
-        <edge source="block.0x1065:instruction.0x1069" target="block.0x1065:instruction.0x106f"/>
-        <edge source="block.0x1065:instruction.0x1069" target="block.0x1065:instruction.0x107f"/>
-        <edge source="block.0x1065:instruction.0x1069" target="block.0x1065:instruction.0x106b"/>
-        <edge source="block.0x1065:instruction.0x106b" target="block.0x1065:instruction.0x1074"/>
-        <edge source="block.0x1065:instruction.0x106b" target="block.0x1065:instruction.0x106f"/>
-        <edge source="block.0x1065:instruction.0x106b" target="block.0x1065:instruction.0x107f"/>
-        <edge source="block.0x1065:instruction.0x106f" target="block.0x1065:instruction.0x1074"/>
-        <edge source="block.0x1065:instruction.0x106f" target="block.0x1065:instruction.0x1072"/>
-        <edge source="block.0x1065:instruction.0x1072" target="block.0x1065:instruction.0x107d"/>
-        <edge source="block.0x1065:instruction.0x1072" target="block.0x1065:instruction.0x1074"/>
-        <edge source="block.0x1065:instruction.0x1072" target="block.0x1065:instruction.0x107f"/>
-        <edge source="block.0x1065:instruction.0x1074" target="block.0x1065:instruction.0x107d"/>
-        <edge source="block.0x1065:instruction.0x1074" target="block.0x1065:instruction.0x107f"/>
-        <edge source="block.0x1065:instruction.0x1074" target="block.0x1065:instruction.0x1077"/>
-        <edge source="block.0x1065:instruction.0x1077" target="block.0x1065:instruction.0x107f"/>
-        <edge source="block.0x1065:instruction.0x1077" target="block.0x1065:instruction.0x1079"/>
-        <edge source="block.0x1065:instruction.0x1079" target="block.0x1065:instruction.0x107d"/>
-        <edge source="block.0x1065:instruction.0x1079" target="block.0x1065:instruction.0x107f"/>
-        <edge source="block.0x1065:instruction.0x107d" target="block.0x1065:instruction.0x107e"/>
-        <edge source="block.0x1065:instruction.0x107e" target="block.0x1065:instruction.0x107f"/>
-        <edge source="block.0x1065:instruction.0x107f" target="block.0x1065:instruction.0x1080"/>
-        <edge source="block.0x1065:instruction.0x107f" target="block.0x1065:instruction.0x1083"/>
-        <edge source="block.0x1065:instruction.0x1080" target="block.0x1065:instruction.0x1081"/>
-        <edge source="block.0x1065:instruction.0x1080" target="block.0x1065:instruction.0x1082"/>
-        <edge source="block.0x1065:instruction.0x1081" target="block.0x1065:instruction.0x1082"/>
-        <edge source="block.0x1065:instruction.0x1082" target="block.0x1065:instruction.0x1083"/>
-      </graph>
-    </node>
-    <node id="block.0x1085">
-      <data key="address">0x1085</data>
-      <data key="type">instructions-graph</data>
-      <graph edgedefault="directed">
-        <data key="address">0x1085</data>
-        <data key="type">instructions</data>
-        <node id="block.0x1085:instruction.0x1085">
-          <data key="address">0x1085</data>
-          <data key="type">instruction</data>
-          <data key="instruction.hex">58</data>
-          <data key="instruction.source">pop eax</data>
-        </node>
+        <edge source="block.0x1066:instruction.0x1066" target="block.0x1066:instruction.0x1067"/>
+        <edge source="block.0x1066:instruction.0x1066" target="block.0x1066:instruction.0x1070"/>
+        <edge source="block.0x1066:instruction.0x1066" target="block.0x1066:instruction.0x1075"/>
+        <edge source="block.0x1066:instruction.0x1066" target="block.0x1066:instruction.0x107a"/>
+        <edge source="block.0x1066:instruction.0x1066" target="block.0x1066:instruction.0x107e"/>
+        <edge source="block.0x1066:instruction.0x1067" target="block.0x1066:instruction.0x106a"/>
+        <edge source="block.0x1066:instruction.0x1067" target="block.0x1066:instruction.0x1075"/>
+        <edge source="block.0x1066:instruction.0x1067" target="block.0x1066:instruction.0x107a"/>
+        <edge source="block.0x1066:instruction.0x106a" target="block.0x1066:instruction.0x106c"/>
+        <edge source="block.0x1066:instruction.0x106a" target="block.0x1066:instruction.0x1070"/>
+        <edge source="block.0x1066:instruction.0x106a" target="block.0x1066:instruction.0x1073"/>
+        <edge source="block.0x1066:instruction.0x106a" target="block.0x1066:instruction.0x1080"/>
+        <edge source="block.0x1066:instruction.0x106c" target="block.0x1066:instruction.0x1070"/>
+        <edge source="block.0x1066:instruction.0x106c" target="block.0x1066:instruction.0x1075"/>
+        <edge source="block.0x1066:instruction.0x106c" target="block.0x1066:instruction.0x107a"/>
+        <edge source="block.0x1066:instruction.0x106c" target="block.0x1066:instruction.0x1080"/>
+        <edge source="block.0x1066:instruction.0x1070" target="block.0x1066:instruction.0x1073"/>
+        <edge source="block.0x1066:instruction.0x1070" target="block.0x1066:instruction.0x1075"/>
+        <edge source="block.0x1066:instruction.0x1070" target="block.0x1066:instruction.0x107a"/>
+        <edge source="block.0x1066:instruction.0x1073" target="block.0x1066:instruction.0x1075"/>
+        <edge source="block.0x1066:instruction.0x1073" target="block.0x1066:instruction.0x1078"/>
+        <edge source="block.0x1066:instruction.0x1073" target="block.0x1066:instruction.0x107e"/>
+        <edge source="block.0x1066:instruction.0x1073" target="block.0x1066:instruction.0x1080"/>
+        <edge source="block.0x1066:instruction.0x1075" target="block.0x1066:instruction.0x1078"/>
+        <edge source="block.0x1066:instruction.0x1075" target="block.0x1066:instruction.0x107a"/>
+        <edge source="block.0x1066:instruction.0x1075" target="block.0x1066:instruction.0x107e"/>
+        <edge source="block.0x1066:instruction.0x1075" target="block.0x1066:instruction.0x1080"/>
+        <edge source="block.0x1066:instruction.0x1078" target="block.0x1066:instruction.0x107a"/>
+        <edge source="block.0x1066:instruction.0x1078" target="block.0x1066:instruction.0x1080"/>
+        <edge source="block.0x1066:instruction.0x107a" target="block.0x1066:instruction.0x107e"/>
+        <edge source="block.0x1066:instruction.0x107a" target="block.0x1066:instruction.0x1080"/>
+        <edge source="block.0x1066:instruction.0x107e" target="block.0x1066:instruction.0x107f"/>
+        <edge source="block.0x1066:instruction.0x107f" target="block.0x1066:instruction.0x1080"/>
+        <edge source="block.0x1066:instruction.0x1080" target="block.0x1066:instruction.0x1081"/>
+        <edge source="block.0x1066:instruction.0x1080" target="block.0x1066:instruction.0x1082"/>
+        <edge source="block.0x1066:instruction.0x1080" target="block.0x1066:instruction.0x1084"/>
+        <edge source="block.0x1066:instruction.0x1081" target="block.0x1066:instruction.0x1082"/>
+        <edge source="block.0x1066:instruction.0x1081" target="block.0x1066:instruction.0x1083"/>
+        <edge source="block.0x1066:instruction.0x1082" target="block.0x1066:instruction.0x1083"/>
+        <edge source="block.0x1066:instruction.0x1083" target="block.0x1066:instruction.0x1084"/>
       </graph>
     </node>
     <node id="block.0x1086">
@@ -572,10 +571,10 @@
     </node>
     <node id="block.0x1087">
       <data key="address">0x1087</data>
-      <data key="type">block</data>
+      <data key="type">instructions-graph</data>
       <graph edgedefault="directed">
         <data key="address">0x1087</data>
-        <data key="type">block</data>
+        <data key="type">instructions</data>
         <node id="block.0x1087:instruction.0x1087">
           <data key="address">0x1087</data>
           <data key="type">instruction</data>
