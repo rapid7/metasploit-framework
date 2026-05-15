@@ -1987,10 +1987,10 @@ end
   # Process an Mdm::Service object to a hash, with recursive parent lookup.
   #
   # @param mdm_service [Mdm::Service] The service record to process.
-  # @param recursion_count [Integer] Current recursion iteration count
+  # @param recursion_depth [Integer] Current recursion iteration count
   # @return [Hash] Serialized service data.
-  def process_service(mdm_service, recursion_count = 0)
-    return { error: :recursion_limit_reached } unless recursion_count >= 0 && recursion_count < 6
+  def process_service(mdm_service, recursion_depth = 0)
+    error(500, "Recursion limit reached when processing service parents for #{mdm_service.name}") unless recursion_depth >= 0 && recursion_depth <= 10
 
     service = {}
     host = mdm_service.host
@@ -2005,7 +2005,7 @@ end
     service[:info] = mdm_service[:info].to_s
     service[:resource] = mdm_service[:resource]
     service[:parents] = mdm_service.parents.map do |parent|
-      process_service(parent, recursion_count + 1)
+      process_service(parent, recursion_depth + 1)
     end
 
     service
