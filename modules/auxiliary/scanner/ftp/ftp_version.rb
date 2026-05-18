@@ -7,23 +7,28 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info = {})
     super(
-      'Name' => 'FTP Version Scanner',
-      'Description' => 'Detect FTP Version.',
-      'Author' => [
-        'hdm',
-        'g0tmi1k' # @g0tmi1k - additional features
-      ],
-      'License' => MSF_LICENSE,
-      'References' => [
-        ['URL', 'https://www.ietf.org/rfc/rfc959']
-      ],
-      'Notes' => {
-        'Stability' => [CRASH_SAFE],
-        'Reliability' => [],
-        'SideEffects' => [IOC_IN_LOGS]
-      }
+      update_info(
+        info,
+        'Name' => 'FTP Version Scanner',
+        'Description' => %q{
+          This module tries to identify the version of an FTP service by reading its banner.
+        },
+        'Author' => [
+          'hdm',
+          'g0tmi1k' # @g0tmi1k - additional features
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          ['URL', 'https://www.ietf.org/rfc/rfc959']
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        }
+      )
     )
 
     register_options(
