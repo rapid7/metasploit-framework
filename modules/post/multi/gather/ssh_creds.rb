@@ -36,6 +36,9 @@ class MetasploitModule < Msf::Post
             ]
           }
         },
+        'References' => [
+          ['ATT&CK', Mitre::Attack::Technique::T1552_004_PRIVATE_KEYS]
+        ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [],
