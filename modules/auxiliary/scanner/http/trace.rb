@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
           :name => 'HTTP TRACE Method Enabled (Cross-Site Tracing)',
           :refs => references,
           :info => "Vulnerable to Cross-Site Tracing"
-        )
+        ) if active_db?
       else
         vprint_error("#{rhost}:#{rport} returned #{res.code} #{res.message}")
       end
