@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def fail_if_not_root
+  def fail_no_root
     fail_with(Failure::NoAccess, 'Current session is not root. Please escalate privileges before re-running this module.') unless is_root?
   end
 
