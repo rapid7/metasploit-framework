@@ -1815,23 +1815,47 @@ class Core
         end
       end
     when 'upexec'
-      print_status("Executing 'post/multi/manage/shell_to_meterpreter' on " +
-                    "session(s): #{session_list}")
       session_list.each do |sess_id|
         session = verify_session(sess_id)
-        if session
-          if session.respond_to?(:response_timeout)
-            last_known_timeout = session.response_timeout
-            session.response_timeout = response_timeout
+        next unless session
+
+        module_name = case session.type
+                      when 'postgresql'
+                        'exploit/multi/local/sql_to_meterpreter'
+                      when 'mysql', 'mssql'
+                        print_warning("Session #{sess_id} (#{session.type}) does not support `sessions -u` yet, skipping.")
+                        next
+                      else
+                        'post/multi/manage/shell_to_meterpreter'
+                      end
+
+        module_args = []
+        if module_name == 'exploit/multi/local/sql_to_meterpreter'
+          callback_host = framework.datastore['LHOST']
+          if callback_host.to_s.empty? && session.respond_to?(:tunnel_local)
+            callback_host = session.tunnel_local.to_s.split(':').first
+            callback_host = nil if callback_host == 'Local Pipe'
           end
-          begin
-            session.init_ui(driver.input, driver.output)
-            session.execute_script('post/multi/manage/shell_to_meterpreter')
-            session.reset_ui
-          ensure
-            if session.respond_to?(:response_timeout) && last_known_timeout
-              session.response_timeout = last_known_timeout
-            end
+          callback_host = Rex::Socket.source_address if callback_host.to_s.empty?
+
+          unless callback_host.to_s.empty?
+            module_args << "LHOST=#{callback_host}"
+            module_args << "SHELL_LHOST=#{callback_host}"
+          end
+        end
+
+        print_status("Executing '#{module_name}' on session #{sess_id}")
+        if session.respond_to?(:response_timeout)
+          last_known_timeout = session.response_timeout
+          session.response_timeout = response_timeout
+        end
+        begin
+          session.init_ui(driver.input, driver.output)
+          session.execute_script(module_name, *module_args)
+          session.reset_ui
+        ensure
+          if session.respond_to?(:response_timeout) && last_known_timeout
+            session.response_timeout = last_known_timeout
           end
         end
 
