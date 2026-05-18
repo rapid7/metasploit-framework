@@ -443,16 +443,17 @@ class MetasploitModule < Msf::Auxiliary
             end
     return unless ktype
 
-    ltype = "host.unix.ssh.#{user}_#{ktype}_public"
+    # Consistency with: store_private_keyfile()
+    ltype = "ssh.publickey.#{ktype}"
     keyfile = existing_loot(ltype, key_id)
     return keyfile.path if keyfile
 
     keyfile_path = store_loot(
       ltype,
-      'application/octet-stream', # Text, but always want to mime-type attach it
+      'text/plain',
       ip,
       (key_data + "\n"),
-      "#{safe_username}_#{ktype}.pub",
+      "#{safe_username}_id_#{ktype}.pub",
       key_id
     )
     return keyfile_path
@@ -468,16 +469,18 @@ class MetasploitModule < Msf::Auxiliary
     end
     return unless ktype
 
-    ltype = "host.unix.ssh.#{user}_#{ktype}_private"
+    # Consistency with: ./modules/auxiliary/scanner/ssh/ssh_key_login.rb, ./modules/exploits/multi/persistence/ssh_key.rb & ./modules/post/multi/gather/ssh_creds.rb
+    #                   store_public_keyfile()
+    ltype = "ssh.privatekey.#{ktype}"
     keyfile = existing_loot(ltype, key_id)
     return keyfile.path if keyfile
 
     keyfile_path = store_loot(
       ltype,
-      'application/octet-stream', # Text, but always want to mime-type attach it
+      'text/plain',
       ip,
       (key_data + "\n"),
-      "#{safe_username}_#{ktype}.private",
+      "#{safe_username}_id_#{ktype}",
       key_id
     )
     return keyfile_path
