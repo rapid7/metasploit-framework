@@ -27,6 +27,10 @@ module Metasploit
         # @!attribute http_password
         attr_accessor :http_password
 
+        def service_details
+          super.merge(name: 'Glassfish', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # (see Base#check_setup)
         def check_setup
           begin
@@ -221,7 +225,7 @@ module Metasploit
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
 
-          Result.new(result_opts)
+          Result.new(result_opts.merge(ssl: ssl))
         end
 
 

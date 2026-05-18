@@ -1045,7 +1045,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           import_msf_xml
         }.to(
           change(Mdm::Host, :count).by(1)
-           .and change(Mdm::Service, :count).by(1)
+           .and change(Mdm::Service, :count).by(2)
            .and change(Mdm::Note, :count).by(1)
         )
       end

@@ -18,6 +18,10 @@ module Metasploit
 
         attr_accessor :use_admin_endpoint
 
+        def service_details
+          super.merge(name: 'Ivanti Connect Secure', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         def check_setup
           request_params = {
             'method' => 'GET',
@@ -172,7 +176,8 @@ module Metasploit
             host: @host,
             port: @port,
             protocol: 'tcp',
-            service_name: 'ivanti'
+            service_name: 'Ivanti Connect Secure',
+            ssl: ssl
           }
 
           if @use_admin_endpoint

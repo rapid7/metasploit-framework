@@ -12,11 +12,15 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         CAN_GET_SESSION = true
 
+        def service_details
+          super.merge(name: 'HP System Management', resource: uri, parents: [ssl ? :https : :http])
+        end
 
         # (see Base#attempt_login)
         def attempt_login(credential)
           result_opts = {
-            credential: credential
+            credential: credential,
+            ssl: ssl
           }
 
           req_opts = {

@@ -10,6 +10,10 @@ module Metasploit
         DEFAULT_PORT    = 80
         PRIVATE_TYPES   = [ :password ]
 
+        def service_details
+          super.merge(name: 'GitLab', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           self.uri = '/users/sign_in' if uri.nil?
@@ -24,7 +28,8 @@ module Metasploit
             host: host,
             port: port,
             protocol: 'tcp',
-            service_name: ssl ? 'https' : 'http'
+            service_name: 'GitLab',
+            ssl: ssl
           }
           begin 
             # Get a valid session cookie and authenticity_token for the next step

@@ -236,12 +236,9 @@ module Msf::DBManager::Web
       :state     => 'open'
     )
 
-    # Change the service name if it is blank or it has
-    # been explicitly specified.
-    if opts.keys.include?(:ssl) or serv.name.to_s.empty?
-      name = opts[:ssl] ? 'https' : 'http'
-      serv.name = name
-    end
+    # Change the service name only if it is blank.
+    name = opts[:ssl] ? 'https' : 'http'
+    serv.name ||= name
     # Add the info if it's there.
     unless info.to_s.empty?
       serv.info = info

@@ -1,6 +1,7 @@
 require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 
 module Metasploit
   module Framework
@@ -20,6 +21,10 @@ module Metasploit
         LIKELY_SERVICE_NAMES = [ ]
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = Metasploit::Model::Realm::Key::DB2_DATABASE
+
+        def service_details
+          super.merge(name: 'DB2', parents: [:tcp])
+        end
 
         # @see Base#attempt_login
         def attempt_login(credential)

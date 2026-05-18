@@ -22,6 +22,9 @@ module Metasploit
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = nil
 
+        def report_acpp_service
+          report_service(host: host, port: port, name: 'ACPP', proto: 'tcp', workspace_id: myworkspace_id, parents: [:tcp])
+        end
 
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attempt to login with
@@ -48,6 +51,7 @@ module Metasploit
             else
               status = Metasploit::Model::Login::Status::INCORRECT
             end
+            report_acpp_service
             result_options.merge!(
               proof: "Status code #{auth_response.status}",
               status: status

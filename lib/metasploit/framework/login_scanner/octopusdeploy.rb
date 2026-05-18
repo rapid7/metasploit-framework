@@ -13,26 +13,28 @@ module Metasploit
         DEFAULT_PORT    = 80
         PRIVATE_TYPES   = [ :password ]
 
+        def service_details
+          super.merge(name: 'Octopus Deploy', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # (see Base#set_sane_defaults)
         def set_sane_defaults
-          uri = '/api/users/login' if uri.nil?
-          method = 'POST' if method.nil?
+          @uri = '/api/users/login' if uri.nil?
+          @method = 'POST' if method.nil?
 
           super
         end
 
         def attempt_login(credential)
           result_opts = {
+            service_name: 'Octopus Deploy',
             credential: credential,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
+
           begin
             json_post_data = JSON.pretty_generate({ Username: credential.public, Password: credential.private })
             res = send_request({

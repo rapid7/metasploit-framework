@@ -12,6 +12,10 @@ module Metasploit
         PRIVATE_TYPES = [:password].freeze
         LOGIN_PATH_REGEX = /action="(j_([a-z0-9_]+))"/
 
+        def service_details
+          super.merge(name: 'Jenkins', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # Checks the setup for the Jenkins Login scanner.
         #
         # @return [String, false] Always returns false.
@@ -38,17 +42,13 @@ module Metasploit
 
         def attempt_login(credential)
           result_opts = {
+            service_name: 'Jenkins',
             credential: credential,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
-
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
 
           status, proof = jenkins_login(credential.public, credential.private)
 

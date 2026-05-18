@@ -141,6 +141,10 @@ module Metasploit
         class DecryptionError < TeamCityError; end
         class ServerNeedsSetupError < TeamCityError; end
 
+        def service_details
+          super.merge(name: 'TeamCity', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # Checks if the target is JetBrains TeamCity. The login module should call this.
         #
         # @return [Boolean] TrueClass if target is TeamCity, otherwise FalseClass
@@ -268,7 +272,8 @@ module Metasploit
             host:         @host,
             port:         @port,
             protocol:     'tcp',
-            service_name: 'teamcity'
+            service_name: 'teamcity',
+            ssl: ssl
           }
 
           if @public_key.nil?

@@ -1,5 +1,6 @@
 require 'net/ssh'
 require 'metasploit/framework/login_scanner/base'
+require 'metasploit/framework/login_scanner/report_service'
 require 'metasploit/framework/ssh/platform'
 require 'rex/socket/ssh_factory'
 
@@ -47,6 +48,10 @@ module Metasploit
         validates :verbosity,
           presence: true,
           inclusion: { in: VERBOSITIES }
+
+        def service_details
+          super.merge(name: 'SSH', parents: [:tcp])
+        end
 
         # (see {Base#attempt_login})
         # @note The caller *must* close {#ssh_socket}

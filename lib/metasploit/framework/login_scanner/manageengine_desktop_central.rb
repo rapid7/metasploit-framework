@@ -11,6 +11,9 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
+        def service_details
+          super.merge(name: 'ManageEngine Desktop Central', resource: uri, parents: [ssl ? :https : :http])
+        end
 
         # Checks if the target is ManageEngine Desktop Central.
         #
@@ -101,7 +104,6 @@ module Metasploit
           if res.code == 302
             return {:status => LOGIN_STATUS::SUCCESSFUL, :proof => res.to_s}
           end
-
           {:status => LOGIN_STATUS::INCORRECT, :proof => res.to_s}
         end
 
@@ -118,7 +120,8 @@ module Metasploit
             host: host,
             port: port,
             protocol: 'tcp',
-            service_name: ssl ? 'https' : 'http',
+            service_name: 'ManageEngine Desktop Central',
+            ssl: ssl
           }
 
           begin

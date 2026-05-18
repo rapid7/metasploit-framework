@@ -12,6 +12,10 @@ module Metasploit
         DEFAULT_PORT    = 80
         PRIVATE_TYPES   = [ :password ]
 
+        def service_details
+          super.merge(name: 'MyBook Live', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           self.uri = '/UI/login' if self.uri.nil?
@@ -22,16 +26,14 @@ module Metasploit
 
         def attempt_login(credential)
           result_opts = {
+            service_name: 'MyBook Live',
             credential: credential,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
+
           begin
             res = send_request({
               'method' => method,

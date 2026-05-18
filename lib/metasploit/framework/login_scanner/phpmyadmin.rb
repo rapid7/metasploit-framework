@@ -8,6 +8,10 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS = Metasploit::Model::Login::Status
 
+        def service_details
+          super.merge(name: 'PhpMyAdmin', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         def check_setup
           res = send_request({ 'uri' => uri })
 
@@ -69,16 +73,17 @@ module Metasploit
 
         def attempt_login(credential)
           result_opts = {
+            service_name: 'pfSense',
             credential: credential,
             status: LOGIN_STATUS::INCORRECT,
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           result_opts.merge!(do_login(credential.public, credential.private))
-
           Result.new(result_opts)
         end
       end

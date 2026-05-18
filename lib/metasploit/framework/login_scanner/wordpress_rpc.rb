@@ -7,19 +7,20 @@ module Metasploit
       # Wordpress XML RPC login scanner
       class WordpressRPC < HTTP
 
+        def service_details
+          super.merge(name: 'Wordpress XML RPC', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # (see Base#attempt_login)
         def attempt_login(credential)
           result_opts = {
+              service_name: 'Wordpress XML RPC',
               credential: credential,
               host: host,
               port: port,
-              protocol: 'tcp'
+              protocol: 'tcp',
+              ssl: ssl
           }
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
 
           begin
 

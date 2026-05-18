@@ -19,6 +19,10 @@ module Metasploit
         #   @return [String] Cookie value
         attr_accessor :session_id
 
+        def service_details
+          super.merge(name: 'Chef WebUI', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # Decides which login routine and returns the results
         #
         # @param credential [Metasploit::Framework::Credential] The credential object
@@ -30,7 +34,8 @@ module Metasploit
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           begin

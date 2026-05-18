@@ -2,6 +2,7 @@ require 'metasploit/framework'
 require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 require 'metasploit/framework/login_scanner/kerberos'
 require 'ruby_smb'
 
@@ -67,6 +68,11 @@ module Metasploit
         #   and the socket is not immediately closed
         attr_accessor :use_client_as_proof
 
+        def service_details
+          # TODO: SMB over QUIC runs over UDP port 443
+          super.merge(name: 'SMB', parents: [ssl ? :ssl : :tcp])
+        end
+
         # If login is successful and {Result#access_level} is not set
         # then arbitrary credentials are accepted. If it is set to
         # Guest, then arbitrary credentials are accepted, but given
@@ -100,7 +106,8 @@ module Metasploit
               host: host,
               port: port,
               protocol: 'tcp',
-              service_name: 'smb'
+              service_name: 'smb',
+              ssl: ssl
             )
             return result
           end
@@ -194,6 +201,8 @@ module Metasploit
           result.port = port
           result.protocol = 'tcp'
           result.service_name = 'smb'
+          result.ssl = ssl
+
           result
         end
 

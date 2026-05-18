@@ -13,6 +13,10 @@ module Metasploit
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
 
+        def service_details
+          super.merge(name: 'Nessus', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # Checks if the target is correct
         #
         # @return [false] Indicates there were no errors
@@ -64,12 +68,14 @@ module Metasploit
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
           result_opts = {
+            service_name: 'Nessus',
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           begin

@@ -8,6 +8,7 @@ module Metasploit
     module LoginScanner
       require 'metasploit/framework/login_scanner/result'
       require 'metasploit/framework/login_scanner/invalid'
+      require 'metasploit/framework/login_scanner/report_service'
 
       # Gather a list of LoginScanner classes that can potentially be
       # used for a given `service`, which should usually be an

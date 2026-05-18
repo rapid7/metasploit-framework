@@ -1,5 +1,6 @@
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 require 'rex/proto/amqp'
 
 module Metasploit
@@ -15,6 +16,10 @@ module Metasploit
         LIKELY_SERVICE_NAMES = [ 'amqp', 'amqps' ]
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY           = nil
+
+        def service_details
+          super.merge(name: 'AMQP', parents: [ssl ? :ssl : :tcp])
+        end
 
         # (see Base#attempt_login)
         def attempt_login(credential)
@@ -38,6 +43,7 @@ module Metasploit
           result.port         = port
           result.protocol     = 'tcp'
           result.service_name = "amqp#{ssl ? 's' : ''}"
+          result.ssl = ssl
           result
         end
 

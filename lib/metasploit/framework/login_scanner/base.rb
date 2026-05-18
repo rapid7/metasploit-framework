@@ -10,6 +10,8 @@ module Metasploit
       module Base
         extend ActiveSupport::Concern
         include ActiveModel::Validations
+        include Msf::Auxiliary::Report
+        include Metasploit::Framework::LoginScanner::ReportService
 
         included do
           # @!attribute framework
@@ -48,6 +50,10 @@ module Metasploit
           # @!attribute sslkeylogfile
           #   @return [String] The SSL key log file path
           attr_accessor :sslkeylogfile
+          # @!attribute workspace
+          #   @return [String] The workspace name that the login scanner was executed in.
+          attr_accessor :workspace
+          attr_accessor :ssl
 
           validates :connection_timeout,
                     presence: true,
@@ -110,6 +116,24 @@ module Metasploit
           #   this scanner can't run
           def check_setup
             false
+          end
+
+          # Returns a hash of service details used for reporting.
+          # Subclasses should override this and merge in their specific
+          # service metadata (e.g. name, parents, resource).
+          #
+          # @return [Hash] service details suitable for passing to `report_service`
+          def service_details
+            {
+              host: host,
+              port: port,
+              proto: 'tcp',
+              workspace_id: myworkspace_id
+            }
+          end
+
+          def should_report_service?(login_result)
+            login_result[:status]&.in? [::Metasploit::Model::Login::Status::SUCCESSFUL, ::Metasploit::Model::Login::Status::INCORRECT]
           end
 
           # @note Override this to set a timeout that makes more sense for

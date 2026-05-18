@@ -1,5 +1,6 @@
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 
 module Metasploit
   module Framework
@@ -199,6 +200,10 @@ module Metasploit
                   presence: true,
                   length: { minimum: 1 }
 
+        def service_details
+          super.merge(name: ssl ? 'https' : 'http', parents: [:tcp], resource: uri)
+        end
+
         # (see Base#check_setup)
         def check_setup
           http_client = Rex::Proto::Http::Client.new(
@@ -277,7 +282,8 @@ module Metasploit
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           if ssl

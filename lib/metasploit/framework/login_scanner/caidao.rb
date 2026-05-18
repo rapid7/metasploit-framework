@@ -11,6 +11,10 @@ module Metasploit
         PRIVATE_TYPES      = [ :password ]
         LOGIN_STATUS       = Metasploit::Model::Login::Status # Shorter name
 
+        def service_details
+          super.merge(name: 'Caidao', parents: [ssl ? :https : :http])
+        end
+
         # Checks if the target is correct
         #
         # @return [false] Indicates there were no errors
@@ -79,19 +83,15 @@ module Metasploit
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
           result_opts = {
+            service_name: 'Caidao',
             credential:  credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
-
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
 
           begin
             result_opts.merge!(try_login(credential.public, credential.private))

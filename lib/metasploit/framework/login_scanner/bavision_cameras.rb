@@ -13,6 +13,9 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
+        def service_details
+          super.merge(name: 'VAVision Camera web server', parents: [ssl ? :https : :http])
+        end
 
         # Checks if the target is BAVision Camera's web server. The login module should call this.
         #
@@ -107,7 +110,8 @@ module Metasploit
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           begin
@@ -124,4 +128,3 @@ module Metasploit
     end
   end
 end
-

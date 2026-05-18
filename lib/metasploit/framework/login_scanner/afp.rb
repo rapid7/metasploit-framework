@@ -2,6 +2,7 @@ require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/afp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 
 module Metasploit
   module Framework
@@ -24,6 +25,10 @@ module Metasploit
         # @!attribute login_timeout
         #   @return [Integer] Number of seconds to wait before giving up
         attr_accessor :login_timeout
+
+        def service_details
+          super.merge(name: 'AFP', parents: [:tcp])
+        end
 
         def attempt_login(credential)
           begin

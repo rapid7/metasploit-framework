@@ -14,19 +14,20 @@ module Metasploit
         CAN_GET_SESSION = true
         PRIVATE_TYPES   = [ :password ]
 
+        def service_details
+          super.merge(name: 'Axis2', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # (see Base#attempt_login)
         def attempt_login(credential)
           result_opts = {
+              service_name: 'axis2',
               credential: credential,
               host: host,
               port: port,
-              protocol: 'tcp'
+              protocol: 'tcp',
+              ssl: ssl
           }
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
 
           begin
             # Refactor to access Metasploit::Framework::LoginScanner::HTTP#send_request()

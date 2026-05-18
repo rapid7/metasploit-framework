@@ -225,7 +225,8 @@ RSpec.shared_examples_for 'Msf::DBManager::Vuln' do
         expect {
           result = subject.report_vuln(host: host, name: 'foo', workspace: workspace, service: service_hash)
           expect(result.service).to eq(service)
-        }.to change(Mdm::Service, :count).by(1)
+          # Also creates a tcp parent service for the reported service
+        }.to change(Mdm::Service, :count).by(2)
       end
 
       context 'with parent services' do

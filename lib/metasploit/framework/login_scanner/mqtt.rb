@@ -1,6 +1,7 @@
 require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 
 module Metasploit
   module Framework
@@ -31,6 +32,10 @@ module Metasploit
         #   @return [String] The client identifier to use when connecting to MQTT
         attr_accessor :client_id
 
+        def service_details
+          super.merge(name: 'MQTT', parents: [:tcp])
+        end
+
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attempt to login with
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
@@ -40,7 +45,8 @@ module Metasploit
               host: host,
               port: port,
               protocol: 'tcp',
-              service_name: 'MQTT'
+              service_name: 'MQTT',
+              ssl: ssl
           }
 
           begin

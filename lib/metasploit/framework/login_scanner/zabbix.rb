@@ -20,12 +20,16 @@ module Metasploit
         #   @return [String] Cookie session
         attr_accessor :zsession
 
+        def service_details
+          super.merge(name: 'Zabbix', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # Decides which login routine and returns the results
         #
         # @param credential [Metasploit::Framework::Credential] The credential object
         # @return [Result]
         def attempt_login(credential)
-          result_opts = { credential: credential }
+          result_opts = { credential: credential, ssl: ssl }
 
           begin
             status = try_login(credential)

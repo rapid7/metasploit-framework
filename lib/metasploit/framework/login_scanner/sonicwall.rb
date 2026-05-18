@@ -17,6 +17,10 @@ module Metasploit
 
         attr_accessor :domain
 
+        def service_details
+          super.merge(name: 'SonicWall Network Security', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         def req_params_base
           {
             'method' => 'POST',
@@ -142,7 +146,8 @@ module Metasploit
             host: @host,
             port: @port,
             protocol: 'tcp',
-            service_name: 'sonicwall'
+            service_name: 'sonicwall',
+            ssl: ssl
           }
           result_options.merge!(do_login(credential.public, credential.private, 1))
           Result.new(result_options)

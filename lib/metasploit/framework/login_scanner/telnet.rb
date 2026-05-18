@@ -1,6 +1,7 @@
 require 'metasploit/framework/telnet/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 
 module Metasploit
   module Framework
@@ -53,6 +54,10 @@ module Metasploit
                       greater_than_or_equal_to: 1
                   }
 
+        def service_details
+          super.merge(name: 'Telnet', parents: [ssl ? :ssl : :tcp])
+        end
+
         # (see {Base#attempt_login})
         def attempt_login(credential)
           result_options = {
@@ -60,7 +65,8 @@ module Metasploit
               host: host,
               port: port,
               protocol: 'tcp',
-              service_name: 'telnet'
+              service_name: 'telnet',
+              ssl: ssl
           }
 
           begin

@@ -1,6 +1,7 @@
 require 'metasploit/framework/ftp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 
 module Metasploit
   module Framework
@@ -32,6 +33,9 @@ module Metasploit
                   }
 
 
+        def service_details
+          super.merge(name: 'FTP', parents: [:tcp])
+        end
 
         # (see Base#attempt_login)
         def attempt_login(credential)

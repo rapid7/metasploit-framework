@@ -30,7 +30,8 @@ RSpec.shared_examples_for 'Msf::DBManager::Service' do
           info: 'banner',
           workspace: workspace
         )
-        expect(subject.services({ workspace: workspace }).count).to eq 1
+        # 2 services: the reported service + auto-created tcp parent
+        expect(subject.services({ workspace: workspace }).count).to eq 2
         expect(service.name).to eq 'test_service'
         expect(service.port).to eq 5000
         expect(service.proto).to eq 'tcp'
@@ -55,7 +56,8 @@ RSpec.shared_examples_for 'Msf::DBManager::Service' do
             task: task
           )
         end.last
-        expect(subject.services({ workspace: workspace }).count).to eq 1
+        # 2 services: the reported service + auto-created tcp parent
+        expect(subject.services({ workspace: workspace }).count).to eq 2
         expect(service.name).to eq 'test_service'
         expect(service.port).to eq 5000
         expect(service.proto).to eq 'tcp'
@@ -227,7 +229,8 @@ RSpec.shared_examples_for 'Msf::DBManager::Service' do
           opts[:resource] = {uri: '/new'}
           service = subject.report_service(opts)
           expect(service).not_to eq(existing_service)
-          expect(host.services.count).to eq 2
+          # 3 services: existing http, new http (different resource), and auto-created tcp parent
+          expect(host.services.count).to eq 3
         end
       end
 

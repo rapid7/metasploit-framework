@@ -13,6 +13,10 @@ module Metasploit
         DEFAULT_PORT    = 80
         PRIVATE_TYPES   = [ :password ]
 
+        def service_details
+          super.merge(name: 'Buffalo Linkstation NAS', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           self.uri = "/dynamic.pl" if self.uri.nil?
@@ -23,16 +27,14 @@ module Metasploit
 
         def attempt_login(credential)
           result_opts = {
+              service_name: 'Buffalo Linkstation NAS',
               credential: credential,
               host: host,
               port: port,
-              protocol: 'tcp'
+              protocol: 'tcp',
+              ssl: ssl
           }
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
+
           begin
             res = send_request({
               'method'=>'POST',

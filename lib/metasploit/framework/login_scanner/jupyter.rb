@@ -12,6 +12,10 @@ module Metasploit
         DEFAULT_PORT    = 8888
         PRIVATE_TYPES   = [ :password ]
 
+        def service_details
+          super.merge(name: 'Jupyter', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           self.uri = '/login' if self.uri.nil?
@@ -26,7 +30,8 @@ module Metasploit
             host: host,
             port: port,
             protocol: 'tcp',
-            service_name: ssl ? 'https' : 'http'
+            service_name: 'Jupyter',
+            ssl: ssl
           }
 
           begin

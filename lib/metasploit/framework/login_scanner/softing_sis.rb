@@ -10,6 +10,10 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS = Metasploit::Model::Login::Status
 
+        def service_details
+          super.merge(name: 'Softing Secure Integration Server', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # Check if the target is Softing Secure Integration Server
         #
         # @return [Boolean] TrueClass if target is SIS, otherwise FalseClass
@@ -146,12 +150,14 @@ module Metasploit
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
           result_opts = {
+            service_name: 'Softing Secure Integration Server',
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           begin

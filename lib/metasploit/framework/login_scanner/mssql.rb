@@ -1,6 +1,7 @@
 require 'rex/proto/mssql/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/report_service'
 require 'metasploit/framework/login_scanner/ntlm'
 
 module Metasploit
@@ -57,13 +58,18 @@ module Metasploit
         validates :tdsencryption,
           inclusion: { in: [true, false] }
 
+        def service_details
+          super.merge(name: 'MSSQL', parents: [ssl ? :ssl : :tcp])
+        end
+
         def attempt_login(credential)
           result_options = {
               credential: credential,
               host: host,
               port: port,
               protocol: 'tcp',
-              service_name: 'mssql'
+              service_name: 'mssql',
+              ssl: ssl
           }
 
           begin

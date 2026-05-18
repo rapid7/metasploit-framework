@@ -10,6 +10,10 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
+        def service_details
+          super.merge(name: 'Advantech WebAccess', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # Checks if the target is Advantech WebAccess
         #
         # @return [false] Indicates there were no errors
@@ -69,7 +73,8 @@ module Metasploit
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           begin

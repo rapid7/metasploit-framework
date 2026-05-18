@@ -10,6 +10,10 @@ module Metasploit
       class PfSense < HTTP
         LOGIN_ENDPOINT = 'index.php'
 
+        def service_details
+          super.merge(name: 'pfSense', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # Checks if the target is pfSense. The login module should call this.
         #
         # @return [Boolean, String] FalseClass if target is pfSense, otherwise String
@@ -78,7 +82,8 @@ module Metasploit
             host:         @host,
             port:         @port,
             protocol:     'tcp',
-            service_name: 'pfsense'
+            service_name: 'pfsense',
+            ssl: ssl
           }
 
           # Each login needs its own csrf magic tokens

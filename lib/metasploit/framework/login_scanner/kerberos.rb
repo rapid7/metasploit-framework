@@ -1,4 +1,5 @@
 require 'metasploit/framework/login_scanner/base'
+require 'metasploit/framework/login_scanner/report_service'
 
 module Metasploit
   module Framework
@@ -16,6 +17,10 @@ module Metasploit
         LIKELY_SERVICE_NAMES = [ 'kerberos', 'kerberos5', 'krb5', 'kerberos-sec' ].freeze
         PRIVATE_TYPES = %i[ password ].freeze
         CAN_GET_SESSION = true
+
+        def service_details
+          super.merge(name: 'kerberos', parents: [:tcp])
+        end
 
         def attempt_login(credential)
           result_options = {

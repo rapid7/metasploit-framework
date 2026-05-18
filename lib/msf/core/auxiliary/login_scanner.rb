@@ -24,6 +24,8 @@ module Msf
           framework_module: self,
           local_port: datastore['CPORT'],
           local_host: datastore['CHOST'],
+          workspace: workspace,
+          ssl: datastore['SSL']
         }.merge(conf)
       end
     end

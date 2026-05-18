@@ -9,6 +9,10 @@ module Metasploit
         PRIVATE_TYPES = [ :password ].freeze
         LOGIN_STATUS = Metasploit::Model::Login::Status
 
+        def service_details
+          super.merge(name: 'Wowza Streaming Engine Manager', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # Checks if the target is Wowza Streaming Engine Manager. The login module should call this.
         #
         # @return [Boolean] TrueClass if target is Wowza Streaming Engine Manager, otherwise FalseClass
@@ -30,12 +34,14 @@ module Metasploit
         #
         def attempt_login(credential)
           result_opts = {
+            service_name: 'Wowza Streaming Engine Manager',
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           res = send_request({
@@ -58,6 +64,7 @@ module Metasploit
             result_opts.merge!({ status: LOGIN_STATUS::SUCCESSFUL, proof: cookie.to_s }) unless cookie.blank?
           end
 
+          # TODO: Check the caller here. Maybe we can extract the service reporting up a level?
           Result.new(result_opts)
         end
       end

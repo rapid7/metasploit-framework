@@ -27,6 +27,9 @@ module Metasploit
         # @return [String]
         attr_accessor :wordpress_url_xmlrpc
 
+        def service_details
+          super.merge(name: 'Wordpress Multicall', resource: uri, parents: [ssl ? :https : :http])
+        end
 
         def set_default
           @wordpress_url_xmlrpc ||= 'xmlrpc.php'
@@ -119,10 +122,12 @@ module Metasploit
                 pass = req_xml.search("data/value/array/data")[i].value[1].text.strip
                 credential.private = pass
                 result_opts = {
+                  service_name: 'Wordpress Multicall',
                   credential: credential,
                   host: host,
                   port: port,
-                  protocol: 'tcp'
+                  protocol: 'tcp',
+                  ssl: ssl
                 }
                 result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL)
                 return Result.new(result_opts)
@@ -131,10 +136,12 @@ module Metasploit
           end
 
           result_opts = {
+            service_name: 'Wordpress Multicall',
             credential: credential,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            ssl: ssl
           }
 
           result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT)

@@ -9,6 +9,9 @@ module Metasploit
         DEFAULT_PORT  = 443
         PRIVATE_TYPES = [ :password ]
 
+        def service_details
+          super.merge(name: 'DirectAdmin', parents: [ssl ? :https : :http])
+        end
 
         # Checks if the target is correct
         #
@@ -102,7 +105,8 @@ module Metasploit
             host: host,
             port: port,
             protocol: 'tcp',
-            service_name: ssl ? 'https' : 'http'
+            service_name: 'DirecTadmin',
+            ssl: ssl
           }
 
           begin

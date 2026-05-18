@@ -9,6 +9,10 @@ module Metasploit
       # and attempting them. It then saves the results.
       class OPNSense < HTTP
 
+        def service_details
+          super.merge(name: 'OPNSense', resource: uri, parents: [ssl ? :https : :http])
+        end
+
         # Retrieve the wanted cookie value by name from the HTTP response.
         #
         # @param [Rex::Proto::Http::Response] response The response from which to extract cookie values
@@ -17,6 +21,14 @@ module Metasploit
           response.get_cookies.split('; ').find { |cookie| cookie.start_with?(wanted_cookie_name) }.split('=').last
         end
 
+        # TODO: Maybe we can have a def check_setup
+        # that calls to super:
+        # if super
+        #   failed the check
+        # else
+        #   report_underlying_service
+        # end
+        # But what about modules that don't have a check_setup method?
         # Checks if the target is OPNSense. The login module should call this.
         #
         # @return [Boolean, String] FalseClass if target is OPNSense, otherwise String
@@ -100,7 +112,8 @@ module Metasploit
             host:         @host,
             port:         @port,
             protocol:     'tcp',
-            service_name: 'opnsense'
+            service_name: 'opnsense',
+            ssl: ssl
           }
 
           # Each login needs its own magic name and value
