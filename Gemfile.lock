@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/zeroSteiner/metasm
+  revision: 0950f809e1d37c482a4120b816d5e88fe4030466
+  branch: feat/define-data-and-cstring
+  specs:
+    metasm (1.0.5)
+
 PATH
   remote: .
   specs:
@@ -333,7 +340,6 @@ GEM
     mcp (0.13.0)
       json-schema (>= 4.1)
     memory_profiler (1.1.0)
-    metasm (1.0.5)
     metasploit-concern (5.0.5)
       activemodel (~> 7.0)
       activesupport (~> 7.0)
@@ -705,6 +711,7 @@ DEPENDENCIES
   fivemat
   license_finder (= 5.11.1)
   memory_profiler
+  metasm!
   metasploit-framework!
   octokit
   pry-byebug

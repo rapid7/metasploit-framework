@@ -56,3 +56,6 @@ group :test do
   # stub and set expectations on HTTP requests
   gem 'webmock', '~> 3.18'
 end
+
+# remove after https://github.com/rapid7/metasm/pull/4 is landed
+gem 'metasm', git: 'https://github.com/zeroSteiner/metasm', branch: 'feat/define-data-and-cstring'
