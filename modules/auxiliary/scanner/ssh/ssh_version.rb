@@ -10,33 +10,36 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::SSH
 
-  def initialize
+  def initialize(info = {})
     super(
-      'Name' => 'SSH Version and Algorithm Scanner',
-      'Description' => %q{
-        This module detects the SSH version, cryptographic algorithm support,
-        as well as the host key fingerprint. It will flag deprecated/weak ciphers,
-        HMAC algorithms, key exchange methods, and host key types.
-      },
-      'References' => [
-        ['URL', 'https://en.wikipedia.org/wiki/SecureShell'], # general info
-        ['URL', 'https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'], # deprecation of kex gss-sha1 stuff
-        ['URL', 'https://datatracker.ietf.org/doc/html/draft-ietf-curdle-ssh-kex-sha2-20#page-16'], # diffie-hellman-group-exchange-sha1, diffie-hellman-group1-sha1, rsa1024-sha1
-        ['URL', 'https://datatracker.ietf.org/doc/html/rfc8758#name-iana-considerations'], # arc4 deprecation
-        ['URL', 'https://github.com/net-ssh/net-ssh?tab=readme-ov-file#supported-algorithms'], # a bunch of diff removed things from the ruby lib
-        ['CVE', '2008-5161'] # CBC modes
-      ],
-      'Author' => [
-        'Daniel van Eeden <metasploit[at]myname.nl>', # original author
-        'h00die', # algorithms enhancements
-        'g0tmi1k' # @g0tmi1k - additional features
-      ],
-      'License' => MSF_LICENSE,
-      'Notes' => {
-        'Stability' => [CRASH_SAFE],
-        'Reliability' => [],
-        'SideEffects' => [IOC_IN_LOGS]
-      }
+      update_info(
+        info,
+        'Name' => 'SSH Version and Algorithm Scanner',
+        'Description' => %q{
+          This module detects the SSH version, cryptographic algorithm support,
+          as well as the host key fingerprint. It will flag deprecated/weak ciphers,
+          HMAC algorithms, key exchange methods, and host key types.
+        },
+        'References' => [
+          ['URL', 'https://en.wikipedia.org/wiki/SecureShell'], # general info
+          ['URL', 'https://datatracker.ietf.org/doc/html/rfc8732#name-deprecated-algorithms'], # deprecation of kex gss-sha1 stuff
+          ['URL', 'https://datatracker.ietf.org/doc/html/draft-ietf-curdle-ssh-kex-sha2-20#page-16'], # diffie-hellman-group-exchange-sha1, diffie-hellman-group1-sha1, rsa1024-sha1
+          ['URL', 'https://datatracker.ietf.org/doc/html/rfc8758#name-iana-considerations'], # arc4 deprecation
+          ['URL', 'https://github.com/net-ssh/net-ssh?tab=readme-ov-file#supported-algorithms'], # a bunch of diff removed things from the ruby lib
+          ['CVE', '2008-5161'] # CBC modes
+        ],
+        'Author' => [
+          'Daniel van Eeden <metasploit[at]myname.nl>', # original author
+          'h00die', # algorithms enhancements
+          'g0tmi1k' # @g0tmi1k - additional features
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        }
+      )
     )
 
     register_options(
