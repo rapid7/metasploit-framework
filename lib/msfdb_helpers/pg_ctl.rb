@@ -152,16 +152,18 @@ module MsfdbHelpers
 
     def create_db_users(msf_pass, msftest_pass)
       puts 'Creating database users'
-      run_psql("create user #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'", @socket_directory)
-      run_psql("create user #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'", @socket_directory)
-      run_psql("alter role #{@options[:msf_db_user].shellescape} createdb", @socket_directory)
-      run_psql("alter role #{@options[:msftest_db_user].shellescape} createdb", @socket_directory)
-      run_psql("alter role #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'", @socket_directory)
-      run_psql("alter role #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'", @socket_directory)
+      conn = PG.connect(host: @socket_directory, dbname: 'postgres', port: @options[:db_port], user: 'postgres')
+      msf_user = conn.escape_identifier(@options[:msf_db_user])
+      msftest_user = conn.escape_identifier(@options[:msftest_db_user])
+      msf_db = conn.escape_identifier(@options[:msf_db_name])
+      msftest_db = conn.escape_identifier(@options[:msftest_db_name])
 
-      conn = PG.connect(host: @options[:db_host], dbname: 'postgres', port: @options[:db_port], user: @options[:msf_db_user], password: msf_pass)
-      conn.exec("CREATE DATABASE #{@options[:msf_db_name]}")
-      conn.exec("CREATE DATABASE #{@options[:msftest_db_name]}")
+      conn.exec("CREATE USER #{msf_user} WITH PASSWORD #{conn.escape_literal(msf_pass)}")
+      conn.exec("CREATE USER #{msftest_user} WITH PASSWORD #{conn.escape_literal(msftest_pass)}")
+      conn.exec("ALTER ROLE #{msf_user} CREATEDB")
+      conn.exec("ALTER ROLE #{msftest_user} CREATEDB")
+      conn.exec("CREATE DATABASE #{msf_db} OWNER #{msf_user}")
+      conn.exec("CREATE DATABASE #{msftest_db} OWNER #{msftest_user}")
       conn.finish
     end
 
