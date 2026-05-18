@@ -15,33 +15,36 @@ class MetasploitModule < Msf::Auxiliary
     'ftp'
   end
 
-  def initialize
+  def initialize(info = {})
     super(
-      'Name' => 'FTP Authentication Scanner',
-      'Description' => %q{
-        This module tests FTP logins on a range of machines. Successful
-        logins are recorded in the database as credentials, along with
-        host information.
-      },
-      'Author' => [
-          'todb',
-          'g0tmi1k' # @g0tmi1k - additional features
+      update_info(
+        info,
+        'Name' => 'FTP Authentication Scanner',
+        'Description' => %q{
+          This module tests FTP logins on a range of machines. Successful
+          logins are recorded in the database as credentials, along with
+          host information.
+        },
+        'Author' => [
+            'todb',
+            'g0tmi1k' # @g0tmi1k - additional features
 
-      ],
-      'References' => [
-        [ 'CVE', '1999-0502' ], # Weak password
-        [ 'ATT&CK', Mitre::Attack::Technique::T1021_REMOTE_SERVICES ],
-        [ 'ATT&CK', Mitre::Attack::Technique::T1110_001_PASSWORD_GUESSING ]
-      ],
-      'License' => MSF_LICENSE,
-      'Notes' => {
-        'Stability' => [CRASH_SAFE],
-        'SideEffects' => [ARTIFACTS_ON_DISK, IOC_IN_LOGS, ACCOUNT_LOCKOUTS],
-        'Reliability' => []
-      },
-      'DefaultOptions' => {
-        'ConnectTimeout' => 30
-      }
+        ],
+        'References' => [
+          [ 'CVE', '1999-0502' ], # Weak password
+          [ 'ATT&CK', Mitre::Attack::Technique::T1021_REMOTE_SERVICES ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1110_001_PASSWORD_GUESSING ]
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK, IOC_IN_LOGS, ACCOUNT_LOCKOUTS],
+          'Reliability' => []
+        },
+        'DefaultOptions' => {
+          'ConnectTimeout' => 30
+        }
+      )
     )
 
     register_options(
