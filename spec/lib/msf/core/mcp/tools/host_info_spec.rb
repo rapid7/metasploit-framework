@@ -156,9 +156,34 @@ RSpec.describe Msf::MCP::Tools::HostInfo do
       expect(result.structured_content[:data].first[:address]).to eq('192.168.1.101')
     end
 
-    it 'passes addresses filter to MSF client' do
+    it 'does not pass CIDR addresses to MSF client (filtered in Ruby instead)' do
       described_class.call(addresses: '192.168.1.0/24', server_context: server_context)
-      expect(msf_client).to have_received(:db_hosts).with(hash_including(addresses: '192.168.1.0/24'))
+      expect(msf_client).not_to have_received(:db_hosts).with(hash_including(addresses: anything))
+    end
+
+    it 'passes exact IP addresses filter to MSF client' do
+      described_class.call(addresses: '192.168.1.100', server_context: server_context)
+      expect(msf_client).to have_received(:db_hosts).with(hash_including(addresses: '192.168.1.100'))
+    end
+
+    it 'filters hosts by CIDR in Ruby' do
+      result = described_class.call(addresses: '192.168.1.0/24', server_context: server_context)
+      data = result.structured_content[:data]
+      expect(data.length).to eq(2)
+      expect(data.map { |h| h[:address] }).to contain_exactly('192.168.1.100', '192.168.1.101')
+    end
+
+    it 'excludes hosts outside the CIDR range' do
+      allow(msf_client).to receive(:db_hosts).and_return({
+        'hosts' => [
+          { 'address' => '192.168.1.100', 'state' => 'alive', 'created_at' => 1609459200 },
+          { 'address' => '10.0.0.1',      'state' => 'alive', 'created_at' => 1609459200 }
+        ]
+      })
+      result = described_class.call(addresses: '192.168.1.0/24', server_context: server_context)
+      data = result.structured_content[:data]
+      expect(data.length).to eq(1)
+      expect(data.first[:address]).to eq('192.168.1.100')
     end
 
     it 'passes only_up filter to MSF client' do
