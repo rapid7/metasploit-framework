@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('AV_LIST',
+        OptString.new('AV_FILE_LIST',
                       [
                         false,
                         'File containing a list of AV products to hunt for. Each value should be seperated by a newline character and matching will be done in a case insensitive fashion', nil
@@ -44,10 +44,6 @@ class MetasploitModule < Msf::Post
         OptBool.new('KILL_PROCESSES', [false, 'Send a SIGKILL signal to all of the processes this module finds, including custom processes.Root permissions are required. '])
       ]
     )
-  end
-
-  def objective_see
-    ['LuLu', 'BlockBlock Helper', 'Do Not Disturb', 'ReiKey', 'RansomWhere', 'OverSight']
   end
 
   # good canidate for an acessory method
@@ -66,23 +62,26 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def fail_if_not_root
+  def fail_no_root
     fail_with(Failure::BadConfig, 'Current session is not root. Please escelate privilleges before re-running this module.') unless is_root?
   end
 
   def run
+    # TODO: add other AV product names.
+    products = ['LuLu', 'BlockBlock Helper', 'Do Not Disturb', 'ReiKey', 'RansomWhere', 'OverSight']
+
     print_status('Retrieving process list...')
     @processes = get_processes
 
     print_status('Hunting processes for AV products...')
     @av_processes = []
 
-    objective_see.each do |prod|
+    products.each do |prod|
       enum_processes prod
     end
 
-    if datastore['AV_LIST']
-      file = datastore['AV_LIST']
+    if datastore['AV_FILE_LIST']
+      file = datastore['AV_FILE_LIST']
       av = file_to_array file
       av.each do |prod|
         enum_processes prod
