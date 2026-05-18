@@ -15,7 +15,7 @@ module MsfdbHelpers
     def init(msf_pass, msftest_pass)
       puts "Creating database at #{@db}"
       Dir.mkdir(@db)
-      run_cmd("initdb --auth-host=trust --auth-local=trust -E UTF8 #{@db.shellescape}")
+      run_cmd("initdb --auth-host=trust --auth-local=trust --username=postgres -E UTF8 #{@db.shellescape}")
 
       File.open("#{@db}/postgresql.conf", 'a') do |f|
         f.puts "port = #{@options[:db_port]}"
