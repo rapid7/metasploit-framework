@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
       introduced = versions[0]
       fixed = versions[1]
       checkcode = check_plugin_version_from_readme('woocommerce-payments', fixed, introduced)
-      if checkcode == Exploit::CheckCode::Appears
+      if checkcode == Msf::Exploit::CheckCode::Appears
         return Msf::Exploit::CheckCode::Appears('WooCommerce-Payments version is exploitable')
       end
     end
