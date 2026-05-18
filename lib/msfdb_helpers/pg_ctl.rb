@@ -24,7 +24,10 @@ module MsfdbHelpers
       # Try creating a test file at {Dir.tmpdir},
       # Else fallback to creation at @{db}
       # Else fail with error.
-      if test_executable_file("#{Dir.tmpdir}")
+      if Gem.win_platform?
+        # Windows doesn't support Unix sockets; always use TCP
+        @socket_directory = @options[:db_host]
+      elsif test_executable_file("#{Dir.tmpdir}")
         @socket_directory = Dir.tmpdir
       elsif test_executable_file("#{@db}")
         @socket_directory = @db
