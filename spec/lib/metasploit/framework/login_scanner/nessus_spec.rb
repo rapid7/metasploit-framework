@@ -52,7 +52,9 @@ RSpec.describe Metasploit::Framework::LoginScanner::Nessus do
       context 'when target is Nessus' do
         let(:response) { msp_html_response }
         it 'returns false' do
+          allow(http_scanner).to receive(:report_service)
           expect(http_scanner.check_setup).to be(false)
+          expect(http_scanner).to have_received(:report_service).with(hash_including(name: 'nessus', proto: 'tcp'))
         end
       end
 

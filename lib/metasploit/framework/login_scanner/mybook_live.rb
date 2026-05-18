@@ -23,15 +23,8 @@ module Metasploit
         def attempt_login(credential)
           result_opts = {
             credential: credential,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
           begin
             res = send_request({
               'method' => method,
@@ -53,6 +46,10 @@ module Metasploit
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
           end
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('mybook_live')
         end
       end
     end

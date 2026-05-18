@@ -20,6 +20,7 @@ module Metasploit
           res = send_request({'uri'=> login_uri})
 
           if res && res.body.include?('DirectAdmin Login')
+            report_service(service_opts)
             return false
           end
 
@@ -99,10 +100,7 @@ module Metasploit
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp',
-            service_name: ssl ? 'https' : 'http'
+            **service_as_result(service_opts)
           }
 
           begin
@@ -113,6 +111,10 @@ module Metasploit
           end
 
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('directadmin')
         end
 
       end

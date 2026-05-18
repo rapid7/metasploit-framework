@@ -10,6 +10,7 @@ module Metasploit
       class HTTP
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
+        include Msf::Auxiliary::Report
 
         AUTHORIZATION_HEADER = 'WWW-Authenticate'.freeze
         DEFAULT_REALM = nil
@@ -218,6 +219,8 @@ module Metasploit
           end
 
           if authentication_required?(response)
+            # TODO: we might be able to do this, but look into potential false positives first.
+            # report_service(service)
             return false
           end
 
@@ -274,17 +277,8 @@ module Metasploit
           result_opts = {
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
-            proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(build_http_service_opts)
           }
-
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
 
           request_opts = {'credential'=>credential, 'uri'=>uri, 'method'=>method}
           if keep_connection_alive
@@ -325,6 +319,75 @@ module Metasploit
 
           self.class::DEFAULT_HTTP_NOT_AUTHED_CODES.include?(response.code) &&
             response.headers[self.class::AUTHORIZATION_HEADER]
+        end
+
+        def build_http_service_opts
+          if ssl
+            {
+              name: 'https',
+              host: host,
+              port: port,
+              proto: 'tcp',
+              parents: [
+                {
+                  name: 'ssl',
+                  host: host,
+                  port: port,
+                  proto: 'tcp',
+                  parents: [
+                    {
+                      name: 'tcp',
+                      host: host,
+                      port: port,
+                      proto: 'tcp'
+                    }
+                  ]
+                }
+              ]
+            }
+          else
+            {
+              name: 'http',
+              host: host,
+              port: port,
+              proto: 'tcp',
+              parents: [
+                {
+                  name: 'tcp',
+                  host: host,
+                  port: port,
+                  proto: 'tcp'
+                }
+              ]
+            }
+          end
+        end
+
+        def service_as_result(service)
+          transform_map = { name: :service_name, proto: :protocol }
+          service.transform_keys { |key| transform_map[key] || key }
+        end
+
+        def service_opts
+          raise NotImplementedError
+        end
+
+        # @see Msf::Auxiliary::Report#db
+        def db
+          framework&.db&.active
+        end
+
+        def build_service_opts(software_name)
+          parents = build_http_service_opts
+
+          {
+            name: software_name.downcase,
+            host: host,
+            port: port,
+            proto: 'tcp',
+            resource: uri,
+            parents: [ parents ]
+          }
         end
 
         private
