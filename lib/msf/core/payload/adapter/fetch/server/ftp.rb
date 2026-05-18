@@ -5,6 +5,7 @@ module Msf::Payload::Adapter::Fetch::Server::FTP
     register_options(
       [
         Msf::OptBool.new('FETCH_SRVONCE', [true, 'Stop serving the payload after it is retrieved', true]),
+
       ]
     )
   end
