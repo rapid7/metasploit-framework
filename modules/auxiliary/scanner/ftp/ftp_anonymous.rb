@@ -11,24 +11,27 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Module::Deprecated
   moved_from 'auxiliary/scanner/ftp/anonymous'
 
-  def initialize
+  def initialize(info = {})
     super(
-      'Name' => 'Anonymous FTP Access Detection',
-      'Description' => 'Detect anonymous (read/write) FTP service access.',
-      'References' => [
-        ['URL', 'https://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],
-        ['CVE', '1999-0497'],
-      ],
-      'Author' => [
-        'Matteo Cantoni <goony[at]nothink.org>',
-        'g0tmi1k' # @g0tmi1k - additional features
-      ],
-      'License' => MSF_LICENSE,
-      'Notes' => {
-        'Stability' => [CRASH_SAFE],
-        'SideEffects' => [IOC_IN_LOGS],
-        'Reliability' => []
-      }
+      update_info(
+        info,
+        'Name' => 'Anonymous FTP Access Detection',
+        'Description' => 'Detect anonymous (read/write) FTP service access.',
+        'References' => [
+          ['URL', 'https://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],
+          ['CVE', '1999-0497'],
+        ],
+        'Author' => [
+          'Matteo Cantoni <goony[at]nothink.org>',
+          'g0tmi1k' # @g0tmi1k - additional features
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
     )
 
     register_options(
