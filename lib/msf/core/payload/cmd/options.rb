@@ -22,4 +22,8 @@ module Msf::Payload::Cmd::Options
       self.class
     )
   end
+
+  def cmd_required?
+    false
+  end
 end
