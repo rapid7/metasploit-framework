@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
 
     sys_descr = snmp.get_value('sysDescr.0')
     if is_valid_snmp_value(sys_descr) && sys_descr.to_s =~ /SBG6580/
-      print_error("#{ip} does not appear to be a SBG6580.")
+      print_error("does not appear to be a SBG6580.")
       return
     end
 
@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     # any timeout or connectivity errors; the code would already
     # have jumped to error handling where the error status is
     # already being displayed.
-    print_good("#{ip}, Connected.")
+    print_good("Connected.")
 
     # attempt to get the username and password for the device user interface
     # using the CableHome cabhPsDevMib MIB module which defines the
@@ -217,13 +217,13 @@ class MetasploitModule < Msf::Auxiliary
 
     print_line(line)
   rescue SNMP::RequestTimeout
-    print_error("#{ip} SNMP request timeout.")
+    print_error("SNMP request timeout.")
   rescue Rex::ConnectionError
-    print_error("#{ip} Connection refused.")
+    print_error("Connection refused.")
   rescue SNMP::InvalidIpAddress
-    print_error("#{ip} Invalid IP address. Check it with 'snmpwalk tool'.")
+    print_error("Invalid IP address. Check it with 'snmpwalk tool'.")
   rescue SNMP::UnsupportedVersion
-    print_error("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
+    print_error("Unsupported SNMP version specified. Select from '1' or '2c'.")
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue StandardError => e

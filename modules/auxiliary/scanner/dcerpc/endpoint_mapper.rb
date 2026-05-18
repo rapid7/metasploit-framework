@@ -78,8 +78,8 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue ::Rex::Proto::DCERPC::Exceptions::Fault => e
-    vprint_error("#{ip}:#{rport} error: #{e}")
+    vprint_error("error: #{e}")
   rescue StandardError => e
-    print_error("#{ip}:#{rport} error: #{e}")
+    print_error("error: #{e}")
   end
 end

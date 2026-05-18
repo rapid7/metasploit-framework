@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
       return :abort
     end
 
-    vprint_status("#{rhost}:#{rport} - Trying user:'#{user}' with password:'#{pass}'")
+    vprint_status("Trying user:'#{user}' with password:'#{pass}'")
     cmd = "Action: Login\r\nUsername: #{user}\r\nSecret: #{pass}\r\n\r\n"
     send_manager(cmd)
 

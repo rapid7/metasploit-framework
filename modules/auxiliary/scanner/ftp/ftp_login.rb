@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{ip}:#{rport} - Starting FTP login sweep")
+    print_status("Starting FTP login sweep")
 
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
@@ -97,10 +97,10 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+        print_good "Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
-        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        vprint_error "LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
   end
@@ -121,10 +121,10 @@ class MetasploitModule < Msf::Auxiliary
     write_check = scanner.send_cmd(['MKD', dir], true)
     if write_check and write_check =~ /^2/
       scanner.send_cmd(['RMD', dir], true)
-      print_status("#{rhost}:#{rport} - User '#{user}' has READ/WRITE access")
+      print_status("User '#{user}' has READ/WRITE access")
       return 'Read/Write'
     else
-      print_status("#{rhost}:#{rport} - User '#{user}' has READ access")
+      print_status("User '#{user}' has READ access")
       return 'Read-only'
     end
   end

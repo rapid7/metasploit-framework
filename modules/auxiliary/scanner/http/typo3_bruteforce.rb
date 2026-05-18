@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     unless res
-      vprint_error("#{ip} seems to be down")
+      vprint_error("seems to be down")
       return
     end
 

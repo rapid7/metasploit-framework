@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
 
       return if len <= 0
 
-      print_good("#{peer} - IKE response with leak")
+      print_good("IKE response with leak")
       report_vuln({
         :host => ip,
         :port => datastore['RPORT'],
@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
       pkt_md5 = ::Rex::Text.md5(isakmp_pkt[isakmp_pkt.length - 2500, isakmp_pkt.length])
       res_md5 = ::Rex::Text.md5(res[res.length - 2500, res.length])
 
-      print_warning("#{peer} - IKE response is same to payload data") if pkt_md5 == res_md5
+      print_warning("IKE response is same to payload data") if pkt_md5 == res_md5
     rescue
     ensure
       udp_sock.close

@@ -138,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login_creds(ip)
-    print_status("#{ip}:#{rport} SSH - Testing User/Pass combinations")
+    print_status("SSH - Testing User/Pass combinations")
 
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
@@ -209,7 +209,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login_pubkey(ip)
-    print_status("#{ip}:#{rport} SSH - Testing Cleartext Keys")
+    print_status("SSH - Testing Cleartext Keys")
 
     keys = Metasploit::Framework::KeyCollection.new(
       key_path: datastore['KEY_PATH'],

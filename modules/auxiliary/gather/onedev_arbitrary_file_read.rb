@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Auxiliary
       project = project.strip
       next unless validate_project_exists(project)
 
-      print_status("#{peer} - Found valid OneDev project name: #{project}")
+      print_status("Found valid OneDev project name: #{project}")
       return project
     end
     nil

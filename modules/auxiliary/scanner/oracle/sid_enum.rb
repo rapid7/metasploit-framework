@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("TNS listener protected for #{ip}...")
       else
         if (not data)
-          print_error("#{ip} Connection but no data")
+          print_error("Connection but no data")
         else
           sid = data.scan(/INSTANCE_NAME=([^\)]+)/)
           sid.uniq.each do |s|

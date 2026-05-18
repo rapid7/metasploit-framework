@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     # any timeout or connectivity errors; the code would already
     # have jumped to error handling where the error status is
     # already being displayed.
-    print_good("#{ip}, Connected.")
+    print_good("Connected.")
 
     sys_desc = snmp.get_value('1.3.6.1.2.1.1.1.0').to_s
     sys_desc.gsub!(/^\s+|\s+$|\n+|\r+/, ' ')
@@ -866,15 +866,15 @@ class MetasploitModule < Msf::Auxiliary
     print_line(line)
     print_line('')
   rescue SNMP::RequestTimeout
-    print_error("#{ip} SNMP request timeout.")
+    print_error("SNMP request timeout.")
   rescue Rex::ConnectionError
-    print_error("#{ip} Connection refused.")
+    print_error("Connection refused.")
   rescue SNMP::InvalidIpAddress
-    print_error("#{ip} Invalid IP address. Check it with 'snmpwalk tool'.")
+    print_error("Invalid IP address. Check it with 'snmpwalk tool'.")
   rescue SNMP::UnsupportedVersion
-    print_error("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
+    print_error("Unsupported SNMP version specified. Select from '1' or '2c'.")
   rescue SNMP::ParseError
-    print_error("#{ip} Encountered an SNMP parsing error while trying to enumerate the host.")
+    print_error("Encountered an SNMP parsing error while trying to enumerate the host.")
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue StandardError => e

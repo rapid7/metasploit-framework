@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
 
     if (not cert)
-      print_status("#{ip} No certificate subject or CN found")
+      print_status("No certificate subject or CN found")
       return
     end
     sub = cert.subject.to_a
@@ -57,17 +57,17 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if cert.issuer.to_s !~ /#{datastore['ISSUER'].source}/n
-      print_good("#{ip} - '#{vhostn}' : #{cert.issuer} (BAD ISSUER)")
+      print_good("'#{vhostn}' : #{cert.issuer} (BAD ISSUER)")
     elsif datastore['SHOWALL']
       # show verbose as status
-      print_status("#{ip} - '#{vhostn}' : #{cert.issuer}")
+      print_status("'#{vhostn}' : #{cert.issuer}")
     end
 
     if (a < 1 or b > 0)
-      print_good("#{ip} - '#{vhostn}' : '" + before.to_s + "' - '" + after.to_s + "' (EXPIRED)'")
+      print_good("'#{vhostn}' : '" + before.to_s + "' - '" + after.to_s + "' (EXPIRED)'")
     else
       # show verbose as status
-      print_status("#{ip} - '#{vhostn}' : '" + before.to_s + "' - '" + after.to_s + "'")
+      print_status("'#{vhostn}' : '" + before.to_s + "' - '" + after.to_s + "'")
     end
 
     report_note(

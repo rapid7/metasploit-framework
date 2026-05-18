@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
     if resp.to_s =~ /process_postgres_switches/
       proof = resp[4, resp.length - 4].to_s.gsub("\x00", " ")
 
-      print_good("#{rhost}:#{rport} is vulnerable to CVE-2013-1899: #{proof}")
+      print_good("is vulnerable to CVE-2013-1899: #{proof}")
       report_vuln({
         :host	=> rhost,
         :port	=> rport,
@@ -68,9 +68,9 @@ class MetasploitModule < Msf::Auxiliary
         :refs => self.references
       })
     elsif resp.to_s =~ /pg_hba\.conf/
-      print_error("#{rhost}:#{rport} does not allow connections from us")
+      print_error("does not allow connections from us")
     else
-      print_status("#{rhost}:#{rport} does not appear to be vulnerable to CVE-2013-1899")
+      print_status("does not appear to be vulnerable to CVE-2013-1899")
     end
   end
 end

@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{ip}:#{rport} - Starting rlogin sweep")
+    print_status("Starting rlogin sweep")
 
     # We make a first connection to assess initial state of the service. If the
     # service isn't available, we don't even bother to try further attempts against
@@ -142,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
         @@credentials_skipped[fq_user] = fupw
 
       when :connection_error # Report an error, skip this cred, but don't abort.
-        vprint_error "#{datastore['RHOST']}:#{datastore['RPORT']} - Connection error, skipping '#{u}':'#{p}' from '#{fu}'"
+        vprint_error "Connection error, skipping '#{u}':'#{p}' from '#{fu}'"
 
       end
       @@credentials_tried[fq_user] = fupw
@@ -152,7 +152,7 @@ class MetasploitModule < Msf::Auxiliary
   def try_user_pass(user, luser, pass, status = nil)
     luser ||= 'root'
 
-    vprint_status "#{rhost}:#{rport} rlogin - Attempting: '#{user}':#{pass.inspect} from '#{luser}'"
+    vprint_status "rlogin - Attempting: '#{user}':#{pass.inspect} from '#{luser}'"
 
     this_attempt ||= 0
     ret = nil
@@ -160,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
       if this_attempt > 0
         # power of 2 back-off
         select(nil, nil, nil, 2**this_attempt)
-        vprint_error "#{rhost}:#{rport} rlogin - Retrying '#{user}':#{pass.inspect} from '#{luser}' due to reset"
+        vprint_error "rlogin - Retrying '#{user}':#{pass.inspect} from '#{luser}' due to reset"
       end
       ret = do_login(user, pass, luser, status)
       this_attempt += 1
@@ -168,17 +168,17 @@ class MetasploitModule < Msf::Auxiliary
 
     case ret
     when :no_pass_prompt
-      vprint_status "#{rhost}:#{rport} rlogin - Skipping '#{user}' due to missing password prompt"
+      vprint_status "rlogin - Skipping '#{user}' due to missing password prompt"
       return :skip_user
 
     when :busy
-      vprint_error "#{rhost}:#{rport} rlogin - Skipping '#{user}':#{pass.inspect} from '#{luser}' due to busy state"
+      vprint_error "rlogin - Skipping '#{user}':#{pass.inspect} from '#{luser}' due to busy state"
 
     when :refused
-      vprint_error "#{rhost}:#{rport} rlogin - Skipping '#{user}':#{pass.inspect} from '#{luser}' due to connection refused."
+      vprint_error "rlogin - Skipping '#{user}':#{pass.inspect} from '#{luser}' due to connection refused."
 
     when :skip_user
-      vprint_status "#{rhost}:#{rport} rlogin - Skipping disallowed user '#{user}' for subsequent requests"
+      vprint_status "rlogin - Skipping disallowed user '#{user}' for subsequent requests"
       return :skip_user
 
     when :success
@@ -240,14 +240,14 @@ class MetasploitModule < Msf::Auxiliary
     # If we're not trusted, we should get a password prompt. Otherwise, we might be in already :)
     if login_succeeded?
       # should we report a vuln here? rlogin allowed w/o password?!
-      print_good("#{target_host}:#{rport}, rlogin '#{user}' from '#{luser}' with no password.")
+      print_good("rlogin '#{user}' from '#{luser}' with no password.")
       start_rlogin_session(rhost, rport, user, luser, nil, @trace)
       return :success
     end
 
     # no password to try, give up if luser isnt enough.
     if not pass
-      vprint_error("#{target_host}:#{rport}, rlogin '#{user}' from '#{luser}' failed (no password to try)")
+      vprint_error("rlogin '#{user}' from '#{luser}' failed (no password to try)")
       return :fail
     end
 
@@ -256,7 +256,7 @@ class MetasploitModule < Msf::Auxiliary
       recv(self.sock, 0.10) unless @recvd.nil? || password_prompt?(@recvd)
     end
 
-    vprint_status("#{rhost}:#{rport} Prompt: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
+    vprint_status("Prompt: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
 
     # Not successful yet, maybe we got a password prompt.
     if password_prompt?(user)
@@ -268,10 +268,10 @@ class MetasploitModule < Msf::Auxiliary
         break if login_succeeded?
       end
 
-      vprint_status("#{rhost}:#{rport} Result: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
+      vprint_status("Result: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
 
       if login_succeeded?
-        print_good("#{target_host}:#{rport}, rlogin '#{user}' successful with password #{pass.inspect}")
+        print_good("rlogin '#{user}' successful with password #{pass.inspect}")
         start_rlogin_session(rhost, rport, user, nil, pass, @trace)
         return :success
       else

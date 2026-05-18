@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{ip}:#{rport} - Starting rsh sweep")
+    print_status("Starting rsh sweep")
 
     cmd = datastore['CMD']
     cmd ||= 'sh -i 2>&1'
@@ -113,14 +113,14 @@ class MetasploitModule < Msf::Auxiliary
         @@credentials_skipped[fq_user] = fu
 
       when :connection_error # Report an error, skip this cred, but don't abort.
-        vprint_error "#{datastore['RHOST']}:#{datastore['RPORT']} - Connection error, skipping '#{u}' from '#{fu}'"
+        vprint_error "Connection error, skipping '#{u}' from '#{fu}'"
       end
       @@credentials_tried[fq_user] = fu
     end
   end
 
   def do_login(user, luser, cmd, sfd, lport)
-    vprint_status("#{target_host}:#{rport} - Attempting rsh with username '#{user}' from '#{luser}'")
+    vprint_status("Attempting rsh with username '#{user}' from '#{luser}'")
 
     # We must connect from a privileged port.
     this_attempt ||= 0
@@ -129,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
       if this_attempt > 0
         # power of 2 back-off
         select(nil, nil, nil, 2**this_attempt)
-        vprint_error "#{rhost}:#{rport} rsh - Retrying '#{user}' from '#{luser}' due to reset"
+        vprint_error "rsh - Retrying '#{user}' from '#{luser}' due to reset"
       end
       ret = connect_from_privileged_port
       break if ret == :connected
@@ -173,7 +173,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # should we report a vuln here? rsh allowed w/o password?!
-    print_good("#{target_host}:#{rport}, rsh '#{user}' from '#{luser}' with no password.")
+    print_good("rsh '#{user}' from '#{luser}' with no password.")
     start_rsh_session(rhost, rport, user, luser, buf, stderr_sock)
 
     return :next_user

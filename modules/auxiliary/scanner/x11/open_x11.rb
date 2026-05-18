@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
         name: 'X11'
       )
     else
-      vprint_error("#{ip} Access not successful: #{connection.body.reason}")
+      vprint_error("Access not successful: #{connection.body.reason}")
     end
 
     disconnect

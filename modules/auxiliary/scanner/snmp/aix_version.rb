@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     value = snmp.get_value('sysDescr.0')
 
     unless value =~ /AIX/
-      print_error("#{ip} system is not AIX: #{value}")
+      print_error("system is not AIX: #{value}")
       return
     end
 
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue StandardError => e
-    print_error("#{ip} #{e.class}, #{e.message}")
+    print_error("#{e.class}, #{e.message}")
   ensure
     disconnect_snmp
   end

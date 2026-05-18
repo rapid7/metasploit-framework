@@ -80,9 +80,9 @@ class MetasploitModule < Msf::Auxiliary
 
     # Check to see if it worked or not
     if is_alive?
-      print_error("#{peer} - Server is still alive.")
+      print_error("Server is still alive.")
     else
-      print_good("#{peer} - Connection Refused: Success! Server will recover about #{(time + 300).strftime('%Y-%m-%d %H:%M:%S')}")
+      print_good("Connection Refused: Success! Server will recover about #{(time + 300).strftime('%Y-%m-%d %H:%M:%S')}")
     end
   end
 end

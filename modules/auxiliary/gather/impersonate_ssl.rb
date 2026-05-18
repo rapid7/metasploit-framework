@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if !cert
-      print_error("#{rhost}:#{rport} No certificate subject or CN found")
+      print_error("No certificate subject or CN found")
       return
     end
 

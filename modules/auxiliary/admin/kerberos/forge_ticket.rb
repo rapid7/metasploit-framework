@@ -198,7 +198,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     credential = auth_context[:credential]
 
-    print_status("#{peer} - Using U2U to impersonate #{datastore['USER']}@#{datastore['DOMAIN']}")
+    print_status("Using U2U to impersonate #{datastore['USER']}@#{datastore['DOMAIN']}")
 
     session_key = Rex::Proto::Kerberos::Model::EncryptionKey.new(
       type: credential.keyblock.enctype.value,

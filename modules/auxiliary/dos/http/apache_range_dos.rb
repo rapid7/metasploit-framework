@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
       )
 
     else
-      print_status("#{rhost} doesn't seem to be vulnerable at #{uri}")
+      print_status("doesn't seem to be vulnerable at #{uri}")
     end
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE => e
     vprint_error(e.message)

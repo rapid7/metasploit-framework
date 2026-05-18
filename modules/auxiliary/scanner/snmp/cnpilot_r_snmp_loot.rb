@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     snmp = connect_snmp
-    print_good("#{ip}, Connected.\n")
+    print_good("Connected.\n")
 
     cnpilot_info = ''
 
@@ -127,13 +127,13 @@ class MetasploitModule < Msf::Auxiliary
     p = store_loot(loot_name, loot_type, datastore['RHOST'], cnpilot_info, loot_filename, loot_desc)
     print_good("Cambium cnPilot SNMP loot saved at #{p} \n")
   rescue SNMP::RequestTimeout
-    print_error("#{ip} SNMP request timeout.")
+    print_error("SNMP request timeout.")
   rescue Rex::ConnectionError
-    print_error("#{ip} Connection refused.")
+    print_error("Connection refused.")
   rescue SNMP::InvalidIpAddress
-    print_error("#{ip} Invalid IP Address. Check it with 'snmpwalk tool'.")
+    print_error("Invalid IP Address. Check it with 'snmpwalk tool'.")
   rescue SNMP::UnsupportedVersion
-    print_error("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
+    print_error("Unsupported SNMP version specified. Select from '1' or '2c'.")
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue StandardError => e

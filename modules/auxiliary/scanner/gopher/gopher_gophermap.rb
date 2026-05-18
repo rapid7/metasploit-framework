@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     rescue ::Rex::ConnectionError, ::IOError, ::Errno::ECONNRESET
     rescue ::Exception => e
-      print_error("#{ip}: #{e} #{e.backtrace}")
+      print_error("#{e} #{e.backtrace}")
     ensure
       disconnect
     end

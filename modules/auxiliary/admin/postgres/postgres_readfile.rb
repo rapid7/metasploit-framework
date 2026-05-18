@@ -51,17 +51,17 @@ class MetasploitModule < Msf::Auxiliary
     ret = postgres_read_textfile(datastore['RFILE'])
     case ret.keys[0]
     when :conn_error
-      print_error "#{rhost}:#{rport} Postgres - Authentication failure, could not connect."
+      print_error "Postgres - Authentication failure, could not connect."
     when :sql_error
       case ret[:sql_error]
       when /^C58P01/
-        print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - No such file or directory."
-        vprint_status "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - #{ret[:sql_error]}"
+        print_error "Postgres - No such file or directory."
+        vprint_status "Postgres - #{ret[:sql_error]}"
       when /^C42501/
-        print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - Insufficient file permissions."
-        vprint_status "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - #{ret[:sql_error]}"
+        print_error "Postgres - Insufficient file permissions."
+        vprint_status "Postgres - #{ret[:sql_error]}"
       else
-        print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - #{ret[:sql_error]}"
+        print_error "Postgres - #{ret[:sql_error]}"
       end
     when :complete
       loot = ''
@@ -71,8 +71,8 @@ class MetasploitModule < Msf::Auxiliary
       end
       # No idea what the actual ctype will be, text/plain is just a guess
       path = store_loot('postgres.file', 'text/plain', postgres_conn.peerhost, loot, datastore['RFILE'])
-      print_good("#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - #{datastore['RFILE']} saved in #{path}")
-      vprint_good "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - Command complete."
+      print_good("Postgres - #{datastore['RFILE']} saved in #{path}")
+      vprint_good "Postgres - Command complete."
     end
     postgres_logout if postgres_conn && session.blank?
   end

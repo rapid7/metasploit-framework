@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
       })
 
       unless (res.is_a? Rex::Proto::Http::Response)
-        vprint_error("#{rhost} not responding")
+        vprint_error("not responding")
         return :abort
       end
 
@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
         return :abort
       end
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost} - Failed to connect to the web server")
+      vprint_error("Failed to connect to the web server")
       return :abort
     end
 
@@ -191,7 +191,7 @@ class MetasploitModule < Msf::Auxiliary
         }
       })
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost} - Failed to connect to the web server")
+      vprint_error("Failed to connect to the web server")
       return :abort
     end
 

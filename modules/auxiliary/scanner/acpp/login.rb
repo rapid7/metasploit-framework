@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    vprint_status("#{ip}:#{rport} - Starting ACPP login sweep")
+    vprint_status("Starting ACPP login sweep")
 
     cred_collection = Metasploit::Framework::PrivateCredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        print_good("#{ip}:#{rport} - ACPP Login Successful: #{password}")
+        print_good("ACPP Login Successful: #{password}")
         report_vuln(
           host: ip,
           port: rport,
@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
         )
       else
         invalidate_login(credential_data)
-        vprint_error("#{ip}:#{rport} - ACPP LOGIN FAILED: #{password} (#{result.status}: #{result.proof})")
+        vprint_error("ACPP LOGIN FAILED: #{password} (#{result.status}: #{result.proof})")
       end
     end
   end

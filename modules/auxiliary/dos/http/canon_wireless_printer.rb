@@ -85,9 +85,9 @@ class MetasploitModule < Msf::Auxiliary
 
     # Check to see if it worked or not
     if is_alive?
-      print_error("#{rhost}:#{rport} - Server is still alive")
+      print_error("Server is still alive")
     else
-      print_good("#{rhost}:#{rport} - Connection Refused: Success!")
+      print_good("Connection Refused: Success!")
     end
   end
 end

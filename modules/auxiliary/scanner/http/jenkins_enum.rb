@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     version = res.headers['X-Jenkins']
-    print_good("#{peer} - Jenkins Version #{version}")
+    print_good("Jenkins Version #{version}")
     report_service(
       :host => rhost,
       :port => rport,

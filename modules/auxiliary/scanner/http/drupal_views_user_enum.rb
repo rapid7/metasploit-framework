@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     # Check if remote host is available or appears vulnerable
     unless check_host(ip) == Exploit::CheckCode::Appears
-      print_error("#{ip} does not appear to be vulnerable, will not continue")
+      print_error("does not appear to be vulnerable, will not continue")
       return
     end
 

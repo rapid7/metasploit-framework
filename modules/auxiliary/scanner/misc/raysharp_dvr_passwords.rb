@@ -127,6 +127,6 @@ class MetasploitModule < Msf::Auxiliary
     return unless (creds.keys.length > 0 or mac or ver)
 
     report_service(:host => rhost, :port => rport, :sname => 'dvr', :info => info)
-    print_good("#{rhost}:#{rport} #{info}")
+    print_good("#{info}")
   end
 end

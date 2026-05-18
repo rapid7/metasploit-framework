@@ -93,9 +93,9 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       if response.empty?
-        vprint_status("#{peer} No Moxa Devices Found.")
+        vprint_status("No Moxa Devices Found.")
       else
-        print_good("#{peer} Moxa Device Found!")
+        print_good("Moxa Device Found!")
 
         # Report vuln
         report_vuln(

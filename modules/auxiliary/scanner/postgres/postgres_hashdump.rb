@@ -78,10 +78,10 @@ class MetasploitModule < Msf::Auxiliary
 
       case res[:sql_error]
       when /^C42501/
-        print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - Insufficient permissions."
+        print_error "Postgres - Insufficient permissions."
         return
       else
-        print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - #{res[:sql_error]}"
+        print_error "Postgres - #{res[:sql_error]}"
         return
       end
     when :complete

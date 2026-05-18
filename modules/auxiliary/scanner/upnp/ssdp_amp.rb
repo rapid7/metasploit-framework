@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
       vulnerable, proof = prove_amplification(response_map)
       what = 'SSDP ssdp:all M-SEARCH amplification'
       if vulnerable
-        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
+        print_good("Vulnerable to #{what}: #{proof}")
         report_vuln(
           host: k,
           port: datastore['RPORT'],
@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
           refs: self.references
         )
       else
-        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
+        vprint_status("Not vulnerable to #{what}: #{proof}")
       end
     end
   end

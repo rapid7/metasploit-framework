@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     data << '</SOAP-ENV:Envelope>'
 
     begin
-      vprint_status("#{rhost}:#{rport} - Sending request to check #{datastore['DIR']}")
+      vprint_status("Sending request to check #{datastore['DIR']}")
       res = send_request_cgi({
         'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
@@ -89,14 +89,14 @@ class MetasploitModule < Msf::Auxiliary
       })
       if res && (res.code == 200) && res.body =~ /EPS_GET_DIRECTORY_LISTING\.Response/ && res.body =~ %r{<FILE_COUNTER>(\d*)</FILE_COUNTER>}
         file_count = ::Regexp.last_match(1)
-        print_good("#{rhost}:#{rport} - #{file_count} files under #{datastore['DIR']}")
+        print_good("#{file_count} files under #{datastore['DIR']}")
       else
-        vprint_error("#{rhost}:#{rport} - Error code: " + res.code.to_s) if res
-        vprint_error("#{rhost}:#{rport} - Error message: " + res.message.to_s) if res
-        vprint_error("#{rhost}:#{rport} - Error body: " + res.body.to_s) if res && res.body
+        vprint_error("Error code: " + res.code.to_s) if res
+        vprint_error("Error message: " + res.message.to_s) if res
+        vprint_error("Error body: " + res.body.to_s) if res && res.body
       end
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Unable to connect")
+      vprint_error("Unable to connect")
       return
     end
   end
