@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Post
     return unless data.to_s.include?('PRIVATE KEY')
 
     begin
-      Net::SSH::KeyFactory.load_data_private_key(data, nil, false)
+      key = Net::SSH::KeyFactory.load_data_private_key(data, nil, false)
 
       create_credential(
         origin_type: :session,
@@ -137,6 +137,16 @@ class MetasploitModule < Msf::Post
         port: 22,
         service_name: 'ssh',
         protocol: 'tcp'
+      )
+
+      report_note(
+        host: session.session_host,
+        port: 22,
+        proto: 'tcp',
+        sname: 'ssh',
+        type: 'ssh.privatekey',
+        data: { user: user, file: filename, fingerprint: key.fingerprint('SHA256') },
+        update: :unique_data
       )
 
       print_good("Stored SSH private key (#{filename}) for user: #{user}")
