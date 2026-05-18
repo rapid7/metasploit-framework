@@ -102,6 +102,19 @@ module Msf::Post::Unix
   end
 
   #
+  # Resolves a username from a subdirectory of a home dir (e.g. /home/alice/.ssh -> alice)
+  # This is done by matching the parent path against enum_user_directories(),
+  # falling back to a positional path split for non-standard layouts.
+  # @param path [String] a subdirectory one level below the user's home dir (e.g. /home/alice/.ssh)
+  # @return [String] username
+  #
+  def user_from_home_subdir(path)
+    home_dir = File.dirname(path)
+    user_entry = enum_user_directories.find { |d| d.chomp('/') == home_dir }
+    user_entry ? user_entry.split('/').last : File.basename(home_dir)
+  end
+
+  #
   # It returns the username of the current user
   # @return [String] with username
   #
