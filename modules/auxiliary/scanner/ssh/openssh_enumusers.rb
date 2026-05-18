@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'recog'
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SSH
   include Msf::Auxiliary::Scanner
@@ -336,6 +338,35 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - SSH banner: #{banner}")
     report_service(host: ip, port: rport, name: 'ssh', proto: 'tcp', info: banner)
+
+    if /^SSH-\d+\.\d+-(.*)$/ =~ banner
+      recog_match = Recog::Nizer.match('ssh.banner', ::Regexp.last_match(1))
+      if recog_match
+        os_info = {}
+
+        recog_match.each_pair do |k, v|
+          next if k == 'matched'
+
+          case k
+          when 'os.product' then os_info[:os_name] = v
+          when 'os.vendor' then os_info[:os_flavor] = v
+          when 'os.version' then os_info[:os_sp] = v
+          when 'os.cpe23'
+            report_note(
+              host: ip,
+              port: rport,
+              proto: 'tcp',
+              sname: 'ssh',
+              type: 'ssh.cpe',
+              data: { cpe: v },
+              update: :unique_data
+            )
+          end
+        end
+
+        report_host({ host: ip }.merge(os_info)) unless os_info.empty?
+      end
+    end
 
     match = banner.match(/OpenSSH[_ ](\d+\.\d+)/i)
     return unless match
