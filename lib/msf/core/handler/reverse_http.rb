@@ -382,16 +382,12 @@ protected
       conn_id = req.conn_id
     end
 
-    elog("MC2DBG on_request resource=#{req.relative_resource.inspect} " \
-         "conn_id=#{req.conn_id.inspect} " \
-         "info=#{info.nil? ? 'nil' : { sum: info[:sum], mode: info[:mode], uuid: !info[:uuid].nil? }.inspect}")
-
     if uuid
       # Configure the UUID architecture and payload if necessary
       uuid.arch      ||= self.arch
       uuid.platform  ||= self.platform
 
-      request_summary = "#{luri} with UA '#{req.headers['User-Agent']}'"
+      request_summary = "URI '#{luri}' with UA '#{req.headers['User-Agent']}'"
 
       if info[:mode] && info[:mode] != :connect
         conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
