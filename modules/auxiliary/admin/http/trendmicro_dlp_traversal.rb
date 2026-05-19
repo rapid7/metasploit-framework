@@ -69,17 +69,17 @@ class MetasploitModule < Msf::Auxiliary
       }, 25
     )
     if res && (res.code == 200)
-      print_status("Request may have succeeded on #{rhost}:#{rport}:file->#{files}! Response: \r\n#{res.body}")
+      print_status("Request may have succeeded on #{Rex::Socket.to_authority(rhost, rport)}:file->#{files}! Response: \r\n#{res.body}")
       @files_found << files
     elsif res && res.code
-      vprint_status("Attempt returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
+      vprint_status("Attempt returned HTTP error #{res.code} on #{Rex::Socket.to_authority(rhost, rport)}:file->#{files}")
     end
   end
 
   def run_host(_ip)
     @files_found = []
 
-    print_status("Attempting to connect to #{rhost}:#{rport}")
+    print_status("Attempting to connect to #{Rex::Socket.to_authority(rhost, rport)}")
     res = send_request_raw(
       {
         'method' => 'GET',

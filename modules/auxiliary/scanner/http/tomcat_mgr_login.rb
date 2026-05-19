@@ -86,16 +86,16 @@ class MetasploitModule < Msf::Auxiliary
       }, 25)
       http_fingerprint({ :response => res })
     rescue ::Rex::ConnectionError => e
-      vprint_error("http://#{rhost}:#{rport}#{uri} - #{e}")
+      vprint_error("http://#{Rex::Socket.to_authority(rhost, rport)}#{uri} - #{e}")
       return
     end
 
     if not res
-      vprint_error("http://#{rhost}:#{rport}#{uri} - No response")
+      vprint_error("http://#{Rex::Socket.to_authority(rhost, rport)}#{uri} - No response")
       return
     end
     if res.code != 401
-      vprint_error("http://#{rhost}:#{rport}#{uri} - Authorization not requested")
+      vprint_error("http://#{Rex::Socket.to_authority(rhost, rport)}#{uri} - Authorization not requested")
       return
     end
 

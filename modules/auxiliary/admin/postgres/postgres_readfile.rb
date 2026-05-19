@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     ret = postgres_read_textfile(datastore['RFILE'])
     case ret.keys[0]
     when :conn_error
-      print_error "#{rhost}:#{rport} Postgres - Authentication failure, could not connect."
+      print_error "#{Rex::Socket.to_authority(rhost, rport)} Postgres - Authentication failure, could not connect."
     when :sql_error
       case ret[:sql_error]
       when /^C58P01/

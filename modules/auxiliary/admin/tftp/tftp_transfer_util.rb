@@ -183,12 +183,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_upload
-    print_status "Sending '#{file}' to #{rhost}:#{rport} as '#{remote_file}'"
+    print_status "Sending '#{file}' to #{Rex::Socket.to_authority(rhost, rport)} as '#{remote_file}'"
     @tftp_client.send_write_request { |msg| print_tftp_status(msg) }
   end
 
   def run_download
-    print_status "Receiving '#{remote_file}' from #{rhost}:#{rport} as '#{file}'"
+    print_status "Receiving '#{remote_file}' from #{Rex::Socket.to_authority(rhost, rport)} as '#{file}'"
     @tftp_client.send_read_request { |msg| print_tftp_status(msg) }
   end
 

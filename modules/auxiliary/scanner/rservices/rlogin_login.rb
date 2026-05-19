@@ -152,7 +152,7 @@ class MetasploitModule < Msf::Auxiliary
   def try_user_pass(user, luser, pass, status = nil)
     luser ||= 'root'
 
-    vprint_status "#{rhost}:#{rport} rlogin - Attempting: '#{user}':#{pass.inspect} from '#{luser}'"
+    vprint_status "#{Rex::Socket.to_authority(rhost, rport)} rlogin - Attempting: '#{user}':#{pass.inspect} from '#{luser}'"
 
     this_attempt ||= 0
     ret = nil
@@ -160,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
       if this_attempt > 0
         # power of 2 back-off
         select(nil, nil, nil, 2**this_attempt)
-        vprint_error "#{rhost}:#{rport} rlogin - Retrying '#{user}':#{pass.inspect} from '#{luser}' due to reset"
+        vprint_error "#{Rex::Socket.to_authority(rhost, rport)} rlogin - Retrying '#{user}':#{pass.inspect} from '#{luser}' due to reset"
       end
       ret = do_login(user, pass, luser, status)
       this_attempt += 1
@@ -168,17 +168,17 @@ class MetasploitModule < Msf::Auxiliary
 
     case ret
     when :no_pass_prompt
-      vprint_status "#{rhost}:#{rport} rlogin - Skipping '#{user}' due to missing password prompt"
+      vprint_status "#{Rex::Socket.to_authority(rhost, rport)} rlogin - Skipping '#{user}' due to missing password prompt"
       return :skip_user
 
     when :busy
-      vprint_error "#{rhost}:#{rport} rlogin - Skipping '#{user}':#{pass.inspect} from '#{luser}' due to busy state"
+      vprint_error "#{Rex::Socket.to_authority(rhost, rport)} rlogin - Skipping '#{user}':#{pass.inspect} from '#{luser}' due to busy state"
 
     when :refused
-      vprint_error "#{rhost}:#{rport} rlogin - Skipping '#{user}':#{pass.inspect} from '#{luser}' due to connection refused."
+      vprint_error "#{Rex::Socket.to_authority(rhost, rport)} rlogin - Skipping '#{user}':#{pass.inspect} from '#{luser}' due to connection refused."
 
     when :skip_user
-      vprint_status "#{rhost}:#{rport} rlogin - Skipping disallowed user '#{user}' for subsequent requests"
+      vprint_status "#{Rex::Socket.to_authority(rhost, rport)} rlogin - Skipping disallowed user '#{user}' for subsequent requests"
       return :skip_user
 
     when :success
@@ -256,7 +256,7 @@ class MetasploitModule < Msf::Auxiliary
       recv(self.sock, 0.10) unless @recvd.nil? || password_prompt?(@recvd)
     end
 
-    vprint_status("#{rhost}:#{rport} Prompt: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} Prompt: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
 
     # Not successful yet, maybe we got a password prompt.
     if password_prompt?(user)
@@ -268,7 +268,7 @@ class MetasploitModule < Msf::Auxiliary
         break if login_succeeded?
       end
 
-      vprint_status("#{rhost}:#{rport} Result: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} Result: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
 
       if login_succeeded?
         print_good("#{target_host}:#{rport}, rlogin '#{user}' successful with password #{pass.inspect}")

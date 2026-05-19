@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if !res
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
       return
     end
 
@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_start_profile(rhost)
-    print_status("#{rhost}:#{rport} [SAP] Connecting to SAP Management Console SOAP Interface")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Connecting to SAP Management Console SOAP Interface")
     success = false
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
@@ -113,12 +113,12 @@ class MetasploitModule < Msf::Auxiliary
 
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
       return
     end
 
     if success
-      print_good("#{rhost}:#{rport} [SAP] Startup Profile Extracted: #{name}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Startup Profile Extracted: #{name}")
       f = store_loot(
         'sap.profile',
         'text/xml',
@@ -134,10 +134,10 @@ class MetasploitModule < Msf::Auxiliary
       end
 
     elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Error code: #{faultcode}")
       return
     else
-      print_error("#{rhost}:#{rport} [SAP] failed to request environment")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] failed to request environment")
       return
     end
   end

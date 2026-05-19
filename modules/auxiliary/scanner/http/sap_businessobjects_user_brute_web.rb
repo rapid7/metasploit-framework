@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def enum_user(user, pass)
-    vprint_status("#{rhost}:#{rport} - Trying username:'#{user}' password: '#{pass}'")
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Trying username:'#{user}' password: '#{pass}'")
     success = false
     data = 'isFromLogonPage=true&cms=127.0.1%3A6400'
     data << "&username=#{Rex::Text.uri_encode(user.to_s)}"

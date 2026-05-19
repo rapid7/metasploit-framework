@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
           :data	=> { :sid => sid.uniq.to_s },
           :update	=> :unique_data
         )
-        print_good("#{rhost}:#{rport} Discovered SID: '#{sid.uniq}'")
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} Discovered SID: '#{sid.uniq}'")
       else
         print_error("Unable to retrieve SID for #{ip}...")
       end

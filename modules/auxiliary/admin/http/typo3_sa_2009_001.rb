@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
       jumpurl_enc = datastore['RFILE'].to_s
     end
 
-    print_status("Establishing a connection to #{rhost}:#{rport}")
+    print_status("Establishing a connection to #{Rex::Socket.to_authority(rhost, rport)}")
     print_status("Trying to retrieve #{datastore['RFILE']}")
     print_status('Rotating through possible weak encryption keys')
 
@@ -147,6 +147,6 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    print_error("#{rhost}:#{rport} [Typo3-SA-2009-001] Failed to retrieve file #{datastore['RFILE']}") unless success
+    print_error("#{Rex::Socket.to_authority(rhost, rport)} [Typo3-SA-2009-001] Failed to retrieve file #{datastore['RFILE']}") unless success
   end
 end

@@ -463,10 +463,10 @@ class Metasploit3 < Msf::Auxiliary
     write_check = scanner.send_cmd(['MKD', dir], true)
     if write_check and write_check =~ /^2/
       scanner.send_cmd(['RMD',dir], true)
-      print_status("#{rhost}:#{rport} - User '#{user}' has READ/WRITE access")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' has READ/WRITE access")
       return 'Read/Write'
     else
-      print_status("#{rhost}:#{rport} - User '#{user}' has READ access")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' has READ access")
       return 'Read-only'
     end
   end
