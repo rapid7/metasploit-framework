@@ -11,32 +11,91 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Module::Deprecated
   moved_from 'auxiliary/scanner/ftp/anonymous'
 
-  def initialize
+  def initialize(info = {})
     super(
-      'Name' => 'Anonymous FTP Access Detection',
-      'Description' => 'Detect anonymous (read/write) FTP service access.',
-      'References' => [
-        ['URL', 'https://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],
-        ['CVE', '1999-0497'],
-      ],
-      'Author' => [
-        'Matteo Cantoni <goony[at]nothink.org>',
-        'g0tmi1k' # @g0tmi1k - additional features
-      ],
-      'License' => MSF_LICENSE,
-      'Notes' => {
-        'Stability' => [CRASH_SAFE],
-        'SideEffects' => [IOC_IN_LOGS],
-        'Reliability' => []
-      }
+      update_info(
+        info,
+        'Name' => 'Anonymous FTP Access Detection',
+        'Description' => 'Detect anonymous (read/write) FTP service access.',
+        'References' => [
+          ['URL', 'https://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],
+          ['CVE', '1999-0497'],
+        ],
+        'Author' => [
+          'Matteo Cantoni <goony[at]nothink.org>',
+          'g0tmi1k' # @g0tmi1k - additional features
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
     )
 
     register_options(
       [
         Opt::RPORT(21),
-        OptBool.new('STORE_LOOT', [false, 'Store the directory listing as loot', true])
+        OptBool.new('STORE_LOOT', [false, 'Store the directory listing as loot', true]),
+        OptBool.new('EXTENDED_CHECKS', [false, 'Gather service info via FEAT, STAT and SYST', true])
       ]
     )
+  end
+
+  def fingerprint_server(username = 'anonymous')
+    print_status("Fingerprinting FTP service (as #{username})")
+
+    [
+      ['FEAT', 'ftp.cmd.feat'], # server-level
+      ['STAT', 'ftp.cmd.stat'], # user-level
+      ['SYST', 'ftp.cmd.syst'] # server-level
+    ].each do |cmd, note_type|
+      vprint_status("Sending FTP command: #{cmd}")
+      response = send_cmd([cmd], true).to_s
+      next if response.empty?
+
+      response.strip.each_line.with_index do |line, i|
+        prefix = i == 0 ? "FTP #{cmd}: " : '  '
+        vprint_status("#{prefix}#{line.strip}")
+      end
+
+      # 215 UNIX Type: L8
+      # 215 Windows_NT
+      if cmd == 'SYST'
+        os_name = if response.match?(/emulated/i) then nil
+                  elsif response.match?(/Windows_NT/i) then 'Windows'
+                  elsif response.match?(/UNIX/i) then 'Linux'
+                  end
+        report_host(host: rhost, os_name: os_name) if os_name
+      end
+
+      report_note(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        sname: 'ftp',
+        type: note_type,
+        data: { username: username, output: response.strip }
+      )
+    end
+  end
+
+  def get_loot(username = 'anonymous')
+    vprint_status('Listing directory contents')
+
+    username = username.downcase
+
+    listing = send_cmd_data(['LS'], nil)
+    if listing.nil?
+      print_warning('Could not retrieve directory listing (data connection failed)')
+    elsif listing[1].nil? || listing[1].empty?
+      vprint_status('Directory listing: (empty)')
+    else
+      vprint_status("Directory listing:\n#{listing[1]}")
+      path = store_loot('ftp.dir_listing', 'text/plain', rhost, listing[1], "ftp_#{username}.txt", "FTP directory listing for #{username}")
+      print_good("Directory listing stored to: #{path}")
+    end
   end
 
   def run_host(target_host)
@@ -56,21 +115,10 @@ class MetasploitModule < Msf::Auxiliary
         access_type = 'Read-only'
       end
 
-      print_good("Anonymous #{access_type} access (#{@banner_version})")
+      print_good("Anonymous #{access_type} access (#{banner_version})")
 
-      if datastore['STORE_LOOT']
-        vprint_status('Listing directory contents')
-        listing = send_cmd_data(['LS'], nil)
-        if listing.nil?
-          print_warning('Could not retrieve directory listing (data connection failed)')
-        elsif listing[1].nil? || listing[1].empty?
-          vprint_status('Directory listing: (empty)')
-        else
-          vprint_status("Directory listing:\n#{listing[1]}")
-          path = store_loot('ftp.anonymous', 'text/plain', rhost, listing[1], 'ftp_anonymous.txt', 'Anonymous FTP directory listing')
-          print_good("Directory listing stored to: #{path}")
-        end
-      end
+      get_loot(datastore['FTPUSER']) if datastore['STORE_LOOT']
+      fingerprint_server(datastore['FTPUSER']) if datastore['EXTENDED_CHECKS']
 
       report_vuln(
         host: rhost,
@@ -87,6 +135,9 @@ class MetasploitModule < Msf::Auxiliary
     else
       vprint_warning('No FTP banner received')
     end
+  rescue ::Rex::ConnectionRefused
+    vprint_error('Connection refused')
+    report_host(host: rhost)
   rescue ::Rex::TimeoutError, ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNREFUSED => e
     vprint_error(e.message)
     report_host(host: rhost)
