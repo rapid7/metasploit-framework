@@ -121,16 +121,6 @@ private
 
         c2_tlv.add_tlv(MET::TLV_TYPE_C2_CERT_HASH, opts[:ssl_cert_hash]) unless (opts[:ssl_cert_hash] || '').empty?
         c2_tlv.add_tlv(MET::TLV_TYPE_C2_HEADERS, opts[:custom_headers]) unless (opts[:custom_headers] || '').empty?
-
-        # Per-transport UUID for C2 profile placement (uuid_get/header/cookie).
-        # Payloads fall back to URL-path extraction when this TLV is absent.
-        # Bake a checksum-tuned :init_connect URI (>=URI_CHECKSUM_UUID_MIN_LEN,
-        # checksum8 => mode), not the bare to_uri. The handler needs the tuned
-        # form to extract both the UUID and the mode; a bare UUID yields nil.
-        if @opts[:uuid]
-          tuned = generate_uri_uuid(URI_CHECKSUM_INIT_CONN, @opts[:uuid]).sub(%r{\A/}, '')
-          c2_tlv.add_tlv(MET::TLV_TYPE_C2_UUID, tuned)
-        end
       end
     end
 
