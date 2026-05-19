@@ -23,20 +23,19 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def run_host(target_host)
-    begin
-      res = connect(true, false)
+  def run_host(_target_host)
+    connect(true, false)
 
-      if (banner)
-        banner_sanitized = Rex::Text.to_hex_ascii(self.banner.to_s)
-        print_good("FTP Banner: '#{banner_sanitized}'")
-        report_service(:host => rhost, :port => rport, :name => "ftp", :info => banner_sanitized)
-      end
-
-      disconnect
-    rescue ::Interrupt
-      raise $!
-    rescue ::Rex::ConnectionError, ::IOError
+    if (banner)
+      banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
+      print_good("FTP Banner: '#{banner_sanitized}'")
+      report_service(host: rhost, port: rport, name: 'ftp', info: banner_sanitized)
     end
+
+    disconnect
+  rescue ::Interrupt
+    raise $ERROR_INFO
+  rescue ::Rex::ConnectionError, ::IOError => e
+    vprint_error(e.message)
   end
 end
