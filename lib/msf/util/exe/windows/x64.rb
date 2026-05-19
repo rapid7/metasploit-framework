@@ -1,16 +1,19 @@
+require 'erb'
+require 'metasploit/framework/compiler/windows'
+require 'metasploit/framework/compiler/mingw'
+
 # -*- coding: binary -*-
 module Msf::Util::EXE::Windows::X64
   include Msf::Util::EXE::Common
   include Msf::Util::EXE::Windows::Common
-  
+  include Msf::Obfluscation::ExeTemplate
+
   def self.included(base)
     base.extend(ClassMethods)
   end
 
   module ClassMethods
-    # Construct a Windows x64 PE executable with the given shellcode.
-    # to_win64pe
-    #
+    
     # @param framework [Msf::Framework] The Metasploit framework instance.
     # @param code [String] The shellcode to embed in the executable.
     # @param opts [Hash] Additional options.
@@ -19,8 +22,21 @@ module Msf::Util::EXE::Windows::X64
     def to_win64pe(framework, code, opts = {})
       # Use the standard template if not specified by the user.
       # This helper finds the full path and stores it in opts[:template].
-      set_template_default(opts, 'template_x64_windows.exe')
 
+      return Msf::Obfluscation::ExeTemplate.exe_template_compile(framework, code, opts) #if framework.datastore['EXE::Template::Dynamic::Enabled']
+      
+      set_template_default(opts, 'template_x64_windows.exe')
+      
+      # -----------------------------
+      payload_length = code.bytesize
+      payload = code.bytes.map { |b| "\\x%02x" % b }.join
+      template_path = File.join(Msf::Config.data_directory, 'templates','template_x64_windows.erb')
+      erb = ERB.new(File.read(template_path))
+      c_source = erb.result(binding)
+      comp_obj = Metasploit::Framework::Compiler::Mingw::X64.new(opts)
+      compiler_out = comp_obj.compile_c(c_source)
+      bin = Metasploit::Framework::Compiler::Windows.compile_c(c_source, :exe,Metasm::X86_64.new)
+      # -----------------------------
       # Try to inject code into executable by adding a section without affecting executable behavior
       if opts[:inject]
         injector = Msf::Exe::SegmentInjector.new({
@@ -28,37 +44,6 @@ module Msf::Util::EXE::Windows::X64
            :template => opts[:template],
            :arch     => :x64,
            :secname  => opts[:secname]
-        })
-        return injector.generate_pe
-      end
-
-      # Append a new section instead
-      appender = Msf::Exe::SegmentAppender.new({
-        :payload  => code,
-        :template => opts[:template],
-        :arch     => :x64,
-        :secname	=> opts[:secname]
-      })
-      return appender.generate_pe
-    end
-    
-    # to_win64pe
-    #
-    # @param framework  [Msf::Framework]  The framework of you want to use
-    # @param code       [String]
-    # @param opts       [Hash]
-    # @return           [String]
-    def to_win64pe(framework, code, opts = {})
-      # Allow the user to specify their own EXE template
-      set_template_default(opts, "template_x64_windows.exe")
-
-      # Try to inject code into executable by adding a section without affecting executable behavior
-      if opts[:inject]
-        injector = Msf::Exe::SegmentInjector.new({
-          :payload  => code,
-          :template => opts[:template],
-          :arch     => :x64,
-          :secname  => opts[:secname]
         })
         return injector.generate_pe
       end
