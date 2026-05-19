@@ -490,6 +490,19 @@
     .rtt-total { color: var(--text-secondary); font-style: italic; }
     .session-meta { color: var(--text-muted); font-size: 11px; }
     .module-entry { font-family: monospace; font-size: 11px; color: var(--text-secondary); padding: 2px 0; word-break: break-all; }
+    .session-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .copy-session-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 11px;
+      padding: 1px 5px;
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
+    .copy-session-btn:hover { background: var(--border); color: var(--text-primary); }
     #filter-panel { display: flex; flex-direction: column; align-items: flex-start; }
     #filter-body {
       display: none;
@@ -1191,10 +1204,18 @@
     const osKey = getOsKey(d);
     const osIconHtml = osKey ? `<svg width="16" height="16" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;flex-shrink:0;display:inline-block"><use href="#os-${osKey}" width="12" height="12"/></svg>` : '';
     const sessionsBadges = [...d.sessions].sort((a, b) => b.active - a.active).map(s =>
-      `<div class="session-entry ${s.active ? 'session-active' : 'session-closed'}">
-        <span class="badge ${s.active ? 'badge-compromised' : 'badge-closed'}">${s.active ? 'ACTIVE' : 'CLOSED'}</span>
-        <strong>#${s.id}</strong> ${s.type}<br>
+      `<div class="session-entry ${s.active ? 'session-active' : 'session-closed'}"
+            data-exploit="${s.via_exploit}" data-payload="${s.via_payload}"
+            data-lhost="${s.lhost}" data-lport="${s.lport}" data-rhost="${d.address}">
+        <div class="session-header">
+          <div>
+            <span class="badge ${s.active ? 'badge-compromised' : 'badge-closed'}">${s.active ? 'ACTIVE' : 'CLOSED'}</span>
+            <strong>#${s.id}</strong> ${s.type}
+          </div>
+          <button class="copy-session-btn" onclick="copySessionSetup(this)" title="Copy recreation commands">&#x2398;</button>
+        </div>
         <span class="session-meta">${s.via_exploit || 'unknown exploit'}</span><br>
+        ${s.via_payload ? `<span class="session-meta">${s.via_payload}</span><br>` : ''}
         <span class="session-meta">Opened: ${s.opened_at || 'unknown'}</span>
         ${!s.active ? `<br><span class="session-meta">Closed: ${s.closed_at}</span>` : ''}
       </div>`
@@ -1429,6 +1450,20 @@
       }
     });
     document.getElementById('type-popup').style.display = 'none';
+  };
+
+  window.copySessionSetup = function(btn) {
+    const card = btn.closest('.session-entry');
+    const lines = [];
+    if (card.dataset.exploit) lines.push(`use ${card.dataset.exploit}`);
+    if (card.dataset.payload) lines.push(`set payload ${card.dataset.payload}`);
+    if (card.dataset.rhost)   lines.push(`set rhost ${card.dataset.rhost}`);
+    if (card.dataset.lhost)   lines.push(`set lhost ${card.dataset.lhost}`);
+    if (card.dataset.lport)   lines.push(`set lport ${card.dataset.lport}`);
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      btn.textContent = '✓';
+      setTimeout(() => { btn.innerHTML = '&#x2398;'; }, 1500);
+    });
   };
 
   window.toggleSection = function(header) {
