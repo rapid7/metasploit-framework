@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::MCP::Tools::ServiceInfo
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::MCP::Tools::ServiceInfo";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Tools.html" title="Msf::MCP::Tools (module)">Tools</a></span></span>
+     &raquo; 
+    <span class="title">ServiceInfo</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::MCP::Tools::ServiceInfo
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">MCP::Tool</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">MCP::Tool</li>
+          
+            <li class="next">Msf::MCP::Tools::ServiceInfo</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  <dl>
+      <dt>Extended by:</dt>
+      <dd><span class='object_link'><a href="ToolHelper.html" title="Msf::MCP::Tools::ToolHelper (module)">ToolHelper</a></span></dd>
+  </dl>
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/mcp/tools/service_info.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>MCP Tool: Query Metasploit Database Services</p>
+
+<p>Retrieves service information from the Metasploit database including ports, protocols, and service banners.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#call-class_method" title="call (class method)">.<strong>call</strong>(workspace: &#39;default&#39;, names: nil, ports: nil, host: nil, protocol: nil, only_up: false, limit: Msf::MCP::Security::InputValidator::LIMIT_DEFAULT, offset: 0, server_context:)  &#x21d2; MCP::Tool::Response </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Execute service query.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="ToolHelper.html" title="Msf::MCP::Tools::ToolHelper (module)">ToolHelper</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ToolHelper.html#tool_error_response-instance_method" title="Msf::MCP::Tools::ToolHelper#tool_error_response (method)">tool_error_response</a></span></p>
+
+  
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="call-class_method">
+  
+    .<strong>call</strong>(workspace: &#39;default&#39;, names: nil, ports: nil, host: nil, protocol: nil, only_up: false, limit: Msf::MCP::Security::InputValidator::LIMIT_DEFAULT, offset: 0, server_context:)  &#x21d2; <tt>MCP::Tool::Response</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Execute service query</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>workspace</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;default&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Workspace name (default: ‘default’)</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>names</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Comma-separated service names to filter</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>ports</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Port number or range to filter</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>host</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Host IP address</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>protocol</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Protocol to filter (tcp or udp)</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>only_up</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Filter to only return services on hosts that are up</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>limit</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>Msf::MCP::Security::InputValidator::LIMIT_DEFAULT</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Maximum results (default: 100)</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>offset</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>0</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Results offset (default: 0)</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>server_context</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Server context with msf_client, rate_limiter, config</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>MCP::Tool::Response</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Structured response with service information</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/mcp/tools/service_info.rb', line 119</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>workspace:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>default</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>names:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>ports:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>host:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>protocol:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>only_up:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>limit:</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security.html" title="Msf::MCP::Security (module)">Security</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security/InputValidator.html" title="Msf::MCP::Security::InputValidator (class)">InputValidator</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security/InputValidator.html#LIMIT_DEFAULT-constant" title="Msf::MCP::Security::InputValidator::LIMIT_DEFAULT (constant)">LIMIT_DEFAULT</a></span></span><span class='comma'>,</span> <span class='label'>offset:</span> <span class='int'>0</span><span class='comma'>,</span> <span class='label'>server_context:</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_start_time'>start_time</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+
+  <span class='comment'># Extract dependencies from server context
+</span>  <span class='id identifier rubyid_msf_client'>msf_client</span> <span class='op'>=</span> <span class='id identifier rubyid_server_context'>server_context</span><span class='lbracket'>[</span><span class='symbol'>:msf_client</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_rate_limiter'>rate_limiter</span> <span class='op'>=</span> <span class='id identifier rubyid_server_context'>server_context</span><span class='lbracket'>[</span><span class='symbol'>:rate_limiter</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Check rate limit
+</span>  <span class='id identifier rubyid_rate_limiter'>rate_limiter</span><span class='period'>.</span><span class='id identifier rubyid_check_rate_limit!'>check_rate_limit!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>service_info</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Validate inputs
+</span>  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security.html" title="Msf::MCP::Security (module)">Security</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security/InputValidator.html" title="Msf::MCP::Security::InputValidator (class)">InputValidator</a></span></span><span class='period'>.</span><span class='id identifier rubyid_validate_pagination!'><span class='object_link'><a href="../Security/InputValidator.html#validate_pagination!-class_method" title="Msf::MCP::Security::InputValidator.validate_pagination! (method)">validate_pagination!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_limit'>limit</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security.html" title="Msf::MCP::Security (module)">Security</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security/InputValidator.html" title="Msf::MCP::Security::InputValidator (class)">InputValidator</a></span></span><span class='period'>.</span><span class='id identifier rubyid_validate_only_up!'><span class='object_link'><a href="../Security/InputValidator.html#validate_only_up!-class_method" title="Msf::MCP::Security::InputValidator.validate_only_up! (method)">validate_only_up!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_only_up'>only_up</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security.html" title="Msf::MCP::Security (module)">Security</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security/InputValidator.html" title="Msf::MCP::Security::InputValidator (class)">InputValidator</a></span></span><span class='period'>.</span><span class='id identifier rubyid_validate_protocol!'><span class='object_link'><a href="../Security/InputValidator.html#validate_protocol!-class_method" title="Msf::MCP::Security::InputValidator.validate_protocol! (method)">validate_protocol!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_protocol'>protocol</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_protocol'>protocol</span>
+  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security.html" title="Msf::MCP::Security (module)">Security</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security/InputValidator.html" title="Msf::MCP::Security::InputValidator (class)">InputValidator</a></span></span><span class='period'>.</span><span class='id identifier rubyid_validate_ip_address!'><span class='object_link'><a href="../Security/InputValidator.html#validate_ip_address!-class_method" title="Msf::MCP::Security::InputValidator.validate_ip_address! (method)">validate_ip_address!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_host'>host</span>
+  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security.html" title="Msf::MCP::Security (module)">Security</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security/InputValidator.html" title="Msf::MCP::Security::InputValidator (class)">InputValidator</a></span></span><span class='period'>.</span><span class='id identifier rubyid_validate_port_range!'><span class='object_link'><a href="../Security/InputValidator.html#validate_port_range!-class_method" title="Msf::MCP::Security::InputValidator.validate_port_range! (method)">validate_port_range!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_ports'>ports</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_ports'>ports</span>
+
+  <span class='comment'># Call Metasploit API
+</span>  <span class='comment'># Note that `workspace` is optional in the MSF API, the default workspace is used if not provided.
+</span>  <span class='comment'># The default value is sent anyway for clarity.
+</span>  <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='label'>workspace:</span> <span class='id identifier rubyid_workspace'>workspace</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:only_up</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_only_up'>only_up</span> <span class='kw'>if</span> <span class='id identifier rubyid_only_up'>only_up</span>
+  <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:proto</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_protocol'>protocol</span> <span class='kw'>if</span> <span class='id identifier rubyid_protocol'>protocol</span>
+  <span class='comment'># The API is misleading, it only supports a single address filter, not multiple.
+</span>  <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:addresses</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_host'>host</span> <span class='kw'>if</span> <span class='id identifier rubyid_host'>host</span>
+  <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:ports</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_ports'>ports</span> <span class='kw'>if</span> <span class='id identifier rubyid_ports'>ports</span>
+  <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:names</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_names'>names</span> <span class='kw'>if</span> <span class='id identifier rubyid_names'>names</span>
+  <span class='id identifier rubyid_raw_services'>raw_services</span> <span class='op'>=</span> <span class='id identifier rubyid_msf_client'>msf_client</span><span class='period'>.</span><span class='id identifier rubyid_db_services'>db_services</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+
+  <span class='comment'># Transform response
+</span>  <span class='id identifier rubyid_transformed'>transformed</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Metasploit.html" title="Msf::MCP::Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Metasploit/ResponseTransformer.html" title="Msf::MCP::Metasploit::ResponseTransformer (class)">ResponseTransformer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_transform_services'><span class='object_link'><a href="../Metasploit/ResponseTransformer.html#transform_services-class_method" title="Msf::MCP::Metasploit::ResponseTransformer.transform_services (method)">transform_services</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_raw_services'>raw_services</span><span class='rparen'>)</span>
+
+  <span class='comment'># Apply pagination
+</span>  <span class='comment'>#
+</span>  <span class='comment'># Note that to get the total number of entries, we gather the entire data set and apply pagination here
+</span>  <span class='comment'># instead of sending the limit and offset to the API call to be processed by MSF.
+</span>  <span class='comment'># This is needed to provide accurate total_items count in the metadata.
+</span>  <span class='id identifier rubyid_total_items'>total_items</span> <span class='op'>=</span> <span class='id identifier rubyid_transformed'>transformed</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+  <span class='id identifier rubyid_paginated_data'>paginated_data</span> <span class='op'>=</span> <span class='id identifier rubyid_transformed'>transformed</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_limit'>limit</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Build metadata
+</span>  <span class='id identifier rubyid_metadata'>metadata</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>workspace:</span> <span class='id identifier rubyid_workspace'>workspace</span><span class='comma'>,</span>
+    <span class='label'>query_time:</span> <span class='lparen'>(</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='id identifier rubyid_start_time'>start_time</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_round'>round</span><span class='lparen'>(</span><span class='int'>3</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>total_items:</span> <span class='id identifier rubyid_total_items'>total_items</span><span class='comma'>,</span>
+    <span class='label'>returned_items:</span> <span class='id identifier rubyid_paginated_data'>paginated_data</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='comma'>,</span>
+    <span class='label'>limit:</span> <span class='id identifier rubyid_limit'>limit</span><span class='comma'>,</span>
+    <span class='label'>offset:</span> <span class='id identifier rubyid_offset'>offset</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># Return MCP response
+</span>  <span class='op'>::</span><span class='const'>MCP</span><span class='op'>::</span><span class='const'>Tool</span><span class='op'>::</span><span class='const'>Response</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='lbrace'>{</span>
+        <span class='label'>type:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>text</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='label'>text:</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span>
+          <span class='label'>metadata:</span> <span class='id identifier rubyid_metadata'>metadata</span><span class='comma'>,</span>
+          <span class='label'>data:</span> <span class='id identifier rubyid_paginated_data'>paginated_data</span>
+        <span class='rparen'>)</span>
+      <span class='rbrace'>}</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>structured_content:</span> <span class='lbrace'>{</span>
+      <span class='label'>metadata:</span> <span class='id identifier rubyid_metadata'>metadata</span><span class='comma'>,</span>
+      <span class='label'>data:</span> <span class='id identifier rubyid_paginated_data'>paginated_data</span>
+    <span class='rbrace'>}</span>
+  <span class='rparen'>)</span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security.html" title="Msf::MCP::Security (module)">Security</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security/RateLimitExceededError.html" title="Msf::MCP::Security::RateLimitExceededError (class)">RateLimitExceededError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_tool_error_response'>tool_error_response</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Rate limit exceeded: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Metasploit.html" title="Msf::MCP::Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Metasploit/AuthenticationError.html" title="Msf::MCP::Metasploit::AuthenticationError (class)">AuthenticationError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_tool_error_response'>tool_error_response</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Authentication failed: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Metasploit.html" title="Msf::MCP::Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Metasploit/APIError.html" title="Msf::MCP::Metasploit::APIError (class)">APIError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_tool_error_response'>tool_error_response</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Metasploit API error: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security.html" title="Msf::MCP::Security (module)">Security</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security/ValidationError.html" title="Msf::MCP::Security::ValidationError (class)">ValidationError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_tool_error_response'>tool_error_response</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Tue May 19 23:53:06 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>
