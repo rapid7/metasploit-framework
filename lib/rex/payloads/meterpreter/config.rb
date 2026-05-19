@@ -3,12 +3,14 @@ require 'rex/socket/x509_certificate'
 require 'rex/post/meterpreter/extension_mapper'
 require 'rex/post/meterpreter/packet'
 require 'msf/core/payload/malleable_c2'
+require 'rex/payloads/meterpreter/uri_checksum'
 require 'securerandom'
 
 class Rex::Payloads::Meterpreter::Config
 
   include Msf::Payload::UUID::Options
   include Msf::ReflectiveDLLLoader
+  include Rex::Payloads::Meterpreter::UriChecksum
 
   MET = Rex::Post::Meterpreter
 
@@ -95,32 +97,43 @@ private
     c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_TOTAL, opts[:retry_total])
     c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_WAIT, opts[:retry_wait])
 
-    url = "#{opts[:scheme]}://#{Rex::Socket.to_authority(lhost, opts[:lport])}"
-    url << "/#{opts[:uri].delete_prefix('/').delete_suffix('/')}/" if opts[:uri]
-    url << "?#{opts[:scope_id]}" if opts[:scope_id]
+    # Only build a C2 URL when we actually have a host. Staged payloads
+    # inherit the stager's socket and carry no host; guard so a nil lhost
+    # cannot reach Rex::Socket.to_authority (which requires a String).
+    if lhost && !lhost.to_s.empty?
+      url = "#{opts[:scheme]}://#{Rex::Socket.to_authority(lhost, opts[:lport])}"
+      url << "/#{opts[:uri].delete_prefix('/').delete_suffix('/')}/" if opts[:uri]
+      url << "?#{opts[:scope_id]}" if opts[:scope_id]
 
-    c2_tlv.add_tlv(MET::TLV_TYPE_C2_URL, url)
+      c2_tlv.add_tlv(MET::TLV_TYPE_C2_URL, url)
 
-    # if the transport URI is for a HTTP payload we need to add a stack
-    # of other stuff that can only be set in MSF, not in the C2 profile
-    if url.start_with?('http')
-      proxy_url = ''
-      if opts[:proxy_host] && opts[:proxy_port]
-        prefix = 'http://'
-        prefix = 'socks=' if opts[:proxy_type].to_s.downcase == 'socks'
-        proxy_url = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
+      # if the transport URI is for a HTTP payload we need to add a stack
+      # of other stuff that can only be set in MSF, not in the C2 profile
+      if url.start_with?('http')
+        proxy_url = ''
+        if opts[:proxy_host] && opts[:proxy_port]
+          prefix = 'http://'
+          prefix = 'socks=' if opts[:proxy_type].to_s.downcase == 'socks'
+          proxy_url = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
+        end
+
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_URL, proxy_url) unless (proxy_url || '').empty?
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_USER, opts[:proxy_user]) unless (opts[:proxy_user] || '').empty?
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_PASS, opts[:proxy_pass]) unless (opts[:proxy_pass] || '').empty?
+
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_CERT_HASH, opts[:ssl_cert_hash]) unless (opts[:ssl_cert_hash] || '').empty?
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_HEADERS, opts[:custom_headers]) unless (opts[:custom_headers] || '').empty?
+
+        # Per-transport UUID for C2 profile placement (uuid_get/header/cookie).
+        # Payloads fall back to URL-path extraction when this TLV is absent.
+        # Bake a checksum-tuned :init_connect URI (>=URI_CHECKSUM_UUID_MIN_LEN,
+        # checksum8 => mode), not the bare to_uri. The handler needs the tuned
+        # form to extract both the UUID and the mode; a bare UUID yields nil.
+        if @opts[:uuid]
+          tuned = generate_uri_uuid(URI_CHECKSUM_INIT_CONN, @opts[:uuid]).sub(%r{\A/}, '')
+          c2_tlv.add_tlv(MET::TLV_TYPE_C2_UUID, tuned)
+        end
       end
-
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_URL, proxy_url) unless (proxy_url || '').empty?
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_USER, opts[:proxy_user]) unless (opts[:proxy_user] || '').empty?
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_PASS, opts[:proxy_pass]) unless (opts[:proxy_pass] || '').empty?
-
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_CERT_HASH, opts[:ssl_cert_hash]) unless (opts[:ssl_cert_hash] || '').empty?
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_HEADERS, opts[:custom_headers]) unless (opts[:custom_headers] || '').empty?
-
-      # Per-transport UUID for C2 profile placement (uuid_get/header/cookie).
-      # Payloads fall back to URL-path extraction when this TLV is absent.
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_UUID, @opts[:uuid].to_s) if @opts[:uuid]
     end
 
     tlv.tlvs << c2_tlv
