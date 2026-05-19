@@ -64,19 +64,7 @@ class MetasploitModule < Msf::Auxiliary
 
       print_good("Anonymous #{access_type} access (#{banner_version})")
 
-      if datastore['STORE_LOOT']
-        vprint_status('Listing directory contents')
-        listing = send_cmd_data(['LS'], nil)
-        if listing.nil?
-          print_warning('Could not retrieve directory listing (data connection failed)')
-        elsif listing[1].nil? || listing[1].empty?
-          vprint_status('Directory listing: (empty)')
-        else
-          vprint_status("Directory listing:\n#{listing[1]}")
-          path = store_loot('ftp.anonymous', 'text/plain', rhost, listing[1], 'ftp_anonymous.txt', 'Anonymous FTP directory listing')
-          print_good("Directory listing stored to: #{path}")
-        end
-      end
+      ftp_list_directory(username: datastore['FTPUSER'], save_loot: true) if datastore['STORE_LOOT']
 
       report_vuln(
         host: rhost,
@@ -95,7 +83,6 @@ class MetasploitModule < Msf::Auxiliary
     end
   rescue ::Rex::TimeoutError, ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNREFUSED => e
     vprint_error(e.message)
-    report_host(host: rhost)
   rescue ::Interrupt
     raise $ERROR_INFO
   ensure
