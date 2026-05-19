@@ -185,10 +185,14 @@ class MetasploitModule < Msf::Auxiliary
       active_sessions = host_sessions.select { |s| s.closed_at.nil? }
 
       session_data = host_sessions.map do |s|
+        ds = s.datastore.is_a?(Hash) ? s.datastore : {}
         {
           id: s.id,
           type: s.stype || 'unknown',
           via_exploit: s.via_exploit || '',
+          via_payload: s.via_payload || '',
+          lhost: ds['LHOST'] || '',
+          lport: ds['LPORT'] || '',
           opened_at: s.opened_at&.strftime('%Y-%m-%d %H:%M:%S') || '',
           closed_at: s.closed_at&.strftime('%Y-%m-%d %H:%M:%S') || '',
           active: s.closed_at.nil?
