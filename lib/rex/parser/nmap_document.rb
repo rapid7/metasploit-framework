@@ -154,8 +154,15 @@ module Rex
 
     def record_hostname(attrs)
       return unless in_tag("host")
-      if attr_hash(attrs)["type"] == "PTR"
-        @state[:hostname] = attr_hash(attrs)["name"]
+      hash = attr_hash(attrs)
+      name = hash["name"]
+      return if name.nil? || name.empty?
+      # Prefer PTR (reverse-DNS) hostnames, but fall back to user-supplied
+      # hostnames so scans driven by `nmap -iL hostnames.txt` still populate
+      # the hostname column. Once a PTR is recorded for the current host it
+      # is never downgraded back to a user-supplied entry.
+      if hash["type"] == "PTR"
+        @state[:hostname] = name
       end
     end
 
