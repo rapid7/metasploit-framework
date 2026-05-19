@@ -26,6 +26,10 @@ module MetasploitModule
         'Session' => Msf::Sessions::Meterpreter_Php_Php
       )
     )
+
+    register_options([
+      OptString.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile']),
+    ])
   end
 
   def generate_config(opts = {})
@@ -63,6 +67,7 @@ module MetasploitModule
     config_block = Rex::Text.encode_base64(generate_config(
       url: url,
       scheme: opts[:scheme],
+      c2_profile: datastore['MALLEABLEC2'],
       stageless: true
     ))
     met = met.sub('"CONFIG_BLOCK", ""', "\"CONFIG_BLOCK\", \"#{config_block}\"")
