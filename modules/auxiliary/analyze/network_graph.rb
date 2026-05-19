@@ -32,13 +32,14 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options(
       [
-        OptBool.new('EMBED_JS', [false, 'Embed D3.js inline for a fully self-contained offline HTML file', false])
+        OptBool.new('EMBED_JS', [false, 'Embed D3.js inline for a fully self-contained offline HTML file', false]),
+        OptInt.new('LIMIT_SESSION', [false, 'Max sessions to include per host (0 = unlimited, most recent first)', 0]),
+        OptInt.new('LIMIT_LOOT', [false, 'Max loot items to include per host (0 = unlimited, most recent first)', 0])
       ]
     )
   end
 
   def run
-
     fail_with(Failure::BadConfig, 'No database connected. Please connect to a database first (db_connect or db_status).') unless framework.db.active
 
     ws = myworkspace
@@ -46,10 +47,32 @@ class MetasploitModule < Msf::Auxiliary
     db_sessions = ws.sessions.all.to_a
     traceroute_notes = ws.notes.where(ntype: 'host.nmap.traceroute').includes(:host).to_a
     host_loots = ws.loots.where.not(host_id: nil).to_a
+    host_vulns = ws.vulns.includes(:refs).all.to_a
+    module_run_events = ws.events.where(name: 'module_run').all.to_a
+    host_ids = hosts.map(&:id)
+    direct_module_runs = begin
+      MetasploitDataModels::ModuleRun
+        .where(trackable_type: 'Mdm::Host', trackable_id: host_ids)
+        .all.to_a
+    rescue StandardError
+      []
+    end
 
-    print_status("Building network graph: #{hosts.length} hosts, #{db_sessions.length} recorded sessions, #{traceroute_notes.length} traceroutes, #{host_loots.length} loot items")
+    print_status("Building network graph: #{hosts.length} hosts, #{db_sessions.length} recorded sessions, " \
+                 "#{traceroute_notes.length} traceroutes, #{host_loots.length} loot items, " \
+                 "#{host_vulns.length} vulns, #{module_run_events.length} module events, " \
+                 "#{direct_module_runs.length} module runs")
 
-    nodes, links = build_graph_data(hosts, db_sessions, traceroute_notes, host_loots)
+    ws_data = {
+      hosts: hosts,
+      db_sessions: db_sessions,
+      traceroute_notes: traceroute_notes,
+      host_loots: host_loots,
+      host_vulns: host_vulns,
+      module_run_events: module_run_events,
+      direct_module_runs: direct_module_runs
+    }
+    nodes, links = build_graph_data(ws_data)
     html = generate_html(nodes, links)
 
     # nil ctype lets the filename extension (.html) win; 'text/html' would force .txt via store_loot's text/* override
@@ -64,9 +87,17 @@ class MetasploitModule < Msf::Auxiliary
 
   TEMPLATE_PATH = File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'network_map.html')
   D3_LOCAL_PATH = File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'd3.v7.9.0.min.js')
-  D3_CDN_TAG    = '<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>'
+  D3_CDN_TAG = '<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>'
 
-  def build_graph_data(hosts, db_sessions, traceroute_notes, host_loots)
+  def build_graph_data(ws_data)
+    hosts = ws_data[:hosts]
+    db_sessions = ws_data[:db_sessions]
+    traceroute_notes = ws_data[:traceroute_notes]
+    host_loots = ws_data[:host_loots]
+    host_vulns = ws_data[:host_vulns]
+    module_run_events = ws_data[:module_run_events]
+    direct_module_runs = ws_data[:direct_module_runs]
+
     nodes = []
     links_set = Set.new
 
@@ -104,6 +135,25 @@ class MetasploitModule < Msf::Auxiliary
 
     session_by_host = db_sessions.group_by(&:host_id)
     loot_by_host = host_loots.group_by(&:host_id)
+    vuln_by_host = host_vulns.group_by(&:host_id)
+    module_run_by_host = direct_module_runs.group_by(&:trackable_id)
+
+    # Build ip → [module_name] map from module_run events (single-IP RHOST only)
+    ipv4_re = /\A\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/
+    event_modules_by_ip = Hash.new { |h, k| h[k] = Set.new }
+    module_run_events.each do |ev|
+      info = ev.info
+      next unless info.is_a?(Hash)
+
+      mod = info[:module_name] || info['module_name']
+      next unless mod
+
+      ds = info[:datastore] || info['datastore'] || {}
+      rhost = ds['RHOST'] || ds['RHOSTS']
+      next unless rhost.to_s =~ ipv4_re
+
+      event_modules_by_ip[rhost.to_s].add(mod)
+    end
 
     subnet_to_pivot = {}
     db_sessions.each do |db_session|
@@ -184,7 +234,10 @@ class MetasploitModule < Msf::Auxiliary
       host_sessions = session_by_host[host.id] || []
       active_sessions = host_sessions.select { |s| s.closed_at.nil? }
 
-      session_data = host_sessions.map do |s|
+      session_limit = datastore['LIMIT_SESSION'].to_i
+      display_sessions = session_limit > 0 ? host_sessions.sort_by { |s| s.opened_at || Time.at(0) }.last(session_limit) : host_sessions
+
+      session_data = display_sessions.map do |s|
         ds = s.datastore.is_a?(Hash) ? s.datastore : {}
         {
           id: s.id,
@@ -193,23 +246,44 @@ class MetasploitModule < Msf::Auxiliary
           via_payload: s.via_payload || '',
           lhost: ds['LHOST'] || '',
           lport: ds['LPORT'] || '',
+          rport: ds['RPORT'] || '',
           opened_at: s.opened_at&.strftime('%Y-%m-%d %H:%M:%S') || '',
           closed_at: s.closed_at&.strftime('%Y-%m-%d %H:%M:%S') || '',
           active: s.closed_at.nil?
         }
       end
 
-      service_data = host.services.map do |svc|
-        { port: svc.port, proto: svc.proto, name: svc.name || '', state: svc.state || '' }
-      end.sort_by { |s| s[:port] }
+      service_data = host.services
+                         .sort_by(&:port)
+                         .map { |svc| { port: svc.port, proto: svc.proto, name: svc.name || '', state: svc.state || '' } }
 
-      loot_data = (loot_by_host[host.id] || []).map do |l|
+      loot_limit = datastore['LIMIT_LOOT'].to_i
+      display_loots = loot_by_host[host.id] || []
+      display_loots = display_loots.last(loot_limit) if loot_limit > 0
+
+      loot_data = display_loots.map do |l|
         {
           ltype: l.ltype || '',
           name: l.name || '',
           info: l.info || '',
-          content_type: l.content_type || '',
           path: l.path || ''
+        }
+      end
+
+      vuln_data = (vuln_by_host[host.id] || []).map do |v|
+        {
+          name: v.name || '',
+          info: v.info || '',
+          refs: v.refs.map(&:name),
+          exploited_at: v.exploited_at&.strftime('%Y-%m-%d %H:%M:%S') || ''
+        }
+      end
+
+      host_module_runs = (module_run_by_host[host.id] || []).map do |mr|
+        {
+          module_fullname: mr.module_fullname || '',
+          status: mr.status || '',
+          attempted_at: mr.attempted_at&.strftime('%Y-%m-%d %H:%M:%S') || ''
         }
       end
 
@@ -231,6 +305,9 @@ class MetasploitModule < Msf::Auxiliary
         sessions: session_data,
         services: service_data,
         loots: loot_data,
+        vulns: vuln_data,
+        event_modules: event_modules_by_ip[host.address.to_s].to_a.sort,
+        module_runs: host_module_runs,
         device_type: infer_device_type(host),
         rtt: host_rtt["host_#{host.id}"]
       }
