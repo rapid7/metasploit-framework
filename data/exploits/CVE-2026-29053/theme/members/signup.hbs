@@ -1,0 +1,76 @@
+{{!< ../default}} <div class="gh-page">
+    <div class="gh-container">
+
+        {{#if @member.paid}}
+
+        {{!-- Logged in, paying member: Redirect home --}}
+        <script>window.location = '{{@site.url}}';</script>
+
+        {{else if @member}}
+
+        {{!-- Logged in, not paying: Check out --}}
+        <div class="gh-checkout-form">
+            <h1 class="gh-checkout-title">Choose your subscription</h1>
+            <p>Unlock full access to {{@site.title}} and see the entire library of members-only content & updates</p>
+            <div class="gh-checkout-box">
+                {{#get "tiers" include="monthly_price, yearly_price" limit="all" as |tiers|}}
+                {{#foreach tiers}}
+                <div class="gh-checkout-plan">
+                    <header class="gh-checkout-plan-header">
+                        <h3>{{name}}</h3>
+                        {{#if monthly_price}}
+                        <span>$</span><strong>{{monthly_price}}</strong> / month
+                        {{/if}}
+                        {{#if yearly_price}}
+                        <span>$</span><strong>{{yearly_price}}</strong> / year
+                        {{/if}}
+                    </header>
+                    <div class="gh-checkout-plan-content">
+                        {{#if benefits}}
+                        <ul>
+                            {{#foreach benefits as |benefit|}}
+                            <li>{{benefit}}</li>
+                            {{/foreach}}
+                        </ul>
+                        {{/if}}
+
+                        </ul>
+                        {{#if monthly_price}}
+                        <a class="button primary fit" href="javascript:void(0)" data-members-plan="Monthly">Choose this
+                            plan</a>
+                        {{/if}}
+                        {{#if yearly_price}}
+                        <a class="button primary fit" href="javascript:void(0)" data-members-plan="Yearly">Choose this
+                            plan</a>
+                        {{/if}}
+                    </div>
+                </div>
+                {{/foreach}}
+                {{/get}}
+            </div>
+        </div>
+
+        {{else}}
+
+        {{!-- Not logged in: Sign up --}}
+        <form class="gh-auth-form" data-members-form="signup">
+            <h1 class="gh-auth-title">Signup to {{@site.title}}</h1>
+            <p>{{@site.description}}</p>
+            <div class="gh-auth-box">
+                <input aria-label="Email Address" class="gh-input" data-members-email type="email"
+                    placeholder="youremail@example.com" required="true" autocomplete="false" autofocus />
+                <button class="gh-button gh-button-primary" type="submit">
+                    <span class="gh-button-content">Continue</span>
+                    <span class="gh-button-loader">{{> "icons/loader"}}</span>
+                </button>
+            </div>
+            <p><small>Already have an account? <a href="/signin/">Sign in</a></small></p>
+            <div class="message-success"><strong>Great!</strong> Check your inbox and click the link to confirm your
+                subscription</div>
+            <div class="message-error">Please enter a valid email address!</div>
+        </form>
+
+        {{/if}}
+
+    </div>
+    </div>

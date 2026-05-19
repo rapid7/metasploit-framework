@@ -162,6 +162,7 @@ Gem::Specification.new do |spec|
   # Pinned to avoid WinRM warnings: https://github.com/WinRb/WinRM/issues/355 - if bumping verify windows/winrm/winrm_script_exec works against metasploitable with vagrant/vagrant creds
   spec.add_runtime_dependency 'rexml', '3.4.1'
   spec.add_runtime_dependency 'ffi', '< 1.17.0'
+  spec.add_runtime_dependency 'jwt' # Needed by modules/exploits/multi/http/ghostcms_cve_2026_29053.rb module
 
   #
   # REX Libraries

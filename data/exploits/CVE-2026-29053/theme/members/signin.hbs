@@ -1,0 +1,32 @@
+{{!< ../default}}
+
+<div class="gh-page">
+    <div class="gh-container">
+
+    {{#if @member}}
+
+        {{!-- Logged in: Redirect home --}}
+        <script>window.location = '{{@site.url}}';</script>
+
+    {{else}}
+
+        {{!-- Not logged in: Signin form --}}
+        <form class="gh-auth-form" data-members-form="signin">
+            <h1 class="gh-auth-title">Welcome back!</h1>
+            <p>Sign into your account again for full access</p>
+            <div class="gh-auth-box">
+                <input aria-label="Email Address" class="gh-input" data-members-email type="email" placeholder="Your email address" required="true" autocomplete="false" autofocus />
+                <button class="gh-button gh-button-primary" type="submit">
+                    <span class="gh-button-content">Sign in</span>
+                    <span class="gh-button-loader">{{> "icons/loader"}}</span>
+                </button>
+            </div>
+            <p><small>Don't have an account yet? <a href="/signup/">Sign up</a></small></p>
+            <div class="message-success"><strong>Great!</strong> Check your inbox and click the link to complete signin</div>
+            <div class="message-error">Please enter a valid email address!</div>
+        </form>
+
+    {{/if}}
+
+    </div>
+</div>
