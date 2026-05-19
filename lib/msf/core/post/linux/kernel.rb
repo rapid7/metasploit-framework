@@ -28,24 +28,29 @@ module Msf
         def kernel_release
           uname('-r')
         end
-
-        #
+        
         # Returns the kernel release as a Rex::Version object.
         #
         # @param release [String, nil] Pre-fetched kernel release string.
         # @return [Rex::Version] the upstream kernel version
         # @return [nil] if the release could not be determined or parsed
         #
-        def kernel_rex_version(release = nil)
-          release ||= kernel_release
-          return nil if release.blank?
+        def kernel_rex_release
+          release = kernel_release
 
-          version_string = release.split('-').first
-          return nil if version_string.blank?
+          # regex for parsing kernel release
+          # (5.15.0)-(25)-(generic) 
+          # consists of three groups - the "main version" (xx.zz.yy), the patched version and the type of kernel
+          # this regex should make it easier to create Rex::Version of out it 
 
-          Rex::Version.new(version_string)
-        rescue ArgumentError, RuntimeError
-          nil
+          parsed_kernel_release = release.scan(/(\d+\.\d+\.?\d*)-?(\d+\.\d+|\w+\d+|\d+)?-?(\w+)?/)
+          
+          return nil if parsed_kernel_release.blank?
+
+          Rex::Version.new(parsed_kernel_release.first.join('-'))
+        end
+
+        def kernel_rex_release_major
         end
 
         #
