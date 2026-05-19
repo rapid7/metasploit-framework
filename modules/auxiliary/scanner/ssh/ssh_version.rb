@@ -4,11 +4,11 @@
 ##
 
 require 'recog'
-require 'net/ssh/transport/session'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::SSH
 
   def initialize
     super(
@@ -225,7 +225,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(target_host)
     ::Timeout.timeout(timeout) do
-      transport = Net::SSH::Transport::Session.new(target_host, { port: rport })
+      transport = connect_ssh_transport(target_host, port: rport)
 
       server_data = transport.algorithms.instance_variable_get(:@server_data)
       host_keys = transport.algorithms.session.instance_variable_get(:@host_keys).instance_variable_get(:@host_keys)
@@ -234,10 +234,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       ident = transport.server_version.version
-
       print_status("#{target_host} - SSH server version: #{ident}")
-
-      report_service(host: target_host, port: rport, name: 'ssh', proto: 'tcp', info: ident)
 
       return unless datastore['EXTENDED_CHECKS']
 
