@@ -49,16 +49,5 @@ module Msf
         )
       )
     end
-
-    #
-    # Constructs the payload
-    #
-    def generate(_opts = {})
-      return super + command_string + "\x00"
-    end
-
-    def command_string
-      super.b
-    end
   end
 end

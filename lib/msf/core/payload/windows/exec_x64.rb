@@ -51,9 +51,5 @@ module Msf
         )
     )
     end
-
-    def generate(_opts = {})
-      return super + command_string + "\x00"
-    end
   end
 end
