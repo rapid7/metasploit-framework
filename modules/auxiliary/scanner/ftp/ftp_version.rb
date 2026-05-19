@@ -43,11 +43,11 @@ class MetasploitModule < Msf::Auxiliary
       print_good("FTP Banner: '#{banner_sanitized}'")
       report_service(host: rhost, port: rport, name: 'ftp', info: banner_sanitized)
     end
-
-    disconnect
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue ::Rex::ConnectionError, ::IOError => e
     vprint_error(e.message)
+  ensure
+    disconnect
   end
 end
