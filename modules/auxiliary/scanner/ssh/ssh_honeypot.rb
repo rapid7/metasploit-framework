@@ -3,11 +3,11 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'recog'
 require 'net/ssh/transport/session'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Remote::SSH
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Module::Deprecated
@@ -97,40 +97,6 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def report_host_os(banner)
-    return unless banner =~ /^SSH-\d+\.\d+-(.*)$/
-
-    recog_match = Recog::Nizer.match('ssh.banner', ::Regexp.last_match(1))
-    return unless recog_match
-
-    # This is the same as ssh_honeypot & ssh_version
-    os_info = {}
-    recog_match.each_pair do |k, v|
-      next if k == 'matched'
-
-      case k
-      when 'os.product' then os_info[:os_name] = v
-      when 'os.vendor' then os_info[:os_flavor] = v
-      when 'os.version' then os_info[:os_sp] = v
-      when 'os.cpe23'
-        report_note(
-          host: rhost,
-          port: rport,
-          proto: 'tcp',
-          sname: 'ssh',
-          type: 'ssh.cpe',
-          data: { cpe: v },
-          update: :unique_data
-        )
-      end
-    end
-
-    return if os_info.empty?
-
-    report_host({ host: rhost }.merge(os_info))
-    print_status("SSH banner suggests: #{os_info.values.compact.join(', ')}")
-  end
-
   def report_honeypot_detected(banner, reason, honeypot:, confidence: 'likely')
     print_good("SSH honeypot detected: #{honeypot} (#{confidence}) - #{reason}")
     report_ssh_service(info: "SSH honeypot: #{honeypot} (#{banner.strip})")
@@ -144,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
     response = sock.get_once || ''
 
     print_status("SSH banner: #{banner.strip}")
-    report_host_os(banner) if datastore['EXTENDED_CHECKS']
+    report_ssh_host(banner) if datastore['EXTENDED_CHECKS']
 
     return if check_kippo(banner, response)
     return if check_cowrie(banner)
@@ -184,7 +150,13 @@ class MetasploitModule < Msf::Auxiliary
     server_kex = ::Timeout.timeout(timeout) do
       transport = Net::SSH::Transport::Session.new(rhost, port: rport)
       begin
-        transport.algorithms.instance_variable_get(:@server_data)[:kex].map(&:downcase)
+        kex = transport.algorithms.instance_variable_get(:@server_data)[:kex].map(&:downcase)
+        begin
+          report_ssh_hostkeys(transport, rhost, rport)
+        rescue StandardError
+          nil
+        end
+        kex
       ensure
         begin
           transport.close
