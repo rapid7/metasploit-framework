@@ -34,11 +34,11 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_warning('No FTP banner received')
     end
-
-    disconnect
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue ::Rex::ConnectionError, ::IOError => e
     vprint_error(e.message)
+  ensure
+    disconnect
   end
 end
