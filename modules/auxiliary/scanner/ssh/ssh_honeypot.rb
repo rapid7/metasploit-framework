@@ -3,10 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'net/ssh/transport/session'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Remote::SSH
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Module::Deprecated
@@ -73,16 +72,6 @@ class MetasploitModule < Msf::Auxiliary
     datastore['TIMEOUT']
   end
 
-  def report_ssh_service(info: nil)
-    report_service(
-      host: rhost,
-      port: rport,
-      name: 'ssh',
-      proto: 'tcp',
-      info: info.to_s.strip
-    )
-  end
-
   def report_ssh_vuln(info: nil)
     report_vuln(
       host: rhost,
@@ -101,8 +90,13 @@ class MetasploitModule < Msf::Auxiliary
       return false
     end
 
+    # As the connection came from Msf::Exploit::Remote::Tcp's "connect()",
+    # not Msf::Exploit::Remote::SSH's "connect_ssh()"/"connect_ssh_transport()",
+    # need to add the service
+    report_ssh_service(rhost, rport, info: banner)
+
     reason = 'Server gave incorrect response when probed'
-    report_honeypot_detected(banner, reason, honeypot: 'Kippo', confidence: 'highly likely')
+    report_honeypot_detected(reason, honeypot: 'Kippo', confidence: 'highly likely')
     true
   end
 
@@ -114,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     server_kex = ::Timeout.timeout(timeout) do
-      transport = Net::SSH::Transport::Session.new(rhost, port: rport)
+      transport = connect_ssh_transport(rhost, port: rport)
       begin
         transport.algorithms.instance_variable_get(:@server_data)[:kex].map(&:downcase)
       ensure
@@ -130,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
     phantom = COWRIE_KEX_PHANTOM.select { |k| server_kex.include?(k) }
     if phantom.any?
       reason = "Advertises KEX never in OpenSSH default: #{phantom.join(', ')}"
-      report_honeypot_detected(banner, reason, honeypot: 'Cowrie', confidence: 'possible')
+      report_honeypot_detected(reason, honeypot: 'Cowrie', confidence: 'possible')
       return true
     end
 
@@ -151,16 +145,15 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     reason = "Claims OpenSSH #{banner_ver} but missing expected KEX: #{missing.join(', ')}"
-    report_honeypot_detected(banner, reason, honeypot: 'Cowrie')
+    report_honeypot_detected(reason, honeypot: 'Cowrie')
     true
   rescue Rex::ConnectionError, Net::SSH::Exception, Timeout::Error => e
     print_error("Cowrie check error: #{e.message}")
     false
   end
 
-  def report_honeypot_detected(banner, reason, honeypot:, confidence: 'likely')
+  def report_honeypot_detected(reason, honeypot:, confidence: 'likely')
     print_warning("SSH honeypot detected: #{honeypot} (#{confidence}) - #{reason}")
-    report_ssh_service(info: "SSH honeypot: #{honeypot} (#{banner.strip})")
     report_ssh_vuln(info: "SSH honeypot: #{honeypot} - #{reason}")
   end
 
@@ -171,14 +164,17 @@ class MetasploitModule < Msf::Auxiliary
     response = sock.get_once || ''
 
     vprint_status("SSH banner: #{banner.strip}")
+    report_ssh_service(rhost, rport, info: banner) unless banner.empty?
 
     return if check_kippo(banner, response)
     return if check_cowrie(banner)
 
     print_good('No SSH honeypot (Kippo/Cowrie) detected')
-    report_ssh_service(info: banner)
-  rescue Rex::ConnectionError
-    print_error('Connection refused or timed out')
+  rescue Rex::ConnectionRefused
+    print_error('Connection refused')
+    report_host(host: rhost)
+  rescue Rex::ConnectionError => e
+    print_error("Connection error: #{e.message}")
   ensure
     disconnect
   end
