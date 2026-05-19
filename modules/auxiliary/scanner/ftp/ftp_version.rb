@@ -6,14 +6,26 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
-  include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info = {})
     super(
-      'Name' => 'FTP Version Scanner',
-      'Description' => 'Detect FTP Version.',
-      'Author' => 'hdm',
-      'License' => MSF_LICENSE
+      update_info(
+        info,
+        'Name' => 'FTP Version Scanner',
+        'Description' => %q{
+          This module tries to identify the version of an FTP service by reading its banner.
+        },
+        'Author' => [
+          'hdm',
+          'g0tmi1k' # @g0tmi1k - additional features
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        }
+      )
     )
 
     register_options(
@@ -21,22 +33,27 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(21),
       ]
     )
+
+    # TODO: One day, might be nice to enum via doing: `send_cmd(['xxx'])` {STAT,SYST,FEAT}
+    #       May need to be auth for these to work
+    deregister_options('FTPUSER', 'FTPPASS')
   end
 
-  def run_host(target_host)
-    begin
-      res = connect(true, false)
+  def run_host(_target_host)
+    connect(true, false)
 
-      if (banner)
-        banner_sanitized = Rex::Text.to_hex_ascii(self.banner.to_s)
-        print_good("FTP Banner: '#{banner_sanitized}'")
-        report_service(:host => rhost, :port => rport, :name => "ftp", :info => banner_sanitized)
-      end
-
-      disconnect
-    rescue ::Interrupt
-      raise $!
-    rescue ::Rex::ConnectionError, ::IOError
+    if banner
+      print_good("FTP Banner: #{Rex::Text.to_hex_ascii(banner_version)}")
+    else
+      print_warning('No FTP banner received')
     end
+  rescue ::Rex::ConnectionRefused
+    vprint_error('Connection refused')
+  rescue ::Rex::TimeoutError, ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNREFUSED => e
+    vprint_error(e.message)
+  rescue ::Interrupt
+    raise $ERROR_INFO
+  ensure
+    disconnect
   end
 end
