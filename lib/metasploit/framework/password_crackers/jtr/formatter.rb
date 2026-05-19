@@ -97,7 +97,10 @@ module Metasploit
                 # for this we overload the username field with the db_id so we can find it in the db easier later
                 # https://github.com/openwall/john/issues/5944
                 private_data = private_data.split('$')
-                private_data[5] = private_data[5].split(':').first
+                # remove port if there is one
+                if private_data[5].include?(':')
+                  private_data[5] = private_data[5].split(':').first + '*'
+                end
                 private_data = private_data.join('$')
                 return "#{db_id}:#{private_data}"
               when /^(krb5.|timeroast$)/
