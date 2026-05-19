@@ -97,15 +97,22 @@ module Msf
         opts[:uuid] ||= generate_payload_uuid
 
         unless opts[:transport_config]
-          case opts[:scheme]
-          when 'http'
-            opts[:transport_config] = [transport_config_reverse_http(opts)]
-          when 'https'
-            opts[:transport_config] = [transport_config_reverse_https(opts)]
-          when 'tcp'
-            opts[:transport_config] = [transport_config_reverse_tcp(opts)]
+          if opts[:stageless] == true
+            case opts[:scheme]
+            when 'http'
+              opts[:transport_config] = [transport_config_reverse_http(opts)]
+            when 'https'
+              opts[:transport_config] = [transport_config_reverse_https(opts)]
+            when 'tcp'
+              opts[:transport_config] = [transport_config_reverse_tcp(opts)]
+            else
+              raise ArgumentError, "Unknown scheme: #{opts[:scheme]}"
+            end
           else
-            raise ArgumentError, "Unknown scheme: #{opts[:scheme]}"
+            # Staged payloads inherit the stager's socket (fd transport);
+            # the stage must not synthesise its own C2 transport. Use an
+            # explicit empty array ([] is truthy, so the build is skipped).
+            opts[:transport_config] = []
           end
         end
 
@@ -122,14 +129,16 @@ module Msf
         config = Rex::Payloads::Meterpreter::Config.new(config_opts)
         opts[:config_block] = config.to_b
 
-        # Keep the legacy CLI config for backward compatibility during transition
-        case opts[:scheme]
-        when 'http'
-          opts[:uri] = generate_http_uri(opts[:transport_config].first)
-        when 'https'
-          opts[:uri] = generate_http_uri(opts[:transport_config].first)
-        when 'tcp'
-          opts[:uri] = generate_tcp_uri(opts[:transport_config].first)
+        # Keep the legacy CLI config for backward compatibility during
+        # transition. Skipped for staged payloads, which have no transport.
+        transport = opts[:transport_config].first
+        if transport
+          case opts[:scheme]
+          when 'http', 'https'
+            opts[:uri] = generate_http_uri(transport)
+          when 'tcp'
+            opts[:uri] = generate_tcp_uri(transport)
+          end
         end
 
         opts[:uuid] = Base64.encode64(opts[:uuid].to_raw).strip
