@@ -154,6 +154,13 @@ class MetasploitModule < Msf::Auxiliary
       end
       @server_banner = transport.server_version.version.to_s.strip
       print_status("#{ip}:#{rport} - SSH banner: #{@server_banner}")
+      report_ssh_host(@server_banner, ip, port)
+      begin
+        report_ssh_hostkeys(transport, ip, port)
+      rescue StandardError
+        nil
+      end
+      @reported_hostkeys = true
 
       server_data = transport.algorithms.instance_variable_get(:@server_data)
       @server_supported_key_types = server_data[:host_key]
@@ -388,6 +395,15 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         @server_banner ||= verifier.connection&.transport&.server_version&.version.to_s.strip
+        unless @reported_hostkeys
+          report_ssh_host(@server_banner, ip, port) if @server_banner
+          begin
+            report_ssh_hostkeys(verifier.connection, ip, port) if verifier.connection
+          rescue StandardError
+            nil
+          end
+          @reported_hostkeys = true
+        end
         report_ssh_service(ip, port)
 
         begin
@@ -672,6 +688,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     @reported_service = false
+    @reported_hostkeys = false
     # Since SSH collects keys and tries them all on one authentication session,
     # it doesn't make sense to iteratively go through all the keys
     # individually. So, ignore the pass variable, and try all available keys
