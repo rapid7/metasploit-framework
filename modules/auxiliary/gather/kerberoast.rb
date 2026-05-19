@@ -159,12 +159,12 @@ class MetasploitModule < Msf::Auxiliary
       name_string: components
     )
 
-    rhostname = datastore['DomainControllerRhost']
-    rhostname ||= session.client.peerhost if session
+    dc_rhost = datastore['DomainControllerRhost']
+    dc_rhost ||= session.client.peerhost if session
     username = session ? session.client.username : datastore['LDAPUsername']
     password = session ? session.client.password : datastore['LDAPPassword']
     authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Base.new(
-      host: rhostname,
+      host: dc_rhost,
       realm: realm,
       username: username,
       password: password,
@@ -208,10 +208,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def report_hash(hash, jtr_format, realm:)
+    dc_rhost = datastore['DomainControllerRhost']
+    dc_rhost ||= session.client.peerhost if session
+
     service_data = {
-      address: rhost,
-      port: rport,
-      service_name: 'Kerberos',
+      address: dc_rhost,
+      port: 88,
+      service_name: 'kerberos',
       protocol: 'tcp',
       workspace_id: myworkspace_id
     }
