@@ -219,8 +219,31 @@ module Rex
         # @return [<Rex::Proto::Kerberos::Model::KrbError, Rex::Proto::Kerberos::Model::KdcResponse, Rex::Proto::Kerberos::Model::KrbError>] the kerberos message response
         # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if the response can't be processed
         def decode_kerb_response(data)
-          asn1 = OpenSSL::ASN1.decode(data)
-          msg_type = asn1.value[0].value[1].value[0].value
+          begin
+            asn1 = OpenSSL::ASN1.decode(data)
+          rescue OpenSSL::ASN1::ASN1Error => e
+            raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, "Kerberos Client: Failed to decode ASN.1: #{e.message}"
+          end
+
+          # Safely navigate the ASN.1 structure to extract the message type.
+          # The structure is expected to be an Application Tag wrapper around a Sequence,
+          # where the element with context-specific tag [1] contains the msg-type integer.
+          # Reference: RFC 4120 sections 5.2.1, 5.4.1, 5.9.1
+          msg_type = begin
+            if asn1.is_a?(OpenSSL::ASN1::ASN1Data) && asn1.value.is_a?(Array) && asn1.value[0].is_a?(OpenSSL::ASN1::Sequence)
+              seq_value = asn1.value[0].value
+              # Find the element with context-specific tag 1 (msg-type)
+              msg_type_tag = seq_value.find { |elem| elem.is_a?(OpenSSL::ASN1::ASN1Data) && elem.tag == 1 }
+              # Extract the Integer value from the tagged element
+              if msg_type_tag && msg_type_tag.value.is_a?(Array) && msg_type_tag.value[0].is_a?(OpenSSL::ASN1::Integer)
+                msg_type_tag.value[0].value
+              end
+            end
+          rescue StandardError
+            nil
+          end
+
+          raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Kerberos Client: Invalid or truncated ASN.1 response structure' if msg_type.nil?
 
           case msg_type
           when Rex::Proto::Kerberos::Model::KRB_ERROR
@@ -230,7 +253,7 @@ module Rex
           when Rex::Proto::Kerberos::Model::AP_REP
             res = Rex::Proto::Kerberos::Model::ApRep.decode(asn1)
           else
-            raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Kerberos Client: Unknown response'
+            raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, "Kerberos Client: Unknown response type: #{msg_type}"
           end
 
           res
