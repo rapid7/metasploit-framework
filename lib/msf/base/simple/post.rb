@@ -112,26 +112,21 @@ protected
         mod.run
       else
         mod.print_error("Session not found")
-        mod.cleanup
         return
       end
     rescue Msf::Post::Complete
-      mod.cleanup
       return
     rescue Msf::Post::Failed => e
       mod.error = e
       mod.print_error("Post aborted due to failure: #{e.message}")
-      mod.cleanup
       return
     rescue ::Timeout::Error => e
       mod.error = e
       mod.print_error("Post triggered a timeout exception")
-      mod.cleanup
       return
     rescue ::Interrupt => e
       mod.error = e
       mod.print_error("Post interrupted by the console user")
-      mod.cleanup
       return
     rescue ::Msf::OptionValidateError => e
       mod.error = e
@@ -148,7 +143,6 @@ protected
       end
 
       elog('Post failed', error: e)
-      mod.cleanup
 
       return
     end
