@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MSF Network Graph</title>
+  %%D3_SCRIPT%%
+  <style>
+    :root {
+      --bg-canvas:        #0d1117;
+      --bg-surface:       #161b22;
+      --bg-elevated:      #21262d;
+      --bg-surface-alpha: rgba(22, 27, 34, 0.93);
+      --bg-tooltip:       rgba(22, 27, 34, 0.95);
+      --border:           #30363d;
+      --text-primary:     #e6edf3;
+      --text-secondary:   #c9d1d9;
+      --text-muted:       #8b949e;
+      --accent:           #58a6ff;
+      --route-hop:        #79c0ff;
+      --graph-edge:       #30363d;
+    }
+    body.light {
+      --bg-canvas:        #f6f8fa;
+      --bg-surface:       #ffffff;
+      --bg-elevated:      #f6f8fa;
+      --bg-surface-alpha: rgba(255, 255, 255, 0.95);
+      --bg-tooltip:       rgba(255, 255, 255, 0.97);
+      --border:           #d0d7de;
+      --text-primary:     #1f2328;
+      --text-secondary:   #24292f;
+      --text-muted:       #57606a;
+      --accent:           #0969da;
+      --route-hop:        #0550ae;
+      --graph-edge:       #b8c0cc;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-canvas);
+      color: var(--text-secondary);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #graph-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-canvas);
+    }
+    #svg {
+      width: 100%;
+      height: 100%;
+    }
+    #sidebar {
+      width: 300px;
+      min-width: 300px;
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 0;
+      transition: transform 0.2s ease;
+    }
+    #sidebar.hidden {
+      transform: translateX(100%);
+      width: 0;
+      min-width: 0;
+      padding: 0;
+      border: none;
+      overflow: hidden;
+    }
+    #sidebar-header {
+      background: var(--bg-elevated);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #sidebar-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    #sidebar-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    #sidebar-close:hover { color: var(--text-primary); }
+    #sidebar-content { padding: 16px; }
+    .detail-group { margin-bottom: 16px; }
+    .detail-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 4px;
+    }
+    .detail-value {
+      font-size: 13px;
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      margin: 2px 2px 2px 0;
+    }
+    .badge-compromised { background: #da3633; color: #fff; }
+    .badge-ever-compromised { background: #7d1f1f; color: #fff; }
+    .badge-session { background: #1f6feb; color: #fff; }
+    .badge-closed { background: var(--bg-elevated); color: var(--text-muted); }
+    .badge-port { background: #238636; color: #fff; }
+    .session-entry {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+    .session-active { border-left: 3px solid #da3633; }
+    .session-closed { border-left: 3px solid var(--border); opacity: 0.7; }
+    .services-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .loot-entry {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-left: 3px solid #8957e5;
+      border-radius: 6px;
+      padding: 7px 10px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      color: inherit;
+    }
+    .loot-entry:hover { border-color: #a371f7; background: var(--bg-elevated); filter: brightness(0.95); }
+    .loot-entry .loot-name { color: #a371f7; font-weight: 600; }
+    .loot-entry .loot-meta { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+    .loot-entry .loot-info { color: var(--text-secondary); margin-top: 2px; }
+    .link {
+      fill: none;
+      stroke: var(--graph-edge);
+      stroke-width: 1.5;
+      stroke-opacity: 0.8;
+    }
+    .link.highlighted {
+      fill: none;
+      stroke: #f85149;
+      stroke-width: 3;
+      stroke-opacity: 1;
+    }
+    .link.dimmed { stroke-opacity: 0.15; }
+    .node-group { cursor: pointer; }
+    .node-circle {
+      stroke: var(--accent);
+      stroke-width: 2;
+      transition: filter 0.1s;
+    }
+    .node-group:hover .node-circle {
+      filter: brightness(1.4);
+    }
+    .node-group.dimmed { opacity: 0.25; }
+    .node-group.filter-hidden { display: none; }
+    .node-group.filter-dimmed { opacity: 0.2; }
+    .link.filter-hidden { display: none; }
+    .link.filter-dimmed { stroke-opacity: 0.08; }
+    .node-group.selected .node-circle {
+      stroke-width: 3;
+      filter: brightness(1.3);
+    }
+    .node-label {
+      font-size: 11px;
+      fill: var(--text-muted);
+      pointer-events: none;
+      text-anchor: middle;
+    }
+    #legend {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--bg-surface-alpha);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      min-width: 150px;
+      font-size: 12px;
+    }
+    #legend h4 {
+      color: var(--text-primary);
+      font-size: 12px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    #legend-toggle {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 0 0 8px;
+    }
+    #legend-toggle:hover { color: var(--text-primary); }
+    #legend.collapsed { padding-bottom: 10px; }
+    #legend.collapsed #legend-body { display: none; }
+    #legend.collapsed h4 { margin-bottom: 0; }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 5px;
+      color: var(--text-muted);
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .legend-separator {
+      margin-top: 6px;
+      border-top: 1px solid var(--border);
+      padding-top: 6px;
+    }
+    .legend-hint {
+      color: var(--text-secondary);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+    .os-cat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 3px 8px 3px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .os-cat-sep { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 6px; }
+    .os-cat-arrow { font-size: 9px; }
+    .os-cat-body.collapsed { display: none; }
+    #theme-toggle {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--bg-surface-alpha);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 5px 8px;
+      z-index: 100;
+      transition: color 0.15s, background 0.15s;
+    }
+    #theme-toggle:hover { color: var(--text-primary); background: var(--bg-elevated); }
+    #export-btn {
+      position: absolute;
+      bottom: 14px;
+      right: 12px;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      z-index: 100;
+    }
+    #export-btn:hover { background: var(--border); color: var(--text-primary); }
+    #bottom-controls {
+      position: absolute;
+      bottom: 14px;
+      left: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      z-index: 100;
+    }
+    .ctrl-btn {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+    }
+    .ctrl-btn:hover { background: var(--border); color: var(--text-primary); }
+    #configure-toggle {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    #configure-toggle:hover { background: var(--border); color: var(--text-primary); }
+    #configure-body {
+      display: none;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      min-width: 210px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+    }
+    .config-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .config-label { font-size: 12px; color: var(--text-muted); flex: 1; }
+    .config-input {
+      background: var(--bg-canvas);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      padding: 3px 6px;
+      width: 58px;
+      text-align: center;
+    }
+    .config-input:focus { outline: none; border-color: var(--accent); }
+    .config-btn {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      width: 100%;
+      text-align: left;
+    }
+    .config-btn:hover { background: var(--border); color: var(--text-primary); }
+    .config-divider { height: 1px; background: var(--border); margin: 8px 0; }
+    .config-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--text-secondary);
+      user-select: none;
+    }
+    .config-toggle input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+      accent-color: #388bfd;
+    }
+    #type-popup {
+      position: fixed;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      display: none;
+      z-index: 200;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      min-width: 170px;
+      overflow: visible;
+    }
+    .configure-row {
+      justify-content: space-between;
+    }
+    #configure-submenu {
+      display: none;
+      position: absolute;
+      left: calc(100% + 6px);
+      top: 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      min-width: 220px;
+      max-height: 400px;
+      overflow-y: auto;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      z-index: 210;
+    }
+    #type-popup h4 {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .type-opt {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .type-opt:hover { background: var(--bg-elevated); }
+    .type-opt.active { color: var(--accent); }
+    .popup-divider { height: 1px; background: var(--border); margin: 8px 0; }
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+    }
+    .color-row input[type="color"] {
+      width: 36px;
+      height: 26px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: none;
+      cursor: pointer;
+      padding: 2px;
+    }
+    .color-row button {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+    }
+    .color-row button:hover { background: var(--border); }
+    .collapsible-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .section-toggle {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 10px;
+      padding: 0 0 0 6px;
+      line-height: 1;
+    }
+    .section-toggle:hover { color: var(--text-primary); }
+    .collapsible-body.collapsed { display: none; }
+    .route-list { font-family: monospace; font-size: 12px; line-height: 1.8; }
+    .route-entry-first { color: var(--text-primary); font-weight: 600; }
+    .route-entry-hop { color: var(--route-hop); padding-left: 10px; }
+    .route-entry-hop::before { content: '\2192\00a0'; color: var(--text-muted); }
+    .rtt-label { color: var(--text-muted); font-size: 10px; margin-left: 4px; }
+    .rtt-total { color: var(--text-secondary); font-style: italic; }
+    .session-meta { color: var(--text-muted); font-size: 11px; }
+    .module-entry { font-family: monospace; font-size: 11px; color: var(--text-secondary); padding: 2px 0; word-break: break-all; }
+    #filter-panel { display: flex; flex-direction: column; align-items: flex-start; }
+    #filter-body {
+      display: none;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      min-width: 220px;
+      max-height: 420px;
+      overflow-y: auto;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+      margin-bottom: 4px;
+    }
+    #filter-toggle {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    #filter-toggle:hover { background: var(--border); color: var(--text-primary); }
+    #filter-toggle.active { border-color: var(--accent); color: var(--accent); }
+    .filter-mode-row { display: flex; gap: 12px; margin-bottom: 10px; }
+    .filter-mode-row label { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+    .filter-section { margin-bottom: 10px; }
+    .filter-section-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+    .filter-opt { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-secondary); cursor: pointer; margin-bottom: 3px; white-space: nowrap; }
+    .filter-opt input { cursor: pointer; accent-color: var(--accent); }
+    #filter-ports { width: 100%; box-sizing: border-box; }
+    #tooltip {
+      position: fixed;
+      background: var(--bg-tooltip);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      pointer-events: none;
+      display: none;
+      z-index: 300;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div id="graph-container">
+    <svg id="svg"></svg>
+    <button id="theme-toggle" title="Toggle light/dark mode" onclick="toggleTheme()">&#x263D;</button>
+    <div id="legend">
+      <h4>Legend <button id="legend-toggle" title="Minimize legend">&#x2212;</button></h4>
+      <div id="legend-body">
+        <div class="legend-item">
+          <svg width="14" height="14" style="flex-shrink:0;display:block">
+            <use href="#icon-msf" width="14" height="14"/>
+          </svg>
+          MSF Framework
+        </div>
+        <div class="legend-item"><div class="legend-dot" style="background:#da3633"></div> Active Session</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#7d1f1f"></div> Previously Compromised</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#388bfd"></div> Discovered</div>
+        <div class="legend-item legend-separator">
+          <div style="width:24px;height:2px;background:#f85149;border-radius:1px"></div> Active path
+        </div>
+        <div class="legend-item legend-hint">Right-click node to change type/color</div>
+      </div>
+    </div>
+    <div id="bottom-controls">
+      <button class="ctrl-btn" id="btn-deselect" style="display:none">Clear Selection</button>
+      <div id="filter-panel">
+        <div id="filter-body">
+          <div class="filter-mode-row">
+            <label><input type="radio" name="filter-mode" value="dim" checked> Dim</label>
+            <label><input type="radio" name="filter-mode" value="hide"> Hide</label>
+          </div>
+          <div class="config-divider"></div>
+          <div class="filter-section">
+            <div class="filter-section-label">Session</div>
+            <label class="filter-opt"><input type="checkbox" class="filter-session" value="active"> Active session</label>
+            <label class="filter-opt"><input type="checkbox" class="filter-session" value="ever"> Ever compromised</label>
+          </div>
+          <div class="filter-section">
+            <div class="filter-section-label">Device Type</div>
+            <div id="filter-device-opts"></div>
+          </div>
+          <div class="filter-section">
+            <div class="filter-section-label">Operating System</div>
+            <div id="filter-os-opts"></div>
+          </div>
+          <div class="filter-section">
+            <div class="filter-section-label">Ports (comma-separated)</div>
+            <input type="text" id="filter-ports" class="config-input" placeholder="80, 443, 3306…">
+          </div>
+          <div class="config-divider"></div>
+          <button class="config-btn" id="btn-filter-clear">Clear Filters</button>
+        </div>
+        <button id="filter-toggle" onclick="toggleFilter()">Filter <span id="filter-arrow">&#x25b2;</span></button>
+      </div>
+      <div id="configure-panel">
+        <div id="configure-body">
+          <div class="config-row">
+            <span class="config-label">Direction</span>
+            <div style="display:flex;gap:8px">
+              <label class="filter-opt"><input type="radio" name="layout-dir" value="top-down" checked> Top Down</label>
+              <label class="filter-opt"><input type="radio" name="layout-dir" value="left-right"> Left→Right</label>
+            </div>
+          </div>
+          <div class="config-row">
+            <span class="config-label">Nodes per layer</span>
+            <input type="number" class="config-input" id="cfg-nodes-per-row" min="1" max="100" placeholder="auto">
+          </div>
+          <div class="config-divider"></div>
+          <button class="config-btn" id="btn-reset">&#x21ba; Reset Layout &amp; View</button>
+          <div class="config-divider"></div>
+          <label class="config-toggle">
+            <input type="checkbox" id="cfg-physics" checked>
+            <span>Physics enabled</span>
+          </label>
+        </div>
+        <button id="configure-toggle" onclick="toggleConfigure()">Configure <span id="cfg-arrow">&#x25b2;</span></button>
+      </div>
+    </div>
+    <button id="export-btn" onclick="exportImage()" title="Export graph as PNG">&#x2913; Export PNG</button>
+    <div id="type-popup">
+      <h4>Change Device Type</h4>
+      <div id="type-opts"></div>
+      <div class="popup-divider"></div>
+      <div class="type-opt configure-row" onclick="toggleSubmenu(event)">
+        <span style="flex:1">Configure</span>
+        <span id="submenu-arrow">&#x25b6;</span>
+      </div>
+      <div id="configure-submenu" onclick="event.stopPropagation()">
+        <h4>Node Color</h4>
+        <div class="color-row">
+          <input type="color" id="node-color-picker" value="#388bfd">
+          <button onclick="applyColorChange()">Apply</button>
+          <button onclick="resetNodeColor()">Reset</button>
+        </div>
+        <div class="popup-divider"></div>
+        <h4>OS Icon</h4>
+        <div id="os-opts"></div>
+      </div>
+    </div>
+    <div id="tooltip"></div>
+  </div>
+  <div id="sidebar" class="hidden">
+    <div id="sidebar-header">
+      <h3 id="sidebar-title">Node Details</h3>
+      <button id="sidebar-close">&times;</button>
+    </div>
+    <div id="sidebar-content"></div>
+  </div>
+
+  <script>
+(function() {
+  const NODES = %%NODES%%;
+  const LINKS = %%LINKS%%;
+
+  const DEVICE_TYPES = ['computer', 'server', 'router', 'switch', 'firewall', 'phone', 'printer', 'msf', 'generic'];
+  const OS_CATEGORIES = [
+    { name: 'Computers',  keys: ['android', 'bsd', 'debian', 'ios', 'linux', 'macos', 'redhat', 'ubuntu', 'vmware', 'windows'] },
+    { name: 'Networking', keys: ['arista', 'aruba', 'asus', 'cisco', 'eero', 'fortinet', 'huawei', 'juniper', 'linksys', 'meraki', 'mikrotik', 'netgear', 'paloalto', 'tplink', 'ubiquiti'] },
+    { name: 'Storage',    keys: ['buffalo', 'qnap', 'synology'] }
+  ];
+  const OS_FAMILIES = OS_CATEGORIES.flatMap(c => c.keys);
+  const osLabels = {
+    android: 'Android',        bsd: 'BSD / FreeBSD',      debian: 'Debian',
+    ios: 'iPhone / iOS',       linux: 'Linux',             macos: 'macOS',
+    redhat: 'Red Hat / CentOS', ubuntu: 'Ubuntu',          vmware: 'VMware / ESXi',
+    windows: 'Windows',
+    arista: 'Arista EOS',      aruba: 'HPE Aruba',         asus: 'ASUS',
+    cisco: 'Cisco',            eero: 'Amazon Eero',        fortinet: 'Fortinet',
+    huawei: 'Huawei',          juniper: 'Juniper / JunOS', linksys: 'Linksys',
+    meraki: 'Cisco Meraki',    mikrotik: 'MikroTik',       netgear: 'Netgear',
+    paloalto: 'Palo Alto',     tplink: 'TP-Link',          ubiquiti: 'Ubiquiti',
+    buffalo: 'Buffalo',        qnap: 'QNAP',               synology: 'Synology'
+  };
+
+  const NODE_COLORS = {
+    msf:      '#1b92ff',
+    compromised: '#da3633',
+    ever_compromised: '#7d1f1f',
+    default:  '#388bfd'
+  };
+
+  const ICON_PATHS = {
+    computer: `<rect x="2" y="4" width="20" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+               <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+               <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>`,
+    server:   `<rect x="3" y="2" width="18" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+               <rect x="3" y="10" width="18" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+               <rect x="3" y="18" width="18" height="4" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+               <circle cx="19" cy="5" r="1.2" fill="currentColor"/>
+               <circle cx="19" cy="13" r="1.2" fill="currentColor"/>`,
+    router:   `<rect x="2" y="11" width="20" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+               <line x1="7" y1="11" x2="7" y2="7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+               <line x1="12" y1="11" x2="12" y2="5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+               <line x1="17" y1="11" x2="17" y2="7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+               <circle cx="7" cy="5.5" r="1.5" fill="currentColor"/>
+               <circle cx="17" cy="5.5" r="1.5" fill="currentColor"/>
+               <circle cx="19" cy="14.5" r="1" fill="currentColor"/>`,
+    switch:   `<rect x="2" y="9" width="20" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+               <circle cx="6" cy="12" r="1.2" fill="currentColor"/>
+               <circle cx="9.5" cy="12" r="1.2" fill="currentColor"/>
+               <circle cx="13" cy="12" r="1.2" fill="currentColor"/>
+               <circle cx="16.5" cy="12" r="1.2" fill="currentColor"/>
+               <circle cx="20" cy="12" r="1.2" fill="currentColor"/>
+               <line x1="6" y1="9" x2="6" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+               <line x1="18" y1="9" x2="18" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>`,
+    firewall: `<path d="M12 2 L4 6 V12 C4 16.5 7.5 20.5 12 22 C16.5 20.5 20 16.5 20 12 V6 Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+               <line x1="12" y1="8" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+               <circle cx="12" cy="16" r="1.2" fill="currentColor"/>`,
+    phone:    `<rect x="7" y="2" width="10" height="20" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+               <line x1="10" y1="18.5" x2="14" y2="18.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>`,
+    printer:  `<rect x="4" y="8" width="16" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+               <rect x="7" y="15" width="10" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.8"/>
+               <rect x="7" y="3" width="10" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.8"/>
+               <circle cx="17.5" cy="12" r="1.2" fill="currentColor"/>`,
+    generic:  `<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
+               <path d="M9.5 9.5 C9.5 7.5 14.5 7.5 14.5 10 C14.5 12 12 12.5 12 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+               <circle cx="12" cy="17" r="1.2" fill="currentColor"/>`
+  };
+
+  const OS_ICONS = {
+    windows: `<polygon points="0.5,1 5.5,0.5 5.5,5.5 0.5,5.5" fill="#f25022"/>
+              <polygon points="6.5,0.5 11.5,1 11.5,5.5 6.5,5.5" fill="#7fba00"/>
+              <polygon points="0.5,6.5 5.5,6.5 5.5,11 0.5,11.5" fill="#00a4ef"/>
+              <polygon points="6.5,6.5 11.5,6.5 11.5,11.5 6.5,11" fill="#ffb900"/>`,
+    linux:   `<ellipse cx="6" cy="8.5" rx="3.5" ry="3.5" fill="#2c2c2c"/>
+              <ellipse cx="6" cy="9" rx="2" ry="2.5" fill="#f0f0f0"/>
+              <circle cx="6" cy="4" r="2.8" fill="#2c2c2c"/>
+              <ellipse cx="4.9" cy="3.6" rx="0.65" ry="0.75" fill="white"/>
+              <ellipse cx="7.1" cy="3.6" rx="0.65" ry="0.75" fill="white"/>
+              <circle cx="5" cy="3.6" r="0.32" fill="#111"/>
+              <circle cx="7" cy="3.6" r="0.32" fill="#111"/>
+              <polygon points="5.3,5 6.7,5 6,5.8" fill="#ff8c00"/>`,
+    redhat:  `<path d="M3,6.5 C3,3 4.2,1.5 6,1.5 C7.8,1.5 9,3 9,6.5 Z" fill="#cc0000"/>
+              <ellipse cx="6" cy="6.5" rx="5" ry="1.5" fill="#ee0000"/>
+              <ellipse cx="6" cy="10.5" rx="3" ry="1.5" fill="#555"/>`,
+    debian:  `<path d="M6,1.5 C9.5,1.5 11,4 10.5,6.8 C10,9 8.2,10.5 6,10.5 C4.2,10.5 3,9.2 3,7.5 C3,6 4,5.2 5.5,5.2 C7,5.2 7.8,6.2 7.2,7.2 C6.8,8 5.8,8 5.2,7.5" stroke="#d70751" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+    ubuntu:  `<circle cx="6" cy="6" r="5" fill="none" stroke="#e95420" stroke-width="1.5"/>
+              <circle cx="6" cy="1.5" r="1.2" fill="#e95420"/>
+              <circle cx="10.2" cy="8.5" r="1.2" fill="#e95420"/>
+              <circle cx="1.8" cy="8.5" r="1.2" fill="#e95420"/>`,
+    macos:   `<path d="M9 3.5 C8 2 6.5 2 5.5 2.5 C5.5 4 6.5 4.5 7 4.5 C6 4.5 4 4.5 3 6.5 C2 8.5 3 11 5.5 11 C6.5 11 7 10.5 8 10.5 C9 10.5 9.5 11 10.5 11 C13 11 14 8.5 13 6.5 C12 4.5 10 4.5 9 4.5 C9.5 4 10 3 9 2 Z" fill="#999"/>
+              <line x1="9" y1="1" x2="9.5" y2="2.5" stroke="#999" stroke-width="1" stroke-linecap="round"/>`,
+    vmware:  `<rect x="0.5" y="8.5" width="11" height="3" rx="1" fill="#1d428a"/>
+              <rect x="0.5" y="3.5" width="4.5" height="4.5" rx="0.8" fill="#607078"/>
+              <rect x="1.2" y="4.2" width="3.1" height="2" rx="0.3" fill="#b0bec5"/>
+              <rect x="7" y="3.5" width="4.5" height="4.5" rx="0.8" fill="#607078"/>
+              <rect x="7.7" y="4.2" width="3.1" height="2" rx="0.3" fill="#b0bec5"/>`,
+    android: `<rect x="3" y="5" width="6" height="4.5" rx="0.8" fill="#3ddc84"/>
+              <path d="M3.5 5 C3.5 2.8 8.5 2.8 8.5 5" fill="none" stroke="#3ddc84" stroke-width="1.1"/>
+              <circle cx="4.8" cy="4" r="0.45" fill="#fff"/>
+              <circle cx="7.2" cy="4" r="0.45" fill="#fff"/>
+              <line x1="4" y1="3.2" x2="3.2" y2="2.1" stroke="#3ddc84" stroke-width="0.9" stroke-linecap="round"/>
+              <line x1="8" y1="3.2" x2="8.8" y2="2.1" stroke="#3ddc84" stroke-width="0.9" stroke-linecap="round"/>
+              <rect x="1.5" y="6" width="1.2" height="2.8" rx="0.6" fill="#3ddc84"/>
+              <rect x="9.3" y="6" width="1.2" height="2.8" rx="0.6" fill="#3ddc84"/>
+              <rect x="4" y="9.5" width="1.3" height="2" rx="0.5" fill="#3ddc84"/>
+              <rect x="6.7" y="9.5" width="1.3" height="2" rx="0.5" fill="#3ddc84"/>`,
+    ios:      `<rect x="2.5" y="0.5" width="7" height="11" rx="1.5" fill="#1c1c1e"/>
+               <rect x="3" y="1.2" width="6" height="8.5" rx="0.8" fill="#2c2c2e"/>
+               <rect x="4" y="0.5" width="4" height="1" rx="0.5" fill="#3a3a3c"/>
+               <rect x="4.5" y="10.3" width="3" height="0.7" rx="0.35" fill="#3a3a3c"/>`,
+    bsd:      `<circle cx="6" cy="7" r="4" fill="#ab0000"/>
+               <polygon points="3.5,5 4.5,2 5.3,5" fill="#ab0000"/>
+               <polygon points="8.5,5 7.5,2 6.7,5" fill="#ab0000"/>
+               <circle cx="4.5" cy="6.5" r="0.6" fill="#fff"/>
+               <circle cx="7.5" cy="6.5" r="0.6" fill="#fff"/>
+               <path d="M4.5 8.5 Q6 9.5 7.5 8.5" fill="none" stroke="#fff" stroke-width="0.8" stroke-linecap="round"/>`,
+    cisco:    `<rect x="0.5" y="6.5" width="1.3" height="3" rx="0.5" fill="#049fd9"/>
+               <rect x="2.1" y="5" width="1.3" height="4.5" rx="0.5" fill="#049fd9"/>
+               <rect x="3.7" y="3.5" width="1.3" height="6" rx="0.5" fill="#049fd9"/>
+               <rect x="5.3" y="2.5" width="1.3" height="7" rx="0.5" fill="#049fd9"/>
+               <rect x="6.9" y="3.5" width="1.3" height="6" rx="0.5" fill="#049fd9"/>
+               <rect x="8.5" y="5" width="1.3" height="4.5" rx="0.5" fill="#049fd9"/>
+               <rect x="10.1" y="6.5" width="1.3" height="3" rx="0.5" fill="#049fd9"/>`,
+    juniper:  `<path d="M5.5 1.5 L8 1.5 L8 9 C8 11.5 4 11.5 3 9.5 L4.5 8.5 C4.8 9.8 6.5 9.8 6.5 9 L6.5 1.5 Z" fill="#84ac28"/>`,
+    arista:   `<circle cx="6" cy="6" r="4.8" fill="none" stroke="#00a878" stroke-width="1.5"/>
+               <line x1="6" y1="1.2" x2="6" y2="10.8" stroke="#00a878" stroke-width="1.5"/>
+               <line x1="1.2" y1="6" x2="10.8" y2="6" stroke="#00a878" stroke-width="1.5"/>`,
+    fortinet: `<path d="M6 1 L11 3.5 L11 7 C11 9.8 8.5 11.5 6 12 C3.5 11.5 1 9.8 1 7 L1 3.5 Z" fill="#ee3124"/>
+               <path d="M4.5 4 L4.5 9.5 L6 9.5 L6 7.2 L8 7.2 L8 5.8 L6 5.8 L6 5.2 L8.5 5.2 L8.5 4 Z" fill="#fff"/>`,
+    aruba:    `<circle cx="6" cy="9.5" r="1.2" fill="#ff8300"/>
+               <path d="M3.8 7.8 Q6 6.2 8.2 7.8" fill="none" stroke="#ff8300" stroke-width="1.3" stroke-linecap="round"/>
+               <path d="M2 5.8 Q6 3 10 5.8" fill="none" stroke="#ff8300" stroke-width="1.3" stroke-linecap="round"/>`,
+    ubiquiti: `<path d="M3.5 2 L3.5 7.5 A2.5 2.5 0 0 0 8.5 7.5 L8.5 2" fill="none" stroke="#0059eb" stroke-width="2" stroke-linecap="round"/>`,
+    netgear:  `<path d="M2 2 L2 10 L3.5 10 L3.5 5 L7 10 L8.5 10 L8.5 2 L7 2 L7 7 L3.5 2 Z" fill="#6a217f"/>`,
+    asus:     `<path d="M6 1 L10.5 11 L1.5 11 Z M6 3.8 L9 10.5 L3 10.5 Z" fill="#004a97" fill-rule="evenodd"/>
+               <rect x="3.8" y="7.5" width="4.4" height="1.3" fill="#004a97"/>`,
+    tplink:   `<polygon points="8,1.5 4,7 6.5,7 4.5,10.5 9.5,5 7,5" fill="#01a0e4"/>`,
+    synology: `<rect x="2" y="1.5" width="8" height="2.5" rx="0.8" fill="#b5001c"/>
+               <circle cx="8.5" cy="2.75" r="0.7" fill="#fff"/>
+               <rect x="2" y="4.8" width="8" height="2.5" rx="0.8" fill="#b5001c"/>
+               <circle cx="8.5" cy="6.05" r="0.7" fill="#fff"/>
+               <rect x="2" y="8.1" width="8" height="2.5" rx="0.8" fill="#b5001c"/>
+               <circle cx="8.5" cy="9.35" r="0.7" fill="#fff"/>`,
+    eero:     `<circle cx="6" cy="2.5" r="1.3" fill="#ff9900"/>
+               <circle cx="2.5" cy="9" r="1.3" fill="#ff9900"/>
+               <circle cx="9.5" cy="9" r="1.3" fill="#ff9900"/>
+               <line x1="6" y1="3.8" x2="3.2" y2="8" stroke="#ff9900" stroke-width="1"/>
+               <line x1="6" y1="3.8" x2="8.8" y2="8" stroke="#ff9900" stroke-width="1"/>
+               <line x1="3.8" y1="9" x2="8.2" y2="9" stroke="#ff9900" stroke-width="1"/>`,
+    huawei:   `<ellipse cx="6" cy="6" rx="1.2" ry="4" fill="#cf0a2c" opacity="0.85" transform="rotate(0 6 6)"/>
+               <ellipse cx="6" cy="6" rx="1.2" ry="4" fill="#cf0a2c" opacity="0.85" transform="rotate(45 6 6)"/>
+               <ellipse cx="6" cy="6" rx="1.2" ry="4" fill="#cf0a2c" opacity="0.85" transform="rotate(90 6 6)"/>
+               <ellipse cx="6" cy="6" rx="1.2" ry="4" fill="#cf0a2c" opacity="0.85" transform="rotate(135 6 6)"/>`,
+    linksys:  `<path d="M3 2 L3 10 L9.5 10 L9.5 8.5 L4.5 8.5 L4.5 2 Z" fill="#0082cb"/>`,
+    meraki:   `<path d="M1.5 9.5 L3.5 3.5 L6 7.5 L8.5 3.5 L10.5 9.5" fill="none" stroke="#00a651" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+    mikrotik: `<circle cx="6" cy="6" r="1.5" fill="#4d84b4"/>
+               <circle cx="2.5" cy="3" r="1.2" fill="#4d84b4"/>
+               <circle cx="9.5" cy="3" r="1.2" fill="#4d84b4"/>
+               <circle cx="2.5" cy="9" r="1.2" fill="#4d84b4"/>
+               <circle cx="9.5" cy="9" r="1.2" fill="#4d84b4"/>
+               <line x1="3.5" y1="3.8" x2="5" y2="5" stroke="#4d84b4" stroke-width="1"/>
+               <line x1="8.5" y1="3.8" x2="7" y2="5" stroke="#4d84b4" stroke-width="1"/>
+               <line x1="3.5" y1="8.2" x2="5" y2="7" stroke="#4d84b4" stroke-width="1"/>
+               <line x1="8.5" y1="8.2" x2="7" y2="7" stroke="#4d84b4" stroke-width="1"/>`,
+    paloalto: `<rect x="1.5" y="1.5" width="9" height="9" rx="1.5" fill="none" stroke="#fa582d" stroke-width="1.5"/>
+               <line x1="4.5" y1="1.5" x2="4.5" y2="10.5" stroke="#fa582d" stroke-width="1.5"/>
+               <line x1="7.5" y1="1.5" x2="7.5" y2="10.5" stroke="#fa582d" stroke-width="1.5"/>
+               <line x1="1.5" y1="4.5" x2="10.5" y2="4.5" stroke="#fa582d" stroke-width="1.5"/>
+               <line x1="1.5" y1="7.5" x2="10.5" y2="7.5" stroke="#fa582d" stroke-width="1.5"/>`,
+    buffalo:  `<rect x="2" y="2" width="8" height="3.5" rx="1" fill="#003087"/>
+               <circle cx="5.5" cy="3.75" r="1.3" fill="#1a5fb4"/>
+               <circle cx="5.5" cy="3.75" r="0.5" fill="#003087"/>
+               <rect x="2" y="6.5" width="8" height="3.5" rx="1" fill="#003087"/>
+               <circle cx="5.5" cy="8.25" r="1.3" fill="#1a5fb4"/>
+               <circle cx="5.5" cy="8.25" r="0.5" fill="#003087"/>`,
+    qnap:     `<rect x="2.5" y="1.5" width="7" height="9" rx="1" fill="none" stroke="#00b388" stroke-width="1.5"/>
+               <rect x="3.5" y="3" width="5" height="1.5" rx="0.5" fill="#00b388"/>
+               <rect x="3.5" y="5.5" width="5" height="1.5" rx="0.5" fill="#00b388"/>
+               <rect x="3.5" y="8" width="5" height="1.5" rx="0.5" fill="#00b388"/>`
+  };
+
+  function getOsKey(node) {
+    if (Object.prototype.hasOwnProperty.call(nodeOsOverride, node.id)) {
+      return nodeOsOverride[node.id] || null;
+    }
+    const os = (node.os_name || node.os_family || '').toLowerCase();
+    if (os.includes('windows')) return 'windows';
+    if (os.includes('ubuntu')) return 'ubuntu';
+    if (os.includes('debian')) return 'debian';
+    if (os.includes('red hat') || os.includes('redhat') || os.includes('rhel') || os.includes('centos') || os.includes('fedora')) return 'redhat';
+    if (os.includes('vmware') || os.includes('esxi') || os.includes('vsphere') || os.includes('esx')) return 'vmware';
+    if (os.includes('android')) return 'android';
+    if (os.includes('iphone') || os.includes('ipad') || os.includes('ipados')) return 'ios';
+    if (os.includes('freebsd') || os.includes('openbsd') || os.includes('netbsd') || os.includes('dragonfly') || (os.includes('bsd') && !os.includes('ubiquiti'))) return 'bsd';
+    if (os.includes('mac') || os.includes('osx') || os.includes('darwin')) return 'macos';
+    if (os.includes('meraki')) return 'meraki';
+    if (os.includes('cisco') || os.includes('ios xe') || os.includes('ios xr') || os.includes('nx-os') || os.includes('nxos')) return 'cisco';
+    if (os.includes('juniper') || os.includes('junos')) return 'juniper';
+    if (os.includes('arista') || os.includes(' eos ') || os.startsWith('eos ')) return 'arista';
+    if (os.includes('fortinet') || os.includes('fortigate') || os.includes('fortios')) return 'fortinet';
+    if (os.includes('aruba') || os.includes('arubaos')) return 'aruba';
+    if (os.includes('ubiquiti') || os.includes('unifi') || os.includes('edgeos') || os.includes('edgeswitch')) return 'ubiquiti';
+    if (os.includes('huawei') || os.includes('vrp') || os.includes('harmonyos')) return 'huawei';
+    if (os.includes('palo alto') || os.includes('pan-os') || os.includes('panos')) return 'paloalto';
+    if (os.includes('mikrotik') || os.includes('routeros') || os.includes('routerboard')) return 'mikrotik';
+    if (os.includes('netgear') || os.includes('prosafe')) return 'netgear';
+    if (os.includes('asuswrt') || (os.includes('asus') && !os.includes('linux'))) return 'asus';
+    if (os.includes('tp-link') || os.includes('tplink') || os.includes('tl-')) return 'tplink';
+    if (os.includes('linksys') || os.includes('velop')) return 'linksys';
+    if (os.includes('eero')) return 'eero';
+    if (os.includes('synology') || os.includes('dsm') || os.includes('diskstation')) return 'synology';
+    if (os.includes('qnap') || os.includes('qts')) return 'qnap';
+    if (os.includes('buffalo') || os.includes('linkstation') || os.includes('terastation')) return 'buffalo';
+    if (os.includes('ios') && !os.includes('cisco')) return 'ios';
+    if (os.includes('linux') || os.includes('unix')) return 'linux';
+    return null;
+  }
+
+  const nodeColorOverride = {};
+
+  function getNodeColor(d) {
+    if (nodeColorOverride[d.id]) return nodeColorOverride[d.id];
+    if (d.device_type === 'msf') return NODE_COLORS.msf;
+    if (d.compromised) return NODE_COLORS.compromised;
+    if (d.ever_compromised) return NODE_COLORS.ever_compromised;
+    return NODE_COLORS.default;
+  }
+
+  function getNodeRadius(d) {
+    return d.device_type === 'msf' ? 28 : 22;
+  }
+
+  const nodeTypeOverride = {};
+  const nodeOsOverride = {};
+  let maxPerRowOverride = null;
+  let layoutDirection = 'top-down';
+
+  const container = document.getElementById('graph-container');
+  const svgEl = document.getElementById('svg');
+  const W = container.clientWidth;
+  const H = container.clientHeight;
+
+  const svg = d3.select(svgEl).attr('width', W).attr('height', H);
+
+  const defs = svg.append('defs');
+
+  Object.entries(ICON_PATHS).forEach(([type, pathData]) => {
+    defs.append('symbol')
+      .attr('id', `icon-${type}`)
+      .attr('viewBox', '0 0 24 24')
+      .html(pathData);
+  });
+
+  defs.append('symbol')
+    .attr('id', 'icon-msf')
+    .attr('viewBox', '0 0 135.47 135.47')
+    .html(`<g transform="matrix(1.0444 0 0 1.0444 -3.204 -171.71)">
+      <path d="m23.221 176.09v66.222c0 9.4651 9.3645 22.539 18.943 28.972l26.082 17.517 25.813-17.517c9.5475-6.4791 18.943-19.507 18.943-28.972v-66.222c-29.665-8.7742-59.61-8.1596-89.78 0z" fill="#265ab1"/>
+      <path d="m29.924 186.24v55.775c0 7.972 10.945 19.391 15.955 24.402v-56.446l14.748 13.274v23.597h14.212v-23.597l14.748-13.274v56.446c5.0103-5.0103 15.955-16.43 15.955-24.402v-55.775h-15.151l-22.658 21.586-22.659-21.586z" opacity=".3"/>
+      <path d="m29.924 183.6v55.775c0 7.972 10.945 19.391 15.955 24.402v-56.446l14.748 13.274v23.597h14.212v-23.597l14.748-13.274v56.446c5.0103-5.0103 15.955-16.43 15.955-24.402v-55.775h-15.151l-22.658 21.586-22.659-21.586z" fill="#fff"/>
+      <path transform="matrix(.26458 0 0 .26458 0 161.53)" d="m256.72 31.008c-56.563 0.29037-113.37 8.5802-170.38 24v10c114.03-30.84 227.21-33.163 339.33 0v-10c-56.06-16.581-112.38-24.29-168.95-24z" fill="#fff" opacity=".2"/>
+      <path transform="matrix(.26458 0 0 .26458 0 161.53)" d="m86.336 295.29v10c0 35.774 35.393 85.186 71.596 109.5l98.576 66.205 97.561-66.205c36.085-24.488 71.596-73.726 71.596-109.5v-10c0 35.774-35.511 85.012-71.596 109.5l-97.561 66.205-98.576-66.205c-36.202-24.314-71.596-73.726-71.596-109.5z" opacity=".3"/>
+      <path d="m67.923 169.74c-0.01826 1e-4 -0.03652 4.2e-4 -0.05478 5.2e-4v119.06l25.812-17.517c9.5475-6.4791 18.943-19.506 18.943-28.971v-66.222c-14.832-4.3871-29.735-6.4268-44.701-6.35z" opacity=".2"/>
+    </g>`);
+
+  Object.entries(OS_ICONS).forEach(([osKey, pathData]) => {
+    defs.append('symbol')
+      .attr('id', `os-${osKey}`)
+      .attr('viewBox', '0 0 12 12')
+      .html(pathData);
+  });
+
+
+  const zoom = d3.zoom()
+    .scaleExtent([0.05, 8])
+    .on('zoom', (event) => g.attr('transform', event.transform));
+
+  svg.call(zoom);
+
+  svg.on('click', () => {
+    clearSelection();
+    document.getElementById('type-popup').style.display = 'none';
+  });
+
+  const g = svg.append('g');
+
+  const simNodes = NODES.map(d => Object.assign({}, d));
+  const simLinks = LINKS.map(d => Object.assign({}, d));
+  const nodeById = Object.fromEntries(simNodes.map(n => [n.id, n]));
+
+  function computeDepths(nodes, links) {
+    const adj = {};
+    links.forEach(l => {
+      const s = typeof l.source === 'object' ? l.source.id : l.source;
+      const t = typeof l.target === 'object' ? l.target.id : l.target;
+      (adj[s] = adj[s] || []).push(t);
+      (adj[t] = adj[t] || []).push(s);
+    });
+    const depth = { '__msf__': 0 };
+    const queue = ['__msf__'];
+    while (queue.length) {
+      const cur = queue.shift();
+      for (const nb of (adj[cur] || [])) {
+        if (depth[nb] === undefined) { depth[nb] = depth[cur] + 1; queue.push(nb); }
+      }
+    }
+    nodes.forEach(n => { if (depth[n.id] === undefined) depth[n.id] = 1; });
+    return depth;
+  }
+
+  // Assign each depth level to one or more visual rows, wrapping when the level
+  // has too many nodes to fit at a comfortable spacing.  Sets x/y directly so
+  // nodes start at their target positions rather than animating from random spots.
+  function applyLayerTargets(nodes, depth, canvasW, canvasH) {
+    const byDepth = {};
+    nodes.forEach(n => {
+      n._depth = depth[n.id] !== undefined ? depth[n.id] : 1;
+      (byDepth[n._depth] = byDepth[n._depth] || []).push(n);
+    });
+
+    const isLR = layoutDirection === 'left-right';
+    // spreadSize: axis along which nodes within a depth level are distributed
+    // depthSize:  axis along which depth levels are stacked
+    const spreadSize = isLR ? canvasH : canvasW;
+    const depthSize  = isLR ? canvasW : canvasH;
+
+    const minSpacing = 100;
+    const maxPerLayer = maxPerRowOverride !== null
+      ? Math.max(1, maxPerRowOverride)
+      : Math.max(5, Math.floor(spreadSize / minSpacing));
+
+    let totalVisualLayers = 0;
+    const depthStartLayer = {};
+    const depthKeys = Object.keys(byDepth).map(Number).sort((a, b) => a - b);
+    depthKeys.forEach(d => {
+      depthStartLayer[d] = totalVisualLayers;
+      totalVisualLayers += Math.ceil(byDepth[d].length / maxPerLayer);
+    });
+
+    const layerSpacing = Math.min(depthSize / (totalVisualLayers + 1), 140);
+
+    depthKeys.forEach(d => {
+      const lvl = byDepth[d];
+      lvl.forEach((node, i) => {
+        const subLayer   = Math.floor(i / maxPerLayer);
+        const posInLayer = i % maxPerLayer;
+        const layerSize  = Math.min(maxPerLayer, lvl.length - subLayer * maxPerLayer);
+        const spreadPos  = spreadSize * (posInLayer + 1) / (layerSize + 1);
+        const depthPos   = (depthStartLayer[d] + subLayer + 0.5) * layerSpacing;
+        node._xt = isLR ? depthPos  : spreadPos;
+        node._yt = isLR ? spreadPos : depthPos;
+        if (node.fx === undefined || node.fx === null) { node.x = node._xt; node.vx = 0; }
+        if (node.fy === undefined || node.fy === null) { node.y = node._yt; node.vy = 0; }
+      });
+    });
+
+    return layerSpacing;
+  }
+
+  const nodeDepth = computeDepths(simNodes, LINKS);
+  applyLayerTargets(simNodes, nodeDepth, W, H);
+
+  const simulation = d3.forceSimulation(simNodes)
+    .force('link', d3.forceLink(simLinks).id(d => d.id).strength(0))
+    .force('y', d3.forceY(d => d._yt).strength(1.0))
+    .force('x', d3.forceX(d => d._xt).strength(1.0))
+    .force('collision', d3.forceCollide().radius(d => getNodeRadius(d) + 10))
+    .alphaDecay(0.08);
+
+  const linkSel = g.append('g').selectAll('.link')
+    .data(simLinks)
+    .enter()
+    .append('path')
+    .attr('class', 'link');
+
+  const nodeGroup = g.append('g').selectAll('.node-group')
+    .data(simNodes)
+    .enter()
+    .append('g')
+    .attr('class', 'node-group')
+    .call(d3.drag()
+      .on('start', (event, d) => {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x; d.fy = d.y;
+      })
+      .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
+      .on('end', (event, d) => {
+        if (!event.active) simulation.alphaTarget(0);
+        // Keep fx/fy set so the node stays pinned where the user dropped it.
+        // The layer forces continue to apply to unpinned nodes.
+      }));
+
+  nodeGroup.append('circle')
+    .attr('class', 'node-circle')
+    .attr('r', d => getNodeRadius(d))
+    .attr('fill', d => d.device_type === 'msf' ? 'transparent' : getNodeColor(d))
+    .style('stroke', d => d.device_type === 'msf' ? 'none' : (d.compromised ? '#f85149' : null))
+    .attr('stroke-width', 2);
+
+  nodeGroup.append('use')
+    .attr('href', d => `#icon-${d.device_type || 'generic'}`)
+    .attr('x', d => d.device_type === 'msf' ? -getNodeRadius(d) : -getNodeRadius(d) * 0.55)
+    .attr('y', d => d.device_type === 'msf' ? -getNodeRadius(d) : -getNodeRadius(d) * 0.55)
+    .attr('width', d => d.device_type === 'msf' ? getNodeRadius(d) * 2 : getNodeRadius(d) * 1.1)
+    .attr('height', d => d.device_type === 'msf' ? getNodeRadius(d) * 2 : getNodeRadius(d) * 1.1)
+    .attr('color', 'rgba(255,255,255,0.9)')
+    .style('pointer-events', 'none');
+
+  nodeGroup.each(function(d) {
+    const osKey = getOsKey(d);
+    if (!osKey) return;
+    d3.select(this).append('use')
+      .attr('class', 'os-icon')
+      .attr('href', `#os-${osKey}`)
+      .attr('x', d => getNodeRadius(d) - 8)
+      .attr('y', d => -(getNodeRadius(d) + 2))
+      .attr('width', 20)
+      .attr('height', 20);
+  });
+
+
+  nodeGroup.append('text')
+    .attr('class', 'node-label')
+    .attr('dy', d => getNodeRadius(d) + 14)
+    .text(d => d.label.length > 20 ? d.label.substring(0, 18) + '...' : d.label);
+
+  const tooltip = document.getElementById('tooltip');
+  nodeGroup
+    .on('mouseenter', (event, d) => {
+      tooltip.style.display = 'block';
+      tooltip.innerHTML = `<strong>${d.label}</strong><br>${d.address}` +
+        (d.os_name ? `<br><span class="session-meta">${d.os_name}${d.os_flavor ? ' ' + d.os_flavor : ''}</span>` : '');
+    })
+    .on('mousemove', (event) => {
+      tooltip.style.left = (event.clientX + 14) + 'px';
+      tooltip.style.top = (event.clientY - 10) + 'px';
+    })
+    .on('mouseleave', () => { tooltip.style.display = 'none'; });
+
+  nodeGroup.on('click', (event, d) => {
+    event.stopPropagation();
+    document.getElementById('type-popup').style.display = 'none';
+    selectNode(d);
+  });
+
+  nodeGroup.on('contextmenu', (event, d) => {
+    event.preventDefault();
+    event.stopPropagation();
+    showTypePopup(event, d);
+  });
+
+  function renderPositions() {
+    linkSel.attr('d', d => {
+      const sx = d.source.x, sy = d.source.y;
+      const tx = d.target.x, ty = d.target.y;
+      const cy = (sy + ty) / 2;
+      return `M ${sx} ${sy} C ${sx} ${cy}, ${tx} ${cy}, ${tx} ${ty}`;
+    });
+    nodeGroup.attr('transform', d => `translate(${d.x},${d.y})`);
+  }
+
+  simulation.on('tick', renderPositions);
+
+  let selectedNodeId = null;
+
+  function buildAdjacency() {
+    const adj = {};
+    simLinks.forEach(l => {
+      const s = l.source.id || l.source;
+      const t = l.target.id || l.target;
+      (adj[s] = adj[s] || []).push(t);
+      (adj[t] = adj[t] || []).push(s);
+    });
+    return adj;
+  }
+
+  function bfsPath(startId, endId, adj) {
+    if (startId === endId) return new Set([startId]);
+    const visited = new Set([startId]);
+    const prev = {};
+    const queue = [startId];
+    while (queue.length) {
+      const cur = queue.shift();
+      for (const nb of (adj[cur] || [])) {
+        if (!visited.has(nb)) {
+          visited.add(nb);
+          prev[nb] = cur;
+          if (nb === endId) {
+            const path = new Set();
+            let n = endId;
+            while (n !== undefined) { path.add(n); n = prev[n]; }
+            return path;
+          }
+          queue.push(nb);
+        }
+      }
+    }
+    return new Set([startId]);
+  }
+
+  function selectNode(d) {
+    selectedNodeId = d.id;
+    const adj = buildAdjacency();
+    const pathSet = bfsPath(d.id, '__msf__', adj);
+
+    linkSel
+      .classed('highlighted', l => {
+        const s = l.source.id || l.source;
+        const t = l.target.id || l.target;
+        return pathSet.has(s) && pathSet.has(t);
+      })
+      .classed('dimmed', l => {
+        const s = l.source.id || l.source;
+        const t = l.target.id || l.target;
+        return !(pathSet.has(s) && pathSet.has(t));
+      });
+
+    nodeGroup.classed('dimmed', nd => !pathSet.has(nd.id));
+    nodeGroup.classed('selected', nd => nd.id === d.id);
+
+    document.getElementById('btn-deselect').style.display = '';
+    showSidebar(d, [...pathSet]);
+  }
+
+  function clearSelection() {
+    selectedNodeId = null;
+    linkSel.classed('highlighted', false).classed('dimmed', false);
+    nodeGroup.classed('dimmed', false).classed('selected', false);
+    document.getElementById('btn-deselect').style.display = 'none';
+    hideSidebar();
+  }
+
+  function showSidebar(d, pathNodeIds) {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.remove('hidden');
+    document.getElementById('sidebar-title').textContent = d.label;
+
+    const osStr = [d.os_name, d.os_flavor, d.os_sp].filter(Boolean).join(' ');
+    const osKey = getOsKey(d);
+    const osIconHtml = osKey ? `<svg width="16" height="16" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;flex-shrink:0;display:inline-block"><use href="#os-${osKey}" width="12" height="12"/></svg>` : '';
+    const sessionsBadges = [...d.sessions].sort((a, b) => b.active - a.active).map(s =>
+      `<div class="session-entry ${s.active ? 'session-active' : 'session-closed'}">
+        <span class="badge ${s.active ? 'badge-compromised' : 'badge-closed'}">${s.active ? 'ACTIVE' : 'CLOSED'}</span>
+        <strong>#${s.id}</strong> ${s.type}<br>
+        <span class="session-meta">${s.via_exploit || 'unknown exploit'}</span><br>
+        <span class="session-meta">Opened: ${s.opened_at || 'unknown'}</span>
+        ${!s.active ? `<br><span class="session-meta">Closed: ${s.closed_at}</span>` : ''}
+      </div>`
+    ).join('');
+
+    const servicesBadges = d.services.slice(0, 30).map(s =>
+      `<span class="badge badge-port">${s.port}/${s.proto}${s.name ? ' ' + s.name : ''}</span>`
+    ).join('');
+
+    let routeHtml = '';
+    if (d.device_type !== 'msf' && pathNodeIds && pathNodeIds.length > 1) {
+      const hops = pathNodeIds.map(id => {
+        if (id === '__msf__') return { label: 'MSF', rtt: null };
+        const n = nodeById[id];
+        return { label: n ? (n.address || n.label) : id, rtt: n ? n.rtt : null };
+      });
+      const totalRtt = hops.reduce((sum, h) => sum + (h.rtt > 0 ? Number(h.rtt) : 0), 0);
+      routeHtml = `<div class="detail-group">
+        <div class="detail-label collapsible-label" onclick="toggleSection(this)">
+          <span>Route to Host</span>
+          <button class="section-toggle">&#x25bc;</button>
+        </div>
+        <div class="collapsible-body">
+          <div class="route-list">
+            ${hops.map((h, i) => {
+              const rttStr = h.rtt > 0 ? `<span class="rtt-label">(${Number(h.rtt).toFixed(2)}ms)</span>` : '';
+              const totalStr = i === 0 && totalRtt > 0 ? ` <span class="rtt-label rtt-total">total: ${totalRtt.toFixed(2)}ms</span>` : '';
+              return i === 0
+                ? `<div class="route-entry-first">${h.label}${totalStr}</div>`
+                : `<div class="route-entry-hop">${h.label}${rttStr}</div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    let html = `
+      <div class="detail-group">
+        <div class="detail-label">IP Address</div>
+        <div class="detail-value">${d.address || '&mdash;'}</div>
+      </div>
+      ${routeHtml}
+      ${d.name ? `<div class="detail-group">
+        <div class="detail-label">Hostname</div>
+        <div class="detail-value">${d.name}</div>
+      </div>` : ''}
+      ${d.mac ? `<div class="detail-group">
+        <div class="detail-label">MAC Address</div>
+        <div class="detail-value">${d.mac}</div>
+      </div>` : ''}
+      ${osStr ? `<div class="detail-group">
+        <div class="detail-label">Operating System</div>
+        <div class="detail-value" style="display:flex;align-items:center">${osIconHtml}${osStr}</div>
+      </div>` : ''}
+      ${d.arch ? `<div class="detail-group">
+        <div class="detail-label">Architecture</div>
+        <div class="detail-value">${d.arch}</div>
+      </div>` : ''}
+      ${d.purpose ? `<div class="detail-group">
+        <div class="detail-label">Purpose</div>
+        <div class="detail-value">${d.purpose}</div>
+      </div>` : ''}
+      <div class="detail-group">
+        <div class="detail-label">Status</div>
+        <div class="detail-value">
+          ${d.device_type === 'msf' ? '<span class="badge badge-session">MSF FRAMEWORK</span>' :
+            d.compromised ? '<span class="badge badge-compromised">ACTIVE SESSION</span>' :
+            d.ever_compromised ? '<span class="badge badge-ever-compromised">PREVIOUSLY COMPROMISED</span>' :
+            '<span class="badge badge-closed">DISCOVERED</span>'}
+        </div>
+      </div>`;
+
+    if (d.sessions && d.sessions.length > 0) {
+      const hasActive = d.sessions.some(s => s.active);
+      html += `<div class="detail-group">
+        <div class="detail-label collapsible-label" onclick="toggleSection(this)">
+          <span>Sessions (${d.sessions.length})</span>
+          <button class="section-toggle">${hasActive ? '&#x25bc;' : '&#x25ba;'}</button>
+        </div>
+        <div class="collapsible-body${hasActive ? '' : ' collapsed'}">${sessionsBadges}</div>
+      </div>`;
+    }
+
+    if (d.sessions && d.sessions.length > 0) {
+      const modules = [...new Set(d.sessions.map(s => s.via_exploit).filter(Boolean))].sort();
+      if (modules.length > 0) {
+        html += `<div class="detail-group">
+          <div class="detail-label collapsible-label" onclick="toggleSection(this)">
+            <span>Modules Used (${modules.length})</span>
+            <button class="section-toggle">&#x25ba;</button>
+          </div>
+          <div class="collapsible-body collapsed">
+            ${modules.map(m => `<div class="module-entry">${m}</div>`).join('')}
+          </div>
+        </div>`;
+      }
+    }
+
+    if (d.services && d.services.length > 0) {
+      html += `<div class="detail-group">
+        <div class="detail-label">Services (${d.services.length})</div>
+        <div class="services-list">${servicesBadges}</div>
+      </div>`;
+    }
+
+    if (d.loots && d.loots.length > 0) {
+      const lootEntries = d.loots.map(l => {
+        const filename = l.name || l.path.split('/').pop() || 'loot';
+        const fileUrl = 'file://' + l.path;
+        return `<a class="loot-entry" href="${fileUrl}" target="_blank" title="Click to open ${fileUrl}">
+          <div class="loot-name">${filename}</div>
+          ${l.ltype ? `<div class="loot-meta">${l.ltype}${l.content_type ? ' &middot; ' + l.content_type : ''}</div>` : ''}
+          ${l.info ? `<div class="loot-info">${l.info}</div>` : ''}
+        </a>`;
+      }).join('');
+      html += `<div class="detail-group">
+        <div class="detail-label collapsible-label" onclick="toggleSection(this)">
+          <span>Loot (${d.loots.length})</span>
+          <button class="section-toggle">&#x25ba;</button>
+        </div>
+        <div class="collapsible-body collapsed">${lootEntries}</div>
+      </div>`;
+    }
+
+    document.getElementById('sidebar-content').innerHTML = html;
+  }
+
+  function hideSidebar() {
+    document.getElementById('sidebar').classList.add('hidden');
+  }
+
+  document.getElementById('sidebar-close').addEventListener('click', () => clearSelection());
+
+  const typeLabels = {
+    computer: 'Computer', server: 'Server', router: 'Router',
+    switch: 'Switch', firewall: 'Firewall', phone: 'Phone/Mobile',
+    printer: 'Printer', msf: 'MSF Framework', generic: 'Generic/Unknown'
+  };
+
+  let typePopupNodeId = null;
+
+  function showTypePopup(event, d) {
+    typePopupNodeId = d.id;
+    const currentType = nodeTypeOverride[d.id] || d.device_type || 'generic';
+    const popup = document.getElementById('type-popup');
+
+    document.getElementById('type-opts').innerHTML = DEVICE_TYPES.map(t =>
+      `<div class="type-opt ${t === currentType ? 'active' : ''}" onclick="applyTypeChange('${t}')">
+        <svg width="18" height="18" viewBox="0 0 24 24" style="flex-shrink:0">
+          <use href="#icon-${t}" width="18" height="18" color="currentColor"/>
+        </svg>
+        ${typeLabels[t] || t}
+      </div>`
+    ).join('');
+
+    document.getElementById('node-color-picker').value = nodeColorOverride[d.id] || getNodeColor(d);
+
+    const currentOs = Object.prototype.hasOwnProperty.call(nodeOsOverride, d.id)
+      ? nodeOsOverride[d.id]
+      : getOsKey(d);
+    document.getElementById('os-opts').innerHTML = [
+      ...OS_CATEGORIES.map((cat, ci) =>
+        `<div class="os-cat-header${ci > 0 ? ' os-cat-sep' : ''}" onclick="this.nextElementSibling.classList.toggle('collapsed');this.querySelector('.os-cat-arrow').textContent=this.nextElementSibling.classList.contains('collapsed')?'▶':'▼'">
+          ${cat.name}<span class="os-cat-arrow">▼</span>
+        </div>
+        <div class="os-cat-body">
+          ${cat.keys.map(os =>
+            `<div class="type-opt ${os === currentOs ? 'active' : ''}" onclick="applyOsChange('${os}')">
+              <svg width="20" height="20" viewBox="0 0 12 12" style="flex-shrink:0"><use href="#os-${os}" width="12" height="12"/></svg>
+              ${osLabels[os]}
+            </div>`).join('')}
+        </div>`),
+      `<div class="popup-divider"></div>`,
+      `<div class="type-opt ${'none' === currentOs ? 'active' : ''}" onclick="applyOsChange('none')">
+        <span style="width:15px;display:inline-block;flex-shrink:0"></span> None
+      </div>`,
+      `<div class="type-opt ${currentOs === null && !Object.prototype.hasOwnProperty.call(nodeOsOverride, d.id) ? 'active' : ''}" onclick="applyOsChange('__auto__')">
+        <span style="width:15px;display:inline-block;flex-shrink:0"></span> Auto-detect
+      </div>`
+    ].join('');
+
+    document.getElementById('configure-submenu').style.display = 'none';
+    document.getElementById('submenu-arrow').innerHTML = '&#x25b6;';
+
+    popup.style.left = event.clientX + 'px';
+    popup.style.top = event.clientY + 'px';
+    popup.style.display = 'block';
+  }
+
+  window.toggleSubmenu = function(e) {
+    e.stopPropagation();
+    const sub = document.getElementById('configure-submenu');
+    const arrow = document.getElementById('submenu-arrow');
+    const opening = sub.style.display !== 'block';
+    sub.style.display = opening ? 'block' : 'none';
+    arrow.innerHTML = opening ? '&#x25c0;' : '&#x25b6;';
+  };
+
+  window.applyTypeChange = function(newType) {
+    if (!typePopupNodeId) return;
+    nodeTypeOverride[typePopupNodeId] = newType;
+
+    nodeGroup.each(function(d) {
+      if (d.id !== typePopupNodeId) return;
+      d.device_type = newType;
+      d3.select(this).select('use').attr('href', `#icon-${newType}`);
+    });
+
+    document.getElementById('type-popup').style.display = 'none';
+  };
+
+  window.applyOsChange = function(osKey) {
+    if (!typePopupNodeId) return;
+    if (osKey === '__auto__') {
+      delete nodeOsOverride[typePopupNodeId];
+    } else {
+      nodeOsOverride[typePopupNodeId] = osKey === 'none' ? '' : osKey;
+    }
+    nodeGroup.each(function(d) {
+      if (d.id !== typePopupNodeId) return;
+      const g = d3.select(this);
+      g.select('.os-icon').remove();
+      const resolved = getOsKey(d);
+      if (resolved) {
+        g.append('use')
+          .attr('class', 'os-icon')
+          .attr('href', `#os-${resolved}`)
+          .attr('x', getNodeRadius(d) - 8)
+          .attr('y', -(getNodeRadius(d) + 2))
+          .attr('width', 20)
+          .attr('height', 20);
+      }
+    });
+    document.getElementById('type-popup').style.display = 'none';
+  };
+
+  window.toggleSection = function(header) {
+    const body = header.parentElement.querySelector('.collapsible-body');
+    const btn = header.querySelector('.section-toggle');
+    const collapsed = body.classList.toggle('collapsed');
+    btn.innerHTML = collapsed ? '&#x25ba;' : '&#x25bc;';
+  };
+
+  window.toggleFilter = function() {
+    const body = document.getElementById('filter-body');
+    const arrow = document.getElementById('filter-arrow');
+    const opening = body.style.display === 'none' || body.style.display === '';
+    body.style.display = opening ? 'block' : 'none';
+    arrow.innerHTML = opening ? '&#x25bc;' : '&#x25b2;';
+  };
+
+  function applyFilter() {
+    const mode = document.querySelector('input[name="filter-mode"]:checked').value;
+    const sessionFilters = [...document.querySelectorAll('.filter-session:checked')].map(el => el.value);
+    const deviceFilters  = [...document.querySelectorAll('.filter-device:checked')].map(el => el.value);
+    const osFilters      = [...document.querySelectorAll('.filter-os:checked')].map(el => el.value);
+    const portFilters    = document.getElementById('filter-ports').value
+      .split(',').map(p => parseInt(p.trim())).filter(p => !isNaN(p));
+
+    const hasFilter = sessionFilters.length || deviceFilters.length || osFilters.length || portFilters.length;
+    const filteredOut = new Set();
+
+    nodeGroup.classed('filter-hidden', false).classed('filter-dimmed', false);
+
+    if (hasFilter) {
+      nodeGroup.each(function(d) {
+        if (d.device_type === 'msf') return;
+        let match = true;
+        if (sessionFilters.length) {
+          match = sessionFilters.some(f =>
+            (f === 'active' && d.compromised) || (f === 'ever' && d.ever_compromised)
+          );
+        }
+        if (match && deviceFilters.length && !deviceFilters.includes(d.device_type)) match = false;
+        if (match && osFilters.length) {
+          const osKey = getOsKey(d);
+          if (!osKey || !osFilters.includes(osKey)) match = false;
+        }
+        if (match && portFilters.length) {
+          const nodePorts = (d.services || []).map(s => s.port);
+          if (!portFilters.some(p => nodePorts.includes(p))) match = false;
+        }
+        if (!match) {
+          filteredOut.add(d.id);
+          d3.select(this).classed(mode === 'hide' ? 'filter-hidden' : 'filter-dimmed', true);
+        }
+      });
+    }
+
+    linkSel.classed('filter-hidden', false).classed('filter-dimmed', false);
+    if (filteredOut.size) {
+      linkSel.each(function(l) {
+        const srcId = typeof l.source === 'object' ? l.source.id : l.source;
+        const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
+        if (filteredOut.has(srcId) || filteredOut.has(tgtId)) {
+          d3.select(this).classed(mode === 'hide' ? 'filter-hidden' : 'filter-dimmed', true);
+        }
+      });
+    }
+
+    document.getElementById('filter-toggle').classList.toggle('active', hasFilter);
+  }
+
+  // Populate filter options from node data
+  (function populateFilterOpts() {
+    const deviceTypes = [...new Set(simNodes.filter(n => n.device_type !== 'msf').map(n => n.device_type))].sort();
+    const osKeys = [...new Set(simNodes.map(n => getOsKey(n)).filter(Boolean))].sort();
+
+    const deviceContainer = document.getElementById('filter-device-opts');
+    deviceTypes.forEach(dt => {
+      const label = document.createElement('label');
+      label.className = 'filter-opt';
+      label.innerHTML = `<input type="checkbox" class="filter-device" value="${dt}"> ${typeLabels[dt] || dt}`;
+      deviceContainer.appendChild(label);
+    });
+
+    const osContainer = document.getElementById('filter-os-opts');
+    osKeys.forEach(ok => {
+      const label = document.createElement('label');
+      label.className = 'filter-opt';
+      label.innerHTML = `<input type="checkbox" class="filter-os" value="${ok}"> ${osLabels[ok] || ok}`;
+      osContainer.appendChild(label);
+    });
+  })();
+
+  document.getElementById('filter-body').addEventListener('change', applyFilter);
+  document.getElementById('filter-ports').addEventListener('input', applyFilter);
+
+  document.getElementById('btn-filter-clear').addEventListener('click', function() {
+    document.querySelectorAll('.filter-session, .filter-device, .filter-os').forEach(el => el.checked = false);
+    document.getElementById('filter-ports').value = '';
+    applyFilter();
+  });
+
+  window.applyColorChange = function() {
+    if (!typePopupNodeId) return;
+    const color = document.getElementById('node-color-picker').value;
+    nodeColorOverride[typePopupNodeId] = color;
+    nodeGroup.each(function(d) {
+      if (d.id !== typePopupNodeId) return;
+      d3.select(this).select('.node-circle').attr('fill', color);
+    });
+  };
+
+  window.resetNodeColor = function() {
+    if (!typePopupNodeId) return;
+    delete nodeColorOverride[typePopupNodeId];
+    nodeGroup.each(function(d) {
+      if (d.id !== typePopupNodeId) return;
+      const defaultColor = getNodeColor(d);
+      d3.select(this).select('.node-circle').attr('fill', defaultColor);
+      document.getElementById('node-color-picker').value = defaultColor;
+    });
+  };
+
+  let physicsRunning = true;
+
+  function resetLayout() {
+    simNodes.forEach(n => { n.fx = null; n.fy = null; });
+    applyLayerTargets(simNodes, nodeDepth, container.clientWidth, container.clientHeight);
+    // Re-register forces so D3 re-snapshots the updated _xt/_yt targets.
+    // forceX/forceY cache targets in an internal array on initialize() and do
+    // NOT re-read the accessor on each tick, so stale targets survive restarts.
+    simulation.force('x', d3.forceX(d => d._xt).strength(1.0));
+    simulation.force('y', d3.forceY(d => d._yt).strength(1.0));
+    renderPositions();
+    if (physicsRunning) simulation.alpha(0.5).restart();
+  }
+
+  window.toggleConfigure = function() {
+    const body = document.getElementById('configure-body');
+    const arrow = document.getElementById('cfg-arrow');
+    const opening = body.style.display === 'none' || body.style.display === '';
+    body.style.display = opening ? 'block' : 'none';
+    arrow.innerHTML = opening ? '&#x25bc;' : '&#x25b2;';
+  };
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    resetLayout();
+    svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity);
+  });
+
+  document.getElementById('cfg-physics').addEventListener('change', function() {
+    physicsRunning = this.checked;
+    physicsRunning ? simulation.restart() : simulation.stop();
+  });
+
+  document.getElementById('cfg-nodes-per-row').addEventListener('input', function() {
+    const val = parseInt(this.value);
+    maxPerRowOverride = (isFinite(val) && val >= 1) ? val : null;
+    resetLayout();
+  });
+
+  document.querySelectorAll('input[name="layout-dir"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      layoutDirection = this.value;
+      resetLayout();
+    });
+  });
+
+  document.getElementById('btn-deselect').addEventListener('click', () => clearSelection());
+
+  document.getElementById('legend-toggle').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const legend = document.getElementById('legend');
+    const collapsed = legend.classList.toggle('collapsed');
+    e.currentTarget.innerHTML = collapsed ? '&#x2b;' : '&#x2212;';
+    e.currentTarget.title = collapsed ? 'Show legend' : 'Minimize legend';
+  });
+
+  document.addEventListener('click', (e) => {
+    const popup = document.getElementById('type-popup');
+    if (!popup.contains(e.target)) popup.style.display = 'none';
+  });
+
+  window.exportImage = function() {
+    const svgEl = document.getElementById('svg');
+    const W = svgEl.clientWidth;
+    const H = svgEl.clientHeight;
+
+    const cs = getComputedStyle(document.documentElement);
+    const rv = k => cs.getPropertyValue(k).trim();
+
+    const clone = svgEl.cloneNode(true);
+    clone.setAttribute('width', W);
+    clone.setAttribute('height', H);
+
+    const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bgRect.setAttribute('width', W);
+    bgRect.setAttribute('height', H);
+    bgRect.setAttribute('fill', rv('--bg-canvas'));
+    clone.insertBefore(bgRect, clone.firstChild);
+
+    // Resolve CSS variables so classes work in the standalone SVG
+    const styleEl = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+    styleEl.textContent = `
+      .node-label { fill:${rv('--text-muted')}; font-size:11px; text-anchor:middle;
+                    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; pointer-events:none; }
+      .link { fill:none; stroke:${rv('--graph-edge')}; stroke-width:1.5; stroke-opacity:0.8; }
+      .link.highlighted { stroke:#f85149; stroke-width:3; stroke-opacity:1; }
+      .link.dimmed { stroke-opacity:0.15; }
+      .node-circle { stroke:${rv('--accent')}; stroke-width:2; }
+      .node-group.dimmed { opacity:0.25; }
+      .node-group.selected .node-circle { stroke-width:3; }
+    `;
+    clone.insertBefore(styleEl, clone.firstChild);
+
+    const svgStr = new XMLSerializer().serializeToString(clone);
+    const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+
+    const img = new Image();
+    img.onload = function() {
+      const scale = window.devicePixelRatio || 1;
+      const canvas = document.createElement('canvas');
+      canvas.width = W * scale;
+      canvas.height = H * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+      const a = document.createElement('a');
+      a.download = 'network-graph.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    };
+    img.onerror = function() {
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  };
+
+  window.toggleTheme = function() {
+    const light = document.body.classList.toggle('light');
+    document.getElementById('theme-toggle').textContent = light ? '☀' : '☽';
+    try { localStorage.setItem('msf-graph-theme', light ? 'light' : 'dark'); } catch(e) {}
+  };
+  (function initTheme() {
+    let pref = 'dark';
+    try { pref = localStorage.getItem('msf-graph-theme') || 'dark'; } catch(e) {}
+    if (pref === 'light') {
+      document.body.classList.add('light');
+      document.getElementById('theme-toggle').textContent = '☀';
+    }
+  })();
+
+  window.addEventListener('resize', () => {
+    const nW = container.clientWidth;
+    const nH = container.clientHeight;
+    svg.attr('width', nW).attr('height', nH);
+    applyLayerTargets(simNodes, nodeDepth, nW, nH);
+    simulation
+      .force('x', d3.forceX(d => d._xt).strength(1.0))
+      .force('y', d3.forceY(d => d._yt).strength(1.0))
+      .alpha(0.3)
+      .restart();
+  });
+
+})();
+  </script>
+</body>
+</html>
