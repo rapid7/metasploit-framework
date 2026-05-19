@@ -150,9 +150,9 @@
       color: inherit;
     }
     .loot-entry:hover { border-color: #a371f7; background: var(--bg-elevated); filter: brightness(0.95); }
-    .loot-entry .loot-name { color: #a371f7; font-weight: 600; }
+    .loot-entry .loot-info { color: #a371f7; font-weight: 600; margin-bottom: 2px; }
     .loot-entry .loot-meta { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
-    .loot-entry .loot-info { color: var(--text-secondary); margin-top: 2px; }
+    .loot-entry .loot-name { color: var(--text-secondary); font-weight: normal; margin-top: 2px; font-size: 11px; }
     .link {
       fill: none;
       stroke: var(--graph-edge);
@@ -490,6 +490,13 @@
     .rtt-total { color: var(--text-secondary); font-style: italic; }
     .session-meta { color: var(--text-muted); font-size: 11px; }
     .module-entry { font-family: monospace; font-size: 11px; color: var(--text-secondary); padding: 2px 0; word-break: break-all; }
+    .vuln-entry { padding: 5px 0; border-bottom: 1px solid var(--border); }
+    .vuln-entry:last-child { border-bottom: none; }
+    .vuln-name { color: #e3b341; font-weight: 600; font-size: 12px; }
+    .vuln-info { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+    .vuln-refs { margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px; }
+    .vuln-ref { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; font-size: 10px; color: var(--text-secondary); font-family: monospace; }
+    .vuln-exploited { color: #f85149; font-size: 11px; margin-top: 2px; }
     .session-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
     .copy-session-btn {
       background: var(--bg-elevated);
@@ -538,7 +545,7 @@
     .filter-section-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
     .filter-opt { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-secondary); cursor: pointer; margin-bottom: 3px; white-space: nowrap; }
     .filter-opt input { cursor: pointer; accent-color: var(--accent); }
-    #filter-ports { width: 100%; box-sizing: border-box; }
+    #filter-ports, #filter-module-search { width: 100%; box-sizing: border-box; }
     #tooltip {
       position: fixed;
       background: var(--bg-tooltip);
@@ -600,6 +607,11 @@
           <div class="filter-section">
             <div class="filter-section-label">Ports (comma-separated)</div>
             <input type="text" id="filter-ports" class="config-input" placeholder="80, 443, 3306…">
+          </div>
+          <div class="filter-section">
+            <div class="filter-section-label">Modules Used</div>
+            <input type="text" id="filter-module-search" class="config-input" placeholder="Search modules…" oninput="filterModuleList(this.value)">
+            <div id="filter-module-opts"></div>
           </div>
           <div class="config-divider"></div>
           <button class="config-btn" id="btn-filter-clear">Clear Filters</button>
@@ -1206,7 +1218,7 @@
     const sessionsBadges = [...d.sessions].sort((a, b) => b.active - a.active).map(s =>
       `<div class="session-entry ${s.active ? 'session-active' : 'session-closed'}"
             data-exploit="${s.via_exploit}" data-payload="${s.via_payload}"
-            data-lhost="${s.lhost}" data-lport="${s.lport}" data-rhost="${d.address}">
+            data-lhost="${s.lhost}" data-lport="${s.lport}" data-rhost="${d.address}" data-rport="${s.rport}">
         <div class="session-header">
           <div>
             <span class="badge ${s.active ? 'badge-compromised' : 'badge-closed'}">${s.active ? 'ACTIVE' : 'CLOSED'}</span>
@@ -1299,8 +1311,12 @@
       </div>`;
     }
 
-    if (d.sessions && d.sessions.length > 0) {
-      const modules = [...new Set(d.sessions.map(s => s.via_exploit).filter(Boolean))].sort();
+    {
+      const modules = [...new Set([
+        ...((d.sessions || []).map(s => s.via_exploit)),
+        ...(d.event_modules || []),
+        ...((d.module_runs || []).map(r => r.module_fullname))
+      ].filter(Boolean))].sort();
       if (modules.length > 0) {
         html += `<div class="detail-group">
           <div class="detail-label collapsible-label" onclick="toggleSection(this)">
@@ -1312,6 +1328,26 @@
           </div>
         </div>`;
       }
+    }
+
+    if (d.vulns && d.vulns.length > 0) {
+      const vulnHtml = d.vulns.map(v => {
+        const refs = (v.refs || []).map(r => `<span class="vuln-ref">${r}</span>`).join('');
+        const exploited = v.exploited_at ? `<div class="vuln-exploited">Exploited: ${v.exploited_at}</div>` : '';
+        return `<div class="vuln-entry">
+          <div class="vuln-name">${v.name}</div>
+          ${v.info ? `<div class="vuln-info">${v.info}</div>` : ''}
+          ${refs ? `<div class="vuln-refs">${refs}</div>` : ''}
+          ${exploited}
+        </div>`;
+      }).join('');
+      html += `<div class="detail-group">
+        <div class="detail-label collapsible-label" onclick="toggleSection(this)">
+          <span>Vulnerabilities (${d.vulns.length})</span>
+          <button class="section-toggle">&#x25ba;</button>
+        </div>
+        <div class="collapsible-body collapsed">${vulnHtml}</div>
+      </div>`;
     }
 
     if (d.services && d.services.length > 0) {
@@ -1326,9 +1362,9 @@
         const filename = l.name || l.path.split('/').pop() || 'loot';
         const fileUrl = 'file://' + l.path;
         return `<a class="loot-entry" href="${fileUrl}" target="_blank" title="Click to open ${fileUrl}">
-          <div class="loot-name">${filename}</div>
-          ${l.ltype ? `<div class="loot-meta">${l.ltype}${l.content_type ? ' &middot; ' + l.content_type : ''}</div>` : ''}
           ${l.info ? `<div class="loot-info">${l.info}</div>` : ''}
+          ${l.ltype ? `<div class="loot-meta">${l.ltype}</div>` : ''}
+          <div class="loot-name">${filename}</div>
         </a>`;
       }).join('');
       html += `<div class="detail-group">
@@ -1458,6 +1494,7 @@
     if (card.dataset.exploit) lines.push(`use ${card.dataset.exploit}`);
     if (card.dataset.payload) lines.push(`set payload ${card.dataset.payload}`);
     if (card.dataset.rhost)   lines.push(`set rhost ${card.dataset.rhost}`);
+    if (card.dataset.rport)   lines.push(`set rport ${card.dataset.rport}`);
     if (card.dataset.lhost)   lines.push(`set lhost ${card.dataset.lhost}`);
     if (card.dataset.lport)   lines.push(`set lport ${card.dataset.lport}`);
     navigator.clipboard.writeText(lines.join('\n')).then(() => {
@@ -1471,6 +1508,13 @@
     const btn = header.querySelector('.section-toggle');
     const collapsed = body.classList.toggle('collapsed');
     btn.innerHTML = collapsed ? '&#x25ba;' : '&#x25bc;';
+  };
+
+  window.filterModuleList = function(query) {
+    const q = query.toLowerCase();
+    document.querySelectorAll('#filter-module-opts label').forEach(label => {
+      label.style.display = label.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
   };
 
   window.toggleFilter = function() {
@@ -1488,8 +1532,9 @@
     const osFilters      = [...document.querySelectorAll('.filter-os:checked')].map(el => el.value);
     const portFilters    = document.getElementById('filter-ports').value
       .split(',').map(p => parseInt(p.trim())).filter(p => !isNaN(p));
+    const moduleFilters  = [...document.querySelectorAll('.filter-module:checked')].map(el => el.value);
 
-    const hasFilter = sessionFilters.length || deviceFilters.length || osFilters.length || portFilters.length;
+    const hasFilter = sessionFilters.length || deviceFilters.length || osFilters.length || portFilters.length || moduleFilters.length;
     const filteredOut = new Set();
 
     nodeGroup.classed('filter-hidden', false).classed('filter-dimmed', false);
@@ -1511,6 +1556,14 @@
         if (match && portFilters.length) {
           const nodePorts = (d.services || []).map(s => s.port);
           if (!portFilters.some(p => nodePorts.includes(p))) match = false;
+        }
+        if (match && moduleFilters.length) {
+          const nodeModules = [
+            ...(d.sessions || []).map(s => s.via_exploit),
+            ...(d.event_modules || []),
+            ...(d.module_runs || []).map(r => r.module_fullname)
+          ].filter(Boolean);
+          if (!moduleFilters.some(m => nodeModules.includes(m))) match = false;
         }
         if (!match) {
           filteredOut.add(d.id);
@@ -1537,6 +1590,11 @@
   (function populateFilterOpts() {
     const deviceTypes = [...new Set(simNodes.filter(n => n.device_type !== 'msf').map(n => n.device_type))].sort();
     const osKeys = [...new Set(simNodes.map(n => getOsKey(n)).filter(Boolean))].sort();
+    const allModules = [...new Set(simNodes.flatMap(n => [
+      ...(n.sessions || []).map(s => s.via_exploit),
+      ...(n.event_modules || []),
+      ...(n.module_runs || []).map(r => r.module_fullname)
+    ].filter(Boolean)))].sort();
 
     const deviceContainer = document.getElementById('filter-device-opts');
     deviceTypes.forEach(dt => {
@@ -1553,14 +1611,27 @@
       label.innerHTML = `<input type="checkbox" class="filter-os" value="${ok}"> ${osLabels[ok] || ok}`;
       osContainer.appendChild(label);
     });
+
+    const moduleContainer = document.getElementById('filter-module-opts');
+    allModules.forEach(m => {
+      const label = document.createElement('label');
+      label.className = 'filter-opt';
+      label.style.fontFamily = 'monospace';
+      label.style.fontSize = '11px';
+      label.innerHTML = `<input type="checkbox" class="filter-module" value="${m}"> ${m}`;
+      moduleContainer.appendChild(label);
+    });
   })();
 
   document.getElementById('filter-body').addEventListener('change', applyFilter);
   document.getElementById('filter-ports').addEventListener('input', applyFilter);
 
   document.getElementById('btn-filter-clear').addEventListener('click', function() {
-    document.querySelectorAll('.filter-session, .filter-device, .filter-os').forEach(el => el.checked = false);
+    document.querySelectorAll('.filter-session, .filter-device, .filter-os, .filter-module').forEach(el => el.checked = false);
     document.getElementById('filter-ports').value = '';
+    const moduleSearch = document.getElementById('filter-module-search');
+    moduleSearch.value = '';
+    filterModuleList('');
     applyFilter();
   });
 
