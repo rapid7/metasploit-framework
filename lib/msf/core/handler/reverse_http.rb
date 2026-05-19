@@ -386,6 +386,10 @@ protected
       conn_id = req.conn_id
     end
 
+    elog("MC2DBG on_request resource=#{req.relative_resource.inspect} " \
+         "conn_id=#{req.conn_id.inspect} " \
+         "info=#{info.nil? ? 'nil' : { sum: info[:sum], mode: info[:mode], uuid: !info[:uuid].nil? }.inspect}")
+
     if uuid
       # Configure the UUID architecture and payload if necessary
       uuid.arch      ||= self.arch
