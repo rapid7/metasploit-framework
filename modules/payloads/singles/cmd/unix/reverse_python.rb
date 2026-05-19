@@ -62,7 +62,7 @@ module MetasploitModule
     if datastore['PythonPath'].blank?
       return "echo #{Shellwords.escape(py_create_exec_stub(cmd))} | $(which python || which python3 || which python2) -"
     else
-      return "echo #{Shellwords.escape(py_create_exec_stub(cmd))} | #{datastore['PythonPath']}  -"
+      return "echo #{Shellwords.escape(py_create_exec_stub(cmd))} | #{datastore['PythonPath']} -"
     end
   end
 end
