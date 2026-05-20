@@ -52,6 +52,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(21),
         OptBool.new('ANONYMOUS_LOGIN', [ true, 'Attempt to login using various anonymous FTP users', false ]), # Overwrite the AuthBrute mixin, as its not sending blank/empty user/pass
         OptBool.new('CHECK_ACCESS', [ false, 'Check READ/WRITE access for successful logins', false ]),
+        OptBool.new('DIRECTORY_LISTING', [false, 'List the directory and save the output in the loot', false]),
         OptBool.new('EXTENDED_CHECKS', [false, 'Gather service info via FEAT, STAT and SYST', false])
       ]
     )
@@ -151,12 +152,13 @@ class MetasploitModule < Msf::Auxiliary
       credential_data[:core] = credential_core
 
       access_level = nil
-      if datastore['CHECK_ACCESS'] || datastore['EXTENDED_CHECKS']
+      if datastore['CHECK_ACCESS'] || datastore['DIRECTORY_LISTING'] || datastore['EXTENDED_CHECKS']
         begin
           connect(true, false)
           send_user(result.credential.public)
           if send_pass(result.credential.private).to_s.start_with?('2')
             access_level = test_ftp_access(ip) if datastore['CHECK_ACCESS']
+            ftp_list_directory(username: result.credential.public, save_loot: true) if datastore['DIRECTORY_LISTING']
             ftp_fingerprint(username: result.credential.public) if datastore['EXTENDED_CHECKS']
           end
         rescue ::IOError, Errno::ECONNRESET, ::Timeout::Error => e
