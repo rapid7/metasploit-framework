@@ -81,6 +81,12 @@ jobs:
           # TODO: Tests currently fail:
           # - { command_shell: { name: cmd }, ruby: '3.4', os: windows-2025 }
 
+          # Python SSL
+          - { command_shell: { name: python_ssl_2_6  }, ruby: '3.4', os: ubuntu-latest }
+          - { command_shell: { name: python_ssl_2_7  }, ruby: '3.4', os: ubuntu-latest }
+          - { command_shell: { name: python_ssl_3_4  }, ruby: '3.4', os: ubuntu-latest }
+          - { command_shell: { name: python_ssl_3_13 }, ruby: '3.4', os: ubuntu-latest }
+
     runs-on: ${{ matrix.os }}
 
     timeout-minutes: 50
@@ -143,6 +149,11 @@ jobs:
           bundler-cache: true
           working-directory: metasploit-framework
           cache-version: 5
+
+      - name: Pull pyenv container image
+        if: startsWith(matrix.command_shell.name, 'python_ssl')
+        run: docker pull public.ecr.aws/n5b4u6h0/zerosteiner/pyenv@sha256:e686265001ee43333f14c896d8362970e816c5a7c661a6fa7e37a90770c9108a
+        working-directory: metasploit-framework
 
       - name: Acceptance
         env:

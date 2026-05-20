@@ -31,7 +31,7 @@ module Msf::Payload::Python
   # import ssl under any particular name. Python's import machinery makes redundant imports
   # a no-op, and `import` is valid at any indentation level.
   #
-  # Uses ssl.wrap_socket when available (Python 2.6–3.11), falling back to SSLContext with a
+  # Uses ssl.wrap_socket when available (Python 2.6-3.11), falling back to SSLContext with a
   # getattr chain for the protocol constant (Python 3.12+ where wrap_socket was removed).
   # The SSLContext setup runs inside an immediately-invoked lambda so no temporary variable
   # leaks into the surrounding payload namespace.
