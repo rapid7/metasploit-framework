@@ -387,7 +387,7 @@ protected
       uuid.arch      ||= self.arch
       uuid.platform  ||= self.platform
 
-      request_summary = "URI '#{luri}' with UA '#{req.headers['User-Agent']}'"
+      request_summary = "URI '#{req.resource}' with UA '#{req.headers['User-Agent']}'"
 
       if info[:mode] && info[:mode] != :connect
         conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
@@ -431,7 +431,7 @@ protected
     # Process the requested resource.
     case info[:mode]
       when :init_connect
-        print_status("Redirecting stageless connection from #{request_summary} to #{conn_id}")
+        print_status("Redirecting stageless: #{request_summary} -> UUID #{conn_id.gsub(/\//, '')}")
 
         # Handle the case where stageless payloads call in on the same URI when they
         # first connect. From there, we tell them to callback on a connect URI that
