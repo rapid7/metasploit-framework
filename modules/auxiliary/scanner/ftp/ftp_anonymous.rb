@@ -37,6 +37,12 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('STORE_LOOT', [false, 'Store the directory listing as loot', true])
       ]
     )
+
+    # Some servers may accept anonymous login under the username `ftp` (RFC 959)
+    # Some servers may also check the password is a valid email address
+    deregister_options('FTPUSER', 'FTPPASS')
+    datastore['FTPUSER'] = 'anonymous'
+    datastore['FTPPASS'] = 'mozilla@example.com'
   end
 
   def run_host(target_host)
