@@ -99,6 +99,11 @@ class MetasploitModule < Msf::Auxiliary
       anonymous_login: false # Otherwise this would send blank for both user/password, so its different to anonymous_creds()
     )
 
+    if cred_collection.empty?
+      print_brute level: :error, ip: ip, port: rport, msg: 'No credentials specified. Set USERNAME/PASSWORD, USER_FILE/PASS_FILE, or ANONYMOUS_LOGIN'
+      return
+    end
+
     scanner = Metasploit::Framework::LoginScanner::FTP.new(
       configure_login_scanner(
         host: ip,
@@ -129,6 +134,7 @@ class MetasploitModule < Msf::Auxiliary
 
       access_level = nil
       if datastore['CHECK_ACCESS']
+        print_brute level: :vstatus, ip: rhost, port: rport, msg: 'Checking read/write access'
         begin
           connect(true, false)
           send_user(result.credential.public)
