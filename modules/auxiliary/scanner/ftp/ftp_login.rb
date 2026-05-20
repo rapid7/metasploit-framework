@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
         @reported_banner = true
         if scanner.banner&.match?(/^(120|220)[\s-]/)
           self.banner = scanner.banner
-          vprint_status("#{ip}:#{rport} - FTP Banner: #{banner_version}")
+          print_brute level: :vstatus, ip: ip, port: rport, msg: "FTP Banner: #{banner_version}"
         end
       end
 
@@ -77,11 +77,11 @@ class MetasploitModule < Msf::Auxiliary
       when Metasploit::Model::Login::Status::SUCCESSFUL
         yield result, credential_data
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_error("#{ip}:#{rport} - Could not connect: #{result.proof}")
+        print_brute level: :verror, ip: ip, port: rport, msg: "Could not connect: #{result.proof}"
         invalidate_login(credential_data)
         report_host(host: ip) if result.proof
       else
-        vprint_error("#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})")
+        print_brute level: :verror, ip: ip, port: rport, msg: "Failed: #{result.credential} (#{result.status}: #{result.proof})"
         invalidate_login(credential_data)
       end
     end
@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     @reported_banner = false
 
-    print_status("#{ip}:#{rport} - Starting FTP login sweep")
+    print_brute level: :status, ip: ip, port: rport, msg: 'Starting FTP login sweep'
 
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
@@ -136,7 +136,7 @@ class MetasploitModule < Msf::Auxiliary
             access_level = test_ftp_access
           end
         rescue ::IOError, Errno::ECONNRESET, ::Timeout::Error => e
-          vprint_error("#{ip}:#{rport} - #{e.message}")
+          print_brute level: :verror, ip: ip, port: rport, msg: e.message
         ensure
           disconnect
         end
@@ -147,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
 
       msg = "Login Successful: #{result.credential}"
       msg << " (#{access_level})" if access_level
-      print_good("#{ip}:#{rport} - #{msg}")
+      print_brute level: :good, ip: ip, port: rport, msg: msg
     end
   end
 
