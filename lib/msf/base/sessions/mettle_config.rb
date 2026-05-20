@@ -123,11 +123,23 @@ module Msf
           expiration:        (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
           uuid:              opts[:uuid],
           transports:        opts[:transport_config],
+          extensions:        opts[:extensions] || [],
+          ext_format:        'bin',
+          mettle_platform:   opts[:mettle_platform],
           stageless:         opts[:stageless] == true,
         }.merge(meterpreter_logging_config(opts))
 
         config = Rex::Payloads::Meterpreter::Config.new(config_opts)
         opts[:config_block] = config.to_b
+
+        # Mettle reserves a fixed 8 KB slot in the binary for the config
+        # block. Catch the overflow here with a useful message instead of
+        # letting the gem's `to_binary` raise a generic "config block too
+        # large" — baked-in EXTENSIONS= is the usual culprit.
+        if opts[:config_block].length > MetasploitPayloads::Mettle::CONFIG_BLOCK_MAX
+          raise ArgumentError, "Mettle config block (#{opts[:config_block].length} bytes) exceeds the #{MetasploitPayloads::Mettle::CONFIG_BLOCK_MAX}-byte embedded slot. " \
+            "Drop EXTENSIONS= and `load <ext>` once the session is up."
+        end
 
         # Keep the legacy CLI config for backward compatibility during
         # transition. Skipped for staged payloads, which have no transport.
