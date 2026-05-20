@@ -139,7 +139,10 @@ TLV_TYPE_C2_UUID_GET           = TLV_META_TYPE_STRING | 724 # Name of the GET pa
 TLV_TYPE_C2_UUID_HEADER        = TLV_META_TYPE_STRING | 725 # Name of the header to put the UUID in
 TLV_TYPE_C2_UUID               = TLV_META_TYPE_STRING | 726 # string representation of the UUID for C2s
 TLV_TYPE_SESSION_FLAGS         = TLV_META_TYPE_UINT   | 727 # session-level config flags (e.g. FLAG_STAGELESS, FLAG_DEBUG)
-TLV_TYPE_C2_ENC_OUTBOUND       = TLV_META_TYPE_UINT   | 728 # Server-outbound (server->client) body encoding
+TLV_TYPE_C2_ENC_OUTBOUND       = TLV_META_TYPE_UINT   | 728 # Client->server (request) body encoding (POST only)
+TLV_TYPE_C2_ENC_UUID           = TLV_META_TYPE_UINT   | 729 # Encoding applied to the UUID before placement (URL/header/cookie)
+TLV_TYPE_C2_UUID_PREFIX        = TLV_META_TYPE_RAW    | 730 # Bytes to prepend to the encoded UUID
+TLV_TYPE_C2_UUID_SUFFIX        = TLV_META_TYPE_RAW    | 731 # Bytes to append to the encoded UUID
 
 #
 # C2 Encoding flags
