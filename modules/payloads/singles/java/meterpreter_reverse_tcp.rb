@@ -26,7 +26,7 @@ module MetasploitModule
     )
   end
 
-  def generate(opts = {})
-    stage_meterpreter(opts.merge(stageless: true))
+  def generate_jar(opts = {})
+    super(opts.merge(stageless: true))
   end
 end
