@@ -129,8 +129,15 @@ private
 
   def add_extension_tlv(tlv, ext_name, ext_init_path, file_extension, debug_build: false)
     ext_name = ext_name.strip.downcase
-    ext, _ = load_rdi_dll(MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
-                                                              file_extension, debug: debug_build))
+    # Windows DLLs go through Reflective DLL Injection prep; non-PE
+    # runtimes (jar/py/php) ship the file as-is in TLV_TYPE_DATA.
+    if file_extension.to_s.end_with?('.dll')
+      ext_path = MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
+                                                     file_extension, debug: debug_build)
+      ext, _ = load_rdi_dll(ext_path)
+    else
+      ext = MetasploitPayloads.read('meterpreter', "ext_server_#{ext_name}.#{file_extension}".downcase)
+    end
 
     ext_tlv = MET::GroupTlv.new(MET::TLV_TYPE_EXTENSION)
     ext_tlv.add_tlv(MET::TLV_TYPE_DATA, ext)
@@ -153,10 +160,10 @@ private
       add_c2_tlv(config_packet, t)
     end
 
-    # configure the extensions - this will have to change when posix comes
-    # into play.
-    file_extension = 'x86.dll'
-    file_extension = 'x64.dll' unless is_x86?
+    # Each runtime tells us which on-disk extension file matches the
+    # payload (e.g. 'x86.dll', 'x64.dll', 'py', 'php', 'jar'); skip the
+    # extension TLV emission when the caller didn't supply one.
+    file_extension = @opts[:ext_format]
 
     @opts[:extensions] = [] if @opts[:extensions].blank?
     prev_length = @opts[:extensions].length
@@ -172,8 +179,10 @@ private
 
     ext_inits = (@opts[:ext_init] || '').split(':').map{|v| v.split(',')}.to_h{|l| l}
 
-    (@opts[:extensions] || []).each do |e|
-      add_extension_tlv(config_packet, e, ext_inits[e], file_extension, debug_build: @opts[:debug_build])
+    if file_extension
+      (@opts[:extensions] || []).each do |e|
+        add_extension_tlv(config_packet, e, ext_inits[e], file_extension, debug_build: @opts[:debug_build])
+      end
     end
 
     config_packet.to_r

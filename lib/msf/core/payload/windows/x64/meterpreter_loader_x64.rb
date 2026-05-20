@@ -84,6 +84,7 @@ module Payload::Windows::MeterpreterLoader_x64
       uuid:              opts[:uuid],
       transports:        opts[:transport_config] || [transport_config(opts)],
       extensions:        [],
+      ext_format:        'x64.dll',
       stageless:         opts[:stageless] == true,
     }.merge(meterpreter_logging_config(opts))
 
