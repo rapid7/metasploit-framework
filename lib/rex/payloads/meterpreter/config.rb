@@ -129,12 +129,23 @@ private
 
   def add_extension_tlv(tlv, ext_name, ext_init_path, file_extension, debug_build: false)
     ext_name = ext_name.strip.downcase
-    # Windows DLLs go through Reflective DLL Injection prep; non-PE
-    # runtimes (jar/py/php) ship the file as-is in TLV_TYPE_DATA.
-    if file_extension.to_s.end_with?('.dll')
+    # Windows DLLs go through Reflective DLL Injection prep; mettle bins
+    # come per-platform from the mettle gem; jar/py/php ship as-is.
+    case file_extension.to_s
+    when /\.dll$/
       ext_path = MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
                                                      file_extension, debug: debug_build)
       ext, _ = load_rdi_dll(ext_path)
+    when 'bin'
+      begin
+        ext = MetasploitPayloads::Mettle.load_extension(@opts[:mettle_platform], ext_name, 'bin')
+      rescue MetasploitPayloads::Mettle::NotFoundError
+        # Mettle bakes some extensions (e.g. stdapi) directly into the
+        # binary, so there's no separate <name>.bin to ship. Silently
+        # skip and let the runtime use whatever's already registered.
+        $stderr.puts("[!] EXTENSIONS=#{ext_name}: no separate '#{ext_name}.bin' for #{@opts[:mettle_platform]} (already built in?), skipping")
+        return
+      end
     else
       ext = MetasploitPayloads.read('meterpreter', "ext_server_#{ext_name}.#{file_extension}".downcase)
     end

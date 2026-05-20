@@ -29,11 +29,17 @@ module MetasploitModule
         'Session' => Msf::Sessions::Meterpreter_ppc_Linux
       )
     )
+
+    register_options([
+      OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load'])
+    ])
   end
 
   def generate(_opts = {})
     opts = {
       scheme: 'tcp',
+      extensions: (datastore['EXTENSIONS'] || '').split(','),
+      mettle_platform: 'powerpc-linux-muslsf',
       stageless: true
     }.merge(mettle_logging_config)
     MetasploitPayloads::Mettle.new('powerpc-linux-muslsf', generate_config(opts)).to_binary :exec

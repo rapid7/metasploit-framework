@@ -32,6 +32,7 @@ module MetasploitModule
 
     register_options([
       OptString.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile']),
+      OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load'])
     ])
   end
 
@@ -39,6 +40,8 @@ module MetasploitModule
     opts = {
       scheme: 'https',
       c2_profile: datastore['MALLEABLEC2'],
+      extensions: (datastore['EXTENSIONS'] || '').split(','),
+      mettle_platform: 'i486-linux-musl',
       stageless: true
     }.merge(mettle_logging_config)
     MetasploitPayloads::Mettle.new('i486-linux-musl', generate_config(opts)).to_binary :exec
