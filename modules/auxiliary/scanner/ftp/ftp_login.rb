@@ -68,11 +68,11 @@ class MetasploitModule < Msf::Auxiliary
       when Metasploit::Model::Login::Status::SUCCESSFUL
         yield result, credential_data
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_error("#{ip}:#{rport} - Could not connect")
+        vprint_error("#{ip}:#{rport} - Could not connect: #{result.proof}")
         invalidate_login(credential_data)
-        report_host(host: ip)
+        report_host(host: ip) if result.proof
       else
-        vprint_error("#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})")
+        vprint_error("#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})")
         invalidate_login(credential_data)
       end
     end
