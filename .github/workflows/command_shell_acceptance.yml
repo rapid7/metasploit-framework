@@ -41,7 +41,7 @@ on:
     branches:
       - '*'
     paths:
-      - 'metsploit-framework.gemspec'
+      - 'metasploit-framework.gemspec'
       - 'Gemfile.lock'
       - 'data/templates/**'
       - 'modules/payloads/**'
