@@ -248,9 +248,10 @@ module Msf::Payload::MalleableC2
       http_get.get_section('client') {|client|
         self.add_http_tlv(get_uri, client, get_tlv)
         add_skip_tlvs(get_tlv, self.http_get&.server&.output)
+        add_inbound_encoding_tlv(get_tlv, self.http_get&.server&.output)
 
         client.get_section('metadata') {|meta|
-          add_encoding_tlv(get_tlv, meta)
+          add_outbound_encoding_tlv(get_tlv, meta)
           add_uuid_tlvs(get_tlv, meta)
         }
       }
@@ -263,9 +264,10 @@ module Msf::Payload::MalleableC2
       http_post.get_section('client') {|client|
         self.add_http_tlv(post_uri, client, post_tlv)
         add_skip_tlvs(post_tlv, self.http_post&.server&.output)
+        add_inbound_encoding_tlv(post_tlv, self.http_post&.server&.output)
 
         client.get_section('output') {|client_output|
-          add_encoding_tlv(post_tlv, client_output)
+          add_outbound_encoding_tlv(post_tlv, client_output)
 
           prepend_data = client_output.get_directive('prepend').map{|d|d.args[0]}.join("")
           post_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX, prepend_data) unless prepend_data.empty?
@@ -290,11 +292,23 @@ module Msf::Payload::MalleableC2
       group_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX_SKIP, suffix_len) unless suffix_len == 0
     end
 
-    def add_encoding_tlv(group_tlv, section)
-      enc_flags = MET::C2_ENCODING_NONE
-      enc_flags = MET::C2_ENCODING_B64URL if section.has_directive('base64url')
-      enc_flags = MET::C2_ENCODING_B64 if section.has_directive('base64')
-      group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != MET::C2_ENCODING_NONE
+    def encoding_flags_for(section)
+      return MET::C2_ENCODING_NONE if section.nil?
+      return MET::C2_ENCODING_B64 if section.has_directive('base64')
+      return MET::C2_ENCODING_B64URL if section.has_directive('base64url')
+      MET::C2_ENCODING_NONE
+    end
+
+    # Client->server body/metadata encoding (request)
+    def add_outbound_encoding_tlv(group_tlv, section)
+      enc = encoding_flags_for(section)
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC_OUTBOUND, enc) if enc != MET::C2_ENCODING_NONE
+    end
+
+    # Server->client body encoding (response)
+    def add_inbound_encoding_tlv(group_tlv, section)
+      enc = encoding_flags_for(section)
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC_INBOUND, enc) if enc != MET::C2_ENCODING_NONE
     end
 
     def add_uuid_tlvs(group_tlv, section)
