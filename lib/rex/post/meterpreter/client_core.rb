@@ -151,7 +151,7 @@ class ClientCore < Extension
 
     response.each(TLV_TYPE_C2) { |t|
       # TODO: Consider adding more information to the output for malleable profiles?
-      # TLV_TYPE_C2_GET, TLV_TYPE_C2_POST, TLV_TYPE_C2_PREFIX, TLV_TYPE_C2_SUFFIX, TLV_TYPE_C2_ENC,
+      # TLV_TYPE_C2_GET, TLV_TYPE_C2_POST, TLV_TYPE_C2_PREFIX, TLV_TYPE_C2_SUFFIX, TLV_TYPE_C2_ENC_INBOUND, TLV_TYPE_C2_ENC_OUTBOUND,
       # TLV_TYPE_C2_PREFIX_SKIP, TLV_TYPE_C2_SUFFIX_SKIP,
       # TLV_TYPE_C2_UUID_COOKIE, TLV_TYPE_C2_UUID_GET, TLV_TYPE_C2_UUID_HEADER
       # Not sure if this stuff is useful for this display though.
