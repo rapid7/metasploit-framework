@@ -17,7 +17,7 @@ module Msf
     #   mod.print_line(presenter.to_s_metadata)
     #   mod.print_line(presenter.to_s_full)
     #
-    #   # CSR mode — expects raw DER/PEM CSR bytes, not a certificate:
+    #   # CSR mode - expects raw DER/PEM CSR bytes, not a certificate:
     #   mod.print_line(presenter.to_s_csr(csr_raw))
     class CertificateTracePresenter
 
@@ -112,13 +112,13 @@ module Msf
 
       # Returns a formatted CSR string from raw CSR bytes.
       #
-      # This method expects raw DER or PEM encoded CSR bytes — not a certificate
+      # This method expects raw DER or PEM encoded CSR bytes - not a certificate
       # object. The 'csr' trace mode is intended for PKINIT pre-authentication
       # flows where the CSR is constructed and submitted separately from the
       # certificate. Callers must pass the CSR bytes directly rather than
       # converting from a certificate.
       #
-      # Instance method — consistent with the presenter pattern.
+      # Instance method - consistent with the presenter pattern.
       #
       # @param csr_raw [String] DER or PEM encoded certificate signing request
       # @return [String, nil] nil if CSR could not be parsed
