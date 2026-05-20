@@ -76,19 +76,29 @@ class MetasploitModule < Msf::Auxiliary
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
         yield result, credential_data
+        report_ftp_service_and_banner(ip)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         print_brute level: :verror, ip: ip, port: rport, msg: "Could not connect: #{result.proof}"
+
         invalidate_login(credential_data)
-        report_host(host: ip) if result.proof
+
+        report_host(host: ip) unless result.proof.to_s.empty?
       else
         print_brute level: :verror, ip: ip, port: rport, msg: "Failed: #{result.credential} (#{result.status}: #{result.proof})"
+
         invalidate_login(credential_data)
+
+        if !@reported_service && result.status == Metasploit::Model::Login::Status::INCORRECT
+          @reported_service = true
+          report_ftp_service_and_banner(ip)
+        end
       end
     end
   end
 
   def run_host(ip)
     @reported_banner = false
+    @reported_service = false
 
     print_brute level: :status, ip: ip, port: rport, msg: 'Starting FTP login sweep'
 
@@ -175,5 +185,32 @@ class MetasploitModule < Msf::Auxiliary
     else
       'Read-only'
     end
+  end
+
+  def report_ftp_service_and_banner(ip)
+    report_service(
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      name: 'ftp',
+      info: banner ? Rex::Text.to_hex_ascii(banner_version) : nil,
+      parents: {
+        host: ip,
+        port: rport,
+        proto: 'tcp',
+        name: 'tcp'
+      }
+    )
+
+    return unless banner
+
+    report_note(
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      sname: 'ftp',
+      type: 'ftp.banner',
+      data: { banner: Rex::Text.to_hex_ascii(banner.strip) }
+    )
   end
 end
