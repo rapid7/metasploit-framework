@@ -62,11 +62,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - windows-2022
-          - ubuntu-latest
-        ruby:
-          - '3.4'
         include:
           # Powershell
           - { command_shell: { name: powershell }, ruby: '3.4', os: windows-2022 }
