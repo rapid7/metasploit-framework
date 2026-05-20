@@ -26,6 +26,10 @@ module MetasploitModule
         'Session' => Msf::Sessions::Meterpreter_Php_Php
       )
     )
+
+    register_options([
+      OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load'])
+    ])
   end
 
   def generate_config(opts = {})
@@ -40,6 +44,8 @@ module MetasploitModule
       expiration:        (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
       uuid:              opts[:uuid],
       transports:        opts[:transport_config],
+      extensions:        (ds['EXTENSIONS'] || '').split(','),
+      ext_format:        'php',
       stageless:         true,
     }.merge(meterpreter_logging_config(opts))
 

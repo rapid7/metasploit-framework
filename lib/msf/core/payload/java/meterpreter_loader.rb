@@ -128,6 +128,8 @@ module Payload::Java::MeterpreterLoader
       expiration: ds['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
       transports: opts[:transport_config] || [transport_config(opts)],
+      extensions: opts[:extensions] || [],
+      ext_format: 'jar',
       stageless:  opts[:stageless] == true
     }
 

@@ -56,6 +56,7 @@ module MetasploitModule
       uuid: opts[:uuid],
       transports: [transport_config_reverse_https(opts)],
       extensions: (datastore['EXTENSIONS'] || '').split(','),
+      ext_format: 'x64.dll',
       ext_init: datastore['EXTINIT'] || '',
       stageless: true
     }.merge(meterpreter_logging_config(opts))

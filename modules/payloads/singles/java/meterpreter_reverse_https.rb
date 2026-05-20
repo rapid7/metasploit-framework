@@ -27,10 +27,11 @@ module MetasploitModule
 
     register_options([
       OptString.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile']),
+      OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load'])
     ])
   end
 
   def generate_jar(opts = {})
-    super(opts.merge(stageless: true, c2_profile: datastore['MALLEABLEC2']))
+    super(opts.merge(stageless: true, c2_profile: datastore['MALLEABLEC2'], extensions: (datastore['EXTENSIONS'] || '').split(',')))
   end
 end

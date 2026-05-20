@@ -28,6 +28,7 @@ module MetasploitModule
 
     register_options([
       OptString.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile']),
+      OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load'])
     ])
 
     register_advanced_options(
@@ -45,6 +46,7 @@ module MetasploitModule
       http_proxy_host: opts[:proxy_host],
       http_proxy_port: opts[:proxy_port],
       c2_profile: datastore['MALLEABLEC2'],
+      extensions: (datastore['EXTENSIONS'] || '').split(','),
       stageless: true
     })
 

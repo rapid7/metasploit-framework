@@ -29,6 +29,7 @@ module MetasploitModule
 
     register_options([
       OptString.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile']),
+      OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load'])
     ])
   end
 
@@ -44,6 +45,8 @@ module MetasploitModule
       expiration:        (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
       uuid:              opts[:uuid],
       transports:        opts[:transport_config],
+      extensions:        (ds['EXTENSIONS'] || '').split(','),
+      ext_format:        'php',
       stageless:         true,
     }.merge(meterpreter_logging_config(opts))
 

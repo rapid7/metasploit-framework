@@ -81,6 +81,7 @@ module Payload::Windows::MeterpreterLoader
       uuid:              opts[:uuid],
       transports:        opts[:transport_config] || [transport_config(opts)],
       extensions:        [],
+      ext_format:        'x86.dll',
       stageless:         opts[:stageless] == true,
     }.merge(meterpreter_logging_config(opts))
     # create the configuration instance based off the parameters
