@@ -9,7 +9,6 @@ require 'metasploit/framework/login_scanner/ftp'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
-  include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
   def proto
@@ -63,7 +62,6 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     deregister_options('FTPUSER', 'FTPPASS') # Can use these, but should use 'username' and 'password'
-    @accepts_all_logins = {}
   end
 
   def run_scanner(ip, scanner)
