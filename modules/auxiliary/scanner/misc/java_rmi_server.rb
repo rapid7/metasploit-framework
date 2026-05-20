@@ -12,24 +12,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Java RMI Server Insecure Endpoint Code Execution Scanner',
+      'Name' => 'Java RMI Server Insecure Endpoint Code Execution Scanner',
       'Description' => 'Detect Java RMI endpoints',
-      'Author'     => ['mihi', 'hdm'],
-      'License'     => MSF_LICENSE,
-      'References'     =>
-        [
-          # RMI protocol specification
-          [ 'URL', 'http://download.oracle.com/javase/1.3/docs/guide/rmi/spec/rmi-protocol.html'],
-          [ 'URL', 'http://www.securitytracker.com/id?1026215'],
-          [ 'CVE', '2011-3556']
-        ],
+      'Author' => ['mihi', 'hdm'],
+      'License' => MSF_LICENSE,
+      'References' => [
+        # RMI protocol specification
+        [ 'URL', 'http://download.oracle.com/javase/1.3/docs/guide/rmi/spec/rmi-protocol.html'],
+        [ 'URL', 'http://www.securitytracker.com/id?1026215'],
+        [ 'CVE', '2011-3556']
+      ],
       'DisclosureDate' => 'Oct 15 2011'
     )
 
     register_options(
       [
         Opt::RPORT(1099)
-      ])
+      ]
+    )
   end
 
   def run_host(target_host)
@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Determine if the instance allows remote class loading
     vprint_status("Sending RMI Call...")
-    jar = Rex::Text.rand_text_alpha(rand(8)+1) + '.jar'
+    jar = Rex::Text.rand_text_alpha(rand(8) + 1) + '.jar'
     jar_url = "file:RMIClassLoaderSecurityTest/" + jar
 
     dgc_interface_hash = calculate_interface_hash(
@@ -92,11 +92,11 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Enabled")
       svc = report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Enabled")
       report_vuln(
-        :host         => rhost,
-        :service      => svc,
-        :name         => self.name,
-        :info         => "Module #{self.fullname} confirmed remote code execution via this RMI service",
-        :refs         => self.references
+        :host => rhost,
+        :service => svc,
+        :name => self.name,
+        :info => "Module #{self.fullname} confirmed remote code execution via this RMI service",
+        :refs => self.references
       )
       Exploit::CheckCode::Vulnerable
     else
@@ -109,11 +109,11 @@ class MetasploitModule < Msf::Auxiliary
   def loader_enabled?(exception_stack)
     exception_stack.each do |exception|
       if exception.class == Rex::Java::Serialization::Model::NewObject &&
-          exception.class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc &&
-          exception.class_desc.description.class_name.contents == 'java.lang.ClassNotFoundException'&&
-          [Rex::Java::Serialization::Model::NullReference, Rex::Java::Serialization::Model::Reference].include?(exception.class_data[0].class) &&
-          !exception.class_data[1].contents.include?('RMI class loader disabled')
-          return true
+         exception.class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc &&
+         exception.class_desc.description.class_name.contents == 'java.lang.ClassNotFoundException' &&
+         [Rex::Java::Serialization::Model::NullReference, Rex::Java::Serialization::Model::Reference].include?(exception.class_data[0].class) &&
+         !exception.class_data[1].contents.include?('RMI class loader disabled')
+        return true
       end
     end
 
@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
     new_array_super.description = Rex::Java::Serialization::Model::NullReference.new
 
     new_array_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-    new_array_desc.class_name =  Rex::Java::Serialization::Model::Utf.new(nil, '[Ljava.rmi.server.ObjID;')
+    new_array_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[Ljava.rmi.server.ObjID;')
     new_array_desc.serial_version = 0x871300b8d02c647e
     new_array_desc.flags = 2
     new_array_desc.fields = []

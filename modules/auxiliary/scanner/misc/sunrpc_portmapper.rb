@@ -10,16 +10,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SunRPC Portmap Program Enumerator',
+      'Name' => 'SunRPC Portmap Program Enumerator',
       'Description' => '
         This module calls the target portmap service and enumerates all program
         entries and their running port numbers.
       ',
-      'Author'      => ['<tebo[at]attackresearch.com>'],
-      'References'  =>
-        [
-          ['URL',	'https://www.ietf.org/rfc/rfc1057.txt']
-        ],
+      'Author' => ['<tebo[at]attackresearch.com>'],
+      'References' => [
+        ['URL',	'https://www.ietf.org/rfc/rfc1057.txt']
+      ],
       'License'	=> MSF_LICENSE
     )
 
@@ -34,8 +33,8 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status "SunRPC - Enumerating programs"
 
     begin
-      program		= 100000
-      progver		= 2
+      program	= 100000
+      progver	= 2
       procedure	= 4
 
       sunrpc_create(proto, program, progver)
@@ -51,11 +50,12 @@ class MetasploitModule < Msf::Auxiliary
       end
       sunrpc_destroy
       return if maps.empty?
+
       vprint_good("Found #{maps.size} programs available")
 
       table = Rex::Text::Table.new(
-        'Header'  => "SunRPC Programs for #{ip}",
-        'Indent'  => 1,
+        'Header' => "SunRPC Programs for #{ip}",
+        'Indent' => 1,
         'Columns' => %w(Name Number Version Port Protocol)
       )
 

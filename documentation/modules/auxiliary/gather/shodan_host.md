@@ -33,8 +33,8 @@ In order for this module to function properly, a Shodan API key is needed. You c
 Running the module against a real system (in this case, the Google DNS server):
 
 ```
-msf6 > use auxiliary/gather/shodan_host
-msf6 auxiliary(gather/shodan_host) > show options
+msf > use auxiliary/gather/shodan_host
+msf auxiliary(gather/shodan_host) > show options
 
 Module options (auxiliary/gather/shodan_host):
 
@@ -44,23 +44,23 @@ Module options (auxiliary/gather/shodan_host):
    RHOSTS                          yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
    SHODAN_APIKEY                   yes       The SHODAN API key
 
-msf6 auxiliary(gather/shodan_host) > set RHOSTS 8.8.8.8
+msf auxiliary(gather/shodan_host) > set RHOSTS 8.8.8.8
 RHOSTS => 8.8.8.8
-msf6 auxiliary(gather/shodan_host) > set SHODAN_APIKEY *redacted*
+msf auxiliary(gather/shodan_host) > set SHODAN_APIKEY *redacted*
 SHODAN_APIKEY => *redacted*
-msf6 auxiliary(gather/shodan_host) > run
+msf auxiliary(gather/shodan_host) > run
 [*] Running module against 8.8.8.8
 
 [+] 8.8.8.8:53
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/shodan_host) >
+msf auxiliary(gather/shodan_host) >
 ```
 
 ### Domain Name
 
 ```
-msf6 > use auxiliary/gather/shodan_host
-msf6 auxiliary(gather/shodan_host) > show options
+msf > use auxiliary/gather/shodan_host
+msf auxiliary(gather/shodan_host) > show options
 
 Module options (auxiliary/gather/shodan_host):
 
@@ -70,11 +70,11 @@ Module options (auxiliary/gather/shodan_host):
    RHOSTS                          yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
    SHODAN_APIKEY                   yes       The SHODAN API key
 
-msf6 auxiliary(gather/shodan_host) > set RHOSTS www.google.com
+msf auxiliary(gather/shodan_host) > set RHOSTS www.google.com
 RHOSTS => www.google.com
-msf6 auxiliary(gather/shodan_host) > set SHODAN_APIKEY *redacted*
+msf auxiliary(gather/shodan_host) > set SHODAN_APIKEY *redacted*
 SHODAN_APIKEY => *redacted*
-msf6 auxiliary(gather/shodan_host) > run
+msf auxiliary(gather/shodan_host) > run
 [*] Running module against 172.217.12.36
 
 [+] 172.217.12.36:80
@@ -82,5 +82,5 @@ msf6 auxiliary(gather/shodan_host) > run
 [*] Running module against 2607:f8b0:4000:815::2004
 [-] The target IP address has not been scanned by Shodan!
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/shodan_host) >
+msf auxiliary(gather/shodan_host) >
 ```

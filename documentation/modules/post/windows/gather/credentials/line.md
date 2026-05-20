@@ -35,7 +35,7 @@ This option is turned on by default and will perform the data extraction using t
 ## Example Run
 ### Default Output
   ```
-msf6 post(windows/gather/line) > run 
+msf post(windows/gather/line) > run 
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All
@@ -63,7 +63,7 @@ msf6 post(windows/gather/line) > run
 
 ### Verbose Output
   ```
-msf6 post(windows/gather/line) > run 
+msf post(windows/gather/line) > run 
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All

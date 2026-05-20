@@ -49,22 +49,22 @@ docker logs <container> | grep Generated
 ### Docker image of Apache NiFi 1.18.0
 
 ```
-msf6 > use auxiliary/scanner/http/nifi_login
-msf6 auxiliary(scanner/http/nifi_login) > set rhosts 127.0.0.1
+msf > use auxiliary/scanner/http/nifi_login
+msf auxiliary(scanner/http/nifi_login) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(scanner/http/nifi_login) > set username 21acf672-7935-441c-a38b-b52643f029bf
+msf auxiliary(scanner/http/nifi_login) > set username 21acf672-7935-441c-a38b-b52643f029bf
 username => 21acf672-7935-441c-a38b-b52643f029bf
-msf6 auxiliary(scanner/http/nifi_login) > set password bad
+msf auxiliary(scanner/http/nifi_login) > set password bad
 password => bad
-msf6 auxiliary(scanner/http/nifi_login) > run
+msf auxiliary(scanner/http/nifi_login) > run
 
 [*] Checking 127.0.0.1
 [-] 127.0.0.1:8443        - Apache NiFi - Failed to login as '21acf672-7935-441c-a38b-b52643f029bf' with password 'bad'
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/nifi_login) > set password R4+xdl8P9Phrqne4NxHDponQs5X9ktn2
+msf auxiliary(scanner/http/nifi_login) > set password R4+xdl8P9Phrqne4NxHDponQs5X9ktn2
 password => R4+xdl8P9Phrqne4NxHDponQs5X9ktn2
-msf6 auxiliary(scanner/http/nifi_login) > run
+msf auxiliary(scanner/http/nifi_login) > run
 
 [*] Checking 127.0.0.1
 [+] 127.0.0.1:8443        - Apache NiFi - Login successful as '21acf672-7935-441c-a38b-b52643f029bf' with password 'R4+xdl8P9Phrqne4NxHDponQs5X9ktn2'
@@ -74,32 +74,32 @@ msf6 auxiliary(scanner/http/nifi_login) > run
 
 ### Docker image of Apache NiFi 1.21.0
 ```
-msf6 > use auxiliary/scanner/http/apache_nifi_login
-msf6 auxiliary(scanner/http/apache_nifi_login) > set RHOST 127.0.0.1
+msf > use auxiliary/scanner/http/apache_nifi_login
+msf auxiliary(scanner/http/apache_nifi_login) > set RHOST 127.0.0.1
 RHOST => 127.0.0.1
-msf6 auxiliary(scanner/http/apache_nifi_login) > set RPORT 8443
+msf auxiliary(scanner/http/apache_nifi_login) > set RPORT 8443
 RPORT => 8443
-msf6 auxiliary(scanner/http/apache_nifi_login) > set USERNAME test
+msf auxiliary(scanner/http/apache_nifi_login) > set USERNAME test
 USERNAME => test
-msf6 auxiliary(scanner/http/apache_nifi_login) > set PASSWORD test
+msf auxiliary(scanner/http/apache_nifi_login) > set PASSWORD test
 PASSWORD => test
-msf6 auxiliary(scanner/http/apache_nifi_login) > run
+msf auxiliary(scanner/http/apache_nifi_login) > run
 
 [*] Checking 127.0.0.1
 [-] 127.0.0.1:8443        - Apache NiFi - Failed to login as 'test' with password 'test'
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/apache_nifi_login) > set USERNAME a43c5a33-1635-46aa-8773-ef65f572fa0e
+msf auxiliary(scanner/http/apache_nifi_login) > set USERNAME a43c5a33-1635-46aa-8773-ef65f572fa0e
 USERNAME => a43c5a33-1635-46aa-8773-ef65f572fa0e
-msf6 auxiliary(scanner/http/apache_nifi_login) > set PASSWORD QUicCmARFZKeaO1QqPTdnJlB/IPCjJ3u
+msf auxiliary(scanner/http/apache_nifi_login) > set PASSWORD QUicCmARFZKeaO1QqPTdnJlB/IPCjJ3u
 PASSWORD => QUicCmARFZKeaO1QqPTdnJlB/IPCjJ3u
-msf6 auxiliary(scanner/http/apache_nifi_login) > run
+msf auxiliary(scanner/http/apache_nifi_login) > run
 
 [*] Checking 127.0.0.1
 [+] 127.0.0.1:8443        - Apache NiFi - Login successful as 'a43c5a33-1635-46aa-8773-ef65f572fa0e' with password 'QUicCmARFZKeaO1QqPTdnJlB/IPCjJ3u'
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/apache_nifi_login) > creds
+msf auxiliary(scanner/http/apache_nifi_login) > creds
 Credentials
 ===========
 
@@ -107,5 +107,5 @@ host       origin     service           public                                pr
 ----       ------     -------           ------                                -------                           -----  ------------  ----------
 127.0.0.1  127.0.0.1  8443/tcp (https)  a43c5a33-1635-46aa-8773-ef65f572fa0e  QUicCmARFZKeaO1QqPTdnJlB/IPCjJ3u         Password      
 
-msf6 auxiliary(scanner/http/apache_nifi_login) > 
+msf auxiliary(scanner/http/apache_nifi_login) > 
 ```

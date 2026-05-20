@@ -101,7 +101,7 @@ No other options are used in this action.
 **Without Key**
 
 ```msf
-msf6 auxiliary(admin/kerberos/inspect_ticket) > run TICKET_PATH=/path/to/ticket
+msf auxiliary(admin/kerberos/inspect_ticket) > run TICKET_PATH=/path/to/ticket
 Primary Principal: Administrator@WINDOMAIN.LOCAL
 Ccache version: 4
 
@@ -134,7 +134,7 @@ Creds: 1
 **With Key**
 
 ```msf
-msf6 auxiliary(admin/kerberos/inspect_ticket) > run AES_KEY=4b912be0366a6f37f4a7d571bee18b1173d93195ef76f8d1e3e81ef6172ab326 TICKET_PATH=/path/to/ticket
+msf auxiliary(admin/kerberos/inspect_ticket) > run AES_KEY=4b912be0366a6f37f4a7d571bee18b1173d93195ef76f8d1e3e81ef6172ab326 TICKET_PATH=/path/to/ticket
 Primary Principal: Administrator@WINDOMAIN.LOCAL
 Ccache version: 4
 

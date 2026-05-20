@@ -19,7 +19,7 @@ loading the `dnsapi` DLL and calling the `DnsGetCacheDataTable` function.
 ### Windows 10
 
 ```
-msf6 post(windows/gather/dnscache_dump) > sessions -i 5
+msf post(windows/gather/dnscache_dump) > sessions -i 5
 [*] Starting interaction with 5...
 
 meterpreter > sysinfo
@@ -32,7 +32,7 @@ Logged On Users : 2
 Meterpreter     : x86/windows
 meterpreter > background
 [*] Backgrounding session 5...
-msf6 post(windows/gather/dnscache_dump) > run
+msf post(windows/gather/dnscache_dump) > run
 
 [*] DNS Cached Entries
 ==================

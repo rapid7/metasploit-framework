@@ -11,35 +11,44 @@ class MetasploitModule < Msf::Auxiliary
 
   # Creates an instance of this module.
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Oracle RDBMS Login Utility',
-      'Description'    => %q{
-        This module attempts to authenticate against an Oracle RDBMS
-        instance using username and password combinations indicated
-        by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
+    super(
+      update_info(
+        info,
+        'Name' => 'Oracle RDBMS Login Utility',
+        'Description' => %q{
+          This module attempts to authenticate against an Oracle RDBMS
+          instance using username and password combinations indicated
+          by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
 
-        Due to a bug in nmap versions 6.50-7.80 may not work.
-      },
-      'Author'         => [
-        'Patrik Karlsson <patrik[at]cqure.net>', # the nmap NSE script, oracle-brute.nse
-        'todb' # this Metasploit module
+          Due to a bug in nmap versions 6.50-7.80 may not work.
+        },
+        'Author' => [
+          'Patrik Karlsson <patrik[at]cqure.net>', # the nmap NSE script, oracle-brute.nse
+          'todb' # this Metasploit module
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'https://www.oracle.com/database/' ],
           [ 'CVE', '1999-0502'], # Weak password CVE
           [ 'URL', 'https://nmap.org/nsedoc/scripts/oracle-brute.html']
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
-        OptPath.new('USERPASS_FILE',  [ false, "File containing (space-separated) users and passwords, one pair per line",
-          File.join(Msf::Config.data_directory, "wordlists", "oracle_default_userpass.txt") ]),
+        OptPath.new('USERPASS_FILE', [
+          false, "File containing (space-separated) users and passwords, one pair per line",
+          File.join(Msf::Config.data_directory, "wordlists", "oracle_default_userpass.txt")
+        ]),
         OptString.new('SID', [ true, 'The instance (SID) to authenticate against', 'XE'])
-      ])
-
+      ]
+    )
   end
 
   def minimum_nmap_version
@@ -54,16 +63,16 @@ class MetasploitModule < Msf::Auxiliary
     print_status "Nmap: Setting up credential file..."
     credfile = create_credfile
     cred_count = 0
-    each_user_pass(true) {|user, pass| credfile[0].puts "%s/%s" % [user,pass]; cred_count += 1 }
+    each_user_pass(true) { |user, pass| credfile[0].puts "%s/%s" % [user, pass]; cred_count += 1 }
     credfile[0].flush
     nmap_build_args(credfile[1])
     print_status "Nmap: Starting Oracle bruteforce with #{cred_count} credentials against SID '#{sid}'..."
     nmap_run
     credfile[0].unlink
     if Rex::Parser.nokogiri_loaded
-      nmap_hosts {|type,data| process_nokogiri_callback(type,data)}
+      nmap_hosts { |type, data| process_nokogiri_callback(type, data) }
     else
-      nmap_hosts {|host| process_host(host)}
+      nmap_hosts { |host| process_host(host) }
     end
   end
 
@@ -108,33 +117,36 @@ class MetasploitModule < Msf::Auxiliary
     else
       outfile_path = outfile.path
     end
-    @credfile = [outfile,outfile_path]
+    @credfile = [outfile, outfile_path]
   end
 
-  def process_nokogiri_callback(type,data)
+  def process_nokogiri_callback(type, data)
     return unless type == :port_script
     return unless data["id"] == "oracle-brute"
     return unless data[:addresses].has_key? "ipv4"
     return unless data[:port]["state"] == ::Msf::ServiceState::Open
+
     addr = data[:addresses]["ipv4"].to_s
     port = data[:port]["portid"].to_i
     output = data["output"]
-    parse_script_output(addr,port,output)
+    parse_script_output(addr, port, output)
   end
 
   def process_host(h)
     h["ports"].each do |p|
-      next if(h["scripts"].nil? || h["scripts"].empty?)
-      h["scripts"].each do |id,output|
+      next if (h["scripts"].nil? || h["scripts"].empty?)
+
+      h["scripts"].each do |id, output|
         next unless id == "oracle-brute"
-        parse_script_output(h["addr"],p["portid"],output)
+
+        parse_script_output(h["addr"], p["portid"], output)
       end
     end
   end
 
   def extract_creds(str)
     m = str.match(/\s+([^\s]+):([^\s]+) =>/)
-    m[1,2]
+    m[1, 2]
   end
 
   def report_cred(opts)
@@ -163,7 +175,7 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def parse_script_output(addr,port,output)
+  def parse_script_output(addr, port, output)
     msg = "#{addr}:#{port} - Oracle -"
     @oracle_reported = false
     if output =~ /TNS: The listener could not resolve \x22/n
@@ -178,7 +190,7 @@ class MetasploitModule < Msf::Auxiliary
             report_note(:host => addr, :port => port, :proto => "tcp", :type => "oracle.sid", :data => { :sid => sid }, :update => :unique_data)
             @oracle_reported = true
           end
-          user,pass = extract_creds(oline)
+          user, pass = extract_creds(oline)
           pass = "" if pass == "<empty>"
           print_good "#{msg} Success: #{user}:#{pass} (SID: #{sid})"
           report_cred(

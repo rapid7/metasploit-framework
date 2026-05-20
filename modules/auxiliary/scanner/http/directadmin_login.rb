@@ -12,28 +12,35 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'        => 'DirectAdmin Web Control Panel Login Utility',
-      'Description' => %q{
-        This module will attempt to authenticate to a DirectAdmin Web Control Panel.
-      },
-      'Author'      => [ 'Nick Marcoccio "1oopho1e" <iremembermodems[at]gmail.com>' ],
-      'License'     => MSF_LICENSE,
-      'DefaultOptions' =>
-        {
-          'RPORT'      => 2222,
-          'SSL'        => true,
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'DirectAdmin Web Control Panel Login Utility',
+        'Description' => %q{
+          This module will attempt to authenticate to a DirectAdmin Web Control Panel.
+        },
+        'Author' => [ 'Nick Marcoccio "1oopho1e" <iremembermodems[at]gmail.com>' ],
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => {
+          'RPORT' => 2222,
+          'SSL' => true,
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
-    ))
+      )
+    )
 
     register_options(
       [
         OptString.new('USERNAME', [false, 'The username to specify for authentication', '']),
         OptString.new('PASSWORD', [false, 'The password to specify for authentication', '']),
-      ])
+      ]
+    )
   end
-
 
   def scanner(ip)
     @scanner ||= lambda {
@@ -46,13 +53,14 @@ class MetasploitModule < Msf::Auxiliary
         configure_http_login_scanner(
           host: ip,
           port: datastore['RPORT'],
-          cred_details:       cred_collection,
-          stop_on_success:    datastore['STOP_ON_SUCCESS'],
-          bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
+          cred_details: cred_collection,
+          stop_on_success: datastore['STOP_ON_SUCCESS'],
+          bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
           connection_timeout: 5,
-          http_username:      datastore['HttpUsername'],
-          http_password:      datastore['HttpPassword']
-        ))
+          http_username: datastore['HttpUsername'],
+          http_password: datastore['HttpPassword']
+        )
+      )
     }.call
   end
 
@@ -76,7 +84,6 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 
   # Start here
   def run_host(ip)

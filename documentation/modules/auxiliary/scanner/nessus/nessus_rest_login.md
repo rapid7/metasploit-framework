@@ -77,16 +77,16 @@ HTTP server virtual host
 
 ```
 msf > use scanner/nessus/nessus_rest_login
-msf6 auxiliary(scanner/nessus/nessus_rest_login) > set rhosts 127.0.0.1
+msf auxiliary(scanner/nessus/nessus_rest_login) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(scanner/nessus/nessus_rest_login) > set password N0tpassword!
+msf auxiliary(scanner/nessus/nessus_rest_login) > set password N0tpassword!
 password => N0tpassword!
-msf6 auxiliary(scanner/nessus/nessus_rest_login) > set username notuser
+msf auxiliary(scanner/nessus/nessus_rest_login) > set username notuser
 username => notuser 
-msf6 auxiliary(scanner/nessus/nessus_rest_login) > run
+msf auxiliary(scanner/nessus/nessus_rest_login) > run
 
 [*] Attempting to login to /stop using password list
 [+] 127.0.0.1:8834         -    Success: 'notuser:N0tpassword'!
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/nessus/nessus_rest_login) >
+msf auxiliary(scanner/nessus/nessus_rest_login) >
 ```

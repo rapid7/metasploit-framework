@@ -179,7 +179,7 @@ Delay in seconds for SQL Injection sleep. Defaults to 1.
 ### ViciBox 11.0.1
 
 ```
-msf6 auxiliary(scanner/http/vicidial_sql_enum_users_pass) > run http://192.168.1.4
+msf auxiliary(scanner/http/vicidial_sql_enum_users_pass) > run http://192.168.1.4
 [*] Running module against 192.168.1.4
 
 [*] Checking if target is vulnerable...

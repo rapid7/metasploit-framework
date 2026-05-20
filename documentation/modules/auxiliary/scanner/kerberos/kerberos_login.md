@@ -29,7 +29,7 @@ Kerberos service on a Domain Controller.
 To create a single Kerberos ticket (TGT), set the username and password options:
 
 ```msf
-msf6 auxiliary(scanner/kerberos/kerberos_login) > run rhost=192.168.123.133 domain=DEMO.local username=basic_user password=password verbose=true
+msf auxiliary(scanner/kerberos/kerberos_login) > run rhost=192.168.123.133 domain=DEMO.local username=basic_user password=password verbose=true
 [*] Using domain: DEMO.LOCAL - 192.168.123.133:88   ...
 [+] 192.168.123.133 - User found: "basic_user" with password password
 [*] Auxiliary module execution completed
@@ -44,7 +44,7 @@ accounts and additionally bruteforcing passwords:
 Create a new `./users.txt` file and `./wordlist.txt`, then run the module:
 
 ```msf
-msf6 auxiliary(gather/kerberos_enumusers) > run rhost=192.168.123.133 domain=DEMO.local user_file=./users.txt pass_file=./wordlist.txt verbose=true
+msf auxiliary(gather/kerberos_enumusers) > run rhost=192.168.123.133 domain=DEMO.local user_file=./users.txt pass_file=./wordlist.txt verbose=true
 [*] Using domain: DEMO.LOCAL - 192.168.123.133:88   ...
 [+] 192.168.123.133 - User: "basic_user" is present
 [*] 192.168.123.133 - User: "basic_user" wrong password invalid2

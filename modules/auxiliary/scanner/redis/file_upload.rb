@@ -10,27 +10,32 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'          => 'Redis File Upload',
-        'Description'   => %q(
+        'Name' => 'Redis File Upload',
+        'Description' => %q{
           This module can be used to leverage functionality exposed by Redis to
           achieve somewhat arbitrary file upload to a file and directory to
           which the user account running the redis instance has access.  It is
           not totally arbitrary because the exact contents of the file cannot
           be completely controlled given the nature of how Redis stores its
           database on disk.
-        ),
-        'License'       => MSF_LICENSE,
-        'Author'        => [
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Nixawk', # original metasploit module
           'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
         ],
-        'References'    => [
+        'References' => [
           ['URL', 'http://antirez.com/news/96'],
           ['URL', 'http://web.archive.org/web/20240907110448/https://blog.knownsec.com/2015/11/analysis-of-redis-unauthorized-of-expolit/'],
           ['URL', 'https://redis.io/topics/protocol']
         ],
-        'Privileged'    => true,
-        'DisclosureDate' => '2015-11-11'
+        'Privileged' => true,
+        'DisclosureDate' => '2015-11-11',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 
@@ -96,6 +101,7 @@ class MetasploitModule < Msf::Auxiliary
     key = Rex::Text.rand_text_alpha(32)
     data = redis_command('SET', key, content) || ''
     return unless data.include?('+OK')
+
     data = redis_command('SAVE') || ''
 
     if data.include?('+OK')

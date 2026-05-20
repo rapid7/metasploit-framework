@@ -104,15 +104,15 @@ Finally, execute the following commands:
 Install using following instructions for Ubuntu listed above.
 
 ```
-msf5 > use auxiliary/scanner/http/http_hsts
-msf5 auxiliary(scanner/http/http_hsts) > set RHOSTS 192.168.90.91
+msf > use auxiliary/scanner/http/http_hsts
+msf auxiliary(scanner/http/http_hsts) > set RHOSTS 192.168.90.91
 RHOSTS => 192.168.90.91
-msf5 auxiliary(scanner/http/http_hsts) > run
+msf auxiliary(scanner/http/http_hsts) > run
 
 [+] 192.168.90.91:443 - Strict-Transport-Security:max-age=63072000; includeSubdomains
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/http/http_hsts) >
+msf auxiliary(scanner/http/http_hsts) >
 
 ```
 

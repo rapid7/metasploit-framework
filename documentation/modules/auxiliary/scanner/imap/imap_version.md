@@ -34,10 +34,10 @@ in a production environment.
 ### Dovecot 2.3.2 (582970113) on Kali
 
   ```
-  msf5 > use auxiliary/scanner/imap/imap_version 
-  msf5 auxiliary(scanner/imap/imap_version) > set rhosts 10.168.202.216
+  msf > use auxiliary/scanner/imap/imap_version 
+  msf auxiliary(scanner/imap/imap_version) > set rhosts 10.168.202.216
   rhosts => 10.168.202.216
-  msf5 auxiliary(scanner/imap/imap_version) > run
+  msf auxiliary(scanner/imap/imap_version) > run
 
   [+] 10.168.202.216:143    - 10.168.202.216:143 IMAP * OK [CAPABILITY IMAP4rev1 SASL-IR LOGIN-REFERRALS ID ENABLE IDLE LITERAL+ STARTTLS AUTH=PLAIN] Dovecot (Debian) ready.\x0d\x0a
   [*] 10.168.202.216:143    - Scanned 1 of 1 hosts (100% complete)

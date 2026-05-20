@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'Dolibarr 16 pre-auth contact database dump',
         'Description' => %q{
           Dolibarr version 16 < 16.0.5 is vulnerable to a pre-authentication contact database dump.
-          An unauthenticated attacker may retrieve a company’s entire customer file, prospects, suppliers,
+          An unauthenticated attacker may retrieve a company's entire customer file, prospects, suppliers,
           and potentially employee information if a contact file exists.
           Both public and private notes are also included in the dump.
         },

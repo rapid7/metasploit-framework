@@ -12,7 +12,7 @@ msf auxiliary(oracle_login) > run
 ```
 or
 ```msf
-msf5 auxiliary(scanner/oracle/oracle_hashdump) > run
+msf auxiliary(scanner/oracle/oracle_hashdump) > run
 
 [-] Failed to load the OCI library: cannot load such file -- oci8
 [-] Try 'gem install ruby-oci8'

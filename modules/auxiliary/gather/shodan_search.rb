@@ -11,26 +11,32 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Shodan Search',
-      'Description' => %q{
-        This module uses the Shodan API to search Shodan. Accounts are free
-        and an API key is required to use this module. Output from the module
-        is displayed to the screen and can be saved to a file or the MSF database.
-        NOTE: SHODAN filters (i.e. port, hostname, os, geo, city) can be used in
-        queries, but there are limitations when used with a free API key. Please
-        see the Shodan site for more information.
-        Shodan website: https://www.shodan.io/
-        API: https://developer.shodan.io/api
-        Filters: https://www.shodan.io/search/filters
-        Facets: https://www.shodan.io/search/facet (from the scrollbox)
-      },
-      'Author' =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Shodan Search',
+        'Description' => %q{
+          This module uses the Shodan API to search Shodan. Accounts are free
+          and an API key is required to use this module. Output from the module
+          is displayed to the screen and can be saved to a file or the MSF database.
+          NOTE: SHODAN filters (i.e. port, hostname, os, geo, city) can be used in
+          queries, but there are limitations when used with a free API key. Please
+          see the Shodan site for more information.
+          Shodan website: https://www.shodan.io/
+          API: https://developer.shodan.io/api
+          Filters: https://www.shodan.io/search/filters
+          Facets: https://www.shodan.io/search/facet (from the scrollbox)
+        },
+        'Author' => [
           'John H Sawyer <john[at]sploitlab.com>', # InGuardians, Inc.
-          'sinn3r'  # Metasploit-fu plus other features
+          'sinn3r' # Metasploit-fu plus other features
         ],
-      'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 
@@ -155,7 +161,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       print_status("Total: #{results[first_page]['total']} on #{tpages} " \
         'pages. Showing facets')
-      facet = results.dig(first_page,'facets')
+      facet = results.dig(first_page, 'facets')
       facet.each do |name, list|
         list.each do |f|
           facets_tbl << [name.to_s, (f['value']).to_s, (f['count']).to_s]
@@ -172,18 +178,19 @@ class MetasploitModule < Msf::Auxiliary
       if results[first_page]['total'] > 100
         page = 1
         while page < maxpage
-          page_result = shodan_query(apikey, query, facets, page+1)
+          page_result = shodan_query(apikey, query, facets, page + 1)
           if page_result['matches'].nil?
             next
           end
+
           results[page] = page_result
           page += 1
         end
       end
       # Save the results to this table
       tbl = Rex::Text::Table.new(
-        'Header'  => 'Search Results',
-        'Indent'  => 1,
+        'Header' => 'Search Results',
+        'Indent' => 1,
         'Columns' => ['IP:Port', 'City', 'Country', 'Hostname']
       )
 
@@ -191,36 +198,34 @@ class MetasploitModule < Msf::Auxiliary
       regex = datastore['REGEX'] if datastore['REGEX']
       results.each do |page|
         page['matches'].each do |host|
-          city = host.dig('location','city') || 'N/A'
-          ip   = host.fetch('ip_str', 'N/A')
+          city = host.dig('location', 'city') || 'N/A'
+          ip = host.fetch('ip_str', 'N/A')
           port = host.fetch('port', '')
-          country = host.dig('location','country_name') || 'N/A'
-          hostname = host.dig('hostnames',0)
+          country = host.dig('location', 'country_name') || 'N/A'
+          hostname = host.dig('hostnames', 0)
           data = host.dig('data')
 
-          report_host(:host     => ip,
-                      :name     => hostname,
+          report_host(:host => ip,
+                      :name => hostname,
                       :comments => 'Added from Shodan',
-                      :info     => host.dig('info')
-                      ) if datastore['DATABASE']
+                      :info => host.dig('info')) if datastore['DATABASE']
 
           report_service(:host => ip,
-                        :port => port,
-                        :info => 'Added from Shodan'
-                        ) if datastore['DATABASE']
+                         :port => port,
+                         :info => 'Added from Shodan') if datastore['DATABASE']
 
           if ip =~ regex ||
-            city =~ regex ||
-            country =~ regex ||
-            hostname =~ regex ||
-            data =~ regex
+             city =~ regex ||
+             country =~ regex ||
+             hostname =~ regex ||
+             data =~ regex
             # Unfortunately we cannot display the banner properly,
             # because it messes with our output format
             tbl << ["#{ip}:#{port}", city, country, hostname]
           end
         end
       end
-      #Show data and maybe save it if needed
+      # Show data and maybe save it if needed
       print_line()
       print_line("#{tbl}")
       save_output(tbl) if datastore['OUTFILE']

@@ -12,24 +12,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Java JMX Server Insecure Endpoint Code Execution Scanner',
+      'Name' => 'Java JMX Server Insecure Endpoint Code Execution Scanner',
       'Description' => 'Detect Java JMX endpoints',
-      'Author'     => ['rocktheboat'],
-      'License'     => MSF_LICENSE,
-      'References'     =>
-        [
-          ['URL', 'https://docs.oracle.com/javase/8/docs/technotes/guides/jmx/JMX_1_4_specification.pdf'],
-          ['URL', 'https://www.optiv.com/blog/exploiting-jmx-rmi'],
-          ['CVE', '2015-2342']
-        ],
-      'Platform'       => 'java',
+      'Author' => ['rocktheboat'],
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['URL', 'https://docs.oracle.com/javase/8/docs/technotes/guides/jmx/JMX_1_4_specification.pdf'],
+        ['URL', 'https://www.optiv.com/blog/exploiting-jmx-rmi'],
+        ['CVE', '2015-2342']
+      ],
+      'Platform' => 'java',
       'DisclosureDate' => 'May 22 2013'
     )
 
     register_options(
       [
         Opt::RPORT(1099)
-      ])
+      ]
+    )
   end
 
   def run_host(target_host)
@@ -73,11 +73,11 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Handshake with JMX MBean server on #{jmx_endpoint[:address]}:#{jmx_endpoint[:port]}")
     svc = report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "JMX MBean server accessible")
     report_vuln(
-      :host         => rhost,
-      :service      => svc,
-      :name         => self.name,
-      :info         => "Module #{self.fullname} confirmed RCE via JMX RMI service",
-      :refs         => self.references
+      :host => rhost,
+      :service => svc,
+      :name => self.name,
+      :info => "Module #{self.fullname} confirmed RCE via JMX RMI service",
+      :refs => self.references
     )
   end
 
@@ -129,6 +129,7 @@ class MetasploitModule < Msf::Auxiliary
     if e.message == 'java.lang.SecurityException'
       return false
     end
+
     return nil
   end
 end

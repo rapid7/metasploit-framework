@@ -13,14 +13,23 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'HTTP SOAP Verb/Noun Brute Force Scanner',
-      'Description' => %q(
-        This module attempts to brute force SOAP/XML requests to uncover
-        hidden methods.
-      ),
-      'Author'      => ['aushack'],
-      'License'     => MSF_LICENSE))
+    super(
+      update_info(
+        info,
+        'Name' => 'HTTP SOAP Verb/Noun Brute Force Scanner',
+        'Description' => %q{
+          This module attempts to brute force SOAP/XML requests to uncover
+          hidden methods.
+        },
+        'Author' => ['aushack'],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -34,7 +43,8 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('DISPLAYHTML', [true, 'Display HTML response', false]),
         OptBool.new('SSL', [true, 'Use SSL', false]),
         OptBool.new('VERB_DELETE', [false, 'Enable DELETE verb', false])
-      ])
+      ]
+    )
   end
 
   # Fingerprint a single host
@@ -147,18 +157,19 @@ class MetasploitModule < Msf::Auxiliary
 
           res = send_request_raw(
             {
-              'uri'     => uri,
-              'method'  => 'POST',
-              'vhost'   => vhost,
-              'data'	  => data,
+              'uri' => uri,
+              'method' => 'POST',
+              'vhost' => vhost,
+              'data'	=> data,
               'headers' =>
                 {
                   'Content-Length' => data.length,
-                  'SOAPAction'	 => '"' + datastore['XMLNAMESPACE'] + v + n + '"',
-                  'Expect'	 => '100-continue',
-                  'Content-Type'	 => datastore['CONTENTTYPE']
+                  'SOAPAction'	=> '"' + datastore['XMLNAMESPACE'] + v + n + '"',
+                  'Expect'	=> '100-continue',
+                  'Content-Type'	=> datastore['CONTENTTYPE']
                 }
-            }, 15)
+            }, 15
+          )
 
           if res && !(res.body.empty?)
             if reject_regexen.any? { |r| res.body =~ r }
@@ -183,7 +194,8 @@ class MetasploitModule < Msf::Auxiliary
                 data: {
                   :soapaction => "#{v}#{n}",
                   :response_code => res.code,
-                  :response_message => res.message }
+                  :response_message => res.message
+                }
               )
               if datastore['DISPLAYHTML']
                 print_status('The HTML content follows:')

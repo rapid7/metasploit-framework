@@ -151,11 +151,11 @@ creds add user:androidmd5 hash:1C0A0FDB673FBA36BEAEB078322C7393:81fcb23bcadd6c5 
 We'll set `ITERATION_TIMEOUT 60` for a quick crack, and `ShowCommand true` for easy debugging.
 
 ```
-msf5 post(android/gather/hashdump) > creds add user:androidsha1 hash:D1B19A90B87FC10C304E657F37162445DAE27D16:a006983800cc3dd1 jtr:android-sha1
-msf5 post(android/gather/hashdump) > previous
-msf5 auxiliary(analyze/crack_mobile) > set showcommand true
+msf post(android/gather/hashdump) > creds add user:androidsha1 hash:D1B19A90B87FC10C304E657F37162445DAE27D16:a006983800cc3dd1 jtr:android-sha1
+msf post(android/gather/hashdump) > previous
+msf auxiliary(analyze/crack_mobile) > set showcommand true
 showcommand => true
-msf5 auxiliary(analyze/crack_mobile) > run
+msf auxiliary(analyze/crack_mobile) > run
 
 [+] hashcat Version Detected: v5.1.0
 [*] Hashes Written out to /tmp/hashes_tmp20191112-9775-19hbg7j
@@ -189,14 +189,14 @@ nvmlDeviceGetFanSpeed(): Not Supported
 Create a password with each type, passwords are all `1234`.
 
 ```
-msf5 > creds add user:samsungsha1 hash:D1B19A90B87FC10C304E657F37162445DAE27D16:a006983800cc3dd1 jtr:android-samsung-sha1
-msf5 > creds add user:androidsha1 hash:9860A48CA459D054F3FEF0F8518CF6872923DAE2:81fcb23bcadd6c5 jtr:android-sha1
-msf5 > creds add user:androidmd5 hash:1C0A0FDB673FBA36BEAEB078322C7393:81fcb23bcadd6c5 jtr:android-md5
+msf > creds add user:samsungsha1 hash:D1B19A90B87FC10C304E657F37162445DAE27D16:a006983800cc3dd1 jtr:android-samsung-sha1
+msf > creds add user:androidsha1 hash:9860A48CA459D054F3FEF0F8518CF6872923DAE2:81fcb23bcadd6c5 jtr:android-sha1
+msf > creds add user:androidmd5 hash:1C0A0FDB673FBA36BEAEB078322C7393:81fcb23bcadd6c5 jtr:android-md5
 ```
 
 ```
-msf5 > use auxiliary/analyze/crack_mobile
-msf5 auxiliary(analyze/crack_mobile) > run
+msf > use auxiliary/analyze/crack_mobile
+msf auxiliary(analyze/crack_mobile) > run
 
 [+] hashcat Version Detected: v5.1.0
 [*] Hashes Written out to /tmp/hashes_tmp20191113-29506-1xydi7

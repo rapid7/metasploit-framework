@@ -41,7 +41,7 @@ This module authenticates to AWS EC2 (Elastic Compute Cloud) to identify compute
 ### Provided a valid 'access key ID' and 'secret access key' with sufficient privileges 
 
 ```
-msf5 auxiliary(cloud/aws/enum_iam) > run
+msf auxiliary(cloud/aws/enum_iam) > run
 
 [+] Found 3 users.
 [+]   User Name:       test1
@@ -89,29 +89,29 @@ msf5 auxiliary(cloud/aws/enum_iam) > run
 ### Provided an invalid or inactive 'access key ID'
 
 ```
-msf5 auxiliary(cloud/aws/enum_iam) > run
+msf auxiliary(cloud/aws/enum_iam) > run
 
 [-] Auxiliary aborted due to failure: unexpected-reply: The security token included in the request is invalid.
 [*] Auxiliary module execution completed
-msf5 auxiliary(cloud/aws/enum_iam) >
+msf auxiliary(cloud/aws/enum_iam) >
 ```
   
 ### Provided an invalid 'secret access key'
 
 ```
-msf5 auxiliary(cloud/aws/enum_iam) > run
+msf auxiliary(cloud/aws/enum_iam) > run
 
 [-] Auxiliary aborted due to failure: unexpected-reply: The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details.
 [*] Auxiliary module execution completed
-msf5 auxiliary(cloud/aws/enum_iam) > 
+msf auxiliary(cloud/aws/enum_iam) > 
 ```
 
 ### Provided an 'access key ID' or 'secret access key' with insufficient privileges
 
 ```
-msf5 auxiliary(cloud\aws\enum_ec2) > run
+msf auxiliary(cloud\aws\enum_ec2) > run
 
 [-] Auxiliary aborted due to failure: unexpected-reply: User: arn:aws:iam::899712345657:user/test1 is not authorized to perform: iam:ListUsers on resource: arn:aws:iam::899712345657:user/
 [*] Auxiliary module execution completed
-msf5 auxiliary(cloud\aws\enum_ec2) > 
+msf auxiliary(cloud\aws\enum_ec2) > 
 ```

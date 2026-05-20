@@ -163,7 +163,7 @@ Start `msfconsole` and verify postgresql connection using the `db_status` comman
 mv ~/.msf4/config ~/.msf4/config.disable
 ./msfconsole
 ...
-msf5 > db_status 
+msf > db_status 
 [*] Connected to msf. Connection type: postgresql.
 ```
 

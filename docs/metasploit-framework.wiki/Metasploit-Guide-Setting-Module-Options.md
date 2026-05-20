@@ -3,7 +3,7 @@
 Each Metasploit module has a set of options which must be set before running. These can be seen with the `show options` or `options` command:
 
 ```msf
-msf6 exploit(windows/smb/ms17_010_eternalblue) > options
+msf exploit(windows/smb/ms17_010_eternalblue) > options
 
 Module options (exploit/windows/smb/ms17_010_eternalblue):
 
@@ -36,7 +36,7 @@ Exploit target:
 Each Metasploit module also has _advanced_ options, which can often be useful for fine-tuning modules, in particular setting connection timeouts values can be useful:
 
 ```msf
-msf6 exploit(windows/smb/ms17_010_eternalblue) > advanced
+msf exploit(windows/smb/ms17_010_eternalblue) > advanced
 
 Module advanced options (exploit/windows/smb/ms17_010_eternalblue):
 
@@ -61,7 +61,7 @@ Payload advanced options (windows/x64/meterpreter/reverse_tcp):
 You can see which options stilloptions to be set with the `show missing` command:
 
 ```msf
-msf6 exploit(windows/smb/ms17_010_eternalblue) > show missing
+msf exploit(windows/smb/ms17_010_eternalblue) > show missing
 
 Module options (exploit/windows/smb/ms17_010_eternalblue):
 

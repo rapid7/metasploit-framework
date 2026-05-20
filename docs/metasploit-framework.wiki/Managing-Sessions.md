@@ -7,7 +7,7 @@ When you have a number of sessions open, searching can be a useful tool to navig
 You can get a list of sessions matching a specific criteria within msfconsole:
 
 ```msf
-msf6 payload(windows/meterpreter/reverse_http) > sessions --search "session_id:1 session_id:2"
+msf payload(windows/meterpreter/reverse_http) > sessions --search "session_id:1 session_id:2"
 Active sessions
 ===============
 
@@ -20,7 +20,7 @@ Active sessions
 Currently, the only supported keywords for search are `session_id`, `session_type`, and `last_checkin`. These keywords can be combined to further filter your results, and used with other flags. For example:
 
 ```msf
-msf6 payload(windows/meterpreter/reverse_http) > sessions --search "session_id:1 session_type:meterpreter last_checkin:greater_than:10s last_checkin:less_than:10d5h2m30s" -v
+msf payload(windows/meterpreter/reverse_http) > sessions --search "session_id:1 session_type:meterpreter last_checkin:greater_than:10s last_checkin:less_than:10d5h2m30s" -v
 
 Active sessions
 ===============
@@ -45,7 +45,7 @@ Of note in the above example, `last_checkin` requires an extra argument. The sec
 If `--search` is used in conjunction with `--kill-all`, it will restrict the latter function to only the search results. For example:
 
 ```msf
-msf6 payload(windows/meterpreter/reverse_http) > sessions -K -S "session_type:meterpreter"
+msf payload(windows/meterpreter/reverse_http) > sessions -K -S "session_type:meterpreter"
 [*] Killing matching sessions...
 
 Active sessions
@@ -58,5 +58,5 @@ Active sessions
 
 [*] 192.168.2.132 - Meterpreter session 1 closed.
 [*] 192.168.2.132 - Meterpreter session 2 closed.
-msf6 payload(windows/meterpreter/reverse_http) >
+msf payload(windows/meterpreter/reverse_http) >
 ```

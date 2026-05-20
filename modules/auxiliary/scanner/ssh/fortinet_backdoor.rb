@@ -13,32 +13,40 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::ReportSummary
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Fortinet SSH Backdoor Scanner',
-      'Description'    => %q{
-        This module scans for the Fortinet SSH backdoor.
-      },
-      'Author'         => [
-        'operator8203 <operator8203[at]runbox.com>', # PoC
-        'wvu'                                        # Module
-      ],
-      'References'     => [
-        ['CVE', '2016-1909'],
-        ['EDB', '39224'],
-        ['PACKETSTORM', '135225'],
-        ['URL', 'https://seclists.org/fulldisclosure/2016/Jan/26'],
-        ['URL', 'https://blog.fortinet.com/post/brief-statement-regarding-issues-found-with-fortios']
-      ],
-      'DisclosureDate' => '2016-01-09',
-      'License'        => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Fortinet SSH Backdoor Scanner',
+        'Description' => %q{
+          This module scans for the Fortinet SSH backdoor.
+        },
+        'Author' => [
+          'operator8203 <operator8203[at]runbox.com>', # PoC
+          'wvu'                                        # Module
+        ],
+        'References' => [
+          ['CVE', '2016-1909'],
+          ['EDB', '39224'],
+          ['PACKETSTORM', '135225'],
+          ['URL', 'https://seclists.org/fulldisclosure/2016/Jan/26'],
+          ['URL', 'https://blog.fortinet.com/post/brief-statement-regarding-issues-found-with-fortios']
+        ],
+        'DisclosureDate' => '2016-01-09',
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       Opt::RPORT(22)
     ])
 
     register_advanced_options([
-      OptBool.new('SSH_DEBUG',  [false, 'SSH debugging', false]),
+      OptBool.new('SSH_DEBUG', [false, 'SSH debugging', false]),
       OptInt.new('SSH_TIMEOUT', [false, 'SSH timeout', 10])
     ])
   end
@@ -47,10 +55,10 @@ class MetasploitModule < Msf::Auxiliary
     factory = ssh_socket_factory
 
     ssh_opts = ssh_client_defaults.merge({
-      port:            rport,
+      port: rport,
       # The auth method is converted into a class name for instantiation,
       # so fortinet-backdoor here becomes FortinetBackdoor from the mixin
-      auth_methods:    ['fortinet-backdoor']
+      auth_methods: ['fortinet-backdoor']
     })
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']

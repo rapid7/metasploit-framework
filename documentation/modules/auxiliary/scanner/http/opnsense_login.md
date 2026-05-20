@@ -72,7 +72,7 @@ Whether to print output for all attempts
 
 ## Scenarios
 ```
-msf6 auxiliary(scanner/http/opnsense_login) > options
+msf auxiliary(scanner/http/opnsense_login) > options
 
 Module options (auxiliary/scanner/http/opnsense_login):
 
@@ -104,7 +104,7 @@ Module options (auxiliary/scanner/http/opnsense_login):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(scanner/http/opnsense_login) > run
+msf auxiliary(scanner/http/opnsense_login) > run
 [+] 192.168.207.161:443 - Login Successful: root:opnsense
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed

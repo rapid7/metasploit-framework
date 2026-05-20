@@ -42,7 +42,7 @@ Creating initial database schema
 This looks like a lot of information, but all it's saying is that it's creating the database Metasploit will use to store information.  If you start up msfconsole now it should automatically connect to the database, and if you run `db_status` you should see something like this:
 
 ```
-msf6 > db_status
+msf > db_status
 [*] Connected to msf. Connection type: postgresql.
 ```
 

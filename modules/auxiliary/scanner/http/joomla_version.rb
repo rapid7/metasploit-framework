@@ -12,13 +12,13 @@ class MetasploitModule < Msf::Auxiliary
   # Joomscan and various MSF modules for code examples.
   def initialize
     super(
-      'Name'        => 'Joomla Version Scanner',
+      'Name' => 'Joomla Version Scanner',
       'Description' => %q{
           This module scans a Joomla install for information about the underlying
         operating system and Joomla version.
       },
-      'Author'      => [ 'newpid0' ],
-      'License'     => MSF_LICENSE
+      'Author' => [ 'newpid0' ],
+      'License' => MSF_LICENSE
     )
   end
 

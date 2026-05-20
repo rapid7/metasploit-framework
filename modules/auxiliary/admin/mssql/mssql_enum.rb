@@ -22,9 +22,9 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
         'License' => MSF_LICENSE,
         'Notes' => {
-           'Stability' => [CRASH_SAFE],
-           'SideEffects' => [IOC_IN_LOGS],
-           'Reliability' => []
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
         }
       )
     )

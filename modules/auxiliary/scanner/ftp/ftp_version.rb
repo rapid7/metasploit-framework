@@ -10,36 +10,33 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'FTP Version Scanner',
+      'Name' => 'FTP Version Scanner',
       'Description' => 'Detect FTP Version.',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(21),
-      ])
+      ]
+    )
   end
 
   def run_host(target_host)
-
     begin
+      res = connect(true, false)
 
-    res = connect(true, false)
+      if (banner)
+        banner_sanitized = Rex::Text.to_hex_ascii(self.banner.to_s)
+        print_good("FTP Banner: '#{banner_sanitized}'")
+        report_service(:host => rhost, :port => rport, :name => "ftp", :info => banner_sanitized)
+      end
 
-    if(banner)
-      banner_sanitized = Rex::Text.to_hex_ascii(self.banner.to_s)
-      print_good("FTP Banner: '#{banner_sanitized}'")
-      report_service(:host => rhost, :port => rport, :name => "ftp", :info => banner_sanitized)
-    end
-
-    disconnect
-
+      disconnect
     rescue ::Interrupt
       raise $!
     rescue ::Rex::ConnectionError, ::IOError
     end
-
   end
 end

@@ -18,7 +18,7 @@ This Meterpreter payload is suitable for the following environments:
 To check its compatibility with an exploit, select the exploit in the msf console and type the ```info``` command. The output will be similar to:
 
 ```
-msf5 payload(windows/shell/reverse_tcp) > info
+msf payload(windows/shell/reverse_tcp) > info
 
        Name: Windows Command Shell, Reverse TCP Stager
      Module: payload/windows/shell/reverse_tcp

@@ -76,7 +76,7 @@ resource (learnpress.rb)> run
 
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/wp_learnpress_sqli) > creds
+msf auxiliary(scanner/http/wp_learnpress_sqli) > creds
 Credentials
 ===========
 

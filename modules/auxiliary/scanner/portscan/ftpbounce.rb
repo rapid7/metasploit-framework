@@ -12,13 +12,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'FTP Bounce Port Scanner',
+      'Name' => 'FTP Bounce Port Scanner',
       'Description' => %q{
         Enumerate TCP services via the FTP bounce PORT/LIST
         method.
       },
-      'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE
+      'Author' => 'kris katterjohn',
+      'License' => MSF_LICENSE
     )
 
     register_options([
@@ -73,15 +73,14 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       begin
-
         # Add the delay based on JITTER and DELAY if needs be
-        add_delay_jitter(delay_value,jitter_value)
+        add_delay_jitter(delay_value, jitter_value)
 
         host = (ip.split('.') + [port / 256, port % 256]).join(',')
         resp = send_cmd(["PORT", host])
 
         if resp =~ /^5/
-          #print_error("Got error from PORT to #{ip}:#{port}")
+          # print_error("Got error from PORT to #{ip}:#{port}")
           next
         elsif not resp
           next

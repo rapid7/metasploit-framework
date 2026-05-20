@@ -10,22 +10,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Memcached UDP Version Scanner',
+      'Name' => 'Memcached UDP Version Scanner',
       'Description' => %q(
           This module can be used to discover Memcached servers which expose the
           unrestricted UDP port 11211. A basic "version" request is executed to obtain
           the version of memcached.
       ),
-      'Author'      =>
-        [
-          'Jon Hart <jon_hart@rapid7.com>' # Metasploit scanner module
-        ],
-      'License'     => MSF_LICENSE,
+      'Author' => [
+        'Jon Hart <jon_hart@rapid7.com>' # Metasploit scanner module
+      ],
+      'License' => MSF_LICENSE,
       'DisclosureDate' => 'Jul 23 2003',
-      'References' =>
-          [
-            ['URL', 'https://github.com/memcached/memcached/blob/master/doc/protocol.txt']
-          ]
+      'References' => [
+        ['URL', 'https://github.com/memcached/memcached/blob/master/doc/protocol.txt']
+      ]
     )
 
     register_options(

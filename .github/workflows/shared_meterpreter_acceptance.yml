@@ -198,7 +198,8 @@ jobs:
 
       - name: Setup Ruby
         env:
-          BUNDLE_FORCE_RUBY_PLATFORM: true
+          # Introduces flakiness when downloading zlib etc: https://github.com/sparklemotion/nokogiri/issues/3521
+          # BUNDLE_FORCE_RUBY_PLATFORM: true
           # Required for macos13 pg gem compilation
           PKG_CONFIG_PATH: "/usr/local/opt/libpq/lib/pkgconfig"
         # Pinned to avoid Windows compilation failure with nokogiri

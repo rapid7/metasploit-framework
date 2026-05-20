@@ -30,7 +30,7 @@ accounts.
 Create a new `./users.txt` file, then run the module:
 
 ```
-msf6 auxiliary(gather/kerberos_enumusers) > run rhost=192.168.123.228 domain=domain.local user_file=./users.txt verbose=true
+msf auxiliary(gather/kerberos_enumusers) > run rhost=192.168.123.228 domain=domain.local user_file=./users.txt verbose=true
 [*] Running module against 192.168.123.228
 
 [*] Using domain: ADF3.LOCAL - 192.168.123.228:88...
@@ -42,7 +42,7 @@ msf6 auxiliary(gather/kerberos_enumusers) > run rhost=192.168.123.228 domain=dom
 [+] 192.168.123.228:88 - User: "fake_mysql" is present
 [*] 192.168.123.228:88 - User: "missing1234" user not found
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/kerberos_enumusers) > 
+msf auxiliary(gather/kerberos_enumusers) > 
 ```
 
 ### ASREPRoasting

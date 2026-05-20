@@ -63,13 +63,13 @@ its security ID (SID), which includes the relative ID (RID) as the last componen
 First, a new computer account is created and its details are logged to the database.
 
 ```
-msf6 auxiliary(admin/dcerpc/samr_account) > set RHOSTS 192.168.159.96
+msf auxiliary(admin/dcerpc/samr_account) > set RHOSTS 192.168.159.96
 RHOSTS => 192.168.159.96
-msf6 auxiliary(admin/dcerpc/samr_account) > set SMBUser aliddle
+msf auxiliary(admin/dcerpc/samr_account) > set SMBUser aliddle
 SMBUser => aliddle
-msf6 auxiliary(admin/dcerpc/samr_account) > set SMBPass Password1
+msf auxiliary(admin/dcerpc/samr_account) > set SMBPass Password1
 SMBPass => Password1
-msf6 auxiliary(admin/dcerpc/samr_account) > show options
+msf auxiliary(admin/dcerpc/samr_account) > show options
 
 Module options (auxiliary/admin/dcerpc/samr_account):
 
@@ -91,13 +91,13 @@ Auxiliary action:
    ADD_COMPUTER  Add a computer account
 
 
-msf6 auxiliary(admin/dcerpc/samr_account) > run
+msf auxiliary(admin/dcerpc/samr_account) > run
 [*] Running module against 192.168.159.96
 
 [*] 192.168.159.96:445 - Using automatically identified domain: MSFLAB
 [+] 192.168.159.96:445 - Successfully created MSFLAB\DESKTOP-2X8F54QG$ with password MCoDkNALd3SdGR1GoLhqniEkWa8Me9FY
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/samr_account) > creds
+msf auxiliary(admin/dcerpc/samr_account) > creds
 Credentials
 ===========
 
@@ -105,5 +105,5 @@ host            origin          service        public             private       
 ----            ------          -------        ------             -------                           -----   ------------  ----------
 192.168.159.96  192.168.159.96  445/tcp (smb)  DESKTOP-2X8F54QG$  MCoDkNALd3SdGR1GoLhqniEkWa8Me9FY  MSFLAB  Password
 
-msf6 auxiliary(admin/dcerpc/samr_account) >
+msf auxiliary(admin/dcerpc/samr_account) >
 ```

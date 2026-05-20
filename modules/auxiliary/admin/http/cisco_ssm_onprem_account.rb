@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2024-07-20',
         'DefaultOptions' => {
           'RPORT' => 8443,
-          'SSL' => 'True'
+          'SSL' => true
         },
         'License' => MSF_LICENSE,
         'Notes' => {

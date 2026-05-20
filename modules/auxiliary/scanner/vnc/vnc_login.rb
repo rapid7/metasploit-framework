@@ -14,23 +14,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'VNC Authentication Scanner',
+      'Name' => 'VNC Authentication Scanner',
       'Description' => %q{
           This module will test a VNC server on a range of machines and
         report successful logins. Currently it supports RFB protocol
         version 3.3, 3.7, 3.8 and 4.001 using the VNC challenge response
         authentication method.
       },
-      'Author'      =>
-        [
-          'carstein <carstein.sec[at]gmail.com>',
-          'jduck'
-        ],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0506'] # Weak password
-        ],
-      'License'     => MSF_LICENSE
+      'Author' => [
+        'carstein <carstein.sec[at]gmail.com>',
+        'jduck'
+      ],
+      'References' => [
+        [ 'CVE', '1999-0506'] # Weak password
+      ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
@@ -38,13 +36,16 @@ class MetasploitModule < Msf::Auxiliary
         Opt::Proxies,
         Opt::RPORT(5900),
         OptString.new('PASSWORD', [ false, 'The password to test' ]),
-        OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "vnc_passwords.txt") ]),
+        OptPath.new('PASS_FILE', [
+          false, "File containing passwords, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "vnc_passwords.txt")
+        ]),
 
         # We need to set the following options to make sure BLANK_PASSWORDS functions properly
         OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
         OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
-      ])
+      ]
+    )
 
     register_autofilter_ports((5900..5910).to_a) # Each instance increments the port by one.
 
@@ -57,8 +58,8 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{ip}:#{rport} - Starting VNC login sweep")
 
     cred_collection = build_credential_collection(
-        username: datastore['USERNAME'],
-        password: datastore['PASSWORD']
+      username: datastore['USERNAME'],
+      password: datastore['PASSWORD']
     )
 
     scanner = Metasploit::Framework::LoginScanner::VNC.new(
@@ -86,8 +87,8 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+        module_fullname: self.fullname,
+        workspace_id: myworkspace_id
       )
       if result.success?
         credential_core = create_credential(credential_data)
@@ -100,6 +101,5 @@ class MetasploitModule < Msf::Auxiliary
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
-
   end
 end

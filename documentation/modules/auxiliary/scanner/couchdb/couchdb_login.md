@@ -52,14 +52,14 @@ The following was done on Ubuntu 16.04, and is largely based on [1and1.com](http
   A run against the configuration from these docs
 
   ```
-  msf5 > use auxiliary/scanner/couchdb/couchdb_login 
-  msf5 auxiliary(scanner/couchdb/couchdb_login) > set rhosts 1.1.1.1
+  msf > use auxiliary/scanner/couchdb/couchdb_login 
+  msf auxiliary(scanner/couchdb/couchdb_login) > set rhosts 1.1.1.1
   rhosts => 1.1.1.1
-  msf5 auxiliary(scanner/couchdb/couchdb_login) > set username anna
+  msf auxiliary(scanner/couchdb/couchdb_login) > set username anna
   username => anna
-  msf5 auxiliary(scanner/couchdb/couchdb_login) > set password secret
+  msf auxiliary(scanner/couchdb/couchdb_login) > set password secret
   password => secret
-  msf5 auxiliary(scanner/couchdb/couchdb_login) > run
+  msf auxiliary(scanner/couchdb/couchdb_login) > run
   
   [*] 1.1.1.1:5984 - [001/305] - Trying username:'connect' with password:'connect'
   [*] 1.1.1.1:5984 - [002/305] - Trying username:'sitecom' with password:'sitecom'

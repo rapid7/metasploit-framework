@@ -9,40 +9,48 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Wordpress Pingback Locator',
-      'Description' => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Wordpress Pingback Locator',
+        'Description' => %q{
           This module will scan for wordpress sites with the Pingback
           API enabled. By interfacing with the API an attacker can cause
           the wordpress site to port scan an external target and return
           results. Refer to the wordpress_pingback_portscanner module.
           This issue was fixed in wordpress 3.5.1
         },
-      'Author' =>
-        [
+        'Author' => [
           'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>',
-          'Brandon McCann "zeknox" <bmccann[at]accuvant.com>' ,
+          'Brandon McCann "zeknox" <bmccann[at]accuvant.com>',
           'Christian Mehlmauer' # Original PoC
         ],
-      'License' => MSF_LICENSE,
-      'References'  =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2013-0235' ],
           [ 'URL', 'https://bugtraq.securityfocus.com/archive/1/525045/30/30/threaded'],
           [ 'URL', 'http://www.ethicalhack3r.co.uk/security/introduction-to-the-wordpress-xml-rpc-api/'],
           [ 'URL', 'https://github.com/FireFart/WordpressPingbackPortScanner']
-        ]
-      ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
-      register_options(
-        [
-          OptString.new('TARGETURI', [ true, 'The path to wordpress installation (e.g. /wordpress/)', '/'])
-        ])
+    register_options(
+      [
+        OptString.new('TARGETURI', [ true, 'The path to wordpress installation (e.g. /wordpress/)', '/'])
+      ]
+    )
 
-      register_advanced_options(
-        [
-          OptInt.new('NUM_REDIRECTS', [ true, "Number of HTTP redirects to follow", 10])
-        ])
+    register_advanced_options(
+      [
+        OptInt.new('NUM_REDIRECTS', [ true, "Number of HTTP redirects to follow", 10])
+      ]
+    )
   end
 
   def setup()
@@ -59,15 +67,15 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("#{ip} - Enumerating XML-RPC URI...")
 
     begin
-
       uri = target_uri.path
-      uri << '/' if uri[-1,1] != '/'
+      uri << '/' if uri[-1, 1] != '/'
 
       res = send_request_cgi(
-      {
+        {
           'method'	=> 'HEAD',
-          'uri'		=> "#{uri}"
-      })
+          'uri'	=> "#{uri}"
+        }
+      )
       # Check if X-Pingback exists and return value
       if res
         if res['X-Pingback']
@@ -119,17 +127,17 @@ class MetasploitModule < Msf::Auxiliary
 
   # method to send xml-rpc requests
   def get_pingback_request(xml_rpc, target, blog_post)
-    uri = xml_rpc.sub(/.*?#{target}/,"")
+    uri = xml_rpc.sub(/.*?#{target}/, "")
     # create xml pingback request
     pingback_xml = generate_pingback_xml(target, blog_post)
 
     # Send post request with crafted XML as data
     begin
       res = send_request_cgi({
-        'uri'    => "#{uri}",
+        'uri' => "#{uri}",
         'method' => 'POST',
-        'data'	 => "#{pingback_xml}"
-        })
+        'data'	=> "#{pingback_xml}"
+      })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
       vprint_error("Unable to connect to #{uri}")
       return nil
@@ -140,12 +148,12 @@ class MetasploitModule < Msf::Auxiliary
   # Save data to vuln table
   def store_vuln(ip, blog)
     report_vuln(
-      :host		=> ip,
-      :proto		=> 'tcp',
-      :port		=> datastore['RPORT'],
-      :name		=> self.name,
-      :info		=> "Module #{self.fullname} found pingback at #{blog}",
-      :sname		=> datastore['SSL'] ? "https" : "http"
+      :host	=> ip,
+      :proto	=> 'tcp',
+      :port	=> datastore['RPORT'],
+      :name	=> self.name,
+      :info	=> "Module #{self.fullname} found pingback at #{blog}",
+      :sname	=> datastore['SSL'] ? "https" : "http"
     )
   end
 

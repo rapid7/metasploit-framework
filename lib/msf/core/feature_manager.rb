@@ -59,8 +59,8 @@ module Msf
         name: DEFER_MODULE_LOADS,
         description: 'When enabled will not eagerly load all modules',
         requires_restart: true,
-        default_value: false,
-        developer_notes: 'Needs a final round of testing. Can be enabled after 6.4.0 is released.'
+        default_value: true,
+        developer_notes: 'Enabled in Metasploit 6.4.x'
       }.freeze,
       {
         name: SMB_SESSION_TYPE,

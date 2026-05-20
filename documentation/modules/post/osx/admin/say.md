@@ -77,9 +77,9 @@ Zuzana              cs_CZ    # Dobrý den, jmenuji se Zuzana. Jsem český hlas.
 ### User level shell on OSX 10.14.4
 
 ```
-msf5 auxiliary(scanner/ssh/ssh_login) > use post/osx/admin/say 
-msf5 post(osx/admin/say) > set session 1
+msf auxiliary(scanner/ssh/ssh_login) > use post/osx/admin/say 
+msf post(osx/admin/say) > set session 1
 session => 1
-msf5 post(osx/admin/say) > run
+msf post(osx/admin/say) > run
 [*] Post module execution completed
 ```

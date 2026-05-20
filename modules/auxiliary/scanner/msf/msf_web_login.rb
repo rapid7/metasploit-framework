@@ -12,13 +12,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Metasploit Web Interface Login Utility',
-      'Description'    => %{
+      'Name' => 'Metasploit Web Interface Login Utility',
+      'Description' => %{
         This module simply attempts to login to a Metasploit
         web interface using a specific user/pass.
       },
-      'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'        => MSF_LICENSE,
+      'Author' => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+      'License' => MSF_LICENSE,
       'DefaultOptions' => { 'SSL' => true }
     )
 
@@ -28,7 +28,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('URILOGIN', [true, "URI for Metasploit Web login. Default is /login", "/login"]),
         OptString.new('URIGUESS', [true, "URI for Metasploit Web login. Default is /user_sessions", "/user_sessions"]),
         OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false]),
-      ])
+      ]
+    )
 
     register_autofilter_ports([55553])
   end
@@ -36,9 +37,9 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     begin
       res = send_request_cgi({
-        'uri'     => datastore['URILOGIN'],
-        'method'  => 'GET'
-        }, 25)
+        'uri' => datastore['URILOGIN'],
+        'method' => 'GET'
+      }, 25)
       http_fingerprint({ :response => res })
     rescue ::Rex::ConnectionError => e
       vprint_error("#{datastore['URILOGIN']} - #{e}")
@@ -63,20 +64,20 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def do_login(user='msf', pass='msf')
+  def do_login(user = 'msf', pass = 'msf')
     vprint_status(" - Trying username:'#{user}' with password:'#{pass}'")
     begin
       res = send_request_cgi({
-        'uri'     => datastore['URILOGIN'],
-        'method'  => 'GET'
-        }, 25)
+        'uri' => datastore['URILOGIN'],
+        'method' => 'GET'
+      }, 25)
 
       token = ''
       uisession = ''
       if res and res.code == 200 and !res.get_cookies.empty?
         # extract tokens from cookie
-        res.get_cookies.split(';').each {|c|
-          c.split(',').each {|v|
+        res.get_cookies.split(';').each { |c|
+          c.split(',').each { |v|
             if v.split('=')[0] =~ /token/
               token = v.split('=')[1]
             elsif v.split('=')[0] =~ /_ui_session/
@@ -97,19 +98,20 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       res = send_request_cgi(
-      {
-        'uri'       => datastore['URIGUESS'],
-        'method'    => 'POST',
-        'cookie'    => "token=#{token}; _ui_session=#{uisession}",
-        'vars_post' =>
-          {
-            'commit' => 'Sign in',
-            'utf8' => "\xE2\x9C\x93",
-            'authenticity_token' => atoken,
-            'user_session[username]' => user,
-            'user_session[password]' => pass
-          }
-      }, 25)
+        {
+          'uri' => datastore['URIGUESS'],
+          'method' => 'POST',
+          'cookie' => "token=#{token}; _ui_session=#{uisession}",
+          'vars_post' =>
+            {
+              'commit' => 'Sign in',
+              'utf8' => "\xE2\x9C\x93",
+              'authenticity_token' => atoken,
+              'user_session[username]' => user,
+              'user_session[password]' => pass
+            }
+        }, 25
+      )
 
       if not res or res.code != 302
         vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' with code #{res.code}")

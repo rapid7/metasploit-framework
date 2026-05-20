@@ -4,7 +4,7 @@ They are designed to have a very loose definition in order to make them as usefu
 Plugins are not available by default, they need to be loaded:
 
 ```msf
-msf6 > load plugin_name
+msf > load plugin_name
 ```
 
 Plugins can be automatically loaded and configured on msfconsole's start up by configuring a custom `~/.msf4/msfconsole.rc` file:
@@ -61,9 +61,9 @@ The current available plugins for Metasploit can be found by running the `load -
 The Alias plugin adds the ability to alias console commands:
 
 ```msf
-msf6 > load alias
+msf > load alias
 [*] Successfully loaded plugin: alias
-msf6 > alias -h
+msf > alias -h
 Usage: alias [options] [name [value]]
 
 OPTIONS:
@@ -76,20 +76,20 @@ OPTIONS:
 Register an alias such as `proxy_enable`:
 
 ```msf
-msf6 > alias proxy_enable "set Proxies http:localhost:8079"
+msf > alias proxy_enable "set Proxies http:localhost:8079"
 ```
 
 Now when running the aliased `proxy_enable` command, the proxy datastore value will be set for the current module:
 
 ```msf
-msf6 auxiliary(scanner/http/title) > proxy_enable
+msf auxiliary(scanner/http/title) > proxy_enable
 Proxies => http:localhost:8079
 ```
 
 Viewing registered aliases:
 
 ```msf
-msf6 > alias
+msf > alias
 
 Current Aliases
 ===============
@@ -122,9 +122,9 @@ To use the plugin, it must first be loaded. That will provide the `captureg` com
 and stop subcommands. In the following example, the plugin is loaded, and then all default services are started on the 192.168.159.128 interface.
 
 ```msf
-msf6 > load capture
+msf > load capture
 [*] Successfully loaded plugin: Credential Capture
-msf6 > captureg start --ip 192.168.159.128
+msf > captureg start --ip 192.168.159.128
 Logging results to /home/smcintyre/.msf4/logs/captures/capture_local_20220325104416_589275.txt
 Hash results stored in /home/smcintyre/.msf4/loot/captures/capture_local_20220325104416_612808
 [+] Authentication Capture: DRDA (DB2, Informix, Derby) started
@@ -150,7 +150,7 @@ Hash results stored in /home/smcintyre/.msf4/loot/captures/capture_local_2022032
 [+] LLMNR Spoofer started
 [+] mDNS Spoofer started
 [+] Started capture jobs
-msf6 >
+msf >
 ```
 
 This content was originally posted on the [Rapid7 Blog](https://www.rapid7.com/blog/post/2022/03/25/metasploit-weekly-wrap-up-154/).

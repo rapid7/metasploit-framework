@@ -26,7 +26,7 @@
 ## Scenarios
 
 ```
-msf5 auxiliary(dos/http/metasploit_httphandler_dos) > run
+msf auxiliary(dos/http/metasploit_httphandler_dos) > run
 [*] Running module against 127.0.0.1
 
 [*] 127.0.0.1:8080 - Sending DoS packet...

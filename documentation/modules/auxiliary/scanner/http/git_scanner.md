@@ -52,12 +52,12 @@ root@kali:/var/www/html# service apache2 start
 ### Metasploit git on Kali
 
 ```
-msf5 > use auxiliary/scanner/http/git_scanner 
-msf5 auxiliary(scanner/http/git_scanner) > set rhosts 127.0.0.1
+msf > use auxiliary/scanner/http/git_scanner 
+msf auxiliary(scanner/http/git_scanner) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf5 auxiliary(scanner/http/git_scanner) > set TARGETURI /metasploit-framework/.git/
+msf auxiliary(scanner/http/git_scanner) > set TARGETURI /metasploit-framework/.git/
 TARGETURI => /metasploit-framework/.git/
-msf5 auxiliary(scanner/http/git_scanner) > run
+msf auxiliary(scanner/http/git_scanner) > run
 
 [+] http://127.0.0.1/metasploit-framework/.git/ - git repo (version 2) found with 10064 files
 [+] http://127.0.0.1/metasploit-framework/.git/config - git config file found

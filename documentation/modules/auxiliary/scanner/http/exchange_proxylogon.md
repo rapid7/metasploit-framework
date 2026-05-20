@@ -33,7 +33,7 @@ HTTP Method to use for the check (only). Default: POST
 ## Scenarios
 
 ```
-msf6 auxiliary(scanner/http/exchange_proxylogon) > options 
+msf auxiliary(scanner/http/exchange_proxylogon) > options 
 
 Module options (auxiliary/scanner/http/exchange_proxylogon):
 
@@ -47,12 +47,12 @@ Module options (auxiliary/scanner/http/exchange_proxylogon):
    THREADS  1                    yes       The number of concurrent threads (max one per host)
    VHOST                         no        HTTP server virtual host
 
-msf6 auxiliary(scanner/http/exchange_proxylogon) > run
+msf auxiliary(scanner/http/exchange_proxylogon) > run
 
 [+] https://172.20.2.110:443 - The target is vulnerable to CVE-2021-26855.
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/exchange_proxylogon) > 
+msf auxiliary(scanner/http/exchange_proxylogon) > 
 ```
 
 ## References

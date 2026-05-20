@@ -9,36 +9,44 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'NIS ypserv Map Dumper',
-      'Description' => %q{
-        This module dumps the specified map from NIS ypserv.
+    super(
+      update_info(
+        info,
+        'Name' => 'NIS ypserv Map Dumper',
+        'Description' => %q{
+          This module dumps the specified map from NIS ypserv.
 
-        The following examples are from ypcat -x:
+          The following examples are from ypcat -x:
 
-        Use "ethers"    for map "ethers.byname"
-        Use "aliases"   for map "mail.aliases"
-        Use "services"  for map "services.byname"
-        Use "protocols" for map "protocols.bynumber"
-        Use "hosts"     for map "hosts.byname"
-        Use "networks"  for map "networks.byaddr"
-        Use "group"     for map "group.byname"
-        Use "passwd"    for map "passwd.byname"
+          Use "ethers"    for map "ethers.byname"
+          Use "aliases"   for map "mail.aliases"
+          Use "services"  for map "services.byname"
+          Use "protocols" for map "protocols.bynumber"
+          Use "hosts"     for map "hosts.byname"
+          Use "networks"  for map "networks.byaddr"
+          Use "group"     for map "group.byname"
+          Use "passwd"    for map "passwd.byname"
 
-        You may specify a map by one of the nicknames above.
-      },
-      'Author'      => 'wvu',
-      'References'  => [
-        ['URL', 'https://datatracker.ietf.org/doc/html/rfc1831'],
-        ['URL', 'https://datatracker.ietf.org/doc/html/rfc4506']
-      ],
-      'License'     => MSF_LICENSE
-    ))
+          You may specify a map by one of the nicknames above.
+        },
+        'Author' => 'wvu',
+        'References' => [
+          ['URL', 'https://datatracker.ietf.org/doc/html/rfc1831'],
+          ['URL', 'https://datatracker.ietf.org/doc/html/rfc4506']
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       OptEnum.new('PROTOCOL', [true, 'Protocol to use', 'tcp', %w[tcp udp]]),
       OptString.new('DOMAIN', [true, 'NIS domain']),
-      OptString.new('MAP',    [true, 'NIS map to dump', 'passwd'])
+      OptString.new('MAP', [true, 'NIS map to dump', 'passwd'])
     ])
 
     register_advanced_options([
@@ -47,8 +55,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    proto    = datastore['PROTOCOL']
-    domain   = datastore['DOMAIN']
+    proto = datastore['PROTOCOL']
+    domain = datastore['DOMAIN']
     map_name = nick_to_map(datastore['MAP'])
 
     begin
@@ -151,14 +159,14 @@ class MetasploitModule < Msf::Auxiliary
   # ypcat -x
   def nick_to_map(nick)
     {
-      'ethers'    => 'ethers.byname',
-      'aliases'   => 'mail.aliases',
-      'services'  => 'services.byname',
+      'ethers' => 'ethers.byname',
+      'aliases' => 'mail.aliases',
+      'services' => 'services.byname',
       'protocols' => 'protocols.bynumber',
-      'hosts'     => 'hosts.byname',
-      'networks'  => 'networks.byaddr',
-      'group'     => 'group.byname',
-      'passwd'    => 'passwd.byname'
+      'hosts' => 'hosts.byname',
+      'networks' => 'networks.byaddr',
+      'group' => 'group.byname',
+      'passwd' => 'passwd.byname'
     }[nick] || nick
   end
 

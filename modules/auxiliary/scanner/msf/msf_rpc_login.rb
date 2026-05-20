@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
@@ -11,16 +10,24 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Metasploit RPC Interface Login Utility',
-      'Description'   => %q{
-        This module simply attempts to login to a
-        Metasploit RPC interface using a specific
-        user/pass.
-      },
-      'Author'        => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'       => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Metasploit RPC Interface Login Utility',
+        'Description' => %q{
+          This module simply attempts to login to a
+          Metasploit RPC interface using a specific
+          user/pass.
+        },
+        'Author' => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -28,7 +35,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, "A specific username to authenticate as. Default is msf", "msf"]),
         OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false]),
         OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
-      ])
+      ]
+    )
 
     register_autofilter_ports([3790])
   end
@@ -38,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
       @rpc = Msf::RPC::Client.new(
         :host => rhost,
         :port => rport,
-        :ssl  => ssl
+        :ssl => ssl
       )
     rescue ::Interrupt
       raise $!

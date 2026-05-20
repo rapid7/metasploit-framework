@@ -39,10 +39,10 @@ docker run -ti --rm -p 11211:11211/udp memcached:1.5.5
 Configure memcached as described above.
 
 ```
-msf5 > use auxiliary/scanner/memcached/memcached_udp_version
-msf5 auxiliary(scanner/memcached/memcached_udp_version) > set RHOSTS a.b.c.d
+msf > use auxiliary/scanner/memcached/memcached_udp_version
+msf auxiliary(scanner/memcached/memcached_udp_version) > set RHOSTS a.b.c.d
 RHOSTS => a.b.c.d
-msf5 auxiliary(scanner/memcached/memcached_udp_version) > run
+msf auxiliary(scanner/memcached/memcached_udp_version) > run
 
 [+] a.b.c.d:11211/udp memcached version 1.4.15
 [*] Scanned 1 of 1 hosts (100% complete)
@@ -54,10 +54,10 @@ msf5 auxiliary(scanner/memcached/memcached_udp_version) > run
 Configure memcached in docker as described above.
 
 ```
-msf5 > use auxiliary/scanner/memcached/memcached_udp_version
-msf5 auxiliary(scanner/memcached/memcached_udp_version) > set RHOSTS a.b.c.d
+msf > use auxiliary/scanner/memcached/memcached_udp_version
+msf auxiliary(scanner/memcached/memcached_udp_version) > set RHOSTS a.b.c.d
 RHOSTS => a.b.c.d
-msf5 auxiliary(scanner/memcached/memcached_udp_version) > run
+msf auxiliary(scanner/memcached/memcached_udp_version) > run
 
 [+] a.b.c.d:11211/udp memcached version 1.5.5
 [*] Scanned 1 of 1 hosts (100% complete)

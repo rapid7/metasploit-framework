@@ -12,7 +12,7 @@ Metasploit has support for multiple SSH modules, including:
 There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
 ```msf
-msf6 > search ssh
+msf > search ssh
 ```
 
 ### Lab Environment
@@ -61,8 +61,8 @@ docker run --rm -it --publish 127.0.0.1:2222:22 ssh_lab:latest
 It should now be possible to test the SSH login from msfconsole:
 
 ```msf
-msf6 > use scanner/ssh/ssh_login
-msf6 auxiliary(scanner/ssh/ssh_login) > run ssh://test_user:password123@127.0.0.1:2222
+msf > use scanner/ssh/ssh_login
+msf auxiliary(scanner/ssh/ssh_login) > run ssh://test_user:password123@127.0.0.1:2222
 
 [*] 127.0.0.1:2222 - Starting bruteforce
 [+] 127.0.0.1:2222 - Success: 'test_user:password123' 'uid=700(test_user) gid=700(test_user) groups=700(test_user),700(test_user) Linux 5a26fe63abef 5.10.25-linuxkit #1 SMP Tue Mar 23 09:27:39 UTC 2021 x86_64 Linux '

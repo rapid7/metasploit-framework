@@ -30,8 +30,8 @@ Examples
 
 Run the heartbleed module every 10 seconds against a server for an hour:
 
-    msf5 > use auxiliary/scanner/ssl/openssl_heartbleed
-    msf5 auxiliary(scanner/ssl/openssl_heartbleed) > set ACTION DUMP
+    msf > use auxiliary/scanner/ssl/openssl_heartbleed
+    msf auxiliary(scanner/ssl/openssl_heartbleed) > set ACTION DUMP
     # Set other options...
-    msf5 auxiliary(scanner/ssl/openssl_heartbleed) > repeat -t 3600 run; sleep 10
+    msf auxiliary(scanner/ssl/openssl_heartbleed) > repeat -t 3600 run; sleep 10
 

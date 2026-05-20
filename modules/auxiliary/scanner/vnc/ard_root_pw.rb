@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
@@ -11,22 +10,22 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Apple Remote Desktop Root Vulnerability',
+      'Name' => 'Apple Remote Desktop Root Vulnerability',
       'Description' => 'Enable and set root account to a chosen password on unpatched macOS High Sierra hosts with either Screen Sharing or Remote Management enabled.',
-      'References'  =>
-        [
-          ['CVE', '2017-13872'],
-          ['URL', 'https://support.apple.com/en-us/HT208315']
-        ],
-      'Author'      => 'jgor',
-      'License'     => MSF_LICENSE
+      'References' => [
+        ['CVE', '2017-13872'],
+        ['URL', 'https://support.apple.com/en-us/HT208315']
+      ],
+      'Author' => 'jgor',
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(5900),
         OptString.new('PASSWORD', [false, 'Set root account to this password', ''])
-      ])
+      ]
+    )
   end
 
   def log_credential(password)
@@ -112,10 +111,8 @@ class MetasploitModule < Msf::Auxiliary
         print_error("VNC handshake failed.")
         return
       end
-
     ensure
       disconnect
     end
-
   end
 end

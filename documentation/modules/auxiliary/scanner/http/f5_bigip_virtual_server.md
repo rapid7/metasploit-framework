@@ -27,10 +27,10 @@ products if you want to test locally as well.
 You can use this module on a single target or several targets. See below for single target usage:
 
 ```
-msf6 > use auxiliary/scanner/http/f5_bigip_virtual_server
-msf6 auxiliary(scanner/http/f5_bigip_virtual_server) > set RHOSTS YYY.YY.YYY.YYY
+msf > use auxiliary/scanner/http/f5_bigip_virtual_server
+msf auxiliary(scanner/http/f5_bigip_virtual_server) > set RHOSTS YYY.YY.YYY.YYY
 RHOSTS => YYY.YY.YYY.YYY
-msf6 auxiliary(scanner/http/f5_bigip_virtual_server) > run
+msf auxiliary(scanner/http/f5_bigip_virtual_server) > run
 
 [+] YYY.YY.YYY.YYY:80 - BigIP HTTP virtual server found
 [*] Scanned 1 of 1 hosts (100% complete)

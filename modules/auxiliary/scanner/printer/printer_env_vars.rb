@@ -11,24 +11,32 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      "Name" => "Printer Environment Variables Scanner",
-      "Description" => %q{
-        This module scans for printer environment variables using the
-        Printer Job Language (PJL) protocol.
-      },
-      "Author" => [
-        "wvu", # Rex::Proto::PJL and modules
-        "sinn3r", # RSpec tests
-        "MC", # Independent mixin and modules
-        "Myo Soe", # Independent modules
-        "Matteo Cantoni" # Independent modules
-      ],
-      "References" => [
-        ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
-      ],
-      "License" => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        "Name" => "Printer Environment Variables Scanner",
+        "Description" => %q{
+          This module scans for printer environment variables using the
+          Printer Job Language (PJL) protocol.
+        },
+        "Author" => [
+          "wvu", # Rex::Proto::PJL and modules
+          "sinn3r", # RSpec tests
+          "MC", # Independent mixin and modules
+          "Myo Soe", # Independent modules
+          "Matteo Cantoni" # Independent modules
+        ],
+        "References" => [
+          ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
+        ],
+        "License" => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT)
@@ -52,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
         :port => rport,
         :proto => "tcp",
         :type => "printer.env.vars",
-        :data => { :environment_variables => env_vars}
+        :data => { :environment_variables => env_vars }
       )
     end
   end

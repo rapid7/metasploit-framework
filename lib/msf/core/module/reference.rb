@@ -120,6 +120,11 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       self.site = "Logo: #{in_ctx_val}"
     elsif in_ctx_id == 'SOUNDTRACK'
       self.site = "Soundtrack: #{in_ctx_val}"
+    elsif in_ctx_id == 'ATT&CK'
+      match = in_ctx_val.match(/\A(?<category>[A-Z]+)(?<id>[\d.]+)\z/)
+      path = Msf::Mitre::Attack::Categories::PATHS[match[:category]]
+      id_path = match[:id].gsub('.', '/')
+      self.site = "https://attack.mitre.org/#{path}/#{match[:category]}#{id_path}/"
     else
       self.site  = in_ctx_id
       self.site += " (#{in_ctx_val})" if (in_ctx_val)

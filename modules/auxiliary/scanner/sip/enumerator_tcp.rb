@@ -10,48 +10,47 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SIP Username Enumerator (TCP)',
+      'Name' => 'SIP Username Enumerator (TCP)',
       'Description' => 'Scan for numeric username/extensions using OPTIONS/REGISTER requests',
-      'Author'      => 'et',
-      'License'     => MSF_LICENSE
+      'Author' => 'et',
+      'License' => MSF_LICENSE
     )
 
     register_options(
-    [
-      OptInt.new('MINEXT',   [true, 'Starting extension',0]),
-      OptInt.new('MAXEXT',   [true, 'Ending extension', 9999]),
-      OptInt.new('PADLEN',   [true, 'Cero padding maximum length', 4]),
-      OptEnum.new('METHOD',  [true, 'Enumeration method', 'REGISTER', ['OPTIONS', 'REGISTER']]),
-      Opt::RPORT(5060)
-    ])
+      [
+        OptInt.new('MINEXT', [true, 'Starting extension', 0]),
+        OptInt.new('MAXEXT', [true, 'Ending extension', 9999]),
+        OptInt.new('PADLEN', [true, 'Cero padding maximum length', 4]),
+        OptEnum.new('METHOD', [true, 'Enumeration method', 'REGISTER', ['OPTIONS', 'REGISTER']]),
+        Opt::RPORT(5060)
+      ]
+    )
   end
-
 
   # Operate on a single system at a time
   def run_host(ip)
-
     connect
 
     begin
-      idx  = 0
+      idx = 0
       mini = datastore['MINEXT']
       maxi = datastore['MAXEXT']
 
       for i in (mini..maxi)
-        testext = padnum(i,datastore['PADLEN'])
-        data    = ""
+        testext = padnum(i, datastore['PADLEN'])
+        data = ""
 
         case datastore['METHOD']
         when 'REGISTER'
-          data = create_probe(ip,testext,'REGISTER')
+          data = create_probe(ip, testext, 'REGISTER')
         when 'OPTIONS'
-          data = create_probe(ip,testext,'OPTIONS')
+          data = create_probe(ip, testext, 'OPTIONS')
         end
 
         begin
           sock.put(data)
           res = sock.get_once(-1, 5)
-          parse_reply(res,datastore['METHOD']) if res
+          parse_reply(res, datastore['METHOD']) if res
         rescue ::Interrupt
           raise $!
         rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
@@ -69,15 +68,14 @@ class MetasploitModule < Msf::Auxiliary
   #
   # The response parsers
   #
-  def parse_reply(resp,meth)
-
+  def parse_reply(resp, meth)
     repcode = ''
-    agent  = ''
+    agent = ''
     verbs = ''
-    serv  = ''
-    prox  = ''
+    serv = ''
+    prox = ''
 
-    if(resp =~ /^To\:\s*(.*)$/mi)
+    if (resp =~ /^To\:\s*(.*)$/mi)
       testn = "#{$1.strip}".split(';')[0]
     end
 
@@ -103,16 +101,16 @@ class MetasploitModule < Msf::Auxiliary
         :data	=> { :user => testn }
       )
     else
-      #print_error("Undefined error code: #{resp.to_i}"
+      # print_error("Undefined error code: #{resp.to_i}"
     end
   end
 
-  def create_probe(ip,toext,meth)
-    suser = Rex::Text.rand_text_alphanumeric(rand(8)+1)
+  def create_probe(ip, toext, meth)
+    suser = Rex::Text.rand_text_alphanumeric(rand(8) + 1)
     shost = Rex::Socket.source_address(ip)
-    src   = "#{shost}:#{datastore['RPORT']}"
+    src = "#{shost}:#{datastore['RPORT']}"
 
-    data  = "#{meth} sip:#{toext}@#{ip} SIP/2.0\r\n"
+    data = "#{meth} sip:#{toext}@#{ip} SIP/2.0\r\n"
     data << "Via: SIP/2.0/TCP #{src};branch=z9hG4bK.#{"%.8x" % rand(0x100000000)};rport;alias\r\n"
     data << "From: #{toext} <sip:#{suser}@#{src}>;tag=70c00e8c\r\n"
     data << "To: #{toext} <sip:#{toext}@#{ip}>\r\n"
@@ -127,9 +125,9 @@ class MetasploitModule < Msf::Auxiliary
     data
   end
 
-  def padnum(num,padding)
+  def padnum(num, padding)
     if padding >= num.to_s.length
-      ('0'*(padding-num.to_s.length)) << num.to_s
+      ('0' * (padding - num.to_s.length)) << num.to_s
     end
   end
 end

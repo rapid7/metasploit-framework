@@ -34,7 +34,7 @@ This option is turned on by default and will perform the data extraction using t
 
 ## Example Run
   ```
-msf6 post(windows/gather/credentials/coolnovo) > run 
+msf post(windows/gather/credentials/coolnovo) > run 
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All

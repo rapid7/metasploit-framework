@@ -64,7 +64,7 @@ RSpec.describe 'kerberos inspect ticket' do
   let(:invalid_key) { 'invalid_key' }
 
   let(:ccache_aes) do
-    # msf6 auxiliary(admin/kerberos/forge_ticket) > options
+    # msf auxiliary(admin/kerberos/forge_ticket) > options
     #
     # Module options (auxiliary/admin/kerberos/forge_ticket):
     #
@@ -82,11 +82,11 @@ RSpec.describe 'kerberos inspect ticket' do
     #
     # View the full module info with the info, or info -d command.
     #
-    # msf6 auxiliary(admin/kerberos/forge_ticket) > forge_silver
+    # msf auxiliary(admin/kerberos/forge_ticket) > forge_silver
     #
     # [*] [2023.01.13-14:31:25] TGS MIT Credential Cache ticket saved to /Users/dwelch/.msf4/loot/20230113143125_default_unknown_mit.kerberos.cca_398641.bin
     # [*] Auxiliary module execution completed
-    # msf6 auxiliary(admin/kerberos/forge_ticket) >
+    # msf auxiliary(admin/kerberos/forge_ticket) >
 
     "\x05\x04\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x0f" \
     "\x57\x49\x4e\x44\x4f\x4d\x41\x49\x4e\x2e\x4c\x4f\x43\x41\x4c\x00" \
@@ -167,7 +167,7 @@ RSpec.describe 'kerberos inspect ticket' do
   end
 
   let(:ccache_nthash) do
-    # msf6 auxiliary(admin/kerberos/forge_ticket) > options
+    # msf auxiliary(admin/kerberos/forge_ticket) > options
     #
     # Module options (auxiliary/admin/kerberos/forge_ticket):
     #
@@ -185,7 +185,7 @@ RSpec.describe 'kerberos inspect ticket' do
     #
     # View the full module info with the info, or info -d command.
     #
-    # msf6 auxiliary(admin/kerberos/forge_ticket) > forge_silver
+    # msf auxiliary(admin/kerberos/forge_ticket) > forge_silver
     #
     # [*] [2023.01.13-14:36:39] TGS MIT Credential Cache ticket saved to /Users/dwelch/.msf4/loot/20230113143639_default_unknown_mit.kerberos.cca_476516.bin
     # [*] Auxiliary module execution completed

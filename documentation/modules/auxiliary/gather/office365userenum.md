@@ -46,9 +46,9 @@ The following demonstrates basic usage, using the supplied users wordlist
 and default options.
 
 ```
-msf5 auxiliary(gather/office365userenum) > set users /home/msfdev/users
+msf auxiliary(gather/office365userenum) > set users /home/msfdev/users
 users => /home/msfdev/users
-msf5 auxiliary(gather/office365userenum) > run
+msf auxiliary(gather/office365userenum) > run
 
 [*] 
 

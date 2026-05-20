@@ -11,8 +11,8 @@
  ## Scenarios
 
    ```
-msf5 > use auxiliary/admin/scada/pcom_command
-msf5 auxiliary(admin/scada/pcom_command) > show options
+msf > use auxiliary/admin/scada/pcom_command
+msf auxiliary(admin/scada/pcom_command) > show options
 
 Module options (auxiliary/admin/scada/pcom_command):
 
@@ -23,12 +23,12 @@ Module options (auxiliary/admin/scada/pcom_command):
    RPORT   20256            yes       The target port (TCP)
    UNITID  0                no        Unit ID (0 - 127)
 
-msf5 auxiliary(admin/scada/pcom_command) > set RHOST 192.168.1.1
+msf auxiliary(admin/scada/pcom_command) > set RHOST 192.168.1.1
 RHOST => 192.168.1.1
-msf5 auxiliary(admin/scada/pcom_command) > run
+msf auxiliary(admin/scada/pcom_command) > run
 
 [*] 192.168.1.1:20256 - Sending RESET command
 [*] 192.168.1.1:20256 - Command accepted
 [*] Auxiliary module execution completed
-msf5 auxiliary(admin/scada/pcom_command) >
+msf auxiliary(admin/scada/pcom_command) >
 ```

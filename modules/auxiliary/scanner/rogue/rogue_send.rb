@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Rogue Gateway Detection: Sender',
+      'Name' => 'Rogue Gateway Detection: Sender',
       'Description' => %q{
         This module send a series of TCP SYN and ICMP ECHO requests
       to each internal target host, spoofing the source address of an external
@@ -17,8 +17,8 @@ class MetasploitModule < Msf::Auxiliary
       the rogue_recv module to determine what external IP a given internal
       system is using as its default route.
       },
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE
     )
 
     register_options([
@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new("ECHOID", [true, "The unique ICMP ECHO ID to embed into the packet", 7893]),
     ])
 
-    deregister_options('FILTER','PCAPFILE')
+    deregister_options('FILTER', 'PCAPFILE')
   end
 
   def run_host(ip)
@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
     p.ip_ttl = 255
     p.icmp_type = 8
     payload = Rex::Socket.addr_aton(dst) + [datastore['ECHOID']].pack('n') + Rex::Text.rand_text(26)
-    p.payload = capture_icmp_echo_pack(datastore['ECHOID'],1,payload)
+    p.payload = capture_icmp_echo_pack(datastore['ECHOID'], 1, payload)
     p.recalc
   end
 end

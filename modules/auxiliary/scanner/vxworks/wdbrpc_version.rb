@@ -10,24 +10,23 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'VxWorks WDB Agent Version Scanner',
+      'Name' => 'VxWorks WDB Agent Version Scanner',
       'Description' => 'Scan for exposed VxWorks wdbrpc daemons',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html'],
-          ['US-CERT-VU', '362332']
-        ]
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['URL', 'http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html'],
+        ['US-CERT-VU', '362332']
+      ]
     )
 
     register_options(
-    [
-      OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
-      Opt::RPORT(17185)
-    ])
+      [
+        OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
+        Opt::RPORT(17185)
+      ]
+    )
   end
-
 
   # Define our batch size
   def run_batch_size
@@ -36,20 +35,18 @@ class MetasploitModule < Msf::Auxiliary
 
   # Operate on an entire batch of hosts at once
   def run_batch(batch)
-
     begin
       udp_sock = nil
       idx = 0
 
       udp_sock = Rex::Socket::Udp.create(
         {
-          'Context' => {'Msf' => framework, 'MsfExploit' => self}
+          'Context' => { 'Msf' => framework, 'MsfExploit' => self }
         }
       )
       add_socket(udp_sock)
 
       batch.each do |ip|
-
         begin
           udp_sock.sendto(create_probe(ip), ip, datastore['RPORT'].to_i, 0)
         rescue ::Interrupt
@@ -82,7 +79,6 @@ class MetasploitModule < Msf::Auxiliary
 
         del = 1.0
       end
-
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
@@ -96,10 +92,9 @@ class MetasploitModule < Msf::Auxiliary
   # The response parsers
   #
   def parse_reply(pkt)
-
     return if not pkt[1]
 
-    if(pkt[1] =~ /^::ffff:/)
+    if (pkt[1] =~ /^::ffff:/)
       pkt[1] = pkt[1].sub(/^::ffff:/, '')
     end
 
@@ -107,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Bare RPC response
     if data.length == 24
-      ecode = data[20,4].unpack("N")[0]
+      ecode = data[20, 4].unpack("N")[0]
       emesg = "unknown"
       case ecode
       when 3
@@ -130,11 +125,11 @@ class MetasploitModule < Msf::Auxiliary
     print_good("#{pkt[1]}: #{res[:rt_vers]} #{res[:rt_bsp_name]} #{res[:rt_bootline]}")
 
     report_note(
-      :host   => pkt[1],
-      :port   => datastore['RPORT'],
-      :proto  => 'udp',
-      :type   => 'vxworks.target_info',
-      :data   => res,
+      :host => pkt[1],
+      :port => datastore['RPORT'],
+      :proto => 'udp',
+      :type => 'vxworks.target_info',
+      :data => res,
       :update => :unique
     )
   end

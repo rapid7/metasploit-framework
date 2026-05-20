@@ -30,7 +30,7 @@
 
 ```
 
-msf6 post(windows/gather/credentials/moba_xterm) > run
+msf post(windows/gather/credentials/moba_xterm) > run
 [*] Gathering MobaXterm session information from WIN-79MR8QJM50N
 [!] Parsing is not supported: #84#9%C:\Users\FireEye\Desktop%0%#MobaFont%10%0%0%-1%15%236,236,236%30,30,30%180,180,192%0%-1%0%%xterm%-1%-1%_Std_Colors_0_%80%24
 %0%1%-1%<none>%%0#0# #-1

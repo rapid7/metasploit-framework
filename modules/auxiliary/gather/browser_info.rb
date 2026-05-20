@@ -6,28 +6,35 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::BrowserExploitServer
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "HTTP Client Information Gather",
-      'Description'    => %q{
-        This module gathers information about a browser that exploits might be interested in, such
-        as OS name, browser version, plugins, etc. By default, the module will return a fake 404,
-        but you can customize this output by changing the Custom404 datastore option, and
-        redirect to an external web page.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => [ 'sinn3r' ],
-      'DisclosureDate' => '2016-03-22',
-      'Actions'     =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "HTTP Client Information Gather",
+        'Description' => %q{
+          This module gathers information about a browser that exploits might be interested in, such
+          as OS name, browser version, plugins, etc. By default, the module will return a fake 404,
+          but you can customize this output by changing the Custom404 datastore option, and
+          redirect to an external web page.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'sinn3r' ],
+        'DisclosureDate' => '2016-03-22',
+        'Actions' => [
           [
             'WebServer',
-              'Description' => 'A web server that collects information about the browser.'
+            'Description' => 'A web server that collects information about the browser.'
           ]
         ],
-      'PassiveActions' => [ 'WebServer' ],
-      'DefaultAction'  => 'WebServer'
-    ))
+        'PassiveActions' => [ 'WebServer' ],
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
   end
 
   def is_key_wanted?(key)

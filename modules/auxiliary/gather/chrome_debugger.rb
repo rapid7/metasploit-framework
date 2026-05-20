@@ -10,20 +10,28 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Chrome Debugger Arbitrary File Read / Arbitrary Web Request',
-      'Description' => %q{
-        This module uses the Chrome Debugger's API to read
-        files off the remote file system, or to make web requests
-        from a remote machine.  Useful for cloud metadata endpoints!
-      },
-      'Author' => [
-        'Adam Baldwin (Evilpacket)', # Original ideas, research, proof of concept, and msf module
-        'Nicholas Starke (The King Pig Demon)' # msf module
-      ],
-      'DisclosureDate' => '2019-09-24',
-      'License' => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Chrome Debugger Arbitrary File Read / Arbitrary Web Request',
+        'Description' => %q{
+          This module uses the Chrome Debugger's API to read
+          files off the remote file system, or to make web requests
+          from a remote machine.  Useful for cloud metadata endpoints!
+        },
+        'Author' => [
+          'Adam Baldwin (Evilpacket)', # Original ideas, research, proof of concept, and msf module
+          'Nicholas Starke (The King Pig Demon)' # msf module
+        ],
+        'DisclosureDate' => '2019-09-24',
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -86,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
             'id' => id,
             'method' => 'Page.navigate',
             'params' => {
-              url:  fetch_uri
+              url: fetch_uri
             }
           }.to_json)
         end

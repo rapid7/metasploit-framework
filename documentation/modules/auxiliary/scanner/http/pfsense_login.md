@@ -67,7 +67,7 @@ Whether to print output for all attempts
 
 ## Scenarios
 ```
-msf6 auxiliary(scanner/http/pfsense_login) > options
+msf auxiliary(scanner/http/pfsense_login) > options
 
 Module options (auxiliary/scanner/http/pfsense_login):
 
@@ -99,7 +99,7 @@ Module options (auxiliary/scanner/http/pfsense_login):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(scanner/http/pfsense_login) > run
+msf auxiliary(scanner/http/pfsense_login) > run
 [+] 192.168.207.158:443 - Login Successful: admin:pfsense
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed

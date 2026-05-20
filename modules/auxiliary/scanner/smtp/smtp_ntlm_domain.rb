@@ -10,18 +10,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SMTP NTLM Domain Extraction',
+      'Name' => 'SMTP NTLM Domain Extraction',
       'Description' => 'Extract the Windows domain name from an SMTP NTLM challenge.',
-      'References'  => [ ['URL', 'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-smtpntlm/a048c79f-7597-401b-bcb4-521d682de765' ] ],
-      'Author'      => [ 'Rich Whitcroft <rwhitcroft[at]digitalboundary.net>' ],
-      'License'     => MSF_LICENSE
+      'References' => [ ['URL', 'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-smtpntlm/a048c79f-7597-401b-bcb4-521d682de765' ] ],
+      'Author' => [ 'Rich Whitcroft <rwhitcroft[at]digitalboundary.net>' ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(25),
         OptString.new('EHLO_DOMAIN', [ true, 'The domain to send with the EHLO command', 'localhost' ]),
-      ])
+      ]
+    )
 
     deregister_options('MAILTO', 'MAILFROM')
   end
@@ -52,7 +53,6 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       exts.each do |ext|
-
         # Extract the reply minus the first 4 chars (response code + dash)
         e = ext[4..-1].chomp
 
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
           begin
             # Extract the domain out of the NTLM response
             ntlm_reply = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(challenge))
-            if ! ntlm_reply && ntlm_reply.has_key?(:target_name)
+            if !ntlm_reply && ntlm_reply.has_key?(:target_name)
               vprint_status("#{rhost}:#{rport} Invalid challenge response, aborting...")
               break
             end
@@ -101,7 +101,6 @@ class MetasploitModule < Msf::Auxiliary
             print_good("#{rhost}:#{rport} Domain: #{domain}")
             report_note(host: rhost, port: rport, proto: 'tcp', type: 'smtp.ntlm_auth_info', data: { domain: domain })
             break
-
           rescue ::Rex::ArgumentError
             vprint_status("#{rhost}:#{rport} Invalid challenge response message, aborting...")
             break
@@ -109,10 +108,9 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      if ! domain
+      if !domain
         vprint_error("#{rhost}:#{rport} No NTLM domain found")
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error
       # Ignore common networking and response timeout errors
     ensure

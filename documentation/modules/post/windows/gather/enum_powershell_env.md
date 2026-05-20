@@ -18,10 +18,10 @@ This module will enumerate Microsoft PowerShell settings.
 ### Windows 7 (6.1 Build 7601, Service Pack 1)
 
 ```
-msf6 > use post/windows/gather/enum_powershell_env
-msf6 post(windows/gather/enum_powershell_env) > set session 1
+msf > use post/windows/gather/enum_powershell_env
+msf post(windows/gather/enum_powershell_env) > set session 1
 session => 1
-msf6 post(windows/gather/enum_powershell_env) > run
+msf post(windows/gather/enum_powershell_env) > run
 
 [*] Running module against test (192.168.200.158)
 [*] PowerShell is installed on this system.
@@ -68,10 +68,10 @@ Get-Host | Select-Object Version
 
 ```
 
-msf6 > use post/windows/gather/enum_powershell_env
-msf6 post(windows/gather/enum_powershell_env) > set session 1
+msf > use post/windows/gather/enum_powershell_env
+msf post(windows/gather/enum_powershell_env) > set session 1
 session => 1
-msf6 post(windows/gather/enum_powershell_env) > run
+msf post(windows/gather/enum_powershell_env) > run
 
 [*] Running module against WinDev2110Eval (192.168.200.140)
 [*] PowerShell is installed on this system.

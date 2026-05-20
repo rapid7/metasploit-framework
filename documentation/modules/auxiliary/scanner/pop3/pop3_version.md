@@ -24,9 +24,9 @@ in a production environment.
 ### Dovecot 2.3.2 (582970113) on Kali
 
   ```
-  msf5 auxiliary(scanner/pop3/pop3_version) > use auxiliary/scanner/pop3/pop3_version
-  msf5 auxiliary(scanner/pop3/pop3_version) > set rhosts 10.168.202.216
-  msf5 auxiliary(scanner/pop3/pop3_version) > run
+  msf auxiliary(scanner/pop3/pop3_version) > use auxiliary/scanner/pop3/pop3_version
+  msf auxiliary(scanner/pop3/pop3_version) > set rhosts 10.168.202.216
+  msf auxiliary(scanner/pop3/pop3_version) > run
 
   [+] 10.168.202.216:110    - 10.168.202.216:110 POP3 +OK Dovecot (Debian) ready.\x0d\x0a
   [*] 10.168.202.216:110    - Scanned 1 of 1 hosts (100% complete)

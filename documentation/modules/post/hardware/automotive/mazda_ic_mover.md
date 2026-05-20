@@ -33,7 +33,7 @@ CAN Bus to perform scan on, defaults to connected bus
 A successful spoofing of an instrument cluster on a target vehicle:
 
 ```
-msf5 auxiliary(client/hwbridge/connect) > run
+msf auxiliary(client/hwbridge/connect) > run
 [*] Running module against 127.0.0.1
 
 [*] Attempting to connect to 127.0.0.1...
@@ -44,7 +44,7 @@ msf5 auxiliary(client/hwbridge/connect) > run
 [!]          could have real world consequences.  Use this module in a controlled testing
 [!]          environment and with equipment you are authorized to perform testing on.
 [*] Auxiliary module execution completed
-msf5 auxiliary(client/hwbridge/connect) > sessions
+msf auxiliary(client/hwbridge/connect) > sessions
 
 Active sessions
 ===============
@@ -53,7 +53,7 @@ Active sessions
   --  ----  ----                   -----------  ----------
   2         hwbridge cmd/hardware  automotive   127.0.0.1 -> 127.0.0.1 (127.0.0.1)
 
-msf5 auxiliary(client/hwbridge/connect) > sessions -i 2
+msf auxiliary(client/hwbridge/connect) > sessions -i 2
 [*] Starting interaction with 2...
 
 hwbridge > run post/hardware/automotive/mazda_ic_mover CANBUS=vcan0

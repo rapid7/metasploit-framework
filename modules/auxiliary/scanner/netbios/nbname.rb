@@ -9,16 +9,17 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'NetBIOS Information Discovery',
+      'Name' => 'NetBIOS Information Discovery',
       'Description' => 'Discover host information through NetBIOS',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE
     )
 
     register_options(
-    [
-      Opt::RPORT(137)
-    ])
+      [
+        Opt::RPORT(137)
+      ]
+    )
   end
 
   def scanner_prescan(batch)
@@ -31,12 +32,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scanner_postscan(batch)
-
     cnt = 0
 
     # Perform a second pass based on responsive hosts
     @results.keys.each do |ip|
       next if not @results[ip][:name]
+
       scanner_send(create_netbios_lookup(@results[ip][:name]), ip, datastore['RPORT'])
       cnt += 1
     end
@@ -45,10 +46,9 @@ class MetasploitModule < Msf::Auxiliary
     scanner_recv(10) if cnt > 0
 
     @results.keys.each do |ip|
-
       host = @results[ip]
       user = ""
-      os   = "Windows"
+      os = "Windows"
 
       if (host[:user] and host[:mac] != "00:00:00:00:00:00")
         user = " User:#{host[:user]}"
@@ -60,12 +60,12 @@ class MetasploitModule < Msf::Auxiliary
 
       names = ""
       if (host[:names])
-        names = " Names:(" + host[:names].map{|n| n[0]}.uniq.join(", ") + ")"
+        names = " Names:(" + host[:names].map { |n| n[0] }.uniq.join(", ") + ")"
       end
 
       addrs = ""
       if (host[:addrs])
-        addrs = "Addresses:(" + host[:addrs].map{|n| n[0]}.uniq.join(", ") + ")"
+        addrs = "Addresses:(" + host[:addrs].map { |n| n[0] }.uniq.join(", ") + ")"
       end
 
       if (host[:mac] != "00:00:00:00:00:00")
@@ -99,26 +99,27 @@ class MetasploitModule < Msf::Auxiliary
       if (virtual)
         extra = "Virtual Machine:#{virtual}"
         report_note(
-          :host  => ip,
-          :type  => 'host.virtual_machine',
-          :data  => {:vendor => virtual, :method => 'netbios'}
+          :host => ip,
+          :type => 'host.virtual_machine',
+          :data => { :vendor => virtual, :method => 'netbios' }
         )
       end
 
       if (host[:addrs])
         aliases = []
-        host[:addrs].map{|n| n[0]}.uniq.each do |addr|
+        host[:addrs].map { |n| n[0] }.uniq.each do |addr|
           next if addr == ip
+
           aliases << addr
         end
 
         if not aliases.empty?
           report_note(
-            :host  => ip,
+            :host => ip,
             :proto => 'udp',
-            :port  => 137,
-            :type  => 'netbios.addresses',
-            :data  => {:addresses => aliases}
+            :port => 137,
+            :type => 'netbios.addresses',
+            :data => { :addresses => aliases }
           )
         end
       end
@@ -127,19 +128,17 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
   def scanner_process(data, shost, sport)
-
-    head = data.slice!(0,12)
+    head = data.slice!(0, 12)
 
     xid, flags, quests, answers, auths, adds = head.unpack('n6')
 
     return if quests != 0
     return if answers == 0
 
-    qname = data.slice!(0,34)
-    rtype,rclass,rttl,rlen = data.slice!(0,10).unpack('nnNn')
-    buff = data.slice!(0,rlen)
+    qname = data.slice!(0, 34)
+    rtype, rclass, rttl, rlen = data.slice!(0, 10).unpack('nnNn')
+    buff = data.slice!(0, rlen)
 
     names = []
 
@@ -150,19 +149,19 @@ class MetasploitModule < Msf::Auxiliary
 
     case rtype
     when 0x21
-      rcnt = buff.slice!(0,1).unpack("C")[0]
+      rcnt = buff.slice!(0, 1).unpack("C")[0]
       1.upto(rcnt) do
-        tname = buff.slice!(0,15).gsub(/\x00.*/, '').strip
-        ttype = buff.slice!(0,1).unpack("C")[0]
-        tflag = buff.slice!(0,2).unpack('n')[0]
+        tname = buff.slice!(0, 15).gsub(/\x00.*/, '').strip
+        ttype = buff.slice!(0, 1).unpack("C")[0]
+        tflag = buff.slice!(0, 2).unpack('n')[0]
         names << [ tname, ttype, tflag ]
         hname = tname if ttype == 0x20
         uname = tname if ttype == 0x03
       end
-      maddr = buff.slice!(0,6).unpack("C*").map{|c| "%.2x" % c }.join(":")
+      maddr = buff.slice!(0, 6).unpack("C*").map { |c| "%.2x" % c }.join(":")
 
       @results[shost][:names] = names
-      @results[shost][:mac]   = maddr
+      @results[shost][:mac] = maddr
 
       if (!hname and @results[shost][:names].length > 0)
         @results[shost][:name] = @results[shost][:names][0][0]
@@ -184,19 +183,19 @@ class MetasploitModule < Msf::Auxiliary
       inf << maddr
 
       report_service(
-        :host  => shost,
-        :mac   => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
+        :host => shost,
+        :mac => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
         :host_name => (hname) ? hname.downcase : nil,
-        :port  => datastore['RPORT'],
+        :port => datastore['RPORT'],
         :proto => 'udp',
-        :name  => 'netbios',
-        :info  => inf
+        :name => 'netbios',
+        :info => inf
       )
 
     when 0x20
       1.upto(rlen / 6.0) do
-        tflag = buff.slice!(0,2).unpack('n')[0]
-        taddr = buff.slice!(0,4).unpack("C*").join(".")
+        tflag = buff.slice!(0, 2).unpack('n')[0]
+        taddr = buff.slice!(0, 4).unpack("C*").join(".")
         names << [ taddr, tflag ]
       end
       @results[shost][:addrs] = names
@@ -205,13 +204,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def create_netbios_status(ip)
     data =
-    [rand(0xffff)].pack('n')+
-    "\x00\x00\x00\x01\x00\x00\x00\x00"+
-    "\x00\x00\x20\x43\x4b\x41\x41\x41"+
-    "\x41\x41\x41\x41\x41\x41\x41\x41"+
-    "\x41\x41\x41\x41\x41\x41\x41\x41"+
-    "\x41\x41\x41\x41\x41\x41\x41\x41"+
-    "\x41\x41\x41\x00\x00\x21\x00\x01"
+      [rand(0xffff)].pack('n') +
+      "\x00\x00\x00\x01\x00\x00\x00\x00" +
+      "\x00\x00\x20\x43\x4b\x41\x41\x41" +
+      "\x41\x41\x41\x41\x41\x41\x41\x41" +
+      "\x41\x41\x41\x41\x41\x41\x41\x41" +
+      "\x41\x41\x41\x41\x41\x41\x41\x41" +
+      "\x41\x41\x41\x00\x00\x21\x00\x01"
 
     return data
   end
@@ -220,12 +219,12 @@ class MetasploitModule < Msf::Auxiliary
     name = [name].pack("A15") + "\x00"
 
     data =
-    [rand(0xffff)].pack('n') +
-    "\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00" +
-    "\x20" +
-    Rex::Proto::SMB::Utils.nbname_encode(name) +
-    "\x00" +
-    "\x00\x20\x00\x01"
+      [rand(0xffff)].pack('n') +
+      "\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00" +
+      "\x20" +
+      Rex::Proto::SMB::Utils.nbname_encode(name) +
+      "\x00" +
+      "\x00\x20\x00\x01"
 
     return data
   end

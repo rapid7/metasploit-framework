@@ -11,17 +11,17 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'MYSQL Directory Write Test',
-      'Description'    => %Q{
+      'Name' => 'MYSQL Directory Write Test',
+      'Description' => %Q{
           Enumerate writeable directories using the MySQL SELECT INTO DUMPFILE feature, for more
         information see the URL in the references. ***Note: For every writable directory found,
         a file with the specified FILE_NAME containing the text test will be written to the directory.***
       },
-      'Author'         => [ 'AverageSecurityGuy <stephen[at]averagesecurityguy.info>' ],
-      'References'  => [
+      'Author' => [ 'AverageSecurityGuy <stephen[at]averagesecurityguy.info>' ],
+      'References' => [
         [ 'URL', 'https://dev.mysql.com/doc/refman/5.7/en/select-into.html' ]
       ],
-      'License'        => MSF_LICENSE
+      'License' => MSF_LICENSE
     )
 
     register_options([
@@ -29,7 +29,6 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('FILE_NAME', [ true, "Name of file to write", Rex::Text.rand_text_alpha(8) ]),
       OptString.new('USERNAME', [ true, 'The username to authenticate as', "root" ])
     ])
-
   end
 
   # This function does not handle any errors, if you use this
@@ -55,7 +54,6 @@ class MetasploitModule < Msf::Auxiliary
     File.read(datastore['DIR_LIST']).each_line do |dir|
       check_dir(dir.chomp)
     end
-
   end
 
   def check_dir(dir)
@@ -69,13 +67,13 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_good("#{dir} is writeable")
       report_note(
-        :host  => mysql_conn.peerhost,
-        :type  => "filesystem.file",
-        :data  => {
+        :host => mysql_conn.peerhost,
+        :type => "filesystem.file",
+        :data => {
           :dir => dir,
           :permissions => "writeable",
         },
-        :port  => mysql_conn.peerport,
+        :port => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data
       )

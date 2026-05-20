@@ -106,7 +106,7 @@ resolve:
   js name_resolve         ; If high order bit is not set resolve with INT entry
   sub eax,0x80000000      ; Zero out the high bit
   call GetProcAddress     ; Get the API address with hint
-  jmp insert_iat          ; Insert the address of API tı IAT
+  jmp insert_iat          ; Insert the address of API to IAT
 name_resolve:
   add eax,esi             ; Set the address of function hint
   add eax,0x02            ; Move to function name

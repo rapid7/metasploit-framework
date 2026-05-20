@@ -24,12 +24,12 @@ default username and password.  Tested against Dell Remote Access:
 ### iDRAC Controller 7 - Enterprise 2.63.60.62
 
 ```
-msf6 > use auxiliary/scanner/http/dell_idrac
-msf6 auxiliary(scanner/http/dell_idrac) > set verbose true
+msf > use auxiliary/scanner/http/dell_idrac
+msf auxiliary(scanner/http/dell_idrac) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/http/dell_idrac) > set rhosts 222.222.2.22
+msf auxiliary(scanner/http/dell_idrac) > set rhosts 222.222.2.22
 rhosts => 222.222.2.22
-msf6 auxiliary(scanner/http/dell_idrac) > run
+msf auxiliary(scanner/http/dell_idrac) > run
 
 [*] Verifying that login page exists at 222.222.2.22
 [*] Attempting authentication
@@ -45,7 +45,7 @@ msf6 auxiliary(scanner/http/dell_idrac) > run
 [-] https://222.222.2.22:443/ - Dell iDRAC - Failed to login as 'admin' with password 'password'
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/dell_idrac) > creds
+msf auxiliary(scanner/http/dell_idrac) > creds
 Credentials
 ===========
 

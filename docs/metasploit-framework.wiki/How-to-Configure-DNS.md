@@ -19,7 +19,7 @@ Metasploit's DNS configuration is controlled by the `dns` command which has mult
 The current configuration can be printed by running `dns print`:
 
 ```msf
-msf6 > dns print
+msf > dns print
 Default search domain: N/A
 Default search list:   lab.lan
 Current cache size:    0

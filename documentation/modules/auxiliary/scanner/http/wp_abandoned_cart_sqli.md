@@ -77,7 +77,7 @@ resource (abandoned.rb)> run
 
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/wp_abandoned_cart_sqli) > creds
+msf auxiliary(scanner/http/wp_abandoned_cart_sqli) > creds
 Credentials
 ===========
 

@@ -218,9 +218,9 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       report_note(
-        :host     => cli.peerhost,
-        :type     => "http_auth_extra",
-        :data     => { :auth_extra => req.resource.to_s },
+        :host => cli.peerhost,
+        :type => "http_auth_extra",
+        :data => { :auth_extra => req.resource.to_s },
         :update => :unique_data
       )
       print_good("HTTP LOGIN #{cli.peerhost} > #{hhead}:#{@myport} #{user} / #{pass} => #{req.resource}")

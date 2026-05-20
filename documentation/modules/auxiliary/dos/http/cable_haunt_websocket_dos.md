@@ -31,7 +31,7 @@ On some devices the Spectrum Analysis web service runs on port `8080`, though Ly
 ## Scenarios
 
 ```
-msf5 auxiliary(dos/http/cable_haunt_websocket_dos) > run
+msf auxiliary(dos/http/cable_haunt_websocket_dos) > run
 [*] Running module against 192.168.100.1
 
 [*] Attempting Connection to 192.168.100.1

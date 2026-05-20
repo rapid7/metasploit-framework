@@ -8,36 +8,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'F5 Networks Devices Management Interface Scanner',
-      'Description'   => %q{
-        This module attempts to identify the web management interfaces of the following
-        F5 Networks devices:
-        BigIP, BigIQ, Enterprise Manager, ARX, and FirePass.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'F5 Networks Devices Management Interface Scanner',
+        'Description' => %q{
+          This module attempts to identify the web management interfaces of the following
+          F5 Networks devices:
+          BigIP, BigIQ, Enterprise Manager, ARX, and FirePass.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Denis Kolegov <dnkolegov[at]gmail.com>',
           'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
           'Nikita Oleksov <neoleksov[at]gmail.com>'
         ],
-      'DefaultOptions' =>
-        {
+        'DefaultOptions' => {
           'SSL' => true,
           'RPORT' => 443
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
-    ))
+      )
+    )
 
     register_options(
       [
         OptInt.new('TIMEOUT', [true, 'HTTPS connect/read timeout in seconds', 1])
-      ])
+      ]
+    )
   end
 
   def port_open?
     begin
-      res = send_request_raw({'method' => 'GET', 'uri' => '/'}, datastore['TIMEOUT'])
+      res = send_request_raw({ 'method' => 'GET', 'uri' => '/' }, datastore['TIMEOUT'])
       return true if res
     rescue ::Rex::ConnectionRefused
       vprint_status("Connection refused")

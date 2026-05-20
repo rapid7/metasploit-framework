@@ -14,13 +14,13 @@ Metasploit has support for multiple PostgreSQL modules, including:
 There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
 ```msf
-msf6 > search postgres
+msf > search postgres
 ```
 
 Or to search for modules that work with a specific session type:
 
 ```msf
-msf6 > search session_type:postgres
+msf > search session_type:postgres
 ```
 
 
@@ -95,7 +95,7 @@ set to true should give you an interactive session.
 For example:
 
 ```msf
-msf6 auxiliary(scanner/postgres/postgres_login) > run rhost=127.0.0.1 rport=5432 username=postgres password=password database=template1 createsession=true
+msf auxiliary(scanner/postgres/postgres_login) > run rhost=127.0.0.1 rport=5432 username=postgres password=password database=template1 createsession=true
 ```
 
 Should yield:
@@ -111,7 +111,7 @@ You can interact with your session using `sessions -i -1` or `sessions <session 
 Use the help command for more info.
 
 ```msf
-msf6 auxiliary(scanner/postgres/postgres_login) > sessions
+msf auxiliary(scanner/postgres/postgres_login) > sessions
 
 Active sessions
 ===============
@@ -120,7 +120,7 @@ Active sessions
   --  ----  ----        -----------                           ----------
   1         postgresql  PostgreSQL postgres @ 127.0.0.1:5432  127.0.0.1:61324 -> 127.0.0.1:5432 (127.0.0.1)
 
-msf6 auxiliary(scanner/postgres/postgres_login) > sessions -i 1
+msf auxiliary(scanner/postgres/postgres_login) > sessions -i 1
 [*] Starting interaction with 1...
 ```
 
@@ -257,7 +257,7 @@ psql postgres://postgres:mysecretpassword@localhost:5432
 Metasploit's output will be:
 
 ```msf
-msf6 auxiliary(server/capture/postgresql) >
+msf auxiliary(server/capture/postgresql) >
 [*] Started service listener on 0.0.0.0:5432
 [*] Server started.
 [+] PostgreSQL LOGIN 127.0.0.1:60406 postgres / mysecretpassword / postgres

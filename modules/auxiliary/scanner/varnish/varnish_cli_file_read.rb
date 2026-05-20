@@ -14,32 +14,31 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Varnish Cache CLI File Read',
-      'Description'    => 'This module attempts to read the first line of a file by abusing the error message when
+      'Name' => 'Varnish Cache CLI File Read',
+      'Description' => 'This module attempts to read the first line of a file by abusing the error message when
                            compiling a file with vcl.load.',
-      'References'     =>
-        [
-          [ 'OSVDB', '67670' ],
-          [ 'CVE', '2009-2936' ],
-          [ 'EDB', '35581' ],
-          [ 'URL', 'https://www.varnish-cache.org/trac/wiki/CLI' ]
-        ],
-      'Author'         =>
-        [
-          'patrick', #original module
-          'h00die <mike@shorebreaksecurity.com>' #updates and standardizations
-        ],
-      'License'         =>  MSF_LICENSE,
-      'DefaultOptions'  =>  {
+      'References' => [
+        [ 'OSVDB', '67670' ],
+        [ 'CVE', '2009-2936' ],
+        [ 'EDB', '35581' ],
+        [ 'URL', 'https://www.varnish-cache.org/trac/wiki/CLI' ]
+      ],
+      'Author' => [
+        'patrick', # original module
+        'h00die <mike@shorebreaksecurity.com>' # updates and standardizations
+      ],
+      'License' => MSF_LICENSE,
+      'DefaultOptions' => {
         'RPORT' => 6082
       }
     )
 
     register_options(
       [
-        OptString.new('PASSWORD',  [ false, 'Password for CLI.  No auth will be automatically detected', '' ]),
-        OptString.new('FILE',  [ false, 'File to read the first line of', '/etc/passwd' ])
-      ])
+        OptString.new('PASSWORD', [ false, 'Password for CLI.  No auth will be automatically detected', '' ]),
+        OptString.new('FILE', [ false, 'File to read the first line of', '/etc/passwd' ])
+      ]
+    )
   end
 
   def run_host(ip)

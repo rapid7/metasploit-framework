@@ -14,30 +14,37 @@ class MetasploitModule < Msf::Auxiliary
   HWBRIDGE_API_VERSION = "0.0.4"
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Hardware Bridge Server',
-      'Description' => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Hardware Bridge Server',
+        'Description' => %q{
           This module sets up a web server to bridge communications between
-        Metasploit and physically attached hardware.
-        Currently this module supports: automotive
-      },
-      'Author'      => [ 'Craig Smith' ],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
+          Metasploit and physically attached hardware.
+          Currently this module supports: automotive
+        },
+        'Author' => [ 'Craig Smith' ],
+        'License' => MSF_LICENSE,
+        'Actions' => [
           [ 'WebServer', 'Description' => 'Run HWBridge web server' ]
         ],
-      'PassiveActions' =>
-        [
+        'PassiveActions' => [
           'WebServer'
         ],
-      'DefaultAction'  => 'WebServer'))
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
-    @operational_status = 0   # 0=unk, 1=connected, 2=not connected
+    @operational_status = 0 # 0=unk, 1=connected, 2=not connected
     @last_errors = {}
     @server_started = Time.new
     @can_interfaces = []
-    @pkt_response = {}  # Candump returned packets
+    @pkt_response = {} # Candump returned packets
     @packets_sent = 0
     @last_sent = nil
   end
@@ -119,8 +126,8 @@ class MetasploitModule < Msf::Auxiliary
   def cansend(bus, id, data)
     result = {}
     result["Success"] = false
-    id = id.to_i(16).to_s(16)  # Clean up the HEX
-    bytes = data.scan(/../)  # Break up data string into 2 char (byte) chunks
+    id = id.to_i(16).to_s(16) # Clean up the HEX
+    bytes = data.scan(/../) # Break up data string into 2 char (byte) chunks
     if bytes.size > 8
       print_error("Data section can only contain a max of 8 bytes")
       return result
@@ -249,7 +256,6 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
     result
-
   end
 
   #
@@ -300,7 +306,7 @@ class MetasploitModule < Msf::Auxiliary
         opt['MAXPKTS'] = $1 if request.uri =~ /&maxpkts=(\d+)/
         opt['PADDING'] = $1 if request.uri =~ /&padding=(\d+)/
         opt['FC'] = true if request.uri =~ /&fc=true/i
-        send_response_html(cli, isotp_send_and_wait(bus, srcid, dstid, data, opt).to_json(),  { 'Content-Type' => 'application/json' })
+        send_response_html(cli, isotp_send_and_wait(bus, srcid, dstid, data, opt).to_json(), { 'Content-Type' => 'application/json' })
       else
         send_response_html(cli, not_supported().to_json(), { 'Content-Type' => 'application/json' })
       end

@@ -7,7 +7,7 @@
 There are two methods of adding a module to the favorites list. The first way is via simply calling `favorite` when there is an active module:
 
 ```shell
-msf6 exploit(multi/handler) > favorite
+msf exploit(multi/handler) > favorite
 [+] Added exploit/multi/handler to the favorite modules file
 ```
 
@@ -15,7 +15,7 @@ msf6 exploit(multi/handler) > favorite
 Using the active module without an active module will print the `favorite` command help output:
 
 ```shell
-msf6 > favorite
+msf > favorite
 [-] No module has been provided to favorite.
 Usage: favorite [mod1 mod2 ...]
 
@@ -35,10 +35,10 @@ OPTIONS:
 The second method of adding favorites allows adding multiple modules at once:
 
 ```msf
-msf6 > favorite exploit/multi/handler exploit/windows/smb/psexec
+msf > favorite exploit/multi/handler exploit/windows/smb/psexec
 [+] Added exploit/multi/handler to the favorite modules file
 [+] Added exploit/windows/smb/psexec to the favorite modules file
-msf6 > show favorites
+msf > show favorites
 
 Favorites
 =========
@@ -59,14 +59,14 @@ Modules can be deleted from the favorites list individually or by clearing the c
 #### Deleting an active module from favorites list
 
 ```shell
-msf6 exploit(multi/handler) > favorite -d
+msf exploit(multi/handler) > favorite -d
 [*] Removing exploit/multi/handler from the favorite modules file
 ```
 
 #### Specifying module(s) to delete
 
 ```shell
-msf6 > favorite -d exploit/multi/handler exploit/windows/smb/psexec
+msf > favorite -d exploit/multi/handler exploit/windows/smb/psexec
 [*] Removing exploit/multi/handler from the favorite modules file
 [*] Removing exploit/windows/smb/psexec from the favorite modules file
 ```
@@ -74,7 +74,7 @@ msf6 > favorite -d exploit/multi/handler exploit/windows/smb/psexec
 #### Clearing the favorites list
 
 ```msf
-msf6 > show favorites
+msf > show favorites
 
 Favorites
 =========
@@ -84,9 +84,9 @@ Favorites
    0  exploit/multi/handler                        manual  No     Generic Payload Handler
    1  exploit/windows/smb/psexec  1999-01-01       manual  No     Microsoft Windows Authenticated User Code Execution
 
-msf6 > favorite -c
+msf > favorite -c
 [+] Favorite modules file cleared
-msf6 > show favorites
+msf > show favorites
 [!] The favorite modules file is empty
 ```
 
@@ -95,7 +95,7 @@ msf6 > show favorites
 The list of favorite modules can be printed by supplying the `-l` flag. This is an alias for the `show favorites` and `favorites` commands.
 
 ```shell
-msf6 > favorite -l
+msf > favorite -l
 
 Favorites
 =========

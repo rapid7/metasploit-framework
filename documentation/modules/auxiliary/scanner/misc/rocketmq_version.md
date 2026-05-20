@@ -30,10 +30,10 @@ docker run -d --name rmqbroker --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesr
 ### 4.9.4 on Docker from above instructions
 
 ```
-msf6 > use auxiliary/scanner/misc/rocketmq_version
-msf6 auxiliary(scanner/misc/rocketmq_version) > set rhosts 127.0.0.1
+msf > use auxiliary/scanner/misc/rocketmq_version
+msf auxiliary(scanner/misc/rocketmq_version) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(scanner/misc/rocketmq_version) > run
+msf auxiliary(scanner/misc/rocketmq_version) > run
 
 [+] 127.0.0.1:9876        - RocketMQ version V4.9.4 found with brokers: [{"brokerAddrs"=>{"0"=>"172.17.0.4:10911"}, "brokerName"=>"broker-a", "cluster"=>"DefaultCluster"}]
 [*] 127.0.0.1:9876        - Scanned 1 of 1 hosts (100% complete)

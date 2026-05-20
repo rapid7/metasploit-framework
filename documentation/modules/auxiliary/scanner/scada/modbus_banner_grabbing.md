@@ -21,7 +21,7 @@ If the target was unable to process the Modbus message, a Modbus exception messa
 Successful results from the scan will be stored as a `note` in the framework. You can access these notes by typing `note` in the console.
 
 ```
-msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > notes
+msf auxiliary(scanner/scada/modbus_banner_grabbing) > notes
 
 Notes
 =====
@@ -42,10 +42,10 @@ The following scenarios describe some of the responses you may receive from the 
 ### Schneider Electric BMX NOE 0100 - Successful Response
 
 ```
-msf6 > use auxiliary/scanner/scada/modbus_banner_grabbing
-msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > set RHOSTS 192.168.1.1
+msf > use auxiliary/scanner/scada/modbus_banner_grabbing
+msf auxiliary(scanner/scada/modbus_banner_grabbing) > set RHOSTS 192.168.1.1
 RHOSTS => 192.168.1.1
-msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > run
+msf auxiliary(scanner/scada/modbus_banner_grabbing) > run
 
 [*] 192.168.1.1:502    - Number of Objects: 3
 [+] 192.168.1.1:502    - VendorName: Schneider Electric
@@ -59,10 +59,10 @@ msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > run
 The target never replied to the attacker's request.
 
 ```
-msf6 > use auxiliary/scanner/scada/modbus_banner_grabbing
-msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > set RHOSTS 192.168.1.2
+msf > use auxiliary/scanner/scada/modbus_banner_grabbing
+msf auxiliary(scanner/scada/modbus_banner_grabbing) > set RHOSTS 192.168.1.2
 RHOSTS => 192.168.1.2
-msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > run
+msf auxiliary(scanner/scada/modbus_banner_grabbing) > run
 
 [-] 192.168.1.2:502      - MODBUS - No reply
 [*] 192.168.1.2:502      - Scanned 1 of 1 hosts (100% complete)
@@ -74,10 +74,10 @@ Some network error occurred, such as a connection error, a network timeout, or t
 Alternatively, the host may be unreachable.
 
 ```
-msf6 > use auxiliary/scanner/scada/modbus_banner_grabbing
-msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > set RHOSTS 192.168.1.3
+msf > use auxiliary/scanner/scada/modbus_banner_grabbing
+msf auxiliary(scanner/scada/modbus_banner_grabbing) > set RHOSTS 192.168.1.3
 RHOSTS => 192.168.1.3
-msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > run
+msf auxiliary(scanner/scada/modbus_banner_grabbing) > run
 
 [-] 192.168.1.3:502     - MODBUS - Network error during payload: The connection timed out (217.71.253.52:502).
 [*] 192.168.1.3:502     - Scanned 1 of 1 hosts (100% complete)
@@ -87,10 +87,10 @@ msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > run
 ### Schneider Electric BMX NOE 0100 - Modbus Exception Code (i.e. Memory Parity Error)
 
 ```
-msf6 > use auxiliary/scanner/scada/modbus_banner_grabbing
-msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > set RHOSTS 192.168.1.4
+msf > use auxiliary/scanner/scada/modbus_banner_grabbing
+msf auxiliary(scanner/scada/modbus_banner_grabbing) > set RHOSTS 192.168.1.4
 RHOSTS => 192.168.1.4
-msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > run
+msf auxiliary(scanner/scada/modbus_banner_grabbing) > run
 
 [-] 192.168.1.4:502      - Memory Parity Error: Slave detected a parity error in memory.
 [*] 192.168.1.4:502      - Scanned 1 of 1 hosts (100% complete)

@@ -18,10 +18,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SMB Session Pipe Auditor',
+      'Name' => 'SMB Session Pipe Auditor',
       'Description' => 'Determine what named pipes are accessible over SMB',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE,
     )
   end
 
@@ -35,7 +35,6 @@ class MetasploitModule < Msf::Auxiliary
 
   # Fingerprint a single host
   def run_host(ip)
-
     pipes = []
 
     if session
@@ -69,10 +68,8 @@ class MetasploitModule < Msf::Auxiliary
         rescue Rex::Proto::SMB::Exceptions::SimpleClientError, Rex::ConnectionError => e
           vprint_error("SMB client Error with RPORT=#{@rport} SMBDirect=#{@smb_direct}: #{e.to_s}")
         end
-
       end
     end
-
   end
 
   def check_pipes
@@ -84,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def report_pipes(ip, pipes)
-    if(pipes.length > 0)
+    if (pipes.length > 0)
       print_good("Pipes: #{pipes.join(", ")}")
       # Add Report
       report_note(

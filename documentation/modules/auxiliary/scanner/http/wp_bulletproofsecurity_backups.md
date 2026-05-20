@@ -68,7 +68,7 @@ resource (bulletproof.rb)> run
 [-] /wp-content/plugins/bulletproof-security/admin/htaccess/db_backup_log.txt not found on server or no data
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/wp_bulletproofsecurity_backups) > creds
+msf auxiliary(scanner/http/wp_bulletproofsecurity_backups) > creds
 Credentials
 ===========
 

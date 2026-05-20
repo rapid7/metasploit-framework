@@ -23,10 +23,10 @@ If set to `false`, will not store the captured information in notes. Use `notes 
 ### Apache/2.4.38 inside a Docker container
 
   ```
-msf5 > use auxiliary/scanner/http/title
-msf5 auxiliary(scanner/http/title) > set RHOSTS 172.17.0.2
+msf > use auxiliary/scanner/http/title
+msf auxiliary(scanner/http/title) > set RHOSTS 172.17.0.2
 RHOSTS => 172.17.0.2
-msf5 auxiliary(scanner/http/title) > run
+msf auxiliary(scanner/http/title) > run
 
 [+] [172.17.0.2:80] [C:200] [R:] [S:Apache/2.4.38 (Debian)] LOCAL TESTING
 [*] Scanned 1 of 1 hosts (100% complete)

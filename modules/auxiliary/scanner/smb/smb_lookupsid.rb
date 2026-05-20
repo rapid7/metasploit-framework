@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
@@ -19,23 +18,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SMB SID User Enumeration (LookupSid)',
+      'Name' => 'SMB SID User Enumeration (LookupSid)',
       'Description' => 'Determine what users exist via brute force SID lookups.
         This module can enumerate both local and domain accounts by setting
         ACTION to either LOCAL or DOMAIN',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'DefaultOptions' =>
-        {
-          # Samba doesn't like this option, so we disable so we are compatible with
-          # both Windows and Samba for enumeration.
-          'DCERPC::fake_bind_multi' => false
-        },
-      'Actions'     =>
-        [
-          ['LOCAL', { 'Description' => 'Enumerate local accounts' } ],
-          ['DOMAIN', { 'Description' => 'Enumerate domain accounts' } ]
-        ],
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE,
+      'DefaultOptions' => {
+        # Samba doesn't like this option, so we disable so we are compatible with
+        # both Windows and Samba for enumeration.
+        'DCERPC::fake_bind_multi' => false
+      },
+      'Actions' => [
+        ['LOCAL', { 'Description' => 'Enumerate local accounts' } ],
+        ['DOMAIN', { 'Description' => 'Enumerate domain accounts' } ]
+      ],
       'DefaultAction' => 'LOCAL',
     )
 
@@ -118,17 +115,17 @@ class MetasploitModule < Msf::Auxiliary
     print_status(all_info)
 
     target_sid = case action.name.upcase
-      when 'LOCAL'
-        info[:local][:sid] == 'null' ? info[:domain][:sid] : info[:local][:sid]
-      when 'DOMAIN'
-        # Fallthrough to the host SID if no domain SID was returned
-        if info[:domain][:sid] == 'null'
-          print_error 'No domain SID identified, falling back to the local SID...'
-          info[:local][:sid]
-        else
-          info[:domain][:sid]
-          end
-      end
+                 when 'LOCAL'
+                   info[:local][:sid] == 'null' ? info[:domain][:sid] : info[:local][:sid]
+                 when 'DOMAIN'
+                   # Fallthrough to the host SID if no domain SID was returned
+                   if info[:domain][:sid] == 'null'
+                     print_error 'No domain SID identified, falling back to the local SID...'
+                     info[:local][:sid]
+                   else
+                     info[:domain][:sid]
+                   end
+                 end
 
     min_rid = datastore['MinRID']
     max_rid = datastore['MaxRID']
@@ -153,7 +150,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     output
-
   rescue Msf::Exploit::Remote::SMB::Client::Ipc::SmbIpcAuthenticationError => e
     print_warning e.message
     nil
@@ -168,16 +164,16 @@ class MetasploitModule < Msf::Auxiliary
 
   def format_results(results)
     sids_table = Rex::Text::Table.new(
-      'Indent'  => 4,
-      'Header'  => "SMB Lookup SIDs Output",
+      'Indent' => 4,
+      'Header' => "SMB Lookup SIDs Output",
       'Columns' =>
         [
           'Type',
           'Name',
           'RID'
         ],
-      'SortIndex' => 2, # Sort by RID
-      )
+      'SortIndex' => 2 # Sort by RID
+    )
 
     # Each result contains 0 or more arrays containing: SID Type, Name, RID
     results.compact.each do |result_set|

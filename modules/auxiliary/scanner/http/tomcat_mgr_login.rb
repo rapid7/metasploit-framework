@@ -15,42 +15,41 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Tomcat Application Manager Login Utility',
-      'Description'    => 'This module simply attempts to login to a Tomcat Application Manager instance using a specific user/pass.',
-      'References'     =>
-        [
-          # HP Default Operations Manager user/pass
-          [ 'CVE', '2009-3843' ],
-          [ 'OSVDB', '60317' ],
-          [ 'BID', '37086' ],
-          [ 'CVE', '2009-4189' ],
-          [ 'OSVDB', '60670' ],
-          [ 'URL', 'https://web.archive.org/web/20091129092955/http://www.harmonysecurity.com/blog/2009/11/hp-operations-manager-backdoor-account.html' ],
-          [ 'ZDI', '09-085' ],
+      'Name' => 'Tomcat Application Manager Login Utility',
+      'Description' => 'This module simply attempts to login to a Tomcat Application Manager instance using a specific user/pass.',
+      'References' => [
+        # HP Default Operations Manager user/pass
+        [ 'CVE', '2009-3843' ],
+        [ 'OSVDB', '60317' ],
+        [ 'BID', '37086' ],
+        [ 'CVE', '2009-4189' ],
+        [ 'OSVDB', '60670' ],
+        [ 'URL', 'https://web.archive.org/web/20091129092955/http://www.harmonysecurity.com/blog/2009/11/hp-operations-manager-backdoor-account.html' ],
+        [ 'ZDI', '09-085' ],
 
-          # HP Default Operations Dashboard user/pass
-          [ 'CVE', '2009-4188' ],
+        # HP Default Operations Dashboard user/pass
+        [ 'CVE', '2009-4188' ],
 
-          # IBM Cognos Express Default user/pass
-          [ 'BID', '38084' ],
-          [ 'CVE', '2010-0557' ],
-          [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21419179' ],
+        # IBM Cognos Express Default user/pass
+        [ 'BID', '38084' ],
+        [ 'CVE', '2010-0557' ],
+        [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21419179' ],
 
-          # IBM Rational Quality Manager and Test Lab Manager
-          [ 'CVE', '2010-4094' ],
-          [ 'ZDI', '10-214' ],
+        # IBM Rational Quality Manager and Test Lab Manager
+        [ 'CVE', '2010-4094' ],
+        [ 'ZDI', '10-214' ],
 
-          # 'admin' password is blank in default Windows installer
-          [ 'CVE', '2009-3548' ],
-          [ 'OSVDB', '60176' ],
-          [ 'BID', '36954' ],
+        # 'admin' password is blank in default Windows installer
+        [ 'CVE', '2009-3548' ],
+        [ 'OSVDB', '60176' ],
+        [ 'BID', '36954' ],
 
-          # General
-          [ 'URL', 'https://tomcat.apache.org/' ],
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'Author'         => [ 'MC', 'Matteo Cantoni <goony[at]nothink.org>', 'jduck' ],
-      'License'        => MSF_LICENSE
+        # General
+        [ 'URL', 'https://tomcat.apache.org/' ],
+        [ 'CVE', '1999-0502'] # Weak password
+      ],
+      'Author' => [ 'MC', 'Matteo Cantoni <goony[at]nothink.org>', 'jduck' ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
@@ -59,13 +58,20 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [false, 'The HTTP username to specify for authentication', '']),
         OptString.new('PASSWORD', [false, 'The HTTP password to specify for authentication', '']),
         OptString.new('TARGETURI', [true, "URI for Manager login. Default is /manager/html", "/manager/html"]),
-        OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_userpass.txt") ]),
-        OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_users.txt") ]),
-        OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_pass.txt") ]),
-      ])
+        OptPath.new('USERPASS_FILE', [
+          false, "File containing users and passwords separated by space, one pair per line",
+          File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_userpass.txt")
+        ]),
+        OptPath.new('USER_FILE', [
+          false, "File containing users, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_users.txt")
+        ]),
+        OptPath.new('PASS_FILE', [
+          false, "File containing passwords, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_pass.txt")
+        ]),
+      ]
+    )
 
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888, 9080, 19300 ])
   end
@@ -74,10 +80,10 @@ class MetasploitModule < Msf::Auxiliary
     begin
       uri = normalize_uri(target_uri.path)
       res = send_request_cgi({
-        'uri'     => uri,
-        'method'  => 'GET',
+        'uri' => uri,
+        'method' => 'GET',
         'username' => Rex::Text.rand_text_alpha(8)
-        }, 25)
+      }, 25)
       http_fingerprint({ :response => res })
     rescue ::Rex::ConnectionError => e
       vprint_error("http://#{rhost}:#{rport}#{uri} - #{e}")
@@ -112,9 +118,9 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: self.fullname,
-          workspace_id: myworkspace_id,
-          private_type: :password
+        module_fullname: self.fullname,
+        workspace_id: myworkspace_id,
+        private_type: :password
       )
       if result.success?
         credential_core = create_credential(credential_data)

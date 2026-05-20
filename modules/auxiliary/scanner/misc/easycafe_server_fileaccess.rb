@@ -9,36 +9,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'EasyCafe Server Remote File Access',
-      'Description' => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'EasyCafe Server Remote File Access',
+        'Description' => %q{
           This module exploits a file retrieval vulnerability in
-        EasyCafe Server. The vulnerability can be triggered by
-        sending a specially crafted packet (opcode 0x43) to the
-        831/TCP port.
-        This module has been successfully tested on EasyCafe Server
-        version 2.2.14 (Trial mode and Demo mode) on Windows XP SP3
-        and Windows 7 SP1.
-        Note that the server will throw a popup messagebox if the
-        specified file does not exist.
-      },
-      'License'     => MSF_LICENSE,
-      'Author'      =>
-        [
+          EasyCafe Server. The vulnerability can be triggered by
+          sending a specially crafted packet (opcode 0x43) to the
+          831/TCP port.
+          This module has been successfully tested on EasyCafe Server
+          version 2.2.14 (Trial mode and Demo mode) on Windows XP SP3
+          and Windows 7 SP1.
+          Note that the server will throw a popup messagebox if the
+          specified file does not exist.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'R-73eN', # Vulnerability Discovery
           'bcoles' # Metasploit module
         ],
-      'References'  =>
-        [
+        'References' => [
           [ 'EDB', '39102' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(831),
         OptString.new('FILEPATH', [true, 'The path of the file to download', 'C:\\WINDOWS\\system32\\drivers\\etc\\hosts'])
-      ])
+      ]
+    )
   end
 
   def get_file

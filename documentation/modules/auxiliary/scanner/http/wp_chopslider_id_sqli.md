@@ -66,7 +66,7 @@ resource (chopslider.rb)> run
 
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/wp_chopslider_id_sqli) > creds
+msf auxiliary(scanner/http/wp_chopslider_id_sqli) > creds
 Credentials
 ===========
 

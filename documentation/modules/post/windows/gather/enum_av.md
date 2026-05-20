@@ -24,10 +24,10 @@ The session to run this module on.
   meterpreter > bg
   [*] Backgrounding session 1...
   
-  msf6 > use windows/gather/enum_av
-  msf6 post(windows/gather/enum_av) > set session 1
+  msf > use windows/gather/enum_av
+  msf post(windows/gather/enum_av) > set session 1
   session => 1
-  msf6 post(windows/gather/enum_av) > run
+  msf post(windows/gather/enum_av) > run
   
   [*] Found AV product:
   displayName=Windows Defender

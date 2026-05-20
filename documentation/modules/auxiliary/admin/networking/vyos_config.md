@@ -195,16 +195,16 @@ File path to the configuration file.
 ### VyOS 1.1.8
 
 ```
-msf6 > use auxiliary/admin/networking/vyos_config 
-msf6 auxiliary(admin/networking/vyos_config) > set config /tmp/vyos.config
+msf > use auxiliary/admin/networking/vyos_config 
+msf auxiliary(admin/networking/vyos_config) > set config /tmp/vyos.config
 config => /tmp/vyos.config
-msf6 auxiliary(admin/networking/vyos_config) > set verbose true
+msf auxiliary(admin/networking/vyos_config) > set verbose true
 verbose => true
-msf6 auxiliary(admin/networking/vyos_config) > run
+msf auxiliary(admin/networking/vyos_config) > run
 [-] Auxiliary failed: Msf::OptionValidateError One or more options failed to validate: RHOSTS.
-msf6 auxiliary(admin/networking/vyos_config) > set rhosts 1.1.1.1
+msf auxiliary(admin/networking/vyos_config) > set rhosts 1.1.1.1
 rhosts => 1.1.1.1
-msf6 auxiliary(admin/networking/vyos_config) > run
+msf auxiliary(admin/networking/vyos_config) > run
 [*] Running module against 1.1.1.1
 
 [*] Importing config

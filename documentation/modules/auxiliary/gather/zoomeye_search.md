@@ -81,7 +81,7 @@ first, as mentioned previously, will not return any results, so be wary of this.
 
 ### Host Search With No Database
 ```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use zoomeye_search
+msf payload(windows/x64/meterpreter/reverse_tcp) > use zoomeye_search
 
 Matching Modules
 ================
@@ -94,7 +94,7 @@ Matching Modules
 Interact with a module by name or index. For example info 0, use 0 or use auxiliary/gather/zoomeye_search
 
 [*] Using auxiliary/gather/zoomeye_search
-msf6 auxiliary(gather/zoomeye_search) > show options
+msf auxiliary(gather/zoomeye_search) > show options
 
 Module options (auxiliary/gather/zoomeye_search):
 
@@ -109,11 +109,11 @@ Module options (auxiliary/gather/zoomeye_search):
    USERNAME                       yes       The ZoomEye username
    ZOOMEYE_DORK                   yes       The ZoomEye dork
 
-msf6 auxiliary(gather/zoomeye_search) > set USERNAME mexig33784@mtlcz.com
+msf auxiliary(gather/zoomeye_search) > set USERNAME mexig33784@mtlcz.com
 USERNAME => mexig33784@mtlcz.com
-msf6 auxiliary(gather/zoomeye_search) > set PASSWORD *redacted*
+msf auxiliary(gather/zoomeye_search) > set PASSWORD *redacted*
 PASSWORD => *redacted*
-msf6 auxiliary(gather/zoomeye_search) > show options
+msf auxiliary(gather/zoomeye_search) > show options
 
 Module options (auxiliary/gather/zoomeye_search):
 
@@ -128,13 +128,13 @@ Module options (auxiliary/gather/zoomeye_search):
    USERNAME      mexig33784@mtlcz.com  yes       The ZoomEye username
    ZOOMEYE_DORK                        yes       The ZoomEye dork
 
-msf6 auxiliary(gather/zoomeye_search) > set ZOOMEYE_DORK 'app:"moxa OnCell G3470A-LTE-EU"'
+msf auxiliary(gather/zoomeye_search) > set ZOOMEYE_DORK 'app:"moxa OnCell G3470A-LTE-EU"'
 ZOOMEYE_DORK => app:"moxa OnCell G3470A-LTE-EU"
-msf6 auxiliary(gather/zoomeye_search) > run
+msf auxiliary(gather/zoomeye_search) > run
 
 [-] Unable to resolve api.zoomeye.org
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/zoomeye_search) > run
+msf auxiliary(gather/zoomeye_search) > run
 
 [*] Logged in to zoomeye
 [*] Total: 189 on 10 pages. Showing: 1 page(s)
@@ -178,12 +178,12 @@ Host search
  43
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/zoomeye_search) >
+msf auxiliary(gather/zoomeye_search) >
 ```
 
 ### Host Search With No Database and Multiple Pages And Saving To Disk
 ```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use zoomeye_search
+msf payload(windows/x64/meterpreter/reverse_tcp) > use zoomeye_search
 
 Matching Modules
 ================
@@ -196,7 +196,7 @@ Matching Modules
 Interact with a module by name or index. For example info 0, use 0 or use auxiliary/gather/zoomeye_search
 
 [*] Using auxiliary/gather/zoomeye_search
-msf6 auxiliary(gather/zoomeye_search) > show options
+msf auxiliary(gather/zoomeye_search) > show options
 
 Module options (auxiliary/gather/zoomeye_search):
 
@@ -211,18 +211,18 @@ Module options (auxiliary/gather/zoomeye_search):
    USERNAME                       yes       The ZoomEye username
    ZOOMEYE_DORK                   yes       The ZoomEye dork
 
-msf6 auxiliary(gather/zoomeye_search) > set USERNAME mexig33784@mtlcz.com
+msf auxiliary(gather/zoomeye_search) > set USERNAME mexig33784@mtlcz.com
 USERNAME => mexig33784@mtlcz.com
-msf6 auxiliary(gather/zoomeye_search) > set PASSWORD *redacted*
+msf auxiliary(gather/zoomeye_search) > set PASSWORD *redacted*
 PASSWORD => *redacted*
-msf6 auxiliary(gather/zoomeye_search) > set ZOOMEYE_DORK 'app:"moxa OnCell G3470A-LTE-EU"'
+msf auxiliary(gather/zoomeye_search) > set ZOOMEYE_DORK 'app:"moxa OnCell G3470A-LTE-EU"'
 ZOOMEYE_DORK => app:"moxa OnCell G3470A-LTE-EU"
-msf6 auxiliary(gather/zoomeye_search) >
-msf6 auxiliary(gather/zoomeye_search) > set MAXPAGE 5
+msf auxiliary(gather/zoomeye_search) >
+msf auxiliary(gather/zoomeye_search) > set MAXPAGE 5
 MAXPAGE => 5
-msf6 auxiliary(gather/zoomeye_search) > set OUTFILE /tmp/results.txt
+msf auxiliary(gather/zoomeye_search) > set OUTFILE /tmp/results.txt
 OUTFILE => /tmp/results.txt
-msf6 auxiliary(gather/zoomeye_search) > show options
+msf auxiliary(gather/zoomeye_search) > show options
 
 Module options (auxiliary/gather/zoomeye_search):
 
@@ -238,7 +238,7 @@ Module options (auxiliary/gather/zoomeye_search):
    USERNAME      mexig33784@mtlcz.com             yes       The ZoomEye username
    ZOOMEYE_DORK  app:"moxa OnCell G3470A-LTE-EU"  yes       The ZoomEye dork
 
-msf6 auxiliary(gather/zoomeye_search) > run
+msf auxiliary(gather/zoomeye_search) > run
 
 [*] Logged in to zoomeye
 [*] Total: 189 on 10 pages. Showing: 5 page(s)
@@ -427,7 +427,7 @@ Host search
 
 [*] Saved results in /tmp/results.txt
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/zoomeye_search) > cat /tmp/results.txt
+msf auxiliary(gather/zoomeye_search) > cat /tmp/results.txt
 [*] exec: cat /tmp/results.txt
 
 Host search
@@ -611,12 +611,12 @@ Host search
  43
  90.117.120.142:8  tcp                             France                            http     GoAhead WebServer
  0
-msf6 auxiliary(gather/zoomeye_search) >
+msf auxiliary(gather/zoomeye_search) >
 ```
 
 ### Hosts Search With Facets
 ```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use zoomeye_search
+msf payload(windows/x64/meterpreter/reverse_tcp) > use zoomeye_search
 
 Matching Modules
 ================
@@ -629,7 +629,7 @@ Matching Modules
 Interact with a module by name or index. For example info 0, use 0 or use auxiliary/gather/zoomeye_search
 
 [*] Using auxiliary/gather/zoomeye_search
-msf6 auxiliary(gather/zoomeye_search) > show options
+msf auxiliary(gather/zoomeye_search) > show options
 
 Module options (auxiliary/gather/zoomeye_search):
 
@@ -644,15 +644,15 @@ Module options (auxiliary/gather/zoomeye_search):
    USERNAME                       yes       The ZoomEye username
    ZOOMEYE_DORK                   yes       The ZoomEye dork
 
-msf6 auxiliary(gather/zoomeye_search) > set ZOOMEYE_DORK 'app:"moxa OnCell G3470A-LTE-EU"'
+msf auxiliary(gather/zoomeye_search) > set ZOOMEYE_DORK 'app:"moxa OnCell G3470A-LTE-EU"'
 ZOOMEYE_DORK => app:"moxa OnCell G3470A-LTE-EU"
-msf6 auxiliary(gather/zoomeye_search) > set USERNAME mexig33784@mtlcz.com
+msf auxiliary(gather/zoomeye_search) > set USERNAME mexig33784@mtlcz.com
 USERNAME => mexig33784@mtlcz.com
-msf6 auxiliary(gather/zoomeye_search) > set PASSWORD *redacted*
+msf auxiliary(gather/zoomeye_search) > set PASSWORD *redacted*
 PASSWORD => *redacted*
-msf6 auxiliary(gather/zoomeye_search) > set FACETS os,port,country
+msf auxiliary(gather/zoomeye_search) > set FACETS os,port,country
 FACETS => os,port,country
-msf6 auxiliary(gather/zoomeye_search) > show options
+msf auxiliary(gather/zoomeye_search) > show options
 
 Module options (auxiliary/gather/zoomeye_search):
 
@@ -668,7 +668,7 @@ Module options (auxiliary/gather/zoomeye_search):
    USERNAME      mexig33784@mtlcz.com             yes       The ZoomEye username
    ZOOMEYE_DORK  app:"moxa OnCell G3470A-LTE-EU"  yes       The ZoomEye dork
 
-msf6 auxiliary(gather/zoomeye_search) > run
+msf auxiliary(gather/zoomeye_search) > run
 
 [*] Logged in to zoomeye
 [*] Total: 189 on 10 pages. Showing facets
@@ -694,22 +694,22 @@ Facets
  port     8081                1
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/zoomeye_search) >
+msf auxiliary(gather/zoomeye_search) >
 ```
 
 
 ### Web Search With Facets And OutFile
 ```
-msf6 > use auxiliary/gather/zoomeye_search
-msf6 auxiliary(gather/zoomeye_search) > set ZOOMEYE_DORK 'app:"moxa OnCell G3470A-LTE-EU"'
+msf > use auxiliary/gather/zoomeye_search
+msf auxiliary(gather/zoomeye_search) > set ZOOMEYE_DORK 'app:"moxa OnCell G3470A-LTE-EU"'
 ZOOMEYE_DORK => app:"moxa OnCell G3470A-LTE-EU"
-msf6 auxiliary(gather/zoomeye_search) > set USERNAME mexig33784@mtlcz.com
+msf auxiliary(gather/zoomeye_search) > set USERNAME mexig33784@mtlcz.com
 USERNAME => mexig33784@mtlcz.com
-msf6 auxiliary(gather/zoomeye_search) > set PASSWORD *redacted*
+msf auxiliary(gather/zoomeye_search) > set PASSWORD *redacted*
 PASSWORD => *redacted*
-msf6 auxiliary(gather/zoomeye_search) > set FACETS os,port,country
+msf auxiliary(gather/zoomeye_search) > set FACETS os,port,country
 FACETS => os,port,country
-msf6 auxiliary(gather/zoomeye_search) > show options
+msf auxiliary(gather/zoomeye_search) > show options
 
 Module options (auxiliary/gather/zoomeye_search):
 
@@ -725,11 +725,11 @@ Module options (auxiliary/gather/zoomeye_search):
    USERNAME      mexig33784@mtlcz.com             yes       The ZoomEye username
    ZOOMEYE_DORK  app:"moxa OnCell G3470A-LTE-EU"  yes       The ZoomEye dork
 
-msf6 auxiliary(gather/zoomeye_search) > set RESOURCE web
+msf auxiliary(gather/zoomeye_search) > set RESOURCE web
 RESOURCE => web
-msf6 auxiliary(gather/zoomeye_search) > set OUTFILE /tmp/web.txt
+msf auxiliary(gather/zoomeye_search) > set OUTFILE /tmp/web.txt
 OUTFILE => /tmp/web.txt
-msf6 auxiliary(gather/zoomeye_search) > run
+msf auxiliary(gather/zoomeye_search) > run
 
 [*] Logged in to zoomeye
 [*] Total: 9 on 1 pages. Showing facets
@@ -747,7 +747,7 @@ Facets
 
 [*] Saved results in /tmp/web.txt
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/zoomeye_search) > cat /tmp/web.txt
+msf auxiliary(gather/zoomeye_search) > cat /tmp/web.txt
 [*] exec: cat /tmp/web.txt
 
 Facets
@@ -761,12 +761,12 @@ Facets
  country  Australia  1
  country  Austria    1
  os       Windows    9
-msf6 auxiliary(gather/zoomeye_search) >
+msf auxiliary(gather/zoomeye_search) >
 ```
 
 ### Hosts Search with Database And Outfile Options Set
 ```
-msf6 auxiliary(gather/zoomeye_search) > show options
+msf auxiliary(gather/zoomeye_search) > show options
 
 Module options (auxiliary/gather/zoomeye_search):
 
@@ -782,7 +782,7 @@ Module options (auxiliary/gather/zoomeye_search):
    USERNAME      mexig33784@mtlcz.com             yes       The ZoomEye username
    ZOOMEYE_DORK  app:"moxa OnCell G3470A-LTE-EU"  yes       The ZoomEye dork
 
-msf6 auxiliary(gather/zoomeye_search) > run
+msf auxiliary(gather/zoomeye_search) > run
 
 [*] Logged in to zoomeye
 [*] Total: 189 on 10 pages. Showing: 1 page(s)
@@ -827,7 +827,7 @@ Host search
 
 [*] Saved results in /tmp/web.txt
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/zoomeye_search) > cat /tmp/web.txt
+msf auxiliary(gather/zoomeye_search) > cat /tmp/web.txt
 [*] exec: cat /tmp/web.txt
 
 Host search
@@ -867,7 +867,7 @@ Host search
  62.79.16.38:80    tcp       Aalborg Municipality  Denmark                    https    GoAhead WebServer
  90.117.110.158:4  tcp                             France                     https    GoAhead WebServer
  43
-msf6 auxiliary(gather/zoomeye_search) > hosts
+msf auxiliary(gather/zoomeye_search) > hosts
 
 Hosts
 =====
@@ -895,7 +895,7 @@ address         mac  name  os_name  os_flavor  os_sp  purpose  info  comments
 183.171.15.197                                        device         Added from Zoomeye
 183.171.15.221                                        device         Added from Zoomeye
 
-msf6 auxiliary(gather/zoomeye_search) > services
+msf auxiliary(gather/zoomeye_search) > services
 Services
 ========
 
@@ -922,13 +922,13 @@ host            port  proto  name   state  info
 183.171.15.197  443   tcp    https  open   GoAhead WebServer running version:
 183.171.15.221  443   tcp    https  open   GoAhead WebServer running version:
 
-msf6 auxiliary(gather/zoomeye_search) >
+msf auxiliary(gather/zoomeye_search) >
 ```
 
 ### Web Search With Database
 ```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/zoomeye_search
-msf6 auxiliary(gather/zoomeye_search) > show options
+msf payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/zoomeye_search
+msf auxiliary(gather/zoomeye_search) > show options
 
 Module options (auxiliary/gather/zoomeye_search):
 
@@ -943,17 +943,17 @@ Module options (auxiliary/gather/zoomeye_search):
    USERNAME                       yes       The ZoomEye username
    ZOOMEYE_DORK                   yes       The ZoomEye dork
 
-msf6 auxiliary(gather/zoomeye_search) > set RESOURCE web
+msf auxiliary(gather/zoomeye_search) > set RESOURCE web
 RESOURCE => web
-msf6 auxiliary(gather/zoomeye_search) > set ZOOMEYE_DORK 'app:"moxa OnCell G3470A-LTE-EU"'
+msf auxiliary(gather/zoomeye_search) > set ZOOMEYE_DORK 'app:"moxa OnCell G3470A-LTE-EU"'
 ZOOMEYE_DORK => app:"moxa OnCell G3470A-LTE-EU"
-msf6 auxiliary(gather/zoomeye_search) > set USERNAME mexig33784@mtlcz.com
+msf auxiliary(gather/zoomeye_search) > set USERNAME mexig33784@mtlcz.com
 USERNAME => mexig33784@mtlcz.com
-msf6 auxiliary(gather/zoomeye_search) > set PASSWORD aNN9tMSs3e2fJ5U
+msf auxiliary(gather/zoomeye_search) > set PASSWORD aNN9tMSs3e2fJ5U
 PASSWORD => aNN9tMSs3e2fJ5U
-msf6 auxiliary(gather/zoomeye_search) > set OUTFILE /tmp/web-test.txt
+msf auxiliary(gather/zoomeye_search) > set OUTFILE /tmp/web-test.txt
 OUTFILE => /tmp/web-test.txt
-msf6 auxiliary(gather/zoomeye_search) > show options
+msf auxiliary(gather/zoomeye_search) > show options
 
 Module options (auxiliary/gather/zoomeye_search):
 
@@ -969,9 +969,9 @@ Module options (auxiliary/gather/zoomeye_search):
    USERNAME      mexig33784@mtlcz.com             yes       The ZoomEye username
    ZOOMEYE_DORK  app:"moxa OnCell G3470A-LTE-EU"  yes       The ZoomEye dork
 
-msf6 auxiliary(gather/zoomeye_search) > set DATABASE true
+msf auxiliary(gather/zoomeye_search) > set DATABASE true
 DATABASE => true
-msf6 auxiliary(gather/zoomeye_search) > hosts -d
+msf auxiliary(gather/zoomeye_search) > hosts -d
 
 Hosts
 =====
@@ -988,14 +988,14 @@ address         mac  name                                         os_name  os_fl
 178.182.244.68       178.182.244.68.nat.umts.dynamic.t-mobile.pl                                            Added from Zoomeye
 
 [*] Deleted 8 hosts
-msf6 auxiliary(gather/zoomeye_search) > services -d
+msf auxiliary(gather/zoomeye_search) > services -d
 Services
 ========
 
 host  port  proto  name  state  info
 ----  ----  -----  ----  -----  ----
 
-msf6 auxiliary(gather/zoomeye_search) > run
+msf auxiliary(gather/zoomeye_search) > run
 
 [*] Logged in to zoomeye
 [*] Total: 9 on 1 pages. Showing: 1 page(s)
@@ -1016,7 +1016,7 @@ Web search
 
 [*] Saved results in /tmp/web-test.txt
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/zoomeye_search) > hosts
+msf auxiliary(gather/zoomeye_search) > hosts
 
 Hosts
 =====
@@ -1032,14 +1032,14 @@ address         mac  name                                         os_name  os_fl
 178.182.239.27       178.182.239.27.nat.umts.dynamic.t-mobile.pl                                            Added from Zoomeye
 178.182.244.68       178.182.244.68.nat.umts.dynamic.t-mobile.pl                                            Added from Zoomeye
 
-msf6 auxiliary(gather/zoomeye_search) > services
+msf auxiliary(gather/zoomeye_search) > services
 Services
 ========
 
 host  port  proto  name  state  info
 ----  ----  -----  ----  -----  ----
 
-msf6 auxiliary(gather/zoomeye_search) > cat /tmp/web-test.txt
+msf auxiliary(gather/zoomeye_search) > cat /tmp/web-test.txt
 [*] exec: cat /tmp/web-test.txt
 
 Web search
@@ -1056,5 +1056,5 @@ Web search
  123.209.125.20  61438337164.mobile.telstra.com               Sydney  Australia
  178.182.239.27  178.182.239.27.nat.umts.dynamic.t-mobile.pl          Poland
  178.182.244.68  178.182.244.68.nat.umts.dynamic.t-mobile.pl          Poland
-msf6 auxiliary(gather/zoomeye_search) >
+msf auxiliary(gather/zoomeye_search) >
 ```

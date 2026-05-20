@@ -14,10 +14,10 @@ This module attempts to authenticate to Git servers using compromised SSH privat
 ## Usage
 
 ```
-msf5 > use auxiliary/scanner/ssh/ssh_enum_git_keys
-msf5 auxiliary(scanner/ssh/ssh_enum_git_keys) > set KEY_DIR /Users/w/.ssh
+msf > use auxiliary/scanner/ssh/ssh_enum_git_keys
+msf auxiliary(scanner/ssh/ssh_enum_git_keys) > set KEY_DIR /Users/w/.ssh
 KEY_DIR => /Users/w/.ssh
-msf5 auxiliary(scanner/ssh/ssh_enum_git_keys) > run
+msf auxiliary(scanner/ssh/ssh_enum_git_keys) > run
 
 Git Access Data
 ===============

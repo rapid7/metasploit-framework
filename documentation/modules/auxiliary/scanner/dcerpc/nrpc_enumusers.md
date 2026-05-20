@@ -51,11 +51,11 @@ targeting a single Domain Controller to identify valid domain user accounts.
 Create a new `./users.txt` file, then run the module:
 
 ```
-msf6 auxiliary(gather/nrpc_enumusers) > set RHOSTS 192.168.177.177
+msf auxiliary(gather/nrpc_enumusers) > set RHOSTS 192.168.177.177
 RHOSTS => 192.168.177.177
-msf6 auxiliary(gather/nrpc_enumusers) > set USER_FILE users.txt 
+msf auxiliary(gather/nrpc_enumusers) > set USER_FILE users.txt 
 USER_FILE => users.txt
-msf6 auxiliary(gather/nrpc_enumusers) > run
+msf auxiliary(gather/nrpc_enumusers) > run
 
 [*] 192.168.177.177: - Connecting to the endpoint mapper service...
 [*] 192.168.177.177: - Binding to 12345678-1234-abcd-ef00-01234567cffb:1.0@ncacn_ip_tcp:192.168.177.177[49664]...
@@ -75,5 +75,5 @@ msf6 auxiliary(gather/nrpc_enumusers) > run
 [-] 192.168.177.177: - Kaorz does not exist
 [*] 192.168.177.177: - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/nrpc_enumusers) >
+msf auxiliary(gather/nrpc_enumusers) >
 ```

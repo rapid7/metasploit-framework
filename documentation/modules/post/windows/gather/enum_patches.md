@@ -20,9 +20,9 @@ WMI query: `SELECT HotFixID, InstalledOn FROM Win32_QuickFixEngineering`.
 ### Windows 11 Pro 10.0.22000 Build 22000 x64
 
 ```
-msf6 post(windows/gather/enum_patches) > set session 1
+msf post(windows/gather/enum_patches) > set session 1
 session => 1
-msf6 post(windows/gather/enum_patches) > run
+msf post(windows/gather/enum_patches) > run
 
 [*] Running module against WINDEV2110EVAL (192.168.200.140)
 
@@ -42,9 +42,9 @@ Installed Patches
 ### Windows 7 SP1 x64
 
 ```
-msf6 post(windows/gather/enum_patches) > set session 1
+msf post(windows/gather/enum_patches) > set session 1
 session => 1
-msf6 post(windows/gather/enum_patches) > run
+msf post(windows/gather/enum_patches) > run
 
 [*] Running module against TEST (192.168.200.190)
 
@@ -77,9 +77,9 @@ Installed Patches
 ### Windows XP SP3 x86
 
 ```
-msf6 post(windows/gather/enum_patches) > set session 1
+msf post(windows/gather/enum_patches) > set session 1
 session => 1
-msf6 post(windows/gather/enum_patches) > run
+msf post(windows/gather/enum_patches) > run
 
 [*] Running module against WINXP (192.168.200.164)
 

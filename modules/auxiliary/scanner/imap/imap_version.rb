@@ -10,10 +10,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'IMAP4 Banner Grabber',
+      'Name' => 'IMAP4 Banner Grabber',
       'Description' => 'IMAP4 Banner Grabber',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE
     )
   end
 

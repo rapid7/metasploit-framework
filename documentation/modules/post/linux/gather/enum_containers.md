@@ -29,9 +29,9 @@ This module looks for container platforms running on the target and then lists a
 
 Scenario 1: Docker is installed with 4 running containers
 ```
-msf5 post(linux/gather/enum_containers) > set session 4
+msf post(linux/gather/enum_containers) > set session 4
 session => 4
-msf5 post(linux/gather/enum_containers) > run
+msf post(linux/gather/enum_containers) > run
 
 [+] docker was found on the system!
 [+] docker: 1 Running Containers / 5 Total
@@ -47,9 +47,9 @@ cfa40ec4d85c        nginx               "/docker-entrypoint.…"   2 days ago   
 
 Scenario 2: Docker, LXC and RKT are installed, and each of them are running their own containers
 ```
-msf5 post(linux/gather/enum_containers) > set session 2
+msf post(linux/gather/enum_containers) > set session 2
 session => 2
-msf5 post(linux/gather/enum_containers) > exploit
+msf post(linux/gather/enum_containers) > exploit
 
 [+] docker was found on the system!
 [+] docker: 1 Running Containers / 5 Total
@@ -75,24 +75,24 @@ UUID            APP     IMAGE NAME              STATE           CREATED         
 [+] Results stored in: /home/gwillcox/.msf4/loot/20200805193842_default_172.27.129.4_host.rkt_contain_801968.txt
 
 [*] Post module execution completed
-msf5 post(linux/gather/enum_containers) >
+msf post(linux/gather/enum_containers) >
 
 Scenario 3: No container software is runnable
 ```
-msf5 post(linux/gather/enum_containers) > set session 6
+msf post(linux/gather/enum_containers) > set session 6
 session => 6
-msf5 post(linux/gather/enum_containers) > run
+msf post(linux/gather/enum_containers) > run
 [-] No container software appears to be installed or runnable by the current user
 [*] Post module execution completed
 ```
 
 Scenario 4: List all containers and execute the `env` command on all running containers
 ```
-msf5 post(linux/gather/enum_containers) > set session 6
+msf post(linux/gather/enum_containers) > set session 6
 session => 6
-msf5 post(linux/gather/enum_containers) > set CMD "env"
+msf post(linux/gather/enum_containers) > set CMD "env"
 CMD => env
-msf5 post(linux/gather/enum_containers) > run
+msf post(linux/gather/enum_containers) > run
 
 [+] docker was found on the system!
 [+] docker: 1 Running Containers / 5 Total
@@ -147,5 +147,5 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/us
 LANG=C
 PWD=/home/gwillcox/git/metasploit-framework
 [*] Post module execution completed
-msf5 post(linux/gather/enum_containers) >
+msf post(linux/gather/enum_containers) >
 ```

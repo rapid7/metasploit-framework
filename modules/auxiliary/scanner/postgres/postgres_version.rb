@@ -11,18 +11,25 @@ class MetasploitModule < Msf::Auxiliary
 
   # Creates an instance of this module.
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'PostgreSQL Version Probe',
-      'Description'    => %q{
-        Enumerates the version of PostgreSQL servers.
-      },
-      'Author'         => [ 'todb' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'PostgreSQL Version Probe',
+        'Description' => %q{
+          Enumerates the version of PostgreSQL servers.
+        },
+        'Author' => [ 'todb' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'https://www.postgresql.org/' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([ ]) # None needed.
 
@@ -35,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
     self.postgres_conn = session.client if session
     user = datastore['USERNAME']
     pass = postgres_password
-    do_fingerprint(user,pass,datastore['DATABASE'])
+    do_fingerprint(user, pass, datastore['DATABASE'])
   end
 
   # Alias for RHOST
@@ -74,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def do_fingerprint(user=nil,pass=nil,database=nil)
+  def do_fingerprint(user = nil, pass = nil, database = nil)
     begin
       msg = "#{rhost}:#{rport} Postgres -"
       password = pass || postgres_password
@@ -126,11 +133,9 @@ class MetasploitModule < Msf::Auxiliary
 
       # Logout
       postgres_logout if self.postgres_conn && session.blank?
-
     rescue Rex::ConnectionError
       vprint_error "#{rhost}:#{rport} Connection Error: #{$!}"
       return :done
     end
-
   end
 end

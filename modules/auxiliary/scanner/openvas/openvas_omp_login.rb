@@ -11,10 +11,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'OpenVAS OMP Login Utility',
+      'Name' => 'OpenVAS OMP Login Utility',
       'Description' => 'This module attempts to authenticate to an OpenVAS OMP service.',
-      'Author'      => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'     => MSF_LICENSE
+      'Author' => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+      'License' => MSF_LICENSE
     )
     register_options(
       [
@@ -36,18 +36,18 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def omp_send(data=nil, con=true)
+  def omp_send(data = nil, con = true)
     begin
-      @result=''
-      @coderesult=''
+      @result = ''
+      @coderesult = ''
       if (con)
-        @connected=false
+        @connected = false
         connect
-        select(nil,nil,nil,0.4)
+        select(nil, nil, nil, 0.4)
       end
-      @connected=true
+      @connected = true
       sock.put(data)
-      @result=sock.get_once
+      @result = sock.get_once
     rescue ::Exception => err
       print_error("#{msg} Error: #{err.to_s}")
     end
@@ -80,11 +80,11 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def do_login(user=nil,pass=nil)
+  def do_login(user = nil, pass = nil)
     begin
       vprint_status("#{msg} Trying user:'#{user}' with password:'#{pass}'")
       cmd = "<authenticate><credentials><username>#{user}</username><password>#{pass}</password></credentials></authenticate><HELP/>\r\n"
-      omp_send(cmd,true) # send hello
+      omp_send(cmd, true) # send hello
       if @result =~ /<authenticate_response.*status="200"/is
         print_good("#{msg} SUCCESSFUL login for '#{user}' : '#{pass}'")
         report_cred(
@@ -106,8 +106,8 @@ class MetasploitModule < Msf::Auxiliary
         vprint_error("#{msg} Rejected user: '#{user}' with password: '#{pass}': #{@result}")
         return :fail
       end
-      rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      rescue ::Timeout::Error, ::Errno::EPIPE
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+    rescue ::Timeout::Error, ::Errno::EPIPE
     end
   end
 

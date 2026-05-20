@@ -10,16 +10,16 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   URLS = [
-      '/stmeetings/about.jsp',
-      '/stmeetings/serverversion.properties',
-      '/rtc/buildinfo.txt',
-      '/stmeetings/configuration?format=json&verbose=true'
+    '/stmeetings/about.jsp',
+    '/stmeetings/serverversion.properties',
+    '/rtc/buildinfo.txt',
+    '/stmeetings/configuration?format=json&verbose=true'
   ]
 
   PROXY_URLS = [
-      '/stwebclient/i18nStrings.jsp',
-      '/stwebclient/communityserver',
-      '/stwebav/WebAVServlet?Name=WebPlayerVersion'
+    '/stwebclient/i18nStrings.jsp',
+    '/stwebclient/communityserver',
+    '/stwebav/WebAVServlet?Name=WebPlayerVersion'
   ]
 
   JSON_KEYS = [
@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
   INFO_REGEXS = [
     # section, key, regex
     [ 'version', 'sametimeVersion', /lotusBuild">Release (.+?)<\/td>/i ],
-    [ 'api', 'meeting',  /^meeting=(.*)$/i ],
+    [ 'api', 'meeting', /^meeting=(.*)$/i ],
     [ 'api', 'appshare', /^appshare=(.*)$/i ],
     [ 'api', 'docshare', /^docshare=(.*)$/i ],
     [ 'api', 'rtc4web', /^rtc4web=(.*)$/i ],
@@ -56,50 +56,54 @@ class MetasploitModule < Msf::Auxiliary
     [ 'api', 'video', /^video=(.*)$/i]
   ]
 
-
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'IBM Lotus Sametime Version Enumeration',
-      'Description' => %q{
-        This module scans an IBM Lotus Sametime web interface to enumerate
-        the application's version and configuration information.
-      },
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'IBM Lotus Sametime Version Enumeration',
+        'Description' => %q{
+          This module scans an IBM Lotus Sametime web interface to enumerate
+          the application's version and configuration information.
+        },
+        'Author' => [
           'kicks4kittens' # Metasploit module
         ],
-      'References' =>
-        [
+        'References' => [
           [ 'CVE', '2013-3982' ],
           [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21671201']
         ],
-      'DefaultOptions' =>
-        {
+        'DefaultOptions' => {
           'SSL' => true
         },
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2013-12-27'
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2013-12-27',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('TARGETURI', [ true,  "The path to the Sametime Server", '/']),
-        OptBool.new('QuerySametimeProxy', [ true,  "Automatically query Sametime proxy if found", true]),
-        OptBool.new('ShowVersions', [ true,  "Display Version information from server", true]),
-        OptBool.new('ShowConfig', [ true,  "Display Config information from server", true]),
-        OptBool.new('ShowAPIVersions', [ true,  "Display API Version information from server", false])
-      ])
+        OptString.new('TARGETURI', [ true, "The path to the Sametime Server", '/']),
+        OptBool.new('QuerySametimeProxy', [ true, "Automatically query Sametime proxy if found", true]),
+        OptBool.new('ShowVersions', [ true, "Display Version information from server", true]),
+        OptBool.new('ShowConfig', [ true, "Display Config information from server", true]),
+        OptBool.new('ShowAPIVersions', [ true, "Display API Version information from server", false])
+      ]
+    )
 
     register_advanced_options(
       [
-        OptBool.new('StoreConfigs', [ true,  "Store JSON configs to loot", true])
-      ])
-
+        OptBool.new('StoreConfigs', [ true, "Store JSON configs to loot", true])
+      ]
+    )
   end
 
-  def check_url(url, proxy='')
-
+  def check_url(url, proxy = '')
     cgi_options = {
       'uri' => normalize_uri(target_path, url),
       'method' => 'GET'
@@ -199,47 +203,50 @@ class MetasploitModule < Msf::Auxiliary
     # configure tables
     version_tbl = Msf::Ui::Console::Table.new(
       Msf::Ui::Console::Table::Style::Default,
-      'Header'  => "IBM Lotus Sametime Information [Version]",
-      'Prefix'  => "",
-      'Indent'  => 1,
-      'Columns'   =>
+      'Header' => "IBM Lotus Sametime Information [Version]",
+      'Prefix' => "",
+      'Indent' => 1,
+      'Columns' =>
       [
         "Component",
         "Version"
-      ])
+      ]
+    )
 
     conf_tbl = Msf::Ui::Console::Table.new(
       Msf::Ui::Console::Table::Style::Default,
-      'Header'  => "IBM Lotus Sametime Information [Config]",
-      'Prefix'  => "",
-      'Indent'  => 1,
-      'Columns'   =>
+      'Header' => "IBM Lotus Sametime Information [Config]",
+      'Prefix' => "",
+      'Indent' => 1,
+      'Columns' =>
       [
         "Key",
         "Value"
-      ])
+      ]
+    )
 
     api_tbl = Msf::Ui::Console::Table.new(
       Msf::Ui::Console::Table::Style::Default,
-      'Header'  => "IBM Lotus Sametime Information [API]",
-      'Prefix'  => "",
-      'Indent'  => 1,
-      'Columns'   =>
+      'Header' => "IBM Lotus Sametime Information [API]",
+      'Prefix' => "",
+      'Indent' => 1,
+      'Columns' =>
       [
         "API",
         "Version"
-      ])
+      ]
+    )
 
     # populate tables
-    @version_info['version'].each do | line |
+    @version_info['version'].each do |line|
       version_tbl << [ line[0], line[1] ]
     end
 
-    @version_info['conf'].each do | line |
+    @version_info['conf'].each do |line|
       conf_tbl << [ line[0], line[1] ]
     end
 
-    @version_info['api'].each do | line |
+    @version_info['api'].each do |line|
       api_tbl << [ line[0], line[1] ]
     end
 
@@ -250,11 +257,11 @@ class MetasploitModule < Msf::Auxiliary
 
     # report_note
     report_note(
-      :host  => rhost,
-      :port  => rport,
+      :host => rhost,
+      :port => rport,
       :proto => 'http',
       :ntype => 'ibm_lotus_sametime_version',
-      :data  => { :version => @version_info['version']['sametimeVersion'] }
+      :data => { :version => @version_info['version']['sametimeVersion'] }
     ) if @version_info['version']['sametimeVersion']
   end
 
@@ -297,7 +304,7 @@ class MetasploitModule < Msf::Auxiliary
     @version_info['api'] = {}
 
     print_status("Checking IBM Lotus Sametime Server")
-    URLS.each do | url |
+    URLS.each do |url|
       check_url(url)
     end
 
@@ -312,7 +319,7 @@ class MetasploitModule < Msf::Auxiliary
 
       print_good("Sametime Proxy address discovered #{proxy}")
 
-      PROXY_URLS.each do | url |
+      PROXY_URLS.each do |url|
         check_url(url, proxy)
       end
     elsif proxy?

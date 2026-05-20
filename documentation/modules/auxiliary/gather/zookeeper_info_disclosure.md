@@ -5,9 +5,9 @@ This module targets Apache ZooKeeper service instances to extract information ab
 ### Verification Steps
 
 ```
-msf5 > use auxiliary/gather/zookeeper_info_disclosure
-msf5 auxiliary(gather/zookeeper_info_disclosure) > set rhosts 1.3.3.7
-msf5 auxiliary(gather/zookeeper_info_disclosure) > show options
+msf > use auxiliary/gather/zookeeper_info_disclosure
+msf auxiliary(gather/zookeeper_info_disclosure) > set rhosts 1.3.3.7
+msf auxiliary(gather/zookeeper_info_disclosure) > show options
 
        Name: Apache ZooKeeper Information Disclosure
      Module: auxiliary/gather/zookeeper_info_disclosure
@@ -39,7 +39,7 @@ References:
   https://zookeeper.apache.org/doc/current/zookeeperAdmin.html
 
 
-msf5 auxiliary(gather/zookeeper_info_disclosure) > run
+msf auxiliary(gather/zookeeper_info_disclosure) > run
 
 [*] 1.3.3.7:2181     - Using a timeout of 30...
 [*] 1.3.3.7:2181     - Verifying if service is responsive...
@@ -90,8 +90,8 @@ Node count: 1041
 [*] Auxiliary module execution completed
 
 
-msf5 auxiliary(gather/zookeeper_info_disclosure) > 
-msf5 auxiliary(gather/zookeeper_info_disclosure) > loot
+msf auxiliary(gather/zookeeper_info_disclosure) > 
+msf auxiliary(gather/zookeeper_info_disclosure) > loot
 
 Loot
 ====
@@ -102,7 +102,7 @@ host           service  	type         	name             content     	info       
 1.3.3.7        stat-log     	ZooKeeper 	Stat Log         text/plain  	ZooKeeper  /root/.msf4/loot/20201013203537_default_1.3.3.7_statlog_417795.txt
 
 
-msf5 auxiliary(gather/zookeeper_info_disclosure) > services 
+msf auxiliary(gather/zookeeper_info_disclosure) > services 
 Services
 ========
 
@@ -110,7 +110,7 @@ host       port  proto  name       state  info
 ----       ----  -----  ----       -----  ----
 1.3.3.7    2181  tcp    zookeeper  open   Apache Zookeeper: 3.4.13-2--1
 
-msf5 auxiliary(gather/zookeeper_info_disclosure) > hosts
+msf auxiliary(gather/zookeeper_info_disclosure) > hosts
 
 Hosts
 =====

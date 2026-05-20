@@ -76,7 +76,7 @@ Dump all data from the available data repositories (tables). If true, CONFIG_FIL
 ## Scenarios
 ### ManageEngine DataSecurity Plus 6.0.1 (6010) on Windows Server 2012
 ```
-msf6 auxiliary(gather/manageengine_datasecurity_plus_xnode_enum) > options
+msf auxiliary(gather/manageengine_datasecurity_plus_xnode_enum) > options
 
 Module options (auxiliary/gather/manageengine_datasecurity_plus_xnode_enum):
 
@@ -90,7 +90,7 @@ Module options (auxiliary/gather/manageengine_datasecurity_plus_xnode_enum):
    RPORT        29119                                                          yes       The target port (TCP)
    USERNAME     atom                                                           yes       Username used to authenticate to the Xnode server
 
-msf6 auxiliary(gather/manageengine_datasecurity_plus_xnode_enum) > run
+msf auxiliary(gather/manageengine_datasecurity_plus_xnode_enum) > run
 [*] Running module against 192.168.1.41
 
 [*] 192.168.1.41:29119 - Running automatic check ("set AutoCheck false" to disable)

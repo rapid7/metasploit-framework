@@ -36,10 +36,10 @@ Service startup types to display (`All`, `Auto`, `Manual`, `Disabled`) (default:
 ### Windows Server 2008 SP1 (x64)
 
 ```
-msf6 > use post/windows/gather/enum_services
-msf6 post(windows/gather/enum_services) > set session 1
+msf > use post/windows/gather/enum_services
+msf post(windows/gather/enum_services) > set session 1
 session => 1
-msf6 post(windows/gather/enum_services) > run
+msf post(windows/gather/enum_services) > run
 
 [*] Listing Service Info for matching services, please wait...
 [+] New service credential detected: AeLookupSvc is running as 'localSystem'

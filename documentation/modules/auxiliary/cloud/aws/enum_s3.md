@@ -47,7 +47,7 @@ This module authenticates to AWS S3 (Simple Storage Service), to identify bucket
 ### Provided a valid 'access key ID' and 'secret access key' with sufficient privileges 
 
 ```
-msf5 auxiliary(cloud/aws/enum_s3) > run
+msf auxiliary(cloud/aws/enum_s3) > run
 [+] Found 1 buckets.
 [+]   Name:           asoto-secret-demo-bucket
 [+]   Creation Date:  2019-06-13 23:30:26 UTC
@@ -61,35 +61,35 @@ msf5 auxiliary(cloud/aws/enum_s3) > run
 [*] 
 [*] Done.
 [*] Auxiliary module execution completed
-msf5 auxiliary(cloud/aws/enum_s3) > exit
+msf auxiliary(cloud/aws/enum_s3) > exit
 ```
   
 ### Provided an invalid or inactive 'access key ID'
 
 ```
-msf5 auxiliary(cloud/aws/enum_s3) > run
+msf auxiliary(cloud/aws/enum_s3) > run
 
 [-] Auxiliary aborted due to failure: unexpected-reply: The AWS Access Key Id you provided does not exist in our records.
 [*] Auxiliary module execution completed
-msf5 auxiliary(cloud/aws/enum_s3) >
+msf auxiliary(cloud/aws/enum_s3) >
 ```
   
 ### Provided an invalid 'secret access key'
 
 ```
-msf5 auxiliary(cloud/aws/enum_s3) > run
+msf auxiliary(cloud/aws/enum_s3) > run
 
 [-] Auxiliary aborted due to failure: unexpected-reply: The request signature we calculated does not match the signature you provided. Check your key and signing method.
 [*] Auxiliary module execution completed
-msf5 auxiliary(cloud/aws/enum_s3) > 
+msf auxiliary(cloud/aws/enum_s3) > 
 ```
 
 ### Provided an 'access key ID' or 'secret access key' with insufficient privileges
 
 ```
-msf5 auxiliary(cloud/aws/enum_s3) > run
+msf auxiliary(cloud/aws/enum_s3) > run
 
 [-] Auxiliary aborted due to failure: unexpected-reply: Access Denied
 [*] Auxiliary module execution completed
-msf5 auxiliary(cloud/aws/enum_s3) > 
+msf auxiliary(cloud/aws/enum_s3) > 
 ```

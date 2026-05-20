@@ -3,28 +3,26 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
   def initialize
     super(
-      'Name'        => 'IPMI Information Discovery',
+      'Name' => 'IPMI Information Discovery',
       'Description' => 'Discover host information through IPMI Channel Auth probes',
-      'Author'      => [ 'Dan Farmer <zen[at]fish2.com>', 'hdm' ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://fish2.com/ipmi/']
-        ]
+      'Author' => [ 'Dan Farmer <zen[at]fish2.com>', 'hdm' ],
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['URL', 'http://fish2.com/ipmi/']
+      ]
     )
 
     register_options(
-    [
-      Opt::RPORT(623)
-    ])
-
+      [
+        Opt::RPORT(623)
+      ]
+    )
   end
 
   def rport
@@ -46,6 +44,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Ignore invalid responses
     return unless info
+
     unless info.ipmi_command == 56
       vprint_error "#{shost}:#{rport} - IPMI - Invalid response"
       return
@@ -61,17 +60,16 @@ class MetasploitModule < Msf::Auxiliary
     print_good("#{shost}:#{rport} - IPMI - #{banner}")
 
     report_service(
-      :host  => shost,
-      :port  => rport,
+      :host => shost,
+      :port => rport,
       :proto => 'udp',
-      :name  => 'ipmi',
-      :info  => banner
+      :name => 'ipmi',
+      :info => banner
     )
 
     # Potential improvements:
     # - Report a vulnerability if info.ipmi_user_anonymous has been set
     # - Report a vulnerability if ipmi 2.0 and kg is set to default (almost always the case)
     # - Report a vulnerability if info.ipmi_user_null has been set (null username)
-
   end
 end

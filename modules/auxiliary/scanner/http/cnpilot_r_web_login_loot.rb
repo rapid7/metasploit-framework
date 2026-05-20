@@ -7,30 +7,35 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::CNPILOT
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Cambium cnPilot r200/r201 Login Scanner and Config Dump',
-      'Description' => %{
-        This module scans for Cambium cnPilot r200/r201 management login
-        portal(s), attempts to identify valid credentials, and dump device
-        configuration.
+    super(
+      update_info(
+        info,
+        'Name' => 'Cambium cnPilot r200/r201 Login Scanner and Config Dump',
+        'Description' => %q{
+          This module scans for Cambium cnPilot r200/r201 management login
+          portal(s), attempts to identify valid credentials, and dump device
+          configuration.
 
-        The device has at least two (2) users - admin and user. Due to an
-        access control vulnerability, it is possible for 'user' account to access full
-        device config. All information, including passwords, and keys, is stored
-        insecurely, in clear-text form, thus allowing unauthorized admin access to any
-        user.
-      },
-      'Author' =>
-        [
+          The device has at least two (2) users - admin and user. Due to an
+          access control vulnerability, it is possible for 'user' account to access full
+          device config. All information, including passwords, and keys, is stored
+          insecurely, in clear-text form, thus allowing unauthorized admin access to any
+          user.
+        },
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'References' =>
-        [
+        'References' => [
           ['CVE', '2017-5260'],
           ['URL', 'https://www.rapid7.com/blog/post/2017/12/19/r7-2017-25-cambium-epmp-and-cnpilot-multiple-vulnerabilities/']
         ],
-      'License' => MSF_LICENSE
-     )
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
     )
 
     register_options(

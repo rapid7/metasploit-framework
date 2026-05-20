@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
@@ -13,29 +12,34 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'          => 'Gather Quake Server Information',
-        'Description'   => %q(
+        'Name' => 'Gather Quake Server Information',
+        'Description' => %q{
           This module uses the getstatus or getinfo request to obtain
           information from a Quakeserver.
-        ),
-        'Author'        => 'Jon Hart <jon_hart[at]rapid7.com>',
-        'References'    =>
-          [
-            ['URL', 'ftp://ftp.idsoftware.com/idstuff/quake3/docs/server.txt']
-          ],
-        'License'       => MSF_LICENSE,
-        'Actions'       => [
+        },
+        'Author' => 'Jon Hart <jon_hart[at]rapid7.com>',
+        'References' => [
+          ['URL', 'ftp://ftp.idsoftware.com/idstuff/quake3/docs/server.txt']
+        ],
+        'License' => MSF_LICENSE,
+        'Actions' => [
           ['status', 'Description' => 'Use the getstatus command'],
           ['info', 'Description' => 'Use the getinfo command']
         ],
-        'DefaultAction' => 'status'
+        'DefaultAction' => 'status',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 
     register_options(
-    [
-      Opt::RPORT(27960)
-    ])
+      [
+        Opt::RPORT(27960)
+      ]
+    )
   end
 
   def build_probe
@@ -69,6 +73,7 @@ class MetasploitModule < Msf::Auxiliary
   def scanner_process(response, src_host, src_port)
     stuff = decode_stuff(response)
     return unless stuff
+
     @results[src_host] ||= {}
     print_good("#{src_host}:#{src_port} found '#{stuff}'")
     @results[src_host].merge!(stuff)

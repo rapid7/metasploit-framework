@@ -7,26 +7,31 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::EPMP
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Cambium ePMP 1000 Account Password Reset',
-      'Description' => %{
+    super(
+      update_info(
+        info,
+        'Name' => 'Cambium ePMP 1000 Account Password Reset',
+        'Description' => %q{
           This module exploits an access control vulnerability in Cambium ePMP
           device management portal. It requires any one of the following non-admin login
           credentials - installer/installer, home/home - to reset password of other
           existing user(s) including 'admin'. All versions <=3.5 are affected. This
           module works on versions 3.0-3.5-RC7.
-      },
-      'Author' =>
-        [
+        },
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'References' =>
-        [
+        'References' => [
           ['CVE', '2017-5254'],
           ['URL', 'https://www.rapid7.com/blog/post/2017/12/19/r7-2017-25-cambium-epmp-and-cnpilot-multiple-vulnerabilities/']
         ],
-      'License' => MSF_LICENSE
-     )
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
     )
 
     register_options(
@@ -78,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
       res &&
       res.code == 200 &&
       res.headers.include?('Content-Type') &&
-      res.headers['Content-Type'].include?('application/json')&&
+      res.headers['Content-Type'].include?('application/json') &&
       res.body.include?('config_id')
     )
 

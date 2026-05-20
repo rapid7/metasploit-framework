@@ -14,28 +14,28 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'rexec Authentication Scanner',
+      'Name' => 'rexec Authentication Scanner',
       'Description' => %q{
           This module will test an rexec service on a range of machines and
         report successful logins.
 
         NOTE: This module requires access to bind to privileged ports (below 1024).
       },
-      'References' =>
-        [
-          [ 'CVE', '1999-0651' ],
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'Author'      => [ 'jduck' ],
-      'License'     => MSF_LICENSE
+      'References' => [
+        [ 'CVE', '1999-0651' ],
+        [ 'CVE', '1999-0502'] # Weak password
+      ],
+      'Author' => [ 'jduck' ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(512),
         OptBool.new('ENABLE_STDERR', [ true, 'Enables connecting the stderr port', false ]),
-        OptInt.new( 'STDERR_PORT',   [ false, 'The port to listen on for stderr', nil ])
-      ])
+        OptInt.new('STDERR_PORT', [ false, 'The port to listen on for stderr', nil ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -48,6 +48,7 @@ class MetasploitModule < Msf::Auxiliary
       if not ret
         return :abort
       end
+
       sd, stderr_port = ret
     else
       sd = stderr_port = nil
@@ -62,7 +63,6 @@ class MetasploitModule < Msf::Auxiliary
 
     sd.close if sd
   end
-
 
   def do_login(user, pass, sfd, stderr_port)
     vprint_status("#{target_host}:#{rport} - Attempting rexec with username:password '#{user}':'#{pass}'")
@@ -106,15 +106,12 @@ class MetasploitModule < Msf::Auxiliary
     return :next_user
 
   # For debugging only.
-  #rescue ::Exception
+  # rescue ::Exception
   #  print_error("#{$!}")
-  #return :abort
-
+  # return :abort
   ensure
     disconnect()
-
   end
-
 
   #
   # This is only needed by rexec so it is not in the rservices mixin
@@ -129,6 +126,7 @@ class MetasploitModule < Msf::Auxiliary
       512.times {
         sd = listen_on_port(stderr_port)
         break if sd
+
         stderr_port = 1024 + rand(0x10000 - 1024)
       }
     end
@@ -143,21 +141,17 @@ class MetasploitModule < Msf::Auxiliary
     [ sd, stderr_port ]
   end
 
-
   def listen_on_port(stderr_port)
     vprint_status("Trying to listen on port #{stderr_port} ..")
     sd = nil
     begin
       sd = Rex::Socket.create_tcp_server('LocalPort' => stderr_port)
-
     rescue Rex::BindFailed
       # Ignore and try again
-
     end
 
     sd
   end
-
 
   def start_rexec_session(host, port, user, pass, proof, stderr_sock)
     service_data = {

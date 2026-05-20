@@ -35,9 +35,9 @@ docker restart `docker ps -q`
 Against the above-described Docker container, the workflow looks like:
 
 ```
-msf5 auxiliary(scanner/misc/java_jmx_server) > set RHOST 127.0.0.1
-msf5 auxiliary(scanner/misc/java_jmx_server) > set RPORT 1099
-msf5 auxiliary(scanner/misc/java_jmx_server) > run
+msf auxiliary(scanner/misc/java_jmx_server) > set RHOST 127.0.0.1
+msf auxiliary(scanner/misc/java_jmx_server) > set RPORT 1099
+msf auxiliary(scanner/misc/java_jmx_server) > run
 [*] Reloading module...
 
 [*] 127.0.0.1:1099        - Sending RMI header...
@@ -49,7 +49,7 @@ msf5 auxiliary(scanner/misc/java_jmx_server) > run
 In addition, note that `services` within the data model has been updated:
 
 ```
-msf5 auxiliary(scanner/misc/java_jmx_server) > services 
+msf auxiliary(scanner/misc/java_jmx_server) > services 
 Services
 ========
 

