@@ -1,4 +1,3 @@
-
 name: Command Shell Acceptance
 
 # Optional, enabling concurrency limits: https://docs.github.com/en/actions/using-jobs/using-concurrency
@@ -46,8 +45,12 @@ on:
       - 'data/templates/**'
       - 'modules/payloads/**'
       - 'lib/msf/core/payload/**'
-      - 'lib/msf/core/**'
+      - 'lib/msf/core/handler/**'
+      - 'lib/msf/core/post/**'
+      - 'lib/msf/core/session/**'
+      - 'lib/msf/base/sessions/**'
       - 'tools/dev/**'
+      - 'test/modules/post/**'
       - 'spec/acceptance/**'
       - 'spec/support/acceptance/**'
       - 'spec/acceptance_spec_helper.rb'
