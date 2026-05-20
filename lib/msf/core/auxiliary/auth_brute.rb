@@ -825,7 +825,11 @@ module Auxiliary::AuthBrute
     msg = opts[:msg] || opts[:message]
     proto = opts[:proto] || opts[:protocol] || proto_from_fullname
 
-    complete_message = build_brute_message(host_ip,host_port,proto,msg)
+    complete_message = if is_a?(Msf::Auxiliary::Scanner)
+      msg.to_s
+    else
+      build_brute_message(host_ip, host_port, proto, msg)
+    end
 
     print_method = "print_#{level}"
     if self.respond_to? print_method
