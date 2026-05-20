@@ -280,24 +280,69 @@ module ReverseHttp
     end
   end
 
+  # Extract the connection id (the checksum-tuned base64url UUID string
+  # produced by `generate_uri_uuid`) from an incoming request, so that
+  # `process_uri_resource` can map it to a session. The id can arrive in
+  # three places depending on the C2 profile placement directive:
+  #
+  #   * query parameter   (profile: `parameter "name";`)
+  #   * request header    (profile: `header    "name";`)
+  #   * trailing path seg (default — no placement directive)
+  #
+  # For the path case, the URI looks like `<base>/<id>`, where `<base>`
+  # is the profile's per-verb `set uri` if defined, otherwise `LURI`
+  # (each is registered as a separate mount point in `all_uris`).
+  # Taking the last `/`-separated segment skips the base regardless of
+  # which one was used. Profile authors should not put `/` in
+  # prepend/append directives — that would split the id across segments
+  # and defeat this scheme.
+  #
+  # If the profile applied `prepend` / `append` / `base64` / `base64url`
+  # to the id on the payload side, undo those transforms here before
+  # handing the result to `process_uri_resource`.
   def find_resource_id(cli, request)
     if request.method == 'POST'
-      directive = self.c2_profile&.http_post&.client&.id&.parameter
-      cid = request.qstring[directive[0].args[0]] if directive && directive.length > 0
-      unless cid
-        directive = self.c2_profile&.http_post&.client&.id&.header
-        cid = request.headers[directive[0].args[0]] if directive && directive.length > 0
-      end
+      placement = self.c2_profile&.http_post&.client&.id
     else
-      directive = self.c2_profile&.http_get&.client&.metadata&.parameter
+      placement = self.c2_profile&.http_get&.client&.metadata
+    end
+
+    cid = nil
+    if placement
+      directive = placement.parameter
       cid = request.qstring[directive[0].args[0]] if directive && directive.length > 0
       unless cid
-        directive = self.c2_profile&.http_get&.client&.metadata&.header
+        directive = placement.header
         cid = request.headers[directive[0].args[0]] if directive && directive.length > 0
       end
     end
 
-    request.conn_id = cid || request.resource.split('?')[0].split('/').compact.last
+    cid ||= request.resource.split('?')[0].split('/').compact.last
+    cid = unwrap_profile_uuid(cid, placement) if cid && placement
+
+    request.conn_id = cid
+  end
+
+  # Reverse the prepend/append + base64 transforms the profile applied
+  # to the id on the payload side. If a declared wrapper is missing from
+  # the candidate, leave the candidate alone — this is not a payload
+  # request, and `process_uri_resource` will return nil for it.
+  def unwrap_profile_uuid(candidate, placement)
+    prefix = placement.prepend.map{|d| d.args[0]}.join('')
+    suffix = placement.append.map{|d| d.args[0]}.join('')
+
+    return candidate unless prefix.empty? || candidate.start_with?(prefix)
+    return candidate unless suffix.empty? || candidate.end_with?(suffix)
+
+    candidate = candidate[prefix.length..] unless prefix.empty?
+    candidate = candidate[0...-suffix.length] unless suffix.empty?
+
+    if placement.has_directive('base64')
+      candidate = Rex::Text.decode_base64(candidate)
+    elsif placement.has_directive('base64url')
+      candidate = Rex::Text.decode_base64url(candidate)
+    end
+    candidate
   end
 
   def add_response_headers(req, resp)
