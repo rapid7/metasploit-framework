@@ -36,8 +36,8 @@ module MetasploitModule
   end
 
   def generate(_opts = {})
-    title = Rex::Text.to_hex_cstring(datastore['TITLE'] || '')
-    text = Rex::Text.to_hex_cstring(datastore['TEXT'] || '')
+    title = Metasm::Shellcode.define_cstring(datastore['TITLE'] || '')
+    text = Metasm::Shellcode.define_cstring(datastore['TEXT'] || '')
     style = 0x00
     case datastore['ICON'].upcase.strip
       # default = NO
@@ -90,11 +90,11 @@ module MetasploitModule
       call rbp
       mov r9, #{style}
       call get_text
-      db #{text}
+      #{text}
     get_text:
       pop rdx
       call get_title
-      db #{title}
+      #{title}
     get_title:
       pop r8
       xor rcx,rcx

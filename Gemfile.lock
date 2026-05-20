@@ -333,7 +333,7 @@ GEM
     mcp (0.13.0)
       json-schema (>= 4.1)
     memory_profiler (1.1.0)
-    metasm (1.0.5)
+    metasm (1.0.6)
     metasploit-concern (5.0.5)
       activemodel (~> 7.0)
       activesupport (~> 7.0)
