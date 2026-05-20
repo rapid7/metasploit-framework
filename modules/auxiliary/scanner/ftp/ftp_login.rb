@@ -56,6 +56,28 @@ class MetasploitModule < Msf::Auxiliary
     @accepts_all_logins = {}
   end
 
+  def run_scanner(ip, scanner)
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+        module_fullname: fullname,
+        workspace_id: myworkspace_id
+      )
+
+      case result.status
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        yield result, credential_data
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        vprint_error("#{ip}:#{rport} - Could not connect")
+        invalidate_login(credential_data)
+        report_host(host: ip)
+      else
+        vprint_error("#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})")
+        invalidate_login(credential_data)
+      end
+    end
+  end
+
   def run_host(ip)
     print_status("#{ip}:#{rport} - Starting FTP login sweep")
 
@@ -88,23 +110,13 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
-    scanner.scan! do |result|
-      credential_data = result.to_h
-      credential_data.merge!(
-        module_fullname: fullname,
-        workspace_id: myworkspace_id
-      )
-      if result.success?
-        credential_data[:private_type] = :password
-        credential_core = create_credential(credential_data)
-        credential_data[:core] = credential_core
-        create_credential_login(credential_data)
+    run_scanner(ip, scanner) do |result, credential_data|
+      credential_data[:private_type] = :password
+      credential_core = create_credential(credential_data)
+      credential_data[:core] = credential_core
+      create_credential_login(credential_data)
 
-        print_good("#{ip}:#{rport} - Login Successful: #{result.credential}")
-      else
-        invalidate_login(credential_data)
-        vprint_error("#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})")
-      end
+      print_good("#{ip}:#{rport} - Login Successful: #{result.credential}")
     end
   end
 
