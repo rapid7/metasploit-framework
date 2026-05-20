@@ -58,6 +58,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_scanner(ip, scanner)
     scanner.scan! do |result|
+      unless @reported_banner
+        @reported_banner = true
+        if scanner.banner&.match?(/^(120|220)[\s-]/)
+          self.banner = scanner.banner
+          vprint_status("#{ip}:#{rport} - FTP Banner: #{banner_version}")
+        end
+      end
+
       credential_data = result.to_h
       credential_data.merge!(
         module_fullname: fullname,
@@ -79,6 +87,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    @reported_banner = false
+
     print_status("#{ip}:#{rport} - Starting FTP login sweep")
 
     cred_collection = build_credential_collection(
