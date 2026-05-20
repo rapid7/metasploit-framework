@@ -70,6 +70,8 @@ module Payload::Python::MeterpreterLoader
       expiration:           (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
       uuid:                 opts[:uuid],
       transports:           opts[:transport_config],
+      extensions:           opts[:extensions] || [],
+      ext_format:           'py',
       stageless:            opts[:stageless] == true,
     }.merge(meterpreter_logging_config(opts))
 

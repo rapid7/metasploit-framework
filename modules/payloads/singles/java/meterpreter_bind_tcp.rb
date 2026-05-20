@@ -24,9 +24,13 @@ module MetasploitModule
         'Session' => Msf::Sessions::Meterpreter_Java_Java
       )
     )
+
+    register_options([
+      OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load'])
+    ])
   end
 
   def generate_jar(opts = {})
-    super(opts.merge(stageless: true))
+    super(opts.merge(stageless: true, extensions: (datastore['EXTENSIONS'] || '').split(',')))
   end
 end
