@@ -24,9 +24,13 @@ module MetasploitModule
         'Session' => Msf::Sessions::Meterpreter_Java_Java
       )
     )
+
+    register_options([
+      OptString.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile']),
+    ])
   end
 
-  def generate(opts = {})
-    stage_meterpreter(opts.merge(stageless: true))
+  def generate_jar(opts = {})
+    super(opts.merge(stageless: true, c2_profile: datastore['MALLEABLEC2']))
   end
 end
