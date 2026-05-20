@@ -40,19 +40,24 @@ module Metasploit
           }
 
           begin
-            success = connect_login(credential.public, credential.private)
+            ftpsock = connect(true)
+            res = send_user(credential.public, ftpsock)
+            res = send_pass(credential.private, ftpsock) if res =~ /^(331|2)/
+            if res.nil?
+              result_options[:proof] = 'No response to login command'
+              result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+            elsif res.start_with?('2')
+              result_options[:proof] = res.strip
+              result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
+            else
+              result_options[:proof] = res.strip
+              result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
+            end
           rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error => e
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-            result_options[:proof] = e
-            success = false
+            result_options[:proof] = e.message
           ensure
             disconnect
-          end
-
-          if success
-            result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
-          elsif !(result_options.has_key? :status)
-            result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
           end
 
           result = ::Metasploit::Framework::LoginScanner::Result.new(result_options)
