@@ -251,7 +251,7 @@ module Msf::Payload::MalleableC2
         add_inbound_encoding_tlv(get_tlv, self.http_get&.server&.output)
 
         client.get_section('metadata') {|meta|
-          add_outbound_encoding_tlv(get_tlv, meta)
+          add_uuid_transform_tlvs(get_tlv, meta)
           add_uuid_tlvs(get_tlv, meta)
         }
       }
@@ -276,6 +276,7 @@ module Msf::Payload::MalleableC2
         }
 
         client.get_section('id') {|client_id|
+          add_uuid_transform_tlvs(post_tlv, client_id)
           add_uuid_tlvs(post_tlv, client_id)
         }
       }
@@ -309,6 +310,20 @@ module Msf::Payload::MalleableC2
     def add_inbound_encoding_tlv(group_tlv, section)
       enc = encoding_flags_for(section)
       group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC_INBOUND, enc) if enc != MET::C2_ENCODING_NONE
+    end
+
+    # UUID placement encoding + prepend/append wrappers. Section is
+    # `client.metadata` (GET) or `client.id` (POST).
+    def add_uuid_transform_tlvs(group_tlv, section)
+      return if section.nil?
+
+      enc = encoding_flags_for(section)
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC_UUID, enc) if enc != MET::C2_ENCODING_NONE
+
+      prepend_data = section.get_directive('prepend').map{|d|d.args[0]}.join("")
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_PREFIX, prepend_data) unless prepend_data.empty?
+      append_data = section.get_directive('append').map{|d|d.args[0]}.join("")
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_SUFFIX, append_data) unless append_data.empty?
     end
 
     def add_uuid_tlvs(group_tlv, section)
