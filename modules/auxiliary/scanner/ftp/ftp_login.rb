@@ -42,7 +42,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::Proxies,
         Opt::RPORT(21),
-        OptBool.new('RECORD_GUEST', [ false, 'Record anonymous/guest logins to the database', false ])
+        OptBool.new('RECORD_GUEST', [ false, 'Record anonymous/guest logins to the database', false ]),
+        OptBool.new('CHECK_ACCESS', [ false, 'Check READ/WRITE access for successful logins', true ])
       ]
     )
 
@@ -124,9 +125,28 @@ class MetasploitModule < Msf::Auxiliary
       credential_data[:private_type] = :password
       credential_core = create_credential(credential_data)
       credential_data[:core] = credential_core
+
+      access_level = nil
+      if datastore['CHECK_ACCESS']
+        begin
+          connect(true, false)
+          send_user(result.credential.public)
+          if send_pass(result.credential.private).to_s.start_with?('2')
+            access_level = test_ftp_access
+          end
+        rescue ::IOError, Errno::ECONNRESET, ::Timeout::Error => e
+          vprint_error("#{ip}:#{rport} - #{e.message}")
+        ensure
+          disconnect
+        end
+      end
+
+      credential_data[:access_level] = access_level if access_level
       create_credential_login(credential_data)
 
-      print_good("#{ip}:#{rport} - Login Successful: #{result.credential}")
+      msg = "Login Successful: #{result.credential}"
+      msg << " (#{access_level})" if access_level
+      print_good("#{ip}:#{rport} - #{msg}")
     end
   end
 
@@ -141,16 +161,14 @@ class MetasploitModule < Msf::Auxiliary
     anon_creds
   end
 
-  def test_ftp_access(user, scanner)
+  def test_ftp_access
     dir = Rex::Text.rand_text_alpha(8)
-    write_check = scanner.send_cmd(['MKD', dir], true)
-    if write_check && write_check =~ (/^2/)
-      scanner.send_cmd(['RMD', dir], true)
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' has READ/WRITE access")
-      return 'Read/Write'
+    write_check = send_cmd(['MKD', dir], true)
+    if write_check && write_check.start_with?('2')
+      send_cmd(['RMD', dir], true)
+      'Read/Write'
     else
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' has READ access")
-      return 'Read-only'
+      'Read-only'
     end
   end
 end
