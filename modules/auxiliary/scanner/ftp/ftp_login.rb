@@ -20,18 +20,24 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'FTP Authentication Scanner',
       'Description' => %q{
-        This module will test FTP logins on a range of machines and
-        report successful logins.  If you have loaded a database plugin
-        and connected to a database this module will record successful
-        logins and hosts so you can track your access.
+        This module tests FTP logins on a range of machines. Successful
+        logins are recorded in the database as credentials, along with
+        host information.
       },
       'Author' => [
         'todb',
         'g0tmi1k' # @g0tmi1k - additional features
       ],
       'References' => [
-        [ 'CVE', '1999-0502' ] # Weak password
+        [ 'CVE', '1999-0502' ], # Weak password
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_REMOTE_SERVICES ],
+        [ 'ATT&CK', Mitre::Attack::Technique::T1110_001_PASSWORD_GUESSING ]
       ],
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [ARTIFACTS_ON_DISK, IOC_IN_LOGS, ACCOUNT_LOCKOUTS],
+        'Reliability' => []
+      },
       'License' => MSF_LICENSE,
       'DefaultOptions' => {
         'ConnectTimeout' => 30
