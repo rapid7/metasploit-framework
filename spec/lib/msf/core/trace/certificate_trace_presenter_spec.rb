@@ -129,8 +129,10 @@ RSpec.describe Msf::Trace::CertificateTracePresenter do
       expect(subject).to include('12345')
     end
 
-    it 'includes version' do
+    it 'includes the certificate version as a one-based value' do
       expect(subject).to include('Version')
+      # OpenSSL encodes a v3 certificate as version 2; users expect "v3".
+      expect(subject).to include('v3')
     end
 
     it 'includes public key as algorithm and bit size, not raw PEM' do

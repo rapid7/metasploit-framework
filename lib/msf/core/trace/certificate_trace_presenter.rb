@@ -83,7 +83,8 @@ module Msf
 
         lines = [base]
         lines << "  Serial     : #{@cert.serial}"
-        lines << "  Version    : #{@cert.version}"
+        # OpenSSL exposes the zero-based encoded X.509 version (v3 == 2).
+        lines << "  Version    : v#{@cert.version + 1}"
         lines << "  Public Key : #{format_public_key(@cert.public_key)}"
 
         identities = parse_san_identities
@@ -143,19 +144,37 @@ module Msf
         @cert.subject.to_a.find { |name, _, _| name == 'CN' }&.dig(1)
       end
 
+      # Resolve auth identities (UPN, email) from the certificate's subjectAltName.
+      #
+      # AD-issued certificates encode the UPN as an otherName GeneralName, which
+      # OpenSSL does not format reliably as a string across versions. Decode the
+      # extension as ASN.1 instead, mirroring the PKINIT SAN handling in
+      # Msf::Exploit::Remote::Kerberos::Client::Pkinit#extract_user_and_realm.
+      #
+      # @return [Hash{Symbol => String}] identity values keyed by :upn / :email
       def parse_san_identities
-        san = @cert.extensions&.find { |e| e.oid == 'subjectAltName' }
-        return {} unless san
-
         result = {}
-        san.value.split(/,\s*/).each do |entry|
-          case entry.strip
-          when /\Aothername:\s*UPN:(.+)\z/i
-            result[:upn] = ::Regexp.last_match(1).strip
-          when /\Aemail:(.+)\z/i
-            result[:email] = ::Regexp.last_match(1).strip
+        return result unless @cert&.extensions
+
+        @cert.extensions.select { |ext| ext.oid == 'subjectAltName' }.each do |san_extension|
+          asn_san = OpenSSL::ASN1.decode(san_extension)
+          octet_string = asn_san.value.find { |value| value.is_a?(OpenSSL::ASN1::OctetString) }
+          next unless octet_string
+
+          OpenSSL::ASN1.decode(octet_string.value).value.each do |san_entry|
+            case san_entry.tag
+            when 0 # otherName - AD stores the UPN principal name here
+              next unless san_entry.value[0]&.value == 'msUPN'
+
+              result[:upn] ||= san_entry.value[1].value[0].value
+            when 1 # rfc822Name (email)
+              result[:email] ||= san_entry.value
+            end
           end
+        rescue StandardError
+          next
         end
+
         result
       end
 
