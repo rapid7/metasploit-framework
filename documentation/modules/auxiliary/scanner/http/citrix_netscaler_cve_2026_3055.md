@@ -26,9 +26,12 @@ Run the module to leak data and potentially leak session cookies.
 
 ## Options
 
-- `LEAK_REQUEST_COUNT`: The number of HTTP requests to make to leak data. The more requests, the more data leaked, but
-also the longer the scan takes. Default is 4096.
+- `LEAK_REQUEST_COUNT`: The number of HTTP requests per host to try and leak data when exploiting the vulnerability.
+The more requests, the more data leaked, but also the longer the scan takes. Default is 4096.
 
+- `CHECK_REQUEST_COUNT`: The maximum number of HTTP requests per host to try and leak data when checking for the
+vulnerability. Default is 4.
+ 
 ## Scenarios
 
 ### Example 1
@@ -44,7 +47,8 @@ Module options (auxiliary/scanner/http/citrix_netscaler_cve_2026_3055):
 
    Name                Current Setting  Required  Description
    ----                ---------------  --------  -----------
-   LEAK_REQUEST_COUNT  4096             yes       The number of HTTP requests per host to try and leak data
+   LEAK_REQUEST_COUNT  4096             yes       The number of HTTP requests per host to try and leak data when exploiting the vulnerability
+   CHECK_REQUEST_COUNT 4                yes       The maximum number of HTTP requests per host to try and leak data when checking for the vulnerability
    Proxies                              no        A proxy chain of format type:host:port[,type:host:port][...]. Supported proxies: sapni, socks4, htt
                                                   p, socks5, socks5h
    RHOSTS                               yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.h
