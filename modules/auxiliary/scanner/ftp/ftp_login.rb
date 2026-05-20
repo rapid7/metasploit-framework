@@ -51,7 +51,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::Proxies,
         Opt::RPORT(21),
         OptBool.new('ANONYMOUS_LOGIN', [ true, 'Attempt to login using various anonymous FTP users', false ]), # Overwrite the AuthBrute mixin, as its not sending blank/empty user/pass
-        OptBool.new('CHECK_ACCESS', [ false, 'Check READ/WRITE access for successful logins', false ])
+        OptBool.new('CHECK_ACCESS', [ false, 'Check READ/WRITE access for successful logins', false ]),
+        OptBool.new('EXTENDED_CHECKS', [false, 'Gather service info via FEAT, STAT and SYST', false])
       ]
     )
 
@@ -144,13 +145,13 @@ class MetasploitModule < Msf::Auxiliary
       credential_data[:core] = credential_core
 
       access_level = nil
-      if datastore['CHECK_ACCESS']
-        print_brute level: :vstatus, ip: rhost, port: rport, msg: 'Checking read/write access'
+      if datastore['CHECK_ACCESS'] || datastore['EXTENDED_CHECKS']
         begin
           connect(true, false)
           send_user(result.credential.public)
           if send_pass(result.credential.private).to_s.start_with?('2')
-            access_level = test_ftp_access
+            access_level = test_ftp_access(ip) if datastore['CHECK_ACCESS']
+            ftp_fingerprint(logged_in_as: result.credential.public) if datastore['EXTENDED_CHECKS']
           end
         rescue ::IOError, Errno::ECONNRESET, ::Timeout::Error => e
           print_brute level: :verror, ip: ip, port: rport, msg: e.message
@@ -177,7 +178,8 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def test_ftp_access
+  def test_ftp_access(ip)
+    print_brute level: :vstatus, ip: ip, port: rport, msg: 'Checking read/write access'
     dir = Rex::Text.rand_text_alpha(8)
     write_check = send_cmd(['MKD', dir], true)
     if write_check && write_check.start_with?('2')
