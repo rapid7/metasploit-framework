@@ -109,7 +109,7 @@ module Msf::MCP
     # @return [MCP::Server] The MCP server instance (for testing purposes)
     #
     def start_http(host, port)
-      require 'rack'
+      require 'rackup'
       require 'rack/handler/puma'
 
       transport = ::MCP::Server::Transports::StreamableHTTPTransport.new(@mcp_server)
@@ -121,15 +121,7 @@ module Msf::MCP
         run transport
       end
 
-      # Start Puma server using the handler appropriate for the Rack version.
-      # Rackup::Handler is available with rackup >= 2.x / Rack 3+;
-      # Rack::Handler is used with Rack < 3 and rackup 1.x.
-      puma_handler = if defined?(Rackup::Handler)
-                       Rackup::Handler::Puma
-                     else
-                       Rack::Handler::Puma
-                     end
-      puma_handler.run(
+      Rackup::Handler::Puma.run(
         rack_app,
         Port: port,
         Host: host,
