@@ -755,11 +755,18 @@ private
       'Payload'  => opts['PAYLOAD'],
       'Target'   => opts['TARGET'],
       'RunAsJob' => true,
-      'Options'  => opts
+      'Options'  => opts,
+      'JobListener' => self.job_status_tracker
     })
+    if s.is_a?(Array)
+      uuid, job = s
+    else
+      uuid = mod.uuid
+      job = mod.job_id
+    end
     {
-      "job_id" => mod.job_id,
-      "uuid" => mod.uuid
+      "job_id" => job,
+      "uuid" => uuid
     }
   end
 
