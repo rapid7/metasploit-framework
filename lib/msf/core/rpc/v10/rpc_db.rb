@@ -396,40 +396,58 @@ public
   #    * 'comments' [String] The host's comments.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.hosts', {})
-  def rpc_hosts(xopts)
+ def rpc_hosts(xopts)
   ::ApplicationRecord.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
 
     conditions = {}
     conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:only_up]
-    conditions[:address] = opts[:addresses] if opts[:addresses]
 
-    limit = opts.delete(:limit) || 100
+    cidr_filters = []
+    if opts[:addresses]
+      addresses   = Array(opts[:addresses])
+      exact_addrs = addresses.reject { |a| a.to_s.include?('/') }
+      cidr_strs   = addresses.select { |a| a.to_s.include?('/') }
+      conditions[:address] = exact_addrs unless exact_addrs.empty?
+      cidr_filters = cidr_strs.map { |c| IPAddr.new(c) }
+    end
+
+    limit  = opts.delete(:limit)  || 100
     offset = opts.delete(:offset) || 0
 
     ret = {}
     ret[:hosts] = []
-    wspace.hosts.where(conditions).offset(offset).order(:address).limit(limit).each do |h|
+
+    host_query = wspace.hosts.where(conditions).order(:address)
+    if cidr_filters.empty?
+      hosts = host_query.offset(offset).limit(limit)
+    else
+      hosts = host_query
+                .select { |h| cidr_filters.any? { |cidr| cidr.include?(h.address) } }
+                .drop(offset)
+                .first(limit)
+    end
+
+    hosts.each do |h|
       host = {}
       host[:created_at] = h.created_at.to_i
-      host[:address] = h.address.to_s
-      host[:mac] = h.mac.to_s
-      host[:name] = h.name.to_s
-      host[:state] = h.state.to_s
-      host[:os_name] = h.os_name.to_s
-      host[:os_flavor] = h.os_flavor.to_s
-      host[:os_sp] = h.os_sp.to_s
-      host[:os_lang] = h.os_lang.to_s
+      host[:address]    = h.address.to_s
+      host[:mac]        = h.mac.to_s
+      host[:name]       = h.name.to_s
+      host[:state]      = h.state.to_s
+      host[:os_name]    = h.os_name.to_s
+      host[:os_flavor]  = h.os_flavor.to_s
+      host[:os_sp]      = h.os_sp.to_s
+      host[:os_lang]    = h.os_lang.to_s
       host[:updated_at] = h.updated_at.to_i
-      host[:purpose] = h.purpose.to_s
-      host[:info] = h.info.to_s
-      host[:comments] = h.comments.to_s
-      ret[:hosts]  << host
+      host[:purpose]    = h.purpose.to_s
+      host[:info]       = h.info.to_s
+      host[:comments]   = h.comments.to_s
+      ret[:hosts] << host
     end
     ret
   }
-  end
-
+end
 
   # Returns information about services.
   #
