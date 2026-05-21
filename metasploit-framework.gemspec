@@ -220,7 +220,7 @@ Gem::Specification.new do |spec|
   # Nexpose Gem
   spec.add_runtime_dependency 'nexpose'
   # Needed for NDMP sockets
-  spec.add_runtime_dependency 'xdr'
+  spec.add_runtime_dependency 'xdr', '~> 3.0'
   # Needed for ::Msf...CertProvider
   spec.add_runtime_dependency 'faker'
   # SSH server library with ed25519
