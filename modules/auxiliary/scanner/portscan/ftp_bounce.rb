@@ -50,6 +50,46 @@ class MetasploitModule < Msf::Auxiliary
     datastore['BOUNCEPORT']
   end
 
+  def register_ftp_creds(ip)
+    report_note(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      type: 'ftp.bounce',
+      data: { info: 'Attempted to use machine for FTP bounce attack', target: ip }
+    )
+
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: 'ftp',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      private_data: datastore['FTPPASS'],
+      private_type: :password,
+      username: datastore['FTPUSER'],
+      workspace_id: myworkspace_id
+    }
+
+    credential_data.merge!(service_data)
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      last_attempted_at: DateTime.now,
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      workspace_id: myworkspace_id
+    }
+
+    login_data.merge!(service_data)
+    create_credential_login(login_data)
+  end
+
   def run_host(ip)
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
     raise Msf::OptionValidateError, ['PORTS'] if ports.empty?
@@ -68,6 +108,10 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Could not authenticate to relay #{rhost}:#{rport} (check FTPUSER/FTPPASS)")
       return
     end
+
+    # This is for the FTP relay host (BOUNCEHOST/BOUNCEPORT), not the target(s) (RHOSTS)
+    # Msf::Exploit::Remote::Ftp should handle that
+    register_ftp_creds(ip)
 
     open_ports = []
     host_up = false
