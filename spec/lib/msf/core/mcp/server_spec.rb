@@ -180,21 +180,17 @@ RSpec.describe Msf::MCP::Server do
       let(:mock_http_transport) do
         instance_double(::MCP::Server::Transports::StreamableHTTPTransport)
       end
-      let(:puma_handler) { double('puma_handler') }
+
       let(:rack_app) { double('rack_app') }
 
       before do
-        # Stub #require to prevent actually loading rack and rack/handler/puma
-        allow(server).to receive(:require).with('rack').and_return(true)
-        allow(server).to receive(:require).with('rack/handler/puma').and_return(true)
-
-        stub_const('Rack::Handler::Puma', puma_handler)
-        stub_const('Rack::Builder', double('Rack::Builder'))
+        require 'rackup'
+        require 'rack/handler/puma'
 
         allow(::MCP::Server::Transports::StreamableHTTPTransport).to receive(:new).and_return(mock_http_transport)
         allow(Rack::Builder).to receive(:new).and_return(rack_app)
 
-        allow(puma_handler).to receive(:run)
+        allow(Rackup::Handler::Puma).to receive(:run)
       end
 
       it 'creates http transport' do
@@ -204,7 +200,7 @@ RSpec.describe Msf::MCP::Server do
       end
 
       it 'starts Puma server via Rack handler' do
-        expect(puma_handler).to receive(:run).with(
+        expect(Rackup::Handler::Puma).to receive(:run).with(
           anything,  # Rack app
           hash_including(
             Port: 3000,
@@ -216,7 +212,7 @@ RSpec.describe Msf::MCP::Server do
       end
 
       it 'allows custom port' do
-        expect(puma_handler).to receive(:run).with(
+        expect(Rackup::Handler::Puma).to receive(:run).with(
           anything,
           hash_including(Port: 8080)
         )
@@ -225,7 +221,7 @@ RSpec.describe Msf::MCP::Server do
       end
 
       it 'creates a Rack application' do
-        expect(puma_handler).to receive(:run) do |rack_app, options|
+        expect(Rackup::Handler::Puma).to receive(:run) do |rack_app, options|
           expect(rack_app).to be(rack_app)
           expect(options).to include(Port: 3000, Host: 'localhost')
         end
