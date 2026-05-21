@@ -34,7 +34,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptBool.new('EMBED_JS', [false, 'Embed D3.js inline for a fully self-contained offline HTML file', false]),
         OptInt.new('LIMIT_SESSION', [false, 'Max sessions to include per host (0 = unlimited, most recent first)', 0]),
-        OptInt.new('LIMIT_LOOT', [false, 'Max loot items to include per host (0 = unlimited, most recent first)', 0])
+        OptInt.new('LIMIT_LOOT', [false, 'Max loot items to include per host (0 = unlimited, most recent first)', 0]),
+        OptInt.new('LIMIT_CRED', [false, 'Max credentials to include per host (0 = unlimited)', 0])
       ]
     )
   end
@@ -57,11 +58,25 @@ class MetasploitModule < Msf::Auxiliary
     rescue StandardError
       []
     end
+    host_cred_logins = begin
+      Metasploit::Credential::Login
+        .in_workspace_including_hosts_and_services(ws)
+        .includes(core: [:realm])
+        .all.to_a
+    rescue StandardError => e
+      print_warning("Credential login query failed: #{e.class}: #{e.message}")
+      []
+    end
 
-    print_status("Building network graph: #{hosts.length} hosts, #{db_sessions.length} recorded sessions, " \
-                 "#{traceroute_notes.length} traceroutes, #{host_loots.length} loot items, " \
-                 "#{host_vulns.length} vulns, #{module_run_events.length} module events, " \
-                 "#{direct_module_runs.length} module runs")
+    print_status('Building network graph:')
+    print_status("  Hosts:             #{hosts.length}")
+    print_status("  Sessions:          #{db_sessions.length}")
+    print_status("  Traceroutes:       #{traceroute_notes.length}")
+    print_status("  Loot items:        #{host_loots.length}")
+    print_status("  Vulns:             #{host_vulns.length}")
+    print_status("  Module events:     #{module_run_events.length}")
+    print_status("  Module runs:       #{direct_module_runs.length}")
+    print_status("  Credential logins: #{host_cred_logins.length}")
 
     ws_data = {
       hosts: hosts,
@@ -70,7 +85,8 @@ class MetasploitModule < Msf::Auxiliary
       host_loots: host_loots,
       host_vulns: host_vulns,
       module_run_events: module_run_events,
-      direct_module_runs: direct_module_runs
+      direct_module_runs: direct_module_runs,
+      host_cred_logins: host_cred_logins
     }
     nodes, links = build_graph_data(ws_data)
     html = generate_html(nodes, links)
@@ -85,8 +101,8 @@ class MetasploitModule < Msf::Auxiliary
 
   MSF_NODE_ID = '__msf__'
 
-  TEMPLATE_PATH = File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'network_map.html')
-  D3_LOCAL_PATH = File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'd3.v7.9.0.min.js')
+  TEMPLATE_PATH = File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'network_map', 'network_map_template.html')
+  D3_LOCAL_PATH = File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'network_map', 'd3.v7.9.0.min.js')
   D3_CDN_TAG = '<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>'
 
   def build_graph_data(ws_data)
@@ -97,6 +113,7 @@ class MetasploitModule < Msf::Auxiliary
     host_vulns = ws_data[:host_vulns]
     module_run_events = ws_data[:module_run_events]
     direct_module_runs = ws_data[:direct_module_runs]
+    cred_by_host = (ws_data[:host_cred_logins] || []).group_by { |l| l.service.host_id }
 
     nodes = []
     links_set = Set.new
@@ -287,6 +304,20 @@ class MetasploitModule < Msf::Auxiliary
         }
       end
 
+      cred_limit = datastore['LIMIT_CRED'].to_i
+      display_creds = (cred_by_host[host.id] || []).uniq(&:core_id)
+      display_creds = display_creds.last(cred_limit) if cred_limit > 0
+
+      cred_data = display_creds.map do |login|
+        core = login.core
+        {
+          type: core.private&.type&.split('::')&.last || 'Unknown',
+          username: core.public&.username || '',
+          domain: core.realm&.value || '',
+          status: login.status || ''
+        }
+      end
+
       nodes << {
         id: "host_#{host.id}",
         label: (host.name || host.address.to_s),
@@ -308,6 +339,7 @@ class MetasploitModule < Msf::Auxiliary
         vulns: vuln_data,
         event_modules: event_modules_by_ip[host.address.to_s].to_a.sort,
         module_runs: host_module_runs,
+        creds: cred_data,
         device_type: infer_device_type(host),
         rtt: host_rtt["host_#{host.id}"]
       }
@@ -358,7 +390,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def generate_html(nodes, links)
-    template = File.read(TEMPLATE_PATH)
+    template = File.binread(TEMPLATE_PATH).force_encoding('UTF-8')
     d3_tag = if datastore['EMBED_JS']
                if File.exist?(D3_LOCAL_PATH)
                  "<script>#{File.read(D3_LOCAL_PATH)}</script>"
@@ -371,7 +403,22 @@ class MetasploitModule < Msf::Auxiliary
              end
     template
       .sub('%%D3_SCRIPT%%', d3_tag)
-      .sub('%%NODES%%', JSON.generate(nodes))
-      .sub('%%LINKS%%', JSON.generate(links))
+      .sub('%%NODES%%', JSON.generate(utf8_sanitize(nodes)).force_encoding('UTF-8'))
+      .sub('%%LINKS%%', JSON.generate(utf8_sanitize(links)).force_encoding('UTF-8'))
+  end
+
+  # Recursively re-encodes all strings in a nested Hash/Array as valid UTF-8.
+  # DB strings (SSH keys, binary fields) often come back tagged ASCII-8BIT;
+  # force_encoding reinterprets the bytes as UTF-8, scrub drops any invalid sequences.
+  def utf8_sanitize(obj)
+    case obj
+    when Hash then obj.transform_values { |v| utf8_sanitize(v) }
+    when Array then obj.map { |v| utf8_sanitize(v) }
+    when String
+      return obj if obj.encoding == ::Encoding::UTF_8 && obj.valid_encoding?
+
+      obj.dup.force_encoding('UTF-8').scrub('?')
+    else obj
+    end
   end
 end

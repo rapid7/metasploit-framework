@@ -497,6 +497,21 @@
     .vuln-refs { margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px; }
     .vuln-ref { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; font-size: 10px; color: var(--text-secondary); font-family: monospace; }
     .vuln-exploited { color: #f85149; font-size: 11px; margin-top: 2px; }
+    .cred-entry {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-left: 3px solid #f0883e;
+      border-radius: 6px;
+      padding: 7px 10px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+    .cred-username { color: #f0883e; font-weight: 600; margin-bottom: 2px; font-family: monospace; }
+    .cred-meta { color: var(--text-muted); font-size: 11px; }
+    .cred-status { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; }
+    .cred-status-successful { background: rgba(63,185,80,0.15); color: #3fb950; }
+    .cred-status-untried    { background: rgba(139,148,158,0.15); color: #8b949e; }
+    .cred-status-denied     { background: rgba(248,81,73,0.15); color: #f85149; }
     .session-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
     .copy-session-btn {
       background: var(--bg-elevated);
@@ -545,7 +560,7 @@
     .filter-section-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
     .filter-opt { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-secondary); cursor: pointer; margin-bottom: 3px; white-space: nowrap; }
     .filter-opt input { cursor: pointer; accent-color: var(--accent); }
-    #filter-ports, #filter-module-search { width: 100%; box-sizing: border-box; }
+    #filter-ports, #filter-module-search, #filter-cred-search { width: 100%; box-sizing: border-box; }
     #tooltip {
       position: fixed;
       background: var(--bg-tooltip);
@@ -612,6 +627,14 @@
             <div class="filter-section-label">Modules Used</div>
             <input type="text" id="filter-module-search" class="config-input" placeholder="Search modules…" oninput="filterModuleList(this.value)">
             <div id="filter-module-opts"></div>
+          </div>
+          <div class="filter-section">
+            <div class="filter-section-label">Credentials</div>
+            <label class="filter-opt"><input type="checkbox" class="filter-cred-has" value="has_creds"> Has credentials</label>
+            <label class="filter-opt"><input type="checkbox" class="filter-cred-status" value="Successful"> Successful</label>
+            <label class="filter-opt"><input type="checkbox" class="filter-cred-status" value="Untried"> Untried</label>
+            <input type="text" id="filter-cred-search" class="config-input" placeholder="Search username…" oninput="filterCredList(this.value)" style="margin-top:4px">
+            <div id="filter-cred-opts"></div>
           </div>
           <div class="config-divider"></div>
           <button class="config-btn" id="btn-filter-clear">Clear Filters</button>
@@ -1376,6 +1399,24 @@
       </div>`;
     }
 
+    if (d.creds && d.creds.length > 0) {
+      const credEntries = d.creds.map(c => {
+        const statusKey = (c.status || '').toLowerCase().replace(/\s+/g, '-');
+        const statusBadge = c.status ? `<span class="cred-status cred-status-${statusKey}">${c.status}</span>` : '';
+        return `<div class="cred-entry">
+          <div class="cred-username">${c.username || '(blank)'}${statusBadge}</div>
+          <div class="cred-meta">Type: ${c.type}${c.domain ? ` &bull; Domain: ${c.domain}` : ''}</div>
+        </div>`;
+      }).join('');
+      html += `<div class="detail-group">
+        <div class="detail-label collapsible-label" onclick="toggleSection(this)">
+          <span>Credentials (${d.creds.length})</span>
+          <button class="section-toggle">&#x25ba;</button>
+        </div>
+        <div class="collapsible-body collapsed">${credEntries}</div>
+      </div>`;
+    }
+
     document.getElementById('sidebar-content').innerHTML = html;
   }
 
@@ -1517,6 +1558,13 @@
     });
   };
 
+  window.filterCredList = function(query) {
+    const q = query.toLowerCase();
+    document.querySelectorAll('#filter-cred-opts label').forEach(label => {
+      label.style.display = label.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  };
+
   window.toggleFilter = function() {
     const body = document.getElementById('filter-body');
     const arrow = document.getElementById('filter-arrow');
@@ -1533,8 +1581,11 @@
     const portFilters    = document.getElementById('filter-ports').value
       .split(',').map(p => parseInt(p.trim())).filter(p => !isNaN(p));
     const moduleFilters  = [...document.querySelectorAll('.filter-module:checked')].map(el => el.value);
+    const credHasFilter    = document.querySelector('.filter-cred-has:checked') !== null;
+    const credFilters      = [...document.querySelectorAll('.filter-cred:checked')].map(el => el.value);
+    const credStatusFilters = [...document.querySelectorAll('.filter-cred-status:checked')].map(el => el.value);
 
-    const hasFilter = sessionFilters.length || deviceFilters.length || osFilters.length || portFilters.length || moduleFilters.length;
+    const hasFilter = sessionFilters.length || deviceFilters.length || osFilters.length || portFilters.length || moduleFilters.length || credHasFilter || credFilters.length || credStatusFilters.length;
     const filteredOut = new Set();
 
     nodeGroup.classed('filter-hidden', false).classed('filter-dimmed', false);
@@ -1564,6 +1615,15 @@
             ...(d.module_runs || []).map(r => r.module_fullname)
           ].filter(Boolean);
           if (!moduleFilters.some(m => nodeModules.includes(m))) match = false;
+        }
+        if (match && credHasFilter && !(d.creds && d.creds.length > 0)) match = false;
+        if (match && credStatusFilters.length) {
+          const nodeStatuses = (d.creds || []).map(c => c.status);
+          if (!credStatusFilters.some(s => nodeStatuses.includes(s))) match = false;
+        }
+        if (match && credFilters.length) {
+          const nodeUsernames = (d.creds || []).map(c => c.username);
+          if (!credFilters.some(u => nodeUsernames.includes(u))) match = false;
         }
         if (!match) {
           filteredOut.add(d.id);
@@ -1621,17 +1681,29 @@
       label.innerHTML = `<input type="checkbox" class="filter-module" value="${m}"> ${m}`;
       moduleContainer.appendChild(label);
     });
+
+    const allUsernames = [...new Set(simNodes.flatMap(n => (n.creds || []).map(c => c.username)).filter(Boolean))].sort();
+    const credContainer = document.getElementById('filter-cred-opts');
+    allUsernames.forEach(u => {
+      const label = document.createElement('label');
+      label.className = 'filter-opt';
+      label.style.fontFamily = 'monospace';
+      label.style.fontSize = '11px';
+      label.innerHTML = `<input type="checkbox" class="filter-cred" value="${u}"> ${u}`;
+      credContainer.appendChild(label);
+    });
   })();
 
   document.getElementById('filter-body').addEventListener('change', applyFilter);
   document.getElementById('filter-ports').addEventListener('input', applyFilter);
 
   document.getElementById('btn-filter-clear').addEventListener('click', function() {
-    document.querySelectorAll('.filter-session, .filter-device, .filter-os, .filter-module').forEach(el => el.checked = false);
+    document.querySelectorAll('.filter-session, .filter-device, .filter-os, .filter-module, .filter-cred, .filter-cred-has, .filter-cred-status').forEach(el => el.checked = false);
     document.getElementById('filter-ports').value = '';
-    const moduleSearch = document.getElementById('filter-module-search');
-    moduleSearch.value = '';
+    document.getElementById('filter-module-search').value = '';
     filterModuleList('');
+    document.getElementById('filter-cred-search').value = '';
+    filterCredList('');
     applyFilter();
   });
 
