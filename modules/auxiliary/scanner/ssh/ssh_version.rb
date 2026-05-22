@@ -31,7 +31,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(22),
         OptInt.new('TIMEOUT', [true, 'Timeout for the SSH probe', 30]),
         OptBool.new('EXTENDED_CHECKS', [true, 'Check for cryptographic issues', true])
       ],
@@ -41,10 +40,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def timeout
     datastore['TIMEOUT']
-  end
-
-  def rport
-    datastore['RPORT']
   end
 
   def perform_recog(ident)
@@ -324,9 +319,11 @@ class MetasploitModule < Msf::Auxiliary
         print_warning("#{target_host} - Found #{flagged_rows.count} deprecated/weak algorithm(s): #{breakdown}")
       end
     end
-  rescue EOFError, Rex::ConnectionError => e
+  rescue EOFError, Rex::ConnectionRefused, Errno::ECONNREFUSED => e
+    vprint_error("#{target_host} - #{e.message}")
+  rescue Rex::ConnectionError, Errno::EHOSTUNREACH => e
     vprint_error("#{target_host} - #{e.message}") # This may be a little noisy, but it is consistent
-  rescue Timeout::Error
+  rescue ::Timeout::Error
     vprint_warning("#{target_host} - Timed out after #{timeout} seconds. Skipping.")
     report_host(host: target_host)
   end
