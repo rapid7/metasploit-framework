@@ -37,22 +37,55 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
+  def report_ssh_service(info: nil)
+    report_service(
+      host: rhost,
+      port: rport,
+      name: 'ssh',
+      proto: 'tcp',
+      info: info.to_s.strip
+    )
+  end
+
+  def report_ssh_vuln(info: nil)
+    report_vuln(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      sname: 'ssh',
+      name: 'SSH Honeypot Detected',
+      info: info.to_s.strip,
+      refs: references
+    )
+  end
+
+  def check_kippo(banner, response)
+    unless response =~ /(?:^Protocol mismatch\.\n$|bad packet length)/
+      vprint_status('Not thought to be Kippo - Received expected SSH probe')
+      return false
+    end
+
+    print_good("SSH honeypot detected: Kippo (highly likely)")
+    report_ssh_service(info: "SSH honeypot: Kippo (#{banner.strip})")
+    report_ssh_vuln(info: 'SSH honeypot: Kippo - Server gave incorrect response when probed')
+    true
+  end
+
   def run_host(ip)
     connect
     banner = sock.get_once || ''
     sock.put(banner + "\n" * 8)
     response = sock.get_once || ''
 
-    if response =~ /(?:^Protocol mismatch\.\n$|bad packet length)/
-      print_good("#{ip}:#{rport} - Kippo detected!")
-      report_service(
-        :host => ip,
-        :port => rport,
-        :name => 'ssh',
-        :info => 'Kippo SSH honeypot'
-      )
-    else
-      vprint_status("#{ip}:#{rport} - #{banner.strip} detected")
-    end
+    vprint_status("SSH banner: #{banner.strip}")
+
+    return if check_kippo(banner, response)
+
+    print_status('No SSH honeypot detected')
+    report_ssh_service(info: banner)
+  rescue Rex::ConnectionError
+    print_error('Connection refused or timed out')
+  ensure
+    disconnect
   end
 end
