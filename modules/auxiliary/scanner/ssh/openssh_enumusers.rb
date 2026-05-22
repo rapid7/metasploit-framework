@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
   # Returns true if a nonsense username appears active.
   def check_false_positive(ip)
     user = Rex::Text.rand_text_alphanumeric(8..32)
-    attempt_user(user, ip) == :success
+    attempt_user(user, ip, label: '<random>') == :success
   end
 
   def check_user(ip, user, port)
@@ -170,7 +170,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue Net::SSH::AuthenticationFailed
       return :fail if technique == :malformed_packet
     rescue Net::SSH::Exception => e
-      vprint_error("#{e.class}: #{e.message}")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - #{e.class}: #{e.message}")
     end
 
     finish_time = Time.new
@@ -212,12 +212,6 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  # Because this isn't using the AuthBrute mixin, we don't have the
-  # usual peer method
-  def peer(rhost = nil)
-    "#{rhost}:#{rport} - SSH -"
-  end
-
   def user_list
     users = []
 
@@ -225,14 +219,16 @@ class MetasploitModule < Msf::Auxiliary
 
     if datastore['USER_FILE']
       fail_with(Failure::BadConfig, 'The USER_FILE is not readable') unless File.readable?(datastore['USER_FILE'])
-      users += File.read(datastore['USER_FILE']).split
+      file_users = File.read(datastore['USER_FILE']).split
+      vprint_status("Loaded #{file_users.size} users from #{datastore['USER_FILE']}")
+      users += file_users
     end
 
     if datastore['DB_ALL_USERS']
       if framework.db.active
-        framework.db.creds(workspace: myworkspace.name).each do |o|
-          users << o.public.username if o.public
-        end
+        db_users = framework.db.creds(workspace: myworkspace.name).filter_map { |o| o.public&.username }
+        vprint_status("Loaded #{db_users.size} users from database")
+        users += db_users
       else
         print_warning('No active DB -- The following option will be ignored: DB_ALL_USERS')
       end
@@ -241,14 +237,14 @@ class MetasploitModule < Msf::Auxiliary
     users.uniq
   end
 
-  def attempt_user(user, ip)
+  def attempt_user(user, ip, label: user)
     attempt_num = 0
     ret = nil
 
     while (attempt_num <= retry_num) && (ret.nil? || (ret == :connection_error))
       if attempt_num > 0
         Rex.sleep(2**attempt_num)
-        vprint_status("#{peer(ip)} Retrying '#{user}' due to connection error")
+        vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Retrying '#{label}' due to connection error")
       end
 
       ret = check_user(ip, user, rport)
@@ -261,37 +257,34 @@ class MetasploitModule < Msf::Auxiliary
   def show_result(attempt_result, user, ip)
     case attempt_result
     when :success
-      print_good("#{peer(ip)} User '#{user}' found")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' found")
       do_report(ip, user, rport)
     when :connection_error
-      vprint_error("#{peer(ip)} User '#{user}' could not connect")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' could not connect")
     when :fail
-      vprint_error("#{peer(ip)} User '#{user}' not found")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - User '#{user}' not found")
     end
   end
 
   def run
-    if user_list.empty?
-      fail_with(Failure::BadConfig, 'Please populate DB_ALL_USERS, USER_FILE, USERNAME')
-    end
+    fail_with(Failure::BadConfig, 'Please populate DB_ALL_USERS, USER_FILE and/or USERNAME') unless datastore['USERNAME'].present? || datastore['USER_FILE'] || datastore['DB_ALL_USERS']
 
     super
   end
 
   def run_host(ip)
-    print_status("#{peer(ip)} Using #{action.name.downcase} technique")
 
     if datastore['CHECK_FALSE']
-      print_status("#{peer(ip)} Checking for false positives")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking for false positives")
       if check_false_positive(ip)
-        print_error("#{peer(ip)} throws false positive results. Aborting.")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} - False positive check failed as server returned valid for a random username")
         return
       end
     end
 
     users = user_list
 
-    print_status("#{peer(ip)} Starting scan")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Starting SSH username enumeration")
     users.each { |user| show_result(attempt_user(user, ip), user, ip) }
   end
 end
