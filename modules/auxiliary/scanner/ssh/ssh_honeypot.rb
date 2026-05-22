@@ -51,13 +51,13 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['URL', 'https://www.obscurechannel.com/x42/magicknumber.html'],
-          ['URL', 'http://morris.guru/detecting-kippo-ssh-honeypots/']
+          ['URL', 'https://web.archive.org/web/20170904010325/https://morris.sc/detecting-kippo-ssh-honeypots/']
         ],
         'License' => MSF_LICENSE,
         'Notes' => {
-          'Reliability' => UNKNOWN_RELIABILITY,
-          'Stability' => UNKNOWN_STABILITY,
-          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
         }
       )
     )
