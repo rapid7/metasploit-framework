@@ -299,6 +299,16 @@ class MetasploitModule < Msf::Auxiliary
 
       print_status("#{target_host} - #{table}")
 
+      report_note(
+        host: target_host,
+        port: rport,
+        proto: 'tcp',
+        sname: 'ssh',
+        type: 'ssh.algorithms',
+        data: { algorithms: table.rows.map { |r| { type: r[0], value: r[1], note: r[2] } } },
+        update: :unique_data
+      )
+
       flagged_rows = table.rows.reject { |r| r[2].to_s.empty? }
       if flagged_rows.any?
         category_labels = {
@@ -317,5 +327,6 @@ class MetasploitModule < Msf::Auxiliary
     vprint_error("#{target_host} - #{e.message}") # This may be a little noisy, but it is consistent
   rescue Timeout::Error
     vprint_warning("#{target_host} - Timed out after #{timeout} seconds. Skipping.")
+    report_host(host: target_host)
   end
 end
