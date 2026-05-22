@@ -299,6 +299,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    banner = grab_ssh_banner(ip)
+    if banner.nil?
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - No response (port closed or wrong service)")
+      report_host(host: ip)
+      return
+    end
 
     calibrate_threshold(ip) if action['Type'] == :timing_attack
     print_warning("#{Rex::Socket.to_authority(rhost, rport)} - #{action.name} may be unreliable on low-latency networks (#{@calibrated_threshold}s)") if action['Type'] == :timing_attack && @calibrated_threshold && @calibrated_threshold < 3.0
