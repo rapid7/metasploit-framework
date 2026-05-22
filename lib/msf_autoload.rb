@@ -169,6 +169,7 @@ class MsfAutoload
       'dns' => 'DNS',
       'smtp_deliver' => 'SMTPDeliver',
       'send_uuid' => 'SendUUID',
+      'exec_x86' => 'Exec_X86',
       'exec_x64' => 'Exec_x64',
       'reflective_dll_injection' => 'ReflectiveDLLInjection',
       'reflective_pe_loader' => 'ReflectivePELoader',

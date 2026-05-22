@@ -101,7 +101,7 @@ memory_profiler, 1.1.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.5, "New BSD"
 metasploit-credential, 6.0.23, "New BSD"
-metasploit-framework, 6.4.133, "New BSD"
+metasploit-framework, 6.4.135, "New BSD"
 metasploit-model, 5.0.4, "New BSD"
 metasploit-payloads, 2.0.245, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.18, "New BSD"
@@ -147,15 +147,15 @@ prettyprint, 0.2.0, "ruby, Simplified BSD"
 prism, 1.5.1, MIT
 pry, 0.15.2, MIT
 pry-byebug, 3.11.0, MIT
-psych, 5.2.6, MIT
+psych, 5.3.1, MIT
 public_suffix, 6.0.2, MIT
 puma, 6.6.0, "New BSD"
 racc, 1.8.1, "ruby, Simplified BSD"
-rack, 2.2.19, MIT
-rack-protection, 3.2.0, MIT
-rack-session, 1.0.2, MIT
+rack, 3.1.21, MIT
+rack-protection, 4.2.1, MIT
+rack-session, 2.1.2, MIT
 rack-test, 2.2.0, MIT
-rackup, 1.0.1, MIT
+rackup, 2.3.1, MIT
 rails-dom-testing, 2.3.0, MIT
 rails-html-sanitizer, 1.6.2, MIT
 railties, 7.2.2.2, MIT
@@ -206,7 +206,7 @@ ruby-prof, 1.7.2, "Simplified BSD"
 ruby-progressbar, 1.13.0, MIT
 ruby-rc4, 0.1.5, MIT
 ruby2_keywords, 0.0.5, "ruby, Simplified BSD"
-ruby_smb, 3.3.17, "New BSD"
+ruby_smb, 3.3.19, "New BSD"
 rubyntlm, 0.6.5, MIT
 rubyzip, 2.4.1, "Simplified BSD"
 sawyer, 0.9.2, MIT
@@ -214,7 +214,7 @@ securerandom, 0.4.1, "ruby, Simplified BSD"
 simplecov, 0.18.2, MIT
 simplecov-html, 0.13.1, MIT
 simpleidn, 0.2.3, MIT
-sinatra, 3.2.0, MIT
+sinatra, 4.2.1, MIT
 sqlite3, 1.7.3, "New BSD"
 sshkey, 3.0.0, MIT
 stringio, 3.1.1, "ruby, Simplified BSD"
@@ -222,7 +222,7 @@ strptime, 0.2.5, "Simplified BSD"
 swagger-blocks, 3.0.0, MIT
 syslog, 0.3.0, "ruby, Simplified BSD"
 test-prof, 1.4.4, MIT
-thin, 1.8.2, "GPL-2.0+, ruby"
+thin, 2.0.1, "GPL-2.0-or-later, ruby"
 thor, 1.4.0, MIT
 tilt, 2.6.0, MIT
 timecop, 0.9.10, MIT

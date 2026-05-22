@@ -107,12 +107,12 @@ Gem::Specification.new do |spec|
   # Required for Metasploit Web Services
   spec.add_runtime_dependency 'puma'
   spec.add_runtime_dependency 'ruby-mysql'
-  # webserver - pinned due to: https://github.com/github/secure_headers/issues/514
-  spec.add_runtime_dependency 'thin', '~> 1.x'
-  # rack pinned due to authlogic warnings when setting cookie keys with a / char present: https://github.com/binarylogic/authlogic/issues/779
-  spec.add_runtime_dependency 'rack', '~> 2.2'
-  # 4.x needs tested and verified for JSON RPC service
-  spec.add_runtime_dependency 'sinatra', '~> 3.2'
+
+  spec.add_runtime_dependency 'rack', '~> 3.1'
+  # 4.x supports Rack 3 for JSON RPC service
+  spec.add_runtime_dependency 'sinatra', '~> 4.1'
+  # Web server for msfdb web services; 2.x supports Rack 3
+  spec.add_runtime_dependency 'thin', '~> 2.0'
   spec.add_runtime_dependency 'warden'
   spec.add_runtime_dependency 'swagger-blocks'
   # Required for JSON-RPC client
@@ -151,7 +151,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'net-ssh'
   spec.add_runtime_dependency 'ed25519' # Adds ed25519 keys for net-ssh
   spec.add_runtime_dependency 'bcrypt_pbkdf'
-  spec.add_runtime_dependency 'ruby_smb', '~> 3.3.17'
+  spec.add_runtime_dependency 'ruby_smb', '~> 3.3.19'
   spec.add_runtime_dependency 'net-imap' # Used in Postgres auth for its SASL stringprep implementation
   spec.add_runtime_dependency 'date', '3.4.1' # Temporarily pinned until 3.5 can be tested
   spec.add_runtime_dependency 'net-ldap'
