@@ -298,6 +298,30 @@ class MetasploitModule < Msf::Auxiliary
     super
   end
 
+  def check_banner_version(ip, banner)
+    return unless banner
+
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - SSH banner: #{Rex::Text.to_hex_ascii(banner.strip)}")
+    report_ssh_service(ip, rport, info: banner)
+    report_ssh_host(banner, ip, rport)
+
+    match = banner.match(/OpenSSH[_ ](\d+\.\d+)/i)
+    return unless match
+
+    version = Rex::Version.new(match[1])
+    max_version, cve = case action['Type']
+                       when :malformed_packet then ['7.6', 'CVE-2018-15473']
+                       when :timing_attack then ['7.2', 'CVE-2016-6210']
+                       end
+
+    if version > Rex::Version.new(max_version)
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - OpenSSH #{match[1]} may NOT be vulnerable (#{action.name}/#{cve} affects <= #{max_version})")
+    else
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - OpenSSH #{match[1]} may be vulnerable to #{action.name}/#{cve}")
+      return "OpenSSH #{match[1]} <= #{max_version}, #{action.name}/#{cve}"
+    end
+  end
+
   def run_host(ip)
     banner = grab_ssh_banner(ip)
     if banner.nil?
@@ -305,6 +329,7 @@ class MetasploitModule < Msf::Auxiliary
       report_host(host: ip)
       return
     end
+    vuln_context = check_banner_version(ip, banner)
 
     calibrate_threshold(ip) if action['Type'] == :timing_attack
     print_warning("#{Rex::Socket.to_authority(rhost, rport)} - #{action.name} may be unreliable on low-latency networks (#{@calibrated_threshold}s)") if action['Type'] == :timing_attack && @calibrated_threshold && @calibrated_threshold < 3.0
@@ -318,8 +343,23 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     users = user_list
-
     print_status("#{Rex::Socket.to_authority(rhost, rport)} - Starting SSH username enumeration")
-    users.each { |user| show_result(attempt_user(user, ip), user, ip) }
+    found_users = users.select do |user|
+      result = attempt_user(user, ip)
+      show_result(result, user, ip)
+      result == :success
+    end
+
+    if vuln_context && !found_users.empty?
+      report_vuln(
+        host: ip,
+        port: rport,
+        proto: 'tcp',
+        sname: 'ssh',
+        name: name,
+        info: vuln_context,
+        refs: references
+      )
+    end
   end
 end
