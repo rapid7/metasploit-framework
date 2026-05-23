@@ -107,6 +107,9 @@ class MetasploitModule < Msf::Auxiliary
     report_host(host_info)
 
     s
+  rescue StandardError => e
+    elog('Failed to setup the session', error: e)
+    print_brute level: :error, ip: scanner.host, msg: "Failed to setup the session - #{e.class} #{e.message}"
   end
 
   def run_scanner(ip, scanner)
@@ -196,21 +199,8 @@ class MetasploitModule < Msf::Auxiliary
       credential_data[:core] = credential_core
       create_credential_login(credential_data)
 
-      if datastore['CreateSession']
-        begin
-          session_setup(result, scanner, used_key: false)
-        rescue StandardError => e
-          elog('Failed to setup the session', error: e)
-          print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
-        end
-      end
-
-      if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
-        msg = 'While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with'
-        msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
-        msg << ' device details so it can be handled in the future.'
-        print_brute level: :error, ip: ip, msg: msg
-      end
+      session_setup(result, scanner, used_key: false) if datastore['CreateSession']
+      warn_unknown_platform(ip, scanner, result)
     end
   end
 
@@ -269,22 +259,18 @@ class MetasploitModule < Msf::Auxiliary
         print_brute level: :warn, ip: ip, msg: 'We do not currently support storing password protected SSH keys: https://github.com/rapid7/metasploit-framework/issues/20598'
       end
 
-      if datastore['CreateSession']
-        begin
-          session_setup(result, scanner, used_key: true)
-        rescue StandardError => e
-          elog('Failed to setup the session', error: e)
-          print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
-        end
-      end
-
-      if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
-        msg = 'While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with'
-        msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
-        msg << ' device details so it can be handled in the future.'
-        print_brute level: :error, ip: ip, msg: msg
-      end
+      session_setup(result, scanner, used_key: true) if datastore['CreateSession']
+      warn_unknown_platform(ip, scanner, result)
     end
+  end
+
+  def warn_unknown_platform(ip, scanner, result)
+    return unless datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
+
+    msg = 'While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with'
+    msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
+    msg << ' device details so it can be handled in the future.'
+    print_brute level: :error, ip: ip, msg: msg
   end
 
   def attempt_pubkey_login?

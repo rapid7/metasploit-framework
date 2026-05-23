@@ -178,6 +178,21 @@ RSpec.describe 'SSH Login Check Scanner' do
       expect(Mdm::Host.last.os_name).to eql platform.capitalize
     end
 
+    context 'when session setup raises an error' do
+      before(:each) do
+        allow(subject).to receive(:start_session).and_raise(StandardError, 'test error')
+      end
+
+      it 'returns nil' do
+        expect(subject.session_setup(result, scanner)).to be_nil
+      end
+
+      it 'logs the error' do
+        expect(subject).to receive(:elog).with('Failed to setup the session', error: instance_of(StandardError))
+        subject.session_setup(result, scanner)
+      end
+    end
+
     context 'when scanner does not have an ssh connection' do
       before(:each) do
         allow(scanner).to receive(:ssh_socket).and_return(nil)
