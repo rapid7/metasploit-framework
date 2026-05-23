@@ -109,6 +109,32 @@ class MetasploitModule < Msf::Auxiliary
     s
   end
 
+  def run_scanner(ip, scanner)
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+        module_fullname: fullname,
+        workspace_id: myworkspace_id
+      )
+      case result.status
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        yield result, credential_data
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        vprint_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
+
+        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+        invalidate_login(credential_data)
+
+        :abort
+      else
+        vprint_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}'" if result.status == Metasploit::Model::Login::Status::INCORRECT
+
+        invalidate_login(credential_data)
+        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+      end
+    end
+  end
+
   def run_host(ip)
     print_brute ip: ip, msg: 'Starting bruteforce'
 
@@ -163,48 +189,27 @@ class MetasploitModule < Msf::Auxiliary
 
     scanner.verbosity = :debug if datastore['SSH_DEBUG']
 
-    scanner.scan! do |result|
-      credential_data = result.to_h
-      credential_data.merge!(
-        module_fullname: fullname,
-        workspace_id: myworkspace_id
-      )
-      case result.status
-      when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
-        credential_data[:private_type] = :password
-        credential_core = create_credential(credential_data)
-        credential_data[:core] = credential_core
-        create_credential_login(credential_data)
+    run_scanner(ip, scanner) do |result, credential_data|
+      print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+      credential_data[:private_type] = :password
+      credential_core = create_credential(credential_data)
+      credential_data[:core] = credential_core
+      create_credential_login(credential_data)
 
-        if datastore['CreateSession']
-          begin
-            session_setup(result, scanner, used_key: false)
-          rescue StandardError => e
-            elog('Failed to setup the session', error: e)
-            print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
-          end
+      if datastore['CreateSession']
+        begin
+          session_setup(result, scanner, used_key: false)
+        rescue StandardError => e
+          elog('Failed to setup the session', error: e)
+          print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
         end
+      end
 
-        if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
-          msg = 'While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with'
-          msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
-          msg << ' device details so it can be handled in the future.'
-          print_brute level: :error, ip: ip, msg: msg
-        end
-        :next_user
-      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
-        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
-        invalidate_login(credential_data)
-        :abort
-      when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}'"
-        invalidate_login(credential_data)
-        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
-      else
-        invalidate_login(credential_data)
-        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+      if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
+        msg = 'While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with'
+        msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
+        msg << ' device details so it can be handled in the future.'
+        print_brute level: :error, ip: ip, msg: msg
       end
     end
   end
@@ -252,56 +257,32 @@ class MetasploitModule < Msf::Auxiliary
 
     scanner.verbosity = :debug if datastore['SSH_DEBUG']
 
-    scanner.scan! do |result|
-      credential_data = result.to_h
-      credential_data.merge!(
-        module_fullname: fullname,
-        workspace_id: myworkspace_id
-      )
-      case result.status
-      when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute level: :good, ip: ip, msg: "Success: '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
-        print_brute level: :vgood, ip: ip, msg: result.credential
-        begin
-          credential_core = create_credential(credential_data)
-          credential_data[:core] = credential_core
-          create_credential_login(credential_data)
-        rescue ::StandardError => e
-          print_brute level: :info, ip: ip, msg: "Failed to create credential: #{e.class} #{e}"
-          print_brute level: :warn, ip: ip, msg: 'We do not currently support storing password protected SSH keys: https://github.com/rapid7/metasploit-framework/issues/20598'
-        end
+    run_scanner(ip, scanner) do |result, credential_data|
+      print_brute level: :good, ip: ip, msg: "Success: '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+      print_brute level: :vgood, ip: ip, msg: result.credential
+      begin
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+      rescue ::StandardError => e
+        print_brute level: :info, ip: ip, msg: "Failed to create credential: #{e.class} #{e}"
+        print_brute level: :warn, ip: ip, msg: 'We do not currently support storing password protected SSH keys: https://github.com/rapid7/metasploit-framework/issues/20598'
+      end
 
-        if datastore['CreateSession']
-          begin
-            session_setup(result, scanner, used_key: true)
-          rescue StandardError => e
-            elog('Failed to setup the session', error: e)
-            print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
-          end
+      if datastore['CreateSession']
+        begin
+          session_setup(result, scanner, used_key: true)
+        rescue StandardError => e
+          elog('Failed to setup the session', error: e)
+          print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
         end
-        if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
-          msg = 'While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with'
-          msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
-          msg << ' device details so it can be handled in the future.'
-          print_brute level: :error, ip: ip, msg: msg
-        end
-        :next_user
-      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        if datastore['VERBOSE']
-          print_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
-        end
-        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
-        invalidate_login(credential_data)
-        :abort
-      when Metasploit::Model::Login::Status::INCORRECT
-        if datastore['VERBOSE']
-          print_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}'"
-        end
-        invalidate_login(credential_data)
-        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
-      else
-        invalidate_login(credential_data)
-        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+      end
+
+      if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
+        msg = 'While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with'
+        msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
+        msg << ' device details so it can be handled in the future.'
+        print_brute level: :error, ip: ip, msg: msg
       end
     end
   end
