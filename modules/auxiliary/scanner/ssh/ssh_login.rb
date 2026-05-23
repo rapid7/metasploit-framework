@@ -24,10 +24,9 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'SSH Login Check Scanner',
       'Description' => %q{
-        This module will test ssh logins on a range of machines and
-        report successful logins.  If you have loaded a database plugin
-        and connected to a database this module will record successful
-        logins and hosts so you can track your access.
+        This module tests SSH logins on a range of machines using passwords
+        and/or private keys. Successful logins are recorded in the database
+        as credentials, along with host and platform information.
       },
       'Author' => [
         'todb',
@@ -37,10 +36,16 @@ class MetasploitModule < Msf::Auxiliary
       'AKA' => ['ssh_login_pubkey'],
       'References' => [
         [ 'CVE', '1999-0502' ], # Weak password
-        [ 'ATT&CK', Mitre::Attack::Technique::T1021_004_SSH ]
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_004_SSH ],
+        [ 'ATT&CK', Mitre::Attack::Technique::T1110_001_PASSWORD_GUESSING ]
       ],
       'License' => MSF_LICENSE,
-      'DefaultOptions' => { 'VERBOSE' => false } # Disable annoying connect errors
+      'DefaultOptions' => { 'VERBOSE' => false }, # Disable annoying connect errors
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'Reliability' => [REPEATABLE_SESSION],
+        'SideEffects' => [IOC_IN_LOGS, ACCOUNT_LOCKOUTS]
+      }
     )
 
     register_options(
