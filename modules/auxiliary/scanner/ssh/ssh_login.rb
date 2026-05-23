@@ -20,32 +20,35 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Deprecated
   moved_from 'auxiliary/scanner/ssh/ssh_login_pubkey'
 
-  def initialize
+  def initialize(info = {})
     super(
-      'Name' => 'SSH Login Check Scanner',
-      'Description' => %q{
-        This module tests SSH logins on a range of machines using passwords
-        and/or private keys. Successful logins are recorded in the database
-        as credentials, along with host and platform information.
-      },
-      'Author' => [
-        'todb',
-        'RageLtMan',
-        'g0tmi1k' # @g0tmi1k - additional features
-      ],
-      'AKA' => ['ssh_login_pubkey'],
-      'References' => [
-        [ 'CVE', '1999-0502' ], # Weak password
-        [ 'ATT&CK', Mitre::Attack::Technique::T1021_004_SSH ],
-        [ 'ATT&CK', Mitre::Attack::Technique::T1110_001_PASSWORD_GUESSING ]
-      ],
-      'License' => MSF_LICENSE,
-      'DefaultOptions' => { 'VERBOSE' => false }, # Disable annoying connect errors
-      'Notes' => {
-        'Stability' => [CRASH_SAFE],
-        'Reliability' => [REPEATABLE_SESSION],
-        'SideEffects' => [IOC_IN_LOGS, ACCOUNT_LOCKOUTS]
-      }
+      update_info(
+        info,
+        'Name' => 'SSH Login Check Scanner',
+        'Description' => %q{
+          This module tests SSH logins on a range of machines using passwords
+          and/or private keys. Successful logins are recorded in the database
+          as credentials, along with host and platform information.
+        },
+        'Author' => [
+          'todb',
+          'RageLtMan',
+          'g0tmi1k' # @g0tmi1k - additional features
+        ],
+        'AKA' => ['ssh_login_pubkey'],
+        'References' => [
+          [ 'CVE', '1999-0502' ], # Weak password
+          [ 'ATT&CK', Mitre::Attack::Technique::T1021_004_SSH ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1110_001_PASSWORD_GUESSING ]
+        ],
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => { 'VERBOSE' => false }, # Disable annoying connect errors
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS, ACCOUNT_LOCKOUTS]
+        }
+      )
     )
 
     register_options(
