@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
 
     queue.each_pair do |ip, res|
       info = Rex::Proto::ADDP.reply_to_string(res)
-      print_status("#{ip}:#{datastore['RPORT']} Sending reboot request to device with MAC #{res[:mac]}...")
+      print_status("Sending reboot request to device with MAC #{res[:mac]}...")
       pkt = Rex::Proto::ADDP.request_reboot(res[:magic], res[:mac], datastore['ADDP_PASSWORD'])
       scanner_send(pkt, ip, datastore['RPORT'])
     end

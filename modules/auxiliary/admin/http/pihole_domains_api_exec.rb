@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       _version, web_version, _ftl = get_versions
 
       if web_version.nil?
-        print_error("#{peer} - Could not connect to web service - no response or non-200 HTTP code")
+        print_error("Could not connect to web service - no response or non-200 HTTP code")
         return Exploit::CheckCode::Unknown('Could not connect to web service')
       end
 
@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
         return Exploit::CheckCode::Safe("Pi-hole web interface version #{web_version} is not vulnerable")
       end
     rescue ::Rex::ConnectionError
-      print_error("#{peer} - Could not connect to the web service")
+      print_error("Could not connect to the web service")
       return Exploit::CheckCode::Unknown('Could not connect to the web service')
     end
     Exploit::CheckCode::Safe('Target does not appear to be Pi-hole')

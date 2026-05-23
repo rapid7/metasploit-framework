@@ -52,13 +52,13 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless res.headers['Allow']
-      vprint_error("#{target_host} missing Allow header")
+      vprint_error("missing Allow header")
       return
     end
 
     allowed_methods = res.headers['Allow']
 
-    print_good("#{target_host} allows #{allowed_methods} methods")
+    print_good("allows #{allowed_methods} methods")
 
     report_note(
       host: target_host,
@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if allowed_methods.index('TRACE')
-      print_good "#{target_host}:#{rport} - TRACE method allowed."
+      print_good "TRACE method allowed."
       report_vuln(
         host: target_host,
         port: rport,

@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif @state[client][:chall]
       client.put [0x00000001].pack('N')
       client.close
-      print_good("#{peer} - Challenge: #{@challenge.unpack('H*')[0]}; Response: #{data.unpack('H*')[0]}")
+      print_good("Challenge: #{@challenge.unpack('H*')[0]}; Response: #{data.unpack('H*')[0]}")
       hash_line = "*#{@state[client][:chall].unpack('H*')[0]}*#{data.unpack('H*')[0]}"
       report_cred(
         ip: client.peerhost,
@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
     # we have got the protocol sorted out and have offered the VNC sectype (2)
     elsif @state[client][:proto] == '003.007'
       if (data.unpack('C')[0] != 2)
-        print_error("#{peer} - sectype not offered! #{data.unpack('H*')}")
+        print_error("sectype not offered! #{data.unpack('H*')}")
         client.close
         return
       end

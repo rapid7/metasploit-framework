@@ -47,9 +47,9 @@ class MetasploitModule < Msf::Auxiliary
     end
     print_line
     if (@usernames.empty?)
-      print_status("#{ip}:#{rport} No valid users found.")
+      print_status("No valid users found.")
     else
-      print_good("#{ip}:#{rport} Valid usernames found: #{@usernames}")
+      print_good("Valid usernames found: #{@usernames}")
       report_note(
         :host => rhost,
         :port => rport,
@@ -240,7 +240,7 @@ class MetasploitModule < Msf::Auxiliary
 
           t << framework.threads.spawn("Module(#{self.refname})-#{rhost}:#{rport}", false, this_username) do |username|
             connect
-            vprint_status "#{rhost}:#{rport} - Sending request for #{username}..."
+            vprint_status "Sending request for #{username}..."
             channel = datastore['CHANNEL']
             if channel.length > 20
               print_error("Channel name must be less than 20 characters.")

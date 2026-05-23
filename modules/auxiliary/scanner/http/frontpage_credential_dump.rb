@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
 
       next if contents.nil?
 
-      print_good("#{ip} - #{filename}")
+      print_good("#{filename}")
 
       contents.each_line do |line|
         next if line.chomp == '# -FrontPage-'

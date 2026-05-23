@@ -39,12 +39,12 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_raw({ 'uri' => url })
     rescue ::Rex::ConnectionError
-      print_error("#{peer} Unable to connect to #{url}")
+      print_error("Unable to connect to #{url}")
       return
     end
 
     if not res
-      print_error("#{peer} Unable to connect to #{url}")
+      print_error("Unable to connect to #{url}")
       return
     end
 
@@ -53,9 +53,9 @@ class MetasploitModule < Msf::Auxiliary
       extract_members(res, url)
     elsif res
       print_line(res.body)
-      print_status("#{peer} No members listed or profiles disabled")
+      print_status("No members listed or profiles disabled")
     else
-      print_error("#{peer} No response received")
+      print_error("No response received")
     end
   end
 
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
     members = res.get_html_document.search('div[@class="ccm-profile-member-username"]')
 
     unless members.empty?
-      print_good("#{peer} Extracted #{members.length} entries")
+      print_good("Extracted #{members.length} entries")
 
       # separate user data into userID, username and Profile URL
       memberlist = []
@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
       })
 
     else
-      print_error("#{peer} Unable to extract members")
+      print_error("Unable to extract members")
     end
   end
 end

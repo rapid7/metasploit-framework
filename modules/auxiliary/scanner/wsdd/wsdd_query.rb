@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scan_host(ip)
-    vprint_status "#{ip}:#{rport} - Sending WS-Discovery probe"
+    vprint_status "Sending WS-Discovery probe"
     scanner_send wsdd_probe, ip, datastore['RPORT']
   end
 
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
         response_info = parse_wsdd_response res
 
         if response_info.nil?
-          print_error "#{ip} responded with malformed data"
+          print_error "responded with malformed data"
           next
         end
 
@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
         msg << "Types: #{response_info['Types'].to_s.split(/\s+/).join(', ')}"
         msg << "Vendor Extensions: #{response_info['VendorExtension']}" unless response_info['VendorExtension'].nil?
 
-        print_good "#{ip} responded with:\n#{msg.join("\n")}"
+        print_good "responded with:\n#{msg.join("\n")}"
 
         report_service(host: ip, port: rport, proto: 'udp', name: 'wsdd', info: response_info)
         found[ip][res] = true

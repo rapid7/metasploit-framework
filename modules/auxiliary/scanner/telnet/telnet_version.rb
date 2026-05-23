@@ -35,14 +35,14 @@ class MetasploitModule < Msf::Auxiliary
         res = connect
         # This makes db_services look a lot nicer.
         banner_santized = Rex::Text.to_hex_ascii(banner.to_s)
-        print_good("#{ip}:#{rport} TELNET #{banner_santized}")
+        print_good("TELNET #{banner_santized}")
         report_service(:host => rhost, :port => rport, :name => "telnet", :info => banner_santized)
       end
     rescue ::Rex::ConnectionError, ::Errno::ECONNRESET => e
       print_error("A network issue has occurred: #{e.message}")
       elog("A network issue has occurred", error: e)
     rescue Timeout::Error => e
-      print_error("#{target_host}:#{rport}, Server timed out after #{to} seconds. Skipping.")
+      print_error("Server timed out after #{to} seconds. Skipping.")
       elog("#{target_host}:#{rport}, Server timed out after #{to} seconds. Skipping.", error: e)
     rescue ::Exception => e
       print_error("#{e} #{e.backtrace}")

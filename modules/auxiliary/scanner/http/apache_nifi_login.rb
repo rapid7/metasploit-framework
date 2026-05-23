@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     res_json = res.get_json_document
 
     unless res_json.dig('config', 'supportsLogin')
-      print_error("#{peer} - User login not supported, try visiting /nifi to gain access")
+      print_error("User login not supported, try visiting /nifi to gain access")
       return
     end
 
@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
       if res.code == 201
-        print_good("#{peer} - Apache NiFi - Login successful as '#{user}' with password '#{pass}'")
+        print_good("Apache NiFi - Login successful as '#{user}' with password '#{pass}'")
         report_cred(
           ip: rhost,
           port: rport,
@@ -119,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
       elsif res.code == 409
         fail_with(Failure::BadConfig, "#{peer} - Logins only accepted on HTTPS")
       else
-        vprint_error("#{peer} - Apache NiFi - Failed to login as '#{user}' with password '#{pass}'")
+        vprint_error("Apache NiFi - Failed to login as '#{user}' with password '#{pass}'")
       end
     end
   end

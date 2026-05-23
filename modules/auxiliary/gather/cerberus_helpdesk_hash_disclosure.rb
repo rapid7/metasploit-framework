@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_status("Attempting to load data from #{url}")
         res = send_request_cgi({ 'uri' => url })
         if !res
-          print_error("#{peer} Unable to connect to #{url}")
+          print_error("Unable to connect to #{url}")
           next
         end
 
@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
         break
       end
     rescue ::Rex::ConnectionError
-      print_error("#{peer} Unable to connect to site")
+      print_error("Unable to connect to site")
       return
     end
   end

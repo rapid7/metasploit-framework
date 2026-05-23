@@ -84,10 +84,10 @@ class MetasploitModule < Msf::Auxiliary
         disconnect
       rescue ::OCIError => e
         if e.to_s =~ /^ORA-12170:\s/
-          print_error("#{datastore['RHOST']}:#{datastore['RPORT']} Connection timed out")
+          print_error("Connection timed out")
           break
         else
-          vprint_error("#{datastore['RHOST']}:#{datastore['RPORT']} - LOGIN FAILED: #{datastore['DBUSER']}: #{e})")
+          vprint_error("LOGIN FAILED: #{datastore['DBUSER']}: #{e})")
         end
       else
         report_cred(

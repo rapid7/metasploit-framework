@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    print_status("#{rhost}:#{rport} - Sending DoS packet...")
+    print_status("Sending DoS packet...")
     dos
   end
 

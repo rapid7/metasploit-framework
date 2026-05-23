@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::SNMP::RequestTimeout
     raise $ERROR_INFO
   rescue StandardError => e
-    print_error("#{ip} error: #{e.class} #{e.message}")
+    print_error("error: #{e.class} #{e.message}")
     disconnect_snmp
   end
 end

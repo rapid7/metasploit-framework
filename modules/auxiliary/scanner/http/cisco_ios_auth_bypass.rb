@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
       }, 20)
 
       if res and res.body and res.body =~ /Cisco Internetwork Operating System Software/
-        print_good("#{rhost}:#{rport} Found vulnerable privilege level: #{level}")
+        print_good("Found vulnerable privilege level: #{level}")
 
         report_vuln(
           {
@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
 
         if res and res.body and res.body =~ /<FORM METHOD([^\>]+)\>(.*)<\/FORM>/mi
           config = $2.strip
-          print_good("#{rhost}:#{rport} Processing the configuration file...")
+          print_good("Processing the configuration file...")
           cisco_ios_config_eater(rhost, rport, config)
           report_exploit(
             {
@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
             }
           )
         else
-          print_error("#{rhost}:#{rport} Error: could not retrieve the IOS configuration")
+          print_error("Error: could not retrieve the IOS configuration")
         end
 
         break

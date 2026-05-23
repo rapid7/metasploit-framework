@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_good("#{peer} - Downloaded #{res.body.length} bytes")
+    print_good("Downloaded #{res.body.length} bytes")
     path = store_loot(
       'springcloud.traversal',
       'text/plain',

@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
     credential_combo = "#{credential_data[:username]}:#{credential_data[:private_data]}"
     case credential_data[:status]
     when Metasploit::Model::Login::Status::SUCCESSFUL
-      print_good "#{credential_data[:address]}:#{credential_data[:port]} - Login Successful: #{credential_combo}"
+      print_good "Login Successful: #{credential_combo}"
       credential_core = create_credential(credential_data)
       credential_data[:core] = credential_core
       create_credential_login(credential_data)

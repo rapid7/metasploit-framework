@@ -46,10 +46,10 @@ class MetasploitModule < Msf::Auxiliary
 =end
 
       report_service(:host => rhost, :port => rport, :name => "pcanywhere_data", :info => "")
-      print_good("#{rhost}:#{rport} pcAnywhere data service")
+      print_good("pcAnywhere data service")
     rescue ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNRESET
     rescue ::Exception => e
-      print_error("#{rhost}:#{rport} Error: #{e.class} #{e} #{e.backtrace}")
+      print_error("Error: #{e.class} #{e} #{e.backtrace}")
     end
   end
 end

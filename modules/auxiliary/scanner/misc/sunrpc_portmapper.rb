@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
         elsif prot_num == 0x11
           proto = 'udp'
         else
-          print_error("#{peer}: unknown protocol number for #{thing}")
+          print_error("unknown protocol number for #{thing}")
           next
         end
 

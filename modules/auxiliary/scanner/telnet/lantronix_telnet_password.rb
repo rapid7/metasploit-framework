@@ -69,9 +69,9 @@ class MetasploitModule < Msf::Auxiliary
 
     if password
       if password == "\x00\x00\x00\x00"
-        print_status("#{rhost} - Password isn't used, or secure")
+        print_status("Password isn't used, or secure")
       else
-        print_good("#{rhost} - Telnet password found: #{password.to_s}")
+        print_good("Telnet password found: #{password.to_s}")
 
         service_data = {
           address: ip,

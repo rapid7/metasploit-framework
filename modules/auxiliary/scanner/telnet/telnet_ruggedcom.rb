@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
         res = connect
         banner_santized = Rex::Text.to_hex_ascii(banner.to_s)
         if banner_santized =~ /Rugged Operating System/
-          print_status("#{ip}:#{rport} Calculating Telnet password ...")
+          print_status("Calculating Telnet password ...")
           mac = banner_santized.match(/((?:[0-9a-f]{2}[-]){5}[0-9a-f]{2})/i)[0]
           password = mac_to_password(mac)
           info = get_info(banner_santized)
@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     rescue ::Rex::ConnectionError
     rescue Timeout::Error
-      print_error("#{target_host}:#{rport}, Server timed out after #{to} seconds. Skipping.")
+      print_error("Server timed out after #{to} seconds. Skipping.")
     end
   end
 end

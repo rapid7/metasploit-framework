@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     value = snmp.get_value('sysDescr.0')
 
     unless value =~ /Brocade/
-      print_error("#{ip} - System is not Brocade: #{value}")
+      print_error("System is not Brocade: #{value}")
       return
     end
 
@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
       row.each { |val| @hashes << val.value.to_s }
     end
 
-    print_good("#{ip} - Found user and password hashes:")
+    print_good("Found user and password hashes:")
 
     credinfo = ''
     @users.each_index do |i|
@@ -72,13 +72,13 @@ class MetasploitModule < Msf::Auxiliary
     )
     print_status("Credentials saved: #{p}")
   rescue ::SNMP::UnsupportedVersion => e
-    vprint_error("#{ip} - #{e.message}")
+    vprint_error("#{e.message}")
   rescue ::SNMP::RequestTimeout => e
-    vprint_error("#{ip} - #{e.message}")
+    vprint_error("#{e.message}")
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue StandardError => e
-    print_error("#{ip} - Error: #{e.class} #{e}")
+    print_error("Error: #{e.class} #{e}")
     disconnect_snmp
   end
 end

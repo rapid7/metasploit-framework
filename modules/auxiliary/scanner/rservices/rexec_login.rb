@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{ip}:#{rport} - Starting rexec sweep")
+    print_status("Starting rexec sweep")
 
     if datastore['ENABLE_STDERR']
       # For each host, bind a privileged listening port for the target to connect
@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login(user, pass, sfd, stderr_port)
-    vprint_status("#{target_host}:#{rport} - Attempting rexec with username:password '#{user}':'#{pass}'")
+    vprint_status("Attempting rexec with username:password '#{user}':'#{pass}'")
 
     cmd = datastore['CMD']
     cmd ||= 'sh -i 2>&1'
@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # should we report a vuln here? rexec allowed w/o password?!
-    print_good("#{target_host}:#{rport}, rexec '#{user}' : '#{pass}'")
+    print_good("rexec '#{user}' : '#{pass}'")
     start_rexec_session(rhost, rport, user, pass, buf, stderr_sock)
 
     return :next_user

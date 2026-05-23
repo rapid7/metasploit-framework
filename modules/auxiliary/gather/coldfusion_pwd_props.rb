@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if (response.body =~ /Adobe/ and response.body =~ /ColdFusion/ and file == '')
-      print_error("#{peer} Fingerprint failed...aborting")
+      print_error("Fingerprint failed...aborting")
       print_status("response: #{response.body}")
       return nil, nil
     end
@@ -168,15 +168,15 @@ class MetasploitModule < Msf::Auxiliary
     return if not res.code.to_i == 200
 
     out, filename = fingerprint(res)
-    print_status("#{peer} #{out}") if out
+    print_status("#{out}") if out
 
     if (out =~ /Not Vulnerable/)
-      print_status("#{peer} isn't vulnerable to this attack")
+      print_status("isn't vulnerable to this attack")
       return
     end
 
     if (not check_cf)
-      print_status("#{peer} can't be exploited (either files missing or permissions block access)")
+      print_status("can't be exploited (either files missing or permissions block access)")
       return
     end
 

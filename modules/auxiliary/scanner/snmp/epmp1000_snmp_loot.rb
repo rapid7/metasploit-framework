@@ -151,13 +151,13 @@ class MetasploitModule < Msf::Auxiliary
     p = store_loot(loot_name, loot_type, datastore['RHOST'], epmp_info, loot_filename, loot_desc)
     print_good("Cambium ePMP loot saved at #{p}")
   rescue SNMP::RequestTimeout
-    print_error("#{ip} SNMP request timeout.")
+    print_error("SNMP request timeout.")
   rescue Rex::ConnectionError
-    print_error("#{ip} Connection refused.")
+    print_error("Connection refused.")
   rescue SNMP::InvalidIpAddress
-    print_error("#{ip} Invalid IP Address. Check it with 'snmpwalk tool'.")
+    print_error("Invalid IP Address. Check it with 'snmpwalk tool'.")
   rescue SNMP::UnsupportedVersion
-    print_error("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
+    print_error("Unsupported SNMP version specified. Select from '1' or '2c'.")
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue StandardError => e

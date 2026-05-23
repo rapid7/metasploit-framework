@@ -92,13 +92,13 @@ class MetasploitModule < Msf::Auxiliary
         :password => password
       )
       if result[:auth]
-        vprint_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'" unless session
-        print_status "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
+        vprint_good "Postgres - Logged in to '#{database}' with '#{user}':'#{password}'" unless session
+        print_status "Postgres - Version #{result[:auth]} (Post-Auth)"
       elsif result[:preauth]
-        print_good "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
+        print_good "Postgres - Version #{result[:preauth]} (Pre-Auth)"
       else # It's something we don't know yet
-        vprint_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
-        print_status "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"
+        vprint_status "Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
+        print_status "Postgres - Version Unknown (Pre-Auth)"
       end
 
       # Reporting
@@ -134,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
       # Logout
       postgres_logout if self.postgres_conn && session.blank?
     rescue Rex::ConnectionError
-      vprint_error "#{rhost}:#{rport} Connection Error: #{$!}"
+      vprint_error "Connection Error: #{$!}"
       return :done
     end
   end

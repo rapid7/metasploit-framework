@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       ver = info[:version]
       pta = info[:plaintext_auth]
       report_info = "Platform: #{plat}, Version: #{ver}, Instance: #{inst}, Plain-Authentication: #{pta ? 'OK' : 'NO'}"
-      print_good("#{ip}:#{rport} DB2 - #{report_info}")
+      print_good("DB2 - #{report_info}")
       report_service(
         host: rhost,
         port: rport,
@@ -53,13 +53,13 @@ class MetasploitModule < Msf::Auxiliary
     end
     disconnect
   rescue ::Rex::ConnectionRefused
-    vprint_error("#{rhost}:#{rport} : Cannot connect to host")
+    vprint_error("Cannot connect to host")
     return :done
   rescue ::Rex::ConnectionError
-    vprint_error("#{rhost}:#{rport} : Unable to attempt probe")
+    vprint_error("Unable to attempt probe")
     return :done
   rescue ::Rex::Proto::DRDA::RespError => e
-    vprint_error("#{rhost}:#{rport} : Error in connecting to DB2 instance: #{e}")
+    vprint_error("Error in connecting to DB2 instance: #{e}")
     return :error
   end
 end

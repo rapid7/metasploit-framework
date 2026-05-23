@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
       raise $!
     rescue ::Rex::ConnectionError, ::IOError, ::Errno::ECONNRESET, ::Errno::ENOPROTOOPT
     rescue ::Exception
-      print_error("#{rhost}:#{rport} #{$!.class} #{$!} #{$!.backtrace}")
+      print_error("#{$!.class} #{$!} #{$!.backtrace}")
     ensure
       disconnect
     end
@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
         banner << "DisplayName: #{remote_display}"
       end
 
-      print_good("#{rhost}:#{rport} #{banner}")
+      print_good("#{banner}")
       report_service(:host => rhost, :port => rport, :name => "h323", :info => banner)
     end
   end

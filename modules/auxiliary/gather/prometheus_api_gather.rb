@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    vprint_status("#{peer} - Checking build info")
+    vprint_status("Checking build info")
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'api', 'v1', 'status', 'buildinfo'),
       'method' => 'GET'
@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response from server (unable to find version number)") unless version
     print_good("Prometheus found, version: #{version}")
 
-    vprint_status("#{peer} - Checking status config")
+    vprint_status("Checking status config")
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'api', 'v1', 'status', 'config'),
       'method' => 'GET'
@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
       print_bad('Unable to load YAML')
     end
 
-    vprint_status("#{peer} - Checking targets")
+    vprint_status("Checking targets")
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'api', 'v1', 'targets'),
       'method' => 'GET'
@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_good(table_targets.to_s) if !table_targets.rows.empty?
 
-    vprint_status("#{peer} - Checking status flags")
+    vprint_status("Checking status flags")
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'api', 'v1', 'status', 'flags'),
       'method' => 'GET'

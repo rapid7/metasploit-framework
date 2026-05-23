@@ -287,7 +287,7 @@ class MetasploitModule < Msf::Auxiliary
     unless opres.error_message.to_s.empty?
       msg += " - #{opres.error_message}"
     end
-    print_error("#{peer} #{msg}")
+    print_error("#{msg}")
   end
 
   def ldap_connection

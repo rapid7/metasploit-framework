@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if !res
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def getprocesslist(rhost)
-    print_status("#{rhost}:#{rport} [SAP] Connecting to SAP Management Console SOAP Interface ")
+    print_status("Connecting to SAP Management Console SOAP Interface ")
     success = false
 
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -105,12 +105,12 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
     if success
-      print_good("#{rhost}:#{rport} [SAP] #{env.length} processes listed")
+      print_good("#{env.length} processes listed")
 
       saptbl = Msf::Ui::Console::Table.new(
         Msf::Ui::Console::Table::Style::Default,
@@ -133,9 +133,9 @@ class MetasploitModule < Msf::Auxiliary
 
       print_line(saptbl.to_s)
     elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
+      print_error("Error code: #{faultcode}")
     else
-      print_error("#{rhost}:#{rport} [SAP] failed to request process list")
+      print_error("failed to request process list")
     end
   end
 end

