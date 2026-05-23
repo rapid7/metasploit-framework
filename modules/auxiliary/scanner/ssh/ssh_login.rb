@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Scanner
-  include Msf::Exploit::Remote::SSH::Options
+  include Msf::Exploit::Remote::SSH
   include Msf::Sessions::CreateSessionOptions
   include Msf::Auxiliary::ReportSummary
   include Msf::Exploit::Deprecated
@@ -45,7 +45,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(22),
         OptPath.new('KEY_PATH', [false, 'Filename or directory of cleartext private keys. Filenames beginning with a dot, or ending in ".pub" will be skipped. Duplicate private keys will be ignored.']),
         OptString.new('KEY_PASS', [false, 'Passphrase for SSH private key(s)']),
         OptString.new('PRIVATE_KEY', [false, 'The string value of the private key that will be used. If you are using MSFConsole, this value should be set as file:PRIVATE_KEY_PATH. OpenSSH, RSA, DSA, and ECDSA private keys are supported.'])
@@ -55,16 +54,11 @@ class MetasploitModule < Msf::Auxiliary
     register_advanced_options(
       [
         Opt::Proxies,
-        OptBool.new('SSH_DEBUG', [false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
-        OptInt.new('SSH_TIMEOUT', [false, 'Specify the maximum time to negotiate a SSH session', 30]),
         OptBool.new('GatherProof', [true, 'Gather proof of access via pre-session shell commands', true])
       ]
     )
   end
 
-  def rport
-    datastore['RPORT']
-  end
 
   def session_setup(result, scanner, used_key: false)
     return unless scanner.ssh_socket
@@ -121,6 +115,12 @@ class MetasploitModule < Msf::Auxiliary
       )
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
+        report_ssh_proof(ip, result)
+
+        banner = scanner.ssh_socket.transport.server_version.version
+        report_ssh_service(ip, info: banner)
+        report_ssh_host(banner, ip, rport)
+
         yield result, credential_data
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         vprint_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
@@ -139,6 +139,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    @banner = grab_ssh_banner(ip)
     print_brute ip: ip, msg: 'Starting bruteforce'
 
     if datastore['USER_FILE'].blank? && datastore['USERNAME'].blank? && datastore['USERPASS_FILE'].blank?
