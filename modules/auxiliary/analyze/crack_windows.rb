@@ -101,9 +101,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    puts "XXX process_cracker_results cred prior to create_cracked_credential: #{cred.inspect}"
-    t = create_cracked_credential(username: cred['username'], password: cred['password'], core_id: cred['core_id'])
-    puts "XXX create_cracked_credential returned: #{t.inspect}"
+    create_cracked_credential(username: cred['username'], password: cred['password'], core_id: cred['core_id'])
     results
   end
 
@@ -178,7 +176,6 @@ class MetasploitModule < Msf::Auxiliary
         # so we can now just go grab the username from the DB
         cred['username'] = framework.db.creds(workspace: myworkspace, id: cred['core_id'])[0].public.username
       end
-      puts "XXX check_results function prior to process_crack_results: #{cred.inspect}"
       results = process_cracker_results(results, cred)
     end
     results
