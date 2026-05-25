@@ -29,28 +29,24 @@ module Msf
           uname('-r')
         end
         
-        # Returns the kernel release as a Rex::Version object.
+        # Returns the kernel release information as a hashable object
         #
-        # @param release [String, nil] Pre-fetched kernel release string.
-        # @return [Rex::Version] the upstream kernel version
-        # @return [nil] if the release could not be determined or parsed
         #
         def kernel_rex_release
           release = kernel_release
 
           # regex for parsing kernel release
-          # (5.15.0)-(25)-(generic) 
-          # consists of three groups - the "main version" (xx.zz.yy), the patched version and the type of kernel
-          # this regex should make it easier to create Rex::Version of out it 
-
-          parsed_kernel_release = release.scan(/(\d+\.\d+\.?\d*)-?(\d+\.\d+|\w+\d+|\d+)?-?(\w+)?/)
+          # (5.15.0)-(25-generic) 
+          # consists of two groups - the kernel upstream version (xx.zz.yy) and distro-specific information
+          # this regex should make it easier to parse it
           
-          return nil if parsed_kernel_release.blank?
+          return nil unless release =~ /(\d+\.\d+\.?\d*\.?\d*)[-.]?(.+)/
+          
+          { 
+            :upstream => Rex::Version.new(Regexp.last_match(1)),
+            :distro_suffix => Regexp.last_match(2)
+          }
 
-          Rex::Version.new(parsed_kernel_release.first.join('-'))
-        end
-
-        def kernel_rex_release_major
         end
 
         #

@@ -109,63 +109,56 @@ RSpec.describe Msf::Post::Linux::Kernel do
     end
   end
 
-  describe '#kernel_rex_version' do
+  describe '#kernel_rex_release' do
     [
-      { release: '5.15.0-25-generic', expected: '5.15.0', label: 'Ubuntu' },
-      { release: '5.13.0-37.42', expected: '5.13.0', label: 'Ubuntu (docker cgroup)' },
-      { release: '4.14.355-275.572.amzn2.x86_64', expected: '4.14.355', label: 'Amazon Linux 2' },
-      { release: '5.4.129-72.229.amzn2int.x86_64', expected: '5.4.129', label: 'Amazon Linux 2 (int)' },
-      { release: '4.0.4-301.fc22.x86_64', expected: '4.0.4', label: 'Fedora' },
-      { release: '3.10.0-1160.el7.x86_64', expected: '3.10.0', label: 'RHEL/CentOS' },
-      { release: '6.11.2-amd64', expected: '6.11.2', label: 'Debian' },
-      { release: '6.6.7-arch1-1', expected: '6.6.7', label: 'Arch Linux' },
-      { release: '5.4.0', expected: '5.4.0', label: 'simple version (no suffix)' },
-      { release: '5.14.21-150500.55.83-default', expected: '5.14.21', label: 'SUSE/openSUSE' },
-      { release: '6.6.63-0-lts', expected: '6.6.63', label: 'Alpine Linux' },
+      { release: '5.15.0-25-generic', expected_upstream: '5.15.0', expected_suffix: '25-generic', label: 'Ubuntu' },
+      { release: '5.13.0-37.42', expected_upstream: '5.13.0', expected_suffix: '37.42', label: 'Ubuntu (docker cgroup)' },
+      { release: '4.14.355-275.572.amzn2.x86_64', expected_upstream: '4.14.355', expected_suffix: '275.572.amzn2.x86_64', label: 'Amazon Linux 2' },
+      { release: '5.4.129-72.229.amzn2int.x86_64', expected_upstream: '5.4.129', expected_suffix: '72.229.amzn2int.x86_64', label: 'Amazon Linux 2 (int)' },
+      { release: '4.0.4-301.fc22.x86_64', expected_upstream: '4.0.4', expected_suffix: '301.fc22.x86_64', label: 'Fedora' },
+      { release: '3.10.0-1160.el7.x86_64', expected_upstream: '3.10.0', expected_suffix: '1160.el7.x86_64', label: 'RHEL/CentOS' },
+      { release: '6.11.2-amd64', expected_upstream: '6.11.2', expected_suffix: 'amd64', label: 'Debian' },
+      { release: '6.6.7-arch1-1', expected_upstream: '6.6.7', expected_suffix: 'arch1-1', label: 'Arch Linux' },
+      { release: '5.14.21-150500.55.83-default', expected_upstream: '5.14.21', expected_suffix: '150500.55.83-default', label: 'SUSE/openSUSE' },
+      { release: '6.6.63-0-lts', expected_upstream: '6.6.63', expected_suffix: '0-lts', label: 'Alpine Linux' },
     ].each do |test_case|
       context "with #{test_case[:label]} kernel (#{test_case[:release]})" do
-        it "returns Rex::Version #{test_case[:expected]}" do
+        it "returns a hash with upstream Rex::Version #{test_case[:expected_upstream]} and distro suffix #{test_case[:expected_suffix]}" do
           allow(subject).to receive(:cmd_exec).and_return(test_case[:release])
-          result = subject.kernel_rex_version
-          expect(result).to be_a(Rex::Version)
-          expect(result).to eq(Rex::Version.new(test_case[:expected]))
+          result = subject.kernel_rex_release
+          expect(result).to be_a(Hash)
+          expect(result[:upstream]).to be_a(Rex::Version)
+          expect(result[:upstream]).to eq(Rex::Version.new(test_case[:expected_upstream]))
+          expect(result[:distro_suffix]).to eq(test_case[:expected_suffix])
         end
-      end
-    end
-
-    context 'when a pre-fetched release string is provided' do
-      it 'uses the provided string instead of calling kernel_release' do
-        expect(subject).not_to receive(:cmd_exec)
-        result = subject.kernel_rex_version('5.15.0-25-generic')
-        expect(result).to eq(Rex::Version.new('5.15.0'))
       end
     end
 
     context 'when kernel_release returns a blank string' do
       it 'returns nil' do
         allow(subject).to receive(:cmd_exec).and_return('')
-        expect(subject.kernel_rex_version).to be_nil
+        expect(subject.kernel_rex_release).to be_nil
       end
     end
 
     context 'when kernel_release returns nil' do
       it 'returns nil' do
         allow(subject).to receive(:cmd_exec).and_return(nil)
-        expect(subject.kernel_rex_version).to be_nil
+        expect(subject.kernel_rex_release).to be_nil
       end
     end
 
-    context 'when the version string before the first hyphen is not parseable' do
+    context 'when the version string is not parseable' do
       it 'returns nil' do
-        result = subject.kernel_rex_version('xyz-not-a-version')
-        expect(result).to be_nil
+        allow(subject).to receive(:cmd_exec).and_return('xyz-not-a-version')
+        expect(subject.kernel_rex_release).to be_nil
       end
     end
 
     context 'when version comparison is used' do
-      it 'allows comparison with other Rex::Version objects' do
+      it 'allows comparison with other Rex::Version objects via the :upstream key' do
         allow(subject).to receive(:cmd_exec).and_return('5.15.0-25-generic')
-        v = subject.kernel_rex_version
+        v = subject.kernel_rex_release[:upstream]
         expect(v).to be > Rex::Version.new('5.14.0')
         expect(v).to be < Rex::Version.new('5.16.0')
         expect(v).to eq(Rex::Version.new('5.15.0'))
