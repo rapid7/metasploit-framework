@@ -261,6 +261,8 @@ class MetasploitModule < Msf::Auxiliary
         print_brute level: :warn, ip: ip, msg: 'We do not currently support storing password protected SSH keys: https://github.com/rapid7/metasploit-framework/issues/20598'
       end
 
+      store_ssh_key_loot(ip, result.credential.public, result.credential.private)
+
       session_setup(result, scanner, used_key: true) if datastore['CreateSession']
     end
   end
@@ -343,6 +345,34 @@ class MetasploitModule < Msf::Auxiliary
         uname: uname_part.to_s.strip
       },
       update: :unique_data
+    )
+  end
+
+  def store_ssh_key_loot(ip, user, private_key_data)
+    return unless framework.db.active
+    return if private_key_data.to_s.empty?
+
+    begin
+      key = Net::SSH::KeyFactory.load_data_private_key(private_key_data, nil, false)
+    rescue StandardError
+      return
+    end
+
+    ktype = key.ssh_type.delete_prefix('ssh-').sub(/\Aecdsa-sha2-\S+/, 'ecdsa')
+    key_fingerprint = key.fingerprint('SHA256')
+    safe_username = user.gsub(/[^A-Za-z0-9]/, '_')
+    ltype = "host.unix.ssh.#{safe_username}_#{ktype}_private"
+
+    existing = framework.db.loots(workspace: myworkspace).where(ltype: ltype).select { |l| l.info == key_fingerprint }.first
+    return existing.path if existing
+
+    store_loot(
+      ltype,
+      'application/octet-stream',
+      ip,
+      (private_key_data + "\n"),
+      "#{safe_username}_#{ktype}.private",
+      key_fingerprint
     )
   end
 
