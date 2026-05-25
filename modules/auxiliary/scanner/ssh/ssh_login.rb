@@ -122,23 +122,28 @@ class MetasploitModule < Msf::Auxiliary
         report_ssh_host(banner, ip, rport)
 
         yield result, credential_data
+
+        warn_unknown_platform(ip, scanner, result)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         vprint_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
 
-        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+        report_ssh_service(ip, info: @banner) if @banner && !result.proof.to_s.empty?
+
         invalidate_login(credential_data)
+
+        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
 
         :abort
       else
-        vprint_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}'" if result.status == Metasploit::Model::Login::Status::INCORRECT
+        report_ssh_banner(scanner, ip) if result.status == Metasploit::Model::Login::Status::INCORRECT
 
-        invalidate_login(credential_data)
-        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+        handle_login_failure(ip, scanner, result, credential_data)
       end
     end
   end
 
   def run_host(ip)
+    @reported_service = false
     @banner = grab_ssh_banner(ip)
     print_brute ip: ip, msg: 'Starting bruteforce'
 
@@ -194,14 +199,12 @@ class MetasploitModule < Msf::Auxiliary
     scanner.verbosity = :debug if datastore['SSH_DEBUG']
 
     run_scanner(ip, scanner) do |result, credential_data|
-      print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
       credential_data[:private_type] = :password
       credential_core = create_credential(credential_data)
       credential_data[:core] = credential_core
       create_credential_login(credential_data)
 
       session_setup(result, scanner, used_key: false) if datastore['CreateSession']
-      warn_unknown_platform(ip, scanner, result)
     end
   end
 
@@ -249,8 +252,6 @@ class MetasploitModule < Msf::Auxiliary
     scanner.verbosity = :debug if datastore['SSH_DEBUG']
 
     run_scanner(ip, scanner) do |result, credential_data|
-      print_brute level: :good, ip: ip, msg: "Success: '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
-      print_brute level: :vgood, ip: ip, msg: result.credential
       begin
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
@@ -261,17 +262,88 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       session_setup(result, scanner, used_key: true) if datastore['CreateSession']
-      warn_unknown_platform(ip, scanner, result)
     end
   end
 
   def warn_unknown_platform(ip, scanner, result)
     return unless datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
 
-    msg = 'While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with'
-    msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
-    msg << ' device details so it can be handled in the future.'
-    print_brute level: :error, ip: ip, msg: msg
+    print_brute level: :error, ip: ip, msg: "While a session may have opened, it may be bugged. If you experience issues with it, re-run this module with 'set gatherproof false'."
+    print_brute level: :error, ip: ip, msg: 'Also consider submitting an issue at github.com/rapid7/metasploit-framework with device details so it can be handled in the future.'
+  end
+
+  def handle_login_failure(ip, scanner, result, credential_data)
+    cred = result.credential
+    cred_display = cred.public.to_s.empty? ? '<anonymous>' : cred.to_s
+    proof = result.proof.to_s.strip
+    proof_str = if cred.public.to_s.empty?
+                  result.status.to_s
+                elsif proof.empty?
+                  result.status.to_s
+                else
+                  "#{result.status}: #{proof}"
+                end
+    vprint_brute level: :verror, ip: ip, msg: "Failed: '#{cred_display}' (#{proof_str})"
+
+    invalidate_login(credential_data)
+
+    scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+  end
+
+  def report_ssh_banner(scanner, ip)
+    unless @reported_service
+      banner = @banner || scanner.ssh_socket&.transport&.server_version&.version
+      report_ssh_service(ip, info: banner)
+      report_ssh_host(banner, ip, rport)
+      @reported_service = true
+    end
+  end
+
+  def report_ssh_proof(ip, result)
+    id_part, uname_part = result.proof.to_s.split("\n", 2)
+
+    cred = result.credential
+    if cred.private_type == :ssh_key
+      private_display = begin
+        key = Net::SSH::KeyFactory.load_data_private_key(cred.private, nil, false)
+        key.fingerprint('SHA256')
+      rescue StandardError
+        '<ssh_key>'
+      end
+      cred_str = "#{cred.public}:#{private_display}"
+    else
+      cred_str = cred.to_s
+    end
+
+    msg = "Success: '#{cred_str}'"
+    msg += " '#{id_part.strip}'" unless id_part.to_s.strip.empty?
+    print_brute level: :good, ip: ip, msg: msg
+    print_brute level: :vgood, ip: ip, msg: uname_part.strip if uname_part
+    return unless result.proof.present?
+
+    report_vuln(
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      sname: 'ssh',
+      name: 'SSH Weak Credentials',
+      info: "Successful login as '#{result.credential.public}'",
+      refs: references
+    )
+
+    report_note(
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      sname: 'ssh',
+      type: 'ssh.proof',
+      data: {
+        credential: cred_str,
+        id: id_part.to_s.strip,
+        uname: uname_part.to_s.strip
+      },
+      update: :unique_data
+    )
   end
 
   def attempt_pubkey_login?
