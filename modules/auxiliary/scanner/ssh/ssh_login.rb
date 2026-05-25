@@ -232,6 +232,7 @@ class MetasploitModule < Msf::Auxiliary
     key_sources = []
     key_sources.append(datastore['KEY_PATH']) unless datastore['KEY_PATH'].blank?
     key_sources.append('PRIVATE_KEY') unless datastore['PRIVATE_KEY'].blank?
+    key_sources.append('database') if prepend_db_creds?
 
     print_brute level: :vstatus, ip: ip, msg: "Testing #{key_count} #{'key'.pluralize(key_count)} from #{key_sources.join(' and ')}"
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
@@ -377,11 +378,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def attempt_pubkey_login?
-    datastore['KEY_PATH'].present? || datastore['PRIVATE_KEY'].present?
+    datastore['KEY_PATH'].present? ||
+      datastore['PRIVATE_KEY'].present?
   end
 
   def attempt_password_login?
-    datastore['PASSWORD'].present? || datastore['PASS_FILE'].present? || datastore['USERPASS_FILE'].present?
+    datastore['PASSWORD'].present? ||
+      datastore['PASS_FILE'].present? ||
+      datastore['USERPASS_FILE'].present? ||
+      datastore['BLANK_PASSWORDS'] ||
+      datastore['USER_AS_PASS'] ||
+      datastore['ANONYMOUS_LOGIN']
   end
 
 end
