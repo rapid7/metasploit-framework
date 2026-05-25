@@ -88,7 +88,12 @@ module Msf
           'Indent'  => 1,
           'Columns' => ['ID', 'Name', 'Description', 'Tags', 'Added At', 'Last Selected At', 'Status'],
           'SortIndex' => 6,
-          'Stylers' => [::Msf::Ui::Console::TablePrint::CustomColorStyler.new('Active' => '%grn', 'Inactive' => '%red')],
+          'ColProps' =>
+          {
+            'Status' => {
+              'Stylers' => [::Msf::Ui::Console::TablePrint::CustomColorStyler.new('Active' => '%grn', 'Inactive' => '%red')]
+            }
+          }
         )
 
         difference_in_seconds = lambda do |time_str|
