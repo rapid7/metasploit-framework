@@ -278,8 +278,13 @@ end
 
 # return the common setg base settings string
 def base_settings(wordlist: true)
-  s = 'setg INCREMENTAL false;setg USE_CREDS false; setg USE_DB_INFO false; '
-  s << 'setg USE_DEFAULT_WORDLIST false; setg USE_HOSTNAMES false; setg USE_ROOT_WORDS false; '
+  s = 'setg INCREMENTAL false;'
+  s << 'setg NORMAL false;'
+  s << 'setg USE_CREDS false;'
+  s << 'setg USE_DB_INFO false;'
+  s << 'setg USE_DEFAULT_WORDLIST false;'
+  s << 'setg USE_HOSTNAMES false;'
+  s << 'setg USE_ROOT_WORDS false;'
   s << (wordlist ? 'setg WORDLIST true; ' : 'setg WORDLIST false; ')
   s << 'setg verbose true;'
   s
@@ -340,6 +345,79 @@ $wordlist = wordlist
 # Create a john pot tempfile used by the pot-mode tests
 pot_file = Tempfile.new('john_pot')
 info "Pot file created at: #{pot_file.path}"
+File.open(pot_file, 'w') do |file|
+  file.puts [
+    # --- nix hashes (john format) ---
+    '$1$O3JMY.Tw$AdLnLjQ/5jXF9.MTp3gHv/:password', # md5crypt
+    'rEK1ecacw.7.c:password', # des
+    '_J9..K0AyUubDrfOgO4s:password', # bsdi
+    '$2a$05$bvIG6Nmid91Mu9RcmmWZfO5HJIMCT8riNW0hEp8f6/FuA2/mHZFpe:password', # blowfish
+    '$5$MnfsQ4iN$ZMTppKN16y/tIsUYs/obHlhdP.Os80yXhTurpBMUbA5:password',      # sha256crypt
+    '$6$zWwwXKNj$gLAOoZCjcr8p/.VgV/FkGC3NX7BsXys3KHYePfuIGMNjY83dVxugPYlxVg/evpcVEJLT/rSwZcDMlVVf/bhf.1:password', # sha512crypt
+
+    # --- windows hashes (john format) ---
+    '$LM$4a3b108f3fa6cb6d:D', # lm half 2
+    '$LM$e52cac67419a9a22:PASSWOR', # lm half 1
+    '$NT$8846f7eaee8fb117ad06bdd830b7586c:password', # nt
+    'M$test1#64cd29e36a8431a2b111378564a10631:test1', # mscash
+    '$DCC2$10240#tom#e4e938d12fe5974dc42a90120bd9c90f:hashcat', # mscash2
+    '$NETNTLM$cb8086049ec4736c338d08f8e26de933$9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41:hashcat', # netntlm
+    '$NETNTLMv2$ADMINN46iSNekpT$08ca45b7d7ea58ee$88dcbe4446168966a153a0064958dac6$5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030:hashcat', # netntlmv2
+
+    # --- sql hashes (john + hashcat format) ---
+    '0x0100A607BA7C54A24D17B565C59F1743776A10250F581D482DA8B6D6261460D3F53B279CC6913CE747006A2E3254:FOO', # mssql
+    '0x01004086CEB6BF932BC4151A1AF1F13CD17301D70816A8886908:toto', # mssql05
+    '0x0200F733058A07892C5CACE899768F89965F6BD1DED7955FE89E1C9A10E27849B0B213B5CE92CC9347ECCB34C3EFADAF2FD99BFFECD8D9150DD6AACB5D409A9D2652A4E0AF16:Password1!', # mssql12
+    '445ff82636a7ba59:probe', # mysql
+    '*5AD8F88516BD021DD43F171E2C785C69F8E54ADB:tere', # mysql-sha1 (john format)
+    'O$SIMON#4f8bc1809cb2af77:A', # des,oracle
+    'O$SYSTEM#9eedfa0ad26c6d52:THALES', # des,oracle
+
+    # --- mobile hashes (hashcat format) ---
+    '9860a48ca459d054f3fef0f8518cf6872923dae2:81fcb23bcadd6c5:1234', # android-sha1
+    'd1b19a90b87fc10c304e657f37162445dae27d16:a006983800cc3dd1:1234', # android-samsung-sha1
+    '1c0a0fdb673fba36beaeb078322c7393:81fcb23bcadd6c5:1234', # android-md5
+
+    # --- osx hashes (john + hashcat format) ---
+    '1430823483D07626EF8BE3FDA2FF056D0DFD818DBFE47683:hashcat', # xsha
+    '$LION$648742485c9b0acd786a233b2330197223118111b481abfa0ab8b3e8ede5f014fc7c523991c007db6882680b09962d16fd9c45568260531bdb34804a5e31c22b4cfeb32d:hashcat', # xsha512 (john format)
+    '$pbkdf2-hmac-sha512$35460.93a94bd24b5de64d79a5e49fa372827e739f4d7b6975c752c9a0ff1e5cf72e05.752351df64dd2ce9dc9c64a72ad91de6581a15c19176266b44d98919dfa81f0f96cbcb20a1ffb400718c20382030f637892f776627d34e021bad4f81b7de8222:hashcat', # PBKDF2-HMAC-SHA512 (john format)
+
+    # --- webapp hashes (john + hashcat format) ---
+    '$pbkdf2-hmac-sha1$10000$37323237333437363735323036323731$d0c38acef03f149b4b37c5a8319feeefcbd34912127ba96f3dfa5c22f49bbc1a:hashcat', # PBKDF2-HMAC-SHA1/atlassian (john format)
+    '$H$984478476IagS59wHZvyQMArzfx58u.:hashcat', # phpass H
+    '$P$984478476IagS59wHZvyQMArzfx58u.:hashcat', # phpass P
+    '$B$56668501$0ce106caa70af57fd525aeaf80ef2898:hashcat', # mediawiki
+
+    # --- windows hashes (hashcat format) ---
+    'e52cac67419a9a22:PASSWOR', # lm half 1
+    '4a3b108f3fa6cb6d:D', # lm half 2
+    '8846f7eaee8fb117ad06bdd830b7586c:password', # nt
+    '64cd29e36a8431a2b111378564a10631:test1:test1', # mscash
+    'u4-netntlm::kNS:338d08f8e26de93300000000000000000000000000000000:9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41:cb8086049ec4736c:hashcat', # netntlm
+    'ADMIN::N46iSNekpT:08ca45b7d7ea58ee:88dcbe4446168966a153a0064958dac6:5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030:hashcat', # netntlmv2
+
+    # --- sql hashes (hashcat format) ---
+    '5ad8f88516bd021dd43f171e2c785c69f8e54adb:tere', # mysql-sha1 (hashcat format)
+
+    # --- osx hashes (hashcat format) ---
+    '648742485c9b0acd786a233b2330197223118111b481abfa0ab8b3e8ede5f014fc7c523991c007db6882680b09962d16fd9c45568260531bdb34804a5e31c22b4cfeb32d:hashcat', # xsha512
+    '$ml$35460$93a94bd24b5de64d79a5e49fa372827e739f4d7b6975c752c9a0ff1e5cf72e05$752351df64dd2ce9dc9c64a72ad91de6581a15c19176266b44d98919dfa81f0f96cbcb20a1ffb400718c20382030f637892f776627d34e021bad4f81b7de8222:hashcat', # PBKDF2-HMAC-SHA512
+
+    # --- webapp hashes (hashcat format) ---
+    '{PKCS5S2}NzIyNzM0NzY3NTIwNjI3MdDDis7wPxSbSzfFqDGf7u/L00kSEnupbz36XCL0m7wa:hashcat', # atlassian/PBKDF2-HMAC-SHA1
+
+    # --- kerberos hashes ---
+    # john strips the username from krb5asrep pot entries: $krb5asrep$23$<hash_body>:password
+    '$krb5asrep$23$3e156ada591263b8aab0965f5aebd837$007497cb51b6c8116d6407a782ea0e1c5402b17db7afa6b05a6d30ed164a9933c754d720e279c6c573679bd27128fe77e5fea1f72334c1193c8ff0b370fadc6368bf2d49bbfdba4c5dccab95e8c8ebfdc75f438a0797dbfb2f8a1a5f4c423f9bfc1fea483342a11bd56a216f4d5158ccc4b224b52894fadfba3957dfe4b6b8f5f9f9fe422811a314768673e0c924340b8ccb84775ce9defaa3baa0910b676ad0036d13032b0dd94e3b13903cc738a7b6d00b0b3c210d1f972a6c7cae9bd3c959acf7565be528fc179118f28c679f6deeee1456f0781eb8154e18e49cb27b64bf74cd7112a0ebae2102ac:hashcat', # krb5asrep (john format)
+    # hashcat keeps the full $krb5asrep$23$user@domain.com:hash_body format
+    '$krb5asrep$23$user@domain.com:3e156ada591263b8aab0965f5aebd837$007497cb51b6c8116d6407a782ea0e1c5402b17db7afa6b05a6d30ed164a9933c754d720e279c6c573679bd27128fe77e5fea1f72334c1193c8ff0b370fadc6368bf2d49bbfdba4c5dccab95e8c8ebfdc75f438a0797dbfb2f8a1a5f4c423f9bfc1fea483342a11bd56a216f4d5158ccc4b224b52894fadfba3957dfe4b6b8f5f9f9fe422811a314768673e0c924340b8ccb84775ce9defaa3baa0910b676ad0036d13032b0dd94e3b13903cc738a7b6d00b0b3c210d1f972a6c7cae9bd3c959acf7565be528fc179118f28c679f6deeee1456f0781eb8154e18e49cb27b64bf74cd7112a0ebae2102ac:hashcat', # krb5asrep (hashcat format)
+    '$krb5tgs$23$*user$realm$test/spn*$63386d22d359fe42230300d56852c9eb$891ad31d09ab89c6b3b8c5e5de6c06a7f49fd559d7a9a3c32576c8fedf705376cea582ab5938f7fc8bc741acf05c5990741b36ef4311fe3562a41b70a4ec6ecba849905f2385bb3799d92499909658c7287c49160276bca0006c350b0db4fd387adc27c01e9e9ad0c20ed53a7e6356dee2452e35eca2a6a1d1432796fc5c19d068978df74d3d0baf35c77de12456bf1144b6a750d11f55805f5a16ece2975246e2d026dce997fba34ac8757312e9e4e6272de35e20d52fb668c5ed:hashcat', # krb5tgs (rc4)
+    '$krb5tgs$17$user$realm$ae8434177efd09be5bc2eff8$90b4ce5b266821adc26c64f71958a475cf9348fce65096190be04f8430c4e0d554c86dd7ad29c275f9e8f15d2dab4565a3d6e21e449dc2f88e52ea0402c7170ba74f4af037c5d7f8db6d53018a564ab590fc23aa1134788bcc4a55f69ec13c0a083291a96b41bffb978f5a160b7edc828382d11aacd89b5a1bfa710b0e591b190bff9062eace4d26187777db358e70efd26df9c9312dbeef20b1ee0d823d4e71b8f1d00d91ea017459c27c32dc20e451ea6278be63cdd512ce656357c942b95438228e:hashcat', # krb5tgs-aes128
+    '$krb5tgs$18$user$realm$8efd91bb01cc69dd07e46009$7352410d6aafd72c64972a66058b02aa1c28ac580ba41137d5a170467f06f17faf5dfb3f95ecf4fad74821fdc7e63a3195573f45f962f86942cb24255e544ad8d05178d560f683a3f59ce94e82c8e724a3af0160be549b472dd83e6b80733ad349973885e9082617294c6cbbea92349671883eaf068d7f5dcfc0405d97fda27435082b82b24f3be27f06c19354bf32066933312c770424eb6143674756243c1bde78ee3294792dcc49008a1b54f32ec5d5695f899946d42a67ce2fb1c227cb1d2004c0:hashcat', # krb5tgs-aes256
+    '$sntp-ms$cfc7023381cf6bb474cdcbeb0a67bdb3$907733697536811342962140955567108526489624716566696971338784438986103976327367763739445744705380:hashcat' # timeroast
+  ]
+end
 
 if options[:test] == 'all' || options[:test].include?(2)
   run_section(
