@@ -155,6 +155,8 @@ def webapp_hashes_and_regex
   creds_expected_output_regex << /phpass_h_hashcat\s+\$H\$984478476IagS59wHZvyQMArzfx58u\.\s+Nonreplayable hash\s+phpass\s+hashcat$/
   creds_command << ' creds add user:atlassian_hashcat hash:{PKCS5S2}NzIyNzM0NzY3NTIwNjI3MdDDis7wPxSbSzfFqDGf7u/L00kSEnupbz36XCL0m7wa jtr:PBKDF2-HMAC-SHA1;'
   creds_expected_output_regex << %r{atlassian_hashcat\s+\{PKCS5S2\}NzIyNzM0NzY3NTIwNjI3MdDDis7wPxSbSzfFqDGf7u/L00kSEnupbz36XCL0m7wa\s+Nonreplayable\s+hash\s+PBKDF2-HMAC-SHA1\s+hashcat$}
+  creds_command << ' creds add user:pbkdf2_sha256_hashcat hash:\$pbkdf2-sha256\$1000\$c2FsdHNhbHQ\$5dqqb8uOkRAL7jFDoNsO5uunXvT78W/8jQb58DoqBe8 jtr:pbkdf2-sha256;'
+  creds_expected_output_regex << /pbkdf2_sha256_hashcat\s+\$pbkdf2-sha256\$1000\$c2FsdHNhbHQ\$5dqqb8uOkRAL7jFDoNsO5uunXvT78W\/8jQb58DoqBe8\s+Nonreplayable hash\s+pbkdf2-sha256\s+hashcat$/
   return creds_command, creds_expected_output_regex
 end
 
@@ -406,6 +408,10 @@ File.open(pot_file, 'w') do |file|
 
     # --- webapp hashes (hashcat format) ---
     '{PKCS5S2}NzIyNzM0NzY3NTIwNjI3MdDDis7wPxSbSzfFqDGf7u/L00kSEnupbz36XCL0m7wa:hashcat', # atlassian/PBKDF2-HMAC-SHA1
+    # john stores the full $pbkdf2-sha256$ hash in pot (no username)
+    '$pbkdf2-sha256$1000$c2FsdHNhbHQ$5dqqb8uOkRAL7jFDoNsO5uunXvT78W/8jQb58DoqBe8:hashcat', # pbkdf2-sha256 (john format)
+    # hashcat converts to sha256:iter:b64salt=:b64hash= form
+    'sha256:1000:c2FsdHNhbHQ=:5dqqb8uOkRAL7jFDoNsO5uunXvT78W/8jQb58DoqBe8=:hashcat', # pbkdf2-sha256 (hashcat format)
 
     # --- kerberos hashes ---
     # john strips the username from krb5asrep pot entries: $krb5asrep$23$<hash_body>:password

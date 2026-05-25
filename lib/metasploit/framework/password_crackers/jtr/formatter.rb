@@ -65,6 +65,8 @@ module Metasploit
                 if format.start_with?('des') # 'des,oracle', not oracle11/12c
                   return "#{username}:O$#{username}##{private_data}:#{db_id}:"
                 end
+              when /^pbkdf2-sha256/
+                return "#{username}:#{private_data}:#{db_id}:"
               when /md5|des|bsdi|crypt|bf|sha256|sha512|xsha512/
                 # md5(crypt), des(crypt), b(crypt), sha256(crypt), sha512(crypt), xsha512
                 return "#{username}:#{private_data}:::::#{db_id}:"

@@ -92,6 +92,7 @@ class MetasploitModule < Msf::Auxiliary
       # 'android-sha1', 'android-samsung-sha1', 'android-md5', # mobile is done with hashcat, so skip these
       'PBKDF2-HMAC-SHA1', 'phpass', 'mediawiki', 'pbkdf2-sha256', # webapps
       'xsha', 'xsha512', 'PBKDF2-HMAC-SHA512', # osx
+      'krb5asrep', 'krb5tgs', 'krb5tgs-aes128', 'krb5tgs-aes256', 'timeroast', # kerberos
       'nt', # nt needs to be 2nd to last because it can hit on android hashes
       'crypt' # crypt NEEDS TO BE LAST so it doesn't accidentally read in other compatible hashes
     ].each do |format|
@@ -159,6 +160,21 @@ class MetasploitModule < Msf::Auxiliary
               break
             end
           end
+        when 'krb5asrep', 'krb5tgs', 'krb5tgs-aes128', 'krb5tgs-aes256'
+          # john outputs db_id:password since the hash file replaces username with db_id
+          next unless fields.count >= 2
+          core_id = fields.shift
+          lookup = lookups.find { |l| l.id.to_s == core_id.to_s }
+          next if lookup.nil?
+          username = lookup.username.username
+        when 'timeroast'
+          # john outputs $sntp-ms$...$...:password since hash file has the raw hash
+          next unless fields.count >= 2
+          hash_field = fields.shift
+          lookup = lookups.find { |l| l.jtr_hash == hash_field }
+          next if lookup.nil?
+          core_id = lookup.id
+          username = lookup.username.username
         when 'lm', 'nt'
           next unless fields.count >= 7
 

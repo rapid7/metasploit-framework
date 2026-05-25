@@ -236,6 +236,20 @@ module Metasploit
           end
         end
 
+        # Translates a jtr_format name to the format name john actually expects.
+        # Most formats pass through unchanged; a few have case/name discrepancies.
+        #
+        # @param format [String] A jtr_format string
+        # @return [String] The format name for John the Ripper
+        def jtr_format_to_john_format(format)
+          case format
+          when 'pbkdf2-sha256'
+            'PBKDF2-HMAC-SHA256'
+          else
+            format
+          end
+        end
+
         # This method sets the appropriate parameters to run a cracker in incremental mode
         def mode_incremental
           self.increment_length = nil
@@ -423,7 +437,7 @@ module Metasploit
           end
 
           if format.present?
-            cmd << ('--format=' + format)
+            cmd << ('--format=' + jtr_format_to_john_format(format))
           end
 
           if wordlist.present?
@@ -576,7 +590,7 @@ module Metasploit
           if cracker == 'hashcat'
             cmd = [cmd_string, '--show', '--username', "--potfile-path=#{pot_file}", "--hash-type=#{jtr_format_to_hashcat_format(format)}"]
           elsif cracker == 'john'
-            cmd = [cmd_string, '--show', "--pot=#{pot_file}", "--format=#{format}"]
+            cmd = [cmd_string, '--show', "--pot=#{pot_file}", "--format=#{jtr_format_to_john_format(format)}"]
 
             if config
               cmd << "--config=#{config}"
