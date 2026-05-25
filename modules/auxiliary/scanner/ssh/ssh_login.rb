@@ -59,7 +59,6 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-
   def session_setup(result, scanner, used_key: false)
     return unless scanner.ssh_socket
 
@@ -113,6 +112,7 @@ class MetasploitModule < Msf::Auxiliary
         module_fullname: fullname,
         workspace_id: myworkspace_id
       )
+
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
         report_ssh_proof(ip, result)
@@ -145,17 +145,11 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     @reported_service = false
     @banner = grab_ssh_banner(ip)
-    print_brute ip: ip, msg: 'Starting bruteforce'
+    print_brute ip: ip, msg: 'Starting SSH login sweep'
 
-    if datastore['USER_FILE'].blank? && datastore['USERNAME'].blank? && datastore['USERPASS_FILE'].blank?
-      validation_reason = 'At least one of USER_FILE, USERPASS_FILE or USERNAME must be given'
-      raise Msf::OptionValidateError.new(
-        {
-          'USER_FILE' => validation_reason,
-          'USERNAME' => validation_reason,
-          'USERPASS_FILE' => validation_reason
-        }
-      )
+    if datastore['USERNAME'].blank? && datastore['USER_FILE'].blank? && datastore['USERPASS_FILE'].blank? && !datastore['ANONYMOUS_LOGIN']
+      print_brute level: :error, ip: ip, msg: 'No credentials specified. Set USERNAME/PASSWORD, USER_FILE/PASS_FILE/USERPASS_FILE, or ANONYMOUS_LOGIN.'
+      return
     end
 
     unless attempt_password_login? || attempt_pubkey_login?
@@ -174,7 +168,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login_creds(ip)
-    print_status("#{ip}:#{rport} SSH - Testing User/Pass combinations")
+    print_brute ip: ip, msg: 'SSH - Testing user/pass combinations'
 
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
@@ -209,7 +203,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login_pubkey(ip)
-    print_status("#{ip}:#{rport} SSH - Testing Cleartext Keys")
+    print_brute ip: ip, msg: 'SSH - Testing key combinations'
 
     keys = Metasploit::Framework::KeyCollection.new(
       key_path: datastore['KEY_PATH'],
@@ -220,9 +214,9 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     unless keys.valid?
-      print_error('Files that failed to be read:')
+      print_brute level: :error, ip: ip, msg: 'Failed to read key files:'
       keys.error_list.each do |err|
-        print_line("\t- #{err}")
+        print_brute level: :error, ip: ip, msg: "  - #{err}"
       end
     end
 
@@ -235,6 +229,7 @@ class MetasploitModule < Msf::Auxiliary
     key_sources.append('database') if prepend_db_creds?
 
     print_brute level: :vstatus, ip: ip, msg: "Testing #{key_count} #{'key'.pluralize(key_count)} from #{key_sources.join(' and ')}"
+
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
       configure_login_scanner(
         host: ip,
@@ -258,7 +253,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
       rescue ::StandardError => e
-        print_brute level: :info, ip: ip, msg: "Failed to create credential: #{e.class} #{e}"
+        print_brute level: :info, ip: ip, msg: "Failed to create credential - #{e.class}: #{e}"
         print_brute level: :warn, ip: ip, msg: 'We do not currently support storing password protected SSH keys: https://github.com/rapid7/metasploit-framework/issues/20598'
       end
 
@@ -390,5 +385,4 @@ class MetasploitModule < Msf::Auxiliary
       datastore['USER_AS_PASS'] ||
       datastore['ANONYMOUS_LOGIN']
   end
-
 end
