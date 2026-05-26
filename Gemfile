@@ -32,7 +32,7 @@ end
 
 group :development, :test do
   # For ./tools/dev/update_gem_licenses.sh - custom fork (branch: rapid7-rubyzip-dependency-bump) until https://github.com/pivotal/LicenseFinder/pull/1063 lands
-  gem 'license_finder', git: 'https://github.com/rapid7/LicenseFinder', ref: '8c81993200b491af33db6b93587dd402a9ade1a0'
+  gem 'license_finder', git: 'https://github.com/rapid7/LicenseFinder', ref: '2b1aefcfd6d0745d17843050c1c89f973c1fa98c'
   # running documentation generation tasks and rspec tasks
   gem 'rake'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
