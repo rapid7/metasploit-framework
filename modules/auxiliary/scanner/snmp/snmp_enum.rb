@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
     output_data['Uptime snmp'] = hr_system_uptime =~ /Null/ ? '-' : hr_system_uptime.strip
 
     system_date = snmp.get_value('1.3.6.1.2.1.25.1.2.0')
-    if system_date.blank? || system_date =~ /Null/ || system_date =~ /^noSuch/
+    if system_date.blank? || system_date.to_s =~ /Null/ || system_date.to_s =~ /^noSuch/
       output_data['System date'] = '-'
     else
 
