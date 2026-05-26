@@ -20,6 +20,7 @@ class MetasploitModule < Msf::Auxiliary
           This vulnerability occurred due to the disabled Rack::Protection module
         },
         'References' => [
+          ['CVE', '2020-36939'],
           ['URL', 'https://github.com/avalanche123/cassandra-web/commit/f11e47a26f316827f631d7bcfec14b9dd94f44be'],
           ['EDB', '49362']
         ],
