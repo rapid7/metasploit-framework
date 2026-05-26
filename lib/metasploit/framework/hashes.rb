@@ -8,7 +8,6 @@ module Metasploit
     #  http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats
     #  https://openwall.info/wiki/john/sample-hashes
     #  QNX formats -> https://moar.so/blog/qnx-password-hash-formats.html
-    # rubocop:disable Metrics/ModuleLength
     module Hashes
       JTR_NTLMV1 = 'netntlm'.freeze
       JTR_NTLMV2 = 'netntlmv2'.freeze
@@ -67,9 +66,9 @@ module Metasploit
           return 'nt'
         when hash.length == 65 && hash =~ /^[\da-fA-F]{32}:[\da-fA-F]{32}$/
           return 'lm'
-        when hash =~ /^[^\\\/:*?"<>|]{1,20}[:]{2,3}([^\\\/:*?"<>|]{1,20})?:[a-f0-9]{48}:[a-f0-9]{48}:[a-f0-9]{16}$/
+        when hash =~ %r{^[^\\/:*?"<>|]{1,20}:{2,3}([^\\/:*?"<>|]{1,20})?:[a-f0-9]{48}:[a-f0-9]{48}:[a-f0-9]{16}$}
           return 'netntlm'
-        when hash =~ /^([^\\\/:*?"<>|]{1,20}\\)?[^\\\/:*?"<>|]{1,20}[:]{2,3}([^\\\/:*?"<>|]{1,20}:)?[^\\\/:*?"<>|]{1,20}:[a-f0-9]{32}:[a-f0-9]+$/
+        when hash =~ %r{^([^\\/:*?"<>|]{1,20}\\)?[^\\/:*?"<>|]{1,20}:{2,3}([^\\/:*?"<>|]{1,20}:)?[^\\/:*?"<>|]{1,20}:[a-f0-9]{32}:[a-f0-9]+$}
           return 'netntlmv2'
           # OSX
         when hash.start_with?('$ml$') && hash.split('$').last.length == 256
@@ -124,18 +123,18 @@ module Metasploit
         when hash =~ /^\*?[\da-fA-F]{32}\*[\da-fA-F]{32}$/
           # we accept the beginning star as optional
           return 'vnc'
-        when hash =~ /^\$pbkdf2-sha256\$[0-9]+\$[a-z0-9\/.]+\$[a-z0-9\/.]{43}$/i
+        when hash =~ %r{^\$pbkdf2-sha256\$[0-9]+\$[a-z0-9/.]+\$[a-z0-9/.]{43}$}i
           return 'pbkdf2-sha256'
         when hash =~ /^\$sntp-ms\$[\da-fA-F]{32}\$[\da-fA-F]{96}$/
           return 'timeroast'
         when hash =~ /^\$krb5tgs\$23\$\*.+\$[\da-fA-F]{32}\$[\da-fA-F]+$/
-          return 'krb5tgs-rc4'
+          return 'krb5tgs'
         when hash =~ /^\$krb5tgs\$18\$.+\$[\da-fA-F]{24}\$[\da-fA-F]+$/
           return 'krb5tgs-aes256'
         when hash =~ /^\$krb5tgs\$17\$.+\$[\da-fA-F]{24}\$[\da-fA-F]+$/
           return 'krb5tgs-aes128'
         when hash =~ /^\$krb5asrep\$23\$[^:]+:[\da-fA-F]{32}\$[\da-fA-F]+$/
-          return 'krb5asrep-rc4'
+          return 'krb5asrep' # hashcat is krb5asrep-rc4, but we use john format
         end
         ''
       end
