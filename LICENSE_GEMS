@@ -41,7 +41,7 @@ connection_pool, 2.5.4, MIT
 cookiejar, 0.3.4, "Simplified BSD"
 crack, 1.0.1, MIT
 crass, 1.0.6, MIT
-csv, 3.3.2, "Simplified BSD, ruby"
+csv, 3.3.5, "Simplified BSD, ruby"
 daemons, 1.4.1, MIT
 date, 3.4.1, "Simplified BSD, ruby"
 debug, 1.11.0, "Simplified BSD, ruby"
@@ -221,7 +221,7 @@ swagger-blocks, 3.0.0, MIT
 syslog, 0.3.0, "Simplified BSD, ruby"
 test-prof, 1.4.4, MIT
 thin, 2.0.1, "GPL-2.0-or-later, ruby"
-thor, 1.4.0, MIT
+thor, 1.5.0, MIT
 tilt, 2.6.0, MIT
 timecop, 0.9.10, MIT
 timeout, 0.4.3, "Simplified BSD, ruby"

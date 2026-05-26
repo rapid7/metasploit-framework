@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/rapid7/LicenseFinder
-  revision: 8c81993200b491af33db6b93587dd402a9ade1a0
-  ref: 8c81993200b491af33db6b93587dd402a9ade1a0
+  revision: 2b1aefcfd6d0745d17843050c1c89f973c1fa98c
+  ref: 2b1aefcfd6d0745d17843050c1c89f973c1fa98c
   specs:
     license_finder (7.2.1)
       bundler
