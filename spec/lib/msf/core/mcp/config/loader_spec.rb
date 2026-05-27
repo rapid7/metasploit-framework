@@ -207,9 +207,9 @@ RSpec.describe Msf::MCP::Config::Loader do
         expect(config[:msf_api][:type]).to eq('messagepack')
       end
 
-      it 'sets default host to localhost' do
+      it 'sets default host to 127.0.0.1' do
         config = described_class.load_from_hash(config_hash)
-        expect(config[:msf_api][:host]).to eq('localhost')
+        expect(config[:msf_api][:host]).to eq('127.0.0.1')
       end
 
       it 'sets default port to 55553 for messagepack' do

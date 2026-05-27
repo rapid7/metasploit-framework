@@ -45,6 +45,8 @@ module Msf::MCP
       authenticate_metasploit
       initialize_mcp_server
       start_mcp_server
+    rescue Interrupt
+      shutdown('INT')
     rescue Msf::MCP::Config::ValidationError, Msf::MCP::Config::ConfigurationError => e
       handle_configuration_error(e)
     rescue Msf::MCP::Metasploit::ConnectionError => e
@@ -164,8 +166,9 @@ module Msf::MCP
     #
     # @return [void]
     def install_signal_handlers
-      Signal.trap('INT') { shutdown('INT'); exit 0 }
-      Signal.trap('TERM') { shutdown('TERM'); exit 0 }
+      @main_thread = Thread.current
+      Signal.trap('INT') { @main_thread.raise(Interrupt) }
+      Signal.trap('TERM') { @main_thread.raise(Interrupt) }
     end
 
     # Load configuration from file or use defaults

@@ -72,7 +72,8 @@ module Msf::MCP
                 os_language: { type: 'string' },
                 updated_at: { type: 'string' },
                 purpose: { type: 'string' },
-                info: { type: 'string' }
+                info: { type: 'string' },
+                comments: { type: 'string' }
               }
             }
           }
