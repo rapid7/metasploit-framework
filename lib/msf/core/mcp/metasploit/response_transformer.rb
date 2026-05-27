@@ -52,6 +52,7 @@ module Msf::MCP
           stance: info['stance'],
           actions: info['actions'],
           default_action: info['default_action'],
+          notes: info['notes'],
           # TODO: write transformer for options
           options: info['options']
         }.compact
@@ -76,7 +77,8 @@ module Msf::MCP
             os_language: host['os_lang'],
             updated_at: format_timestamp(host['updated_at']),
             purpose: host['purpose'],
-            info: host['info']
+            info: host['info'],
+            comments: host['comments']
           }.compact
         end
       end
