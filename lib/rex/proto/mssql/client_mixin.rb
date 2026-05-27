@@ -399,6 +399,9 @@ module ClientMixin
         states << :mssql_parse_info
         mssql_parse_info(data, info)
       when 0xa9
+        states << :mssql_parse_order
+        mssql_parse_order(data, info)
+      when 0xd2
         states << :mssql_parse_nbcrow
         mssql_parse_nbcrow(data, info)
       when 0xaa
@@ -692,6 +695,19 @@ module ClientMixin
   end
 
   #
+  # Parse an ORDER token (0xA9)
+  # Sent when an ORDER BY clause is executed. Contains column ordinals.
+  # See: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/252759be-9d74-4435-809d-d55dd860ea78
+  #
+  def mssql_parse_order(data, info)
+    # Length is a USHORT indicating the byte length of the ColNum list
+    len = data.slice!(0, 2).unpack('v')[0]
+    # Skip the column ordinal data (each is a USHORT)
+    data.slice!(0, len) if len && len > 0
+    info
+  end
+
+  #
   # Parse a "NBCROW" (Null Bitmap Compressed Row) TDS token
   # This token is used in SQL Server 2019+ for compressed row data
   # See: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/7e12206c-0e1b-4c8c-b2e5-2ad8b0e3b9b0
@@ -714,36 +730,34 @@ module ClientMixin
   #
   def mssql_parse_nbcrow_internal(data, info)
     info[:rows] ||= []
-    
-    # Fallback: if we can't parse NBCROW properly, try parsing as regular TDS row
-    begin
-      return info if info[:colinfos].nil? || info[:colinfos].empty?
-      return info if data.length == 0
 
-      # Read the null bitmap length
-      null_bitmap_len = (info[:colinfos].length + 7) / 8
-      
-      # Check if we have enough data for the null bitmap
-      if data.length < null_bitmap_len
-        # Fallback to regular TDS row parsing
-        return mssql_parse_tds_row(data, info)
-      end
-      
-      null_bitmap = data.slice!(0, null_bitmap_len).unpack('C*')
+    return info if info[:colinfos].nil? || info[:colinfos].empty?
+    return info if data.length == 0
+
+    # Read the null bitmap length
+    null_bitmap_len = (info[:colinfos].length + 7) / 8
+
+    # Check if we have enough data for the null bitmap
+    if data.length < null_bitmap_len
+      # Fallback to regular TDS row parsing
+      return mssql_parse_tds_row(data, info)
+    end
+
+    null_bitmap = data.slice!(0, null_bitmap_len).unpack('C*')
 
     row = []
     info[:colinfos].each_with_index do |col, col_idx|
       # Check if this column is null using the null bitmap
       byte_idx = col_idx / 8
       bit_idx = col_idx % 8
-      
+
       # Ensure we don't access beyond the bitmap array
       if byte_idx >= null_bitmap.length
         info[:errors] ||= []
         info[:errors] << "NBCROW null bitmap index out of bounds: #{byte_idx} >= #{null_bitmap.length}"
         return info
       end
-      
+
       is_null = (null_bitmap[byte_idx] & (1 << bit_idx)) != 0
 
       if is_null
@@ -759,33 +773,32 @@ module ClientMixin
       end
 
       # Parse the column data based on type (similar to mssql_parse_tds_row)
-      begin
-        case col[:id]
-        when :hex
-          return info if data.length < 2
-          str = ""
-          len = data.slice!(0, 2).unpack('v')[0]
-          if len > 0 && len < 65535 && data.length >= len
-            str << data.slice!(0, len)
-          end
-          row << str.unpack("H*")[0]
+      case col[:id]
+      when :hex
+        return info if data.length < 2
+        str = ""
+        len = data.slice!(0, 2).unpack('v')[0]
+        if len > 0 && len < 65535 && data.length >= len
+          str << data.slice!(0, len)
+        end
+        row << str.unpack("H*")[0]
 
-        when :guid
-          return info if data.length < 1
-          read_length = data.slice!(0, 1).unpack1('C')
-          if read_length == 0
-            row << nil
-          elsif data.length >= read_length
-            row << Rex::Text.to_guid(data.slice!(0, read_length))
-          else
-            return info
-          end
+      when :guid
+        return info if data.length < 1
+        read_length = data.slice!(0, 1).unpack1('C')
+        if read_length == 0
+          row << nil
+        elsif data.length >= read_length
+          row << Rex::Text.to_guid(data.slice!(0, read_length))
+        else
+          return info
+        end
 
-        when :string
-          return info if data.length < 2
-          str = ""
-          len = data.slice!(0, 2).unpack('v')[0]
-          if len > 0 && len < 65535 && data.length >= len
+      when :string
+        return info if data.length < 2
+        str = ""
+        len = data.slice!(0, 2).unpack('v')[0]
+        if len > 0 && len < 65535 && data.length >= len
           str << data.slice!(0, len)
         end
         row << str.gsub("\x00", '')
