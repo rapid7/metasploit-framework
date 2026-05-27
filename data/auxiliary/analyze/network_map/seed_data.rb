@@ -1,4 +1,7 @@
-# Network graph test data — 10 hosts, 5 services each, depth-3 topology
+# Network graph test data — 10 hosts, depth-3 topology
+# Sections: hosts, services, sessions, credentials, traceroutes,
+#           SNMP notes (device type, interfaces, LLDP/CDP, MAC table),
+#           vulnerabilities (with CVEs), loot, module runs.
 #
 # Usage:
 #   msf6 > irb
@@ -31,6 +34,13 @@ puts "[*] Workspace: #{ws.name}"
 
 def find_host(ws, ip)
   ws.hosts.find_by(address: ip)
+end
+
+# Produces the same key-padded ": value" content that snmp_enum.rb stores in notes.
+def snmp_kv_block(rows, width: 30)
+  rows.map do |row|
+    row.map { |k, v| "#{k}#{' ' * [0, width - k.length].max}: #{v}" }.join("\n")
+  end.join("\n\n") + "\n"
 end
 
 # ── HOSTS ────────────────────────────────────────────────────────────────────
@@ -222,19 +232,106 @@ rescue => e
   puts "[-] Traceroute #{ip}: #{e.message}"
 end
 
+# ── SNMP NOTES ───────────────────────────────────────────────────────────────
+# Simulates output from auxiliary/scanner/snmp/snmp_enum against the Cisco switch
+# and the HP printer.  The MAC Address Table for core-sw01 maps known host MACs
+# to ports — network_graph.rb uses this to derive L2 topology links.
+
+{
+  '192.168.1.50' => {
+    'Hostname'    => 'core-sw01',
+    'Description' => 'Cisco IOS Software, Version 15.2(4)E9, RELEASE SOFTWARE (fc3) ' \
+                     'Compiled Thu 28-Mar-19 04:26 by prod_rel_team',
+    'Contact'     => 'netadmin@corp.local',
+    'Location'    => 'Server Room - Rack 3',
+    'Network interfaces' => snmp_kv_block([
+      { 'Interface' => '[ up ] GigabitEthernet0/0', 'Id' => 1, 'Mac Address' => '00:1a:2b:3c:11:00',
+        'Type' => 'ethernet-csmacd', 'Speed' => '1000 Mbps', 'MTU' => 1500,
+        'In octets' => 45_678_901, 'Out octets' => 34_567_890 },
+      { 'Interface' => '[ up ] GigabitEthernet0/1', 'Id' => 2, 'Mac Address' => '00:1a:2b:3c:11:01',
+        'Type' => 'ethernet-csmacd', 'Speed' => '1000 Mbps', 'MTU' => 1500,
+        'In octets' => 12_345_678, 'Out octets' => 9_876_543 },
+      { 'Interface' => '[ up ] GigabitEthernet0/2', 'Id' => 3, 'Mac Address' => '00:1a:2b:3c:11:02',
+        'Type' => 'ethernet-csmacd', 'Speed' => '1000 Mbps', 'MTU' => 1500,
+        'In octets' => 23_456_789, 'Out octets' => 18_765_432 },
+      { 'Interface' => '[ up ] GigabitEthernet0/3', 'Id' => 4, 'Mac Address' => '00:1a:2b:3c:11:03',
+        'Type' => 'ethernet-csmacd', 'Speed' => '1000 Mbps', 'MTU' => 1500,
+        'In octets' => 67_890_123, 'Out octets' => 56_789_012 },
+      { 'Interface' => '[ up ] Vlan1',              'Id' => 5, 'Mac Address' => '00:1a:2b:3c:11:04',
+        'Type' => 'other',           'Speed' => '1000 Mbps', 'MTU' => 1500,
+        'In octets' => 1_234_567,   'Out octets' => 987_654 }
+    ]),
+    'LLDP Neighbors' => snmp_kv_block([
+      { 'System Name' => 'web01.corp.local', 'Port Description' => 'ens192', 'Port ID' => 'ens192' }
+    ]),
+    'CDP Neighbors' => snmp_kv_block([
+      { 'Device ID' => 'gw-rtr01.corp.local', 'IP Address' => '192.168.0.1',
+        'Port' => 'GigabitEthernet0/0', 'Platform' => 'cisco ISR4431' }
+    ]),
+    # MACs of hosts on the same L2 segment (192.168.1.x) only.
+    # 10.10.0.x hosts are routed — their MACs don't appear in this switch's FDB.
+    # Gi0/1 → DESKTOP-CORP01 (192.168.1.10)
+    # Gi0/2 → web01           (192.168.1.20)
+    'MAC Address Table' => snmp_kv_block([
+      { 'MAC Address' => '00:50:56:ab:11:10', 'Port' => 'GigabitEthernet0/1', 'Status' => 'learned' },
+      { 'MAC Address' => '00:0c:29:ff:ee:dd', 'Port' => 'GigabitEthernet0/1', 'Status' => 'learned' },
+      { 'MAC Address' => '00:50:56:ab:11:20', 'Port' => 'GigabitEthernet0/2', 'Status' => 'learned' }
+    ])
+  },
+  '10.10.0.100' => {
+    'Hostname'    => 'hp-lj-m501dn',
+    'Description' => 'HP ETHERNET MULTI-ENVIRONMENT,ROM S.31.14,JETDIRECT,JD189,EEPROM V.33.46,CIDATE 07/03/2018',
+    'Contact'     => 'helpdesk@corp.local',
+    'Location'    => '3rd Floor, Print Station',
+    'Network interfaces' => snmp_kv_block([
+      { 'Interface' => '[ up ] HP Internal Print Server', 'Id' => 1,
+        'Mac Address' => '00:1c:7e:aa:bb:cc', 'Type' => 'ethernet-csmacd',
+        'Speed' => '100 Mbps', 'MTU' => 1500, 'In octets' => 234_567, 'Out octets' => 123_456 }
+    ])
+  }
+}.each do |ip, snmp_data|
+  h = find_host(ws, ip)
+  unless h
+    puts "[-] SNMP: host #{ip} not found, skipping"
+    next
+  end
+  snmp_data.each do |field, content|
+    begin
+      framework.db.report_note(workspace: ws, host: h, ntype: "snmp.#{field}",
+        proto: 'udp', port: 161, sname: 'snmp',
+        data: { content: content }, update: :unique_data)
+      puts "[+] SNMP #{ip} snmp.#{field}"
+    rescue => e
+      puts "[-] SNMP #{ip}/#{field}: #{e.message}"
+    end
+  end
+end
+
 # ── VULNERABILITIES ───────────────────────────────────────────────────────────
 
 [
-  ['192.168.1.10',  445, 'tcp', 'MS17-010 EternalBlue',        'SMBv1 remote code execution',              ['CVE-2017-0143', 'CVE-2017-0144', 'MSB-MS17-010']],
-  ['192.168.1.10', 3389, 'tcp', 'BlueKeep',                    'RDS pre-auth remote code execution',       ['CVE-2019-0708']],
-  ['192.168.1.20',   80, 'tcp', 'Apache Struts2 RCE',          'REST plugin XStream deserialization RCE',  ['CVE-2017-9805']],
-  ['192.168.1.20', 3306, 'tcp', 'MySQL Weak Credentials',      'Database accepts default credentials',     []],
-  ['10.10.0.10',    80, 'tcp', 'Log4Shell',                    'Log4j2 JNDI injection RCE',                ['CVE-2021-44228']],
-  ['10.10.0.10',  5432, 'tcp', 'PostgreSQL Weak Credentials',  'Default postgres:postgres accepted',       []],
-  ['10.10.0.20',   445, 'tcp', 'MS17-010 EternalBlue',         'SMBv1 remote code execution',              ['CVE-2017-0143', 'CVE-2017-0144']],
-  ['10.10.0.20',  1433, 'tcp', 'MSSQL Weak SA Credentials',    'SA account with trivial password',         []],
-  ['172.16.5.10',   88, 'tcp', 'MS14-068 Kerberos PAC Forgery','Privilege escalation via PAC validation',  ['CVE-2014-6324', 'MSB-MS14-068']],
-  ['172.16.5.30',  443, 'tcp', 'VMware vCenter RCE',           'OpenSLP heap overflow pre-auth RCE',       ['CVE-2021-21985']]
+  # ── Windows hosts ─────────────────────────────────────────────────────────
+  ['192.168.1.10',  445, 'tcp', 'MS17-010 EternalBlue',         'SMBv1 remote code execution',                   ['CVE-2017-0143', 'CVE-2017-0144', 'MSB-MS17-010']],
+  ['192.168.1.10', 3389, 'tcp', 'BlueKeep',                     'RDS pre-auth remote code execution',            ['CVE-2019-0708']],
+  ['192.168.1.10',  445, 'tcp', 'PrintNightmare',                'Windows Print Spooler RCE / LPE',               ['CVE-2021-34527', 'CVE-2021-1675']],
+  ['10.10.0.20',    445, 'tcp', 'MS17-010 EternalBlue',          'SMBv1 remote code execution',                   ['CVE-2017-0143', 'CVE-2017-0144']],
+  ['10.10.0.20',    445, 'tcp', 'PrintNightmare',                 'Windows Print Spooler RCE / LPE',              ['CVE-2021-34527']],
+  ['10.10.0.20',   1433, 'tcp', 'MSSQL Weak SA Credentials',     'SA account with trivial password',              []],
+  ['172.16.5.10',   88, 'tcp', 'MS14-068 Kerberos PAC Forgery', 'Privilege escalation via PAC validation',       ['CVE-2014-6324', 'MSB-MS14-068']],
+  ['172.16.5.10',  445, 'tcp', 'PrintNightmare',                 'Windows Print Spooler RCE / LPE',               ['CVE-2021-34527', 'CVE-2021-1675']],
+  # ── Linux / web ───────────────────────────────────────────────────────────
+  ['192.168.1.20',   80, 'tcp', 'Apache Struts2 RCE',            'REST plugin XStream deserialization RCE',       ['CVE-2017-9805']],
+  ['192.168.1.20', 3306, 'tcp', 'MySQL Weak Credentials',        'Database accepts default credentials',          []],
+  ['10.10.0.10',    80, 'tcp', 'Log4Shell',                     'Log4j2 JNDI injection RCE',                     ['CVE-2021-44228']],
+  ['10.10.0.10',  5432, 'tcp', 'PostgreSQL Weak Credentials',   'Default postgres:postgres accepted',             []],
+  ['172.16.5.20', 5432, 'tcp', 'PostgreSQL COPY RCE',           'Superuser COPY TO/FROM PROGRAM privilege abuse', ['CVE-2019-9193']],
+  # ── VMware ────────────────────────────────────────────────────────────────
+  ['172.16.5.30',  443, 'tcp', 'VMware vCenter RCE',            'OpenSLP heap overflow pre-auth RCE',            ['CVE-2021-21985']],
+  # ── SNMP / network devices ────────────────────────────────────────────────
+  ['192.168.1.50', 161, 'udp', 'SNMP Default Community String', 'SNMP agent responds to default "public" community',   ['CVE-1999-0517', 'CVE-1999-0516']],
+  ['192.168.1.50', 161, 'udp', 'Cisco SNMP Trap Source',        'Trap source not restricted; info disclosure possible', ['CVE-2008-0960']],
+  ['10.10.0.100',  161, 'udp', 'SNMP Default Community String', 'Printer SNMP agent uses default "public" community',  ['CVE-1999-0517']],
+  ['10.10.0.100', 9100, 'tcp', 'HP JetDirect Open Admin',       'JetDirect admin accessible without authentication',   []]
 ].each do |ip, port, proto, name, info, refs|
   framework.db.report_vuln(workspace: ws, host: ip, port: port, proto: proto,
     name: name, info: info, refs: refs)
