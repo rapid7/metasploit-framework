@@ -49,6 +49,20 @@ class MetasploitModule < Msf::Auxiliary
     traceroute_notes = ws.notes.where(ntype: 'host.nmap.traceroute').includes(:host).to_a
     host_loots = ws.loots.where.not(host_id: nil).to_a
     host_vulns = ws.vulns.includes(:refs).all.to_a
+    all_cve_names = host_vulns.flat_map { |v| v.refs.map(&:name).select { |r| r.upcase.start_with?('CVE-') }.map(&:upcase) }.uniq
+    cve_module_map = build_cve_module_map(all_cve_names)
+    snmp_notes = ws.notes.where(ntype: %w[
+      snmp.Hostname snmp.Description snmp.Contact snmp.Location
+      snmp.Network\ interfaces snmp.LLDP\ Neighbors snmp.CDP\ Neighbors
+      snmp.MAC\ Address\ Table
+    ]).includes(:host).to_a
+    snmp_by_host = snmp_notes.each_with_object(Hash.new { |h, k| h[k] = {} }) do |n, m|
+      next unless n.host_id
+
+      key = n.ntype.sub('snmp.', '')
+      content = n.data.is_a?(Hash) ? (n.data['content'] || n.data[:content]) : nil
+      m[n.host_id][key] = content.to_s if content
+    end
     module_run_events = ws.events.where(name: 'module_run').all.to_a
     host_ids = hosts.map(&:id)
     direct_module_runs = begin
@@ -73,7 +87,9 @@ class MetasploitModule < Msf::Auxiliary
     print_status("  Sessions:          #{db_sessions.length}")
     print_status("  Traceroutes:       #{traceroute_notes.length}")
     print_status("  Loot items:        #{host_loots.length}")
-    print_status("  Vulns:             #{host_vulns.length}")
+    print_status("  CVE vulns:         #{all_cve_names.length} unique CVEs")
+    print_status("  CVEs w/ modules:   #{cve_module_map.length}")
+    print_status("  SNMP enriched:     #{snmp_by_host.length}")
     print_status("  Module events:     #{module_run_events.length}")
     print_status("  Module runs:       #{direct_module_runs.length}")
     print_status("  Credential logins: #{host_cred_logins.length}")
@@ -84,6 +100,8 @@ class MetasploitModule < Msf::Auxiliary
       traceroute_notes: traceroute_notes,
       host_loots: host_loots,
       host_vulns: host_vulns,
+      cve_module_map: cve_module_map,
+      snmp_by_host: snmp_by_host,
       module_run_events: module_run_events,
       direct_module_runs: direct_module_runs,
       host_cred_logins: host_cred_logins
@@ -111,6 +129,8 @@ class MetasploitModule < Msf::Auxiliary
     traceroute_notes = ws_data[:traceroute_notes]
     host_loots = ws_data[:host_loots]
     host_vulns = ws_data[:host_vulns]
+    cve_module_map = ws_data[:cve_module_map] || {}
+    snmp_by_host = ws_data[:snmp_by_host] || {}
     module_run_events = ws_data[:module_run_events]
     direct_module_runs = ws_data[:direct_module_runs]
     cred_by_host = (ws_data[:host_cred_logins] || []).group_by { |l| l.service.host_id }
@@ -184,6 +204,35 @@ class MetasploitModule < Msf::Auxiliary
     # Build addr→node_id map for known hosts (used for traceroute link resolution)
     host_id_by_addr = hosts.each_with_object({}) { |h, m| m[h.address.to_s] = "host_#{h.id}" }
 
+    # Build MAC → host lookup for switch port correlation
+    mac_to_host = hosts.each_with_object({}) do |h, m|
+      next if h.mac.nil? || h.mac.empty?
+
+      m[h.mac.downcase] = h
+    end
+
+    # Derive L2 topology from SNMP MAC address tables:
+    # host_id → switch host_id (the switch whose MAC table contains this host's MAC)
+    host_behind_switch = {}
+    snmp_by_host.each do |switch_host_id, snmp_data|
+      mac_table_text = snmp_data['MAC Address Table']
+      next if mac_table_text.nil? || mac_table_text.empty?
+
+      parse_snmp_table(mac_table_text).each do |entry|
+        mac = entry['MAC Address'].to_s.downcase
+        next if mac.empty?
+
+        matched = mac_to_host[mac]
+        next unless matched
+        next if matched.id == switch_host_id # don't self-link the switch
+
+        host_behind_switch[matched.id] ||= switch_host_id
+      end
+    end
+
+    # Set of node IDs for hosts whose topology is determined by the MAC address table
+    host_behind_switch_node_ids = host_behind_switch.keys.map { |id| "host_#{id}" }.to_set
+
     # Parse traceroute notes to build intermediate hop nodes and directed link chains.
     # Both nmap importers write hops; nmap_document.rb uses "ipaddr", nmap.rb uses "address".
     hop_nodes = {}
@@ -236,10 +285,11 @@ class MetasploitModule < Msf::Auxiliary
 
       hosts_with_traceroute.add(target_addr) if target_addr
 
-      # Ensure last hop connects to the known target host node when they differ
+      # Ensure last hop connects to the known target host node when they differ.
+      # Skip if the target's topology is determined by the MAC address table (switch takes precedence).
       if target_addr && host_id_by_addr.key?(target_addr)
         target_id = host_id_by_addr[target_addr]
-        links_set.add([prev_id, target_id]) unless prev_id == target_id
+        links_set.add([prev_id, target_id]) unless prev_id == target_id || host_behind_switch_node_ids.include?(target_id)
       end
     end
 
@@ -287,11 +337,17 @@ class MetasploitModule < Msf::Auxiliary
         }
       end
 
-      vuln_data = (vuln_by_host[host.id] || []).map do |v|
+      vuln_data = (vuln_by_host[host.id] || []).filter_map do |v|
+        cve_refs = v.refs.map(&:name).select { |r| r.upcase.start_with?('CVE-') }.map(&:upcase)
+        next if cve_refs.empty?
+
+        modules_for_vuln = cve_refs.flat_map { |cve| cve_module_map[cve] || [] }.uniq.sort
         {
           name: v.name || '',
           info: v.info || '',
           refs: v.refs.map(&:name),
+          cve_refs: cve_refs,
+          msf_modules: modules_for_vuln,
           exploited_at: v.exploited_at&.strftime('%Y-%m-%d %H:%M:%S') || ''
         }
       end
@@ -318,9 +374,34 @@ class MetasploitModule < Msf::Auxiliary
         }
       end
 
+      snmp = snmp_by_host[host.id] || {}
+      snmp_hostname = snmp['Hostname'].to_s.strip
+      effective_label = if !snmp_hostname.empty? && (host.name.nil? || host.name.empty?)
+                          snmp_hostname
+                        else
+                          host.name || host.address.to_s
+                        end
+      snmp_type = snmp_device_type(snmp['Description'])
+
+      snmp_mac_table = parse_snmp_table(snmp['MAC Address Table'])
+      port_host_map = snmp_mac_table.filter_map do |entry|
+        mac = entry['MAC Address'].to_s.downcase
+        next if mac.empty?
+
+        matched = mac_to_host[mac]
+        {
+          port: entry['Port'] || '',
+          mac: entry['MAC Address'] || '',
+          status: entry['Status'] || '',
+          host_id: matched ? "host_#{matched.id}" : nil,
+          host_ip: matched ? matched.address.to_s : '',
+          host_label: matched ? (matched.name || matched.address.to_s) : ''
+        }
+      end
+
       nodes << {
         id: "host_#{host.id}",
-        label: (host.name || host.address.to_s),
+        label: effective_label,
         address: host.address.to_s,
         name: host.name || '',
         mac: host.mac || '',
@@ -337,18 +418,34 @@ class MetasploitModule < Msf::Auxiliary
         services: service_data,
         loots: loot_data,
         vulns: vuln_data,
+        vuln_cve_count: vuln_data.length,
+        vuln_module_count: vuln_data.count { |v| v[:msf_modules].any? },
         event_modules: event_modules_by_ip[host.address.to_s].to_a.sort,
         module_runs: host_module_runs,
         creds: cred_data,
-        device_type: infer_device_type(host),
+        snmp_hostname: snmp_hostname,
+        snmp_description: snmp['Description'] || '',
+        snmp_contact: snmp['Contact'] || '',
+        snmp_location: snmp['Location'] || '',
+        snmp_interfaces: parse_snmp_table(snmp['Network interfaces']),
+        snmp_lldp: parse_snmp_table(snmp['LLDP Neighbors']),
+        snmp_cdp: parse_snmp_table(snmp['CDP Neighbors']),
+        snmp_port_hosts: port_host_map,
+        device_type: snmp_type || infer_device_type(host),
         rtt: host_rtt["host_#{host.id}"]
       }
 
-      # Traceroute takes precedence; only add a default link if no traceroute covers this host
-      next if hosts_with_traceroute.include?(host.address.to_s)
+      # Add default link unless traceroute covers this host AND it's not behind a known switch.
+      # MAC table topology takes precedence over traceroute leaf links.
+      next if hosts_with_traceroute.include?(host.address.to_s) && !host_behind_switch.key?(host.id)
 
-      pivot_host_id = find_pivot_for_host(host, subnet_to_pivot)
-      source_id = pivot_host_id ? "host_#{pivot_host_id}" : MSF_NODE_ID
+      source_id = if host_behind_switch.key?(host.id)
+                    "host_#{host_behind_switch[host.id]}"
+                  elsif (pivot_host_id = find_pivot_for_host(host, subnet_to_pivot))
+                    "host_#{pivot_host_id}"
+                  else
+                    MSF_NODE_ID
+                  end
       links_set.add([source_id, "host_#{host.id}"])
     end
 
@@ -387,6 +484,51 @@ class MetasploitModule < Msf::Auxiliary
     nil
   rescue ArgumentError
     nil
+  end
+
+  def build_cve_module_map(cve_names)
+    return {} if cve_names.empty?
+
+    cve_set = cve_names.map(&:upcase).to_set
+    map = {}
+    Msf::Modules::Metadata::Cache.instance.get_metadata.each do |mod_meta|
+      mod_meta.references.each do |ref|
+        cve_key = ref.upcase
+        next unless cve_set.include?(cve_key)
+
+        (map[cve_key] ||= []) << mod_meta.fullname
+      end
+    end
+    map
+  rescue StandardError => e
+    print_warning("CVE→module mapping failed: #{e.class}: #{e.message}")
+    {}
+  end
+
+  def snmp_device_type(description)
+    return nil if description.nil? || description.empty?
+
+    desc = description.downcase
+    return 'router'   if desc.match?(/router|cisco ios|junos|ios xe|ios xr|vyos|pfsense|opnsense|routeros/)
+    return 'switch'   if desc.match?(/switch|catalyst|nexus|arista eos|juniper ex|procurve/)
+    return 'firewall' if desc.match?(/firewall|fortigate|asa|checkpoint|sonicwall|palo alto/)
+    return 'printer'  if desc.match?(/printer|jetdirect/)
+
+    nil
+  end
+
+  def parse_snmp_table(text)
+    return [] if text.nil? || text.empty?
+
+    text.split(/\n\n+/).filter_map do |block|
+      row = block.split("\n").each_with_object({}) do |line, h|
+        m = line.match(/^(.+?)\s*:\s*(.*)$/)
+        next unless m
+
+        h[m[1].strip] = m[2].strip
+      end
+      row.empty? ? nil : row
+    end
   end
 
   def generate_html(nodes, links)

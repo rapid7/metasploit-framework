@@ -496,7 +496,22 @@
     .vuln-info { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
     .vuln-refs { margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px; }
     .vuln-ref { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; font-size: 10px; color: var(--text-secondary); font-family: monospace; }
+    .vuln-cve-ref { background: rgba(227,179,65,0.12); border-color: #e3b341; color: #e3b341; }
+    .vuln-module-row { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
+    .vuln-msf-module { background: rgba(248,81,73,0.12); border: 1px solid #f85149; border-radius: 3px; padding: 1px 5px; font-size: 10px; color: #f85149; font-family: monospace; display: inline-block; }
+    .vuln-has-module { font-size: 10px; font-weight: 700; color: #f85149; }
+    .vuln-entry-has-module { border-left-color: #f85149 !important; }
+    .vuln-entry-has-module .vuln-name { color: #f85149; }
     .vuln-exploited { color: #f85149; font-size: 11px; margin-top: 2px; }
+    .snmp-desc { font-size: 11px; color: var(--text-muted); font-style: italic; margin-bottom: 4px; }
+    .iface-entry { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 5px; padding: 5px 8px; margin-bottom: 5px; font-size: 12px; }
+    .iface-status-up { color: #3fb950; font-weight: 700; }
+    .iface-status-down { color: #f85149; font-weight: 700; }
+    .iface-status-unknown { color: var(--text-muted); font-weight: 700; }
+    .neighbor-entry { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 5px; padding: 5px 8px; margin-bottom: 5px; font-size: 12px; }
+    .neighbor-badge { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 10px; font-weight: 700; margin-right: 4px; }
+    .neighbor-lldp { background: rgba(88,166,255,0.15); border: 1px solid #58a6ff; color: #58a6ff; }
+    .neighbor-cdp { background: rgba(240,136,62,0.15); border: 1px solid #f0883e; color: #f0883e; }
     .cred-entry {
       background: var(--bg-elevated);
       border: 1px solid var(--border);
@@ -560,7 +575,7 @@
     .filter-section-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
     .filter-opt { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-secondary); cursor: pointer; margin-bottom: 3px; white-space: nowrap; }
     .filter-opt input { cursor: pointer; accent-color: var(--accent); }
-    #filter-ports, #filter-module-search, #filter-cred-search { width: 100%; box-sizing: border-box; }
+    #filter-ports, #filter-module-search, #filter-cred-search, #filter-cve-search { width: 100%; box-sizing: border-box; }
     #tooltip {
       position: fixed;
       background: var(--bg-tooltip);
@@ -591,6 +606,10 @@
         <div class="legend-item"><div class="legend-dot" style="background:#da3633"></div> Active Session</div>
         <div class="legend-item"><div class="legend-dot" style="background:#7d1f1f"></div> Previously Compromised</div>
         <div class="legend-item"><div class="legend-dot" style="background:#388bfd"></div> Discovered</div>
+        <div class="legend-item">
+          <svg width="14" height="14" style="flex-shrink:0"><circle cx="7" cy="7" r="7" fill="#f85149"/><text x="7" y="11" text-anchor="middle" fill="white" font-size="9" font-weight="bold">!</text></svg>
+          CVE w/ MSF module
+        </div>
         <div class="legend-item legend-separator">
           <div style="width:24px;height:2px;background:#f85149;border-radius:1px"></div> Active path
         </div>
@@ -622,6 +641,12 @@
           <div class="filter-section">
             <div class="filter-section-label">Ports (comma-separated)</div>
             <input type="text" id="filter-ports" class="config-input" placeholder="80, 443, 3306…">
+          </div>
+          <div class="filter-section">
+            <div class="filter-section-label">Vulnerabilities (CVE)</div>
+            <label class="filter-opt"><input type="checkbox" class="filter-vuln-has-cve"> Has CVEs</label>
+            <label class="filter-opt"><input type="checkbox" class="filter-vuln-has-module"> Has MSF module for CVE</label>
+            <input type="text" id="filter-cve-search" class="config-input" placeholder="Search CVE-…" style="margin-top:4px">
           </div>
           <div class="filter-section">
             <div class="filter-section-label">Modules Used</div>
@@ -1118,6 +1143,28 @@
       .attr('height', 20);
   });
 
+  nodeGroup.each(function(d) {
+    if (!(d.vuln_module_count > 0)) return;
+    const r = getNodeRadius(d);
+    const g = d3.select(this);
+    g.append('circle')
+      .attr('class', 'vuln-alert-dot')
+      .attr('cx', -r * 0.55)
+      .attr('cy', -r * 0.55)
+      .attr('r', 7)
+      .attr('fill', '#f85149')
+      .style('pointer-events', 'none');
+    g.append('text')
+      .attr('x', -r * 0.55)
+      .attr('y', -r * 0.55 + 4)
+      .attr('text-anchor', 'middle')
+      .attr('fill', 'white')
+      .attr('font-size', '9px')
+      .attr('font-weight', 'bold')
+      .style('pointer-events', 'none')
+      .text('!');
+  });
+
 
   nodeGroup.append('text')
     .attr('class', 'node-label')
@@ -1354,19 +1401,28 @@
     }
 
     if (d.vulns && d.vulns.length > 0) {
-      const vulnHtml = d.vulns.map(v => {
-        const refs = (v.refs || []).map(r => `<span class="vuln-ref">${r}</span>`).join('');
+      const moduleCount = d.vuln_module_count || 0;
+      const sorted = [...d.vulns].sort((a, b) => (b.msf_modules && b.msf_modules.length ? 1 : 0) - (a.msf_modules && a.msf_modules.length ? 1 : 0));
+      const vulnHtml = sorted.map(v => {
+        const hasModule = v.msf_modules && v.msf_modules.length > 0;
+        const cveSet = new Set(v.cve_refs || []);
+        const refs = (v.refs || []).map(r => `<span class="vuln-ref${cveSet.has(r.toUpperCase()) || cveSet.has(r) ? ' vuln-cve-ref' : ''}">${r}</span>`).join('');
         const exploited = v.exploited_at ? `<div class="vuln-exploited">Exploited: ${v.exploited_at}</div>` : '';
-        return `<div class="vuln-entry">
-          <div class="vuln-name">${v.name}</div>
+        const modulesHtml = hasModule
+          ? `<div class="vuln-module-row">${v.msf_modules.map(m => `<span class="vuln-msf-module">&#x25b6; ${m}</span>`).join('')}</div>`
+          : '';
+        return `<div class="vuln-entry${hasModule ? ' vuln-entry-has-module' : ''}">
+          <div class="vuln-name">${v.name}${hasModule ? ' <span class="vuln-has-module">&#x25cf; MODULE</span>' : ''}</div>
           ${v.info ? `<div class="vuln-info">${v.info}</div>` : ''}
           ${refs ? `<div class="vuln-refs">${refs}</div>` : ''}
+          ${modulesHtml}
           ${exploited}
         </div>`;
       }).join('');
+      const modBadge = moduleCount > 0 ? ` <span style="color:#f85149;font-size:10px;font-weight:700">(${moduleCount} w/module)</span>` : '';
       html += `<div class="detail-group">
         <div class="detail-label collapsible-label" onclick="toggleSection(this)">
-          <span>Vulnerabilities (${d.vulns.length})</span>
+          <span>CVE Vulnerabilities (${d.vulns.length})${modBadge}</span>
           <button class="section-toggle">&#x25ba;</button>
         </div>
         <div class="collapsible-body collapsed">${vulnHtml}</div>
@@ -1415,6 +1471,100 @@
         </div>
         <div class="collapsible-body collapsed">${credEntries}</div>
       </div>`;
+    }
+
+    if (d.snmp_description || d.snmp_contact || d.snmp_location) {
+      html += `<div class="detail-group">
+        <div class="detail-label collapsible-label" onclick="toggleSection(this)">
+          <span>SNMP Info</span>
+          <button class="section-toggle">&#x25ba;</button>
+        </div>
+        <div class="collapsible-body collapsed">
+          ${d.snmp_description ? `<div class="snmp-desc">${d.snmp_description}</div>` : ''}
+          ${d.snmp_contact ? `<div style="font-size:12px;margin-bottom:4px"><span style="color:var(--text-muted)">Contact: </span>${d.snmp_contact}</div>` : ''}
+          ${d.snmp_location ? `<div style="font-size:12px;"><span style="color:var(--text-muted)">Location: </span>${d.snmp_location}</div>` : ''}
+        </div>
+      </div>`;
+    }
+
+    if (d.snmp_interfaces && d.snmp_interfaces.length > 0) {
+      const ifaceHtml = d.snmp_interfaces.map(iface => {
+        const m = (iface['Interface'] || '').match(/\[\s*(up|down|testing)\s*\]/i);
+        const statusStr = m ? m[1].toLowerCase() : 'unknown';
+        const statusClass = statusStr === 'up' ? 'iface-status-up' : statusStr === 'down' ? 'iface-status-down' : 'iface-status-unknown';
+        const ifName = (iface['Interface'] || '').replace(/^\[\s*\w+\s*\]\s*/, '');
+        return `<div class="iface-entry">
+          <div><span class="${statusClass}">&#x25cf; ${statusStr.toUpperCase()}</span> <strong>${ifName}</strong></div>
+          ${iface['Mac Address'] ? `<div style="font-size:11px;color:var(--text-muted)">MAC: ${iface['Mac Address']}</div>` : ''}
+          ${iface['Type'] ? `<div style="font-size:11px;color:var(--text-muted)">Type: ${iface['Type']}${iface['Speed'] ? ' &bull; ' + iface['Speed'] : ''}</div>` : ''}
+        </div>`;
+      }).join('');
+      html += `<div class="detail-group">
+        <div class="detail-label collapsible-label" onclick="toggleSection(this)">
+          <span>SNMP Interfaces (${d.snmp_interfaces.length})</span>
+          <button class="section-toggle">&#x25ba;</button>
+        </div>
+        <div class="collapsible-body collapsed">${ifaceHtml}</div>
+      </div>`;
+    }
+
+    if (d.snmp_port_hosts && d.snmp_port_hosts.length > 0) {
+      const portGroups = {};
+      d.snmp_port_hosts.forEach(e => {
+        const p = e.port || 'Unknown Port';
+        (portGroups[p] = portGroups[p] || []).push(e);
+      });
+      const portHtml = Object.entries(portGroups).map(([port, entries]) => {
+        const rowsHtml = entries.map(e => {
+          const label = e.host_label || e.mac;
+          const ipStr = e.host_ip ? ` <span style="color:var(--text-muted)">(${e.host_ip})</span>` : '';
+          const inner = e.host_id
+            ? `<span style="color:var(--accent);cursor:pointer;text-decoration:underline" onclick="selectNodeById('${e.host_id}')">${label}</span>${ipStr}`
+            : `<span style="font-family:monospace;font-size:11px">${e.mac}</span>`;
+          return `<div style="margin-left:10px;margin-top:2px;font-size:11px">${inner}</div>`;
+        }).join('');
+        return `<div style="margin-bottom:6px"><div style="font-size:11px;font-weight:600;color:var(--text-secondary)">${port}</div>${rowsHtml}</div>`;
+      }).join('');
+      const knownCount = d.snmp_port_hosts.filter(e => e.host_id).length;
+      const badge = knownCount > 0 ? ` <span style="color:var(--accent);font-size:10px">(${knownCount} known)</span>` : '';
+      html += `<div class="detail-group">
+        <div class="detail-label collapsible-label" onclick="toggleSection(this)">
+          <span>Port Mapping (${d.snmp_port_hosts.length} MACs)${badge}</span>
+          <button class="section-toggle">&#x25ba;</button>
+        </div>
+        <div class="collapsible-body collapsed">${portHtml}</div>
+      </div>`;
+    }
+
+    {
+      const hasLldp = d.snmp_lldp && d.snmp_lldp.length > 0;
+      const hasCdp  = d.snmp_cdp  && d.snmp_cdp.length  > 0;
+      if (hasLldp || hasCdp) {
+        let neighborHtml = '';
+        if (hasLldp) {
+          neighborHtml += d.snmp_lldp.map(nb => `<div class="neighbor-entry">
+            <div><span class="neighbor-badge neighbor-lldp">LLDP</span><strong>${nb['System Name'] || 'unknown'}</strong></div>
+            ${nb['Port Description'] ? `<div style="font-size:11px;color:var(--text-muted)">Port: ${nb['Port Description']}</div>` : ''}
+            ${nb['Port ID'] ? `<div style="font-size:11px;color:var(--text-muted)">ID: ${nb['Port ID']}</div>` : ''}
+          </div>`).join('');
+        }
+        if (hasCdp) {
+          neighborHtml += d.snmp_cdp.map(nb => `<div class="neighbor-entry">
+            <div><span class="neighbor-badge neighbor-cdp">CDP</span><strong>${nb['Device ID'] || 'unknown'}</strong></div>
+            ${nb['IP Address'] ? `<div style="font-size:11px;color:var(--text-muted)">IP: ${nb['IP Address']}</div>` : ''}
+            ${nb['Port'] ? `<div style="font-size:11px;color:var(--text-muted)">Port: ${nb['Port']}</div>` : ''}
+            ${nb['Platform'] ? `<div style="font-size:11px;color:var(--text-muted)">Platform: ${nb['Platform']}</div>` : ''}
+          </div>`).join('');
+        }
+        const totalCount = (d.snmp_lldp ? d.snmp_lldp.length : 0) + (d.snmp_cdp ? d.snmp_cdp.length : 0);
+        html += `<div class="detail-group">
+          <div class="detail-label collapsible-label" onclick="toggleSection(this)">
+            <span>SNMP Neighbors (${totalCount})</span>
+            <button class="section-toggle">&#x25ba;</button>
+          </div>
+          <div class="collapsible-body collapsed">${neighborHtml}</div>
+        </div>`;
+      }
     }
 
     document.getElementById('sidebar-content').innerHTML = html;
@@ -1544,6 +1694,11 @@
     });
   };
 
+  window.selectNodeById = function(nodeId) {
+    const nd = nodeById[nodeId];
+    if (nd) selectNode(nd);
+  };
+
   window.toggleSection = function(header) {
     const body = header.parentElement.querySelector('.collapsible-body');
     const btn = header.querySelector('.section-toggle');
@@ -1584,8 +1739,11 @@
     const credHasFilter    = document.querySelector('.filter-cred-has:checked') !== null;
     const credFilters      = [...document.querySelectorAll('.filter-cred:checked')].map(el => el.value);
     const credStatusFilters = [...document.querySelectorAll('.filter-cred-status:checked')].map(el => el.value);
+    const vulnHasCveFilter    = document.querySelector('.filter-vuln-has-cve:checked') !== null;
+    const vulnHasModuleFilter = document.querySelector('.filter-vuln-has-module:checked') !== null;
+    const vulnCveSearch       = document.getElementById('filter-cve-search').value.trim().toLowerCase();
 
-    const hasFilter = sessionFilters.length || deviceFilters.length || osFilters.length || portFilters.length || moduleFilters.length || credHasFilter || credFilters.length || credStatusFilters.length;
+    const hasFilter = sessionFilters.length || deviceFilters.length || osFilters.length || portFilters.length || moduleFilters.length || credHasFilter || credFilters.length || credStatusFilters.length || vulnHasCveFilter || vulnHasModuleFilter || vulnCveSearch.length;
     const filteredOut = new Set();
 
     nodeGroup.classed('filter-hidden', false).classed('filter-dimmed', false);
@@ -1624,6 +1782,12 @@
         if (match && credFilters.length) {
           const nodeUsernames = (d.creds || []).map(c => c.username);
           if (!credFilters.some(u => nodeUsernames.includes(u))) match = false;
+        }
+        if (match && vulnHasCveFilter && !(d.vuln_cve_count > 0)) match = false;
+        if (match && vulnHasModuleFilter && !(d.vuln_module_count > 0)) match = false;
+        if (match && vulnCveSearch) {
+          const nodeCves = (d.vulns || []).flatMap(v => v.cve_refs || []).map(c => c.toLowerCase());
+          if (!nodeCves.some(c => c.includes(vulnCveSearch))) match = false;
         }
         if (!match) {
           filteredOut.add(d.id);
@@ -1696,14 +1860,16 @@
 
   document.getElementById('filter-body').addEventListener('change', applyFilter);
   document.getElementById('filter-ports').addEventListener('input', applyFilter);
+  document.getElementById('filter-cve-search').addEventListener('input', applyFilter);
 
   document.getElementById('btn-filter-clear').addEventListener('click', function() {
-    document.querySelectorAll('.filter-session, .filter-device, .filter-os, .filter-module, .filter-cred, .filter-cred-has, .filter-cred-status').forEach(el => el.checked = false);
+    document.querySelectorAll('.filter-session, .filter-device, .filter-os, .filter-module, .filter-cred, .filter-cred-has, .filter-cred-status, .filter-vuln-has-cve, .filter-vuln-has-module').forEach(el => el.checked = false);
     document.getElementById('filter-ports').value = '';
     document.getElementById('filter-module-search').value = '';
     filterModuleList('');
     document.getElementById('filter-cred-search').value = '';
     filterCredList('');
+    document.getElementById('filter-cve-search').value = '';
     applyFilter();
   });
 
