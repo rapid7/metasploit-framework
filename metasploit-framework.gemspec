@@ -207,8 +207,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rb-readline'
   # Needed by some modules
   spec.add_runtime_dependency 'rubyzip'
-  # Needed for some post modules
-  spec.add_runtime_dependency 'sqlite3', '1.7.3'
+  # Needed for some post modules; Rails 8 requires >= 2.1
+  spec.add_runtime_dependency 'sqlite3', '~> 2.1'
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
   # Needed so that disk size output isn't horrible
