@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, '/' "#{traversal}#{filename}")
+      'uri' => normalize_uri(target_uri.path, '/' + "#{traversal}#{filename}")
     })
 
     fail_with(Failure::Unreachable, 'Connection failed') unless res
