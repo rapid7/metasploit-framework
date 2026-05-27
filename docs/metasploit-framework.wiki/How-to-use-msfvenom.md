@@ -5,11 +5,11 @@ To start using msfvenom, first please take a look at the options it supports:
 ```
 Options:
     -p, --payload       <payload>    Payload to use. Specify a '-' or stdin to use custom payloads
-        --payload-options            List the payload's standard options
+        --list-options            List the payload's standard options
     -l, --list          [type]       List a module type. Options are: payloads, encoders, nops, all
     -n, --nopsled       <length>     Prepend a nopsled of [length] size on to the payload
-    -f, --format        <format>     Output format (use --help-formats for a list)
-        --help-formats               List available formats
+    -f, --format        <format>     Output format (use --list formats for a list)
+        --list formats               List available formats
     -e, --encoder       <encoder>    The encoder to use
     -a, --arch          <arch>       The architecture to use
         --platform      <platform>   The platform of the payload
@@ -56,7 +56,7 @@ Syntax example:
 To see what formats are supported, you can do the following to find out:
 
 ```
-./msfvenom --help-formats
+./msfvenom --list formats
 ```
 
 Typically, this is probably how you will use msfvenom:
