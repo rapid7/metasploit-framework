@@ -371,7 +371,7 @@ public
   #
   # @param [Hash] xopts Options:
   # @option xopts [String] :workspace Name of the workspace.
-  # @option xopts [String] :addresses Host addresses
+  # @option xopts [String, Array<String>] :addresses Address or CIDR range to filter by; may be an array of either.
   # @option xopts [Boolean] :only_up If true, return hosts that are up.
   # @option xopts [Integer] :limit Maximum number of hosts to return.
   # @option xopts [Integer] :offset return the hosts starting at index `offset`.
@@ -396,20 +396,18 @@ public
   #    * 'comments' [String] The host's comments.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.hosts', {})
- def rpc_hosts(xopts)
+  def rpc_hosts(xopts)
   ::ApplicationRecord.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
 
     conditions = {}
     conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:only_up]
 
-    cidr_filters = []
+    cidr_addrs = exact_addrs = []
     if opts[:addresses]
-      addresses   = Array(opts[:addresses])
-      exact_addrs = addresses.reject { |a| a.to_s.include?('/') }
-      cidr_strs   = addresses.select { |a| a.to_s.include?('/') }
-      conditions[:address] = exact_addrs unless exact_addrs.empty?
-      cidr_filters = cidr_strs.map { |c| IPAddr.new(c) }
+      addresses = Array(opts[:addresses])
+      cidr_addrs, exact_addrs = addresses.partition { |a| a.to_s.include?('/') }
+      cidr_addrs.map! { |c| IPAddr.new(c).cidr }
     end
 
     limit  = opts.delete(:limit)  || 100
@@ -418,15 +416,25 @@ public
     ret = {}
     ret[:hosts] = []
 
-    host_query = wspace.hosts.where(conditions).order(:address)
-    if cidr_filters.empty?
-      hosts = host_query.offset(offset).limit(limit)
-    else
-      hosts = host_query
-                .select { |h| cidr_filters.any? { |cidr| cidr.include?(h.address) } }
-                .drop(offset)
-                .first(limit)
+    host_query = wspace.hosts.where(conditions)
+    if exact_addrs.any? || cidr_addrs.any?
+      address_filter_sql = []
+      bind_values = []
+
+      if exact_addrs.any?
+        address_filter_sql << 'hosts.address IN (?)'
+        bind_values << exact_addrs
+      end
+
+      if cidr_addrs.any?
+        address_filter_sql << cidr_addrs.map { 'hosts.address <<= ?::cidr' }.join(' OR ')
+        bind_values.concat(cidr_addrs)
+      end
+
+      host_query = host_query.where(["(#{address_filter_sql.join(') OR (')})", *bind_values])
     end
+
+    hosts = host_query.order(:address).offset(offset).limit(limit)
 
     hosts.each do |h|
       host = {}
@@ -447,7 +455,7 @@ public
     end
     ret
   }
-end
+  end
 
   # Returns information about services.
   #
