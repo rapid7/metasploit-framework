@@ -15,6 +15,7 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 - `tools/` — Developer and operational tools
 - `plugins/` — msfconsole plugins
 - `scripts/` — Example automation scripts
+- `documentation/modules/` — Markdown documentation for Metasploit modules
 
 ## Coding Conventions
 
@@ -41,8 +42,9 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 - License new code with `MSF_LICENSE` (the project default, defined in `lib/msf/core/constants.rb`)
 - When overriding `cleanup`, always call `super` to ensure the parent mixin chain cleans up connections and sessions properly
 - When possible don't set a default payload (`DefaultOptions` with `'PAYLOAD'`) in modules — let the framework choose the most appropriate payload automatically
-- New modules require an associated markdown file in the `documentation/modules` folder with the same structure, including steps to set up the vulnerable environment for testing
+- New modules require an associated markdown file in the `documentation/modules` folder with the same structure, including steps to set up the vulnerable environment for testing. NEVER add content into the Scenarios section, this must be filled out by a human at all times. Follow `documentation/modules/module_doc_template.md` as a template.
 - Module descriptions or documentation should list the range of vulnerable versions and the fixed version of the affected software, when known
+- Module descriptions should only use ASCII characters
 - `report_service` method called when a service can be reported
 - `report_vuln` method called when a vuln can be reported
 - When creating a fake account / username use FAKER not `rand_test_alphanumeric`
