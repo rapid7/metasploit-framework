@@ -361,5 +361,3 @@ module Msf::Post::Common
   end
 
 end
-
-

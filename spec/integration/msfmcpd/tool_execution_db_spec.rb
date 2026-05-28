@@ -124,9 +124,8 @@ RSpec.describe 'Tool Execution End-to-End - Database Queries' do
         )
 
       # Stub db.hosts with filters
-      # Note: CIDR addresses are filtered in Ruby, not passed to the API
       hosts_stub = stub_request(:post, api_url)
-        .with(body: ['db.hosts', 'test_token', { workspace: 'default', only_up: true }].to_msgpack)
+        .with(body: ['db.hosts', 'test_token', { workspace: 'default', addresses: '192.168.1.0/24', only_up: true }].to_msgpack)
         .to_return(
           status: 200,
           body: {
@@ -135,13 +134,6 @@ RSpec.describe 'Tool Execution End-to-End - Database Queries' do
                 'address' => '192.168.1.100',
                 'mac' => '00:11:22:33:44:55',
                 'name' => 'filtered_host',
-                'state' => 'alive',
-                'created_at' => 1609459200
-              },
-              {
-                'address' => '10.0.0.1',
-                'mac' => '00:11:22:33:44:57',
-                'name' => 'other_host',
                 'state' => 'alive',
                 'created_at' => 1609459200
               }
