@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Post
         ],
         'DefaultAction' => 'Install',
         'Notes' => {
-          'Stability' => [CRASH_SAFE],
+          'Stability' => [],
           'SideEffects' => [ARTIFACTS_ON_DISK, CONFIG_CHANGES],
           'Reliability' => [],
           'AKA' => ['PamDOORa', 'Plague']
