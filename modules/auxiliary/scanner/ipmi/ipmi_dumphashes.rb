@@ -53,15 +53,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def ipmi_status(msg)
-    vprint_status("#{rhost}:#{rport} - IPMI - #{msg}")
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - IPMI - #{msg}")
   end
 
   def ipmi_error(msg)
-    vprint_error("#{rhost}:#{rport} - IPMI - #{msg}")
+    vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - IPMI - #{msg}")
   end
 
   def ipmi_good(msg)
-    print_good("#{rhost}:#{rport} - IPMI - #{msg}")
+    print_good("#{Rex::Socket.to_authority(rhost, rport)} - IPMI - #{msg}")
   end
 
   def run_host(ip)
@@ -96,6 +96,8 @@ class MetasploitModule < Msf::Auxiliary
 
     reported_vuln = false
     session_succeeded = false
+    seen_valid_open_session = false
+    stop_username_enumeration = false
 
     usernames.each do |username|
       console_session_id = Rex::Text.rand_text(4)
@@ -117,7 +119,15 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         unless r
-          ipmi_status("No response to IPMI open session request")
+          if seen_valid_open_session
+            # Target has previously responded to an open session request, so treat
+            # this non-response as transient (rate limiting, session exhaustion, etc.)
+            # rather than aborting so we don't miss hashes on a flaky target.
+            ipmi_status("No response to IPMI open session request for username #{username}")
+          else
+            ipmi_error("No response to IPMI open session request; stopping username enumeration")
+            stop_username_enumeration = true
+          end
           rakp = nil
           break
         end
@@ -137,6 +147,7 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         session_succeeded = true
+        seen_valid_open_session = true
 
         sess_data = Rex::Proto::IPMI::Session_Data.new.read(sess.data)
 
@@ -148,7 +159,12 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         unless r
-          ipmi_status("No response to RAKP1 message")
+          if seen_valid_open_session
+            ipmi_status("No response to RAKP1 message for username #{username}")
+          else
+            ipmi_error("No response to RAKP1 message; stopping username enumeration")
+            stop_username_enumeration = true
+          end
           next
         end
 
@@ -188,6 +204,8 @@ class MetasploitModule < Msf::Auxiliary
         # Break out of the session retry code if we make it here
         break
       end
+
+      break if stop_username_enumeration
 
       # Skip to the next user if we didnt get a valid response
       next if !rakp
