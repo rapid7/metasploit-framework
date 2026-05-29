@@ -133,7 +133,17 @@ module Rex
             value = element.public_send(attribute)
             next if value.nil?
 
-            output[attribute.to_s] = serialize_value(value, element: element, attribute: attribute.to_sym)
+            output[serialized_attribute_key(element, attribute)] = serialize_value(value, element: element, attribute: attribute.to_sym)
+          end
+        end
+
+        def serialized_attribute_key(element, attribute)
+          if attribute == :options && element.is_a?(Rex::Proto::Kerberos::Model::ApReq)
+            'ap_options'
+          elsif attribute == :options && element.is_a?(Rex::Proto::Kerberos::Model::KdcRequestBody)
+            'kdc_options'
+          else
+            attribute.to_s
           end
         end
 

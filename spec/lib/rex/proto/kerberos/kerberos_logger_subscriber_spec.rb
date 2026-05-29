@@ -199,7 +199,7 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
               Name: KRB_AP_ERR_MODIFIED
               Value: 41
               Description: Message stream modified
-            KDC Options:
+            Options:
               Value: #{kdc_options.to_i}
               Flags:
                 - FORWARDABLE
@@ -207,6 +207,61 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
             Etype Set:
               - 18
               - 17
+          EOF
+        )
+      )
+    end
+
+    it 'renders AP-REQ options as AP Options' do
+      request = Rex::Proto::Kerberos::Model::ApReq.new(
+        pvno: 5,
+        msg_type: Rex::Proto::Kerberos::Model::AP_REQ,
+        options: 0
+      )
+
+      subscriber.on_request(request)
+
+      expect(output_text).to eq(
+        expected_trace_output(
+          direction: 'Request',
+          message_name: 'AP-REQ',
+          color_prefix: '%bld%red',
+          body: <<~EOF.rstrip
+            Protocol Version: 5
+            Message Type: #{Rex::Proto::Kerberos::Model::AP_REQ} (AP-REQ)
+            AP Options: 0
+          EOF
+        )
+      )
+    end
+
+    it 'renders KDC request body options as KDC Options' do
+      kdc_options = Rex::Proto::Kerberos::Model::KdcOptionFlags.from_flags([
+        Rex::Proto::Kerberos::Model::KdcOptionFlags::FORWARDABLE
+      ])
+      request = Rex::Proto::Kerberos::Model::KdcRequest.new(
+        pvno: 5,
+        msg_type: Rex::Proto::Kerberos::Model::AS_REQ,
+        req_body: Rex::Proto::Kerberos::Model::KdcRequestBody.new(
+          options: kdc_options
+        )
+      )
+
+      subscriber.on_request(request)
+
+      expect(output_text).to eq(
+        expected_trace_output(
+          direction: 'Request',
+          message_name: 'AS-REQ',
+          color_prefix: '%bld%red',
+          body: <<~EOF.rstrip
+            Protocol Version: 5
+            Message Type: #{Rex::Proto::Kerberos::Model::AS_REQ} (AS-REQ)
+            Request Body:
+              KDC Options:
+                Value: #{kdc_options.to_i}
+                Flags:
+                  - FORWARDABLE
           EOF
         )
       )
