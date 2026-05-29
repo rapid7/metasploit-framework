@@ -12,7 +12,7 @@ RSpec.describe 'modules/payloads/singles/linux/riscv64le/shell_reverse_tcp' do
   end
 
   before(:each) do
-    subject.datastore.merge!('LHOST' => '127.0.0.1', 'LPORT' => '4444')
+    subject.datastore.merge!('LHOST' => '192.0.2.1', 'LPORT' => '4444')
   end
 
   describe '#generate' do
@@ -57,9 +57,9 @@ RSpec.describe 'modules/payloads/singles/linux/riscv64le/shell_reverse_tcp' do
       before(:each) { subject.datastore['LPORT'] = '4481' }
 
       it 'correctly encodes LHOST in the sockaddr despite the sign-extension hazard' do
-        subject.datastore['LHOST'] = '10.5.135.210'
+        subject.datastore['LHOST'] = '192.0.2.1'
         raw1 = subject.generate
-        subject.datastore['LHOST'] = '192.168.1.1'
+        subject.datastore['LHOST'] = '192.0.2.2'
         raw2 = subject.generate
         # If the bug were present, both would encode 0xffffffff for the IP
         # in the sockaddr and these payloads would be identical in that region.

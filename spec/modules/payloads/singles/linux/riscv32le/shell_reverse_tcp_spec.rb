@@ -12,7 +12,7 @@ RSpec.describe 'modules/payloads/singles/linux/riscv32le/shell_reverse_tcp' do
   end
 
   before(:each) do
-    subject.datastore.merge!('LHOST' => '127.0.0.1', 'LPORT' => '4444')
+    subject.datastore.merge!('LHOST' => '192.0.2.1', 'LPORT' => '4444')
   end
 
   describe '#generate' do
@@ -27,7 +27,7 @@ RSpec.describe 'modules/payloads/singles/linux/riscv32le/shell_reverse_tcp' do
 
     it 'encodes LHOST in the shellcode' do
       raw_default = subject.generate
-      subject.datastore['LHOST'] = '1.2.3.4'
+      subject.datastore['LHOST'] = '192.0.2.2'
       raw_other = subject.generate
       # LHOST is embedded in LUI/ADDI instruction words, not as raw bytes,
       # so verify that a different LHOST produces different shellcode.
