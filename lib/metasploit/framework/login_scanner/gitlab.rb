@@ -21,10 +21,7 @@ module Metasploit
         def attempt_login(credential)
           result_opts = {
             credential: credential,
-            host: host,
-            port: port,
-            protocol: 'tcp',
-            service_name: ssl ? 'https' : 'http'
+            **service_as_result(service_opts)
           }
           begin 
             # Get a valid session cookie and authenticity_token for the next step
@@ -76,6 +73,10 @@ module Metasploit
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('gitlab')
         end
       end
     end

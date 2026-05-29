@@ -16,7 +16,8 @@ module Metasploit
         # (see Base#attempt_login)
         def attempt_login(credential)
           result_opts = {
-            credential: credential
+            credential: credential,
+            **service_as_result(service_opts)
           }
 
           req_opts = {
@@ -47,6 +48,10 @@ module Metasploit
           end
 
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('smh')
         end
 
       end

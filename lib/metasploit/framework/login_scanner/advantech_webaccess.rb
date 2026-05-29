@@ -24,6 +24,7 @@ module Metasploit
           })
 
           if res && res.body =~ /Welcome to Advantech WebAccess/i
+            report_service(service_opts)
             return false
           end
 
@@ -67,9 +68,7 @@ module Metasploit
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
 
           begin
@@ -80,6 +79,10 @@ module Metasploit
           end
 
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('advantech_webaccess')
         end
 
       end

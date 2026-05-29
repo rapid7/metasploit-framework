@@ -25,7 +25,10 @@ module Metasploit
         # @param credential [Metasploit::Framework::Credential] The credential object
         # @return [Result]
         def attempt_login(credential)
-          result_opts = { credential: credential }
+          result_opts = {
+            credential: credential,
+            **service_as_result(service_opts)
+          }
 
           begin
             status = try_login(credential)
@@ -62,6 +65,8 @@ module Metasploit
           rescue ::EOFError, Errno::ETIMEDOUT, OpenSSL::SSL::SSLError, Rex::ConnectionError, ::Timeout::Error
             return "Unable to connect to target"
           end
+
+          report_service(service_opts)
 
           false
         end
@@ -144,6 +149,10 @@ module Metasploit
           rescue ::EOFError, Errno::ETIMEDOUT, Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             return {:status => Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e}
           end
+        end
+
+        def service_opts
+          build_service_opts('zabbix')
         end
 
       end

@@ -22,6 +22,7 @@ module Metasploit
           login_uri = "/server/properties"
           res = send_request({'uri'=> login_uri})
           if res && res.body.include?('Nessus')
+            report_service(service_opts)
             return false
           end
 
@@ -67,9 +68,7 @@ module Metasploit
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
 
           begin
@@ -87,6 +86,10 @@ module Metasploit
           # nessus_rest_login has the same default in TARGETURI, but rspec doesn't check nessus_rest_login
           # so we have to set the default here, too.
           self.uri = '/session'
+        end
+
+        def service_opts
+          build_service_opts('nessus')
         end
 
       end

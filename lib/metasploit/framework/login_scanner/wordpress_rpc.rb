@@ -11,15 +11,8 @@ module Metasploit
         def attempt_login(credential)
           result_opts = {
               credential: credential,
-              host: host,
-              port: port,
-              protocol: 'tcp'
+              **service_as_result(service_opts)
           }
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
 
           begin
 
@@ -66,6 +59,10 @@ module Metasploit
         def set_sane_defaults
           @method = "POST".freeze
           super
+        end
+
+        def service_opts
+          build_service_opts('wordpress')
         end
 
       end

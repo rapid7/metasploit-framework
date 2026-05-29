@@ -120,9 +120,7 @@ module Metasploit
                 credential.private = pass
                 result_opts = {
                   credential: credential,
-                  host: host,
-                  port: port,
-                  protocol: 'tcp'
+                  **service_as_result(service_opts)
                 }
                 result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL)
                 return Result.new(result_opts)
@@ -132,13 +130,15 @@ module Metasploit
 
           result_opts = {
             credential: credential,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
 
           result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT)
           return Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('wordpress')
         end
 
       end

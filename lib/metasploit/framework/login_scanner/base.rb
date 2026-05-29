@@ -140,6 +140,10 @@ module Metasploit
             ::IO.select(nil,nil,nil,time) unless sleep_time.zero?
           end
 
+          def workspace
+            framework_module&.workspace || framework&.db&.workspace&.name
+          end
+
           def each_credential
             cred_details.each do |raw_cred|
 
