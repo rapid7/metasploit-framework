@@ -60,6 +60,22 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('FTPUSER', 'FTPPASS') # Can use these, but should use 'username' and 'password'
   end
 
+  def check_host(ip)
+    connect
+    if banner&.match?(/^(120|220)[\s-]/)
+      report_ftp_service_and_banner(ip)
+      Exploit::CheckCode::Appears("FTP service detected: #{banner_version}")
+    else
+      Exploit::CheckCode::Unknown('No valid FTP banner received')
+    end
+  rescue Rex::ConnectionError, Errno::ECONNRESET
+    Exploit::CheckCode::Unknown('Port closed or connection refused')
+  rescue Rex::ConnectionTimeout, ::Timeout::Error, ::EOFError => e
+    Exploit::CheckCode::Unknown(e.message)
+  ensure
+    disconnect
+  end
+
   def run_scanner(ip, scanner)
     scanner.scan! do |result|
       unless @reported_banner
