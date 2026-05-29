@@ -49,7 +49,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scanner_process(data, shost, sport)
-    info = Rex::Proto::IPMI::Open_Session_Reply.new.read(data) #  rescue nil
+    info = nil
+
+    begin
+      info = Rex::Proto::IPMI::Open_Session_Reply.new.read(data)
+    rescue IOError, BinData::ValidityError => e
+      # Truncated replies raise IOError ("data truncated") or EOFError (a subclass
+      # of IOError); replies that fail a BinData assertion raise ValidityError.
+      vprint_error("#{Rex::Socket.to_authority(shost, sport)} - IPMI - Malformed open session reply: #{e.class}: #{e.message}")
+      return nil
+    end
+
     return unless info && info.session_payload_type == Rex::Proto::IPMI::PAYLOAD_RMCPPLUSOPEN_REP
 
     # Ignore duplicate replies
@@ -58,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     @res[shost] ||= info
 
     if info.error_code == 0
-      print_good("#{shost}:#{sport} - IPMI - VULNERABLE: Accepted a session open request for cipher zero")
+      print_good("#{Rex::Socket.to_authority(shost, sport)} - IPMI - VULNERABLE: Accepted a session open request for cipher zero")
       report_vuln(
         :host => shost,
         :port => datastore['RPORT'].to_i,
@@ -69,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
         :refs => self.references
       )
     else
-      vprint_status("#{shost}:#{sport} - IPMI - NOT VULNERABLE: Rejected cipher zero with error code #{info.error_code}")
+      vprint_status("#{Rex::Socket.to_authority(shost, sport)} - IPMI - NOT VULNERABLE: Rejected cipher zero with error code #{info.error_code}")
     end
   end
 end
