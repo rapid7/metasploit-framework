@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Encoder::Xor
   # the buffer being encoded.
   #
   def decoder_stub(state)
-    if state.badchars.to_s.include?("\x00")
+    if state.badchars.to_s.include?("\x00".b)
       raise EncodingError, 'The RISC-V decoder stub inherently contains null bytes (auipc, ecall)'
     end
 
