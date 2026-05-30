@@ -265,48 +265,86 @@ RSpec.describe Msf::Trace::CertificateTracePresenter do
     end
   end
 
-  # ── #to_s_csr (instance method) ─────────────────────────────────────────────
-  describe '#to_s_csr' do
-    let(:csr) do
-      req            = OpenSSL::X509::Request.new
-      req.subject    = OpenSSL::X509::Name.parse('/CN=Administrator/DC=CONTOSO/DC=LOCAL')
-      req.public_key = key.public_key
-      req.sign(key, OpenSSL::Digest::SHA256.new)
-      req
+  # ── #to_s_full extension value decoding (Microsoft AD CS OIDs) ───────────────
+  describe '#to_s_full extension value decoding' do
+    # Build a self-signed cert carrying a single raw extension whose extnValue
+    # OCTET STRING wraps the supplied bytes.
+    def cert_with_raw_extension(oid, content)
+      c            = OpenSSL::X509::Certificate.new
+      c.subject    = OpenSSL::X509::Name.parse('/CN=Administrator/DC=CONTOSO/DC=LOCAL')
+      c.issuer     = OpenSSL::X509::Name.parse('/CN=CONTOSO-CA/DC=CONTOSO/DC=LOCAL')
+      c.public_key = key.public_key
+      c.serial     = OpenSSL::BN.new('7')
+      c.version    = 2
+      c.not_before = Time.utc(2026, 1, 1)
+      c.not_after  = Time.utc(2027, 1, 1)
+
+      ext_der = OpenSSL::ASN1::Sequence.new(
+        [
+          OpenSSL::ASN1::ObjectId.new(oid),
+          OpenSSL::ASN1::OctetString.new(content)
+        ]
+      ).to_der
+      c.add_extension(OpenSSL::X509::Extension.new(ext_der))
+      c.sign(key, OpenSSL::Digest::SHA256.new)
+      c
     end
 
-    it 'is an instance method, not a class method' do
-      expect(presenter).to respond_to(:to_s_csr)
-      expect(described_class).not_to respond_to(:to_s_csr)
+    context 'with a Microsoft Certificate Template Name extension (BMPString)' do
+      subject do
+        content = OpenSSL::ASN1::BMPString.new('User'.encode('UTF-16BE').b).to_der
+        described_class.new(cert_with_raw_extension('1.3.6.1.4.1.311.20.2', content)).to_s_full
+      end
+
+      it 'labels the OID with a friendly name' do
+        expect(subject).to include('Certificate Template Name')
+      end
+
+      it 'decodes the BMPString value to readable text' do
+        expect(subject).to include('User')
+      end
+
+      it 'does not emit NUL bytes from the UTF-16 encoding' do
+        expect(subject).not_to include("\u0000")
+      end
     end
 
-    it 'returns a string for valid CSR DER bytes' do
-      result = presenter.to_s_csr(csr.to_der)
-      expect(result).to be_a(String)
+    context 'with a Microsoft Certificate Template Information extension' do
+      subject do
+        content = OpenSSL::ASN1::Sequence.new(
+          [
+            OpenSSL::ASN1::ObjectId.new('1.3.6.1.4.1.311.21.8.1.2.3'),
+            OpenSSL::ASN1::Integer.new(100),
+            OpenSSL::ASN1::Integer.new(5)
+          ]
+        ).to_der
+        described_class.new(cert_with_raw_extension('1.3.6.1.4.1.311.21.7', content)).to_s_full
+      end
+
+      it 'labels the OID with a friendly name' do
+        expect(subject).to include('Certificate Template Information')
+      end
+
+      it 'renders the template OID and version' do
+        expect(subject).to include('Template 1.3.6.1.4.1.311.21.8.1.2.3')
+        expect(subject).to include('v100.5')
+      end
     end
 
-    it 'includes CSR subject' do
-      result = presenter.to_s_csr(csr.to_der)
-      expect(result).to include('Administrator')
-    end
+    context 'with an unrecognized binary extension' do
+      subject do
+        described_class.new(cert_with_raw_extension('1.3.6.1.4.1.99999.1', "\x00\x01\x02\xFF".b)).to_s_full
+      end
 
-    it 'includes CSR public key as algorithm and bit size' do
-      result = presenter.to_s_csr(csr.to_der)
-      expect(result).to include('CSR Pub Key')
-      expect(result).to include('RSA-')
-    end
+      it 'renders without raising and labels it by OID' do
+        expect(subject).to be_a(String)
+        expect(subject).to include('1.3.6.1.4.1.99999.1')
+      end
 
-    it 'includes signature algorithm label' do
-      result = presenter.to_s_csr(csr.to_der)
-      expect(result).to include('CSR Sig Alg')
-    end
-
-    it 'returns nil for invalid CSR bytes' do
-      expect(presenter.to_s_csr('garbage')).to be_nil
-    end
-
-    it 'returns nil when csr_raw is nil' do
-      expect(presenter.to_s_csr(nil)).to be_nil
+      it 'defers to OpenSSL and does not emit non-printable bytes in the extensions block' do
+        ext_lines = subject.lines.select { |l| l.start_with?('    ') }.join
+        expect(ext_lines).not_to match(/[^[:print:]\t]/)
+      end
     end
   end
 end

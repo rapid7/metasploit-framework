@@ -4,7 +4,7 @@ require 'openssl'
 
 module Msf
   module Trace
-    # Presenter for X.509 certificates (and optionally raw CSR data).
+    # Presenter for X.509 certificates.
     #
     # Follows the same responsibility split as
     # Rex::Proto::Kerberos::CredentialCache::Krb5CCachePresenter:
@@ -16,15 +16,27 @@ module Msf
     #   presenter = Msf::Trace::CertificateTracePresenter.new(cert)
     #   mod.print_line(presenter.to_s_metadata)
     #   mod.print_line(presenter.to_s_full)
-    #
-    #   # CSR mode - expects raw DER/PEM CSR bytes, not a certificate:
-    #   mod.print_line(presenter.to_s_csr(csr_raw))
     class CertificateTracePresenter
 
       SEPARATOR = ('[CertificateTrace] ' + ('-' * 38)).freeze
 
       # OIDs surfaced as named fields in to_s_full; excluded from the raw extension dump.
       NAMED_OIDS = %w[subjectAltName extendedKeyUsage keyUsage].freeze
+
+      # Microsoft AD CS enrollment extensions whose content carries the template
+      # name / template version. OpenSSL has no friendly decoder for these, so we
+      # decode them ourselves below.
+      CERT_TEMPLATE_NAME_OID = '1.3.6.1.4.1.311.20.2'
+      CERT_TEMPLATE_INFO_OID = '1.3.6.1.4.1.311.21.7'
+
+      # Friendly labels for extension OIDs that OpenSSL leaves as raw numeric
+      # strings (predominantly Microsoft enrollment OIDs on AD CS certificates).
+      EXTENSION_OID_NAMES = {
+        CERT_TEMPLATE_NAME_OID => 'Certificate Template Name',
+        CERT_TEMPLATE_INFO_OID => 'Certificate Template Information',
+        '1.3.6.1.4.1.311.21.10' => 'Application Policies',
+        '1.3.6.1.4.1.311.25.2' => 'AD DS Security Extension (SID)'
+      }.freeze
 
       # Priority order for resolving a single auth identity from the cert.
       # UPN is the primary AD identity; email and CN are fallbacks.
@@ -105,37 +117,13 @@ module Msf
         other = @cert.extensions.reject { |e| NAMED_OIDS.include?(e.oid) }
         if other.any?
           lines << '  Extensions :'
-          other.each { |e| lines << "    #{e.oid} : #{e.value}" }
+          other.each do |e|
+            label = EXTENSION_OID_NAMES[normalize_oid(e.oid)] || e.oid
+            lines << "    #{label} : #{format_extension(e)}"
+          end
         end
 
         lines.join("\n")
-      end
-
-      # Returns a formatted CSR string from raw CSR bytes.
-      #
-      # This method expects raw DER or PEM encoded CSR bytes - not a certificate
-      # object. The 'csr' trace mode is intended for PKINIT pre-authentication
-      # flows where the CSR is constructed and submitted separately from the
-      # certificate. Callers must pass the CSR bytes directly rather than
-      # converting from a certificate.
-      #
-      # Instance method - consistent with the presenter pattern.
-      #
-      # @param csr_raw [String] DER or PEM encoded certificate signing request
-      # @return [String, nil] nil if CSR could not be parsed
-      def to_s_csr(csr_raw)
-        return nil unless csr_raw
-
-        csr = OpenSSL::X509::Request.new(csr_raw)
-
-        [
-          SEPARATOR,
-          "  CSR Subject : #{csr.subject}",
-          "  CSR Pub Key : #{format_public_key(csr.public_key)}",
-          "  CSR Sig Alg : #{csr.signature_algorithm}"
-        ].join("\n")
-      rescue OpenSSL::X509::RequestError
-        nil
       end
 
       private
@@ -180,6 +168,87 @@ module Msf
 
       def extension_value(oid)
         @cert.extensions&.find { |e| e.oid == oid }&.value
+      end
+
+      # Render an extension value as human-readable text.
+      #
+      # OpenSSL formats the standard extensions (subjectKeyIdentifier,
+      # crlDistributionPoints, etc.) well, but for OIDs it does not understand -
+      # notably the Microsoft AD CS enrollment extensions - Extension#value
+      # returns raw bytes with non-printables collapsed to '.', surfacing as
+      # mojibake such as "...U.s.e.r". Decode the MS template extensions we
+      # recognise; otherwise defer to OpenSSL's own rendering.
+      #
+      # @param ext [OpenSSL::X509::Extension]
+      # @return [String]
+      def format_extension(ext)
+        case normalize_oid(ext.oid)
+        when CERT_TEMPLATE_NAME_OID
+          asn1 = inner_extension_asn1(ext)
+          asn1 ? clean_text(asn1.value) : ext.value
+        when CERT_TEMPLATE_INFO_OID
+          format_template_information(ext)
+        else
+          ext.value
+        end
+      rescue StandardError
+        ext.value
+      end
+
+      # Resolve an extension OID to its dotted numeric form. OpenSSL may surface
+      # a registered short name (e.g. "ms-cert-templ") rather than the numeric
+      # OID depending on its object table / OPENSSL_CONF, so normalise before
+      # matching.
+      #
+      # @param oid [String]
+      # @return [String]
+      def normalize_oid(oid)
+        OpenSSL::ASN1::ObjectId.new(oid).oid
+      rescue OpenSSL::ASN1::ASN1Error
+        oid
+      end
+
+      # Decode the DER content carried inside an extension. Extension#to_der wraps
+      # the value in an OCTET STRING; return the parsed ASN.1 of that inner content.
+      #
+      # @param ext [OpenSSL::X509::Extension]
+      # @return [OpenSSL::ASN1::ASN1Data, nil]
+      def inner_extension_asn1(ext)
+        seq = OpenSSL::ASN1.decode(ext.to_der)
+        octet = seq.value.find { |v| v.is_a?(OpenSSL::ASN1::OctetString) }
+        return nil unless octet
+
+        OpenSSL::ASN1.decode(octet.value)
+      rescue OpenSSL::ASN1::ASN1Error
+        nil
+      end
+
+      # Format the Microsoft Certificate Template Information extension:
+      # SEQUENCE { templateID OID, majorVersion INTEGER, minorVersion INTEGER OPTIONAL }.
+      #
+      # @param ext [OpenSSL::X509::Extension]
+      # @return [String]
+      def format_template_information(ext)
+        asn1 = inner_extension_asn1(ext)
+        return ext.value unless asn1.respond_to?(:value) && asn1.value.is_a?(Array)
+
+        oid, major, minor = asn1.value.map { |v| v&.value }
+        out = "Template #{oid}"
+        out += " (v#{major}#{minor ? ".#{minor}" : ''})" if major
+        out
+      end
+
+      # Normalise a decoded ASN.1 string value to clean UTF-8. BMPString content
+      # arrives as UTF-16, so re-encode and strip embedded NUL bytes.
+      #
+      # @param str [String]
+      # @return [String]
+      def clean_text(str)
+        s = str.to_s
+        s = s.encode('UTF-8', 'UTF-16BE') if s.encoding == ::Encoding::UTF_16BE
+        s = s.b.force_encoding('UTF-8')
+        s = s.scrub('?') unless s.valid_encoding?
+        s.delete("\u0000")
       end
 
       def format_public_key(pk)
