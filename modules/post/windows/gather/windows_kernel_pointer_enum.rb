@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/exploit/local/windows_kernel/handle_enum'
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Process
@@ -47,10 +45,7 @@ class MetasploitModule < Msf::Post
     print_status('Windows Kernel Pointer Exposure Enumerator')
     print_line('=' * 80)
 
-    unless validate_environment
-      print_error('Environment validation failed')
-      return
-    end
+    fail_with(Failure::NotVulnerable, 'Unsupported environment') unless validate_environment
 
     print_status('Enumerating kernel object pointers...')
 
