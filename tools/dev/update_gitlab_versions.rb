@@ -22,24 +22,28 @@ require 'json'
 require 'set'
 require 'zlib'
 
-# ── paths / constants ─────────────────────────────────────────────────────────
+# -- paths / constants ---------------------------------------------------------
 
-JSON_FILE      = File.expand_path('../../lib/msf/core/exploit/remote/http/gitlab/version.json', __dir__)
-REGISTRY       = 'https://registry-1.docker.io/v2'.freeze
-AUTH_URL       = 'https://auth.docker.io/token?service=registry.docker.io'.freeze
+JSON_FILE = File.expand_path('../../lib/msf/core/exploit/remote/http/gitlab/version.json', __dir__)
+REGISTRY = 'https://registry-1.docker.io/v2'.freeze
+AUTH_URL = 'https://auth.docker.io/token?service=registry.docker.io'.freeze
 MAX_CONCURRENT = 4
 
 EE_TAG_RE = /\A(\d+)\.(\d+)\.(\d+)-ee\.(\d+)\z/
 CE_TAG_RE = /\A(\d+)\.(\d+)\.(\d+)-ce\.(\d+)\z/
 
 EDITIONS = [
-  { repo: 'gitlab/gitlab-ee', tag_re: EE_TAG_RE, label: 'EE',
-    version_fn: ->(tag) { tag.sub(/-ee\.\d+\z/, '-ee') } },
-  { repo: 'gitlab/gitlab-ce', tag_re: CE_TAG_RE, label: 'CE',
-    version_fn: ->(tag) { tag.sub(/-ce\.\d+\z/, '-ce') } }
+  {
+    repo: 'gitlab/gitlab-ee', tag_re: EE_TAG_RE, label: 'EE',
+    version_fn: ->(tag) { tag.sub(/-ee\.\d+\z/, '-ee') }
+  },
+  {
+    repo: 'gitlab/gitlab-ce', tag_re: CE_TAG_RE, label: 'CE',
+    version_fn: ->(tag) { tag.sub(/-ce\.\d+\z/, '-ce') }
+  }
 ].freeze
 
-# Prefer Docker v2 manifest types — OCI manifests may use zstd-compressed layers
+# Prefer Docker v2 manifest types - OCI manifests may use zstd-compressed layers
 # which we cannot decompress. Docker v2 layers are always gzip.
 MANIFEST_ACCEPT = [
   'application/vnd.docker.distribution.manifest.v2+json',
@@ -48,16 +52,27 @@ MANIFEST_ACCEPT = [
   'application/vnd.oci.image.manifest.v1+json'
 ].join(', ').freeze
 
-# ── colours ───────────────────────────────────────────────────────────────────
+# -- colours -------------------------------------------------------------------
 
 class String
-  def red;    "\e[1;31;40m#{self}\e[0m"; end
-  def yellow; "\e[1;33;40m#{self}\e[0m"; end
-  def green;  "\e[1;32;40m#{self}\e[0m"; end
-  def cyan;   "\e[1;36;40m#{self}\e[0m"; end
+  def red
+    "\e[1;31;40m#{self}\e[0m"
+  end
+
+  def yellow
+    "\e[1;33;40m#{self}\e[0m"
+  end
+
+  def green
+    "\e[1;32;40m#{self}\e[0m"
+  end
+
+  def cyan
+    "\e[1;36;40m#{self}\e[0m"
+  end
 end
 
-# ── helpers ───────────────────────────────────────────────────────────────────
+# -- helpers -------------------------------------------------------------------
 
 def tag_semver(tag, re)
   m = re.match(tag)
@@ -74,16 +89,16 @@ end
 def http_get(url)
   uri = URI(url)
   Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https',
-                  open_timeout: 15, read_timeout: 30) do |http|
+                                      open_timeout: 15, read_timeout: 30) do |http|
     http.request(Net::HTTP::Get.new(uri))
   end
 end
 
-# ── Docker Hub tag enumeration ─────────────────────────────────────────────────
+# -- Docker Hub tag enumeration -------------------------------------------------
 
 def fetch_all_tags(repo)
   tags = []
-  url  = "https://hub.docker.com/v2/repositories/#{repo}/tags?page_size=100&ordering=last_updated"
+  url = "https://hub.docker.com/v2/repositories/#{repo}/tags?page_size=100&ordering=last_updated"
 
   loop do
     resp = http_get(url)
@@ -102,7 +117,7 @@ def fetch_all_tags(repo)
   tags
 end
 
-# ── Streaming tar scanner ──────────────────────────────────────────────────────
+# -- Streaming tar scanner ------------------------------------------------------
 #
 # Feeds decompressed gzip data into this object chunk by chunk. It walks tar
 # headers (512 bytes each), skips file data blocks, and stops as soon as a
@@ -111,9 +126,9 @@ end
 # rest of the layer.
 
 # Handles three tar long-name extensions:
-#   PAX ('x'/'X' typeflag) — extended header with `path=<full>` key
-#   GNU  ('L' typeflag)    — next data block is the full filename
-#   USTAR prefix field     — 155-byte prefix at offset 345 prepended to name
+#   PAX ('x'/'X' typeflag) - extended header with `path=<full>` key
+#   GNU  ('L' typeflag)    - next data block is the full filename
+#   USTAR prefix field     - 155-byte prefix at offset 345 prepended to name
 #
 # When sample_re is set, collects all matching filenames into #samples instead
 # of stopping at the first CSS_HASH_RE match. Used for --sample diagnostics.
@@ -124,14 +139,14 @@ class TarCssScanner
   attr_reader :found, :samples
 
   def initialize
-    @buf          = ''.b
-    @skip         = 0
-    @found        = nil
-    @pax_path     = nil   # path extracted from PAX extended header
-    @gnu_name     = nil   # name extracted from GNU ././@LongLink block
-    @collect_type = nil   # :pax or :gnu — currently collecting payload
+    @buf = ''.b
+    @skip = 0
+    @found = nil
+    @pax_path = nil   # path extracted from PAX extended header
+    @gnu_name = nil   # name extracted from GNU ././@LongLink block
+    @collect_type = nil   # :pax or :gnu - currently collecting payload
     @collect_need = 0     # bytes still needed
-    @collect_buf  = ''.b
+    @collect_buf = ''.b
   end
 
   def <<(data)
@@ -143,61 +158,62 @@ class TarCssScanner
   private
 
   def enough?
-    return @buf.size > 0 if @collect_type
+    return !@buf.empty? if @collect_type
+
     @skip > 0 ? !@buf.empty? : @buf.size >= HEADER_SIZE
   end
 
   def step
-    # ── collect mode: gather PAX / GNU payload ────────────────────────────
+    # -- collect mode: gather PAX / GNU payload ----------------------------
     if @collect_type
-      take           = [@collect_need, @buf.size].min
-      @collect_buf  << @buf.byteslice(0, take)
-      @buf           = @buf.byteslice(take..) || ''.b
+      take = [@collect_need, @buf.size].min
+      @collect_buf << @buf.byteslice(0, take)
+      @buf = @buf.byteslice(take..) || ''.b
       @collect_need -= take
 
       return unless @collect_need <= 0
 
       case @collect_type
       when :pax
-        # PAX lines: "<decimal-len> <key>=<value>\n" — keep binary to match binary literals
+        # PAX lines: "<decimal-len> <key>=<value>\n" - keep binary to match binary literals
         @collect_buf.scan(/\d+ path=([^\n]+)/) { |m| @pax_path = m[0] }
       when :gnu
         @gnu_name = @collect_buf.delete("\x00")
       end
 
       @collect_type = nil
-      @collect_buf  = ''.b
+      @collect_buf = ''.b
       return
     end
 
-    # ── skip mode: discard data / padding blocks ───────────────────────────
+    # -- skip mode: discard data / padding blocks ---------------------------
     if @skip > 0
-      take  = [@skip, @buf.size].min
-      @buf  = @buf.byteslice(take..)
+      take = [@skip, @buf.size].min
+      @buf = @buf.byteslice(take..)
       @skip -= take
       return
     end
 
-    # ── header mode ────────────────────────────────────────────────────────
-    header   = @buf.byteslice(0, HEADER_SIZE)
-    @buf     = @buf.byteslice(HEADER_SIZE..) || ''.b
+    # -- header mode --------------------------------------------------------
+    header = @buf.byteslice(0, HEADER_SIZE)
+    @buf = @buf.byteslice(HEADER_SIZE..) || ''.b
     typeflag = header.byteslice(156, 1) || "\x00"
-    name     = header.byteslice(0, 100).delete("\x00")
-    size     = header.byteslice(124, 12).strip.to_i(8)
+    name = header.byteslice(0, 100).delete("\x00")
+    size = header.byteslice(124, 12).strip.to_i(8)
 
     case typeflag
-    when 'x', 'X'  # PAX extended header
-      padded        = ((size + 511) / 512) * 512
+    when 'x', 'X' # PAX extended header
+      padded = ((size + 511) / 512) * 512
       @collect_type = :pax
       @collect_need = padded
-      @collect_buf  = ''.b
-    when 'L'        # GNU long filename follows in data block
-      padded        = ((size + 511) / 512) * 512
+      @collect_buf = ''.b
+    when 'L' # GNU long filename follows in data block
+      padded = ((size + 511) / 512) * 512
       @collect_type = :gnu
       @collect_need = padded
-      @collect_buf  = ''.b
+      @collect_buf = ''.b
     else
-      return if name.empty?  # end-of-archive zero block
+      return if name.empty? # end-of-archive zero block
 
       # Reconstruct full path: PAX > GNU > USTAR-prefix+name
       effective = if @pax_path
@@ -223,22 +239,22 @@ class TarCssScanner
 end
 
 # Collects every filename in a gzip-compressed tar layer that matches a regex.
-# Never stops early — reads the whole stream. Used for --sample diagnostics.
+# Never stops early - reads the whole stream. Used for --sample diagnostics.
 class TarFilenameCollector
   HEADER_SIZE = 512
 
   attr_reader :filenames
 
   def initialize(pattern = /\.css\z/)
-    @pattern      = pattern
-    @filenames    = []
-    @buf          = ''.b
-    @skip         = 0
+    @pattern = pattern
+    @filenames = []
+    @buf = ''.b
+    @skip = 0
     @collect_type = nil
     @collect_need = 0
-    @collect_buf  = ''.b
-    @pax_path     = nil
-    @gnu_name     = nil
+    @collect_buf = ''.b
+    @pax_path = nil
+    @gnu_name = nil
   end
 
   def <<(data)
@@ -250,15 +266,16 @@ class TarFilenameCollector
   private
 
   def enough?
-    return @buf.size > 0 if @collect_type
+    return !@buf.empty? if @collect_type
+
     @skip > 0 ? !@buf.empty? : @buf.size >= HEADER_SIZE
   end
 
   def step
     if @collect_type
-      take          = [@collect_need, @buf.size].min
+      take = [@collect_need, @buf.size].min
       @collect_buf << @buf.byteslice(0, take)
-      @buf          = @buf.byteslice(take..) || ''.b
+      @buf = @buf.byteslice(take..) || ''.b
       @collect_need -= take
       return unless @collect_need <= 0
 
@@ -269,41 +286,45 @@ class TarFilenameCollector
         @gnu_name = @collect_buf.delete("\x00")
       end
       @collect_type = nil
-      @collect_buf  = ''.b
+      @collect_buf = ''.b
       return
     end
 
     if @skip > 0
-      take  = [@skip, @buf.size].min
-      @buf  = @buf.byteslice(take..)
+      take = [@skip, @buf.size].min
+      @buf = @buf.byteslice(take..)
       @skip -= take
       return
     end
 
     return unless @buf.size >= HEADER_SIZE
 
-    header   = @buf.byteslice(0, HEADER_SIZE)
-    @buf     = @buf.byteslice(HEADER_SIZE..) || ''.b
+    header = @buf.byteslice(0, HEADER_SIZE)
+    @buf = @buf.byteslice(HEADER_SIZE..) || ''.b
     typeflag = header.byteslice(156, 1) || "\x00"
-    name     = header.byteslice(0, 100).delete("\x00")
-    size     = header.byteslice(124, 12).strip.to_i(8)
+    name = header.byteslice(0, 100).delete("\x00")
+    size = header.byteslice(124, 12).strip.to_i(8)
 
     case typeflag
     when 'x', 'X'
       padded = ((size + 511) / 512) * 512
-      @collect_type = :pax; @collect_need = padded; @collect_buf = ''.b
+      @collect_type = :pax
+      @collect_need = padded
+      @collect_buf = ''.b
     when 'L'
       padded = ((size + 511) / 512) * 512
-      @collect_type = :gnu; @collect_need = padded; @collect_buf = ''.b
+      @collect_type = :gnu
+      @collect_need = padded
+      @collect_buf = ''.b
     else
       return if name.empty?
 
       effective = if @pax_path then @pax_path
-                 elsif @gnu_name then @gnu_name
-                 else
-                   prefix = header.byteslice(345, 155).delete("\x00")
-                   prefix.empty? ? name : "#{prefix}/#{name}"
-                 end
+                  elsif @gnu_name then @gnu_name
+                  else
+                    prefix = header.byteslice(345, 155).delete("\x00")
+                    prefix.empty? ? name : "#{prefix}/#{name}"
+                  end
       @pax_path = nil
       @gnu_name = nil
 
@@ -313,7 +334,7 @@ class TarFilenameCollector
   end
 end
 
-# ── Docker Registry API ────────────────────────────────────────────────────────
+# -- Docker Registry API --------------------------------------------------------
 
 def registry_token(repo)
   resp = http_get("#{AUTH_URL}&scope=repository:#{repo}:pull")
@@ -324,7 +345,7 @@ def registry_get(uri, token)
   Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: 15, read_timeout: 30) do |http|
     req = Net::HTTP::Get.new(uri)
     req['Authorization'] = "Bearer #{token}"
-    req['Accept']        = MANIFEST_ACCEPT
+    req['Accept'] = MANIFEST_ACCEPT
     http.request(req)
   end
 end
@@ -336,7 +357,7 @@ def registry_get_with_retry(uri, token, max_retries: 3)
     resp = registry_get(uri, token)
     return resp unless resp.code == '429'
 
-    wait = [(resp['retry-after'].to_i.nonzero? || 2 ** attempt * 15), 120].min
+    wait = [(resp['retry-after'].to_i.nonzero? || 2**attempt * 15), 120].min
     warn "  [rate limited (429), waiting #{wait}s before retry #{attempt + 1}/#{max_retries}]".yellow
     sleep wait
   end
@@ -347,26 +368,28 @@ end
 # the linux/amd64 platform entry automatically.
 # Returns nil on error, :expired on 401 (token needs refresh).
 def fetch_manifest(repo, tag, token, verbose: false)
-  uri  = URI("#{REGISTRY}/#{repo}/manifests/#{tag}")
+  uri = URI("#{REGISTRY}/#{repo}/manifests/#{tag}")
   resp = registry_get_with_retry(uri, token)
   return :expired if resp.code == '401'
+
   if !resp.is_a?(Net::HTTPSuccess)
     warn "  manifest #{tag}: HTTP #{resp.code}".yellow if verbose
     return nil
   end
 
   manifest = JSON.parse(resp.body)
-  ct       = resp['content-type'].to_s
+  ct = resp['content-type'].to_s
 
-  # Multi-platform manifest list — drill down to linux/amd64
+  # Multi-platform manifest list - drill down to linux/amd64
   if ct.include?('manifest.list') || ct.include?('image.index')
-    entry = manifest.dig('manifests')&.find do |m|
+    entry = manifest['manifests']&.find do |m|
       m.dig('platform', 'os') == 'linux' && m.dig('platform', 'architecture') == 'amd64'
     end
     return nil unless entry
 
     resp = registry_get_with_retry(URI("#{REGISTRY}/#{repo}/manifests/#{entry['digest']}"), token)
     return :expired if resp.code == '401'
+
     if !resp.is_a?(Net::HTTPSuccess)
       warn "  manifest #{tag} (amd64): HTTP #{resp.code}".yellow if verbose
       return nil
@@ -380,7 +403,7 @@ end
 
 # Streams a single gzip-compressed layer blob and scans tar headers for the
 # application-HASH.css filename. Stops the download as soon as the hash is
-# found — no need to consume the full layer.
+# found - no need to consume the full layer.
 #
 # Registry blobs usually redirect (302) to cloud storage (S3/GCS/CDN); the
 # redirect is followed manually so we never send the registry Bearer token to
@@ -392,13 +415,13 @@ def scan_layer(repo, digest, token, mediatype: nil, verbose: false)
   end
   warn "    [scan] #{digest[7, 16]}... (#{mediatype || 'unknown'})".cyan if verbose
 
-  blob_uri     = URI("#{REGISTRY}/#{repo}/blobs/#{digest}")
+  blob_uri = URI("#{REGISTRY}/#{repo}/blobs/#{digest}")
   redirect_uri = nil
-  inline       = nil
+  inline = nil
 
-  # First request: registry endpoint — expect a 302 to cloud storage
+  # First request: registry endpoint - expect a 302 to cloud storage
   Net::HTTP.start(blob_uri.host, blob_uri.port, use_ssl: true,
-                  open_timeout: 15, read_timeout: 30) do |http|
+                                                open_timeout: 15, read_timeout: 30) do |http|
     req = Net::HTTP::Get.new(blob_uri)
     req['Authorization'] = "Bearer #{token}"
     http.request(req) do |resp|
@@ -413,10 +436,10 @@ def scan_layer(repo, digest, token, mediatype: nil, verbose: false)
 
   return inline unless redirect_uri
 
-  # Second request: cloud storage — stream and scan, no auth header
+  # Second request: cloud storage - stream and scan, no auth header
   result = nil
   Net::HTTP.start(redirect_uri.host, redirect_uri.port, use_ssl: true,
-                  open_timeout: 15, read_timeout: 300) do |http|
+                                                        open_timeout: 15, read_timeout: 300) do |http|
     req = Net::HTTP::Get.new(redirect_uri)
     http.request(req) do |resp|
       result = scan_blob_stream(resp) if resp.is_a?(Net::HTTPSuccess)
@@ -434,7 +457,7 @@ end
 def scan_blob_stream(resp)
   return nil unless resp.is_a?(Net::HTTPSuccess)
 
-  scanner  = TarCssScanner.new
+  scanner = TarCssScanner.new
   inflater = Zlib::Inflate.new(Zlib::MAX_WBITS | 16) # gzip mode
 
   begin
@@ -446,21 +469,26 @@ def scan_blob_stream(resp)
     end
     scanner.found
   ensure
-    inflater.close rescue nil
+    begin
+      inflater.close
+    rescue StandardError
+      nil
+    end
   end
 end
 
 # Streams the full layer and collects every filename matching pattern.
 def collect_layer_filenames(repo, digest, token, pattern: /\.css\z/)
-  blob_uri     = URI("#{REGISTRY}/#{repo}/blobs/#{digest}")
+  blob_uri = URI("#{REGISTRY}/#{repo}/blobs/#{digest}")
   redirect_uri = nil
 
   Net::HTTP.start(blob_uri.host, blob_uri.port, use_ssl: true,
-                  open_timeout: 15, read_timeout: 30) do |http|
+                                                open_timeout: 15, read_timeout: 30) do |http|
     req = Net::HTTP::Get.new(blob_uri)
     req['Authorization'] = "Bearer #{token}"
     http.request(req) do |resp|
       return stream_filenames(resp, pattern) if resp.is_a?(Net::HTTPSuccess)
+
       redirect_uri = URI(resp['location']) if resp.is_a?(Net::HTTPRedirection)
     end
   end
@@ -468,7 +496,7 @@ def collect_layer_filenames(repo, digest, token, pattern: /\.css\z/)
   return [] unless redirect_uri
 
   Net::HTTP.start(redirect_uri.host, redirect_uri.port, use_ssl: true,
-                  open_timeout: 15, read_timeout: 300) do |http|
+                                                        open_timeout: 15, read_timeout: 300) do |http|
     req = Net::HTTP::Get.new(redirect_uri)
     http.request(req) do |resp|
       return stream_filenames(resp, pattern) if resp.is_a?(Net::HTTPSuccess)
@@ -482,19 +510,23 @@ end
 
 def stream_filenames(resp, pattern)
   collector = TarFilenameCollector.new(pattern)
-  inflater  = Zlib::Inflate.new(Zlib::MAX_WBITS | 16)
+  inflater = Zlib::Inflate.new(Zlib::MAX_WBITS | 16)
   begin
     resp.read_body { |chunk| collector << inflater.inflate(chunk) }
     collector.filenames
   ensure
-    inflater.close rescue nil
+    begin
+      inflater.close
+    rescue StandardError
+      nil
+    end
   end
 end
 
 # Prints all filenames matching pattern across all layers of repo:tag.
 def sample_tag(repo, tag, pattern: /\.css\z/)
   puts "\nSampling #{repo}:#{tag} for filenames matching #{pattern}...".cyan
-  token    = registry_token(repo)
+  token = registry_token(repo)
   manifest = fetch_manifest(repo, tag, token)
   unless manifest
     warn '  Could not fetch manifest'.red
@@ -508,7 +540,7 @@ def sample_tag(repo, tag, pattern: /\.css\z/)
     next if layer['mediaType']&.include?('zstd')
 
     print "  Layer #{idx + 1}/#{layers.size} #{layer['digest'][7, 16]}... "
-    STDOUT.flush
+    $stdout.flush
     files = collect_layer_filenames(repo, layer['digest'], token, pattern: pattern)
     puts "(#{files.size} match#{files.size == 1 ? '' : 'es'})"
     files.each { |f| puts "    #{f}" }
@@ -519,7 +551,7 @@ end
 # token_box is a single-element array [token] shared across threads; mutex
 # protects refreshes so only one thread re-fetches when the token expires.
 def get_css_hash(repo, tag, token_box, token_mutex, verbose: false)
-  token    = token_mutex.synchronize { token_box[0] }
+  token = token_mutex.synchronize { token_box[0] }
   manifest = fetch_manifest(repo, tag, token, verbose: verbose)
 
   if manifest == :expired
@@ -530,7 +562,7 @@ def get_css_hash(repo, tag, token_box, token_mutex, verbose: false)
         warn "  [token refreshed for #{repo}]".yellow if verbose
       end
     end
-    token    = token_mutex.synchronize { token_box[0] }
+    token = token_mutex.synchronize { token_box[0] }
     manifest = fetch_manifest(repo, tag, token, verbose: verbose)
     return nil if manifest == :expired
   end
@@ -548,7 +580,7 @@ def get_css_hash(repo, tag, token_box, token_mutex, verbose: false)
   nil
 end
 
-# ── JSON file helpers ──────────────────────────────────────────────────────────
+# -- JSON file helpers ----------------------------------------------------------
 
 def load_json_map
   JSON.parse(File.read(JSON_FILE))
@@ -576,17 +608,17 @@ def write_json_map(data)
 end
 
 def update_version_file(new_entries, dry_run:)
-  data    = load_json_map
-  added   = []
+  data = load_json_map
+  added = []
   updated = []
 
   new_entries.each do |e|
     if data.key?(e[:hash])
-      # Hash already known — extend the high end of the range if the new version is higher.
+      # Hash already known - extend the high end of the range if the new version is higher.
       # When semvers are equal but suffixes differ, prefer -ee over -ce.
       existing_high_str = data[e[:hash]][1]
-      existing_high     = parse_semver(existing_high_str)
-      new_high          = parse_semver(e[:high])
+      existing_high = parse_semver(existing_high_str)
+      new_high = parse_semver(e[:high])
       next unless new_high && existing_high
 
       cmp = new_high <=> existing_high
@@ -603,7 +635,7 @@ def update_version_file(new_entries, dry_run:)
   end
 
   if added.empty? && updated.empty?
-    puts 'No new entries to add — already up to date.'.green
+    puts 'No new entries to add - already up to date.'.green
     return
   end
 
@@ -614,16 +646,16 @@ def update_version_file(new_entries, dry_run:)
   end
   unless updated.empty?
     puts "\n#{updated.size} existing entr#{updated.size == 1 ? 'y' : 'ies'} range-extended#{tag}:".cyan
-    updated.each { |e| puts "  #{e[:hash][0, 16]}... high → #{e[:high]}" }
+    updated.each { |e| puts "  #{e[:hash][0, 16]}... high -> #{e[:high]}" }
   end
 
   write_json_map(data) unless dry_run
 end
 
 def process_edition(edition, current_max, opts)
-  repo       = edition[:repo]
-  tag_re     = edition[:tag_re]
-  label      = edition[:label]
+  repo = edition[:repo]
+  tag_re = edition[:tag_re]
+  label = edition[:label]
   version_fn = edition[:version_fn]
 
   puts "\nFetching GitLab #{label} tags from Docker Hub..."
@@ -650,11 +682,11 @@ def process_edition(edition, current_max, opts)
     end
   end
 
-  token_box   = [registry_token(repo)]
+  token_box = [registry_token(repo)]
   token_mutex = Mutex.new
-  lock        = Mutex.new
-  results     = {}
-  work        = Queue.new
+  lock = Mutex.new
+  results = {}
+  work = Queue.new
   candidates.each { |t| work << t }
 
   puts "  Fetching CSS hashes (#{[MAX_CONCURRENT, candidates.size].min} parallel workers)...".cyan
@@ -664,7 +696,7 @@ def process_edition(edition, current_max, opts)
       loop do
         tag = begin; work.pop(true); rescue ThreadError; break; end
         begin
-          ver  = version_fn.call(tag)
+          ver = version_fn.call(tag)
           hash = get_css_hash(repo, tag, token_box, token_mutex, verbose: opts[:verbose])
           lock.synchronize do
             if hash
@@ -674,7 +706,7 @@ def process_edition(edition, current_max, opts)
             end
             results[tag] = [ver, hash] if hash
           end
-        rescue => e
+        rescue StandardError => e
           lock.synchronize { warn "  #{tag} ... #{e.class}: #{e.message}".red }
         end
       end
@@ -687,7 +719,7 @@ def process_edition(edition, current_max, opts)
   collapse_ranges(ordered)
 end
 
-# ── CLI ───────────────────────────────────────────────────────────────────────
+# -- CLI -----------------------------------------------------------------------
 
 options = { dry_run: false, verbose: false, sample: nil }
 
@@ -718,7 +750,7 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-# ── sample mode ───────────────────────────────────────────────────────────────
+# -- sample mode ---------------------------------------------------------------
 
 if options[:sample]
   repo, tag = options[:sample].split(':', 2)
@@ -727,9 +759,9 @@ if options[:sample]
   exit
 end
 
-# ── main ──────────────────────────────────────────────────────────────────────
+# -- main ----------------------------------------------------------------------
 
-data        = load_json_map
+data = load_json_map
 current_max = max_version_in_map(data)
 abort 'Could not determine current max version from version.json'.red unless current_max
 
