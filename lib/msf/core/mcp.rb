@@ -33,6 +33,7 @@ require_relative 'mcp/logging/sinks/json_stream'
 require_relative 'mcp/logging/sinks/json_flatfile'
 require_relative 'mcp/logging/sinks/sanitizing'
 require_relative 'mcp/middleware/request_logger'
+require_relative 'mcp/middleware/bearer_auth'
 
 # Error classes
 require_relative 'mcp/errors'

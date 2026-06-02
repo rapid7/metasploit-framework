@@ -2,6 +2,7 @@
 
 require 'msf/core/mcp'
 require 'optparse'
+require 'securerandom'
 
 module Msf::MCP
   # Main application class that orchestrates the MCP server startup and lifecycle
@@ -280,19 +281,59 @@ module Msf::MCP
       port = @config.dig(:mcp, :port) || 3000
 
       if transport == :http
+        @output.puts "Starting MCP server on HTTP transport..."
+        @output.puts "Server listening on http://#{Rex::Socket.to_authority(host, port)}/"
+        auth_token = resolve_auth_token
+        case auth_token
+        when :disabled
+          @output.puts "Authentication: disabled"
+          auth_token = nil
+        when :enabled
+          @output.puts "Authentication: enabled"
+          auth_token = @config.dig(:mcp, :auth_token)
+        when :generated
+          auth_token = SecureRandom.hex(32)
+          @output.puts "Authentication: Bearer token (auto-generated)"
+          @output.puts "  Token: #{auth_token}"
+          @output.puts "  Configure your MCP client with: Authorization: Bearer #{auth_token}"
+        else
+          raise RuntimeError, 'auth_token did not resolve to a supported value.'
+        end
+        @output.puts "Press Ctrl+C to shutdown"
+
         min_threads = @config.dig(:mcp, :min_threads) || Msf::MCP::Server::PUMA_MIN_THREADS
         max_threads = @config.dig(:mcp, :max_threads) || Msf::MCP::Server::PUMA_MAX_THREADS
         workers = @config.dig(:mcp, :workers) || Msf::MCP::Server::PUMA_WORKERS
 
-        @output.puts "Starting MCP server on HTTP transport..."
-        @output.puts "Server listening on http://#{host}:#{port}"
-        @output.puts "Press Ctrl+C to shutdown"
-        @mcp_server.start(transport: :http, host: host, port: port, min_threads: min_threads, max_threads: max_threads, workers: workers)
+        @mcp_server.start(
+          transport: :http,
+          host: host,
+          port: port,
+          auth_token: auth_token,
+          min_threads: min_threads,
+          max_threads: max_threads,
+          workers: workers
+        )
       else
         @output.puts "Starting MCP server on stdio transport..."
         @output.puts "Server ready - waiting for MCP requests"
         @output.puts "Press Ctrl+C to shutdown"
         @mcp_server.start(transport: :stdio)
+      end
+    end
+
+    # Determine the auth token state for the HTTP transport startup message.
+    #
+    # Returns one of three values:
+    #   :disabled  -- explicitly set to nil/empty; authentication is off
+    #   :enabled   -- set via config file or env var; caller should fetch from config
+    #   :generated -- not configured; caller should generate and display a token
+    #
+    def resolve_auth_token
+      if @config[:mcp].key?(:auth_token)
+        @config[:mcp][:auth_token] ? :enabled : :disabled
+      else
+        :generated
       end
     end
 

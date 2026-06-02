@@ -72,12 +72,12 @@ module Msf::MCP
     # @return [MCP::Server] The MCP server instance (for testing purposes)
     # @raise [ArgumentError] If an unknown transport is specified
     #
-    def start(transport: :stdio, host: 'localhost', port: 3000, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
+    def start(transport: :stdio, host: 'localhost', port: 3000, auth_token: nil, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
       case transport
       when :stdio
         start_stdio
       when :http
-        start_http(host, port, min_threads: min_threads, max_threads: max_threads, workers: workers)
+        start_http(host, port, auth_token, min_threads: min_threads, max_threads: max_threads, workers: workers)
       else
         raise ArgumentError, "Unknown transport: #{transport}. Use :stdio or :http"
       end
@@ -120,13 +120,14 @@ module Msf::MCP
     #
     # @param host [String] Host address to bind to
     # @param port [Integer] Port to listen on
+    # @param auth_token [String] An authentication token to require
     # @param min_threads [Integer] Minimum number of Puma threads
     # @param max_threads [Integer] Maximum number of Puma threads
     # @param workers [Integer] Number of Puma worker processes
     #
     # @return [MCP::Server] The MCP server instance (for testing purposes)
     #
-    def start_http(host, port, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
+    def start_http(host, port, auth_token, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
       require 'rack'
       require 'puma'
       require 'puma/configuration'
@@ -139,6 +140,7 @@ module Msf::MCP
       # The transport itself is a Rack app (implements #call).
       rack_app = Rack::Builder.new do
         use Msf::MCP::Middleware::RequestLogger
+        use Msf::MCP::Middleware::BearerAuth, auth_token: auth_token if auth_token
         run transport
       end
 
