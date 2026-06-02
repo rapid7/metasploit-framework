@@ -118,7 +118,7 @@ module Msf::MCP
       # The transport itself is a Rack app (implements #call).
       rack_app = Rack::Builder.new do
         use Msf::MCP::Middleware::RequestLogger
-        use Msf::MCP::Middleware::BearerAuth, auth_token: auth_token if auth_token
+        use Msf::MCP::Middleware::BearerAuth, auth_token: auth_token.to_s if auth_token && !auth_token.to_s.empty?
         run transport
       end
 
