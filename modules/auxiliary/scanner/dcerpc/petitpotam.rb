@@ -72,7 +72,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('LISTENER', [ true, 'The host listening for the incoming connection', Rex::Socket.source_address ]),
         OptEnum.new('PIPE', [ true, 'The named pipe to use for triggering', 'lsarpc', PIPE_HANDLES.keys.map(&:to_s) ]),
-        OptEnum.new('METHOD', [ true, 'The RPC method to use for triggering', 'Automatic', ['Automatic'] + METHODS ])
+        OptEnum.new('METHOD', [ true, 'The RPC method to use for triggering', 'Automatic', ['Automatic'] + METHODS ]),
+        OptInt.new('SMB::Comm', [ false, 'The session ID of a Meterpreter session to route through' ])
       ]
     )
   end
