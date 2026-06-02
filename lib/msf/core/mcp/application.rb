@@ -294,7 +294,6 @@ module Msf::MCP
         when :generated
           auth_token = SecureRandom.hex(32)
           @output.puts "Authentication: Bearer token (auto-generated)"
-          @output.puts "  Token: #{auth_token}"
           @output.puts "  Configure your MCP client with: Authorization: Bearer #{auth_token}"
         else
           raise RuntimeError, 'auth_token did not resolve to a supported value.'
