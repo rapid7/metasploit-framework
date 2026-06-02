@@ -492,13 +492,20 @@ class ReadableText
   def self.dump_payload_module(mod, indent = '')
     # General
     output  = "\n"
-    output << "       Name: #{mod.name}\n"
-    output << "     Module: #{mod.fullname}\n"
-    output << "   Platform: #{mod.platform_to_s}\n"
-    output << "       Arch: #{mod.arch_to_s}\n"
-    output << "Needs Admin: " + (mod.privileged? ? "Yes" : "No") + "\n"
-    output << " Total size: #{mod.size}\n"
-    output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "             Name: #{mod.name}\n"
+    output << "           Module: #{mod.fullname}\n"
+    output << "         Platform: #{mod.platform_to_s}\n"
+    output << "             Arch: #{mod.arch_to_s}\n"
+    output << "      Needs Admin: " + (mod.privileged? ? "Yes" : "No") + "\n"
+    output << "       Total size: #{mod.size}\n"
+    output << "             Rank: #{mod.rank_to_s.capitalize}\n"
+
+    required_versions = mod.instance_variable_get(:@module_info)['MinimumVersions']
+    if required_versions && required_versions.any?
+      output << "Required Versions:\n"
+      # No access to a friendly version name here
+      required_versions.map { |k, v| output << "  #{k}: #{v}\n" }
+    end
     output << "\n"
 
     # Authors

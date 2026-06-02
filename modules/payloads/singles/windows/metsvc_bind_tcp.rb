@@ -22,6 +22,7 @@ module MetasploitModule
         'Arch' => ARCH_X86,
         'Handler' => Msf::Handler::BindTcp,
         'Session' => Msf::Sessions::Meterpreter_x86_Win,
+        'MinimumVersions' => { 'Windows' => Msf::Payload::Windows::MeterpreterVersion::MINIMUM_VERSION },
         'Payload' => {
           'Offsets' => {},
           'Payload' => ''

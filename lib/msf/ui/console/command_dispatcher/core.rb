@@ -2226,11 +2226,30 @@ class Core
     # Set PAYLOAD from TARGET
     if name.upcase == 'TARGET' && active_module && (active_module.exploit? || active_module.evasion?)
       active_module.import_target_defaults
+
+      # Warn if the currently configured payload is incompatible with the new target
+      current_payload = datastore['PAYLOAD']
+      if current_payload
+        payload_instance = framework.payloads.create(current_payload)
+        if payload_instance
+          warnings = active_module.version_compatibility_warnings(payload_instance)
+          warnings.each { |w| print_warning(w) }
+        end
+      end
     end
 
     # If the new SSL value already set in datastore[name] is different from the old value, warn the user
     if name.casecmp('SSL') == 0 && datastore[name] != old_value
       print_warning("Changing the SSL option's value may require changing RPORT!")
+    end
+
+    # Warn if payload version requirements may not be met by the current target
+    if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?) && !clear
+      payload_instance = framework.payloads.create(value)
+      if payload_instance
+        warnings = active_module.version_compatibility_warnings(payload_instance)
+        warnings.each { |w| print_warning(w) }
+      end
     end
 
     if name.casecmp?('SessionTlvLogging')
