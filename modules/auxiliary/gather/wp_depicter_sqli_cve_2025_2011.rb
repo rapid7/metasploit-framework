@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['CVE', '2025-2011'],
+          ['EDB', '52285'],
           ['WPVDB', '6f894272-3eb6-4595-ae00-1c4b0c0b6564'],
           ['URL', 'https://cloud.projectdiscovery.io/library/CVE-2025-2011'],
           ['URL', 'https://plugins.trac.wordpress.org/browser/depicter/trunk/app/src/Controllers/Ajax/LeadsAjaxController.php?rev=3156664#L179']

@@ -21,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2024-20419'],
+          ['EDB', '52155'],
           ['URL', 'https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-cssm-auth-sLw3uhUy#vp'],
           ['URL', 'https://www.0xpolar.com/blog/CVE-2024-20419']
         ],

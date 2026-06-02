@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['CVE', '2024-20767'],
+          ['EDB', '52387'],
           ['URL', 'https://helpx.adobe.com/security/products/coldfusion/apsb24-14.html'],
           ['URL', 'https://jeva.cc/2973.html'],
 
