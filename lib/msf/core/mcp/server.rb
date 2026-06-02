@@ -64,12 +64,12 @@ module Msf::MCP
     # @return [MCP::Server] The MCP server instance (for testing purposes)
     # @raise [ArgumentError] If an unknown transport is specified
     #
-    def start(transport: :stdio, host: 'localhost', port: 3000)
+    def start(transport: :stdio, host: 'localhost', port: 3000, auth_token: nil)
       case transport
       when :stdio
         start_stdio
       when :http
-        start_http(host, port)
+        start_http(host, port, auth_token)
       else
         raise ArgumentError, "Unknown transport: #{transport}. Use :stdio or :http"
       end
@@ -108,7 +108,7 @@ module Msf::MCP
     #
     # @return [MCP::Server] The MCP server instance (for testing purposes)
     #
-    def start_http(host, port)
+    def start_http(host, port, auth_token)
       require 'rackup'
       require 'rack/handler/puma'
 
@@ -118,6 +118,7 @@ module Msf::MCP
       # The transport itself is a Rack app (implements #call).
       rack_app = Rack::Builder.new do
         use Msf::MCP::Middleware::RequestLogger
+        use Msf::MCP::Middleware::BearerAuth, auth_token: auth_token if auth_token
         run transport
       end
 
