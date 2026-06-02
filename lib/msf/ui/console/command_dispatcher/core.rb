@@ -1562,6 +1562,11 @@ class Core
         print_error('Please specify valid session identifier(s)')
         return false
       end
+      # Resolve any negative session ids (e.g. -1 = most recent) to
+      # concrete ids. Unresolvable negatives fall through unchanged so
+      # the existing "Invalid session identifier" error path fires with
+      # a meaningful value.
+      session_list = session_list.map { |id| resolve_session_id(id) || id }
     end
 
     if show_inactive && !framework.db.active
@@ -2797,6 +2802,7 @@ class Core
   # @return [false] if the given session_id is valid, but not interactive
   # @return [nil] if the given session_id is not valid at all
   def verify_session(session_id, quiet = false)
+    session_id = resolve_session_id(session_id)
     session = framework.sessions.get(session_id)
     if session
       if session.interactive?
@@ -2809,6 +2815,24 @@ class Core
       print_error("Invalid session identifier: #{session_id}") unless quiet
       nil
     end
+  end
+
+  #
+  # Resolve a session id of -1 to the most recently opened session id.
+  #
+  # Only -1 is special; other negative ids are passed through unchanged
+  # so the existing "Invalid session identifier" error path fires with
+  # a meaningful value.
+  #
+  # @param session_id [Integer, String, nil] The id to resolve.
+  # @return [Integer, String, nil] The most recent session id if input
+  #   was -1, the input unchanged for any other value, or nil when no
+  #   sessions are active.
+  #
+  def resolve_session_id(session_id)
+    return session_id if session_id.nil?
+    return session_id unless session_id.to_i == -1
+    framework.sessions.keys.sort.last
   end
 
   #

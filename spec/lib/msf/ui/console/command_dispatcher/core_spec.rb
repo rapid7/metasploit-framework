@@ -780,4 +780,64 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
       end
     end
   end
+
+  describe '#resolve_session_id' do
+    before(:each) do
+      allow(framework).to receive(:sessions).and_return(sessions)
+    end
+
+    context 'with no active sessions' do
+      let(:sessions) { {} }
+
+      it 'returns positive ids unchanged' do
+        expect(core.send(:resolve_session_id, 1)).to eq(1)
+      end
+
+      it 'returns nil for -1 since there is no session to resolve to' do
+        expect(core.send(:resolve_session_id, -1)).to be_nil
+      end
+
+      it 'returns nil for nil input' do
+        expect(core.send(:resolve_session_id, nil)).to be_nil
+      end
+    end
+
+    context 'with multiple active sessions' do
+      let(:sessions) do
+        {
+          1 => double('session1'),
+          2 => double('session2'),
+          5 => double('session5')
+        }
+      end
+
+      it 'returns positive ids unchanged' do
+        expect(core.send(:resolve_session_id, 2)).to eq(2)
+      end
+
+      it 'returns non-existent positive ids unchanged so the downstream error path fires' do
+        expect(core.send(:resolve_session_id, 99)).to eq(99)
+      end
+
+      it 'resolves -1 to the highest (most recent) session id' do
+        expect(core.send(:resolve_session_id, -1)).to eq(5)
+      end
+
+      it 'accepts the string "-1"' do
+        expect(core.send(:resolve_session_id, '-1')).to eq(5)
+      end
+
+      it 'returns -2 unchanged so the downstream error path fires' do
+        expect(core.send(:resolve_session_id, -2)).to eq(-2)
+      end
+
+      it 'returns other negative ids unchanged so the downstream error path fires' do
+        expect(core.send(:resolve_session_id, -99)).to eq(-99)
+      end
+
+      it 'returns nil for nil input' do
+        expect(core.send(:resolve_session_id, nil)).to be_nil
+      end
+    end
+  end
 end
