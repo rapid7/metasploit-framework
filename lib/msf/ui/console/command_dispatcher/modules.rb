@@ -923,9 +923,19 @@ module Msf
             # Choose a default payload when the module is used, not run
             if mod.datastore['PAYLOAD']
               print_status("Using configured payload #{mod.datastore['PAYLOAD']}")
+              pints = framework.payloads.create(mod.datastore['PAYLOAD'])
+              if pints
+                mod.version_compatibility_warnings(pints).each { |w| print_warning(w) }
+              end
             elsif dispatcher.respond_to?(:choose_payload)
               chosen_payload = dispatcher.choose_payload(mod)
-              print_status("No payload configured, defaulting to #{chosen_payload}") if chosen_payload
+              if chosen_payload
+                print_status("No payload configured, defaulting to #{chosen_payload}")
+                pinst = framework.payloads.create(chosen_payload)
+                if pinst
+                  mod.version_compatibility_warnings(pinst).each { |w| print_warning(w) }
+                end
+              end
             end
 
             if framework.features.enabled?(Msf::FeatureManager::DISPLAY_MODULE_ACTION) && mod.respond_to?(:actions) && mod.actions.size > 1
@@ -1762,7 +1772,12 @@ module Msf
                 next unless mod
 
                 count += 1
-                tbl << add_record(mod, count, true)
+                version_warning = nil
+                if active_module
+                  warnings = active_module.version_compatibility_warnings(mod)
+                  version_warning = warnings.first unless warnings.empty?
+                end
+                tbl << add_record(mod, count, true, version_warning: version_warning)
               end
             else
               results = Msf::Modules::Metadata::Cache.instance.find(
@@ -1781,22 +1796,27 @@ module Msf
           # @param [count] passes the count for each record
           # @param [compatible_mod] handles logic for if there is an active module when the
           # `show` command is run
+          # @param [version_warning] optional version compatibility warning string
           #
           # Adds a record for a table, also handle logic for whether the module is currently
           # handling compatible payloads/encoders
-          def add_record(mod, count, compatible_mod)
+          def add_record(mod, count, compatible_mod, version_warning: nil)
             if compatible_mod
               check = mod.has_check? ? 'Yes' : 'No'
             else
               check = mod.check ? 'Yes' : 'No'
             end
+
+            description = mod.name
+            description = "#{description} [!] #{version_warning}" if version_warning
+
             [
               count,
               mod.fullname,
               mod.disclosure_date.nil? ? '' : mod.disclosure_date.strftime('%Y-%m-%d'),
               mod.rank,
               check,
-              mod.name
+              description
             ]
           end
 

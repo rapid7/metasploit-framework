@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-
 module Msf
 
 ###
@@ -26,7 +25,12 @@ module Payload::Windows::MeterpreterLoader
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
       'PayloadCompat' => { 'Convention' => 'sockedi handleedi -https', },
-      'Stage'         => { 'Payload'   => "" }
+      'Stage'         => { 'Payload'   => "" },
+      'SupportedVersions' => {
+        'Windows' => [
+          Module::VersionRange.new(min: Msf::Payload::Windows::MeterpreterVersion::MINIMUM_VERSION)
+        ]
+      }
       ))
   end
 
