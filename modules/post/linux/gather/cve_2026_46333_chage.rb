@@ -75,19 +75,19 @@ class MetasploitModule < Msf::Post
     vprint_status("Detected kernel version: #{version}")
 
     unless command_exists?('gcc')
-      return Exploit::CheckCode::Safe(
+      return Exploit::CheckCode::Unknown(
         'gcc is missing; exploit cannot compile'
       )
     end
 
     unless file?('/usr/bin/chage')
-      return Exploit::CheckCode::Safe(
+      return Exploit::CheckCode::Unknown(
         'chage target binary not present'
       )
     end
 
     unless setuid?('/usr/bin/chage') || stat('/usr/bin/chage').setgid?
-      return Exploit::CheckCode::Safe(
+      return Exploit::CheckCode::Unknown(
         'chage does not appear to have SGID/SUID permissions'
       )
     end
