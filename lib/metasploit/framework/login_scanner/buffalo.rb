@@ -13,6 +13,26 @@ module Metasploit
         DEFAULT_PORT    = 80
         PRIVATE_TYPES   = [ :password ]
 
+        # Checks if the target is a Buffalo NAS device.
+        # Note: probes / for the fingerprint page rather than the login endpoint
+        # (/dynamic.pl) since that only responds meaningfully to POST requests.
+        #
+        # @return [false] if the target looks like a Buffalo NAS
+        # @return [String] a human-readable error message if it doesn't
+        def check_setup
+          res = send_request({
+            'method' => 'GET',
+            'uri'    => '/'
+          })
+
+          return 'Unable to connect to the Buffalo NAS web interface' unless res
+          return 'Unable to locate Buffalo NAS web interface (Is this really a Buffalo NAS?)' unless res.code == 200 && (res.body.include?('Buffalo') && res.body.include?('bufaction'))
+
+          report_service(service_opts)
+
+          false
+        end
+
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           self.uri = "/dynamic.pl" if self.uri.nil?
@@ -52,7 +72,7 @@ module Metasploit
         end
 
         def service_opts
-          build_service_opts('buffalo')
+          build_service_opts('buffalo-nas')
         end
       end
     end

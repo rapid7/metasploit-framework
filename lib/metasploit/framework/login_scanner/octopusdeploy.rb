@@ -13,6 +13,28 @@ module Metasploit
         DEFAULT_PORT    = 80
         PRIVATE_TYPES   = [ :password ]
 
+        # Checks if the target is an Octopus Deploy server
+        #
+        # @return [false] if the target looks like Octopus Deploy
+        # @return [String] a human-readable error message if it doesn't
+        def check_setup
+          res = send_request({
+            'method' => 'GET',
+            'uri'    => '/api'
+          })
+
+          return 'Unable to connect to the Octopus Deploy API' unless res
+          return 'Unable to locate Octopus Deploy API (Is this really Octopus Deploy?)' unless res.code == 200 && res.body.include?('OctopusDeploy')
+
+          report_service(service_opts)
+
+          false
+        end
+
+        def service_opts
+          build_service_opts('octopusdeploy')
+        end
+
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           uri = '/api/users/login' if uri.nil?

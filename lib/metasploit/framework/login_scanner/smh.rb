@@ -12,6 +12,27 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         CAN_GET_SESSION = true
 
+        # Checks if the target is HP System Management Homepage
+        #
+        # @return [false] if the target looks like HP SMH
+        # @return [String] a human-readable error message if it doesn't
+        def check_setup
+          res = send_request({
+            'method' => 'GET',
+            'uri'    => normalize_uri('/cpqlogin.htm')
+          })
+
+          return 'Unable to connect to the HP System Management Homepage login page' unless res
+          return 'Unable to locate HP System Management Homepage login page (Is this really HP SMH?)' unless res.code == 200 && res.body.include?('HP System Management Homepage')
+
+          report_service(service_opts)
+
+          false
+        end
+
+        def service_opts
+          build_service_opts('hp-smh')
+        end
 
         # (see Base#attempt_login)
         def attempt_login(credential)

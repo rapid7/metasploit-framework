@@ -94,6 +94,13 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     scanner = Metasploit::Framework::LoginScanner::OPNSense.new(scanner_opts)
+
+    msg = scanner.check_setup
+    if msg
+      print_error("#{peer} - #{msg}")
+      return
+    end
+
     run_scanner(scanner)
   end
 end

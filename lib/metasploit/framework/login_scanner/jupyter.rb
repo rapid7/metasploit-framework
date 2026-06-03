@@ -12,6 +12,28 @@ module Metasploit
         DEFAULT_PORT    = 8888
         PRIVATE_TYPES   = [ :password ]
 
+        # Checks if the target is a Jupyter instance
+        #
+        # @return [false] if the target looks like Jupyter
+        # @return [String] a human-readable error message if it doesn't
+        def check_setup
+          res = send_request({
+            'method' => 'GET',
+            'uri'    => normalize_uri(uri)
+          })
+
+          return 'Unable to connect to the Jupyter login page' unless res
+          return 'Unable to locate Jupyter login page (Is this really Jupyter?)' unless res.code == 200 && res.body.include?('jupyter') && res.body.include?('password')
+
+          report_service(service_opts)
+
+          false
+        end
+
+        def service_opts
+          build_service_opts('jupyter')
+        end
+
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           self.uri = '/login' if self.uri.nil?
