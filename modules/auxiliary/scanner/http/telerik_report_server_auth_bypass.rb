@@ -24,8 +24,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
-          [ 'CVE', '2024-4358' ],
-          ['EDB', '52103'], # Authentication bypass # patched in > 10.0.24.305
+          [ 'CVE', '2024-4358' ], # Authentication bypass patched in > 10.0.24.305
+          [ 'EDB', '52103' ],
           [ 'URL', 'https://summoning.team/blog/progress-report-server-rce-cve-2024-4358-cve-2024-1800/' ]
         ],
         'DefaultOptions' => {
