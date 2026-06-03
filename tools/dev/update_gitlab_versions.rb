@@ -24,7 +24,7 @@ require 'zlib'
 
 # -- paths / constants ---------------------------------------------------------
 
-JSON_FILE = File.expand_path('../../lib/msf/core/exploit/remote/http/gitlab/version.json', __dir__)
+JSON_FILE = File.expand_path('../../data/gitlab_versions.json', __dir__)
 REGISTRY = 'https://registry-1.docker.io/v2'.freeze
 AUTH_URL = 'https://auth.docker.io/token?service=registry.docker.io'.freeze
 MAX_CONCURRENT = 4
