@@ -43,7 +43,6 @@ class DataStore
 
     # values explicitly defined, which take precedence over default values
     @user_defined = Hash.new
-    @deregistered_options = []
   end
 
   # @return [Hash{String => Msf::OptBase}] The options associated with this datastore. Used for validating values/defaults/etc
@@ -135,7 +134,6 @@ class DataStore
     @user_defined.delete(k)
     @aliases.delete_if { |_, v| v.casecmp?(k) }
     @options.delete_if { |option_name, _v| option_name.casecmp?(k) || option_name.casecmp?(name) }
-    @deregistered_options << k.downcase  
     nil
   end
 
@@ -447,7 +445,7 @@ class DataStore
   # @return [DataStoreSearchResult]
   def search_for(key)
     k = find_key_case(key)
-    if @deregistered_options.include?(k.downcase)
+    unless @options.any? { |option_name, _| option_name.casecmp?(k) }
       return search_result(:not_found, nil)
     end
     return search_result(:user_defined, @user_defined[k]) if @user_defined.key?(k)
