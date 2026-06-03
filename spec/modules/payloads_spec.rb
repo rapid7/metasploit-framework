@@ -6100,7 +6100,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/multi/meterpreter_reverse_tcp'
                           ],
-                          modules_pathname: modules_pathname,
                           reference_name: 'linux/multi/meterpreter_reverse_tcp'
   end
 

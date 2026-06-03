@@ -27,7 +27,7 @@ module MetasploitModule
     445 # UNC paths for SMB services *must* be 445
   end
 
-  def generate_fetch_commands(_uri = srvuri, _dynamic_arch = false)
+  def generate_fetch_commands(_uri: srvuri, _dynamic_arch: false)
     "rundll32 #{unc},0"
   end
 

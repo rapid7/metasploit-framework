@@ -123,7 +123,7 @@ module Msf::Payload::Adapter::Fetch
         add_srv_entry(srvuri, generate_payload_exe(opts), opts)
       end
 
-      cmd = generate_fetch_commands(srvuri, opts[:dynamic_arch])
+      cmd = generate_fetch_commands(uri: srvuri, dynamic_arch: opts[:dynamic_arch])
       if datastore['FETCH_PIPE']
         unless pipe_supported_binaries.include?(datastore['FETCH_COMMAND'].upcase)
           fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be one of #{pipe_supported_binaries}.")
@@ -142,7 +142,7 @@ module Msf::Payload::Adapter::Fetch
   # Dispatches command generation to the selected FETCH_COMMAND helper.
   #
   # @return [String] The generated fetch-and-execute command.
-  def generate_fetch_commands(uri = srvuri, dynamic_arch = false)
+  def generate_fetch_commands(uri: srvuri, dynamic_arch: false)
     case datastore['FETCH_COMMAND'].upcase
     when 'FTP'
       return _generate_ftp_command(uri)
