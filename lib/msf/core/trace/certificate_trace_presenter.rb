@@ -38,6 +38,25 @@ module Msf
         '1.3.6.1.4.1.311.25.2' => 'AD DS Security Extension (SID)'
       }.freeze
 
+      # Standard PKIX extensions OpenSSL renders as clean, human-readable text.
+      # For any other extension - notably the Microsoft AD CS enrollment OIDs -
+      # OpenSSL emits a lossy byte dump (raw bytes on OpenSSL, non-printables
+      # collapsed to '.' on LibreSSL), so we hex-encode the raw extnValue
+      # instead of printing mojibake. Matched against the short name OpenSSL
+      # reports for recognised OIDs.
+      OPENSSL_READABLE_EXTENSIONS = %w[
+        basicConstraints
+        authorityKeyIdentifier
+        subjectKeyIdentifier
+        crlDistributionPoints
+        authorityInfoAccess
+        certificatePolicies
+        issuerAltName
+        nameConstraints
+        nsComment
+        nsCertType
+      ].freeze
+
       # Priority order for resolving a single auth identity from the cert.
       # UPN is the primary AD identity; email and CN are fallbacks.
       IDENTITY_SOURCES = [
@@ -172,12 +191,13 @@ module Msf
 
       # Render an extension value as human-readable text.
       #
-      # OpenSSL formats the standard extensions (subjectKeyIdentifier,
-      # crlDistributionPoints, etc.) well, but for OIDs it does not understand -
+      # OpenSSL formats the standard PKIX extensions (subjectKeyIdentifier,
+      # crlDistributionPoints, etc.) well, but for OIDs it cannot decode -
       # notably the Microsoft AD CS enrollment extensions - Extension#value
-      # returns raw bytes with non-printables collapsed to '.', surfacing as
-      # mojibake such as "...U.s.e.r". Decode the MS template extensions we
-      # recognise; otherwise defer to OpenSSL's own rendering.
+      # returns a lossy byte dump that surfaces as mojibake such as "...U.s.e.r".
+      # Decode the MS template extensions we recognise; defer to OpenSSL for the
+      # standard extensions it renders cleanly; hex-encode everything else so the
+      # raw bytes stay unambiguous and copy-pasteable.
       #
       # @param ext [OpenSSL::X509::Extension]
       # @return [String]
@@ -185,14 +205,17 @@ module Msf
         case normalize_oid(ext.oid)
         when CERT_TEMPLATE_NAME_OID
           asn1 = inner_extension_asn1(ext)
-          asn1 ? clean_text(asn1.value) : ext.value
+          return clean_text(asn1.value) if asn1
         when CERT_TEMPLATE_INFO_OID
-          format_template_information(ext)
-        else
-          ext.value
+          decoded = format_template_information(ext)
+          return decoded if decoded
         end
+
+        return ext.value if OPENSSL_READABLE_EXTENSIONS.include?(ext.oid)
+
+        hex_encode(raw_extension_bytes(ext) || ext.value)
       rescue StandardError
-        ext.value
+        hex_encode(raw_extension_bytes(ext) || ext.value)
       end
 
       # Resolve an extension OID to its dotted numeric form. OpenSSL may surface
@@ -227,15 +250,34 @@ module Msf
       # SEQUENCE { templateID OID, majorVersion INTEGER, minorVersion INTEGER OPTIONAL }.
       #
       # @param ext [OpenSSL::X509::Extension]
-      # @return [String]
+      # @return [String, nil] nil if the extension could not be decoded
       def format_template_information(ext)
         asn1 = inner_extension_asn1(ext)
-        return ext.value unless asn1.respond_to?(:value) && asn1.value.is_a?(Array)
+        return nil unless asn1.respond_to?(:value) && asn1.value.is_a?(Array)
 
         oid, major, minor = asn1.value.map { |v| v&.value }
         out = "Template #{oid}"
         out += " (v#{major}#{minor ? ".#{minor}" : ''})" if major
         out
+      end
+
+      # Extract the raw extnValue octets carried inside an extension. Extension#to_der
+      # wraps the value in an OCTET STRING; return those inner bytes so they can be
+      # hex-encoded rather than dumped through OpenSSL's lossy string rendering.
+      #
+      # @param ext [OpenSSL::X509::Extension]
+      # @return [String, nil]
+      def raw_extension_bytes(ext)
+        seq = OpenSSL::ASN1.decode(ext.to_der)
+        seq.value.find { |v| v.is_a?(OpenSSL::ASN1::OctetString) }&.value
+      rescue OpenSSL::ASN1::ASN1Error
+        nil
+      end
+
+      # @param str [String]
+      # @return [String] uppercase colon-separated hex (e.g. "30:0C:06:0A")
+      def hex_encode(str)
+        str.to_s.b.unpack1('H*').upcase.scan(/../).join(':')
       end
 
       # Normalise a decoded ASN.1 string value to clean UTF-8. BMPString content

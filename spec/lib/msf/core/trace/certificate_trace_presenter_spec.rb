@@ -341,7 +341,34 @@ RSpec.describe Msf::Trace::CertificateTracePresenter do
         expect(subject).to include('1.3.6.1.4.1.99999.1')
       end
 
-      it 'defers to OpenSSL and does not emit non-printable bytes in the extensions block' do
+      it 'hex-encodes the raw bytes instead of emitting mojibake' do
+        expect(subject).to include('00:01:02:FF')
+      end
+
+      it 'does not emit non-printable bytes in the extensions block' do
+        ext_lines = subject.lines.select { |l| l.start_with?('    ') }.join
+        expect(ext_lines).not_to match(/[^[:print:]\t]/)
+      end
+    end
+
+    context 'with a labeled Microsoft enrollment extension OpenSSL cannot decode' do
+      # Application Policies (1.3.6.1.4.1.311.21.10): OpenSSL knows the OID name
+      # but renders its structured content as a lossy byte dump.
+      subject do
+        content = OpenSSL::ASN1::Sequence.new(
+          [OpenSSL::ASN1::Sequence.new([OpenSSL::ASN1::ObjectId.new('1.3.6.1.5.5.7.3.2')])]
+        ).to_der
+        described_class.new(cert_with_raw_extension('1.3.6.1.4.1.311.21.10', content)).to_s_full
+      end
+
+      it 'hex-encodes the raw extnValue' do
+        expected_hex = OpenSSL::ASN1::Sequence.new(
+          [OpenSSL::ASN1::Sequence.new([OpenSSL::ASN1::ObjectId.new('1.3.6.1.5.5.7.3.2')])]
+        ).to_der.b.unpack1('H*').upcase.scan(/../).join(':')
+        expect(subject).to include(expected_hex)
+      end
+
+      it 'does not emit non-printable bytes in the extensions block' do
         ext_lines = subject.lines.select { |l| l.start_with?('    ') }.join
         expect(ext_lines).not_to match(/[^[:print:]\t]/)
       end
