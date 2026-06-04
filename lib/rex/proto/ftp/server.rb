@@ -18,80 +18,90 @@ module Rex
         end
 
         def alias
-          @alias || "FTP Server"
+          @alias || 'FTP Server'
         end
 
         def initialize(port = 21, host = '0.0.0.0', context = {})
-          @port = port
-          @host = host
-          @context = context
-          @files = {}
-          @serve_once = {}
-          @files_mutex = Mutex.new
-          @shutting_down = false
-          @server_sock = nil
-          @monitor_thread = nil
+          self.listen_port = port
+          self.listen_host = host
+          self.context = context
+          self.files = {}
+          self.serve_once = {}
+          self.files_mutex = Mutex.new
+          self.shutting_down = false
+          self.listener = nil
+          self.monitor_thread = nil
         end
 
-        def register_file(filename, data, serve_once = true)
-          @files_mutex.synchronize do
-            @files[filename] = data
-            @serve_once[filename] = serve_once
+        def register_file(filename, data, serve_once: true)
+          files_mutex.synchronize do
+            files[filename] = data
+            self.serve_once[filename] = serve_once
           end
         end
 
         def deregister_file(filename)
-          @files_mutex.synchronize do
-            @files.delete(filename)
-            @serve_once.delete(filename)
+          files_mutex.synchronize do
+            files.delete(filename)
+            serve_once.delete(filename)
           end
         end
 
         def start
-          @server_sock = Rex::Socket::TcpServer.create(
-            'LocalHost' => @host,
-            'LocalPort' => @port,
-            'Context'   => @context
+          self.listener = Rex::Socket::TcpServer.create(
+            'LocalHost' => listen_host,
+            'LocalPort' => listen_port,
+            'Context' => context
           )
-          @monitor_thread = Rex::ThreadFactory.spawn('FTPServerMonitor', false) do
+          self.monitor_thread = Rex::ThreadFactory.spawn('FTPServerMonitor', false) do
             monitor_socket
           end
         end
 
         def stop
-          @shutting_down = true
-          @monitor_thread&.kill rescue nil
-          @server_sock&.close rescue nil
+          self.shutting_down = true
+          begin
+            monitor_thread&.kill
+          rescue StandardError
+            nil
+          end
+          begin
+            listener&.close
+          rescue StandardError
+            nil
+          end
         end
+
+        attr_accessor :listen_port, :listen_host, :context, :files, :serve_once, :files_mutex, :shutting_down, :listener, :monitor_thread
 
         private
 
         def monitor_socket
-          until @shutting_down
+          until shutting_down
             begin
-              client = @server_sock.accept
+              client = listener.accept
               Rex::ThreadFactory.spawn('FTPServerClientHandler', false) do
                 handle_client(client)
               end
-            rescue => _e
-              break if @shutting_down
+            rescue StandardError
+              break if shutting_down
             end
           end
         end
 
         def handle_client(client)
           state = {
-            auth:         false,
-            cwd:          '/',
-            mode:         :passive,
-            active_host:  client.peerhost,
-            active_port:  20,
+            auth: false,
+            cwd: '/',
+            mode: :passive,
+            active_host: client.peerhost,
+            active_port: 20,
             passive_sock: nil
           }
 
           client.put("220 FTP Server Ready\r\n")
 
-          until @shutting_down
+          until shutting_down
             data = client.get_once
             break unless data
 
@@ -132,11 +142,15 @@ module Rex
               client.put("250 Directory successfully changed.\r\n")
 
             when 'PASV'
-              state[:passive_sock]&.close rescue nil
+              begin
+                state[:passive_sock]&.close
+              rescue StandardError
+                nil
+              end
               state[:passive_sock] = Rex::Socket::TcpServer.create(
                 'LocalHost' => '0.0.0.0',
                 'LocalPort' => 0,
-                'Context'   => @context
+                'Context' => context
               )
               dport = state[:passive_sock].getsockname[2]
               daddr = Rex::Socket.source_address(client.peerhost)
@@ -163,7 +177,7 @@ module Rex
 
             when 'SIZE'
               filename = ::File.basename(arg)
-              size = @files_mutex.synchronize { @files[filename]&.bytesize }
+              size = files_mutex.synchronize { files[filename]&.bytesize }
               if size
                 client.put("213 #{size}\r\n")
               else
@@ -180,8 +194,8 @@ module Rex
                 client.put("425 Can't open data connection.\r\n")
                 next
               end
-              listing = @files_mutex.synchronize do
-                @files.map do |f, d|
+              listing = files_mutex.synchronize do
+                files.map do |f, d|
                   "-rwxr-xr-x   1 0      0       #{d.bytesize} Jan  1  2000 #{f}\r\n"
                 end.join
               end
@@ -196,14 +210,14 @@ module Rex
                 next
               end
               filename = ::File.basename(arg)
-              file_data, once = @files_mutex.synchronize do
-                next [nil, nil] unless @files.key?(filename)
+              file_data, once = files_mutex.synchronize do
+                next [nil, nil] unless files.key?(filename)
 
-                data = @files[filename]
-                once = @serve_once[filename]
+                data = files[filename]
+                once = serve_once[filename]
                 if once
-                  @files.delete(filename)
-                  @serve_once.delete(filename)
+                  files.delete(filename)
+                  serve_once.delete(filename)
                 end
                 [data, once]
               end
@@ -213,11 +227,10 @@ module Rex
               end
               data_conn = establish_data_connection(client, state)
               unless data_conn
-                # Put the file back if we removed it and couldn't open a connection
                 if once
-                  @files_mutex.synchronize do
-                    @files[filename] = file_data
-                    @serve_once[filename] = true
+                  files_mutex.synchronize do
+                    files[filename] = file_data
+                    serve_once[filename] = true
                   end
                 end
                 client.put("425 Can't open data connection.\r\n")
@@ -235,29 +248,41 @@ module Rex
               client.put("502 Command not implemented.\r\n")
             end
           end
-        rescue => _e
+        rescue StandardError
           # client disconnect or other error
         ensure
-          state[:passive_sock]&.close rescue nil
-          client.close rescue nil
+          begin
+            state[:passive_sock]&.close
+          rescue StandardError
+            nil
+          end
+          begin
+            client.close
+          rescue StandardError
+            nil
+          end
         end
 
         def establish_data_connection(client, state)
           Timeout.timeout(20) do
             if state[:mode] == :passive && state[:passive_sock]
               conn = state[:passive_sock].accept
-              state[:passive_sock].close rescue nil
+              begin
+                state[:passive_sock].close
+              rescue StandardError
+                nil
+              end
               state[:passive_sock] = nil
               conn
             else
               Rex::Socket::Tcp.create(
                 'PeerHost' => state[:active_host],
                 'PeerPort' => state[:active_port],
-                'Context'  => @context
+                'Context' => context
               )
             end
           end
-        rescue => _e
+        rescue StandardError
           nil
         end
       end

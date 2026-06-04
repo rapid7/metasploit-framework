@@ -1,5 +1,5 @@
+# Mixin that provides FTP fetch handler support for fetch payload adapters.
 module Msf::Payload::Adapter::Fetch::Server::FTP
-
   def initialize(*args)
     super
     register_options(
@@ -32,7 +32,7 @@ module Msf::Payload::Adapter::Fetch::Server::FTP
 
   def add_resource(fetch_service, uri, srv_entry)
     vprint_status("Adding FTP resource #{uri}")
-    fetch_service.register_file(uri, srv_entry[:data], datastore['FETCH_SRVONCE'])
+    fetch_service.register_file(uri, srv_entry[:data], serve_once: datastore['FETCH_SRVONCE'])
     @myresources << uri
   end
 

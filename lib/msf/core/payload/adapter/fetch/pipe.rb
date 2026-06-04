@@ -13,7 +13,7 @@ module Msf
       # this is going to expand when we add psh support
       return %w[CURL] if windows?
 
-      %w[WGET CURL]
+      %w[WGET CURL GET]
     end
 
     def generate_pipe_command(uri)
@@ -22,6 +22,8 @@ module Msf
         return _generate_wget_pipe(uri)
       when 'CURL'
         return _generate_curl_pipe(uri)
+      when 'GET'
+        return _generate_get_pipe(uri)
       else
         fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be one of #{pipe_supported_binaries}.")
       end

