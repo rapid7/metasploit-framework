@@ -93,4 +93,92 @@ RSpec.describe Rex::Proto::MSSQL::ClientMixin do
       end
     end
   end
+
+  describe '#mssql_parse_tds_row' do
+    let(:info) { { colinfos: [], rows: [], errors: [] } }
+
+    context 'when :int column has NULL sentinel' do
+      it 'returns nil for len == 0' do
+        info[:colinfos] = [{ id: :int, name: 'col1' }]
+        data = [0].pack('C')
+        client.mssql_parse_tds_row(data, info)
+        expect(info[:rows].last).to eq([nil])
+        expect(info[:errors]).to be_empty
+      end
+
+      it 'returns nil for len == 255' do
+        info[:colinfos] = [{ id: :int, name: 'col1' }]
+        data = [255].pack('C')
+        client.mssql_parse_tds_row(data, info)
+        expect(info[:rows].last).to eq([nil])
+        expect(info[:errors]).to be_empty
+      end
+
+      it 'parses a 4-byte integer' do
+        info[:colinfos] = [{ id: :int, name: 'col1' }]
+        data = [4].pack('C') + [42].pack('V')
+        client.mssql_parse_tds_row(data, info)
+        expect(info[:rows].last).to eq([42])
+        expect(info[:errors]).to be_empty
+      end
+    end
+
+    context 'when :hex column has NULL sentinel (0xFFFF)' do
+      it 'returns nil for len == 65535' do
+        info[:colinfos] = [{ id: :hex, name: 'col1' }]
+        data = [65535].pack('v')
+        client.mssql_parse_tds_row(data, info)
+        expect(info[:rows].last).to eq([nil])
+        expect(info[:errors]).to be_empty
+      end
+
+      it 'parses hex data' do
+        info[:colinfos] = [{ id: :hex, name: 'col1' }]
+        data = [2].pack('v') + "\x41\x42"
+        client.mssql_parse_tds_row(data, info)
+        expect(info[:rows].last).to eq(['4142'])
+        expect(info[:errors]).to be_empty
+      end
+    end
+
+    context 'when :string column has NULL sentinel (0xFFFF)' do
+      it 'returns nil for len == 65535' do
+        info[:colinfos] = [{ id: :string, name: 'col1' }]
+        data = [65535].pack('v')
+        client.mssql_parse_tds_row(data, info)
+        expect(info[:rows].last).to eq([nil])
+        expect(info[:errors]).to be_empty
+      end
+
+      it 'parses a string value' do
+        info[:colinfos] = [{ id: :string, name: 'col1' }]
+        data = [3].pack('v') + "foo"
+        client.mssql_parse_tds_row(data, info)
+        expect(info[:rows].last).to eq(['foo'])
+        expect(info[:errors]).to be_empty
+      end
+    end
+
+    context 'when :guid column is NULL' do
+      it 'returns nil for read_length == 0' do
+        info[:colinfos] = [{ id: :guid, name: 'col1' }]
+        data = [0].pack('C')
+        client.mssql_parse_tds_row(data, info)
+        expect(info[:rows].last).to eq([nil])
+        expect(info[:errors]).to be_empty
+      end
+    end
+
+    context 'when :int has invalid size' do
+      it 'logs error and consumes len bytes' do
+        info[:colinfos] = [{ id: :int, name: 'col1' }]
+        trailing = "AFTER".b
+        data = [3].pack('C') + "XXX" + trailing
+        client.mssql_parse_tds_row(data, info)
+        expect(info[:errors].length).to eq(1)
+        expect(info[:errors].first).to match(/invalid integer size: 3/)
+        expect(data).to eq(trailing)
+      end
+    end
+  end
 end

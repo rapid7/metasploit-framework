@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
     stored = store_loot(
       'windows.ad.cs.template',
       'application/json',
-      rhost,
+      session ? session.client.peerhost : rhost,
       dump_to_json(obj),
       "#{datastore['CERT_TEMPLATE'].downcase.gsub(' ', '_')}_template.json",
       "#{datastore['CERT_TEMPLATE']} Certificate Template"

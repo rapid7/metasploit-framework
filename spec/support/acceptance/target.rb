@@ -1,8 +1,12 @@
+require_relative 'datastore_formatting'
+
 module Acceptance
   ###
   # Stores the data for a target. These credentials can be used to create a sesion, or run a module against
   ###
   class Target
+    include DatastoreFormatting
+
     attr_reader :session_module, :type, :datastore
 
     def initialize(options)
@@ -33,11 +37,7 @@ module Acceptance
     # @return [String] The datastore options string
     def datastore_options(default_module_datastore: {})
       module_datastore = default_module_datastore.merge(@datastore[:module])
-      module_options = module_datastore.map do |key, value|
-        "#{key}=#{value}"
-      end
-
-      module_options.join(' ')
+      format_datastore_options(module_datastore)
     end
 
     # @param [Hash] default_module_datastore

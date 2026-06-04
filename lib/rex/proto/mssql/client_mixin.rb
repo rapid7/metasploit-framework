@@ -433,12 +433,14 @@ module ClientMixin
 
       case col[:id]
       when :hex
-        str = ""
         len = data.slice!(0, 2).unpack('v')[0]
-        if len > 0 && len < 65535
-          str << data.slice!(0, len)
+        if len == 65535
+          row << nil
+        elsif len > 0
+          row << data.slice!(0, len).unpack("H*")[0]
+        else
+          row << ''
         end
-        row << str.unpack("H*")[0]
 
       when :guid
         read_length = data.slice!(0, 1).unpack1('C')
@@ -449,12 +451,14 @@ module ClientMixin
         end
 
       when :string
-        str = ""
         len = data.slice!(0, 2).unpack('v')[0]
-        if len > 0 && len < 65535
-          str << data.slice!(0, len)
+        if len == 65535
+          row << nil
+        elsif len > 0
+          row << data.slice!(0, len).gsub("\x00", '')
+        else
+          row << ''
         end
-        row << str.gsub("\x00", '')
 
       when :ntext
         str = nil
@@ -585,23 +589,23 @@ module ClientMixin
 
       when :int
         len = data.slice!(0, 1).unpack("C")[0]
-        raw = data.slice!(0, len) if len && len > 0
 
         case len
         when 0, 255
-          row << ''
+          row << nil
         when 1
-          row << raw.unpack("C")[0]
+          row << data.slice!(0, 1).unpack("C")[0]
         when 2
-          row << raw.unpack('v')[0]
+          row << data.slice!(0, 2).unpack('v')[0]
         when 4
-          row << raw.unpack('V')[0]
+          row << data.slice!(0, 4).unpack('V')[0]
         when 5
-          row << raw.unpack('V')[0] # XXX: missing high byte
+          row << data.slice!(0, 5).unpack('V')[0] # XXX: missing high byte
         when 8
-          row << raw.unpack('VV')[0] # XXX: missing high dword
+          row << data.slice!(0, 8).unpack('VV')[0] # XXX: missing high dword
         else
           info[:errors] << "invalid integer size: #{len} #{data[0, 16].unpack("H*")[0]}"
+          data.slice!(0, len)
         end
       else
         info[:errors] << "unknown column type: #{col.inspect}"
@@ -932,23 +936,23 @@ module ClientMixin
 
       when :int
         len = data.slice!(0, 1).unpack("C")[0]
-        raw = data.slice!(0, len) if len && len > 0
 
         case len
         when 0, 255
-          row << ''
+          row << nil
         when 1
-          row << raw.unpack("C")[0]
+          row << data.slice!(0, 1).unpack("C")[0]
         when 2
-          row << raw.unpack('v')[0]
+          row << data.slice!(0, 2).unpack('v')[0]
         when 4
-          row << raw.unpack('V')[0]
+          row << data.slice!(0, 4).unpack('V')[0]
         when 5
-          row << raw.unpack('V')[0] # XXX: missing high byte
+          row << data.slice!(0, 5).unpack('V')[0] # XXX: missing high byte
         when 8
-          row << raw.unpack('VV')[0] # XXX: missing high dword
+          row << data.slice!(0, 8).unpack('VV')[0] # XXX: missing high dword
         else
           info[:errors] << "invalid integer size: #{len} #{data[0, 16].unpack("H*")[0]}"
+          data.slice!(0, len)
         end
       else
         info[:errors] << "unknown column type: #{col.inspect}"
