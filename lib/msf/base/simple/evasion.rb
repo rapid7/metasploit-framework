@@ -9,6 +9,7 @@ module Evasion
 
   def self.run_simple(oevasion, opts, &block)
     evasion = oevasion.replicant
+    execution = nil
     # Trap and print errors here (makes them UI-independent)
     begin
       # Clone the module to prevent changes to the original instance
@@ -80,8 +81,29 @@ module Evasion
         driver.use_job = true
       end
 
+      execution = Msf::Reporting::Execution.start!(
+        framework: evasion.framework,
+        mod: evasion,
+        originating_ui: opts['OriginatingUi'] || 'console',
+        kind: Msf::Reporting::Execution::KIND_RUN
+      )
+
       # Let's rock this party
-      driver.run
+      Msf::Reporting::CurrentExecution.with(execution) do
+        driver.run
+      rescue ::Interrupt
+        evasion.error = $!
+        raise $!
+      rescue ::Msf::OptionValidateError => e
+        evasion.error = e
+        ::Msf::Ui::Formatter::OptionValidateError.print_error(evasion, e)
+      rescue ::Exception => e
+        evasion.error = e
+        Msf::Reporting::Execution.mark_module_unhandled_exception(evasion)
+        evasion.print_error("evasion failed: #{e}")
+        elog("Evasion failed (#{evasion.refname})", error: e)
+        Msf::Reporting::Execution.capture_exception!(evasion, e)
+      end
 
       # Save the job identifier this evasion is running as
       evasion.job_id  = driver.job_id
@@ -96,8 +118,30 @@ module Evasion
       ::Msf::Ui::Formatter::OptionValidateError.print_error(evasion, e)
     rescue ::Exception => e
       evasion.error = e
+      Msf::Reporting::Execution.mark_module_unhandled_exception(evasion)
       evasion.print_error("evasion failed: #{e}")
       elog("Evasion failed (#{evasion.refname})", error: e)
+    ensure
+      if execution
+        terminal_status, failure_reason, failure_message =
+          if Msf::Reporting::Execution.module_unhandled_exception?(evasion)
+            reason = evasion.respond_to?(:fail_reason) ? evasion.fail_reason : nil
+            reason = nil if reason == Msf::Module::Failure::None
+            [Msf::Reporting::Execution::TERMINAL_UNHANDLED_EXCEPTION, reason, evasion.error&.message]
+          elsif evasion.error
+            reason = evasion.respond_to?(:fail_reason) ? evasion.fail_reason : nil
+            reason = nil if reason == Msf::Module::Failure::None
+            [Msf::Reporting::Execution::TERMINAL_EXPECTED_FAILURE, reason, evasion.error.message]
+          else
+            [Msf::Reporting::Execution::TERMINAL_SUCCESS, nil, nil]
+          end
+        Msf::Reporting::Execution.finalize!(
+          execution,
+          terminal_status: terminal_status,
+          failure_reason: failure_reason,
+          failure_message: failure_message
+        )
+      end
     end
 
     nil

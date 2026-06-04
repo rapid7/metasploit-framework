@@ -168,7 +168,10 @@ class Auxiliary < Msf::Module
     end
 
     self.fail_detail = msg
-    raise Msf::Auxiliary::Failed, "#{reason.to_s}: #{(msg || "No failure message given")}"
+    Msf::Reporting::Execution.record_failure!(self, failure_reason: fail_reason, message: msg)
+    exception = Msf::Auxiliary::Failed.new("#{reason}: #{msg || 'No failure message given'}")
+    Msf::Reporting::Execution.mark_exception_recorded(exception)
+    raise exception
   end
 
   #

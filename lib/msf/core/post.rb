@@ -69,7 +69,10 @@ class Msf::Post < Msf::Module
 
   # Override Msf::Module#fail_with for Msf::Simple::Post::job_run_proc
   def fail_with(reason, msg = nil)
-    raise Msf::Post::Failed, "#{reason.to_s}: #{msg}"
+    Msf::Reporting::Execution.record_failure!(self, failure_reason: reason, message: msg)
+    exception = Msf::Post::Failed.new("#{reason}: #{msg}")
+    Msf::Reporting::Execution.mark_exception_recorded(exception)
+    raise exception
   end
 
 end

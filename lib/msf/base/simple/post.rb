@@ -38,7 +38,6 @@ module Post
   # 	job.
   #
   def self.run_simple(omod, opts = {}, &block)
-
     # Clone the module to prevent changes to the original instance
     mod = omod.replicant
     Msf::Simple::Framework.simplify_module(mod)
@@ -68,7 +67,7 @@ module Post
     # Disable this until we can test background stuff a little better
     #
     if(mod.passive? or opts['RunAsJob'])
-      ctx = [ mod.replicant ]
+      ctx = [ mod.replicant, { originating_ui: opts['OriginatingUi'] || 'console' } ]
       mod.job_id = mod.framework.jobs.start_bg_job(
         "Post: #{mod.refname}",
         ctx,
@@ -78,7 +77,7 @@ module Post
       # Propagate this back to the caller for console mgmt
       omod.job_id = mod.job_id
     else
-      ctx = [ mod ]
+      ctx = [ mod, { originating_ui: opts['OriginatingUi'] || 'console' } ]
       self.job_run_proc(ctx)
       self.job_cleanup_proc(ctx)
     end
@@ -100,8 +99,16 @@ protected
   #
   def self.job_run_proc(ctx)
     mod = ctx[0]
-    begin
-      mod.setup
+    lifecycle_opts = ctx[1] || {}
+    execution = Msf::Reporting::Execution.start!(
+      framework: mod.framework,
+      mod: mod,
+      originating_ui: lifecycle_opts[:originating_ui] || 'console',
+      kind: Msf::Reporting::Execution::KIND_RUN
+    )
+    Msf::Reporting::Execution.clear_module_unhandled_exception(mod)
+    Msf::Reporting::CurrentExecution.with(execution) do
+      Msf::Reporting::Execution.with_phase_setup(mod) { mod.setup }
       mod.framework.events.on_module_run(mod)
       # Grab the session object since we need to fire an event for not
       # only the normal module_run event that all module types have to
@@ -112,32 +119,33 @@ protected
         mod.run
       else
         mod.print_error("Session not found")
-        mod.cleanup
+        Msf::Reporting::Execution.with_phase_cleanup(mod) { mod.cleanup }
         return
       end
     rescue Msf::Post::Complete
-      mod.cleanup
+      Msf::Reporting::Execution.with_phase_cleanup(mod) { mod.cleanup }
       return
     rescue Msf::Post::Failed => e
       mod.error = e
       mod.print_error("Post aborted due to failure: #{e.message}")
-      mod.cleanup
+      Msf::Reporting::Execution.with_phase_cleanup(mod) { mod.cleanup }
       return
     rescue ::Timeout::Error => e
       mod.error = e
       mod.print_error("Post triggered a timeout exception")
-      mod.cleanup
+      Msf::Reporting::Execution.with_phase_cleanup(mod) { mod.cleanup }
       return
     rescue ::Interrupt => e
       mod.error = e
       mod.print_error("Post interrupted by the console user")
-      mod.cleanup
+      Msf::Reporting::Execution.with_phase_cleanup(mod) { mod.cleanup }
       return
     rescue ::Msf::OptionValidateError => e
       mod.error = e
       ::Msf::Ui::Formatter::OptionValidateError.print_error(mod, e)
     rescue ::Exception => e
       mod.error = e
+      Msf::Reporting::Execution.mark_module_unhandled_exception(mod)
       mod.print_error("Post failed: #{e.class} #{e}")
       if(e.class.to_s != 'Msf::OptionValidateError')
         mod.print_error("Call stack:")
@@ -148,9 +156,31 @@ protected
       end
 
       elog('Post failed', error: e)
-      mod.cleanup
+      Msf::Reporting::Execution.capture_exception!(mod, e)
+      Msf::Reporting::Execution.with_phase_cleanup(mod) { mod.cleanup }
 
       return
+    end
+  ensure
+    if execution
+      terminal_status, failure_reason, failure_message =
+        if Msf::Reporting::Execution.module_unhandled_exception?(mod)
+          reason = mod.respond_to?(:fail_reason) ? mod.fail_reason : nil
+          reason = nil if reason == Msf::Module::Failure::None
+          [Msf::Reporting::Execution::TERMINAL_UNHANDLED_EXCEPTION, reason, mod.error&.message]
+        elsif mod.error
+          reason = mod.respond_to?(:fail_reason) ? mod.fail_reason : nil
+          reason = nil if reason == Msf::Module::Failure::None
+          [Msf::Reporting::Execution::TERMINAL_EXPECTED_FAILURE, reason, mod.error.message]
+        else
+          [Msf::Reporting::Execution::TERMINAL_SUCCESS, nil, nil]
+        end
+      Msf::Reporting::Execution.finalize!(
+        execution,
+        terminal_status: terminal_status,
+        failure_reason: failure_reason,
+        failure_message: failure_message
+      )
     end
   end
 

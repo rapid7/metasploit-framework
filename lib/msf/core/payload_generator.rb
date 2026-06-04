@@ -468,13 +468,15 @@ module Msf
           raise IncompatibleArch, "The selected arch is incompatible with the payload"
         end
 
-        payload_module.generate_simple(
-            'Format'      => 'raw',
-            'Options'     => datastore,
-            'Encoder'     => nil,
-            'MaxSize'     => @space,
-            'DisableNops' => true
-        )
+        wrap_with_execution_lifecycle(payload_module) do
+          payload_module.generate_simple(
+              'Format'      => 'raw',
+              'Options'     => datastore,
+              'Encoder'     => nil,
+              'MaxSize'     => @space,
+              'DisableNops' => true
+          )
+        end
       end
     end
 
@@ -545,7 +547,9 @@ module Msf
 
       framework.nops.each_module_ranked('Arch' => [arch]) do |name, mod|
         nop = framework.nops.create(name)
-        raw = nop.generate_sled(nops, {'BadChars' => badchars, 'SaveRegisters' => [ 'esp', 'ebp', 'esi', 'edi' ] })
+        raw = wrap_with_execution_lifecycle(nop) do
+          nop.generate_sled(nops, {'BadChars' => badchars, 'SaveRegisters' => [ 'esp', 'ebp', 'esi', 'edi' ] })
+        end
         if raw
           cli_print "Successfully added NOP sled of size #{raw.length} from #{name}"
           return raw + shellcode
@@ -561,17 +565,53 @@ module Msf
     # @return [String] The encoded shellcode
     # @raise [Msf::EncoderSpaceViolation] If the Encoder makes the shellcode larger than the supplied space limit
     def run_encoder(encoder_module, shellcode)
-      iterations.times do |x|
-        shellcode = encoder_module.encode(shellcode.dup, badchars, nil, platform_list)
-        cli_print "#{encoder_module.refname} succeeded with size #{shellcode.length} (iteration=#{x})"
-        if shellcode.length > encoder_space
-          raise EncoderSpaceViolation, "encoder has made a buffer that is too big"
+      wrap_with_execution_lifecycle(encoder_module) do
+        iterations.times do |x|
+          shellcode = encoder_module.encode(shellcode.dup, badchars, nil, platform_list)
+          cli_print "#{encoder_module.refname} succeeded with size #{shellcode.length} (iteration=#{x})"
+          if shellcode.length > encoder_space
+            raise EncoderSpaceViolation, "encoder has made a buffer that is too big"
+          end
         end
+        shellcode
       end
-      shellcode
     end
 
     private
+
+    # Bracket subordinate encoder/NOP work in a `Mdm::ModuleExecution`
+    # row when invoked standalone (e.g. msfvenom). When called from
+    # inside another module's execution (e.g. an exploit crafting its
+    # payload), the existing execution is reused so the framework does
+    # not double-count subordinate component runs.
+    #
+    # @api private
+    def wrap_with_execution_lifecycle(mod, &block)
+      return block.call if Msf::Reporting::CurrentExecution.current
+
+      execution = Msf::Reporting::Execution.start!(
+        framework: framework,
+        mod: mod,
+        originating_ui: 'console',
+        kind: Msf::Reporting::Execution::KIND_RUN
+      )
+      unhandled_exception = false
+      begin
+        Msf::Reporting::CurrentExecution.with(execution, &block)
+      rescue StandardError
+        unhandled_exception = true
+        raise
+      ensure
+        if execution
+          terminal_status = if unhandled_exception
+                              Msf::Reporting::Execution::TERMINAL_UNHANDLED_EXCEPTION
+                            else
+                              Msf::Reporting::Execution::TERMINAL_SUCCESS
+                            end
+          Msf::Reporting::Execution.finalize!(execution, terminal_status: terminal_status)
+        end
+      end
+    end
 
     # This method prints output to the console if running in CLI mode
     # @param [String] message The message to print to the console.
