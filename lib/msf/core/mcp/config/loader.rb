@@ -72,9 +72,9 @@ module Msf::MCP
         if config[:mcp][:transport] == 'http'
           config[:mcp][:host] ||= Defaults::MCP_HOST
           config[:mcp][:port] ||= Defaults::MCP_PORT
-          config[:mcp][:min_threads] ||= 0
-          config[:mcp][:max_threads] ||= 5
-          config[:mcp][:workers] ||= 0
+          config[:mcp][:min_threads] ||= Msf::MCP::Server::PUMA_MIN_THREADS
+          config[:mcp][:max_threads] ||= Msf::MCP::Server::PUMA_MAX_THREADS
+          config[:mcp][:workers] ||= Msf::MCP::Server::PUMA_WORKERS
         end
 
         config[:rate_limit][:enabled] = config[:rate_limit].fetch(:enabled, true)

@@ -65,6 +65,9 @@ module Msf::MCP
     # @param transport [Symbol] Transport type (:stdio or :http)
     # @param host [String] Host address for HTTP transport (default: 'localhost')
     # @param port [Integer] Port number for HTTP transport (default: 3000)
+    # @param min_threads [Integer] Minimum number of Puma threads (default: PUMA_MIN_THREADS)
+    # @param max_threads [Integer] Maximum number of Puma threads (default: PUMA_MAX_THREADS)
+    # @param workers [Integer] Number of Puma worker processes (default: PUMA_WORKERS)
     #
     # @return [MCP::Server] The MCP server instance (for testing purposes)
     # @raise [ArgumentError] If an unknown transport is specified
@@ -86,7 +89,7 @@ module Msf::MCP
     def shutdown
       @puma_launcher&.stop
     rescue StandardError => e
-      elog("Error stopping Puma: #{e.message}", LOG_SOURCE)
+      elog({ message: 'Error stopping Puma', exception: e }, LOG_SOURCE, LOG_ERROR)
     ensure
       @puma_log_io&.close
       @puma_launcher = nil
@@ -117,6 +120,9 @@ module Msf::MCP
     #
     # @param host [String] Host address to bind to
     # @param port [Integer] Port to listen on
+    # @param min_threads [Integer] Minimum number of Puma threads
+    # @param max_threads [Integer] Maximum number of Puma threads
+    # @param workers [Integer] Number of Puma worker processes
     #
     # @return [MCP::Server] The MCP server instance (for testing purposes)
     #

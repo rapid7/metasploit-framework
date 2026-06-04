@@ -196,12 +196,10 @@ RSpec.describe Msf::MCP::Application do
   end
 
   describe '#install_signal_handlers' do
-    it 'installs signal handlers for INT and TERM' do
+    it 'registers an at_exit handler for cleanup' do
       app = described_class.new([], output: output)
 
-      # Mock Signal.trap to avoid actually installing handlers in tests
-      expect(Signal).to receive(:trap).with('INT')
-      expect(Signal).to receive(:trap).with('TERM')
+      expect(app).to receive(:at_exit)
 
       app.send(:install_signal_handlers)
     end

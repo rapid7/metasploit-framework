@@ -74,7 +74,9 @@ module Msf::MCP
         context: { signal: "SIG#{signal}" }
       }, LOG_SOURCE, LOG_INFO)
       @mcp_server&.shutdown
+      @mcp_server = nil
       @rpc_manager&.stop_rpc_server
+      @rpc_manager = nil
       @output.puts "\nShutdown complete"
     end
 
@@ -162,10 +164,17 @@ module Msf::MCP
 
     # Install signal handlers for graceful shutdown
     #
+    # Puma installs its own INT/TERM handlers which override Signal.trap,
+    # so we use at_exit to ensure cleanup happens regardless of how the
+    # process terminates.
+    #
     # @return [void]
     def install_signal_handlers
-      Signal.trap('INT') { shutdown('INT'); exit 0 }
-      Signal.trap('TERM') { shutdown('TERM'); exit 0 }
+      at_exit do
+        shutdown('EXIT') if @mcp_server
+      rescue StandardError
+        nil
+      end
     end
 
     # Load configuration from file or use defaults
