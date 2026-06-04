@@ -15,6 +15,10 @@ mcp:
   # MCP server network configuration (for HTTP transport only)
   host: localhost  # Host to bind to (default: localhost)
   port: 3000       # Port to listen on (default: 3000)
+  # Puma server tuning (for HTTP transport only)
+  # min_threads: 0   # Minimum thread pool size (default: 0)
+  # max_threads: 5   # Maximum thread pool size (default: 5)
+  # workers: 0       # Number of worker processes (default: 0, single-process mode)
 
 # Rate limiting (optional - defaults shown)
 rate_limit:
