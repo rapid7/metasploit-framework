@@ -39,7 +39,7 @@ module Msf::Payload::Linux::MultiArch
       return 'powerpc-e500v2-linux-musl'
     when ARCH_PPC64LE, 'ARCH_PPC64LE'
       return 'powerpc64le-linux-musl'
-    when ARCH_X64, 'ARCH_X644'
+    when ARCH_X64, 'ARCH_X64'
       return 'x86_64-linux-musl'
     when ARCH_X86, 'ARCH_X86'
       return 'i486-linux-musl'
@@ -66,11 +66,11 @@ module Msf::Payload::Linux::MultiArch
       return ARCH_MIPSLE
     when ARCH_PPC, 'ARCH_PPC'
       return ARCH_PPC
-    when ARCH_PPCE500V2, 'ARCH_PPCE500V3'
+    when ARCH_PPCE500V2, 'ARCH_PPCE500V2'
       return ARCH_PPCE500V2
     when ARCH_PPC64LE, 'ARCH_PPC64LE'
       return ARCH_PPC64LE
-    when ARCH_X64, 'ARCH_X86'
+    when ARCH_X64, 'ARCH_X64'
       return ARCH_X64
     when ARCH_X86, 'ARCH_X86'
       return ARCH_X86

@@ -62,27 +62,21 @@ module Msf
     end
 
     def on_request_uri(cli, request, srv_entry)
-      vprint_status("#{__method__}:#{__LINE__}")
       opts = srv_entry[:opts]
       client = cli.peerhost
       vprint_status("Client #{client} requested #{request.uri}")
       if (user_agent = request.headers['User-Agent'])
         client += " (#{user_agent})"
       end
-      vprint_status("#{__method__}:#{__LINE__}")
       vprint_status("Sending payload to #{client}")
-      vprint_status("#{__method__}:#{__LINE__}")
       if opts[:dynamic_arch]
-        vprint_status("#{__method__}:#{__LINE__}")
         vprint_status("Dynamic Payload Detected, expecting a Query String in the request...")
-        vprint_status request.to_s
         query_string = request.uri_parts['QueryString'] || {}
         arch_param = query_string['arch']
         if arch_param.nil? || arch_param.strip.empty?
           print_error('Fetch request missing required arch query parameter')
           return nil
         end
-        vprint_status arch_param.to_s
         arch = Rex::Arch.from_uname(arch_param)
         if arch.nil?
           print_error("Failed to identify the architecture in Query String #{request.uri_parts['QueryString']['arch'].to_s}")
@@ -90,7 +84,6 @@ module Msf
         end
         vprint_status("Building payload for #{arch.to_s} arch")
         opts[:arch] = arch
-        vprint_status("2")
         # Call generate with arch and dynamic_arch populated properly to build the right binary
         payload_exe = generate(opts)
         if payload_exe.nil?
