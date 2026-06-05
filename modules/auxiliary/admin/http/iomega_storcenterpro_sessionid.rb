@@ -45,11 +45,11 @@ class MetasploitModule < Msf::Auxiliary
 
       if res && res.to_s =~ /Log out/
         print_status("Found valid session ID number #{x}!")
-        print_status("Browse to http://#{rhost}:#{rport}/cgi-bin/makecgi-pro?job=show_home&session_id=#{x}")
+        print_status("Browse to http://#{Rex::Socket.to_authority(rhost, rport)}/cgi-bin/makecgi-pro?job=show_home&session_id=#{x}")
         break
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      print_error("Unable to connect to #{rhost}:#{rport}")
+      print_error("Unable to connect to #{Rex::Socket.to_authority(rhost, rport)}")
       break
     rescue ::Timeout::Error, ::Errno::EPIPE => e
       vprint_error(e.message)

@@ -328,7 +328,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Did we get it?
     if res and res.body =~ /#{unique_str}/
-      print_good("WRITE is possible on #{rhost}:#{rport}")
+      print_good("WRITE is possible on #{Rex::Socket.to_authority(rhost, rport)}")
     else
       print_error("WRITE seems unlikely")
     end

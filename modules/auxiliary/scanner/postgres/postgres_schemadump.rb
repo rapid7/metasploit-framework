@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     pg_schema = []
     database_names = session ? [session.client.params['database']] : smart_query('SELECT datname FROM pg_database').to_a.flatten
     if database_names.empty?
-      print_status("#{rhost}:#{rport} - No databases found")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - No databases found")
       return pg_schema
     end
     status_message = "#{rhost}:#{rport} - Found databases: #{database_names.join(', ')}."
@@ -118,9 +118,9 @@ class MetasploitModule < Msf::Auxiliary
     when :sql_error
       case res[:sql_error]
       when /^C42501/
-        print_error "#{rhost}:#{rport} Postgres - Insufficient permissions."
+        print_error "#{Rex::Socket.to_authority(rhost, rport)} Postgres - Insufficient permissions."
       else
-        print_error "#{rhost}:#{rport} Postgres - #{res[:sql_error]}"
+        print_error "#{Rex::Socket.to_authority(rhost, rport)} Postgres - #{res[:sql_error]}"
       end
       return nil
     when :complete

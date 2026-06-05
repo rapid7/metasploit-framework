@@ -53,7 +53,7 @@ module Auxiliary::CNPILOT
       )
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - HTTP Connection Failed...")
       return false
     end
 
@@ -65,11 +65,11 @@ module Auxiliary::CNPILOT
     )
 
     if good_response
-      print_good("#{rhost}:#{rport} - Cambium cnPilot confirmed...")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Cambium cnPilot confirmed...")
       run_login
       return true
     else
-      print_error("#{rhost}:#{rport} - Target does not appear to be Cambium cnPilot r200/r201. Module will not continue.")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Target does not appear to be Cambium cnPilot r200/r201. Module will not continue.")
       return false
     end
   end
@@ -79,7 +79,7 @@ module Auxiliary::CNPILOT
   #
 
   def do_login(user, pass)
-    print_status("#{rhost}:#{rport} - Attempting to login...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Attempting to login...")
 
     res = send_request_cgi(
       {
@@ -104,7 +104,7 @@ module Auxiliary::CNPILOT
     )
 
     if good_response
-      print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+      print_good("SUCCESSFUL LOGIN - #{Rex::Socket.to_authority(rhost, rport)} - #{user.inspect}:#{pass.inspect}")
 
       # Extract device model
       the_cookie = res.get_cookies
@@ -159,7 +159,7 @@ module Auxiliary::CNPILOT
         end
       end
     else
-      print_error("FAILED LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+      print_error("FAILED LOGIN - #{Rex::Socket.to_authority(rhost, rport)} - #{user.inspect}:#{pass.inspect}")
       the_cookie = 'skip'
       cnpilot_version = 'skip'
       return the_cookie, cnpilot_version

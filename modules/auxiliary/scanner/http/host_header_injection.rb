@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
     # the original host requested by the client in the Host HTTP request header.
 
     begin
-      vprint_status("Sending request #{rhost}:#{rport}#{web_path} (#{vhost})(#{http_method}) with 'Host' value '#{target_host}'")
+      vprint_status("Sending request #{Rex::Socket.to_authority(rhost, rport)}#{web_path} (#{vhost})(#{http_method}) with 'Host' value '#{target_host}'")
 
       res = send_request_raw({
         'uri' => web_path,
@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
       })
 
       unless res
-        vprint_error("#{rhost}:#{rport}#{web_path} (#{vhost}) did not reply to our request")
+        vprint_error("#{Rex::Socket.to_authority(rhost, rport)}#{web_path} (#{vhost}) did not reply to our request")
         return
       end
 
@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if evidence
-        print_good("#{rhost}:#{rport}#{web_path} (#{vhost})(#{res.code})(#{http_method})(evidence into #{evidence}) is vulnerable to HTTP Host header injection")
+        print_good("#{Rex::Socket.to_authority(rhost, rport)}#{web_path} (#{vhost})(#{res.code})(#{http_method})(evidence into #{evidence}) is vulnerable to HTTP Host header injection")
 
         report_vuln(
           host: rhost,
@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
         })
 
       else
-        vprint_error("#{rhost}:#{rport}#{web_path} (#{vhost}) returned #{res.code} #{res.message}")
+        vprint_error("#{Rex::Socket.to_authority(rhost, rport)}#{web_path} (#{vhost}) returned #{res.code} #{res.message}")
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE

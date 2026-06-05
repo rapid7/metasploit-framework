@@ -207,7 +207,7 @@ class MetasploitModule < Msf::Auxiliary
       proof = 'Usual defaults'
     end
 
-    print_status("#{rhost}:#{rport} - FTP - Storing HTTP credentials")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - FTP - Storing HTTP credentials")
     logins << ['http', httpuser, httppass]
 
     report_cred(
@@ -246,7 +246,7 @@ class MetasploitModule < Msf::Auxiliary
       modicon_ftpuser = 'USER'
       modicon_ftppass = 'USERUSER' # from the manual.  Verified.
     end
-    print_status("#{rhost}:#{rport} - FTP - Storing hashed FTP credentials")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - FTP - Storing hashed FTP credentials")
     # The collected hash is not directly reusable, so it shouldn't be an
     # auth credential in the Cred sense. TheLightCosine should fix some day.
     # Can be used for telnet as well if telnet is enabled.

@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
     pjl.fsinit(rpath[0..1])
 
     if pjl.fsdownload(lpath, rpath)
-      print_good("#{rhost}:#{rport} - Saved #{lpath} to #{rpath}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Saved #{lpath} to #{rpath}")
     end
 
     pjl.end_job

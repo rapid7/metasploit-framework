@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
 
       res = send_soap_request('/dms/services/ServerUI', soap_body)
       unless res
-        vprint_error("#{rhost}:#{rport} - No response from server, stopping")
+        vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - No response from server, stopping")
         return [nil, nil]
       end
 
@@ -183,11 +183,11 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless file_content
-      vprint_status("#{rhost}:#{rport} - XXE triggered but could not extract file contents from response (timeout or no content)")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - XXE triggered but could not extract file contents from response (timeout or no content)")
       return
     end
 
-    print_good("#{rhost}:#{rport} - XXE file read succeeded (CVE-2025-11700)")
+    print_good("#{Rex::Socket.to_authority(rhost, rport)} - XXE file read succeeded (CVE-2025-11700)")
     print_line
     print_line(file_content)
     print_line
@@ -241,7 +241,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_soap_request('/dms/services/ServerMMS', soap_body)
     unless res
-      vprint_error("#{rhost}:#{rport} - No response from server when writing XXE payload, stopping")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - No response from server when writing XXE payload, stopping")
       return false
     end
     res.code == 200

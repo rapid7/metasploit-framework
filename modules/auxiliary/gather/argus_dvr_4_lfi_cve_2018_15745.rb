@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
     target_file = datastore['TARGET_FILE'].gsub(' ', '%20')
     url_path = "/WEBACCOUNT.CGI?OkBtn=++Ok++&RESULTPAGE=#{traversal_path}#{target_file}&USEREDIRECT=1&WEBACCOUNTID=&WEBACCOUNTPASSWORD="
 
-    print_status("Sending request to #{rhost}:#{rport} for file: #{target_file}")
+    print_status("Sending request to #{Rex::Socket.to_authority(rhost, rport)} for file: #{target_file}")
 
     response = send_request_cgi({
       'method' => 'GET',
