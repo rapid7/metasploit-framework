@@ -61,7 +61,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/binganao/CVE-2024-23897'],
           [ 'URL', 'https://github.com/h4x0r-dz/CVE-2024-23897'],
           [ 'URL', 'https://github.com/Vozec/CVE-2024-23897'],
-          [ 'CVE', '2024-23897']
+          [ 'CVE', '2024-23897'],
+          ['EDB', '51993'],
         ],
         'Targets' => [
           [ 'Automatic Target', {}]

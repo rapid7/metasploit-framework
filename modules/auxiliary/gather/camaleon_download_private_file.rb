@@ -26,6 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         'Platform' => 'linux',
         'References' => [
           ['CVE', '2024-46987'],
+          ['EDB', '52531'],
           [
             'URL',  # Advisory
             'https://securitylab.github.com/advisories/GHSL-2024-182_GHSL-2024-186_Camaleon_CMS/'
