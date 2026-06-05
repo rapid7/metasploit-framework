@@ -29,12 +29,19 @@ module Msf
       CERT_TEMPLATE_NAME_OID = '1.3.6.1.4.1.311.20.2'
       CERT_TEMPLATE_INFO_OID = '1.3.6.1.4.1.311.21.7'
 
+      # Microsoft Application Policies extension. Its content is a
+      # CertificatePolicies SEQUENCE OF PolicyInformation, which the framework
+      # already decodes for the icpr_cert workflow; we resolve each policy OID to
+      # its friendly label rather than dumping the raw bytes (the policy OIDs -
+      # e.g. Client Authentication - are central to ESC attack triage).
+      APPLICATION_POLICIES_OID = '1.3.6.1.4.1.311.21.10'
+
       # Friendly labels for extension OIDs that OpenSSL leaves as raw numeric
       # strings (predominantly Microsoft enrollment OIDs on AD CS certificates).
       EXTENSION_OID_NAMES = {
         CERT_TEMPLATE_NAME_OID => 'Certificate Template Name',
         CERT_TEMPLATE_INFO_OID => 'Certificate Template Information',
-        '1.3.6.1.4.1.311.21.10' => 'Application Policies',
+        APPLICATION_POLICIES_OID => 'Application Policies',
         '1.3.6.1.4.1.311.25.2' => 'AD DS Security Extension (SID)'
       }.freeze
 
@@ -209,6 +216,9 @@ module Msf
         when CERT_TEMPLATE_INFO_OID
           decoded = format_template_information(ext)
           return decoded if decoded
+        when APPLICATION_POLICIES_OID
+          decoded = format_application_policies(ext)
+          return decoded if decoded
         end
 
         return ext.value if OPENSSL_READABLE_EXTENSIONS.include?(ext.oid)
@@ -259,6 +269,27 @@ module Msf
         out = "Template #{oid}"
         out += " (v#{major}#{minor ? ".#{minor}" : ''})" if major
         out
+      end
+
+      # Decode the Microsoft Application Policies extension to its policy OIDs and
+      # friendly labels. The extnValue is a CertificatePolicies structure; reuse
+      # the framework's parser and OID table so the output matches what the
+      # icpr_cert module already prints (Msf::Exploit::Remote::CertRequest).
+      #
+      # @param ext [OpenSSL::X509::Extension]
+      # @return [String, nil] e.g. "1.3.6.1.5.5.7.3.2 (Client Authentication)", nil if undecodable
+      def format_application_policies(ext)
+        policies = Rex::Proto::CryptoAsn1::X509::CertificatePolicies.parse(ext.value_der)
+        labels = policies.value.map do |policy_info|
+          oid_string = policy_info[:policyIdentifier].value
+          oid = Rex::Proto::CryptoAsn1::OIDs.value(oid_string)
+          oid&.label.to_s.empty? ? oid_string : "#{oid_string} (#{oid.label})"
+        end
+        return nil if labels.empty?
+
+        labels.join(', ')
+      rescue StandardError
+        nil
       end
 
       # Extract the raw extnValue octets carried inside an extension. Extension#to_der

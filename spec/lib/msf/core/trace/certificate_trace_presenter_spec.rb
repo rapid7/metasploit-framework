@@ -351,26 +351,52 @@ RSpec.describe Msf::Trace::CertificateTracePresenter do
       end
     end
 
-    context 'with a labeled Microsoft enrollment extension OpenSSL cannot decode' do
-      # Application Policies (1.3.6.1.4.1.311.21.10): OpenSSL knows the OID name
-      # but renders its structured content as a lossy byte dump.
+    context 'with a Microsoft Application Policies extension' do
+      # Application Policies (1.3.6.1.4.1.311.21.10) wraps a CertificatePolicies
+      # SEQUENCE OF PolicyInformation. OpenSSL knows the OID name but renders the
+      # structured content as a lossy byte dump, so the presenter decodes the
+      # policy OIDs and resolves them to friendly labels.
       subject do
         content = OpenSSL::ASN1::Sequence.new(
-          [OpenSSL::ASN1::Sequence.new([OpenSSL::ASN1::ObjectId.new('1.3.6.1.5.5.7.3.2')])]
+          [
+            OpenSSL::ASN1::Sequence.new([OpenSSL::ASN1::ObjectId.new('1.3.6.1.5.5.7.3.2')]),
+            OpenSSL::ASN1::Sequence.new([OpenSSL::ASN1::ObjectId.new('1.3.6.1.5.5.7.3.1')])
+          ]
         ).to_der
         described_class.new(cert_with_raw_extension('1.3.6.1.4.1.311.21.10', content)).to_s_full
       end
 
-      it 'hex-encodes the raw extnValue' do
-        expected_hex = OpenSSL::ASN1::Sequence.new(
-          [OpenSSL::ASN1::Sequence.new([OpenSSL::ASN1::ObjectId.new('1.3.6.1.5.5.7.3.2')])]
-        ).to_der.b.unpack1('H*').upcase.scan(/../).join(':')
-        expect(subject).to include(expected_hex)
+      it 'labels the OID with a friendly name' do
+        expect(subject).to include('Application Policies')
+      end
+
+      it 'decodes each policy OID to its dotted value and label' do
+        expect(subject).to include('1.3.6.1.5.5.7.3.2 (Client Authentication)')
+        expect(subject).to include('1.3.6.1.5.5.7.3.1 (Server Authentication)')
+      end
+
+      it 'does not hex-encode the structured content' do
+        expect(subject).not_to include('30:0')
       end
 
       it 'does not emit non-printable bytes in the extensions block' do
         ext_lines = subject.lines.select { |l| l.start_with?('    ') }.join
         expect(ext_lines).not_to match(/[^[:print:]\t]/)
+      end
+    end
+
+    context 'with an Application Policies OID that has no friendly label' do
+      # OID_ANY_APPLICATION_POLICY is in the framework's OID table but carries no
+      # label; it should still print as its dotted value, never a hex dump.
+      subject do
+        content = OpenSSL::ASN1::Sequence.new(
+          [OpenSSL::ASN1::Sequence.new([OpenSSL::ASN1::ObjectId.new('1.3.6.1.4.1.311.10.12.1')])]
+        ).to_der
+        described_class.new(cert_with_raw_extension('1.3.6.1.4.1.311.21.10', content)).to_s_full
+      end
+
+      it 'prints the bare OID with no label parenthetical' do
+        expect(subject).to match(/Application Policies : 1\.3\.6\.1\.4\.1\.311\.10\.12\.1(\s|$)/)
       end
     end
   end
