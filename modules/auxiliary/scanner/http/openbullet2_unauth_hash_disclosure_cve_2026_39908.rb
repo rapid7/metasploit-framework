@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['CVE', 'CVE-2026-25555'],
           ['CVE', 'CVE-2026-39908'],
-          ['URL', 'https://example.com']
+          ['URL', 'https://hackernoon.com/one-empty-header-to-admin-how-an-auth-bypass-breaks-openbullet2']
         ],
         'DisclosureDate' => '2026-06-04',
         'Notes' => {
