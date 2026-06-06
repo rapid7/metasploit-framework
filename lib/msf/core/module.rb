@@ -150,7 +150,11 @@ module Msf
       register_advanced_options(
         [
           OptString.new('WORKSPACE', [ false, "Specify the workspace for this module" ]),
-          OptBool.new('VERBOSE',     [ false, 'Enable detailed status messages', false ])
+          OptBool.new('VERBOSE',     [ false, 'Enable detailed status messages', false ]),
+          OptBool.new('EXE::Template::Dynamic::Enabled', [false, 'Use dynamic template when generating the executable', false]),
+          OptPath.new('EXE::Template::Dynamic::CustomTemplate', [false, 'Use custom template when generating the executable']),
+          OptBool.new('EXE::Template::Dynamic::Obfluscation', [false, 'Use JIT obfuscation when generating the executable', false]),
+          OptEnum.new('EXE::Template::Dynamic::Compiler', [false, 'The compiler to use for JIT obfuscation', 'metasm',['mingw', 'metasm', 'msfcompile']])
         ], Msf::Module)
 
     end

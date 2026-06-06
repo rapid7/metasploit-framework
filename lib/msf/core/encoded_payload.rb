@@ -421,7 +421,11 @@ class EncodedPayload
         :template => emod.datastore['EXE::Template'],
         :inject => emod.datastore['EXE::Inject'],
         :fallback => emod.datastore['EXE::FallBack'],
-        :sub_method => emod.datastore['EXE::OldMethod']
+        :sub_method => emod.datastore['EXE::OldMethod'],
+        :dynamic_template_enabled => emod.datastore['EXE::Template::Dynamic::Enabled'],
+        :dynamic_template_obfluscation => emod.datastore['EXE::Template::Dynamic::Obfluscation'],
+        :dynamic_template_customtemplate => emod.datastore['EXE::Template::Dynamic::CustomTemplate'],
+        :dynamic_template_compiler => emod.datastore['EXE::Template::Dynamic::Compiler']
       })
       # Prefer the target's platform/architecture information, but use
       # the exploit module's if no target specific information exists.
