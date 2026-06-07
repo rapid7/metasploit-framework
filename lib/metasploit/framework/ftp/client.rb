@@ -68,7 +68,7 @@ module Metasploit
         def connect_login(user,pass,global = true)
           ftpsock = connect(global)
 
-          if !(user and pass)
+          if !(user and pass) && !(user == '' && pass == '')
             return false
           end
 
