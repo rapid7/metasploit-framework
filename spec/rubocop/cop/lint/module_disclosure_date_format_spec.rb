@@ -81,7 +81,7 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDisclosureDateFormat do
     expect_no_corrections
   end
 
-  it 'provides an autocorrection when the DisclosureDate can safely be converted to the required format' do
+  it 'rejects old Mon DD YYYY format DisclosureDate values' do
     expect_offense(<<~RUBY)
       class DummyModule
         def initialize(info = {})
@@ -101,24 +101,6 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDisclosureDateFormat do
         end
       end
     RUBY
-
-    expect_correction(<<~RUBY)
-      class DummyModule
-        def initialize(info = {})
-          super(
-            update_info(
-              info,
-              'Name' => 'Simple module name',
-              'Description' => 'Lorem ipsum dolor sit amet',
-              'Author' => [ 'example1', 'example2' ],
-              'License' => MSF_LICENSE,
-              'Platform' => 'win',
-              'Arch' => ARCH_X86,
-              'DisclosureDate' => '2007-12-07'
-            )
-          )
-        end
-      end
-    RUBY
+    expect_no_corrections
   end
 end

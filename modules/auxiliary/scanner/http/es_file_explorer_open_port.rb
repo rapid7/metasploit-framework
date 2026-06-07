@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         'fs0c131y', # poc
         'h00die' # msf module
       ],
-      'DisclosureDate' => 'Jan 16 2019',
+      'DisclosureDate' => '2019-01-16',
       'License' => MSF_LICENSE,
       'Actions' => [
         ['LISTFILES', 'Description' => 'List all the files on the sdcard'],

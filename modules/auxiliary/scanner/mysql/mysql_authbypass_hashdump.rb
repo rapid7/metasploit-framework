@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         ['OSVDB', '82804'],
         ['URL', 'https://www.rapid7.com/blog/post/2012/06/11/cve-2012-2122-a-tragically-comedic-security-flaw-in-mysql/']
       ],
-      'DisclosureDate' => 'Jun 09 2012',
+      'DisclosureDate' => '2012-06-09',
       'License' => MSF_LICENSE
     )
 

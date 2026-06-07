@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2016-3236'],
         ['MSB', 'MS16-077']
       ],
-      'DisclosureDate' => 'Jun 14 2016'
+      'DisclosureDate' => '2016-06-14'
     )
 
     register_options(
