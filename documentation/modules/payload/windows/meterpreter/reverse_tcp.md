@@ -28,7 +28,7 @@ First, it is typically used as a payload for an exploit. Here's how to do that:
 
 Another way to use windows/meterpreter/reverse_tcp is to generate it as an executable. Normally,
 you would want to do it with msfvenom. If you are old school, you have probably also heard of
-msfpayload and msfencode. msfvenom is a replacement of those.
+msfvenom, which replaced the deprecated msfpayload and msfencode tools.
 
 The following is a basic example of using msfvenom to generate windows/meterpreter/reverse_tcp
 as an executable:
