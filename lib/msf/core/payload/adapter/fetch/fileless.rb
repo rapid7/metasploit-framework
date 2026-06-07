@@ -323,12 +323,13 @@ end
     cmd << "; then if $(#{get_file_cmd} >/dev/null)"
     cmd << '; then $f'
     cmd << '; FOUND=1'
-    cmd << '; break'
+    cmd << '; exit 1'
     cmd << '; fi'
     cmd << '; fi'
     cmd << '; done'
     cmd << '; fi'
     cmd << '; done'
+    cmd << ';'
 
     cmd
   end
