@@ -2,6 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'net/ldap'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::RelayServer
@@ -81,6 +82,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     check_options
+    check
 
     start_service
     print_status('Server started.')
