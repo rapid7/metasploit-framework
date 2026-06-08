@@ -32,11 +32,11 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('SRVHOST', [true, 'Address to bind the HTTP server', '127.0.0.1']),
-        OptPort.new('SRVPORT',   [true, 'Port for the HTTP server', 7777]),
-        OptInt.new('INTERVAL',   [true, 'Seconds between graph refreshes in the browser', 30]),
+        OptPort.new('SRVPORT', [true, 'Port for the HTTP server', 7777]),
+        OptInt.new('INTERVAL', [true, 'Seconds between graph refreshes in the browser', 30]),
         OptInt.new('LIMIT_SESSION', [false, 'Max sessions to include per host (0 = unlimited)', 0]),
-        OptInt.new('LIMIT_LOOT',    [false, 'Max loot items to include per host (0 = unlimited)', 0]),
-        OptInt.new('LIMIT_CRED',    [false, 'Max credentials to include per host (0 = unlimited)', 0])
+        OptInt.new('LIMIT_LOOT', [false, 'Max loot items to include per host (0 = unlimited)', 0]),
+        OptInt.new('LIMIT_CRED', [false, 'Max credentials to include per host (0 = unlimited)', 0])
       ]
     )
   end
@@ -44,8 +44,8 @@ class MetasploitModule < Msf::Auxiliary
   def run
     fail_with(Failure::BadConfig, 'No database connected.') unless framework.db.active
 
-    host     = datastore['SRVHOST']
-    port     = datastore['SRVPORT'].to_i
+    host = srvhost
+    port = datastore['SRVPORT'].to_i
     interval = [datastore['INTERVAL'].to_i, 5].max
 
     begin
@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::BadConfig, "Could not bind #{host}:#{port} — #{e.message}")
     end
 
-    server.add_resource('/',         { 'Proc' => method(:handle_root) })
+    server.add_resource('/', { 'Proc' => method(:handle_root) })
     server.add_resource('/api/data', { 'Proc' => method(:handle_api_data) })
     server.add_resource('/d3.min.js', { 'Proc' => method(:handle_d3) })
 
@@ -66,32 +66,36 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Interrupt
     print_status('Server stopped.')
   ensure
-    server&.stop rescue nil
+    begin
+      server&.stop
+    rescue StandardError
+      nil
+    end
   end
 
   private
 
   LIVE_TEMPLATE_PATH = File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'network_map', 'network_map_live_template.html')
-  D3_LOCAL_PATH      = File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'network_map', 'd3.v7.9.0.min.js')
-  D3_CDN_URL         = 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js'
+  D3_LOCAL_PATH = File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'network_map', 'd3.v7.9.0.min.js')
+  D3_CDN_URL = 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js'
 
   def handle_root(cli, _request)
     interval_ms = [datastore['INTERVAL'].to_i, 5].max * 1000
     html = File.binread(LIVE_TEMPLATE_PATH)
-              .force_encoding('UTF-8')
-              .sub('%%INTERVAL%%', interval_ms.to_s)
+               .force_encoding('UTF-8')
+               .sub('%%INTERVAL%%', interval_ms.to_s)
     send_response(cli, html, 'text/html; charset=utf-8')
   rescue Errno::ENOENT
     send_response(cli, 'Template file not found', 'text/plain', 500)
   end
 
   def handle_api_data(cli, _request)
-    ws_data       = load_workspace_data(myworkspace)
-    nodes, links  = build_graph_data(
+    ws_data = load_workspace_data(myworkspace)
+    nodes, links = build_graph_data(
       ws_data,
       session_limit: datastore['LIMIT_SESSION'].to_i,
-      loot_limit:    datastore['LIMIT_LOOT'].to_i,
-      cred_limit:    datastore['LIMIT_CRED'].to_i
+      loot_limit: datastore['LIMIT_LOOT'].to_i,
+      cred_limit: datastore['LIMIT_CRED'].to_i
     )
     json = JSON.generate(utf8_sanitize({ nodes: nodes, links: links }))
     send_response(cli, json, 'application/json')
@@ -112,9 +116,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def send_response(cli, body, content_type, code = 200)
     resp = Rex::Proto::Http::Response.new(code, code == 200 ? 'OK' : 'Error')
-    resp['Content-Type']                = content_type
+    resp['Content-Type'] = content_type
     resp['Access-Control-Allow-Origin'] = '*'
-    resp['Cache-Control']               = 'no-store'
+    resp['Cache-Control'] = 'no-store'
     resp.body = body.encode('binary', invalid: :replace, undef: :replace)
     cli.send_response(resp)
   end
