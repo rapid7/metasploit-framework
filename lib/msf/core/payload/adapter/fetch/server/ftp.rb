@@ -14,7 +14,8 @@ module Msf::Payload::Adapter::Fetch::Server::FTP
     @myresources.each do |uri|
       fetch_service.deregister_file(uri)
     end
-    fetch_service.deref
+    @myresources = []
+    fetch_service = nil
   end
 
   def fetch_protocol

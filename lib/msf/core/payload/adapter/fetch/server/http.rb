@@ -21,21 +21,21 @@ module Msf
 
     def add_resource(fetch_service, uri, srv_entry)
       vprint_status("Adding resource #{uri}")
+      if fetch_service.resources.include?(uri)
+        # When we clean up, we need to leave resources alone, because we never added one.
+        fail_with(Msf::Exploit::Failure::BadConfig, 'Resource collision detected. Set FETCH_URIPATH to a different value to continue.')
+      end
       begin
-        if fetch_service.resources.include?(uri)
-          # When we clean up, we need to leave resources alone, because we never added one.
-          fail_with(Msf::Exploit::Failure::BadConfig, 'Resource collision detected. Set FETCH_URIPATH to a different value to continue.')
-        end
         fetch_service.add_resource(uri,
                                    'Proc' => proc do |cli, req|
-                                     on_request_uri(cli, req, srv_entry)
+                                   on_request_uri(cli, req, srv_entry)
                                    end,
                                    'VirtualDirectory' => true)
+        @myresources << uri
       rescue ::Exception => e
         # When we clean up, we need to leave resources alone, because we never added one.
         fail_with(Msf::Exploit::Failure::Unknown, "Failed to add resource\n#{e}")
       end
-      @myresources << uri
     end
 
     def cleanup_http_fetch_service(fetch_service, my_resources)
@@ -45,7 +45,7 @@ module Msf
         end
       end
 
-      fetch_service.deref
+      fetch_service = nil
     end
 
     def start_http_fetch_handler(srvname, ssl = false, ssl_cert = nil, ssl_compression = nil, ssl_cipher = nil, ssl_version = nil)
@@ -62,7 +62,7 @@ module Msf
     end
 
     def on_request_uri(cli, request, srv_entry)
-      opts = srv_entry[:opts]
+      opts = srv_entry[:opts].dup
       client = cli.peerhost
       vprint_status("Client #{client} requested #{request.uri}")
       if (user_agent = request.headers['User-Agent'])
@@ -75,25 +75,32 @@ module Msf
         arch_param = query_string['arch']
         if arch_param.nil? || arch_param.strip.empty?
           print_error('Fetch request missing required arch query parameter')
-          return nil
+          cli.send_response(fetch_error_response(400, 'Bad Request'))
+          return
         end
         arch = Rex::Arch.from_uname(arch_param)
         if arch.nil?
-          print_error("Failed to identify the architecture in Query String #{request.uri_parts['QueryString']['arch'].to_s}")
-          return nil
+          print_error("Failed to identify the architecture in Query String #{arch_param}")
+          cli.send_response(fetch_error_response(404, 'Not Found'))
+          return
         end
-        vprint_status("Building payload for #{arch.to_s} arch")
+        vprint_status("Building payload for #{arch} arch")
         opts[:arch] = arch
         # Call generate with arch and dynamic_arch populated properly to build the right binary
         payload_exe = generate(opts)
         if payload_exe.nil?
           print_error("No payload available for #{arch}")
+          cli.send_response(fetch_error_response(404, 'Not Found'))
         else
           cli.send_response(payload_response(payload_exe))
         end
       else
         cli.send_response(payload_response(srv_entry[:data]))
       end
+    end
+
+    def fetch_error_response(code, message)
+      Rex::Proto::Http::Response.new(code, message, Rex::Proto::Http::DefaultProtocol)
     end
 
     def payload_response(srvexe)

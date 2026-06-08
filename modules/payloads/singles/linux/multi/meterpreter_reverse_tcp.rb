@@ -28,9 +28,8 @@ module MetasploitModule
   end
 
   def generate(opts = {})
-    vprint_status("#{__method__}:#{__LINE__}")
     mettle_arch = mettle_arch_transform(desired_arch(opts))
-    vprint_status("#{__method__}:#{__LINE__}")
+    fail_with(Msf::Module::Failure::BadConfig, "Unsupported or unset architecture: #{desired_arch(opts).inspect}") if mettle_arch.nil?
     opts = {
       scheme: 'tcp',
       stageless: true

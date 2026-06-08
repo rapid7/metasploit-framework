@@ -14,7 +14,7 @@ module Msf::Payload::Adapter::Fetch::Server::TFTP
       fetch_service.deregister_file(uri)
     end
     @myresources = []
-    fetch_service.deref
+    fetch_service = nil
   end
 
   def fetch_protocol

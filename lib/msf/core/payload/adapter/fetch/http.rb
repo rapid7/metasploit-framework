@@ -23,7 +23,6 @@ module Msf::Payload::Adapter::Fetch::HTTP
       @fetch_service = start_http_fetch_handler(srvname)
       @srv_resources.each do |srv_entry|
         escaped_uri = ('/' + srv_entry[:uri]).gsub('//', '/')
-        @myresources << escaped_uri
         add_resource(@fetch_service, escaped_uri, srv_entry)
       end
     end
