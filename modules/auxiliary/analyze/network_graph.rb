@@ -44,13 +44,13 @@ class MetasploitModule < Msf::Auxiliary
   def run
     fail_with(Failure::BadConfig, 'No database connected. Please connect to a database first (db_connect or db_status).') unless framework.db.active
 
-    ws      = myworkspace
+    ws = myworkspace
     ws_data = load_workspace_data(ws)
 
-    hosts            = ws_data[:hosts]
-    db_sessions      = ws_data[:db_sessions]
+    hosts = ws_data[:hosts]
+    db_sessions = ws_data[:db_sessions]
     traceroute_notes = ws_data[:traceroute_notes]
-    snmp_by_host     = ws_data[:snmp_by_host]
+    snmp_by_host = ws_data[:snmp_by_host]
 
     print_status('Building network graph:')
     print_status("  Hosts:             #{hosts.length}")
@@ -64,6 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     subnet_to_pivot = {}
     db_sessions.each do |s|
       next unless s.respond_to?(:routes)
+
       s.routes.each { |r| subnet_to_pivot["#{r.subnet}/#{r.netmask}"] = s.host_id }
     end
 
@@ -74,8 +75,8 @@ class MetasploitModule < Msf::Auxiliary
     nodes, links = build_graph_data(
       ws_data,
       session_limit: datastore['LIMIT_SESSION'].to_i,
-      loot_limit:    datastore['LIMIT_LOOT'].to_i,
-      cred_limit:    datastore['LIMIT_CRED'].to_i
+      loot_limit: datastore['LIMIT_LOOT'].to_i,
+      cred_limit: datastore['LIMIT_CRED'].to_i
     )
     html = generate_html(nodes, links)
 
@@ -87,20 +88,20 @@ class MetasploitModule < Msf::Auxiliary
 
   TEMPLATE_PATH = File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'network_map', 'network_map_template.html')
   D3_LOCAL_PATH = File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'network_map', 'd3.v7.9.0.min.js')
-  D3_CDN_TAG    = '<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>'
+  D3_CDN_TAG = '<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>'
 
   def generate_html(nodes, links)
     template = File.binread(TEMPLATE_PATH).force_encoding('UTF-8')
-    d3_tag   = if datastore['EMBED_JS']
-                 if File.exist?(D3_LOCAL_PATH)
-                   "<script>#{File.read(D3_LOCAL_PATH)}</script>"
-                 else
-                   print_warning("D3 local file not found at #{D3_LOCAL_PATH}, falling back to CDN")
-                   D3_CDN_TAG
-                 end
+    d3_tag = if datastore['EMBED_JS']
+               if File.exist?(D3_LOCAL_PATH)
+                 "<script>#{File.read(D3_LOCAL_PATH)}</script>"
                else
+                 print_warning("D3 local file not found at #{D3_LOCAL_PATH}, falling back to CDN")
                  D3_CDN_TAG
                end
+             else
+               D3_CDN_TAG
+             end
     template
       .sub('%%D3_SCRIPT%%', d3_tag)
       .sub('%%NODES%%', JSON.generate(utf8_sanitize(nodes)).force_encoding('UTF-8'))
