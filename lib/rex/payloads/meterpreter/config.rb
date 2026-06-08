@@ -87,8 +87,12 @@ private
       c2_tlv = profile.to_tlv
     else
       c2_tlv = MET::GroupTlv.new(MET::TLV_TYPE_C2)
+    end
 
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_UA, opts[:ua]) unless (opts[:ua] || '').empty?
+    # Fall back to the datastore UA when the profile didn't `set useragent`
+    # (or there's no profile at all).
+    unless (opts[:ua] || '').empty? || c2_tlv.tlvs.any? { |t| t.type == MET::TLV_TYPE_C2_UA }
+      c2_tlv.add_tlv(MET::TLV_TYPE_C2_UA, opts[:ua])
     end
 
     c2_tlv.add_tlv(MET::TLV_TYPE_C2_COMM_TIMEOUT, opts[:comm_timeout])
