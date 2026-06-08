@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Post
     end
     listing = cmd_exec('pm list packages -f').to_s
     if listing.empty?
-      print_error('No results were returned when trying to get software installed on the Linux host. An error likely occured.')
+      print_error('No results were returned when trying to get software installed on the Linux host. An error likely occurred.')
       return nil
     end
     listing
@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Post
       else
         listing = cmd_exec(cmd.join(' ')).to_s
         if listing.empty?
-          print_error('No results were returned when trying to get software installed on the Linux host. An error likely occured.')
+          print_error('No results were returned when trying to get software installed on the Linux host. An error likely occurred.')
           return
         end
         store_linux_loot(listing)
@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Post
       end
       listing = cmd_exec('pkg info').to_s
       if listing.empty?
-        print_error('No results were returned when trying to get software installed on the BSD/Solaris host. An error likely occured.')
+        print_error('No results were returned when trying to get software installed on the BSD/Solaris host. An error likely occurred.')
         return
       end
       file = store_loot('host.bsd.solaris.software.versions', 'text/plain', session, listing, 'installed_software.txt', 'Installed Software and Versions')
