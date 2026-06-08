@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 module Msf
-  module Auxiliary
-    module NetworkGraphBuilder
-      MSF_NODE_ID = '__msf__'
+module Auxiliary::NetworkGraphBuilder
+  MSF_NODE_ID = '__msf__'
 
       def load_workspace_data(ws)
         hosts         = ws.hosts.includes(:services, :sessions).all.to_a
@@ -406,6 +405,5 @@ module Msf
         else obj
         end
       end
-    end
-  end
+end
 end
