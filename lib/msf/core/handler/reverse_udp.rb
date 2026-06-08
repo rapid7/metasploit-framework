@@ -258,12 +258,13 @@ protected
     if not datastore['ReverseListenerBindAddress'].to_s.empty?
       bind_addr = datastore['ReverseListenerBindAddress']
       any = Rex::Socket.is_ipv6?(bind_addr) ? "::0" : "0.0.0.0"
-      return [ (bind_addr == "0.0.0.0" || bind_addr == "::0") ? any : bind_addr ]
+      return [ Rex::Socket.addr_atoi(bind_addr) == 0 ? any : bind_addr ]
     end
 
-    addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
-    any = (addr.length == 4) ? "0.0.0.0" : "::0"
-    [ Rex::Socket.addr_ntoa(addr), any ]
+    addr_nbo = Rex::Socket.resolv_nbo(datastore['LHOST'])
+    addr = Rex::Socket.addr_ntoa(addr_nbo)
+    any = Rex::Socket.is_ipv4?(addr) ? "0.0.0.0" : "::0"
+    [ addr, any ]
   end
 
   attr_accessor :listener_sock # :nodoc:

@@ -45,17 +45,17 @@ module Msf
           # resolving LHOST (LHOST may be a tunnel hostname not locally resolvable).
           bind_addr = datastore['ReverseListenerBindAddress']
           any = Rex::Socket.is_ipv6?(bind_addr) ? "::0" : "0.0.0.0"
-          return [ (bind_addr == "0.0.0.0" || bind_addr == "::0") ? any : bind_addr ]
+          return [ Rex::Socket.addr_atoi(bind_addr) == 0 ? any : bind_addr ]
         end
 
         # No ReverseListenerBindAddress set — resolve LHOST to determine the
         # bind address and whether to use IPv4 or IPv6 ANY as fallback.
-        addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
+        addr_nbo = Rex::Socket.resolv_nbo(datastore['LHOST'])
+        addr = Rex::Socket.addr_ntoa(addr_nbo)
 
         # First attempt to bind LHOST. If that fails, the user probably has
         # something else listening on that interface. Try again with ANY_ADDR.
-        any = (addr.length == 4) ? "0.0.0.0" : "::0"
-        addr = Rex::Socket.addr_ntoa(addr)
+        any = Rex::Socket.is_ipv4?(addr) ? "0.0.0.0" : "::0"
 
         if is_loopback_address?(addr)
           print_warning("You are binding to a loopback address by setting LHOST to #{addr}. Did you want ReverseListenerBindAddress?")
