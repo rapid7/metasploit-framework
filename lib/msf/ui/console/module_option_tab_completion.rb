@@ -249,7 +249,7 @@ module Msf
 
         # XXX: We repurpose OptAddressLocal#interfaces, so we can't put this in Rex
         def tab_complete_source_interface(o)
-          return [] unless o.is_a?(Msf::OptAddressLocal)
+          return [] unless o.respond_to?(:interfaces)
 
           o.interfaces
         end
