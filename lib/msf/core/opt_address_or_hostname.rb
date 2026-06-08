@@ -19,6 +19,14 @@ module Msf
 ###
 class OptAddressOrHostname < OptBase
 
+  # @param resolve_names [Boolean] when true, hostname values are also resolved
+  #   via DNS during validation. Use this when the value will be connected to or
+  #   bound to locally, so resolution failures surface early.
+  def initialize(in_name, attrs = [], resolve_names: false, **kwargs)
+    super(in_name, attrs, **kwargs)
+    @resolve_names = resolve_names
+  end
+
   def type
     'address'
   end
@@ -40,7 +48,17 @@ class OptAddressOrHostname < OptBase
       end
 
       return true if Rex::Socket.is_ip_addr?(value)
-      return true if Rex::Socket.is_name?(value)
+
+      if Rex::Socket.is_name?(value)
+        return true unless @resolve_names
+        begin
+          ::Rex::Socket.getaddress(value, true)
+          return true
+        rescue
+          return false
+        end
+      end
+
       return false
     end
 
