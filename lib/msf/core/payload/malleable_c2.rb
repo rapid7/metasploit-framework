@@ -114,8 +114,10 @@ module Msf::Payload::MalleableC2
         if scanner.scan(/\s+/)
           # blank line
           next
-        elsif scanner.scan(/^\s*#.*$/)
-          # comment
+        elsif scanner.scan(/#[^\n]*/)
+          # comment — anchorless so it matches indented comments too
+          # (the prior `\s+` rule has already eaten any leading
+          # whitespace by the time we get here)
           next
         elsif scanner.scan(/\"(\\.|[^"])*\"/)
           @tokens << Token.new(:string, scanner.matched[1..-2])
