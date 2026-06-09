@@ -51,6 +51,68 @@ captures and reports them, which can leak the operator's post-exploitation
 automation. With no AutoRunScript configured, the handler simply stops after
 verification (nothing further is sent).
 
+### Detection flow
+
+Detection is a decision tree: classify the bytes a handler volunteers on connect
+(`fingerprint`), and if it stays silent, fall back to active HTTP/TLS probes and
+then `DEEP_PROBE`. The ordered checks below are "first match wins". UDP runs as a
+separate pass when `SCAN_UDP` is set.
+
+```mermaid
+flowchart TD
+    A["check_port: TCP connect"] -->|refused| R0["Closed / not a listener"]
+    A -->|connected| B["drain_stage: read unsolicited bytes<br/>(up to FIRST_BYTE_WAIT)"]
+    B --> C{"server talked<br/>first?"}
+    C -->|"yes (bytes)"| FP["fingerprint(buf)"]
+    C -->|"no (silent)"| SIL["silent-port fallbacks"]
+
+    %% ---- fingerprint() ordered checks ----
+    FP --> F1{"starts with<br/>'echo TOKEN'?"}
+    F1 -->|yes| RShell["Command shell handler<br/>(echo probe) — high"]
+    F1 -->|no| F2{"base64 + 4-byte<br/>big-endian length?"}
+    F2 -->|yes| RPy["python meterpreter<br/>(base64/zlib staged)"]
+    F2 -->|no| F3{"4-byte little-endian<br/>length delivered?"}
+    F3 -->|yes| RWin["Windows native staged<br/>(metsrv/shell) — high"]
+    F3 -->|no| F4{"4-byte big-endian<br/>length delivered?"}
+    F4 -->|yes| RBE["php / java / android<br/>staged — medium"]
+    F4 -->|no| F5{"small buf<br/>with /bin/sh?"}
+    F5 -->|yes| RExec["unix execve staged shell"]
+    F5 -->|no| F6{"starts with 0xFC?"}
+    F6 -->|yes| RStager["Windows raw stager shellcode<br/>(reverse_nonx/ord) — medium"]
+    F6 -->|no| F7{">=128 bytes,<br/>mostly non-text?"}
+    F7 -->|yes| RNative["linux/osx native stage<br/>or RC4/encrypted — low"]
+    F7 -->|no| RBanner["Talks first, not a stage<br/>(unrelated service)"]
+
+    RShell --> EB{"ECHO_BACK?"}
+    EB -->|yes| CAP["echo token back →<br/>capture AutoRunScript → loot"]
+
+    %% ---- silent-port fallbacks ----
+    SIL --> H1["HTTP probe: GET random URI"]
+    H1 --> H1c{"200 + 'It works!'?"}
+    H1c -->|yes| RHttp["reverse_http handler"]
+    H1c -->|no| H2{"Rex 404 page?"}
+    H2 -->|yes| RRex["web_delivery / fetch server"]
+    H2 -->|no| HS["HTTPS probe: TLS + GET"]
+    HS --> HSc{"reply?"}
+    HSc -->|"'It works!'"| RHttps["reverse_https"]
+    HSc -->|"echo / stage"| RSsl["ssl shell / reverse_tcp_ssl"]
+    HSc -->|nothing| DP{"DEEP_PROBE on?"}
+    DP -->|no| SOpen["Open, no data<br/>(stageless / powershell / not MSF)"]
+    DP -->|yes| D1["2nd TCP connection"]
+    D1 --> D1c{"echo on the pair?"}
+    D1c -->|yes| RDouble["ReverseTcpDouble<br/>(cmd/unix/reverse)"]
+    D1c -->|no| D2["2 TLS connections"]
+    D2 --> D2c{"echo on the pair?"}
+    D2c -->|yes| RDoubleSsl["double-SSL handler"]
+    D2c -->|no| D3["send 16-byte UUID"]
+    D3 --> D3c{"fast reply-less<br/>close?"}
+    D3c -->|yes| RPing["pingback — low"]
+    D3c -->|no| SOpen
+
+    %% ---- UDP (independent, if SCAN_UDP) ----
+    UDP["check_port_udp (if SCAN_UDP):<br/>send datagram → fingerprint()"] --> RUdp["reverse_udp"]
+```
+
 ### Detectability summary by transport
 
 These figures come from spinning up one representative listener for every
