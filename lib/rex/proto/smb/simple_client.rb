@@ -279,7 +279,7 @@ class SimpleClient
   def trans_pipe(fid, data, no_response = nil)
     session_lifetime do
       client.trans_named_pipe(fid, data, no_response)
-  end
+    end
   end
 
   def negotiated_smb_version
