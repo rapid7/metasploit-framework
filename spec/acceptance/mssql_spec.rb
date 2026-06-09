@@ -101,6 +101,21 @@ RSpec.describe 'MSSQL sessions and MSSQL modules' do
               ]
             },
           }
+        },
+        {
+          name: "auxiliary/admin/mssql/mssql_sql",
+          platforms: [:linux, :osx, :windows],
+          targets: [:session, :rhost],
+          skipped: false,
+          datastore: { SQL: 'EXEC sp_databases' },
+          lines: {
+            all: {
+              required: [
+                "Response",
+                "master",
+              ]
+            },
+          }
         }
       ]
     }
@@ -349,7 +364,7 @@ RSpec.describe 'MSSQL sessions and MSSQL modules' do
                 end)
 
                 use_module = "use #{module_test[:name]}"
-                run_module = "run session=#{session_id} Verbose=true"
+                run_module = "run session=#{session_id} #{target.datastore_options(default_module_datastore: default_module_datastore.merge(module_test.fetch(:datastore, {})))} Verbose=true"
 
                 replication_commands << use_module
                 console.sendline(use_module)
@@ -369,7 +384,7 @@ RSpec.describe 'MSSQL sessions and MSSQL modules' do
             ) do
               with_test_harness(module_test) do |replication_commands|
                 use_module = "use #{module_test[:name]}"
-                run_module = "run #{target.datastore_options(default_module_datastore: default_module_datastore)} Verbose=true"
+                run_module = "run #{target.datastore_options(default_module_datastore: default_module_datastore.merge(module_test.fetch(:datastore, {})))} Verbose=true"
 
                 replication_commands << use_module
                 console.sendline(use_module)
