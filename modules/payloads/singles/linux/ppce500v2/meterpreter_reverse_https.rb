@@ -29,11 +29,19 @@ module MetasploitModule
         'Session' => Msf::Sessions::Meterpreter_ppce500v2_Linux
       )
     )
+
+    register_options([
+      OptString.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile']),
+      OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load'])
+    ])
   end
 
   def generate(_opts = {})
     opts = {
       scheme: 'https',
+      c2_profile: datastore['MALLEABLEC2'],
+      extensions: (datastore['EXTENSIONS'] || '').split(','),
+      mettle_platform: 'powerpc-e500v2-linux-musl',
       stageless: true
     }.merge(mettle_logging_config)
     MetasploitPayloads::Mettle.new('powerpc-e500v2-linux-musl', generate_config(opts)).to_binary :exec

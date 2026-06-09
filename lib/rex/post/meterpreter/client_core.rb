@@ -10,6 +10,9 @@ require 'rex/post/meterpreter/client'
 # certificate hash checking
 require 'rex/socket/x509_certificate'
 
+# parsing of Malleable C2 profiles for transport_add / transport_change
+require 'msf/core/payload/malleable_c2'
+
 require 'openssl'
 
 module Rex
@@ -148,8 +151,9 @@ class ClientCore < Extension
 
     response.each(TLV_TYPE_C2) { |t|
       # TODO: Consider adding more information to the output for malleable profiles?
-      # TLV_TYPE_C2_GET, TLV_TYPE_C2_POST, TLV_TYPE_C2_PREFIX, TLV_TYPE_C2_SUFFIX, TLV_TYPE_C2_ENC,
-      # TLV_TYPE_C2_SKIP_COUNT, TLV_TYPE_C2_UUID_COOKIE, TLV_TYPE_C2_UUID_GET, TLV_TYPE_C2_UUID_HEADER
+      # TLV_TYPE_C2_GET, TLV_TYPE_C2_POST, TLV_TYPE_C2_PREFIX, TLV_TYPE_C2_SUFFIX, TLV_TYPE_C2_ENC_INBOUND, TLV_TYPE_C2_ENC_OUTBOUND,
+      # TLV_TYPE_C2_PREFIX_SKIP, TLV_TYPE_C2_SUFFIX_SKIP,
+      # TLV_TYPE_C2_UUID_COOKIE, TLV_TYPE_C2_UUID_GET, TLV_TYPE_C2_UUID_HEADER
       # Not sure if this stuff is useful for this display though.
       result[:transports] << {
         :url            => t.get_tlv_value(TLV_TYPE_C2_URL),
@@ -895,7 +899,17 @@ private
       end
     end
 
-    c2_tlv = GroupTlv.new(TLV_TYPE_C2)
+    # When a Malleable C2 profile is supplied, start from its TLV (which carries
+    # UA + GET/POST sub-groups) and layer the rest on top; otherwise build a
+    # bare C2 group.
+    if (opts[:c2_profile] || '').empty?
+      c2_tlv = GroupTlv.new(TLV_TYPE_C2)
+      has_profile = false
+    else
+      profile = Msf::Payload::MalleableC2::Parser.new.parse(opts[:c2_profile])
+      c2_tlv = profile.to_tlv
+      has_profile = true
+    end
 
     if opts[:comm_timeout]
       c2_tlv.add_tlv(TLV_TYPE_C2_COMM_TIMEOUT, opts[:comm_timeout])
@@ -920,8 +934,11 @@ private
         url << generate_uri_uuid(sum, opts[:uuid]) + '/'
       end
 
-      opts[:ua] ||= Rex::UserAgent.random
-      c2_tlv.add_tlv(TLV_TYPE_C2_UA, opts[:ua])
+      # When a profile is supplied it controls the UA; otherwise add a default.
+      unless has_profile
+        opts[:ua] ||= Rex::UserAgent.random
+        c2_tlv.add_tlv(TLV_TYPE_C2_UA, opts[:ua])
+      end
 
       if transport == 'reverse_https' && opts[:cert] # currently only https transport offers ssl
         hash = Rex::Socket::X509Certificate.get_cert_file_hash(opts[:cert])

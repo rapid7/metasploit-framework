@@ -114,8 +114,10 @@ module Msf::Payload::MalleableC2
         if scanner.scan(/\s+/)
           # blank line
           next
-        elsif scanner.scan(/^\s*#.*$/)
-          # comment
+        elsif scanner.scan(/#[^\n]*/)
+          # comment — anchorless so it matches indented comments too
+          # (the prior `\s+` rule has already eaten any leading
+          # whitespace by the time we get here)
           next
         elsif scanner.scan(/\"(\\.|[^"])*\"/)
           @tokens << Token.new(:string, scanner.matched[1..-2])
@@ -248,9 +250,10 @@ module Msf::Payload::MalleableC2
       http_get.get_section('client') {|client|
         self.add_http_tlv(get_uri, client, get_tlv)
         add_skip_tlvs(get_tlv, self.http_get&.server&.output)
+        add_inbound_encoding_tlv(get_tlv, self.http_get&.server&.output)
 
         client.get_section('metadata') {|meta|
-          add_encoding_tlv(get_tlv, meta)
+          add_uuid_transform_tlvs(get_tlv, meta)
           add_uuid_tlvs(get_tlv, meta)
         }
       }
@@ -263,17 +266,15 @@ module Msf::Payload::MalleableC2
       http_post.get_section('client') {|client|
         self.add_http_tlv(post_uri, client, post_tlv)
         add_skip_tlvs(post_tlv, self.http_post&.server&.output)
+        add_inbound_encoding_tlv(post_tlv, self.http_post&.server&.output)
 
         client.get_section('output') {|client_output|
-          add_encoding_tlv(post_tlv, client_output)
-
-          prepend_data = client_output.get_directive('prepend').map{|d|d.args[0]}.join("")
-          post_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX, prepend_data) unless prepend_data.empty?
-          append_data = client_output.get_directive('append').map{|d|d.args[0]}.join("")
-          post_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX, append_data) unless append_data.empty?
+          add_outbound_encoding_tlv(post_tlv, client_output)
+          add_prepend_append_tlvs(post_tlv, client_output, MET::TLV_TYPE_C2_PREFIX, MET::TLV_TYPE_C2_SUFFIX)
         }
 
         client.get_section('id') {|client_id|
+          add_uuid_transform_tlvs(post_tlv, client_id)
           add_uuid_tlvs(post_tlv, client_id)
         }
       }
@@ -290,11 +291,42 @@ module Msf::Payload::MalleableC2
       group_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX_SKIP, suffix_len) unless suffix_len == 0
     end
 
-    def add_encoding_tlv(group_tlv, section)
-      enc_flags = MET::C2_ENCODING_NONE
-      enc_flags = MET::C2_ENCODING_B64URL if section.has_directive('base64url')
-      enc_flags = MET::C2_ENCODING_B64 if section.has_directive('base64')
-      group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != MET::C2_ENCODING_NONE
+    def encoding_flags_for(section)
+      return MET::C2_ENCODING_NONE if section.nil?
+      return MET::C2_ENCODING_B64 if section.has_directive('base64')
+      return MET::C2_ENCODING_B64URL if section.has_directive('base64url')
+      MET::C2_ENCODING_NONE
+    end
+
+    # Client->server body/metadata encoding (request)
+    def add_outbound_encoding_tlv(group_tlv, section)
+      enc = encoding_flags_for(section)
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC_OUTBOUND, enc) if enc != MET::C2_ENCODING_NONE
+    end
+
+    # Server->client body encoding (response)
+    def add_inbound_encoding_tlv(group_tlv, section)
+      enc = encoding_flags_for(section)
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC_INBOUND, enc) if enc != MET::C2_ENCODING_NONE
+    end
+
+    # UUID placement encoding + prepend/append wrappers. Section is
+    # `client.metadata` (GET) or `client.id` (POST).
+    def add_uuid_transform_tlvs(group_tlv, section)
+      return if section.nil?
+
+      enc = encoding_flags_for(section)
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC_UUID, enc) if enc != MET::C2_ENCODING_NONE
+      add_prepend_append_tlvs(group_tlv, section, MET::TLV_TYPE_C2_UUID_PREFIX, MET::TLV_TYPE_C2_UUID_SUFFIX)
+    end
+
+    # Concatenate every `prepend`/`append` directive in `section` and emit
+    # them as the given prefix/suffix TLVs (skipping empty strings).
+    def add_prepend_append_tlvs(group_tlv, section, prefix_type, suffix_type)
+      prepend_data = section.get_directive('prepend').map{|d|d.args[0]}.join("")
+      group_tlv.add_tlv(prefix_type, prepend_data) unless prepend_data.empty?
+      append_data = section.get_directive('append').map{|d|d.args[0]}.join("")
+      group_tlv.add_tlv(suffix_type, append_data) unless append_data.empty?
     end
 
     def add_uuid_tlvs(group_tlv, section)
