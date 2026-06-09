@@ -353,6 +353,21 @@ module ReverseHttp
     end
   end
 
+  # Return the live meterpreter session whose passive dispatcher is
+  # registered for this bare conn_id, or nil if none matches. Used so
+  # MC2 traffic — which Rex routes to on_request because the profile
+  # URI prefix outranks the session's /<conn_id> mount — can still be
+  # delivered to the right session instead of triggering a fresh
+  # "orphaned attach" on every poll.
+  def session_for_conn_id(bare_conn_id)
+    return nil if framework.nil? || bare_conn_id.nil? || bare_conn_id.empty?
+    framework.sessions.each_value do |s|
+      next unless s.respond_to?(:connection_uuid)
+      return s if s.connection_uuid == bare_conn_id
+    end
+    nil
+  end
+
   #
   # Removes the / handler, possibly stopping the service if no sessions are
   # active on sub-urls.
@@ -492,6 +507,17 @@ protected
         # TODO: at some point we may normalise these three cases into just :init
 
         if info[:mode] == :connect
+          # If a session already exists for this conn_id, hand the
+          # request to its passive dispatcher. Without this, MC2
+          # profiles loop forever on "orphaned attach" because the
+          # profile URI prefix outranks the session's /<conn_id>
+          # mount in Rex's VirtualDirectory routing.
+          existing = session_for_conn_id(req.conn_id)
+          if existing
+            existing.send(:on_passive_request, cli, req)
+            self.pending_connections -= 1
+            return
+          end
           print_status("Attaching orphaned/stageless session...")
         else
           begin
