@@ -40,21 +40,59 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
-    vprint_status("Contacting redis")
+    vprint_status('Contacting redis')
     begin
       connect
-      # Split the input command into parts using space as the delimiter
-      command_parts=command.split(' ')
-      # Execute the Redis command using the split parts
-      return unless (data = redis_command(*command_parts))
+      command_parts = command.split(' ')
+      return unless (raw_data = redis_command(*command_parts))
 
-      report_service(host: rhost, port: rport, name: "redis server", info: "#{command} response: #{data}")
-      print_good("Found redis with #{command} command: #{Rex::Text.to_hex_ascii(data)}")
+      report_service(host: rhost, port: rport, name: 'redis server', info: "#{command} response: #{raw_data}")
+      print_good("Found redis with #{command} command")
+      begin
+        print_line(parse_redis_info(raw_data))
+      rescue StandardError
+        print_error("Raw response: #{Rex::Text.to_hex_ascii(raw_data)}")
+      end
     rescue Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout,
            Rex::ConnectionRefused, ::Timeout::Error, ::EOFError, ::Errno::ETIMEDOUT => e
       vprint_error("Error while communicating: #{e}")
     ensure
       disconnect
     end
+  end
+
+  def parse_redis_info(raw_data)
+    # Strip Redis bulk-string length prefix ($NNNN\r\n) if present
+    data = raw_data.sub(/\A\$\d+\r\n/, '')
+
+    sections = {}
+    current = nil
+
+    data.split("\r\n").each do |line|
+      next if line.empty?
+
+      if line.start_with?('# ')
+        current = line[2..]
+        sections[current] = []
+      elsif current && (colon = line.index(':'))
+        sections[current] << [line[0, colon], line[colon + 1..]]
+      end
+    end
+
+    return Rex::Text.to_hex_ascii(raw_data) if sections.empty?
+
+    out = +''
+    sections.each do |section, pairs|
+      next if pairs.empty?
+
+      tbl = Rex::Text::Table.new(
+        'Header' => section,
+        'Indent' => 2,
+        'Columns' => %w[Key Value]
+      )
+      pairs.each { |k, v| tbl << [k, v] }
+      out << tbl.to_s << "\n"
+    end
+    out
   end
 end
