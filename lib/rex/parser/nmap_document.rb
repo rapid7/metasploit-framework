@@ -163,6 +163,8 @@ module Rex
       # is never downgraded back to a user-supplied entry.
       if hash["type"] == "PTR"
         @state[:hostname] = name
+      elsif @state[:hostname].nil?
+        @state[:hostname] = name
       end
     end
 
