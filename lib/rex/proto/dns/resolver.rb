@@ -313,6 +313,7 @@ module DNS
     def send_udp(packet,packet_data, nameservers)
       ans = nil
       nameservers.each do |ns, socket_options|
+        socket = nil
         begin
           config = {
             'PeerHost' => ns.to_s,
@@ -346,6 +347,8 @@ module DNS
       rescue Timeout::Error
         @logger.warn "Nameserver #{ns} not responding within UDP timeout, trying next one"
         next
+      ensure
+        socket.close if socket && !socket.closed?
       end
       ans
     end
