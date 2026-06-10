@@ -35,7 +35,7 @@ module Msf::MCP
     # @return [void]
     def run
       parse_arguments
-      install_signal_handlers
+      register_exit_handler
       load_configuration
       validate_configuration
       initialize_logger
@@ -66,12 +66,10 @@ module Msf::MCP
     # - Closes MCP server and Metasploit client connections
     # - Cleans up resources
     #
-    # @param signal [String] Signal name (e.g., 'INT', 'TERM')
     # @return [void]
-    def shutdown(signal = 'INT')
+   def shutdown
       ilog({
-        message: 'Shutting down',
-        context: { signal: "SIG#{signal}" }
+        message: 'Shutting down'
       }, LOG_SOURCE, LOG_INFO)
       @mcp_server&.shutdown
       @mcp_server = nil
@@ -162,16 +160,16 @@ module Msf::MCP
       register_log_source(LOG_SOURCE, sink, threshold)
     end
 
-    # Install signal handlers for graceful shutdown
+    # Register an at_exit hook for graceful shutdown
     #
     # Puma installs its own INT/TERM handlers which override Signal.trap,
     # so we use at_exit to ensure cleanup happens regardless of how the
     # process terminates.
     #
     # @return [void]
-    def install_signal_handlers
+    def register_exit_handler
       at_exit do
-        shutdown('EXIT') if @mcp_server
+        shutdown if @mcp_server
       rescue StandardError
         nil
       end

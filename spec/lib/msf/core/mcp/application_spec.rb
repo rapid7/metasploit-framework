@@ -195,13 +195,13 @@ RSpec.describe Msf::MCP::Application do
     end
   end
 
-  describe '#install_signal_handlers' do
+  describe '#register_exit_handler' do
     it 'registers an at_exit handler for cleanup' do
       app = described_class.new([], output: output)
 
       expect(app).to receive(:at_exit)
 
-      app.send(:install_signal_handlers)
+      app.send(:register_exit_handler)
     end
   end
 
@@ -437,14 +437,14 @@ RSpec.describe Msf::MCP::Application do
   describe '#shutdown' do
     it 'outputs shutdown complete' do
       app = described_class.new([], output: output)
-      app.shutdown('INT')
+      app.shutdown
 
       expect(output.string).to include('Shutdown complete')
     end
 
     it 'does not raise when no Rex sink is registered' do
       app = described_class.new([], output: output)
-      expect { app.shutdown('TERM') }.not_to raise_error
+      expect { app.shutdown }.not_to raise_error
     end
 
     it 'calls shutdown on mcp_server when present' do
@@ -455,7 +455,7 @@ RSpec.describe Msf::MCP::Application do
 
       expect(mock_mcp_server).to receive(:shutdown)
 
-      app.shutdown('INT')
+      app.shutdown
 
       expect(output.string).to include('Shutdown complete')
     end
@@ -468,14 +468,14 @@ RSpec.describe Msf::MCP::Application do
 
       expect(mock_rpc_manager).to receive(:stop_rpc_server)
 
-      app.shutdown('INT')
+      app.shutdown
     end
 
     it 'handles nil mcp_server gracefully' do
       app = described_class.new([], output: output)
       app.instance_variable_set(:@mcp_server, nil)
 
-      expect { app.shutdown('INT') }.not_to raise_error
+      expect { app.shutdown }.not_to raise_error
       expect(output.string).to include('Shutdown complete')
     end
 
@@ -483,7 +483,7 @@ RSpec.describe Msf::MCP::Application do
       app = described_class.new([], output: output)
       app.instance_variable_set(:@rpc_manager, nil)
 
-      expect { app.shutdown('INT') }.not_to raise_error
+      expect { app.shutdown }.not_to raise_error
       expect(output.string).to include('Shutdown complete')
     end
   end
