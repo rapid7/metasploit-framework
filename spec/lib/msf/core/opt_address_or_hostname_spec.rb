@@ -32,7 +32,7 @@ RSpec.describe Msf::OptAddressOrHostname do
   ] + (iface ? [{ value: iface[:name], normalized: iface[:addr] }] : [])
 
   invalid_values = [
-    # Incomplete or excessive dotted-decimal (all numeric — must be valid IPv4)
+    # Incomplete or excessive dotted-decimal (all numeric - must be valid IPv4)
     { value: '192.0.2' },
     { value: '192.0.2.0.0' },
     { value: '1.2.3.4.5' },

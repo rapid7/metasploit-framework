@@ -40,7 +40,7 @@ class OptAddressOrHostname < OptBase
       return true if interfaces.include?(value)
 
       # Reject anything that looks like a dotted-decimal number sequence
-      # (e.g. "192.0.2", "192.0.2.0.0") — Rex::Socket.is_name? accepts numeric
+      # (e.g. "192.0.2", "192.0.2.0.0") - Rex::Socket.is_name? accepts numeric
       # DNS labels, so these would pass without this guard. Require it to be a
       # valid IPv4 address.
       if value =~ /^\d+(\.\d+)+$/
