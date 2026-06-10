@@ -66,12 +66,10 @@ module Msf::MCP
     # - Closes MCP server and Metasploit client connections
     # - Cleans up resources
     #
-    # @param signal [String] Signal name (e.g., 'INT', 'TERM')
     # @return [void]
-    def shutdown(signal = 'INT')
+   def shutdown
       ilog({
-        message: 'Shutting down',
-        context: { signal: "SIG#{signal}" }
+        message: 'Shutting down'
       }, LOG_SOURCE, LOG_INFO)
       @mcp_server&.shutdown
       @mcp_server = nil
@@ -171,7 +169,7 @@ module Msf::MCP
     # @return [void]
     def install_signal_handlers
       at_exit do
-        shutdown('EXIT') if @mcp_server
+        shutdown if @mcp_server
       rescue StandardError
         nil
       end
