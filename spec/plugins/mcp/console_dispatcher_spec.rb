@@ -128,7 +128,7 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
 
       it 'displays listening address and port' do
         mcp_plugin.print_mcp_status
-        expect(@output.join("\n")).to include('Listening: 127.0.0.1:3000')
+        expect(@output.join("\n")).to include('http://localhost:3000')
       end
 
       it 'displays uptime' do
@@ -145,19 +145,8 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
         mcp_plugin.instance_variable_set(:@started_at, Time.at(1000))
       end
 
-      it 'displays running state' do
-        mcp_plugin.print_mcp_status
-        expect(@output.join("\n")).to include('MCP server status: running')
-      end
-
-      it 'displays stdio transport type' do
-        mcp_plugin.print_mcp_status
-        expect(@output.join("\n")).to include('Transport: stdio')
-      end
-
-      it 'displays N/A for listening address' do
-        mcp_plugin.print_mcp_status
-        expect(@output.join("\n")).to include('Listening: N/A')
+      it 'rejects stdio and does not start' do
+        expect(mcp_plugin.mcp_server).to be_nil
       end
     end
 
@@ -194,7 +183,7 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
 
       it 'displays the custom listening address' do
         mcp_plugin.print_mcp_status
-        expect(@output.join("\n")).to include('Listening: 0.0.0.0:8080')
+        expect(@output.join("\n")).to include('http://0.0.0.0:8080')
       end
     end
 

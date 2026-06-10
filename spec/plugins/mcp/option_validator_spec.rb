@@ -92,8 +92,8 @@ RSpec.describe Msf::Plugin::MCP do
         expect { plugin.send(:validate_options!, { 'Transport' => 'http' }) }.not_to raise_error
       end
 
-      it 'accepts "stdio"' do
-        expect { plugin.send(:validate_options!, { 'Transport' => 'stdio' }) }.not_to raise_error
+      it 'rejects "stdio"' do
+        expect { plugin.send(:validate_options!, { 'Transport' => 'stdio' }) }.to raise_error(Msf::MCP::Config::ValidationError, /Transport/)
       end
 
       it 'rejects "tcp"' do
@@ -241,7 +241,7 @@ RSpec.describe Msf::Plugin::MCP do
       it 'includes the expected format for Transport' do
         expect {
           plugin.send(:validate_options!, { 'Transport' => 'invalid' })
-        }.to raise_error(Msf::MCP::Config::ValidationError, /\"http\" or \"stdio\"/)
+        }.to raise_error(Msf::MCP::Config::ValidationError, /\"http\"/)
       end
 
       it 'names the offending option in the error for RpcSSL' do
@@ -305,8 +305,8 @@ RSpec.describe Msf::Plugin::MCP do
         expect(config[:mcp][:transport]).to eq('http')
       end
 
-      it 'defaults mcp[:host] to "127.0.0.1"' do
-        expect(config[:mcp][:host]).to eq('127.0.0.1')
+      it 'defaults mcp[:host] to "localhost"' do
+        expect(config[:mcp][:host]).to eq('localhost')
       end
 
       it 'defaults mcp[:port] to 3000' do

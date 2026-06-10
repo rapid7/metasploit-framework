@@ -93,7 +93,7 @@ RSpec.describe Msf::Plugin::MCP do
 
     it 'prints a message about using mcp start' do
       plugin
-      expect(@output.join("\n")).to include('Use "mcp start" to start the server')
+      expect(@output.join("\n")).to include('mcp start')
     end
 
     it 'registers the command dispatcher' do
@@ -123,7 +123,7 @@ RSpec.describe Msf::Plugin::MCP do
       end
 
       it 'prints a status message with the listening address' do
-        expect(@output.join("\n")).to include('MCP server started on 127.0.0.1:3000 (transport: http)')
+        expect(@output.join("\n")).to include('MCP server started on localhost:3000 (transport: http)')
       end
 
       it 'stores the server configuration' do
@@ -142,10 +142,9 @@ RSpec.describe Msf::Plugin::MCP do
     end
 
     context 'with stdio transport' do
-      before { plugin.start_server('Transport' => 'stdio') }
-
-      it 'prints a status message with transport type' do
-        expect(@output.join("\n")).to include('MCP server started (transport: stdio)')
+      it 'rejects stdio since it is not supported from msfconsole' do
+        plugin.start_server('Transport' => 'stdio')
+        expect(@error.join("\n")).to include('Invalid value for Transport')
       end
     end
 
@@ -315,7 +314,7 @@ RSpec.describe Msf::Plugin::MCP do
         combined = @output.join("\n")
         expect(combined).to include('MCP server status: running')
         expect(combined).to include('Transport: http')
-        expect(combined).to include('127.0.0.1:3000')
+        expect(combined).to include('http://localhost:3000')
       end
     end
 
@@ -541,8 +540,13 @@ RSpec.describe Msf::Plugin::MCP do
     end
 
     context 'with invalid Transport' do
-      it 'prints an error' do
+      it 'prints an error for unsupported transport' do
         plugin.start_server('Transport' => 'websocket')
+        expect(@error.join("\n")).to include('Invalid value for Transport')
+      end
+
+      it 'prints an error for stdio transport' do
+        plugin.start_server('Transport' => 'stdio')
         expect(@error.join("\n")).to include('Invalid value for Transport')
       end
     end
@@ -591,9 +595,9 @@ RSpec.describe Msf::Plugin::MCP do
     describe '#cmd_mcp with start subcommand' do
       it 'parses Key=Value options and passes them to start_server' do
         expect(plugin_instance).to receive(:start_server) do |opts|
-          expect(opts).to eq('Transport' => 'stdio', 'RateLimit' => '120')
+          expect(opts).to eq('Transport' => 'http', 'RateLimit' => '120')
         end
-        dispatcher.cmd_mcp('start', 'Transport=stdio', 'RateLimit=120')
+        dispatcher.cmd_mcp('start', 'Transport=http', 'RateLimit=120')
       end
 
       it 'starts with empty opts when no options given' do
@@ -630,7 +634,7 @@ RSpec.describe Msf::Plugin::MCP do
         dispatcher.cmd_mcp('help')
         combined = @output.join("\n")
         expect(combined).to include('Usage: mcp <subcommand> [options]')
-        expect(combined).to include('Transport=<http|stdio>')
+        expect(combined).to include('Transport=<http>')
         expect(combined).to include('mcp start RpcUser=msf RpcPass=secret')
       end
     end

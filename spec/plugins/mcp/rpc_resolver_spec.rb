@@ -135,9 +135,9 @@ RSpec.describe Msf::Plugin::MCP do
         expect(config[:user]).to eq('msf')
       end
 
-      it 'defaults host to 127.0.0.1' do
+      it 'defaults host to localhost' do
         config = plugin.send(:resolve_rpc_config, {})
-        expect(config[:host]).to eq('127.0.0.1')
+        expect(config[:host]).to eq('localhost')
       end
 
       it 'defaults port to 55552' do

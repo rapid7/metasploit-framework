@@ -38,6 +38,7 @@ require_relative 'mcp/middleware/request_logger'
 require_relative 'mcp/errors'
 
 # Configuration Layer
+require_relative 'mcp/config/defaults'
 require_relative 'mcp/config/loader'
 require_relative 'mcp/config/validator'
 
