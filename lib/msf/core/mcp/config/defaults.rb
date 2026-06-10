@@ -12,7 +12,7 @@ module Msf::MCP
       MCP_PORT = 3000
 
       # RPC connection defaults (for msfrpcd / messagepack RPC)
-      RPC_HOST = 'localhost'
+      RPC_HOST = '127.0.0.1'
       RPC_PORT = 55_553
       RPC_USER = 'msf'
       RPC_SSL  = true

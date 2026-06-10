@@ -70,7 +70,7 @@ module Msf
         print_line('  Transport=<http>            MCP transport type (default: http)')
         print_line('  ServerHost=<host>           MCP server bind address (default: localhost)')
         print_line('  ServerPort=<port>           MCP server port (default: 3000)')
-        print_line('  RpcHost=<host>              RPC server host (default: localhost)')
+        print_line('  RpcHost=<host>              RPC server host (default: 127.0.0.1)')
         print_line('  RpcPort=<port>              RPC server port (default: 55552)')
         print_line('  RpcUser=<user>              RPC username (default: msf)')
         print_line('  RpcPass=<pass>              RPC password')
