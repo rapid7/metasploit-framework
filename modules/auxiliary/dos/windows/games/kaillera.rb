@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
     connect_udp
     print_status('Sending Crash request...')
     udp_sock.put("HELLO0.83\0")
-    res = udp_sock.recvfrom(15)
+    res = udp_sock.timed_recvfrom(15) || ['']
     disconnect_udp
 
     if res[0] =~ /HELLOD00D([0-9]{1,5})/
@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
     connect_udp
     print_status('Checking target...')
     udp_sock.put("HELLO0.83\0")
-    res = udp_sock.recvfrom(15)
+    res = udp_sock.timed_recvfrom(15) || ['']
     disconnect_udp
 
     if res[0] =~ /HELLO/

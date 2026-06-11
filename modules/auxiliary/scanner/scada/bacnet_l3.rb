@@ -154,12 +154,12 @@ class MetasploitModule < Msf::Auxiliary
 
     # Collect responses with unicast or broadcast destination.
     loop do
-      data, host, port = lsocket.recvfrom(65535, datastore['TIMEOUT'])
-      data2, host2, port2 = ssocket.recvfrom(65535, datastore['TIMEOUT'])
-      break if host.nil? && host2.nil?
+      res1 = lsocket.timed_recvfrom(65535, datastore['TIMEOUT'])
+      res2 = ssocket.timed_recvfrom(65535, datastore['TIMEOUT'])
+      break if res1.nil? && res2.nil?
 
-      cap << [data, host, port] if host
-      cap << [data2, host2, port2] if host2
+      cap << [res1[0], res1[1][3], res1[1][1]] if res1
+      cap << [res2[0], res2[1][3], res2[1][1]] if res2
     end
     lsocket.close
     cap
@@ -292,10 +292,10 @@ class MetasploitModule < Msf::Auxiliary
     messages.each do |message|
       ssocket.sendto(message, ip, datastore['PORT'], 0)
       loop do
-        data, host, port = ssocket.recvfrom(65535, datastore['TIMEOUT'])
-        break if host.nil?
+        res = ssocket.timed_recvfrom(65535, datastore['TIMEOUT'])
+        break if res.nil?
 
-        cap << [data, host, port]
+        cap << [res[0], res[1][3], res[1][1]]
       end
     end
     ssocket.close

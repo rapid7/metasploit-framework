@@ -355,8 +355,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def udp_recv(timeo)
-    r = udp_sock.recvfrom(65535, timeo)
-    r[1] ? r : nil
+    r = udp_sock.timed_recvfrom(65535, timeo)
+    return nil unless r
+
+    [r[0], r[1][3], r[1][1]]
   end
 
   def rhost
