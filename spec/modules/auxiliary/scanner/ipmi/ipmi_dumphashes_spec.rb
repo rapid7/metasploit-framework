@@ -42,7 +42,7 @@ RSpec.describe 'IPMI Dump Hashes Scanner' do
   describe '#run_host' do
     it 'stops username enumeration when the host never answers the first open-session probe' do
       allow(udp_sock).to receive(:sendto)
-      allow(udp_sock).to receive(:recvfrom).and_return([nil, nil, nil])
+      allow(udp_sock).to receive(:timed_recvfrom).and_return(nil)
 
       expect(udp_sock).to receive(:sendto).exactly(3).times
 
