@@ -91,27 +91,43 @@ module Metasploit
                   if thread_count > EXPECTED_THREAD_COUNT_AROUND_SUITE
                     error_lines = []
 
-                    if LOG_PATHNAME.exist?
-                      caller_by_thread_uuid = Metasploit::Framework::Spec::Threads::Suite.caller_by_thread_uuid
+                    caller_by_thread_uuid = if LOG_PATHNAME.exist?
+                                              Metasploit::Framework::Spec::Threads::Suite.caller_by_thread_uuid
+                                            else
+                                              error_lines << "Note: #{LOG_PATHNAME} does not exist. Run `rake spec` to log where Thread.new is called.\n\n"
+                                              {}
+                                            end
 
-                      thread_list.each do |thread|
-                        thread_uuid = thread[Metasploit::Framework::Spec::Threads::Suite::UUID_THREAD_LOCAL_VARIABLE]
-                        thread_name = thread[:tm_name]
+                    thread_list.each_with_index do |thread, index|
+                      thread_uuid = thread[Metasploit::Framework::Spec::Threads::Suite::UUID_THREAD_LOCAL_VARIABLE]
+                      thread_name = thread[:tm_name]
 
-                        # unmanaged thread, such as the main VM thread
-                        unless thread_uuid
-                          next
+                      error_lines << "--- Thread #{index + 1}/#{thread_count} ---\n"
+                      error_lines << "  UUID: #{thread_uuid || '(none - unmanaged thread)'}\n"
+                      error_lines << "  Name: #{thread_name.inspect}\n"
+                      error_lines << "  Status: #{thread.status.inspect}\n"
+                      error_lines << "  Class: #{thread.class.name}\n"
+                      error_lines << "  Priority: #{thread.priority}\n"
+                      error_lines << "  Thread locals: #{thread.keys.map(&:to_s).sort.inspect}\n"
+
+                      if thread_uuid && caller_by_thread_uuid[thread_uuid]
+                        error_lines << "  Creation caller:\n"
+                        caller_by_thread_uuid[thread_uuid].each do |caller_line|
+                          error_lines << "    #{caller_line}"
                         end
-
-                        caller = caller_by_thread_uuid[thread_uuid]
-
-                        error_lines << "Thread #{thread_uuid}'s (name=#{thread_name} status is #{thread.status.inspect} " \
-                                       "and was started here:\n"
-                        error_lines.concat(caller)
-                        error_lines << "The thread backtrace was:\n#{thread.backtrace ? thread.backtrace.join("\n") : 'nil (no backtrace)'}\n"
                       end
-                    else
-                      error_lines << "Run `rake spec` to log where Thread.new is called."
+
+                      backtrace = thread.backtrace
+                      if backtrace
+                        error_lines << "  Current backtrace:\n"
+                        backtrace.each do |bt_line|
+                          error_lines << "    #{bt_line}\n"
+                        end
+                      else
+                        error_lines << "  Current backtrace: nil (no backtrace available)\n"
+                      end
+
+                      error_lines << "\n"
                     end
 
                     raise RuntimeError,
