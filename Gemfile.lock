@@ -12,6 +12,15 @@ GIT
       with_env (= 1.1.0)
       xml-simple (~> 1.1.9)
 
+GIT
+  remote: https://github.com/zeroSteiner/rex-socket
+  revision: 1c1e60bb77abd786ec0c3b35e735a6a8f58a057c
+  branch: fix/udp/recvfrom-api
+  specs:
+    rex-socket (0.1.68)
+      dnsruby
+      rex-core
+
 PATH
   remote: .
   specs:
@@ -550,9 +559,6 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.65)
-      dnsruby
-      rex-core
     rex-sslscan (0.1.13)
       rex-core
       rex-socket
@@ -717,6 +723,7 @@ DEPENDENCIES
   pry-byebug
   rake
   redcarpet
+  rex-socket!
   rspec-rails
   rspec-rerun
   rubocop (= 1.75.7)

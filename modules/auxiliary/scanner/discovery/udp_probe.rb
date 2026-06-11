@@ -86,8 +86,8 @@ class MetasploitModule < Msf::Auxiliary
 
         udp_sock.put(data)
 
-        r = udp_sock.recvfrom(65535, 0.1) and r[1]
-        parse_reply(r) if r
+        r = udp_sock.timed_recvfrom(65535, 0.1)
+        parse_reply([r[0], r[1][3], r[1][1]]) if r
       rescue ::Interrupt
         raise $ERROR_INFO
       rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused, ::IOError

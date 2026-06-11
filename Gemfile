@@ -3,6 +3,10 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+# Temporary: pull in the rex-socket #recvfrom stdlib alignment + #timed_recvfrom
+# until a release is cut. Revert this commit once rex-socket is published.
+gem 'rex-socket', git: 'https://github.com/zeroSteiner/rex-socket', branch: 'fix/udp/recvfrom-api'
+
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests

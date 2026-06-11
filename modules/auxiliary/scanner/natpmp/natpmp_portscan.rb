@@ -48,8 +48,8 @@ class MetasploitModule < Msf::Auxiliary
       Rex::Socket.portspec_crack(datastore['PORTS']).each do |port|
         map_req = map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 1)
         udp_sock.sendto(map_req, host, datastore['RPORT'], 0)
-        while (r = udp_sock.recvfrom(16, 1.0) and r[1])
-          break if handle_reply(host, external_address, r)
+        while (r = udp_sock.timed_recvfrom(16, 1.0))
+          break if handle_reply(host, external_address, [r[0], r[1][3], r[1][1]])
         end
       end
     rescue ::Interrupt

@@ -248,7 +248,6 @@ class MetasploitModule < Msf::Post
     end
 
     it '[UDP] Has the correct peer information' do
-      # this one is expected to fail because #recvfrom just returns a string address which is inconsistent
       client, server_client = udp_socket_pair
       data = Random.new.bytes(rand(10..100))
       # Now server can send to the client's address
