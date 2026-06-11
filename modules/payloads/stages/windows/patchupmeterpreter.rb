@@ -20,7 +20,8 @@ module MetasploitModule
         'Description' => 'Inject the meterpreter server DLL (staged)',
         'Author' => 'skape',
         'License' => MSF_LICENSE,
-        'Session' => Msf::Sessions::Meterpreter_x86_Win
+        'Session' => Msf::Sessions::Meterpreter_x86_Win,
+        'MinimumVersions' => { 'Windows' => Msf::Payload::Windows::MeterpreterVersion::MINIMUM_VERSION }
       )
     )
 

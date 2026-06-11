@@ -530,6 +530,13 @@ class Payload < Msf::Module
 
       next unless payload
 
+      # Skip payloads that don't meet the target's version requirements
+      payload_instance = mod.framework.payloads.create(payload)
+      if payload_instance
+        warnings = mod.version_compatibility_warnings(payload_instance)
+        next unless warnings.empty?
+      end
+
       return configure_payload.call(payload)
     end
 

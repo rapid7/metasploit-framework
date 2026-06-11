@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'msf/core/payload/python/meterpreter_version'
 
 module Msf
 
@@ -25,7 +26,8 @@ module Payload::Python::MeterpreterLoader
       'Author'        => [ 'Spencer McIntyre' ],
       'Platform'      => 'python',
       'Arch'          => ARCH_PYTHON,
-      'Stager'        => {'Payload' => ""}
+      'Stager'        => {'Payload' => ""},
+      'MinimumVersions' => { 'Python' => Msf::Payload::Python::MeterpreterVersion::MINIMUM_VERSION }
     ))
 
     register_advanced_options(
