@@ -18,9 +18,9 @@ PATH
     metasploit-framework (6.4.138)
       aarch64
       abbrev
-      actionpack (~> 7.2.0)
-      activerecord (~> 7.2.0)
-      activesupport (~> 7.2.0)
+      actionpack (~> 8.0.0)
+      activerecord (~> 8.0.0)
+      activesupport (~> 8.0.0)
       aws-sdk-ec2
       aws-sdk-ec2instanceconnect
       aws-sdk-iam
@@ -121,7 +121,7 @@ PATH
       rubyntlm
       rubyzip
       sinatra (~> 4.1)
-      sqlite3 (= 1.7.3)
+      sqlite3 (~> 2.1)
       sshkey
       stringio (= 3.1.1)
       swagger-blocks
@@ -134,7 +134,7 @@ PATH
       win32api
       windows_error
       winrm
-      xdr
+      xdr (~> 3.0)
       xmlrpc
       zeitwerk
 
@@ -145,30 +145,29 @@ GEM
     aarch64 (2.1.0)
       racc (~> 1.6)
     abbrev (0.1.2)
-    actionpack (7.2.2.2)
-      actionview (= 7.2.2.2)
-      activesupport (= 7.2.2.2)
+    actionpack (8.0.5)
+      actionview (= 8.0.5)
+      activesupport (= 8.0.5)
       nokogiri (>= 1.8.5)
-      racc
-      rack (>= 2.2.4, < 3.2)
+      rack (>= 2.2.4)
       rack-session (>= 1.0.1)
       rack-test (>= 0.6.3)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
       useragent (~> 0.16)
-    actionview (7.2.2.2)
-      activesupport (= 7.2.2.2)
+    actionview (8.0.5)
+      activesupport (= 8.0.5)
       builder (~> 3.1)
       erubi (~> 1.11)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
-    activemodel (7.2.2.2)
-      activesupport (= 7.2.2.2)
-    activerecord (7.2.2.2)
-      activemodel (= 7.2.2.2)
-      activesupport (= 7.2.2.2)
+    activemodel (8.0.5)
+      activesupport (= 8.0.5)
+    activerecord (8.0.5)
+      activemodel (= 8.0.5)
+      activesupport (= 8.0.5)
       timeout (>= 0.4.0)
-    activesupport (7.2.2.2)
+    activesupport (8.0.5)
       base64
       benchmark (>= 0.3)
       bigdecimal
@@ -180,6 +179,7 @@ GEM
       minitest (>= 5.1)
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
+      uri (>= 0.13.1)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
     afm (0.2.2)
@@ -341,12 +341,12 @@ GEM
       json-schema (>= 4.1)
     memory_profiler (1.1.0)
     metasm (1.0.6)
-    metasploit-concern (5.0.5)
-      activemodel (~> 7.0)
-      activesupport (~> 7.0)
+    metasploit-concern (5.0.6)
+      activemodel (>= 7.0, < 8.1)
+      activesupport (>= 7.0, < 8.1)
       drb
       mutex_m
-      railties (~> 7.0)
+      railties (>= 7.0, < 8.1)
       zeitwerk
     metasploit-credential (6.0.25)
       bigdecimal
@@ -362,13 +362,13 @@ GEM
       rex-socket
       rubyntlm
       rubyzip (>= 3.1.1, < 4.0)
-    metasploit-model (5.0.4)
-      activemodel (~> 7.0)
-      activesupport (~> 7.0)
+    metasploit-model (5.0.5)
+      activemodel (>= 7.0, < 8.1)
+      activesupport (>= 7.0, < 8.1)
       bigdecimal
       drb
       mutex_m
-      railties (~> 7.0)
+      railties (>= 7.0, < 8.1)
     metasploit-payloads (2.0.245)
     metasploit_data_models (6.0.18)
       activerecord (>= 7.0, < 8.1)
@@ -479,13 +479,14 @@ GEM
     rails-html-sanitizer (1.6.2)
       loofah (~> 2.21)
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
-    railties (7.2.2.2)
-      actionpack (= 7.2.2.2)
-      activesupport (= 7.2.2.2)
+    railties (8.0.5)
+      actionpack (= 8.0.5)
+      activesupport (= 8.0.5)
       irb (~> 1.13)
       rackup (>= 1.0.0)
       rake (>= 12.2)
       thor (~> 1.0, >= 1.2.2)
+      tsort (>= 0.2)
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
     rake (13.3.0)
@@ -637,7 +638,7 @@ GEM
       rack-protection (= 4.2.1)
       rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
-    sqlite3 (1.7.3)
+    sqlite3 (2.9.4)
       mini_portile2 (~> 2.8.0)
     sshkey (3.0.0)
     stringio (3.1.1)
@@ -667,6 +668,7 @@ GEM
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
     unix-crypt (1.3.1)
+    uri (1.1.1)
     useragent (0.16.11)
     warden (1.2.9)
       rack (>= 2.0.9)
@@ -692,9 +694,9 @@ GEM
       rexml (~> 3.0)
       rubyntlm (~> 0.6.0, >= 0.6.3)
     with_env (1.1.0)
-    xdr (3.0.3)
-      activemodel (>= 4.2, < 8.0)
-      activesupport (>= 4.2, < 8.0)
+    xdr (3.0.1)
+      activemodel (>= 5.2.0)
+      activesupport (>= 5.2.0)
     xml-simple (1.1.9)
       rexml
     xmlrpc (0.3.3)
