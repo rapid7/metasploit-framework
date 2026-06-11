@@ -24,11 +24,10 @@ RSpec.describe Rex::Post::Meterpreter::Datagram do
       channel.rsock.syswrite('response')
       channel.rsock.syswrite(Rex::Socket.to_sockaddr('192.0.2.53', 53))
 
-      data, host, port = channel.lsock.recvfrom(1, 2)
+      data, addr = channel.lsock.recvfrom(1)
 
       expect(data).to eq('r')
-      expect(host).to eq('192.0.2.53')
-      expect(port).to eq(53)
+      expect(addr).to eq(['AF_INET', 53, '192.0.2.53', '192.0.2.53'])
     end
   end
 end
