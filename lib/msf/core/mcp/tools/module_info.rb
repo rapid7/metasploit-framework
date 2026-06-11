@@ -59,6 +59,7 @@ module Msf::MCP
               privileged: { type: 'boolean' },
               has_check_method: { type: 'boolean' },
               default_options: { type: 'object' },
+              notes: { type: 'object' },
               references: { type: 'array', items: { type: ['string', 'object'] } },
               targets: { type: 'object' },
               default_target: { type: 'integer' },

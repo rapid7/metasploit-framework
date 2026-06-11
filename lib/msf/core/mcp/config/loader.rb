@@ -54,7 +54,7 @@ module Msf::MCP
         config[:logging] ||= {}
 
         config[:msf_api][:type] ||= 'messagepack'
-        config[:msf_api][:host] ||= 'localhost'
+        config[:msf_api][:host] ||= '127.0.0.1'
         config[:msf_api][:port] ||= (config[:msf_api][:type] == 'json-rpc') ? 8081 : 55553
 
         config[:msf_api][:ssl] = config[:msf_api].fetch(:ssl, true)

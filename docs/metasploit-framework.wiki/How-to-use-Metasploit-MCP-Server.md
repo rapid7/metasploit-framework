@@ -330,6 +330,9 @@ The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) is an int
 
 ```
 npx @modelcontextprotocol/inspector
+
+# stdio transport type usage:
+npx @modelcontextprotocol/inspector -- bundle exec ./msfmcpd
 ```
 
 ## Troubleshooting

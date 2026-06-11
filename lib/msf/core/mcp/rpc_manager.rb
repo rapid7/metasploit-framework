@@ -125,7 +125,7 @@ module Msf::MCP
                 "Timed out waiting for RPC server after #{timeout} seconds"
         end
 
-        @output.puts 'Waiting for RPC server to become available...'
+        @output.puts "Waiting for RPC server to become available at #{Rex::Socket.to_authority(@config[:msf_api][:host], @config[:msf_api][:port])}..."
         sleep(interval)
       end
     end

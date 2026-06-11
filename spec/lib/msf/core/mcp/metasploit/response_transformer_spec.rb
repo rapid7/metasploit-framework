@@ -71,6 +71,7 @@ RSpec.describe Msf::MCP::Metasploit::ResponseTransformer do
         'privileged' => true,
         'check' => true,
         'default_options' => { 'Option1' => 'Value1' },
+        'notes' => { 'SideEffects' => ['IOC_IN_LOGS'], 'Stability' => ['CRASH_SAFE'] },
         'references' => [{'CVE' => '2017-0144'}, {'URL' => 'https://example.com'}],
         'targets' => { 0 => 'Windows 7', 1 => 'Windows 8' },
         'default_target' => 0,
@@ -99,6 +100,7 @@ RSpec.describe Msf::MCP::Metasploit::ResponseTransformer do
         privileged: true,
         has_check_method: true,
         default_options: { 'Option1' => 'Value1' },
+        notes: { 'SideEffects' => ['IOC_IN_LOGS'], 'Stability' => ['CRASH_SAFE'] },
         references: [{'CVE' => '2017-0144'}, {'URL' => 'https://example.com'}],
         targets: { 0 => 'Windows 7', 1 => 'Windows 8' },
         default_target: 0,
@@ -173,6 +175,7 @@ RSpec.describe Msf::MCP::Metasploit::ResponseTransformer do
             'os_lang' => 'English',
             'purpose' => 'server',
             'info' => 'Web server',
+            'comments' => 'Primary web server',
             'state' => 'alive',
             'created_at' => 1609459200,
             'updated_at' => 1640995200
@@ -192,7 +195,8 @@ RSpec.describe Msf::MCP::Metasploit::ResponseTransformer do
         hostname: 'testhost',
         os_name: 'Linux',
         os_flavor: 'Ubuntu',
-        state: 'alive'
+        state: 'alive',
+        comments: 'Primary web server'
       )
       expect(result[0][:created_at]).to eq('2021-01-01T00:00:00Z')
       expect(result[0][:updated_at]).to eq('2022-01-01T00:00:00Z')
