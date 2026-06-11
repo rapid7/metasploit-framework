@@ -205,7 +205,8 @@ module Metasploit
         def recv_wrapper(sock, max_size, timeout)
           res = nil
           if protocol == 'udp'
-            res = sock.recvfrom(max_size, timeout)
+            data, addr = sock.timed_recvfrom(max_size, timeout)
+            res = [data, addr[3], addr[1]] if addr
           elsif protocol == 'tcp'
             ready = ::IO.select([sock], nil, nil, timeout)
             if ready

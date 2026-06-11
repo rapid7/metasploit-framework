@@ -342,7 +342,7 @@ module DNS
         @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
         #socket.sendto(packet_data, ns.to_s, @config[:port].to_i, 0)
         socket.write(packet_data)
-        ans = socket.recvfrom(@config[:packet_size])
+        ans = socket.timed_recvfrom(@config[:packet_size])
         break if ans
       rescue Timeout::Error
         @logger.warn "Nameserver #{ns} not responding within UDP timeout, trying next one"

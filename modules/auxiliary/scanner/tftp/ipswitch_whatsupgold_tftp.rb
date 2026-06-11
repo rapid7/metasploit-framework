@@ -72,7 +72,8 @@ class MetasploitModule < Msf::Auxiliary
     file_data = ''
     udp_sock.sendto(pkt, ip, datastore['RPORT'].to_i)
 
-    while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
+    while (r = udp_sock.timed_recvfrom(65535, 0.1))
+      r = [r[0], r[1][3], r[1][1]]
 
       opcode, block, data = r[0].unpack("nna*") # Parse reply
       if opcode != 3 # Check opcode: 3 => Data Packet

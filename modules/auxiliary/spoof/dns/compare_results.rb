@@ -78,8 +78,8 @@ class MetasploitModule < Msf::Auxiliary
       base_sock.put(buf)
       targ_sock.put(buf)
 
-      base_res, = base_sock.recvfrom(65535, 3.0)
-      targ_res, = targ_sock.recvfrom(65535, 3.0)
+      base_res, = base_sock.timed_recvfrom(65535, 3.0)
+      targ_res, = targ_sock.timed_recvfrom(65535, 3.0)
 
       if !(base_res && targ_res && !base_res.empty? && !targ_res.empty?)
         print_error('  Error: The baseline server did not respond to our request.') if !(base_res && !base_res.empty?)

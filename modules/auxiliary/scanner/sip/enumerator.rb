@@ -77,8 +77,8 @@ class MetasploitModule < Msf::Auxiliary
           end
 
           if (idx % 10 == 0)
-            while (r = udp_sock.recvfrom(65535, 0.01) and r[1])
-              parse_reply(r, datastore['METHOD'])
+            while (r = udp_sock.timed_recvfrom(65535, 0.01))
+              parse_reply([r[0], r[1][3], r[1][1]], datastore['METHOD'])
             end
           end
 
@@ -86,8 +86,8 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      while (r = udp_sock.recvfrom(65535, 3) and r[1])
-        parse_reply(r, datastore['METHOD'])
+      while (r = udp_sock.timed_recvfrom(65535, 3))
+        parse_reply([r[0], r[1][3], r[1][1]], datastore['METHOD'])
       end
     rescue ::Interrupt
       raise $!
