@@ -4,6 +4,15 @@ This module attempts to login to an Apache Axis2 instance using username and pas
 combinations indicated by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
 It has been verified to work on at least versions 1.4.1 and 1.6.2.
 
+A Docker target is available for testing. Build and run it with:
+
+```
+docker build -t axis2-msf-test test/axis2/
+docker run --rm -p 8080:8080 axis2-msf-test
+```
+
+The default Axis2 admin credentials are `admin` / `axis2`.
+
 ## Verification Steps
 1. Start msfconsole
 2. Do: `use auxiliary/scanner/http/axis_login`

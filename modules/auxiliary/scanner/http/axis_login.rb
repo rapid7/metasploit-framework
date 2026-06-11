@@ -45,20 +45,6 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     uri = normalize_uri(target_uri.path)
 
-    print_status("Verifying login exists at #{target_url}")
-    begin
-      send_request_cgi({
-        'method' => 'GET',
-        'uri' => uri
-      }, 20)
-    rescue => e
-      print_error("Failed to retrieve Axis2 login page at #{target_url}")
-      print_error("Error: #{e.class}: #{e}")
-      return
-    end
-
-    print_status "#{target_url} - Apache Axis - Attempting authentication"
-
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
       password: datastore['PASSWORD']
@@ -75,6 +61,14 @@ class MetasploitModule < Msf::Auxiliary
         http_password: datastore['HttpPassword']
       )
     )
+
+    msg = scanner.check_setup
+    if msg
+      print_error("#{peer} - #{msg}")
+      return
+    end
+
+    print_status "#{target_url} - Apache Axis - Attempting authentication"
 
     scanner.scan! do |result|
       credential_data = result.to_h

@@ -149,6 +149,21 @@ class MetasploitModule < Msf::Auxiliary
     @uri = target_uri.path
     @uri << "/" if @uri[-1, 1] != "/"
 
+    res = send_request_raw({
+      'method' => 'GET',
+      'uri'    => normalize_uri(@uri)
+    })
+
+    unless res
+      print_error("#{peer} - Could not connect to the Dolibarr login page")
+      return
+    end
+
+    unless res.code == 200 && res.body.include?('Dolibarr')
+      print_error("#{peer} - Application does not appear to be Dolibarr. Module will not continue.")
+      return
+    end
+
     super
   end
 
