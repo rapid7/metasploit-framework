@@ -20,14 +20,14 @@ module MetasploitModule
         'AdaptedPlatform' => 'win'
       )
     )
-    deregister_options('FETCH_COMMAND', 'FETCH_DELETE', 'FETCH_SRVPORT', 'FETCH_WRITABLE_DIR', 'FETCH_FILENAME')
+    deregister_options('FETCH_COMMAND', 'FETCH_DELETE', 'FETCH_SRVPORT', 'FETCH_WRITABLE_DIR')
   end
 
   def srvport
     445 # UNC paths for SMB services *must* be 445
   end
 
-  def generate_fetch_commands(_uri: srvuri, _dynamic_arch: false)
+  def generate_fetch_commands(**_)
     "rundll32 #{unc},0"
   end
 
