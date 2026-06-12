@@ -11,7 +11,7 @@ module Msf
 
         register_options(
           [
-            Opt::LHOST,
+            Msf::OptAddressOrHostname.new('LHOST', [true, 'The listen address (an interface may be specified)']),
             Opt::LPORT(4444)
           ], Msf::Handler::Reverse)
 
@@ -40,30 +40,28 @@ module Msf
       #   be the INADDR_ANY address for IPv4 or IPv6, depending on the version
       #   of the first element.
       def bind_addresses
-        # Switch to IPv6 ANY address if the LHOST is also IPv6
-        addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
+        if not datastore['ReverseListenerBindAddress'].to_s.empty?
+          # ReverseListenerBindAddress is explicitly set; use it directly without
+          # resolving LHOST (LHOST may be a tunnel hostname not locally resolvable).
+          bind_addr = datastore['ReverseListenerBindAddress']
+          any = Rex::Socket.is_ipv6?(bind_addr) ? "::0" : "0.0.0.0"
+          return [ Rex::Socket.addr_atoi(bind_addr) == 0 ? any : bind_addr ]
+        end
+
+        # No ReverseListenerBindAddress set — resolve LHOST to determine the
+        # bind address and whether to use IPv4 or IPv6 ANY as fallback.
+        addr_nbo = Rex::Socket.resolv_nbo(datastore['LHOST'])
+        addr = Rex::Socket.addr_ntoa(addr_nbo)
 
         # First attempt to bind LHOST. If that fails, the user probably has
         # something else listening on that interface. Try again with ANY_ADDR.
-        any = (addr.length == 4) ? "0.0.0.0" : "::0"
-        addr = Rex::Socket.addr_ntoa(addr)
+        any = Rex::Socket.is_ipv4?(addr) ? "0.0.0.0" : "::0"
 
-        # Checking if LHOST is a loopback address
         if is_loopback_address?(addr)
           print_warning("You are binding to a loopback address by setting LHOST to #{addr}. Did you want ReverseListenerBindAddress?")
         end
 
-        addrs = [ addr, any ]
-
-        if not datastore['ReverseListenerBindAddress'].to_s.empty?
-          # Only try to bind to this specific interface
-          addrs = [ datastore['ReverseListenerBindAddress'] ]
-
-          # Pick the right "any" address if either wildcard is used
-          addrs[0] = any if (addrs[0] == "0.0.0.0" or addrs == "::0")
-        end
-
-        addrs
+        [addr, any]
       end
 
       # @return [Integer]
