@@ -1081,6 +1081,9 @@ module Msf
             print_status("Reloading modules from all module paths...")
             framework.modules.reload_modules
 
+            dev = driver.dispatcher_stack.find { |d| d.is_a?(Msf::Ui::Console::CommandDispatcher::Developer) }
+            dev&.reload_modified_lib_files
+
             log_msg = "Please see #{File.join(Msf::Config.log_directory, 'framework.log')} for details."
 
             # Check for modules that failed to load
