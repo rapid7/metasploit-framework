@@ -38,6 +38,7 @@ require_relative 'mcp/middleware/request_logger'
 require_relative 'mcp/errors'
 
 # Configuration Layer
+require_relative 'mcp/config/defaults'
 require_relative 'mcp/config/loader'
 require_relative 'mcp/config/validator'
 
@@ -53,6 +54,10 @@ require_relative 'mcp/metasploit/client'
 require_relative 'mcp/metasploit/response_transformer'
 
 # MCP SDK
+# Suppress MultiJSON deprecation warning from json-schema gem.
+# Remove once json-schema >= 5.x drops MultiJSON support entirely.
+require 'json-schema'
+JSON::Validator.use_multi_json = false
 require 'mcp'
 
 # MCP Layer
