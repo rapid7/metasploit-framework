@@ -82,7 +82,11 @@ served payload is the same.
 `FETCH_FILELESS` is an option that specifies a method to modify the fetch command to download the binary payload to
 memory rather than disk before execution, thus avoiding some HIDS and making forensics harder.  Currently, there are
 two options: `shell`, `shell-search` and `python3.8+`. All of these require the target to be running Linux Kernel 3.17 or above.
-This option is only available when the platform is Linux.
+This option is only available when the platform is Linux. It should be noted that when using `shell-search`, the fetch command
+searches for anonymous file handle it can write to and in some restricted systems or with low-privileged user, it might not find
+a file handle it can write to. For that reason, the `shell-search` fetch command contains a fail-safe mechanism, which adds
+a standard fetch command as backup. This means that if `shell-search` fetch command cannot find a suitable anonymous
+file handle, it execute standard fetch command that downloads the adapted payload.
 
 `FETCH_FILENAME` is the name you'd like the executable payload saved as on the remote host.  This option is not
 supported by every binary and must end in `.exe` on Windows hosts.  The default value is random.
