@@ -66,15 +66,15 @@ module Msf::MCP
     # - Closes MCP server and Metasploit client connections
     # - Cleans up resources
     #
-    # @param signal [String] Signal name (e.g., 'INT', 'TERM')
     # @return [void]
-    def shutdown(signal = 'INT')
+   def shutdown
       ilog({
-        message: 'Shutting down',
-        context: { signal: "SIG#{signal}" }
+        message: 'Shutting down'
       }, LOG_SOURCE, LOG_INFO)
       @mcp_server&.shutdown
+      @mcp_server = nil
       @rpc_manager&.stop_rpc_server
+      @rpc_manager = nil
       @output.puts "\nShutdown complete"
     end
 
@@ -162,10 +162,17 @@ module Msf::MCP
 
     # Install signal handlers for graceful shutdown
     #
+    # Puma installs its own INT/TERM handlers which override Signal.trap,
+    # so we use at_exit to ensure cleanup happens regardless of how the
+    # process terminates.
+    #
     # @return [void]
     def install_signal_handlers
-      Signal.trap('INT') { shutdown('INT'); exit 0 }
-      Signal.trap('TERM') { shutdown('TERM'); exit 0 }
+      at_exit do
+        shutdown if @mcp_server
+      rescue StandardError
+        nil
+      end
     end
 
     # Load configuration from file or use defaults
@@ -273,10 +280,14 @@ module Msf::MCP
       port = @config.dig(:mcp, :port) || 3000
 
       if transport == :http
+        min_threads = @config.dig(:mcp, :min_threads) || Msf::MCP::Server::PUMA_MIN_THREADS
+        max_threads = @config.dig(:mcp, :max_threads) || Msf::MCP::Server::PUMA_MAX_THREADS
+        workers = @config.dig(:mcp, :workers) || Msf::MCP::Server::PUMA_WORKERS
+
         @output.puts "Starting MCP server on HTTP transport..."
         @output.puts "Server listening on http://#{host}:#{port}"
         @output.puts "Press Ctrl+C to shutdown"
-        @mcp_server.start(transport: :http, host: host, port: port)
+        @mcp_server.start(transport: :http, host: host, port: port, min_threads: min_threads, max_threads: max_threads, workers: workers)
       else
         @output.puts "Starting MCP server on stdio transport..."
         @output.puts "Server ready - waiting for MCP requests"

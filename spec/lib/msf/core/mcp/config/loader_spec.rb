@@ -317,6 +317,21 @@ RSpec.describe Msf::MCP::Config::Loader do
           config = described_class.load_from_hash(config_hash)
           expect(config[:mcp][:port]).to eq(3000)
         end
+
+        it 'sets default min_threads to 0' do
+          config = described_class.load_from_hash(config_hash)
+          expect(config[:mcp][:min_threads]).to eq(0)
+        end
+
+        it 'sets default max_threads to 5' do
+          config = described_class.load_from_hash(config_hash)
+          expect(config[:mcp][:max_threads]).to eq(5)
+        end
+
+        it 'sets default workers to 0' do
+          config = described_class.load_from_hash(config_hash)
+          expect(config[:mcp][:workers]).to eq(0)
+        end
       end
 
       context 'with http transport and explicit values' do
@@ -531,6 +546,7 @@ RSpec.describe Msf::MCP::Config::Loader do
         MSF_API_TYPE MSF_API_HOST MSF_API_PORT MSF_API_SSL MSF_API_ENDPOINT
         MSF_API_USER MSF_API_PASSWORD MSF_API_TOKEN MSF_AUTO_START_RPC
         MSF_MCP_TRANSPORT MSF_MCP_HOST MSF_MCP_PORT
+        MSF_MCP_MIN_THREADS MSF_MCP_MAX_THREADS MSF_MCP_WORKERS
       ]
     end
 
@@ -739,6 +755,33 @@ RSpec.describe Msf::MCP::Config::Loader do
         it 'overrides the MCP port value as integer' do
           config = described_class.load(config_file)
           expect(config[:mcp][:port]).to eq(8080)
+        end
+      end
+
+      context 'when MSF_MCP_MIN_THREADS is set' do
+        before { ENV['MSF_MCP_MIN_THREADS'] = '2' }
+
+        it 'overrides the MCP min_threads value as integer' do
+          config = described_class.load(config_file)
+          expect(config[:mcp][:min_threads]).to eq(2)
+        end
+      end
+
+      context 'when MSF_MCP_MAX_THREADS is set' do
+        before { ENV['MSF_MCP_MAX_THREADS'] = '16' }
+
+        it 'overrides the MCP max_threads value as integer' do
+          config = described_class.load(config_file)
+          expect(config[:mcp][:max_threads]).to eq(16)
+        end
+      end
+
+      context 'when MSF_MCP_WORKERS is set' do
+        before { ENV['MSF_MCP_WORKERS'] = '4' }
+
+        it 'overrides the MCP workers value as integer' do
+          config = described_class.load(config_file)
+          expect(config[:mcp][:workers]).to eq(4)
         end
       end
     end
