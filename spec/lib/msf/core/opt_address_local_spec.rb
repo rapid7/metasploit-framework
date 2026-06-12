@@ -115,5 +115,4 @@ RSpec.describe Msf::OptAddressLocal do
       end
     end
   end
-
 end

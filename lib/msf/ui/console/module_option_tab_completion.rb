@@ -247,9 +247,9 @@ module Msf
           return res
         end
 
-        # XXX: We repurpose OptAddressLocal#interfaces, so we can't put this in Rex
+        # XXX: We repurpose OptAddressRoutable#interfaces, so we can't put this in Rex
         def tab_complete_source_interface(o)
-          return [] unless o.respond_to?(:interfaces)
+          return [] unless o.is_a?(Msf::OptAddressRoutable)
 
           o.interfaces
         end

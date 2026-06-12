@@ -26,7 +26,7 @@ RSpec.describe Msf::OptAddressOrHostname do
     { value: '::1',          normalized: '::1' },
     { value: '0::0',         normalized: '::' },
     # Tunnel / proxy hostnames that may not be locally resolvable
-    { value: 'qhuoq-106-219-171-165.run.pinggy-free.link', normalized: 'qhuoq-106-219-171-165.run.pinggy-free.link' },
+    { value: 'tunnel.example.com', normalized: 'tunnel.example.com' },
     { value: 'abc123.ngrok.io', normalized: 'abc123.ngrok.io' },
     { value: 'example.com',  normalized: 'example.com' },
   ] + (iface ? [{ value: iface[:name], normalized: iface[:addr] }] : [])
@@ -48,6 +48,7 @@ RSpec.describe Msf::OptAddressOrHostname do
     { value: [] },
     { value: [1, 2] },
     { value: {} },
+    { value: nil },
   ]
 
   it_behaves_like 'an option', valid_values, invalid_values, 'address'
@@ -58,7 +59,7 @@ RSpec.describe Msf::OptAddressOrHostname do
     context 'with tunnel hostnames' do
       it 'accepts without requiring DNS resolution' do
         allow(::Rex::Socket).to receive(:getaddress).and_raise(::SocketError)
-        expect(opt.valid?('qhuoq-106-219-171-165.run.pinggy-free.link')).to be_truthy
+        expect(opt.valid?('tunnel.example.com')).to be_truthy
       end
     end
 
@@ -77,7 +78,7 @@ RSpec.describe Msf::OptAddressOrHostname do
   describe '#normalize' do
     context 'with a hostname' do
       it 'returns the hostname unchanged' do
-        expect(opt.normalize('qhuoq-106-219-171-165.run.pinggy-free.link')).to eq 'qhuoq-106-219-171-165.run.pinggy-free.link'
+        expect(opt.normalize('tunnel.example.com')).to eq 'tunnel.example.com'
       end
     end
 

@@ -17,7 +17,7 @@ module Msf
 # a locally-resolvable address.
 #
 ###
-class OptAddressOrHostname < OptBase
+class OptAddressOrHostname < OptAddressRoutable
 
   # @param resolve_names [Boolean] when true, hostname values are also resolved
   #   via DNS during validation. Use this when the value will be connected to or
@@ -36,7 +36,6 @@ class OptAddressOrHostname < OptBase
     return false unless value.kind_of?(String) || value.kind_of?(NilClass)
 
     if value && !value.empty?
-      # Interface names take priority (e.g. eth0, lo)
       return true if interfaces.include?(value)
 
       # Reject anything that looks like a dotted-decimal number sequence
@@ -62,42 +61,14 @@ class OptAddressOrHostname < OptBase
       return false
     end
 
-    super
+    true
   end
 
   def normalize(value)
     return unless value.kind_of?(String)
     return normalize_interface(value) if interfaces.include?(value)
-    return normalize_ip(value) if Rex::Socket.is_ip_addr?(value)
+    return normalize_ip_address(value) if Rex::Socket.is_ip_addr?(value)
     value
-  end
-
-  def interfaces
-    begin
-      NetworkInterface.interfaces || []
-    rescue NetworkInterface::Error => e
-      elog(e)
-      []
-    end
-  end
-
-  private
-
-  def normalize_interface(value)
-    addrs = NetworkInterface.addresses(value).values.flatten
-    addrs = addrs.map { |x| x['addr'].split('%').first }.select do |addr|
-      begin
-        IPAddr.new(addr)
-      rescue IPAddr::Error
-        false
-      end
-    end
-    sorted_addrs = addrs.sort_by { |addr| ip_addr = IPAddr.new(addr); [ip_addr.ipv4? ? 0 : 1, ip_addr.to_i] }
-    sorted_addrs.any? ? sorted_addrs.first : ''
-  end
-
-  def normalize_ip(value)
-    IPAddr.new(value).to_s
   end
 
 end
