@@ -83,10 +83,20 @@ module Msf
         print_line
       end
 
-      def cmd_mcp_tabs(_str, words)
-        return SUBCOMMANDS if words.length == 1
+      def cmd_mcp_tabs(str, words)
+        # words[0] is always 'mcp' (the command name itself)
+        # When words.length == 1, user is typing the subcommand
+        # When words.length >= 2, subcommand is words[1] and user is typing options
+        if words.length == 1
+          return SUBCOMMANDS.select { |s| s.start_with?(str.downcase) }
+        end
 
-        []
+        subcommand = words[1]
+        if %w[start restart].include?(subcommand)
+          VALID_OPTIONS.map { |opt| "#{opt}=" }.select { |o| o.downcase.start_with?(str.downcase) }
+        else
+          []
+        end
       end
 
       private
@@ -114,6 +124,7 @@ module Msf
       end
 
       # Parses Key=Value pairs from command arguments into an options hash.
+      # Option keys are case-insensitive and normalized to their canonical form.
       # Returns nil and prints an error if any argument is malformed or unrecognized.
       def parse_options(args)
         opts = {}
@@ -123,12 +134,13 @@ module Msf
             print_error("Invalid option format: #{arg} (expected Key=Value)")
             return nil
           end
-          unless VALID_OPTIONS.include?(key)
+          canonical_key = VALID_OPTIONS.find { |opt| opt.casecmp(key).zero? }
+          unless canonical_key
             print_error("Unknown option: #{key}")
             print_error("Valid options: #{VALID_OPTIONS.join(', ')}")
             return nil
           end
-          opts[key] = value
+          opts[canonical_key] = value
         end
         opts
       end

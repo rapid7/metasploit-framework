@@ -98,12 +98,25 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
   end
 
   describe '#cmd_mcp_tabs' do
-    it 'returns all subcommands for the first word' do
-      expect(plugin.cmd_mcp_tabs('', [''])).to eq(%w[status start stop restart help])
+    it 'returns all subcommands when typing subcommand' do
+      # User typed: "mcp <tab>" → words = ['mcp'], str = ''
+      expect(plugin.cmd_mcp_tabs('', ['mcp'])).to contain_exactly('status', 'start', 'stop', 'restart', 'help')
     end
 
-    it 'returns empty array for subsequent words' do
-      expect(plugin.cmd_mcp_tabs('', ['status', ''])).to eq([])
+    it 'filters subcommands by partial input' do
+      # User typed: "mcp st<tab>" → words = ['mcp'], str = 'st'
+      expect(plugin.cmd_mcp_tabs('st', ['mcp'])).to contain_exactly('status', 'start', 'stop')
+    end
+
+    it 'returns option completions for start subcommand' do
+      # User typed: "mcp start <tab>" → words = ['mcp', 'start'], str = ''
+      result = plugin.cmd_mcp_tabs('', ['mcp', 'start'])
+      expect(result).to include('ServerHost=', 'RpcHost=', 'RpcPass=')
+    end
+
+    it 'returns empty array for status subcommand' do
+      # User typed: "mcp status <tab>" → words = ['mcp', 'status'], str = ''
+      expect(plugin.cmd_mcp_tabs('', ['mcp', 'status'])).to eq([])
     end
   end
 

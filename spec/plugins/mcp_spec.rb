@@ -639,13 +639,33 @@ RSpec.describe Msf::Plugin::MCP do
     end
 
     describe '#cmd_mcp_tabs' do
-      it 'returns subcommands for first word' do
-        result = dispatcher.cmd_mcp_tabs('', [''])
+      it 'returns subcommands when typing subcommand' do
+        # User typed: "mcp <tab>" → words = ['mcp'], str = ''
+        result = dispatcher.cmd_mcp_tabs('', ['mcp'])
         expect(result).to contain_exactly('status', 'start', 'stop', 'restart', 'help')
       end
 
-      it 'returns empty for subsequent words' do
-        result = dispatcher.cmd_mcp_tabs('', %w[start something])
+      it 'returns option completions for start subcommand' do
+        # User typed: "mcp start <tab>" → words = ['mcp', 'start'], str = ''
+        result = dispatcher.cmd_mcp_tabs('', ['mcp', 'start'])
+        expect(result).to include('ServerHost=', 'ServerPort=', 'RpcHost=', 'RpcPass=')
+      end
+
+      it 'filters options by partial input' do
+        # User typed: "mcp start Rpc<tab>" → words = ['mcp', 'start'], str = 'Rpc'
+        result = dispatcher.cmd_mcp_tabs('Rpc', ['mcp', 'start'])
+        expect(result).to contain_exactly('RpcHost=', 'RpcPort=', 'RpcUser=', 'RpcPass=', 'RpcSSL=')
+      end
+
+      it 'filters options case-insensitively' do
+        # User typed: "mcp start rpc<tab>" → words = ['mcp', 'start'], str = 'rpc'
+        result = dispatcher.cmd_mcp_tabs('rpc', ['mcp', 'start'])
+        expect(result).to contain_exactly('RpcHost=', 'RpcPort=', 'RpcUser=', 'RpcPass=', 'RpcSSL=')
+      end
+
+      it 'returns empty for non-start/restart subcommands' do
+        # User typed: "mcp status <tab>" → words = ['mcp', 'status'], str = ''
+        result = dispatcher.cmd_mcp_tabs('', ['mcp', 'status'])
         expect(result).to eq([])
       end
     end
