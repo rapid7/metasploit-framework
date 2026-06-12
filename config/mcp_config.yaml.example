@@ -15,6 +15,7 @@ mcp:
   # MCP server network configuration (for HTTP transport only)
   host: localhost  # Host to bind to (default: localhost)
   port: 3000       # Port to listen on (default: 3000)
+  #auth_token: ... # Bearer token for authentication (default: randomly generated, one-time token)
 
 # Rate limiting (optional - defaults shown)
 rate_limit:

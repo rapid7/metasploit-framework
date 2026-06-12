@@ -403,7 +403,7 @@ RSpec.describe Msf::MCP::Application do
       app.instance_variable_set(:@config, http_config)
       app.instance_variable_set(:@mcp_server, mock_mcp_server)
 
-      expect(mock_mcp_server).to receive(:start).with(transport: :http, host: '0.0.0.0', port: 3000)
+      expect(mock_mcp_server).to receive(:start).with(hash_including(transport: :http, host: '0.0.0.0', port: 3000))
 
       app.send(:start_mcp_server)
 
@@ -419,7 +419,7 @@ RSpec.describe Msf::MCP::Application do
       app.instance_variable_set(:@config, http_config)
       app.instance_variable_set(:@mcp_server, mock_mcp_server)
 
-      expect(mock_mcp_server).to receive(:start).with(transport: :http, host: 'localhost', port: 3000)
+      expect(mock_mcp_server).to receive(:start).with(hash_including(transport: :http, host: 'localhost', port: 3000))
 
       app.send(:start_mcp_server)
     end

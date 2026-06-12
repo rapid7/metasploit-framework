@@ -502,4 +502,79 @@ RSpec.describe Msf::MCP::Server do
       end
     end
   end
+
+  describe 'HTTP auth_token wiring' do
+    let(:auth_token) { 'integration_test_token_abc123' }
+
+    let(:mock_http_transport) do
+      instance_double(::MCP::Server::Transports::StreamableHTTPTransport).tap do |t|
+        allow(t).to receive(:call).and_return([200, { 'Content-Type' => 'text/plain' }, ['OK']])
+      end
+    end
+
+    let(:server) do
+      allow(::MCP::Server).to receive(:new).and_return(mock_mcp_server)
+      described_class.new(msf_client: mock_msf_client, rate_limiter: rate_limiter)
+    end
+
+    before do
+      require 'rackup'
+      require 'rack/handler/puma'
+
+      allow(::MCP::Server::Transports::StreamableHTTPTransport).to receive(:new).and_return(mock_http_transport)
+      allow(Rackup::Handler::Puma).to receive(:run) { |app, _opts| @rack_app = app }
+    end
+
+    def call_rack(authorization: nil)
+      env = Rack::MockRequest.env_for(
+        'http://localhost:3000/mcp',
+        method: 'POST',
+        input: StringIO.new('{"jsonrpc":"2.0","method":"ping","id":1}')
+      )
+      env['HTTP_AUTHORIZATION'] = authorization if authorization
+      @rack_app.call(env)
+    end
+
+    context 'when auth_token is provided' do
+      before { server.start(transport: :http, auth_token: auth_token) }
+
+      it 'rejects requests that have no Authorization header' do
+        status, _headers, _body = call_rack
+        expect(status).to eq(401)
+      end
+
+      it 'rejects requests with an incorrect token' do
+        status, _headers, _body = call_rack(authorization: 'Bearer wrongtoken')
+        expect(status).to eq(401)
+      end
+
+      it 'allows requests with the correct Bearer token' do
+        status, _headers, _body = call_rack(authorization: "Bearer #{auth_token}")
+        expect(status).to eq(200)
+      end
+
+      it 'includes a WWW-Authenticate header in the 401 response' do
+        _status, headers, _body = call_rack
+        expect(headers['WWW-Authenticate']).to eq('Bearer realm="msfmcp"')
+      end
+    end
+
+    context 'when auth_token is nil' do
+      before { server.start(transport: :http, auth_token: nil) }
+
+      it 'passes all requests through without authentication' do
+        status, _headers, _body = call_rack
+        expect(status).to eq(200)
+      end
+    end
+
+    context 'when auth_token is an empty string' do
+      before { server.start(transport: :http, auth_token: '') }
+
+      it 'passes all requests through without authentication' do
+        status, _headers, _body = call_rack
+        expect(status).to eq(200)
+      end
+    end
+  end
 end
