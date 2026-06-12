@@ -43,6 +43,10 @@ group :development, :test do
   gem 'rubocop', '1.75.7'
 end
 
+group :development do
+  gem 'neo4j-ruby-driver', '~> 4.4'
+end
+
 group :test do
   # automatically include factories from spec/factories
   gem 'test-prof'
