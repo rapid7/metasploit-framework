@@ -11,7 +11,7 @@ module Msf
 
         register_options(
           [
-            Opt::LHOST,
+            Msf::OptAddressOrHostname.new('LHOST', [true, 'The listen address (an interface may be specified)']),
             Opt::LPORT(4444)
           ], Msf::Handler::Reverse)
 

@@ -23,7 +23,7 @@ RSpec.describe Msf::Opt do
 
     context 'LHOST' do
       subject { described_class::LHOST }
-      it { is_expected.to be_a(Msf::OptAddressOrHostname) }
+      it { is_expected.to be_a(Msf::OptAddress) }
     end
 
     context 'LPORT' do
@@ -73,7 +73,7 @@ RSpec.describe Msf::Opt do
 
     context 'LHOST()' do
       subject { described_class::LHOST(default) }
-      it { is_expected.to be_a(Msf::OptAddressOrHostname) }
+      it { is_expected.to be_a(Msf::OptAddress) }
       specify 'sets default' do
         expect(subject.default).to eq(default)
       end
