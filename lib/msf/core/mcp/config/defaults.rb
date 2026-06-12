@@ -15,7 +15,7 @@ module Msf::MCP
       RPC_HOST = '127.0.0.1'
       RPC_PORT = 55_553
       RPC_USER = 'msf'
-      RPC_SSL  = true
+      RPC_SSL = true
 
       # The msgrpc plugin binds on a different port than msfrpcd
       MSGRPC_PORT = 55_552

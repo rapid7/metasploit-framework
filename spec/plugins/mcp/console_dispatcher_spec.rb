@@ -121,11 +121,6 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
         expect(@output.join("\n")).to include('MCP server status: running')
       end
 
-      it 'displays transport type' do
-        mcp_plugin.print_mcp_status
-        expect(@output.join("\n")).to include('Transport: http')
-      end
-
       it 'displays listening address and port' do
         mcp_plugin.print_mcp_status
         expect(@output.join("\n")).to include('http://localhost:3000')
@@ -134,19 +129,6 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
       it 'displays uptime' do
         mcp_plugin.print_mcp_status
         expect(@output.join("\n")).to include('Uptime:')
-      end
-    end
-
-    context 'when server is running with stdio transport' do
-      before do
-        mcp_plugin.start_server('Transport' => 'stdio')
-        reset_logging!
-        allow(Time).to receive(:now).and_return(Time.at(1000))
-        mcp_plugin.instance_variable_set(:@started_at, Time.at(1000))
-      end
-
-      it 'rejects stdio and does not start' do
-        expect(mcp_plugin.mcp_server).to be_nil
       end
     end
 
@@ -160,16 +142,6 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
       it 'displays stopped state' do
         mcp_plugin.print_mcp_status
         expect(@output.join("\n")).to include('MCP server status: stopped')
-      end
-
-      it 'displays transport type' do
-        mcp_plugin.print_mcp_status
-        expect(@output.join("\n")).to include('Transport: http')
-      end
-
-      it 'displays N/A for listening address' do
-        mcp_plugin.print_mcp_status
-        expect(@output.join("\n")).to include('Listening: N/A')
       end
     end
 

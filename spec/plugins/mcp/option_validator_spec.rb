@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'rex/text'
 require Metasploit::Framework.root.join('plugins/mcp.rb').to_path
 
 RSpec.describe Msf::Plugin::MCP do
@@ -84,28 +85,6 @@ RSpec.describe Msf::Plugin::MCP do
 
       it 'is optional (nil is accepted)' do
         expect { plugin.send(:validate_options!, {}) }.not_to raise_error
-      end
-    end
-
-    describe 'Transport' do
-      it 'accepts "http"' do
-        expect { plugin.send(:validate_options!, { 'Transport' => 'http' }) }.not_to raise_error
-      end
-
-      it 'rejects "stdio"' do
-        expect { plugin.send(:validate_options!, { 'Transport' => 'stdio' }) }.to raise_error(Msf::MCP::Config::ValidationError, /Transport/)
-      end
-
-      it 'rejects "tcp"' do
-        expect { plugin.send(:validate_options!, { 'Transport' => 'tcp' }) }.to raise_error(Msf::MCP::Config::ValidationError, /Transport/)
-      end
-
-      it 'rejects "websocket"' do
-        expect { plugin.send(:validate_options!, { 'Transport' => 'websocket' }) }.to raise_error(Msf::MCP::Config::ValidationError, /Transport/)
-      end
-
-      it 'rejects empty string' do
-        expect { plugin.send(:validate_options!, { 'Transport' => '' }) }.to raise_error(Msf::MCP::Config::ValidationError, /Transport/)
       end
     end
 
@@ -232,18 +211,6 @@ RSpec.describe Msf::Plugin::MCP do
         }.to raise_error(Msf::MCP::Config::ValidationError, /integer between 1 and 65535/)
       end
 
-      it 'names the offending option in the error for Transport' do
-        expect {
-          plugin.send(:validate_options!, { 'Transport' => 'invalid' })
-        }.to raise_error(Msf::MCP::Config::ValidationError, /Invalid value for Transport/)
-      end
-
-      it 'includes the expected format for Transport' do
-        expect {
-          plugin.send(:validate_options!, { 'Transport' => 'invalid' })
-        }.to raise_error(Msf::MCP::Config::ValidationError, /\"http\"/)
-      end
-
       it 'names the offending option in the error for RpcSSL' do
         expect {
           plugin.send(:validate_options!, { 'RpcSSL' => 'maybe' })
@@ -282,11 +249,6 @@ RSpec.describe Msf::Plugin::MCP do
         expect(config[:mcp][:port]).to eq(8080)
       end
 
-      it 'maps Transport to mcp[:transport]' do
-        config = plugin.send(:resolve_config, { 'Transport' => 'http' })
-        expect(config[:mcp][:transport]).to eq('http')
-      end
-
       it 'maps RateLimit to rate_limit[:requests_per_minute]' do
         config = plugin.send(:resolve_config, { 'RateLimit' => '120' })
         expect(config[:rate_limit][:requests_per_minute]).to eq(120)
@@ -322,30 +284,5 @@ RSpec.describe Msf::Plugin::MCP do
       end
     end
 
-    describe 'stdio transport excludes host and port from mcp config' do
-      let(:config) { plugin.send(:resolve_config, { 'Transport' => 'stdio' }) }
-
-      it 'sets mcp[:transport] to "stdio"' do
-        expect(config[:mcp][:transport]).to eq('stdio')
-      end
-
-      it 'does not include :host in the mcp config' do
-        expect(config[:mcp]).not_to have_key(:host)
-      end
-
-      it 'does not include :port in the mcp config' do
-        expect(config[:mcp]).not_to have_key(:port)
-      end
-
-      it 'ignores ServerHost even when explicitly provided' do
-        config = plugin.send(:resolve_config, { 'Transport' => 'stdio', 'ServerHost' => '0.0.0.0' })
-        expect(config[:mcp]).not_to have_key(:host)
-      end
-
-      it 'ignores ServerPort even when explicitly provided' do
-        config = plugin.send(:resolve_config, { 'Transport' => 'stdio', 'ServerPort' => '9999' })
-        expect(config[:mcp]).not_to have_key(:port)
-      end
-    end
   end
 end

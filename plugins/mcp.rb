@@ -23,7 +23,7 @@ module Msf
       # Valid option keys accepted by `mcp start` and `mcp restart`
       unless defined?(VALID_OPTIONS)
         VALID_OPTIONS = %w[
-          Transport ServerHost ServerPort
+          ServerHost ServerPort
           RpcHost RpcPort RpcUser RpcPass RpcSSL
           RateLimit
         ].freeze
@@ -67,7 +67,6 @@ module Msf
         print_line('  help    - Show this help message')
         print_line
         print_line('Options (for start/restart):')
-        print_line('  Transport=<http>            MCP transport type (default: http)')
         print_line('  ServerHost=<host>           MCP server bind address (default: localhost)')
         print_line('  ServerPort=<port>           MCP server port (default: 3000)')
         print_line('  RpcHost=<host>              RPC server host (default: 127.0.0.1)')
@@ -79,7 +78,7 @@ module Msf
         print_line
         print_line('Examples:')
         print_line('  mcp start')
-        print_line('  mcp start Transport=http ServerPort=8080')
+        print_line('  mcp start ServerPort=8080')
         print_line('  mcp start RpcUser=msf RpcPass=secret')
         print_line
       end
@@ -186,21 +185,13 @@ module Msf
       end
 
       mcp_config = @server_config[:mcp]
-      transport = mcp_config[:transport]
 
       if @mcp_server
         print_status('MCP server status: running')
-        print_status("  Transport: #{transport}")
-        if transport == 'http'
-          print_status("  Listening: http://#{mcp_config[:host]}:#{mcp_config[:port]}")
-        else
-          print_status('  Listening: N/A')
-        end
+        print_status("  Listening: http://#{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])}")
         print_status("  Uptime:    #{format_uptime}")
       else
         print_status('MCP server status: stopped')
-        print_status("  Transport: #{transport}")
-        print_status('  Listening: N/A')
       end
     end
 
@@ -271,7 +262,6 @@ module Msf
 
       mcp_config = config[:mcp]
       rate_limit = config[:rate_limit]
-      transport = mcp_config[:transport]
 
       @rate_limiter = Msf::MCP::Security::RateLimiter.new(
         requests_per_minute: rate_limit[:requests_per_minute]
@@ -286,11 +276,7 @@ module Msf
       port = mcp_config[:port]
 
       @server_thread = framework.threads.spawn('MCPServer', false) do
-        if transport == 'http'
-          @mcp_server.start(transport: :http, host: host, port: port)
-        else
-          @mcp_server.start(transport: :stdio)
-        end
+        @mcp_server.start(transport: :http, host: host, port: port)
       end
 
       @started_at = Time.now
@@ -300,15 +286,11 @@ module Msf
     rescue Msf::MCP::Metasploit::ConnectionError => e
       raise Msf::MCP::Metasploit::ConnectionError, "RPC connection failed: #{e.message}"
     rescue Errno::EADDRINUSE
-      raise Msf::MCP::Error, "Address already in use: #{mcp_config[:host]}:#{mcp_config[:port]}"
+      raise Msf::MCP::Error, "Address already in use: #{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])}"
     end
 
     def print_server_status(mcp_config)
-      if mcp_config[:transport] == 'stdio'
-        print_status('MCP server started (transport: stdio)')
-      else
-        print_status("MCP server started on #{mcp_config[:host]}:#{mcp_config[:port]} (transport: http)")
-      end
+      print_status("MCP server started on #{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])} (transport: http)")
     end
 
     def format_uptime
@@ -392,7 +374,6 @@ module Msf
     def validate_options!(opts)
       validate_port_option!(opts, 'ServerPort')
       validate_port_option!(opts, 'RpcPort')
-      validate_transport_option!(opts)
       validate_rpc_ssl_option!(opts)
       validate_rate_limit_option!(opts)
       validate_rpc_credentials!(opts)
@@ -404,15 +385,6 @@ module Msf
       port = Integer(opts[key], exception: false)
       if port.nil? || port < 1 || port > 65_535
         option_error(key, 'an integer between 1 and 65535')
-      end
-    end
-
-    def validate_transport_option!(opts)
-      return unless opts['Transport']
-
-      # stdio transport is not supported from msfconsole; use msfmcpd for stdio
-      unless opts['Transport'] == 'http'
-        option_error('Transport', "\"http\" (stdio is only supported via #{Msf::Ui::Tip.highlight('msfmcpd')})")
       end
     end
 
@@ -436,11 +408,14 @@ module Msf
     def validate_rpc_credentials!(opts)
       has_user = opts['RpcUser'] && !opts['RpcUser'].empty?
       has_pass = opts['RpcPass'] && !opts['RpcPass'].empty?
+      has_host = opts['RpcHost'] && !opts['RpcHost'].empty?
 
       if has_user && !has_pass
         option_error('RpcPass', 'a value (both RpcUser and RpcPass are required)')
       elsif has_pass && !has_user
         option_error('RpcUser', 'a value (both RpcUser and RpcPass are required)')
+      elsif has_host && !has_pass
+        option_error('RpcPass', 'a value (RpcPass is required when connecting to a remote RPC host)')
       end
     end
 
@@ -449,13 +424,11 @@ module Msf
     # used by the MCP server components.
     #
     def resolve_config(opts)
-      transport = opts['Transport'] || 'http'
-
-      mcp_config = { transport: transport }
-      unless transport == 'stdio'
-        mcp_config[:host] = opts['ServerHost'] || Msf::MCP::Config::Defaults::MCP_HOST
-        mcp_config[:port] = Integer(opts['ServerPort'] || Msf::MCP::Config::Defaults::MCP_PORT)
-      end
+      mcp_config = {
+        transport: 'http',
+        host: opts['ServerHost'] || Msf::MCP::Config::Defaults::MCP_HOST,
+        port: Integer(opts['ServerPort'] || Msf::MCP::Config::Defaults::MCP_PORT)
+      }
 
       rate_limit_value = Integer(opts['RateLimit'] || Msf::MCP::Config::Defaults::RATE_LIMIT_REQUESTS_PER_MINUTE)
 
@@ -486,7 +459,8 @@ module Msf
 
     def explicit_rpc_credentials?(opts)
       (opts['RpcPass'] && !opts['RpcPass'].empty?) ||
-        (opts['RpcUser'] && !opts['RpcUser'].empty?)
+        (opts['RpcUser'] && !opts['RpcUser'].empty?) ||
+        (opts['RpcHost'] && !opts['RpcHost'].empty?)
     end
 
     # Explicit credentials provided — connect to external or local RPC
@@ -530,13 +504,16 @@ module Msf
     def auto_start_msgrpc(opts)
       pass = Rex::Text.rand_text_alphanumeric(12)
       user = Msf::MCP::Config::Defaults::RPC_USER
+      host = opts['RpcHost'] || Msf::MCP::Config::Defaults::RPC_HOST
+      port = opts['RpcPort'] || Msf::MCP::Config::Defaults::MSGRPC_PORT
+      ssl = opts['RpcSSL'] || 'false'
 
       msgrpc_opts = {
         'Pass' => pass,
         'User' => user,
-        'ServerHost' => Msf::MCP::Config::Defaults::RPC_HOST,
-        'ServerPort' => Msf::MCP::Config::Defaults::MSGRPC_PORT,
-        'SSL' => 'true'
+        'ServerHost' => host,
+        'ServerPort' => port,
+        'SSL' => ssl
       }
 
       framework.plugins.load('msgrpc', msgrpc_opts)
@@ -545,11 +522,11 @@ module Msf
       print_status("Auto-started msgrpc - User: #{user}, Pass: #{pass}")
 
       {
-        host: opts['RpcHost'] || Msf::MCP::Config::Defaults::RPC_HOST,
-        port: Integer(opts['RpcPort'] || Msf::MCP::Config::Defaults::MSGRPC_PORT),
+        host: host,
+        port: Integer(port),
         user: user,
         pass: pass,
-        ssl: (opts['RpcSSL'] || 'true') == 'true'
+        ssl: ssl == 'true'
       }
     end
 
