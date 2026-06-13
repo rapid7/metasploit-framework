@@ -2,12 +2,12 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'net/ssh/transport/session'
 require 'net/sftp'
 require 'openssl'
 
 class MetasploitModule < Msf::Auxiliary
 
+  include Msf::Exploit::Remote::SSH
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -73,15 +73,8 @@ class MetasploitModule < Msf::Auxiliary
   def check
     # Our check method will establish an unauthenticated connection to the remote SFTP (which is an extension of SSH)
     # service and we pull out the servers version string.
-    transport = ::Net::SSH::Transport::Session.new(
-      datastore['RHOST'],
-      {
-        port: datastore['RPORT'],
-        # Use self as a proxy for the net/ssh library, to allow us to use Metasploit's Rex sockets, which will honor pivots.
-        proxy: self
-      }
-    )
-
+    # Use self as a proxy for the net/ssh library, to allow us to use Metasploit's Rex sockets, which will honor pivots.
+    transport = connect_ssh_transport(datastore['RHOST'], port: datastore['RPORT'], proxy: self)
     ident = transport.server_version.version
 
     # We test the SSH version string for a known value of MOVEit SFTP.
@@ -95,6 +88,12 @@ class MetasploitModule < Msf::Auxiliary
     Msf::Exploit::CheckCode::Unknown('Host Unreachable')
   rescue ::Rex::ConnectionTimeout, ::Net::SSH::ConnectionTimeout
     Msf::Exploit::CheckCode::Unknown('Connection Timeout')
+  ensure
+    begin
+      transport&.close
+    rescue StandardError
+      nil
+    end
   end
 
   def run

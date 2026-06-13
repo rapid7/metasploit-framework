@@ -118,6 +118,8 @@ module Msf::DBManager::Service
     parents = process_service_chain(host, opts.delete(:parents)) if opts[:parents]
     if parents
       parents.each do |parent|
+        next if parent.id == service.id
+
         service.parents << parent if parent && !service.parents.include?(parent)
       end
     end
@@ -214,7 +216,8 @@ module Msf::DBManager::Service
         }
         service_info[:name] = service[:name].downcase if service[:name]
         service_info[:resource] = service[:resource] if service[:resource]
-        service_obj = host.services.find_or_create_by(service_info)
+        service_obj = host.services.find_by(port: service_info[:port], proto: service_info[:proto]) ||
+                      host.services.find_or_create_by(service_info)
         if service_obj.id.nil?
           elog("Failed to create service #{service_info.inspect} for host #{host.name} (#{host.address})")
           return

@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     # Specified Kex/Encryption downgrade requirements must be set to connect to the Power Meters.
-    ssh_opts = ssh_client_defaults.merge({
+    ssh_opts = {
       auth_methods: ['publickey'],
       port: rport,
       key_data: [ key_data ],
@@ -66,13 +66,13 @@ class MetasploitModule < Msf::Auxiliary
       encryption: ['aes128-cbc'],
       kex: ['diffie-hellman-group1-sha1'],
       host_key: ['ssh-rsa']
-    })
+    }
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
     begin
       ssh = Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        Net::SSH.start(ip, 'admin', ssh_opts)
+        connect_ssh(ip, 'admin', ssh_opts)
       end
     rescue Net::SSH::Exception => e
       vprint_error("#{ip}:#{rport} - #{e.class}: #{e.message}")
