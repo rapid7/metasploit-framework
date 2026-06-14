@@ -75,7 +75,11 @@ class Server
     self.served = {}
     self.serveOnce = hash.include?('SERVEONCE')
 
-    self.servePXE = (hash.include?('PXE') or hash.include?('FILENAME') or hash.include?('PXEONLY'))
+    self.servePXE = (
+      (hash.include?('PXE')) or
+      (hash['FILENAME'] && !hash['FILENAME'].to_s.empty?) or
+      (hash['PXEONLY'] == true)
+    )
     self.serveOnlyPXE = hash.include?('PXEONLY')
 
     # Always assume we don't give out hostnames ...
@@ -113,8 +117,8 @@ class Server
     )
 
     # Dynamically bind to interface if provided
-    if interface && !interface.empty?
-      self.sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_BINDTODEVICE, "#{interface}\0")
+    if self.interface && !self.interface.empty?
+      self.sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_BINDTODEVICE, "#{self.interface}\0")
     end
 
     self.thread = Rex::ThreadFactory.spawn("DHCPServerMonitor", false) {
@@ -247,6 +251,17 @@ protected
       end
     end
 
+    mac = _clienthwaddr.unpack('C6').map { |b| "%02x" % b }.join(':')
+    ip_packed = self.served[buf[28..43]]&.first
+    ip = ip_packed ? Rex::Socket.addr_itoa(ip_packed) : nil
+
+    case messageType
+    when Constants::DHCPDiscover
+      self.reporter.call(type: :dhcp_discover, mac: mac) if self.reporter
+    when Constants::DHCPRequest
+      self.reporter.call(type: :dhcp_request, mac: mac, ip: ip) if self.reporter
+    end
+
     # don't serve if only serving PXE and not PXE request
     return if pxeclient == false and self.serveOnlyPXE == true
 
@@ -314,9 +329,7 @@ protected
         pkt << dhcpoption(Constants::OpPXEConfigFile, self.pxealtconfigfile)
       else
         # We are handing out an IP and our PXE attack
-        if(self.reporter)
-          self.reporter.call(buf[28..43],self.ipstring)
-        end
+        self.reporter.call(type: :dhcp_pxe, mac: mac, ip: ipstring) if self.reporter
         pkt << dhcpoption(Constants::OpPXEConfigFile, self.pxeconfigfile)
       end
       pkt << dhcpoption(Constants::OpPXEPathPrefix, self.pxepathprefix)

