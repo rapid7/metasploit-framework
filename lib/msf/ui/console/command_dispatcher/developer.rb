@@ -298,6 +298,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
       return print(options.help)
     end
 
+    print_status("Reloading #{files.length} library #{'file'.pluralize(files.length)}...")
     files.each do |file|
       reload_file(file)
     rescue ScriptError, StandardError => e
