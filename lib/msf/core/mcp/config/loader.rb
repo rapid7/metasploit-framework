@@ -54,10 +54,10 @@ module Msf::MCP
         config[:logging] ||= {}
 
         config[:msf_api][:type] ||= 'messagepack'
-        config[:msf_api][:host] ||= 'localhost'
-        config[:msf_api][:port] ||= (config[:msf_api][:type] == 'json-rpc') ? 8081 : 55553
+        config[:msf_api][:host] ||= Defaults::RPC_HOST
+        config[:msf_api][:port] ||= (config[:msf_api][:type] == 'json-rpc') ? 8081 : Defaults::RPC_PORT
 
-        config[:msf_api][:ssl] = config[:msf_api].fetch(:ssl, true)
+        config[:msf_api][:ssl] = config[:msf_api].fetch(:ssl, Defaults::RPC_SSL)
         config[:msf_api][:auto_start_rpc] = config[:msf_api].fetch(:auto_start_rpc, true)
 
         config[:msf_api][:endpoint] ||= case config[:msf_api][:type]
@@ -70,12 +70,12 @@ module Msf::MCP
         config[:mcp][:transport] ||= 'stdio'
 
         if config[:mcp][:transport] == 'http'
-          config[:mcp][:host] ||= 'localhost'
-          config[:mcp][:port] ||= 3000
+          config[:mcp][:host] ||= Defaults::MCP_HOST
+          config[:mcp][:port] ||= Defaults::MCP_PORT
         end
 
         config[:rate_limit][:enabled] = config[:rate_limit].fetch(:enabled, true)
-        config[:rate_limit][:requests_per_minute] ||= 60
+        config[:rate_limit][:requests_per_minute] ||= Defaults::RATE_LIMIT_REQUESTS_PER_MINUTE
         config[:rate_limit][:burst_size] ||= 10
 
         config[:logging][:enabled] = config[:logging].fetch(:enabled, false)
