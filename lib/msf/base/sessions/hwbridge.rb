@@ -102,18 +102,18 @@ class HWBridge  < Rex::Post::HWBridge::Client
   # Initializes the console's I/O handles.
   #
   def init_ui(input, output)
-    self.user_input = input
-    self.user_output = output
+    super
+
     console.init_ui(input, output)
     console.set_log_source(log_source)
-
-    super
   end
 
   ##
   # :category: Msf::Session::Interactive implementors
   #
   # Resets the console's I/O handles.
+  # Does not call super - the session preserves its own user_input/user_output
+  # while only resetting the console's I/O.
   #
   def reset_ui
     console.unset_log_source
