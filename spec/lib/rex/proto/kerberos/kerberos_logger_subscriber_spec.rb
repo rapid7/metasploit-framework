@@ -15,11 +15,14 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
 
   let(:trace_enabled) { true }
 
+  let(:trace_level) { nil }
+
   let(:trace_colors) { nil }
 
   let(:mock_datastore) do
     {
       'KerberosTicketTrace' => trace_enabled,
+      'KerberosTicketTraceLevel' => trace_level,
       'KerberosTicketTraceColors' => trace_colors
     }
   end
@@ -152,6 +155,45 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
           EOF
         )
       )
+    end
+
+    context 'when KerberosTicketTraceLevel is meta' do
+      let(:trace_level) { 'meta' }
+
+      it 'prints a concise payload without expanding binary field contents' do
+        request = build_kerberos_message(
+          msg_type: Rex::Proto::Kerberos::Model::AS_REQ,
+          fields: {
+            ticket: ("\x00".b * 40),
+            req_body: Rex::Proto::Kerberos::Model::KdcRequestBody.new(
+              etype: [
+                Rex::Proto::Kerberos::Crypto::Encryption::AES256,
+                Rex::Proto::Kerberos::Crypto::Encryption::AES128
+              ]
+            )
+          }
+        )
+
+        subscriber.on_request(request)
+
+        expect(output_text).to eq(
+          expected_trace_output(
+            direction: 'Request',
+            message_name: 'AS-REQ',
+            color_prefix: '%bld%red',
+            body: <<~EOF.rstrip
+              Protocol Version: 5
+              Message Type: #{Rex::Proto::Kerberos::Model::AS_REQ} (AS-REQ)
+              Client Realm: EXAMPLE.LOCAL
+              Ticket: [binary 40 bytes]
+              Request Body:
+                Encryption Type:
+                  - #{Rex::Proto::Kerberos::Crypto::Encryption::AES256} (AES256)
+                  - #{Rex::Proto::Kerberos::Crypto::Encryption::AES128} (AES128)
+            EOF
+          )
+        )
+      end
     end
 
     it 'normalizes time, symbols, flags, sets and error code objects' do
@@ -527,6 +569,42 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
       )
     end
 
+    context 'when KerberosTicketTraceLevel is ticket' do
+      let(:trace_level) { 'ticket' }
+
+      it 'prints response metadata without expanding encrypted data contents' do
+        response = build_kerberos_message(
+          msg_type: Rex::Proto::Kerberos::Model::AS_REP,
+          fields: {
+            enc_part: Rex::Proto::Kerberos::Model::EncryptedData.new(
+              etype: Rex::Proto::Kerberos::Crypto::Encryption::AES256,
+              kvno: 2,
+              cipher: "\x01\x02\x03".b
+            )
+          }
+        )
+
+        subscriber.on_response(response)
+
+        expect(output_text).to eq(
+          expected_trace_output(
+            direction: 'Response',
+            message_name: 'AS-REP',
+            color_prefix: '%bld%blu',
+            body: <<~EOF.rstrip
+              Protocol Version: 5
+              Message Type: #{Rex::Proto::Kerberos::Model::AS_REP} (AS-REP)
+              Client Realm: EXAMPLE.LOCAL
+              Encrypted Part:
+                Encryption Type: #{Rex::Proto::Kerberos::Crypto::Encryption::AES256} (AES256)
+                Key Version Number: 2
+                Cipher: [binary 3 bytes]
+            EOF
+          )
+        )
+      end
+    end
+
     context 'when KerberosTicketTrace is false' do
       let(:trace_enabled) { false }
 
@@ -647,6 +725,80 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
               Key: deadbeef
         EOF
       )
+    end
+
+    context 'when KerberosTicketTraceLevel is ticket' do
+      let(:trace_level) { 'ticket' }
+
+      it 'prints the full credential presenter output' do
+        log_credential
+
+        expect(output_text).to eq(
+          <<~EOF.rstrip
+            ####################
+            # Kerberos Credential: TGS
+            ####################
+            Creds: 1
+              Credential[0]:
+                Server: krbtgt/EXAMPLE.LOCAL@EXAMPLE.LOCAL
+                Client: Administrator@EXAMPLE.LOCAL
+                Ticket etype: 18 (AES256)
+                Key: deadbeef
+          EOF
+        )
+      end
+    end
+
+    context 'when KerberosTicketTraceLevel is meta' do
+      let(:trace_level) { 'meta' }
+      let(:auth_time) { Time.utc(2026, 1, 1, 0, 0, 0) }
+      let(:start_time) { Time.utc(2026, 1, 1, 0, 5, 0) }
+      let(:end_time) { Time.utc(2026, 1, 1, 10, 0, 0) }
+      let(:renew_till) { Time.utc(2026, 1, 8, 0, 0, 0) }
+      let(:credential) do
+        double(
+          'credential',
+          server: 'krbtgt/EXAMPLE.LOCAL@EXAMPLE.LOCAL',
+          client: 'Administrator@EXAMPLE.LOCAL',
+          keyblock: double('keyblock', enctype: Rex::Proto::Kerberos::Crypto::Encryption::AES256),
+          is_skey: 0,
+          ticket: double('ticket', length: 1234),
+          ticket_flags: 0,
+          address_count: 0,
+          authdata_count: 0,
+          authtime: auth_time,
+          starttime: start_time,
+          endtime: end_time,
+          renew_till: renew_till
+        )
+      end
+
+      it 'prints only high-level credential metadata' do
+        log_credential
+
+        expect(output_text).to eq(
+          <<~EOF.rstrip
+            ####################
+            # Kerberos Credential: TGS
+            ####################
+            Creds: 1
+              Credential[0]:
+                Server: krbtgt/EXAMPLE.LOCAL@EXAMPLE.LOCAL
+                Client: Administrator@EXAMPLE.LOCAL
+                Ticket etype: 18 (AES256)
+                Subkey: false
+                Ticket Length: 1234
+                Ticket Flags: 0x00000000 ()
+                Addresses: 0
+                Authdatas: 0
+                Times:
+                  Auth time: #{auth_time.localtime}
+                  Start time: #{start_time.localtime}
+                  End time: #{end_time.localtime}
+                  Renew Till: #{renew_till.localtime}
+          EOF
+        )
+      end
     end
 
     it 'omits the source suffix from the header when source is nil' do

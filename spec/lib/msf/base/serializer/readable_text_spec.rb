@@ -293,6 +293,7 @@ RSpec.describe Msf::Serializer::ReadableText do
           DomainControllerRhost                                                               no        The resolvable rhost for the Domain Controller
           KerberosTicketTrace               false                                             no        Show AS/TGS/AP Kerberos requests and responses
           KerberosTicketTraceColors         red/blu                                           no        Kerberos request and response colors for KerberosTicketTrace (unset to disable)
+          KerberosTicketTraceLevel          full                                              no        Kerberos ticket trace verbosity (Accepted: meta, ticket, full)
           KrbClockSkew                      0s                                                yes       Adjust Kerberos client clock by this offset (e.g. 90s, -5m, 1h)
           Winrm::Krb5Ccname                                                                   no        The ccache file to use for kerberos authentication
           Winrm::KrbOfferedEncryptionTypes  AES256,AES128,RC4-HMAC,DES-CBC-MD5,DES3-CBC-SHA1  yes       Kerberos encryption types to offer
@@ -355,6 +356,7 @@ RSpec.describe Msf::Serializer::ReadableText do
           DomainControllerRhost                                                               no        The resolvable rhost for the Domain Controller
           KerberosTicketTrace               false                                             no        Show AS/TGS/AP Kerberos requests and responses
           KerberosTicketTraceColors         red/blu                                           no        Kerberos request and response colors for KerberosTicketTrace (unset to disable)
+          KerberosTicketTraceLevel          full                                              no        Kerberos ticket trace verbosity (Accepted: meta, ticket, full)
           KrbClockSkew                      0s                                                yes       Adjust Kerberos client clock by this offset (e.g. 90s, -5m, 1h)
           Winrm::Krb5Ccname                                                                   no        The ccache file to use for kerberos authentication
           Winrm::KrbOfferedEncryptionTypes  AES256,AES128,RC4-HMAC,DES-CBC-MD5,DES3-CBC-SHA1  yes       Kerberos encryption types to offer
