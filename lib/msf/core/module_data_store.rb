@@ -39,9 +39,9 @@ module Msf
         @deregistered_keys << key unless @deregistered_keys.any? { |k| k.casecmp?(key) }
       end
 
-      # Strip any deregistered keys that may have been written into @user_defined
-      # by the parent's copy_state (e.g. during reverse_merge! which calls
-      # copy_state with a plain DataStore result that contains all merged values).
+      # Strip deregistered keys from @user_defined in case the parent's copy_state
+      # wrote them in (e.g. reverse_merge! calls copy_state with a merged DataStore
+      # that may contain values for deregistered keys).
       @deregistered_keys.each do |key|
         k = find_key_case(key)
         @user_defined.delete(k)
@@ -119,40 +119,19 @@ module Msf
       search_framework_datastore(k)
     end
 
-    # Override the write path so that keys which were explicitly deregistered on
-    # the owning module are dropped.
-    #
-    # Compatible and functions as normal when:
-    #   - the key has never been deregistered via deregister_options
-    #   - there is no associated module (@_module is nil)
-    #
-    # @param [String] key
-    # @param [Object] value
-    def []=(key, value)
-      return if should_filter_key?(key)
-
-      super
-    end
-
-    # Override merge! so that when merging a DataStore (which writes directly to
-    # @user_defined, bypassing []=), any deregistered keys are stripped out
-    # afterward. This prevents a caller from injecting a deregistered option's
-    # value by merging a datastore that contains it.
-    #
-    # When merging a plain Hash the parent's merge! already routes through []=,
-    # so deregistered keys are filtered at that point and no extra work is needed.
+    # Override merge! to strip deregistered keys from both DataStore and Hash
+    # merges. This is the primary guard against external callers injecting values
+    # for options the module has explicitly removed.
     #
     # @param [Msf::DataStore, Hash] other
     # @return [Msf::ModuleDataStore]
     def merge!(other)
       super
-      if other.is_a?(DataStore)
-        @deregistered_keys.each do |key|
-          k = find_key_case(key)
-          @user_defined.delete(k)
-          @options.delete_if { |opt_name, _| opt_name.casecmp?(k) }
-          @aliases.delete_if { |_, v| v.casecmp?(k) }
-        end
+      @deregistered_keys.each do |key|
+        k = find_key_case(key)
+        @user_defined.delete(k)
+        @options.delete_if { |opt_name, _| opt_name.casecmp?(k) }
+        @aliases.delete_if { |_, v| v.casecmp?(k) }
       end
       self
     end

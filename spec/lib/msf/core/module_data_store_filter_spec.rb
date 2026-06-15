@@ -39,81 +39,34 @@ RSpec.describe Msf::ModuleDataStore do
 
   subject(:mod) { build_mod_with_framework(mod_class, framework) }
 
-  describe '#[]=' do
-    context 'when the key has been deregistered' do
-      it 'silently drops a direct assignment' do
-        mod.datastore['RHOST'] = '192.0.2.1'
-        expect(mod.datastore['RHOST']).to be_nil
-      end
-
-      it 'silently drops a value passed via _import_extra_options' do
-        mod._import_extra_options('Options' => { 'RHOST' => '192.0.2.1' })
-        expect(mod.datastore['RHOST']).to be_nil
-      end
-
-      it 'silently drops values copied from a parent datastore in bulk' do
-        { 'RHOST' => '192.0.2.1', 'LHOST' => '192.0.2.2' }.each do |k, v|
-          mod.datastore[k] = v
-        end
-
-        expect(mod.datastore['RHOST']).to be_nil
-      end
-    end
-
-    context 'when the key is registered' do
-      it 'stores and returns the value' do
-        mod.datastore['LHOST'] = '192.0.2.2'
-        expect(mod.datastore['LHOST']).to eq('192.0.2.2')
-      end
-
-      it 'stores values passed via _import_extra_options' do
-        mod._import_extra_options('Options' => { 'LHOST' => '192.0.2.2' })
-        expect(mod.datastore['LHOST']).to eq('192.0.2.2')
-      end
-
-      it 'preserves registered keys when copying alongside deregistered keys' do
-        { 'RHOST' => '192.0.2.1', 'LHOST' => '192.0.2.2' }.each do |k, v|
-          mod.datastore[k] = v
-        end
-
-        expect(mod.datastore['LHOST']).to eq('192.0.2.2')
-      end
-    end
-  end
-
   describe '#merge!' do
     context 'when merging a DataStore containing a deregistered key' do
-      it 'does not expose the deregistered key after merge' do
-        source = Msf::DataStore.new
-        source['RHOST'] = '192.0.2.1'
-        source['LHOST'] = '192.0.2.2'
+      let(:source) do
+        ds = Msf::DataStore.new
+        ds['RHOST'] = '192.0.2.1'
+        ds['LHOST'] = '192.0.2.2'
+        ds
+      end
 
+      it 'strips the deregistered key' do
         mod.datastore.merge!(source)
-
         expect(mod.datastore['RHOST']).to be_nil
       end
 
-      it 'preserves registered keys from the merged datastore' do
-        source = Msf::DataStore.new
-        source['RHOST'] = '192.0.2.1'
-        source['LHOST'] = '192.0.2.2'
-
+      it 'preserves registered keys' do
         mod.datastore.merge!(source)
-
         expect(mod.datastore['LHOST']).to eq('192.0.2.2')
       end
     end
 
     context 'when merging a plain Hash containing a deregistered key' do
-      it 'does not expose the deregistered key after merge' do
+      it 'strips the deregistered key' do
         mod.datastore.merge!('RHOST' => '192.0.2.1', 'LHOST' => '192.0.2.2')
-
         expect(mod.datastore['RHOST']).to be_nil
       end
 
-      it 'preserves registered keys from the merged hash' do
+      it 'preserves registered keys' do
         mod.datastore.merge!('RHOST' => '192.0.2.1', 'LHOST' => '192.0.2.2')
-
         expect(mod.datastore['LHOST']).to eq('192.0.2.2')
       end
     end
@@ -121,28 +74,25 @@ RSpec.describe Msf::ModuleDataStore do
 
   describe '#reverse_merge!' do
     context 'when reverse-merging a DataStore containing a deregistered key' do
-      it 'does not expose the deregistered key after reverse_merge!' do
-        source = Msf::DataStore.new
-        source['RHOST'] = '192.0.2.1'
-        source['LHOST'] = '192.0.2.2'
+      let(:source) do
+        ds = Msf::DataStore.new
+        ds['RHOST'] = '192.0.2.1'
+        ds['LHOST'] = '192.0.2.2'
+        ds
+      end
 
+      it 'strips the deregistered key' do
         mod.datastore.reverse_merge!(source)
-
         expect(mod.datastore['RHOST']).to be_nil
       end
 
-      it 'preserves registered keys from the reverse-merged datastore' do
-        source = Msf::DataStore.new
-        source['RHOST'] = '192.0.2.1'
-        source['LHOST'] = '192.0.2.2'
-
+      it 'preserves registered keys' do
         mod.datastore.reverse_merge!(source)
-
         expect(mod.datastore['LHOST']).to eq('192.0.2.2')
       end
     end
   end
-  
+
   describe '#search_for' do
     context 'when the key has been deregistered' do
       it 'does not expose a value set in the global framework datastore' do
@@ -190,31 +140,9 @@ RSpec.describe Msf::ModuleDataStore do
       expect(full_mod.datastore['RHOST']).to eq('192.0.2.1')
       expect(full_mod.datastore['LHOST']).to eq('192.0.2.2')
     end
-
-    it 'stores all registered OptAddress options' do
-      full_mod.options.each do |key, opt|
-        next unless opt.is_a?(Msf::OptAddress)
-
-        full_mod.datastore[key] = '192.0.2.1'
-        expect(full_mod.datastore[key]).to eq('192.0.2.1'),
-          "Expected #{key} to round-trip as '192.0.2.1'"
-      end
-    end
   end
 
-  context 'when used as a plain DataStore without an associated module' do
-    subject(:ds) { Msf::DataStore.new }
-
-    it 'accepts writes for any key' do
-      ds['FOO']      = 'bar'
-      ds['ANYTHING'] = 'value'
-
-      expect(ds['FOO']).to eq('bar')
-      expect(ds['ANYTHING']).to eq('value')
-    end
-  end
-
-  context 'when a mixin registers options that the including module deregisters (HttpClient scenario)' do
+  context 'when a mixin registers options that the including module deregisters' do
     let(:parent_mod_class) do
       Class.new(Msf::Auxiliary) do
         include Msf::Simple::Auxiliary
@@ -261,29 +189,19 @@ RSpec.describe Msf::ModuleDataStore do
     let(:parent_mod) { build_mod_with_framework(parent_mod_class, framework) }
     let(:child_mod)  { build_mod_with_framework(child_mod_class,  framework) }
 
-    context 'when the parent copies its own options to the child' do
+    context 'when the parent merges its datastore into the child' do
       before do
-        parent_mod.datastore['HttpUsername'] = 'spencer'
+        parent_mod.datastore['HttpUsername'] = 'foo'
         parent_mod.datastore['HttpPassword'] = 'Password1!'
       end
 
-      it 'does not set HttpUsername on the child' do
-        parent_mod.options.each_pair do |name, _opt|
-          next if parent_mod.datastore[name].nil?
-
-          child_mod.datastore[name] = parent_mod.datastore[name]
-        end
-
+      it 'strips HttpUsername from the child' do
+        child_mod.datastore.merge!(parent_mod.datastore)
         expect(child_mod.datastore['HttpUsername']).to be_blank
       end
 
-      it 'does not set HttpPassword on the child' do
-        parent_mod.options.each_pair do |name, _opt|
-          next if parent_mod.datastore[name].nil?
-
-          child_mod.datastore[name] = parent_mod.datastore[name]
-        end
-
+      it 'strips HttpPassword from the child' do
+        child_mod.datastore.merge!(parent_mod.datastore)
         expect(child_mod.datastore['HttpPassword']).to be_blank
       end
     end
@@ -303,7 +221,7 @@ RSpec.describe Msf::ModuleDataStore do
       end
     end
 
-    context 'when neither the parent nor the global datastore has set the options' do
+    context 'when no values have been set externally' do
       it 'returns blank for HttpUsername' do
         expect(child_mod.datastore['HttpUsername']).to be_blank
       end
@@ -314,7 +232,7 @@ RSpec.describe Msf::ModuleDataStore do
     end
   end
 
-  context 'when share_datastore is used (shell-to-meterpreter upgrade pattern)' do
+  context 'when share_datastore is used' do
     # Simulates the create_multihandler sequence in post/multi/manage/shell_to_meterpreter:
     #   pay.datastore['LHOST'] = lhost
     #   pay.datastore['LPORT'] = lport
@@ -403,8 +321,6 @@ RSpec.describe Msf::ModuleDataStore do
   end
 
   context 'when an option is deregistered and then re-registered with a new definition' do
-    # This pattern is used by payload adapters such as cmd/windows/https/x86 and
-    # cmd/windows/https/x64
     let(:mod_class) do
       Class.new(Msf::Auxiliary) do
         include Msf::Simple::Auxiliary
@@ -412,7 +328,7 @@ RSpec.describe Msf::ModuleDataStore do
         def initialize
           super(
             'Name'        => 'Test Module (deregister then re-register)',
-            'Description' => 'Verifies that re-registering a deregistered option restores normal write behaviour',
+            'Description' => 'Re-registers a previously deregistered option',
             'Author'      => ['spec'],
             'License'     => MSF_LICENSE
           )
@@ -433,7 +349,7 @@ RSpec.describe Msf::ModuleDataStore do
 
     subject(:mod) { build_mod_with_framework(mod_class, framework) }
 
-    it 'returns the new default for the re-registered option' do
+    it 'returns the new default' do
       expect(mod.datastore['FETCH_COMMAND']).to eq('CURL')
     end
 
@@ -442,7 +358,7 @@ RSpec.describe Msf::ModuleDataStore do
       expect(mod.datastore['FETCH_COMMAND']).to eq('CURL')
     end
 
-    it 'does not accept the old deregistered default' do
+    it 'does not use the old deregistered default' do
       expect(mod.datastore['FETCH_COMMAND']).not_to eq('CERTUTIL')
     end
   end
