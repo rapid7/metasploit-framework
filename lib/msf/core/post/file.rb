@@ -246,10 +246,27 @@ module Msf::Post::File
   #
   def writable?(path)
     verification_token = Rex::Text.rand_text_alpha_upper(8)
-    if session.type == 'powershell' && file?(path)
+    if session.type == 'powershell'
+      return false unless file?(path)
       return cmd_exec("$a=[System.IO.File]::OpenWrite('#{path}');if($?){echo #{verification_token}};$a.Close()").include?(verification_token)
     end
-    raise "`writable?' method does not support Windows systems" if session.platform == 'windows'
+
+    if session.type == 'meterpreter' && session.platform == 'windows'
+      return false unless file?(path)
+      begin
+        fd = session.fs.file.new(path, 'wb')
+        fd.close
+        return true
+      rescue ::Rex::Post::Meterpreter::RequestError
+        return false
+      end
+    end
+
+    if session.type == 'shell' && session.platform == 'windows'
+      return false unless file?(path)
+      return cmd_exec("type nul >> \"#{path}\" 2>nul && echo #{verification_token}").include?(verification_token)
+    end
+
 
     cmd_exec("(test -w '#{path}' || test -O '#{path}') && echo true").to_s.include? 'true'
   end

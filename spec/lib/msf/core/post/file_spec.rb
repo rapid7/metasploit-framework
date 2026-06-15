@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'rex/text'
 
 RSpec.describe Msf::Post::File do
   subject do
@@ -159,6 +160,139 @@ RSpec.describe Msf::Post::File do
         allow(subject).to receive(:print_error)
         allow(subject).to receive(:elog)
         expect(subject.find_writable_directories).to be_nil
+      end
+    end
+  end
+
+  describe '#writable?' do
+    subject do
+      described_mixin = described_class
+      klass = Class.new do
+        include described_mixin
+        attr_accessor :session
+        def cmd_exec(_cmd); ''; end
+      end
+      obj = klass.allocate
+      obj.session = double('session')
+      obj
+    end
+
+    before(:each) do
+      allow(Rex::Text).to receive(:rand_text_alpha_upper).and_return('TESTTOKEN')
+    end
+
+    context 'on a Windows shell session' do
+      before(:each) do
+        allow(subject.session).to receive(:type).and_return('shell')
+        allow(subject.session).to receive(:platform).and_return('windows')
+      end
+
+      it 'returns true when the file is writable' do
+        allow(subject).to receive(:file?).with('C:\\writable.txt').and_return(true)
+        allow(subject).to receive(:cmd_exec).and_return('TESTTOKEN')
+        expect(subject.writable?('C:\\writable.txt')).to be true
+      end
+
+      it 'returns false when the file is not writable' do
+        allow(subject).to receive(:file?).with('C:\\locked.txt').and_return(true)
+        allow(subject).to receive(:cmd_exec).and_return('')
+        expect(subject.writable?('C:\\locked.txt')).to be false
+      end
+
+      it 'returns false for a directory without attempting the write check' do
+        allow(subject).to receive(:file?).with('C:\\somedir').and_return(false)
+        expect(subject).not_to receive(:cmd_exec)
+        expect(subject.writable?('C:\\somedir')).to be false
+      end
+
+      it 'returns false when the path does not exist' do
+        allow(subject).to receive(:file?).with('C:\\missing.txt').and_return(false)
+        expect(subject).not_to receive(:cmd_exec)
+        expect(subject.writable?('C:\\missing.txt')).to be false
+      end
+
+      it 'issues the correct cmd.exe command' do
+        allow(subject).to receive(:file?).with('C:\\test.txt').and_return(true)
+        expect(subject).to receive(:cmd_exec)
+          .with('type nul >> "C:\\test.txt" 2>nul && echo TESTTOKEN')
+          .and_return('')
+        subject.writable?('C:\\test.txt')
+      end
+    end
+
+    context 'on a Windows meterpreter session' do
+      let(:mock_fs)             { double('fs') }
+      let(:mock_fs_file)        { double('fs_file') }
+      let(:mock_fd)             { double('fd') }
+      let(:request_error_class) { Class.new(StandardError) }
+
+      before(:each) do
+        stub_const('Rex::Post::Meterpreter::RequestError', request_error_class)
+        allow(subject.session).to receive(:type).and_return('meterpreter')
+        allow(subject.session).to receive(:platform).and_return('windows')
+        allow(subject.session).to receive(:fs).and_return(mock_fs)
+        allow(mock_fs).to receive(:file).and_return(mock_fs_file)
+        allow(mock_fd).to receive(:close)
+      end
+
+      it 'returns true when the file is writable' do
+        allow(subject).to receive(:file?).with('C:\\writable.txt').and_return(true)
+        allow(mock_fs_file).to receive(:new).and_return(mock_fd)
+        expect(subject.writable?('C:\\writable.txt')).to be true
+      end
+
+      it 'returns false when opening the file raises a RequestError' do
+        allow(subject).to receive(:file?).with('C:\\locked.txt').and_return(true)
+        allow(mock_fs_file).to receive(:new).and_raise(request_error_class)
+        expect(subject.writable?('C:\\locked.txt')).to be false
+      end
+
+      it 'opens the file with write mode' do
+        allow(subject).to receive(:file?).with('C:\\test.txt').and_return(true)
+        expect(mock_fs_file).to receive(:new).with('C:\\test.txt', 'wb').and_return(mock_fd)
+        subject.writable?('C:\\test.txt')
+      end
+
+      it 'returns false for a non-file path' do
+        allow(subject).to receive(:file?).with('C:\\somedir').and_return(false)
+        expect(mock_fs_file).not_to receive(:new)
+        expect(subject.writable?('C:\\somedir')).to be false
+      end
+    end
+
+    context 'on a Windows PowerShell session' do
+      before(:each) do
+        allow(subject.session).to receive(:type).and_return('powershell')
+        allow(subject.session).to receive(:platform).and_return('windows')
+      end
+
+      it 'returns true when the file is writable' do
+        allow(subject).to receive(:file?).with('C:\\writable.txt').and_return(true)
+        allow(subject).to receive(:cmd_exec).and_return('TESTTOKEN')
+        expect(subject.writable?('C:\\writable.txt')).to be true
+      end
+
+      it 'returns false for a non-file path' do
+        allow(subject).to receive(:file?).with('C:\\somedir').and_return(false)
+        expect(subject).not_to receive(:cmd_exec)
+        expect(subject.writable?('C:\\somedir')).to be false
+      end
+    end
+
+    context 'on a Unix shell session' do
+      before(:each) do
+        allow(subject.session).to receive(:type).and_return('shell')
+        allow(subject.session).to receive(:platform).and_return('linux')
+      end
+
+      it 'returns true when test -w succeeds' do
+        allow(subject).to receive(:cmd_exec).and_return('true')
+        expect(subject.writable?('/tmp/file')).to be true
+      end
+
+      it 'returns false when test -w fails' do
+        allow(subject).to receive(:cmd_exec).and_return('')
+        expect(subject.writable?('/etc/shadow')).to be false
       end
     end
   end
