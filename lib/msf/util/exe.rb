@@ -19,6 +19,7 @@ module Msf::Util::EXE
   include Msf::Util::EXE::Linux::X86
   include Msf::Util::EXE::Linux::X64
   include Msf::Util::EXE::Linux::Armle
+  include Msf::Util::EXE::Linux::Armbe
   include Msf::Util::EXE::Linux::Aarch64
   include Msf::Util::EXE::Linux::Mipsle
   include Msf::Util::EXE::Linux::Mipsbe
