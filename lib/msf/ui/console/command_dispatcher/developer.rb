@@ -288,7 +288,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     end
 
     # The remaining unparsed arguments are files
-    files.concat(options.order(args))
+    files.concat(options.permute(args))
     files.uniq!
 
     return print(options.help) if files.empty?
