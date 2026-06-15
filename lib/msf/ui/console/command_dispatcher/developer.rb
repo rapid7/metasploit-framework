@@ -521,7 +521,8 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
   def modified_files
     # Using an array avoids shelling out, so we avoid escaping/quoting
-    changed_files = %w[git diff --name-only]
+    # --diff-filter=d excludes deleted files that would fail realpath resolution
+    changed_files = %w[git diff --name-only --diff-filter=d]
 
     is_success = true
     files = []
