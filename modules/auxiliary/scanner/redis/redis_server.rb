@@ -46,12 +46,12 @@ class MetasploitModule < Msf::Auxiliary
       command_parts = command.split(' ')
       return unless (raw_data = redis_command(*command_parts))
 
-      report_service(host: rhost, port: rport, name: 'redis server', info: "#{command} response: #{raw_data}")
+      report_service(host: rhost, port: rport, name: 'redis server', info: "#{command} response: #{printable_redis_response(raw_data)}")
       print_good("Found redis with #{command} command")
       begin
         print_line(parse_redis_info(raw_data))
       rescue StandardError => e
-        print_error("Failed to parse INFO response (#{e.class}: #{e.message}); raw response: #{Rex::Text.to_hex_ascii(raw_data)}")
+        print_error("Failed to parse INFO response (#{e.class}: #{e.message}); raw response: #{printable_redis_response(raw_data)}")
       end
     rescue Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout,
            Rex::ConnectionRefused, ::Timeout::Error, ::EOFError, ::Errno::ETIMEDOUT => e
@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    return Rex::Text.to_hex_ascii(raw_data) if sections.empty?
+    return printable_redis_response(raw_data) if sections.empty?
 
     out = +''
     sections.each do |section, pairs|

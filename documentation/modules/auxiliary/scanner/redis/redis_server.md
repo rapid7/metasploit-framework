@@ -14,6 +14,8 @@ Virtual testing environments (inside docker container):
  - Redis 4.0.14
  - Redis 8.2.0
 
+To start a docker iamge: `docker run --rm -p 6379:6379 redis:8.2.0`
+
 ## Verification Steps
 
   1. Do: `use auxiliary/scanner/redis/redis_server`
