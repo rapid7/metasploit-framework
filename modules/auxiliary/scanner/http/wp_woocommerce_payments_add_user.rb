@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Connection failed') unless res
       next if res.code == 404
 
-      if res.code == 201 && res.body&.match(/"email":"#{email}"/) && res.body&.match(/"username":"#{username}"/)
+      if res.code == 201 && res.body&.match(/"email":"#{email}"/) && res.body.match(/"username":"#{username}"/)
         print_good('User was created successfully')
         if framework.db.active
           create_credential_and_login({

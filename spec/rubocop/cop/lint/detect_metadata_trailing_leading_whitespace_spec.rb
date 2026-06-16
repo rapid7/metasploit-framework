@@ -128,4 +128,16 @@ RSpec.describe RuboCop::Cop::Lint::DetectMetadataTrailingLeadingWhitespace, :con
       end
     RUBY
   end
+
+  it 'does not crash on binary string values with invalid UTF-8 encoding' do
+    expect_no_offenses(<<~RUBY)
+      def initialize(info = {})
+        super(update_info(info,
+          'Targets' => [
+            ['Target', { 'Shellcode' => "\\x99\\xed\\x4a\\x70" }],
+          ],
+        ))
+      end
+    RUBY
+  end
 end
