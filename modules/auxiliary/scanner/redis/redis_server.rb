@@ -50,8 +50,8 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Found redis with #{command} command")
       begin
         print_line(parse_redis_info(raw_data))
-      rescue StandardError
-        print_error("Raw response: #{Rex::Text.to_hex_ascii(raw_data)}")
+      rescue StandardError => e
+        print_error("Failed to parse INFO response (#{e.class}: #{e.message}); raw response: #{Rex::Text.to_hex_ascii(raw_data)}")
       end
     rescue Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout,
            Rex::ConnectionRefused, ::Timeout::Error, ::EOFError, ::Errno::ETIMEDOUT => e
