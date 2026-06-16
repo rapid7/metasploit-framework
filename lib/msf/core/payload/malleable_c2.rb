@@ -178,7 +178,12 @@ module Msf::Payload::MalleableC2
         post_uri = http_post.get_set('uri')
       }
 
-      [base_uri, get_uri, post_uri].compact
+      # A `set uri` value may list several space-separated candidate URIs
+      # (Cobalt Strike picks one at random per request). Split them out so
+      # the handler registers a mount for each candidate, otherwise the
+      # literal "uri-a uri-b" string is registered as a single unmatchable
+      # resource.
+      [base_uri, get_uri, post_uri].compact.flat_map {|u| u.split(/\s+/) }.reject(&:empty?).uniq
     end
 
     def wrap_outbound_get(raw_bytes)
@@ -348,14 +353,27 @@ module Msf::Payload::MalleableC2
     end
 
     def add_uri(base_uri, section, group_tlv)
-      uri = (base_uri || "").dup
       query_string = section.get_directive('parameter').map {|dir| "#{dir.args[0]}=#{URI.encode_uri_component(dir.args[1])}" }.join("&")
-      unless query_string.empty?
-        uri << "?"
-        uri << query_string
+
+      # `set uri` may carry a space-separated list of candidate URIs. Emit
+      # one TLV_TYPE_C2_URI per candidate so the client can pick one at
+      # random; an empty/absent uri collapses to a single empty candidate
+      # to preserve the prior (query-string-only) behaviour.
+      candidates = (base_uri || "").split(/\s+/).reject(&:empty?)
+      candidates = [""] if candidates.empty?
+
+      emitted = []
+      candidates.each do |candidate|
+        uri = candidate.dup
+        unless query_string.empty?
+          uri << "?"
+          uri << query_string
+        end
+        next if uri.empty?
+        group_tlv.add_tlv(MET::TLV_TYPE_C2_URI, uri)
+        emitted << uri
       end
-      group_tlv.add_tlv(MET::TLV_TYPE_C2_URI, uri) unless uri.empty?
-      uri
+      emitted
     end
   end
 
@@ -430,8 +448,16 @@ module Msf::Payload::MalleableC2
       while current_token
         if match_keyword('set')
           profile.sets << parse_set
-        elsif current_token.type == :keyword && @lexer.is_block_keyword?(current_token.value)
+        elsif block_ahead?
+          # Any `name { ... }` is a block. We keep the ones we understand
+          # (http-get/http-post/etc.) and harmlessly retain the rest —
+          # unsupported CS blocks like dns-beacon/process-inject/post-ex
+          # are parsed for structure and simply ignored by to_tlv.
           profile.sections << parse_section
+        elsif name_token?
+          # A stray top-level directive we don't model. Consume it (up to
+          # its `;`) and move on rather than failing the whole profile.
+          parse_directive
         else
           raise "Unexpected token at top level: #{current_token.type}=#{current_token.value}"
         end
@@ -450,19 +476,17 @@ module Msf::Payload::MalleableC2
     end
 
     def parse_section
-      name = expect(:keyword).value
+      name = expect_name.value
       expect_symbol('{')
       section = ParsedSection.new(name)
 
       while !match_symbol('}') && current_token
         if match_keyword('set')
           section.entries << parse_set
-        elsif current_token.type == :keyword
-          if @lexer.is_block_keyword?(current_token.value)
-            section.sections << parse_section
-          else
-            section.entries << parse_directive
-          end
+        elsif block_ahead?
+          section.sections << parse_section
+        elsif name_token?
+          section.entries << parse_directive
         else
           raise "Unexpected content in block #{name}: #{current_token.value}"
         end
@@ -473,7 +497,7 @@ module Msf::Payload::MalleableC2
     end
 
     def parse_directive
-      type = expect(:keyword).value
+      type = expect_name.value
       args = []
       while current_token && !match_symbol(';')
         if [:string, :identifier, :keyword].include?(current_token.type)
@@ -491,9 +515,33 @@ module Msf::Payload::MalleableC2
       @lexer.tokens[@index]
     end
 
+    def peek_token(offset = 1)
+      @lexer.tokens[@index + offset]
+    end
+
     def next_token
       @index += 1
       current_token
+    end
+
+    # A bare name that can head a block, directive or set key. Block
+    # detection no longer depends on a keyword whitelist, so profiles can
+    # carry CS blocks we don't model (dns-beacon, process-inject, ...)
+    # without breaking the parse.
+    def name_token?
+      t = current_token
+      !t.nil? && (t.type == :identifier || t.type == :keyword)
+    end
+
+    # True when the current token names a block, i.e. it's followed by `{`.
+    def block_ahead?
+      return false unless name_token?
+      nt = peek_token(1)
+      !nt.nil? && nt.type == :symbol && nt.value == '{'
+    end
+
+    def expect_name
+      expect([:identifier, :keyword])
     end
 
     def expect(types)
