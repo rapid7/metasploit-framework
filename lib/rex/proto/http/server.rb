@@ -292,7 +292,10 @@ protected
       root = request.resource
     elsif resources[request.resource]
       p = resources[request.resource]
-      len = resource_id.length
+      # This branch is reached when resource_id is nil (e.g. fetch-payload
+      # adapters have no find_resource_id), so the matched resource is the
+      # request resource itself — not resource_id, which would nil-deref.
+      len = request.resource.length
       root = request.resource
     else
       # Search for the resource handler for the requested URL.  This is pretty
