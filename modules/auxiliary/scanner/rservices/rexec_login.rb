@@ -124,6 +124,8 @@ class MetasploitModule < Msf::Auxiliary
   # rescue ::Exception
   #  print_error("#{$!}")
   # return :abort
+  rescue ::EOFError
+    return :failed
   ensure
     disconnect
   end
