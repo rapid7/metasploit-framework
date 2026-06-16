@@ -121,7 +121,7 @@ module Msf::DBManager::Connection
         # calling `verify!` instead will ensure we are connected even if `active?` incorrectly returns false
         ApplicationRecord.connection.verify!
       end
-    rescue ActiveRecord::ConnectionNotEstablished, PG::ConnectionBad => error
+    rescue ActiveRecord::ConnectionNotEstablished, ActiveRecord::NoDatabaseError, PG::ConnectionBad => error
       false
     end
   end
