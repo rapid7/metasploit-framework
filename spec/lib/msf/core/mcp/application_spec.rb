@@ -195,15 +195,13 @@ RSpec.describe Msf::MCP::Application do
     end
   end
 
-  describe '#install_signal_handlers' do
-    it 'installs signal handlers for INT and TERM' do
+  describe '#register_exit_handler' do
+    it 'registers an at_exit handler for cleanup' do
       app = described_class.new([], output: output)
 
-      # Mock Signal.trap to avoid actually installing handlers in tests
-      expect(Signal).to receive(:trap).with('INT')
-      expect(Signal).to receive(:trap).with('TERM')
+      expect(app).to receive(:at_exit)
 
-      app.send(:install_signal_handlers)
+      app.send(:register_exit_handler)
     end
   end
 
@@ -396,14 +394,20 @@ RSpec.describe Msf::MCP::Application do
       http_config[:mcp] = {
         transport: 'http',
         host: '0.0.0.0',
-        port: 3000
+        port: 3000,
+        min_threads: 0,
+        max_threads: 5,
+        workers: 0
       }
 
       app = described_class.new([], output: output)
       app.instance_variable_set(:@config, http_config)
       app.instance_variable_set(:@mcp_server, mock_mcp_server)
 
-      expect(mock_mcp_server).to receive(:start).with(transport: :http, host: '0.0.0.0', port: 3000)
+      expect(mock_mcp_server).to receive(:start).with(
+        transport: :http, host: '0.0.0.0', port: 3000,
+        min_threads: 0, max_threads: 5, workers: 0
+      )
 
       app.send(:start_mcp_server)
 
@@ -419,7 +423,12 @@ RSpec.describe Msf::MCP::Application do
       app.instance_variable_set(:@config, http_config)
       app.instance_variable_set(:@mcp_server, mock_mcp_server)
 
-      expect(mock_mcp_server).to receive(:start).with(transport: :http, host: 'localhost', port: 3000)
+      expect(mock_mcp_server).to receive(:start).with(
+        transport: :http, host: 'localhost', port: 3000,
+        min_threads: Msf::MCP::Server::PUMA_MIN_THREADS,
+        max_threads: Msf::MCP::Server::PUMA_MAX_THREADS,
+        workers: Msf::MCP::Server::PUMA_WORKERS
+      )
 
       app.send(:start_mcp_server)
     end
@@ -428,14 +437,14 @@ RSpec.describe Msf::MCP::Application do
   describe '#shutdown' do
     it 'outputs shutdown complete' do
       app = described_class.new([], output: output)
-      app.shutdown('INT')
+      app.shutdown
 
       expect(output.string).to include('Shutdown complete')
     end
 
     it 'does not raise when no Rex sink is registered' do
       app = described_class.new([], output: output)
-      expect { app.shutdown('TERM') }.not_to raise_error
+      expect { app.shutdown }.not_to raise_error
     end
 
     it 'calls shutdown on mcp_server when present' do
@@ -446,7 +455,7 @@ RSpec.describe Msf::MCP::Application do
 
       expect(mock_mcp_server).to receive(:shutdown)
 
-      app.shutdown('INT')
+      app.shutdown
 
       expect(output.string).to include('Shutdown complete')
     end
@@ -459,14 +468,14 @@ RSpec.describe Msf::MCP::Application do
 
       expect(mock_rpc_manager).to receive(:stop_rpc_server)
 
-      app.shutdown('INT')
+      app.shutdown
     end
 
     it 'handles nil mcp_server gracefully' do
       app = described_class.new([], output: output)
       app.instance_variable_set(:@mcp_server, nil)
 
-      expect { app.shutdown('INT') }.not_to raise_error
+      expect { app.shutdown }.not_to raise_error
       expect(output.string).to include('Shutdown complete')
     end
 
@@ -474,7 +483,7 @@ RSpec.describe Msf::MCP::Application do
       app = described_class.new([], output: output)
       app.instance_variable_set(:@rpc_manager, nil)
 
-      expect { app.shutdown('INT') }.not_to raise_error
+      expect { app.shutdown }.not_to raise_error
       expect(output.string).to include('Shutdown complete')
     end
   end
