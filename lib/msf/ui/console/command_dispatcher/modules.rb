@@ -435,7 +435,7 @@ module Msf
             print_line "Global Settings For Search Results:"
             {
               'SearchSort'         => 'Set the default sort order (-s)',
-              'SearchChildMode'    => 'Set the default for displaying child items (-c)',
+              'SearchChildMode'    => 'Set the default for displaying child items. Supported options are: "hide" or "show" (-c). ',
             }.each_pair do |keyword, description|
               print_line "  #{keyword.ljust 17}:  #{description}"
             end
