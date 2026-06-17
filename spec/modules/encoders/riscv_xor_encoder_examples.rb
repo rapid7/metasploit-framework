@@ -1,6 +1,8 @@
 # Shared examples for RISC-V XOR encoder modules.
 # Each shared example group accepts the encoder reference name as a parameter.
 
+require 'msf/core/encoder' # defines Msf::EncoderState, which make_encoder_state uses directly
+
 def make_encoder_state(buf, badchars = ''.b, key = 0xdeadbeef)
   state = Msf::EncoderState.new(key)
   state.buf = buf
