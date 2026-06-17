@@ -70,14 +70,18 @@ module Msf
     # Imports options and clears any matching keys from the deregistered list.
     # This allows a module to call deregister_options followed by register_options
     # for the same key and ensure we remove the re-registered option from the
-    # tracked @deregistered_keys
+    # tracked @deregistered_keys. Also clears aliases so that a deregistered
+    # key re-introduced as an alias of a new option is not incorrectly filtered.
     #
     # @param [Msf::OptionContainer] options
     # @param [String, nil] imported_by
     # @param [Boolean] overwrite
     def import_options(options, imported_by = nil, overwrite = true)
-      options.each_option do |name, _option|
+      options.each_option do |name, option|
         @deregistered_keys.delete_if { |k| k.casecmp?(name) }
+        option.aliases.each do |alias_name|
+          @deregistered_keys.delete_if { |k| k.casecmp?(alias_name) }
+        end
       end
       super
     end

@@ -362,4 +362,44 @@ RSpec.describe Msf::ModuleDataStore do
       expect(mod.datastore['FETCH_COMMAND']).not_to eq('CERTUTIL')
     end
   end
+
+  context 'when a deregistered key is re-introduced as an alias on a new option' do
+    let(:mod_class) do
+      Class.new(Msf::Auxiliary) do
+        include Msf::Simple::Auxiliary
+
+        def initialize
+          super(
+            'Name'        => 'Test Module (alias re-registration)',
+            'Description' => 'Deregisters SMBUser, re-introduces it as an alias',
+            'Author'      => ['spec'],
+            'License'     => MSF_LICENSE
+          )
+          register_options(
+            [
+              Msf::OptString.new('SMBUser', [false, 'SMB username', ''])
+            ]
+          )
+          deregister_options('SMBUser')
+          register_options(
+            [
+              Msf::OptString.new('TARGET_USERNAME', [true, 'Target username'], aliases: ['SMBUser'])
+            ]
+          )
+        end
+      end
+    end
+
+    subject(:mod) { build_mod_with_framework(mod_class, framework) }
+
+    it 'preserves TARGET_USERNAME when merged in' do
+      mod.datastore.merge!('TARGET_USERNAME' => 'esc_user_2')
+      expect(mod.datastore['TARGET_USERNAME']).to eq('esc_user_2')
+    end
+
+    it 'preserves TARGET_USERNAME when accessed via its SMBUser alias' do
+      mod.datastore.merge!('TARGET_USERNAME' => 'esc_user_2')
+      expect(mod.datastore['SMBUser']).to eq('esc_user_2')
+    end
+  end
 end
