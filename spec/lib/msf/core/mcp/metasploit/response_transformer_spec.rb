@@ -363,6 +363,29 @@ RSpec.describe Msf::MCP::Metasploit::ResponseTransformer do
       # Note: 'critical' and 'seen' fields are not included in transform_notes output
     end
 
+    it 'passes through hash data unchanged' do
+      response = {
+        'notes' => [
+          {
+            'host' => '192.168.1.100',
+            'type' => 'host.comments',
+            'data' => { 'host_data' => 'This host is a honey pot' },
+            'time' => 1609459200
+          }
+        ]
+      }
+      result = described_class.transform_notes(response)
+
+      expect(result[0][:data]).to eq({ 'host_data' => 'This host is a honey pot' })
+    end
+
+    it 'handles nil data' do
+      response = { 'notes' => [{ 'host' => '192.168.1.1', 'type' => 'test', 'data' => nil }] }
+      result = described_class.transform_notes(response)
+
+      expect(result[0]).not_to have_key(:data)
+    end
+
     it 'handles nil input' do
       expect(described_class.transform_notes(nil)).to eq([])
     end
