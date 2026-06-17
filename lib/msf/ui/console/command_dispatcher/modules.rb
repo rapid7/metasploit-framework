@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-
 module Msf
   module Ui
     module Console
@@ -22,8 +21,9 @@ module Msf
             ['-o', '--output']          => [true,  'Send output to a file in csv format', '<filename>'],
             ['-S', '--filter']          => [true,  'Regex pattern used to filter search results', '<filter>'],
             ['-u', '--use']             => [false, 'Use module if there is one result'],
-            ['-s', '--sort-ascending']  => [true, 'Sort search results by the specified column in ascending order', '<column>'],
-            ['-r', '--sort-descending'] => [true, 'Reverse the order of search results to descending order', '<column>']
+            ['-s', '--sort-ascending']  => [true,  'Sort search results by the specified column in ascending order', '<column>'],
+            ['-r', '--sort-descending'] => [false, 'Reverse the order of search results to descending order'],
+            ['-c', '--hide-child']      => [false, 'Hide child items such as actions, targets and akas (default: show)']
           )
 
           @@favorite_opts = Rex::Parser::Arguments.new(
@@ -416,7 +416,8 @@ module Msf
               'rank'                 => 'Sort modules by their exploitability rank',
               'date'                 => 'Sort modules by their disclosure date. Alias for disclosure_date',
               'disclosure_date'      => 'Sort modules by their disclosure date',
-              'name'                 => 'Sort modules by their name',
+              'fullname'             => 'Sort modules by their full name',
+              'name'                 => 'Sort modules by their descriptive name (title)',
               'type'                 => 'Sort modules by their type',
               'check'                => 'Sort modules by whether or not they have a check method',
               'action'                => 'Sort modules by whether or not they have actions',
@@ -431,6 +432,14 @@ module Msf
             print_line "  search type:exploit -s type -r"
             print_line "  search att&ck:T1059"
             print_line
+            print_line "Global Settings For Search Results:"
+            {
+              'SearchSort'         => 'Set the default sort order (-s)',
+              'SearchChildMode'    => 'Set the default for displaying child items. Supported options are: "hide" or "show" (-c). ',
+            }.each_pair do |keyword, description|
+              print_line "  #{keyword.ljust 17}:  #{description}"
+            end
+            print_line
           end
 
           #
@@ -444,8 +453,10 @@ module Msf
             use          = false
             count        = -1
             search_terms = []
-            sort_attribute  = 'name'
-            valid_sort_attributes = ['action', 'rank','disclosure_date','name','date','type','check']
+            sort_attribute = framework.datastore['SearchSort'] || 'name'
+            valid_sort_attributes = ['rank', 'date', 'disclosure_date', 'fullname', 'name', 'type', 'check', 'action']
+            child_mode = framework.datastore['SearchChildMode'] || 'show'
+            valid_child_mode = ['hide','show']
             reverse_sort = false
             ignore_use_exact_match = false
 
@@ -466,6 +477,8 @@ module Msf
                 sort_attribute = val
               when '-r'
                 reverse_sort = true
+              when '-c'
+                child_mode = 'hide'
               else
                 match += val + ' '
               end
@@ -485,6 +498,11 @@ module Msf
               return false
             end
 
+            if child_mode && !valid_child_mode.include?(child_mode)
+              print_error("Supported options for the -c flag are: #{valid_child_mode}")
+              return false
+            end
+
             begin
               if cached
                 print_status('Displaying cached results')
@@ -493,11 +511,12 @@ module Msf
                 @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
 
                 @module_search_results.sort_by! do |module_metadata|
-                  if sort_attribute == 'action'
+                  case sort_attribute
+                  when 'action'
                     module_metadata.actions&.any? ? 0 : 1
-                  elsif sort_attribute == 'check'
+                  when 'check'
                     module_metadata.check ? 0 : 1
-                  elsif sort_attribute == 'disclosure_date' || sort_attribute == 'date'
+                  when 'disclosure_date', 'date'
                     # Not all modules have disclosure_date, i.e. multi/handler
                     module_metadata.disclosure_date || Time.utc(0)
                   else
@@ -542,7 +561,7 @@ module Msf
                   m.name,
                 ]
 
-                if framework.features.enabled?(Msf::FeatureManager::HIERARCHICAL_SEARCH_TABLE)
+                if framework.features.enabled?(Msf::FeatureManager::HIERARCHICAL_SEARCH_TABLE) && child_mode != 'hide'
                   total_children_rows = (m.actions&.length || 0) + (m.targets&.length || 0) + (m.notes&.[]('AKA')&.length || 0)
                   show_child_items = total_children_rows > 1
                   next unless show_child_items
@@ -551,6 +570,7 @@ module Msf
                   # Note: We still use visual indicators for blank values as it's easier to read
                   # We can't always use a generic formatter/styler, as it would be applied to the 'parent' rows too
                   blank_value = '.'
+
                   if (m.actions&.length || 0) > 1
                     m.actions.each do |action|
                       @module_search_results_with_usage_metadata << { mod: m, datastore: { 'ACTION' => action['name'] } }
@@ -1795,11 +1815,11 @@ module Msf
                 'WordWrap' => false,
                 'Columns' => [
                   '#',
-                  'Name',
+                  'Full Name',
                   'Disclosure Date',
                   'Rank',
                   'Check',
-                  'Description'
+                  'Name'
                 ],
                 'ColProps' => {
                   'Rank' => {
@@ -1811,7 +1831,7 @@ module Msf
                       Msf::Ui::Console::TablePrint::RankStyler.new
                     ]
                   },
-                  'Name' => {
+                  'Full Name' => {
                     'Strip' => false,
                     'Stylers' => [Msf::Ui::Console::TablePrint::HighlightSubstringStyler.new(search_terms)]
                   },
@@ -1825,7 +1845,7 @@ module Msf
                       *table_hierarchy_formatters,
                     ]
                   },
-                  'Description' => {
+                  'Name' => {
                     'Stylers' => [
                       Msf::Ui::Console::TablePrint::HighlightSubstringStyler.new(search_terms)
                     ]
