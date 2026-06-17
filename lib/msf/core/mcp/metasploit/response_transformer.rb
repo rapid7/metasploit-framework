@@ -89,18 +89,25 @@ module Msf::MCP
       def self.transform_services(response)
         return [] unless response.is_a?(Hash) && response['services'].is_a?(Array)
 
-        response['services'].map do |service|
-          {
-            host_address: service['host'],
-            created_at: format_timestamp(service['created_at']),
-            updated_at: format_timestamp(service['updated_at']),
-            port: service['port'],
-            protocol: service['proto'],
-            state: service['state'],
-            name: service['name'],
-            info: service['info'],
-          }.compact
-        end
+        response['services'].map { |service| transform_service(service) }
+      end
+
+      # Transform a single service, recursively transforming its parent services.
+      # @param service [Hash] Raw service data
+      # @return [Hash] Transformed service
+      def self.transform_service(service)
+        {
+          host_address: service['host'],
+          created_at: format_timestamp(service['created_at']),
+          updated_at: format_timestamp(service['updated_at']),
+          port: service['port'],
+          protocol: service['proto'],
+          state: service['state'],
+          name: service['name'],
+          info: service['info'],
+          resource: service['resource'],
+          parents: (service['parents'] || []).map { |parent| transform_service(parent) }
+        }.compact
       end
 
       # Transform vulnerabilities response
@@ -116,7 +123,8 @@ module Msf::MCP
             protocol: vuln['proto'],
             name: vuln['name'],
             references: parse_refs(vuln['refs']),
-            created_at: format_timestamp(vuln['time'])
+            created_at: format_timestamp(vuln['time']),
+            resource: vuln['resource']
           }.compact
         end
       end

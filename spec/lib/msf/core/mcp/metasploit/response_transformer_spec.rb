@@ -247,6 +247,20 @@ RSpec.describe Msf::MCP::Metasploit::ResponseTransformer do
             'state' => 'open',
             'name' => 'http',
             'info' => 'Apache httpd 2.4.41',
+            'resource' => { 'path' => '/index.html' },
+            'parents' => [
+              {
+                'host' => '192.168.1.100',
+                'port' => 443,
+                'proto' => 'tcp',
+                'state' => 'open',
+                'name' => 'https',
+                'resource' => {},
+                'parents' => [],
+                'created_at' => 1609459200,
+                'updated_at' => 1640995200
+              }
+            ],
             'created_at' => 1609459200,
             'updated_at' => 1640995200
           }
@@ -264,8 +278,32 @@ RSpec.describe Msf::MCP::Metasploit::ResponseTransformer do
         protocol: 'tcp',
         state: 'open',
         name: 'http',
-        info: 'Apache httpd 2.4.41'
+        info: 'Apache httpd 2.4.41',
+        resource: { 'path' => '/index.html' }
       )
+    end
+
+    it 'recursively transforms parent services' do
+      result = described_class.transform_services(services_response)
+
+      parents = result[0][:parents]
+      expect(parents).to be_an(Array)
+      expect(parents.length).to eq(1)
+      expect(parents[0]).to include(
+        host_address: '192.168.1.100',
+        port: 443,
+        protocol: 'tcp',
+        name: 'https'
+      )
+      # nested parent has no parents of its own
+      expect(parents[0][:parents]).to eq([])
+    end
+
+    it 'defaults parents to an empty array when absent' do
+      response = { 'services' => [{ 'host' => '192.168.1.1', 'port' => 22, 'proto' => 'tcp' }] }
+      result = described_class.transform_services(response)
+
+      expect(result[0][:parents]).to eq([])
     end
 
     it 'handles nil input' do
@@ -288,6 +326,7 @@ RSpec.describe Msf::MCP::Metasploit::ResponseTransformer do
             'name' => 'MS17-010',
             'info' => 'SMB vulnerability',
             'refs' => 'CVE-2017-0144,MSB-2017-010',
+            'resource' => { 'dcerpc' => { 'pipe' => 'browser' } },
             'time' => 1609459200
           }
         ]
@@ -302,7 +341,8 @@ RSpec.describe Msf::MCP::Metasploit::ResponseTransformer do
         host: '192.168.1.100',
         port: 445,
         protocol: 'tcp',
-        name: 'MS17-010'
+        name: 'MS17-010',
+        resource: { 'dcerpc' => { 'pipe' => 'browser' } }
       )
       expect(result[0][:references]).to eq(['CVE-2017-0144', 'MSB-2017-010'])
       expect(result[0][:created_at]).to eq('2021-01-01T00:00:00Z')
