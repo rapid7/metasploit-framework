@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions' => {
         'SSL' => true
       },
-      'DisclosureDate' => 'Nov 12 2013',
+      'DisclosureDate' => '2013-11-12',
       'Notes' => {
         'Stability' => [CRASH_SAFE],
         'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],

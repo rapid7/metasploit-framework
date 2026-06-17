@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://www.sotiriu.de/adv/NSOADV-2011-003.txt'],
         ['EDB', '16103']
       ],
-      'DisclosureDate' => 'Mar 08 2011',
+      'DisclosureDate' => '2011-03-08',
       'License' => MSF_LICENSE
     )
 
