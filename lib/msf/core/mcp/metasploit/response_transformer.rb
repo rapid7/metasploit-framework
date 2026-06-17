@@ -153,7 +153,9 @@ module Msf::MCP
             user: cred['user'],
             secret: cred['pass'],
             type: cred['type'],
-            updated_at: format_timestamp(cred['updated_at'])
+            updated_at: format_timestamp(cred['updated_at']),
+            realm_key: cred['realm_key'],
+            realm_value: cred['realm_value']
           }.compact
         end
       end

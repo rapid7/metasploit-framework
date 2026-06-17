@@ -391,7 +391,9 @@ RSpec.describe Msf::MCP::Metasploit::ResponseTransformer do
             'user' => 'admin',
             'pass' => 'password123',
             'type' => 'password',
-            'updated_at' => 1609459200
+            'updated_at' => 1609459200,
+            'realm_key' => 'Active Directory Domain',
+            'realm_value' => 'msflab'
           }
         ]
       }
@@ -408,7 +410,9 @@ RSpec.describe Msf::MCP::Metasploit::ResponseTransformer do
         service_name: 'ssh',
         user: 'admin',
         secret: 'password123',
-        type: 'password'
+        type: 'password',
+        realm_key: 'Active Directory Domain',
+        realm_value: 'msflab'
       )
       expect(result[0][:updated_at]).to eq('2021-01-01T00:00:00Z')
     end
