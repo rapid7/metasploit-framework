@@ -51,3 +51,22 @@ Timeout controls for serial AT command operations.
 Startup probing and runtime health check controls.
 
 ## Scenarios
+
+Quectel LTE EG91 modem
+
+```
+msf auxiliary(server/quectel_modem) > run
+[*] Probing modem with AT until OK...
+[+] Modem is responding to AT commands.
+[*] Waiting briefly for RDY URC (best-effort)...
+[*] Closing any leftover modem socket connections...
+[+] Modem session 1 opened (12 sockets, 1024B chunks)
+[*] Auxiliary module execution completed
+msf auxiliary(server/quectel_modem) > route add 0 0 -1
+[*] Route added
+(reverse-i-search)`im': tInterrupt: use the 'exit' command to quit
+msf auxiliary(server/quectel_modem) > load request
+[*] Successfully loaded plugin: Request
+msf auxiliary(server/quectel_modem) > request http://ifconfig.me
+192.0.2.1
+```
