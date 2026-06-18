@@ -12,6 +12,9 @@ module Msf::DBManager::Route
     else
       s = session
     end
+    # Session was never persisted to the database (e.g. hardware sessions with
+    # no associated host). Skip route recording rather than raising.
+    return if s.nil?
     unless s.respond_to?(:routes)
       raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
     end
@@ -34,6 +37,7 @@ module Msf::DBManager::Route
     else
       s = session
     end
+    return if s.nil?
     unless s.respond_to?(:routes)
       raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
     end
