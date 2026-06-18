@@ -185,6 +185,7 @@ RSpec.describe Msf::Post::File do
       before(:each) do
         allow(subject.session).to receive(:type).and_return('shell')
         allow(subject.session).to receive(:platform).and_return('windows')
+        allow(subject).to receive(:directory?).and_return(false)
       end
 
       it 'returns true when the file is writable' do
@@ -199,16 +200,26 @@ RSpec.describe Msf::Post::File do
         expect(subject.writable?('C:\\locked.txt')).to be false
       end
 
-      it 'returns false for a directory without attempting the write check' do
-        allow(subject).to receive(:file?).with('C:\\somedir').and_return(false)
-        expect(subject).not_to receive(:cmd_exec)
+      it 'returns true when the directory is writable' do
+        allow(subject).to receive(:directory?).with('C:\\somedir').and_return(true)
+        allow(Rex::Text).to receive(:rand_text_alpha).and_return('RANDFILE')
+        allow(subject).to receive(:cmd_exec)
+          .with('type nul >> "C:\\somedir\\RANDFILE.tmp" 2>nul && del "C:\\somedir\\RANDFILE.tmp" && echo TESTTOKEN')
+          .and_return('TESTTOKEN')
+        expect(subject.writable?('C:\\somedir')).to be true
+      end
+
+      it 'returns false when the directory is not writable' do
+        allow(subject).to receive(:directory?).with('C:\\somedir').and_return(true)
+        allow(Rex::Text).to receive(:rand_text_alpha).and_return('RANDFILE')
+        allow(subject).to receive(:cmd_exec).and_return('')
         expect(subject.writable?('C:\\somedir')).to be false
       end
 
       it 'returns false when the path does not exist' do
-        allow(subject).to receive(:file?).with('C:\\missing.txt').and_return(false)
-        expect(subject).not_to receive(:cmd_exec)
-        expect(subject.writable?('C:\\missing.txt')).to be false
+        allow(subject).to receive(:directory?).with('C:\\missing').and_return(false)
+        allow(subject).to receive(:file?).with('C:\\missing').and_return(false)
+        expect(subject.writable?('C:\\missing')).to be false
       end
 
       it 'issues the correct cmd.exe command' do
@@ -233,6 +244,7 @@ RSpec.describe Msf::Post::File do
         allow(subject.session).to receive(:fs).and_return(mock_fs)
         allow(mock_fs).to receive(:file).and_return(mock_fs_file)
         allow(mock_fd).to receive(:close)
+        allow(subject).to receive(:directory?).and_return(false)
       end
 
       it 'returns true when the file is writable' do
@@ -254,8 +266,24 @@ RSpec.describe Msf::Post::File do
       end
 
       it 'returns false for a non-file path' do
+        allow(subject).to receive(:directory?).with('C:\\somedir').and_return(false)
         allow(subject).to receive(:file?).with('C:\\somedir').and_return(false)
         expect(mock_fs_file).not_to receive(:new)
+        expect(subject.writable?('C:\\somedir')).to be false
+      end
+
+      it 'returns true when the directory is writable' do
+        allow(subject).to receive(:directory?).with('C:\\somedir').and_return(true)
+        allow(Rex::Text).to receive(:rand_text_alpha).and_return('RANDFILE')
+        allow(mock_fs_file).to receive(:new).with('C:\\somedir\\RANDFILE.tmp', 'wb').and_return(mock_fd)
+        allow(mock_fs_file).to receive(:rm).with('C:\\somedir\\RANDFILE.tmp')
+        expect(subject.writable?('C:\\somedir')).to be true
+      end
+
+      it 'returns false when the directory is not writable' do
+        allow(subject).to receive(:directory?).with('C:\\somedir').and_return(true)
+        allow(Rex::Text).to receive(:rand_text_alpha).and_return('RANDFILE')
+        allow(mock_fs_file).to receive(:new).with('C:\\somedir\\RANDFILE.tmp', 'wb').and_raise(request_error_class)
         expect(subject.writable?('C:\\somedir')).to be false
       end
     end
@@ -264,6 +292,7 @@ RSpec.describe Msf::Post::File do
       before(:each) do
         allow(subject.session).to receive(:type).and_return('powershell')
         allow(subject.session).to receive(:platform).and_return('windows')
+        allow(subject).to receive(:directory?).and_return(false)
       end
 
       it 'returns true when the file is writable' do
@@ -273,8 +302,24 @@ RSpec.describe Msf::Post::File do
       end
 
       it 'returns false for a non-file path' do
+        allow(subject).to receive(:directory?).with('C:\\somedir').and_return(false)
         allow(subject).to receive(:file?).with('C:\\somedir').and_return(false)
-        expect(subject).not_to receive(:cmd_exec)
+        expect(subject.writable?('C:\\somedir')).to be false
+      end
+
+      it 'returns true when the directory is writable' do
+        allow(subject).to receive(:directory?).with('C:\\somedir').and_return(true)
+        allow(Rex::Text).to receive(:rand_text_alpha).and_return('RANDFILE')
+        allow(subject).to receive(:cmd_exec)
+          .with("$f=[System.IO.File]::Create('C:\\somedir\\RANDFILE.tmp');if($?){$f.Close();[System.IO.File]::Delete('C:\\somedir\\RANDFILE.tmp');echo TESTTOKEN}")
+          .and_return('TESTTOKEN')
+        expect(subject.writable?('C:\\somedir')).to be true
+      end
+
+      it 'returns false when the directory is not writable' do
+        allow(subject).to receive(:directory?).with('C:\\somedir').and_return(true)
+        allow(Rex::Text).to receive(:rand_text_alpha).and_return('RANDFILE')
+        allow(subject).to receive(:cmd_exec).and_return('')
         expect(subject.writable?('C:\\somedir')).to be false
       end
     end

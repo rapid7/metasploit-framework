@@ -289,6 +289,32 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  def test_writable
+    if session.platform == 'windows'
+      it 'should detect a writable file' do
+        write_file(datastore['BaseFileName'], 'test')
+        ret = writable?(datastore['BaseFileName'])
+        rm_f(datastore['BaseFileName'])
+        ret
+      end
+
+      it 'should detect a non-writable file' do
+        !writable?('C:\\Windows\\System32\\config\\SAM')
+      end
+
+      it 'should detect a writable directory' do
+        mkdir(datastore['BaseDirectoryName'])
+        ret = writable?(datastore['BaseDirectoryName'])
+        rm_rf(datastore['BaseDirectoryName'])
+        ret
+      end
+
+      it 'should detect a non-writable directory' do
+        !writable?('C:\\Windows\\System32\\config')
+      end
+    end
+  end
+
   def make_symlink(target, symlink)
     if session.platform == 'windows'
       cmd_exec("cmd.exe", "/c mklink #{directory?(target) ? '/D ' : ''}#{symlink} #{target}")

@@ -247,11 +247,26 @@ module Msf::Post::File
   def writable?(path)
     verification_token = Rex::Text.rand_text_alpha_upper(8)
     if session.type == 'powershell'
+      if directory?(path)
+        tmp_file = "#{path}\\#{Rex::Text.rand_text_alpha(8)}.tmp"
+        return cmd_exec("$f=[System.IO.File]::Create('#{tmp_file}');if($?){$f.Close();[System.IO.File]::Delete('#{tmp_file}');echo #{verification_token}}").include?(verification_token)
+      end
       return false unless file?(path)
       return cmd_exec("$a=[System.IO.File]::OpenWrite('#{path}');if($?){echo #{verification_token}};$a.Close()").include?(verification_token)
     end
 
     if session.type == 'meterpreter' && session.platform == 'windows'
+      if directory?(path)
+        tmp_file = "#{path}\\#{Rex::Text.rand_text_alpha(8)}.tmp"
+        begin
+          fd = session.fs.file.new(tmp_file, 'wb')
+          fd.close
+          session.fs.file.rm(tmp_file)
+          return true
+        rescue ::Rex::Post::Meterpreter::RequestError
+          return false
+        end
+      end
       return false unless file?(path)
       begin
         fd = session.fs.file.new(path, 'wb')
@@ -263,6 +278,10 @@ module Msf::Post::File
     end
 
     if session.type == 'shell' && session.platform == 'windows'
+      if directory?(path)
+        tmp_file = "#{path}\\#{Rex::Text.rand_text_alpha(8)}.tmp"
+        return cmd_exec("type nul >> \"#{tmp_file}\" 2>nul && del \"#{tmp_file}\" && echo #{verification_token}").include?(verification_token)
+      end
       return false unless file?(path)
       return cmd_exec("type nul >> \"#{path}\" 2>nul && echo #{verification_token}").include?(verification_token)
     end
