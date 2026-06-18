@@ -11,6 +11,8 @@
 # polling. Consuming modules implement `execute_upgrade` for delivery.
 #
 module Msf::Post::SessionUpgrade
+  include Msf::Exploit::Retry
+
   def initialize(info = {})
     super
 
@@ -157,24 +159,22 @@ module Msf::Post::SessionUpgrade
   end
 
   # Polls framework.sessions for a new session ID not in the existing set.
-  # Returns true if a new session appears before HANDLE_TIMEOUT, false otherwise.
   def wait_for_upgrade_session(existing_session_ids)
     timeout = datastore['HANDLE_TIMEOUT']
     print_status("Waiting up to #{timeout} seconds for Meterpreter session...")
 
-    timer = 0
-    while timer < timeout
+    new_session = poll_until_truthy(timeout: timeout) do
       new_ids = framework.sessions.keys.map(&:to_i).to_set - existing_session_ids
-      unless new_ids.empty?
-        print_good('Meterpreter session opened successfully!')
-        return true
-      end
-      Rex::ThreadSafe.sleep(1)
-      timer += 1
+      new_ids.first unless new_ids.empty?
     end
 
-    print_error("No session received within #{timeout} seconds.")
-    false
+    if new_session
+      print_good('Meterpreter session opened successfully!')
+      true
+    else
+      print_error("No session received within #{timeout} seconds.")
+      false
+    end
   end
 
   # Stops the background handler job and clears the tracking state.
