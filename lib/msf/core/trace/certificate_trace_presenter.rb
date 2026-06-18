@@ -16,6 +16,13 @@ module Msf
     #   presenter = Msf::Trace::CertificateTracePresenter.new(cert)
     #   mod.print_line(presenter.to_s_metadata)
     #   mod.print_line(presenter.to_s_full)
+    #
+    #   # CSR mode - present a certificate signing request before it is submitted
+    #   # (e.g. the AD CS / MS-ICPR enrollment flow). +attributes+ is the enrollment
+    #   # attribute hash returned alongside the CSR by CertRequest#create_csr.
+    #   presenter = Msf::Trace::CertificateTracePresenter.new
+    #   mod.print_line(presenter.to_s_csr_metadata(csr))
+    #   mod.print_line(presenter.to_s_csr_full(csr, attributes))
     class CertificateTracePresenter
 
       SEPARATOR = ('[CertificateTrace] ' + ('-' * 38)).freeze
@@ -88,8 +95,26 @@ module Msf
         nil
       end
 
-      # @param cert [OpenSSL::X509::Certificate, OpenSSL::PKCS12, String]
-      def initialize(cert)
+      # Attempt to coerce input into an OpenSSL::X509::Request (CSR).
+      # Accepts a live request object (the type CertRequest#create_csr returns is
+      # a plain OpenSSL::X509::Request) or raw DER/PEM bytes. Anything else - for
+      # example the CMC ContentInfo wrapper produced for on-behalf-of enrollments -
+      # is returned as nil so the caller silently skips the trace.
+      #
+      # @param csr [OpenSSL::X509::Request, String, #to_der]
+      # @return [OpenSSL::X509::Request, nil]
+      def self.coerce_csr(csr)
+        return csr if csr.is_a?(OpenSSL::X509::Request)
+        return OpenSSL::X509::Request.new(csr) if csr.is_a?(String)
+        return OpenSSL::X509::Request.new(csr.to_der) if csr.respond_to?(:to_der)
+
+        nil
+      rescue OpenSSL::X509::RequestError, OpenSSL::ASN1::ASN1Error
+        nil
+      end
+
+      # @param cert [OpenSSL::X509::Certificate, OpenSSL::PKCS12, String, nil]
+      def initialize(cert = nil)
         @cert = self.class.coerce(cert)
       end
 
@@ -152,7 +177,104 @@ module Msf
         lines.join("\n")
       end
 
+      # Returns a formatted CSR metadata string: subject, public key, signature
+      # algorithm. Mirrors #to_s_metadata for the request side of an enrollment.
+      #
+      # @param csr [OpenSSL::X509::Request, String, #to_der]
+      # @return [String, nil] nil if the CSR could not be parsed
+      def to_s_csr_metadata(csr)
+        csr = self.class.coerce_csr(csr)
+        return nil unless csr
+
+        lines = [SEPARATOR, "  CSR Subject : #{csr.subject}"]
+
+        public_key = csr_public_key(csr)
+        lines << "  CSR Pub Key : #{format_public_key(public_key)}" if public_key
+
+        sig_alg = csr_signature_algorithm(csr)
+        lines << "  CSR Sig Alg : #{sig_alg}" if sig_alg
+
+        lines.join("\n")
+      rescue StandardError
+        nil
+      end
+
+      # Returns a formatted full CSR string: metadata plus the requested template
+      # and SAN (taken from the enrollment +attributes+ hash) and any extensions
+      # carried in the CSR's PKCS#9 extensionRequest attribute.
+      #
+      # @param csr [OpenSSL::X509::Request, String, #to_der]
+      # @param attributes [Hash] enrollment request attributes from
+      #   CertRequest#create_csr (e.g. 'CertificateTemplate', 'SAN')
+      # @return [String, nil] nil if the CSR could not be parsed
+      def to_s_csr_full(csr, attributes = {})
+        csr = self.class.coerce_csr(csr)
+        base = to_s_csr_metadata(csr)
+        return nil unless base
+
+        attributes ||= {}
+        lines = [base]
+
+        template = attributes['CertificateTemplate'] || attributes[:CertificateTemplate]
+        lines << "  Req Template : #{template}" if template
+
+        san = attributes['SAN'] || attributes[:SAN]
+        lines << "  Req SAN      : #{san}" if san
+
+        # subjectAltName is already surfaced above as the friendly "Req SAN" line;
+        # drop it from the raw dump so we don't repeat it as an opaque hex blob.
+        extensions = csr_extensions(csr).reject { |e| e.oid == 'subjectAltName' }
+        if extensions.any?
+          lines << '  Req Extns    :'
+          extensions.each do |e|
+            label = EXTENSION_OID_NAMES[normalize_oid(e.oid)] || e.oid
+            lines << "    #{label} : #{format_extension(e)}"
+          end
+        end
+
+        lines.join("\n")
+      end
+
       private
+
+      # @param csr [OpenSSL::X509::Request]
+      # @return [OpenSSL::PKey::PKey, nil]
+      def csr_public_key(csr)
+        csr.public_key
+      rescue StandardError
+        nil
+      end
+
+      # @param csr [OpenSSL::X509::Request]
+      # @return [String, nil]
+      def csr_signature_algorithm(csr)
+        csr.signature_algorithm
+      rescue StandardError
+        nil
+      end
+
+      # Extract the X.509v3 extensions a CSR requests via its PKCS#9
+      # extensionRequest attribute (OpenSSL::X509::Request exposes no #extensions
+      # of its own). The attribute value is a SET containing a SEQUENCE OF
+      # Extension; rebuild each as an OpenSSL::X509::Extension so the shared
+      # #format_extension / EXTENSION_OID_NAMES handling applies unchanged.
+      #
+      # @param csr [OpenSSL::X509::Request]
+      # @return [Array<OpenSSL::X509::Extension>]
+      def csr_extensions(csr)
+        return [] unless csr.respond_to?(:attributes)
+
+        ext_req = csr.attributes.find { |a| %w[extReq extensionRequest].include?(a.oid) }
+        return [] unless ext_req
+
+        ext_req.value.value.flat_map do |seq|
+          next [] unless seq.respond_to?(:value) && seq.value.is_a?(Array)
+
+          seq.value.map { |ext_asn1| OpenSSL::X509::Extension.new(ext_asn1.to_der) }
+        end
+      rescue StandardError
+        []
+      end
 
       def subject_cn
         @cert.subject.to_a.find { |name, _, _| name == 'CN' }&.dig(1)

@@ -400,4 +400,124 @@ RSpec.describe Msf::Trace::CertificateTracePresenter do
       end
     end
   end
+
+  # ── CSR presentation ─────────────────────────────────────────────────────────
+  # A real certificate signing request built through the same helper the
+  # MS-ICPR / AD CS enrollment flow uses (Rex::Proto::X509::Request.build_csr),
+  # carrying a UPN SAN and an application-policy (EKU) extension.
+  describe 'CSR presentation' do
+    let(:csr) do
+      Rex::Proto::X509::Request.build_csr(
+        cn: 'Administrator',
+        private_key: key,
+        dns: 'dc.contoso.local',
+        msext_upn: 'administrator@contoso.local',
+        algorithm: 'SHA256',
+        application_policies: ['1.3.6.1.5.5.7.3.2']
+      )
+    end
+
+    let(:attributes) do
+      { 'CertificateTemplate' => 'User', 'SAN' => 'dns=dc.contoso.local&upn=administrator@contoso.local' }
+    end
+
+    describe '.coerce_csr' do
+      it 'passes through an existing OpenSSL::X509::Request unchanged' do
+        expect(described_class.coerce_csr(csr)).to equal(csr)
+      end
+
+      it 'coerces DER bytes to an OpenSSL::X509::Request' do
+        expect(described_class.coerce_csr(csr.to_der)).to be_a(OpenSSL::X509::Request)
+      end
+
+      it 'returns nil for invalid input' do
+        expect(described_class.coerce_csr('not a csr')).to be_nil
+      end
+
+      it 'returns nil for an unrelated object' do
+        expect(described_class.coerce_csr(Object.new)).to be_nil
+      end
+    end
+
+    describe '#to_s_csr_metadata' do
+      subject { described_class.new.to_s_csr_metadata(csr) }
+
+      it 'includes the CertificateTrace separator' do
+        expect(subject).to include('[CertificateTrace]')
+      end
+
+      it 'includes the CSR subject' do
+        expect(subject).to include('CSR Subject')
+        expect(subject).to include('Administrator')
+      end
+
+      it 'renders the public key as algorithm and bit size, not raw PEM' do
+        expect(subject).to include('CSR Pub Key')
+        expect(subject).to include('RSA-2048')
+        expect(subject).not_to include('-----BEGIN')
+      end
+
+      it 'includes the signature algorithm' do
+        expect(subject).to include('CSR Sig Alg')
+      end
+
+      it 'accepts DER bytes without raising' do
+        expect { described_class.new.to_s_csr_metadata(csr.to_der) }.not_to raise_error
+      end
+
+      it 'returns nil when the CSR cannot be parsed' do
+        expect(described_class.new.to_s_csr_metadata('garbage')).to be_nil
+      end
+
+      it 'returns nil for a nil CSR' do
+        expect(described_class.new.to_s_csr_metadata(nil)).to be_nil
+      end
+    end
+
+    describe '#to_s_csr_full' do
+      subject { described_class.new.to_s_csr_full(csr, attributes) }
+
+      it 'includes everything from metadata' do
+        expect(subject).to include('CSR Subject')
+        expect(subject).to include('RSA-2048')
+      end
+
+      it 'includes the requested certificate template from attributes' do
+        expect(subject).to include('Req Template')
+        expect(subject).to include('User')
+      end
+
+      it 'includes the requested SAN from attributes' do
+        expect(subject).to include('Req SAN')
+        expect(subject).to include('administrator@contoso.local')
+      end
+
+      it 'decodes the requested application-policy extension to a friendly EKU label' do
+        expect(subject).to include('Req Extns')
+        expect(subject).to include('1.3.6.1.5.5.7.3.2 (Client Authentication)')
+      end
+
+      it 'does not emit non-printable bytes in the requested-extensions block' do
+        ext_lines = subject.lines.select { |l| l.start_with?('    ') }.map(&:chomp).join
+        expect(ext_lines).not_to match(/[^[:print:]\t]/)
+      end
+
+      it 'does not repeat subjectAltName as a raw hex blob in the extensions block' do
+        ext_lines = subject.lines.select { |l| l.start_with?('    ') }.join
+        expect(ext_lines).not_to include('subjectAltName')
+      end
+
+      it 'omits the template line when attributes carry no template' do
+        expect(described_class.new.to_s_csr_full(csr, {})).not_to include('Req Template')
+      end
+
+      it 'tolerates a nil attributes hash' do
+        expect { described_class.new.to_s_csr_full(csr, nil) }.not_to raise_error
+      end
+
+      it 'returns nil when the CSR cannot be parsed' do
+        expect(described_class.new.to_s_csr_full('garbage', attributes)).to be_nil
+      end
+    end
+  end
 end
