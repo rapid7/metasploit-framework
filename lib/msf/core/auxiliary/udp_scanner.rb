@@ -173,7 +173,13 @@ module Auxiliary::UDPScanner
       readable, _, _ = ::IO.select(@udp_sockets.values, nil, nil, timeout)
       if readable
         for sock in readable
-          res = sock.recvfrom(65535)
+          begin
+            res = sock.recvfrom(65535)
+          rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED
+            # A connected UDP socket surfaces ICMP port-unreachable as ECONNREFUSED
+            # on recvfrom; skip this socket and keep processing the others.
+            next
+          end
 
           # Ignore invalid responses
           break if not res[1]
