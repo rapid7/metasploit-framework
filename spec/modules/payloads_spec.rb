@@ -916,6 +916,15 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/bind_socat_sctp'
   end
 
+  context 'cmd/unix/bind_socat_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/cmd/unix/bind_socat_tcp'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/bind_socat_tcp'
+  end
+
   context 'cmd/unix/bind_socat_udp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
