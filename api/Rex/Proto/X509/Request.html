@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::X509::Request
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::X509::Request";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../X509.html" title="Rex::Proto::X509 (module)">X509</a></span></span>
+     &raquo; 
+    <span class="title">Request</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::X509::Request
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Proto::X509::Request</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/x509/request.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_csr-class_method" title="build_csr (class method)">.<strong>build_csr</strong>(cn:, private_key:, dns: nil, msext_sid: nil, msext_upn: nil, algorithm: &#39;SHA256&#39;, application_policies: [])  &#x21d2; OpenSSL::X509::Request </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Make a certificate signing request.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_on_behalf_of-class_method" title="build_on_behalf_of (class method)">.<strong>build_on_behalf_of</strong>(csr:, on_behalf_of:, cert:, key:, algorithm: &#39;SHA256&#39;)  &#x21d2; Rex::Proto::CryptoAsn1::Cms::ContentInfo </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Make a certificate request on behalf of another user.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_csr-class_method" title="create_csr (class method)">.<strong>create_csr</strong>(private_key, cn, algorithm = &#39;SHA256&#39;) {|request| ... } &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="build_csr-class_method">
+  
+    .<strong>build_csr</strong>(cn:, private_key:, dns: nil, msext_sid: nil, msext_upn: nil, algorithm: &#39;SHA256&#39;, application_policies: [])  &#x21d2; <tt>OpenSSL::X509::Request</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Make a certificate signing request.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The common name for the certificate.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>private_key</span>
+      
+      
+        <span class='type'>(<tt>OpenSSL::PKey</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The private key for the certificate.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>dns</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An alternative DNS name to use.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>msext_sid</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An explicit SID to specify for strong identity mapping.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>msext_upn</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An alternative User Principal Name (this is a Microsoft-specific feature).</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>algorithm</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;SHA256&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The algorithm to use when signing the CSR.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>application_policies</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>[]</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>OIDs to add as application policies.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>OpenSSL::X509::Request</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The request object.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/x509/request.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_build_csr'>build_csr</span><span class='lparen'>(</span><span class='label'>cn:</span><span class='comma'>,</span> <span class='label'>private_key:</span><span class='comma'>,</span> <span class='label'>dns:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>msext_sid:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>msext_upn:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>algorithm:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA256</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>application_policies:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../X509.html" title="Rex::Proto::X509 (module)">X509</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Rex::Proto::X509::Request (class)">Request</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_csr'><span class='object_link'><a href="#create_csr-class_method" title="Rex::Proto::X509::Request.create_csr (method)">create_csr</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_private_key'>private_key</span><span class='comma'>,</span> <span class='id identifier rubyid_cn'>cn</span><span class='comma'>,</span> <span class='id identifier rubyid_algorithm'>algorithm</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_request'>request</span><span class='op'>|</span>
+    <span class='id identifier rubyid_extensions'>extensions</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+    <span class='id identifier rubyid_subject_alt_names'>subject_alt_names</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_subject_alt_names'>subject_alt_names</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>otherName = </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../X509.html#OID_NT_PRINCIPAL_NAME-constant" title="Rex::Proto::X509::OID_NT_PRINCIPAL_NAME (constant)">OID_NT_PRINCIPAL_NAME</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'>;UTF8:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_msext_upn'>msext_upn</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_msext_upn'>msext_upn</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_msext_sid'>msext_sid</span>
+      <span class='id identifier rubyid_subject_alt_names'>subject_alt_names</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>URI = </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../X509.html#SAN_URL_PREFIX-constant" title="Rex::Proto::X509::SAN_URL_PREFIX (constant)">SAN_URL_PREFIX</a></span></span><span class='embexpr_end'>}</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_msext_sid'>msext_sid</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_subject_alt_names'>subject_alt_names</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>URI = </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_msext_sid'>msext_sid</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_subject_alt_names'>subject_alt_names</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DNS = </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dns'>dns</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_dns'>dns</span>
+
+    <span class='kw'>unless</span> <span class='id identifier rubyid_subject_alt_names'>subject_alt_names</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='comment'># factory.create_extension accepts a comma separated list of SANs or a config file of SANs.
+</span>      <span class='comment'># SAN_URL_PREFIX in the URI SAN contains a comma so we create a config file and add it to the factory
+</span>      <span class='comment'># The config file requires an identifier we define at the top of the file [alt_names]
+</span>      <span class='id identifier rubyid_subject_alt_names'>subject_alt_names</span><span class='period'>.</span><span class='id identifier rubyid_prepend'>prepend</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[alt_names]</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_subject_alt_names_conf'>subject_alt_names_conf</span> <span class='op'>=</span> <span class='id identifier rubyid_subject_alt_names'>subject_alt_names</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_config'>config</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Config</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_subject_alt_names_conf'>subject_alt_names_conf</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_factory'>factory</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>ExtensionFactory</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+      <span class='id identifier rubyid_factory'>factory</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span> <span class='op'>=</span> <span class='id identifier rubyid_config'>config</span>
+      <span class='id identifier rubyid_extensions'>extensions</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_factory'>factory</span><span class='period'>.</span><span class='id identifier rubyid_create_extension'>create_extension</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>subjectAltName</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>@alt_names</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_msext_sid'>msext_sid</span>
+      <span class='id identifier rubyid_ntds_ca_security_ext'>ntds_ca_security_ext</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1.html" title="Rex::Proto::CryptoAsn1 (module)">CryptoAsn1</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1/NtdsCaSecurityExt.html" title="Rex::Proto::CryptoAsn1::NtdsCaSecurityExt (class)">NtdsCaSecurityExt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>OtherName:</span> <span class='lbrace'>{</span>
+        <span class='label'>type_id:</span> <span class='const'><span class='object_link'><a href="../X509.html#OID_NTDS_OBJECTSID-constant" title="Rex::Proto::X509::OID_NTDS_OBJECTSID (constant)">OID_NTDS_OBJECTSID</a></span></span><span class='comma'>,</span>
+        <span class='label'>value:</span> <span class='id identifier rubyid_msext_sid'>msext_sid</span>
+      <span class='rbrace'>}</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_extensions'>extensions</span> <span class='op'>&lt;&lt;</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Extension</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../X509.html#OID_NTDS_CA_SECURITY_EXT-constant" title="Rex::Proto::X509::OID_NTDS_CA_SECURITY_EXT (constant)">OID_NTDS_CA_SECURITY_EXT</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_ntds_ca_security_ext'>ntds_ca_security_ext</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>unless</span> <span class='id identifier rubyid_application_policies'>application_policies</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+      <span class='id identifier rubyid_application_cert_policies'>application_cert_policies</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1.html" title="Rex::Proto::CryptoAsn1 (module)">CryptoAsn1</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1/X509.html" title="Rex::Proto::CryptoAsn1::X509 (module)">X509</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1/X509/CertificatePolicies.html" title="Rex::Proto::CryptoAsn1::X509::CertificatePolicies (class)">CertificatePolicies</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+        <span class='label'>certificatePolicies:</span> <span class='id identifier rubyid_application_policies'>application_policies</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_policy_oid'>policy_oid</span><span class='op'>|</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1.html" title="Rex::Proto::CryptoAsn1 (module)">CryptoAsn1</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1/X509.html" title="Rex::Proto::CryptoAsn1::X509 (module)">X509</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1/X509/PolicyInformation.html" title="Rex::Proto::CryptoAsn1::X509::PolicyInformation (class)">PolicyInformation</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>policyIdentifier:</span> <span class='id identifier rubyid_policy_oid'>policy_oid</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+      <span class='rparen'>)</span>
+      <span class='id identifier rubyid_extensions'>extensions</span> <span class='op'>&lt;&lt;</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Extension</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../X509.html#OID_APPLICATION_CERT_POLICIES-constant" title="Rex::Proto::X509::OID_APPLICATION_CERT_POLICIES (constant)">OID_APPLICATION_CERT_POLICIES</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_application_cert_policies'>application_cert_policies</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>unless</span> <span class='id identifier rubyid_extensions'>extensions</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_attribute'>add_attribute</span><span class='lparen'>(</span><span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Attribute</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>extReq</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Set</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+          <span class='lbracket'>[</span><span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Sequence</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_extensions'>extensions</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+        <span class='rparen'>)</span>
+      <span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="build_on_behalf_of-class_method">
+  
+    .<strong>build_on_behalf_of</strong>(csr:, on_behalf_of:, cert:, key:, algorithm: &#39;SHA256&#39;)  &#x21d2; <tt><span class='object_link'><a href="../CryptoAsn1/Cms/ContentInfo.html" title="Rex::Proto::CryptoAsn1::Cms::ContentInfo (class)">Rex::Proto::CryptoAsn1::Cms::ContentInfo</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Make a certificate request on behalf of another user.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>csr</span>
+      
+      
+        <span class='type'>(<tt>OpenSSL::X509::Request</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The certificate request to make on behalf of the user.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>on_behalf_of</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The user to make the request on behalf of.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>cert</span>
+      
+      
+        <span class='type'>(<tt>OpenSSL::X509::Certificate</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The public key to use for signing the request.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>OpenSSL::PKey::RSA</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The private key to use for signing the request.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>algorithm</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;SHA256&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The digest algorithm to use.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../CryptoAsn1/Cms/ContentInfo.html" title="Rex::Proto::CryptoAsn1::Cms::ContentInfo (class)">Rex::Proto::CryptoAsn1::Cms::ContentInfo</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The signed request content.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/x509/request.rb', line 98</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_build_on_behalf_of'>build_on_behalf_of</span><span class='lparen'>(</span><span class='label'>csr:</span><span class='comma'>,</span> <span class='label'>on_behalf_of:</span><span class='comma'>,</span> <span class='label'>cert:</span><span class='comma'>,</span> <span class='label'>key:</span><span class='comma'>,</span> <span class='label'>algorithm:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA256</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='comment'># algorithm needs to be one that OpenSSL supports, but we also need the OID constants defined
+</span>  <span class='id identifier rubyid_digest'>digest</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Digest</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_algorithm'>algorithm</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_digest'>digest</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RSAWith</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_digest'>digest</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_all?'>all?</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model/OID.html" title="Rex::Proto::Kerberos::Model::OID (module)">OID</a></span></span><span class='period'>.</span><span class='id identifier rubyid_constants'>constants</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Can not map digest algorithm </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_digest'>digest</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> to the necessary OIDs.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_digest_oid'>digest_oid</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model/OID.html" title="Rex::Proto::Kerberos::Model::OID (module)">OID</a></span></span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_digest'>digest</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_signer_info'>signer_info</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1.html" title="Rex::Proto::CryptoAsn1 (module)">CryptoAsn1</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1/Cms.html" title="Rex::Proto::CryptoAsn1::Cms (module)">Cms</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1/Cms/SignerInfo.html" title="Rex::Proto::CryptoAsn1::Cms::SignerInfo (class)">SignerInfo</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>version:</span> <span class='int'>1</span><span class='comma'>,</span>
+    <span class='label'>sid:</span> <span class='lbrace'>{</span>
+      <span class='label'>issuer:</span> <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_issuer'>issuer</span><span class='comma'>,</span>
+      <span class='label'>serial_number:</span> <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_serial'>serial</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='label'>digest_algorithm:</span> <span class='lbrace'>{</span>
+      <span class='label'>algorithm:</span> <span class='id identifier rubyid_digest_oid'>digest_oid</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='label'>signed_attrs:</span> <span class='lbracket'>[</span>
+      <span class='lbrace'>{</span>
+        <span class='label'>attribute_type:</span> <span class='const'><span class='object_link'><a href="../X509.html#OID_ENROLLMENT_NAME_VALUE_PAIR-constant" title="Rex::Proto::X509::OID_ENROLLMENT_NAME_VALUE_PAIR (constant)">OID_ENROLLMENT_NAME_VALUE_PAIR</a></span></span><span class='comma'>,</span>
+        <span class='label'>attribute_values:</span> <span class='lbracket'>[</span>
+          <span class='const'>RASN1</span><span class='op'>::</span><span class='const'>Types</span><span class='op'>::</span><span class='const'>Any</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>value:</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1.html" title="Rex::Proto::CryptoAsn1 (module)">CryptoAsn1</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1/EnrollmentNameValuePair.html" title="Rex::Proto::CryptoAsn1::EnrollmentNameValuePair (class)">EnrollmentNameValuePair</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+            <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>requestername</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+            <span class='label'>value:</span> <span class='id identifier rubyid_on_behalf_of'>on_behalf_of</span>
+          <span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='rbracket'>]</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='lbrace'>{</span>
+        <span class='label'>attribute_type:</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model/OID.html" title="Rex::Proto::Kerberos::Model::OID (module)">OID</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model/OID.html#MessageDigest-constant" title="Rex::Proto::Kerberos::Model::OID::MessageDigest (constant)">MessageDigest</a></span></span><span class='comma'>,</span>
+        <span class='label'>attribute_values:</span> <span class='lbracket'>[</span><span class='const'>RASN1</span><span class='op'>::</span><span class='const'>Types</span><span class='op'>::</span><span class='const'>Any</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>value:</span> <span class='const'>RASN1</span><span class='op'>::</span><span class='const'>Types</span><span class='op'>::</span><span class='const'>OctetString</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>value:</span> <span class='id identifier rubyid_digest'>digest</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+      <span class='rbrace'>}</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>signature_algorithm:</span> <span class='lbrace'>{</span>
+      <span class='label'>algorithm:</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model/OID.html" title="Rex::Proto::Kerberos::Model::OID (module)">OID</a></span></span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RSAWith</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_digest'>digest</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='const'>RASN1</span><span class='op'>::</span><span class='const'>Types</span><span class='op'>::</span><span class='const'>Set</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>value:</span> <span class='id identifier rubyid_signer_info'>signer_info</span><span class='lbracket'>[</span><span class='symbol'>:signed_attrs</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span>
+  <span class='id identifier rubyid_signature'>signature</span> <span class='op'>=</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_sign'>sign</span><span class='lparen'>(</span><span class='id identifier rubyid_digest'>digest</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_signer_info'>signer_info</span><span class='lbracket'>[</span><span class='symbol'>:signature</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_signature'>signature</span>
+
+  <span class='id identifier rubyid_signed_data'>signed_data</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1.html" title="Rex::Proto::CryptoAsn1 (module)">CryptoAsn1</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1/Cms.html" title="Rex::Proto::CryptoAsn1::Cms (module)">Cms</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1/Cms/SignedData.html" title="Rex::Proto::CryptoAsn1::Cms::SignedData (class)">SignedData</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>version:</span> <span class='int'>3</span><span class='comma'>,</span>
+    <span class='label'>digest_algorithms:</span> <span class='lbracket'>[</span>
+      <span class='lbrace'>{</span>
+        <span class='label'>algorithm:</span> <span class='id identifier rubyid_digest_oid'>digest_oid</span>
+      <span class='rbrace'>}</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>encap_content_info:</span> <span class='lbrace'>{</span>
+      <span class='label'>econtent_type:</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model/OID.html" title="Rex::Proto::Kerberos::Model::OID (module)">OID</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model/OID.html#PkinitAuthData-constant" title="Rex::Proto::Kerberos::Model::OID::PkinitAuthData (constant)">PkinitAuthData</a></span></span><span class='comma'>,</span>
+      <span class='label'>econtent:</span> <span class='id identifier rubyid_csr'>csr</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='label'>certificates:</span> <span class='lbracket'>[</span><span class='lbrace'>{</span> <span class='label'>openssl_certificate:</span> <span class='id identifier rubyid_cert'>cert</span> <span class='rbrace'>}</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>signer_infos:</span> <span class='lbracket'>[</span><span class='id identifier rubyid_signer_info'>signer_info</span><span class='rbracket'>]</span>
+  <span class='rparen'>)</span>
+
+  <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1.html" title="Rex::Proto::CryptoAsn1 (module)">CryptoAsn1</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1/Cms.html" title="Rex::Proto::CryptoAsn1::Cms (module)">Cms</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CryptoAsn1/Cms/ContentInfo.html" title="Rex::Proto::CryptoAsn1::Cms::ContentInfo (class)">ContentInfo</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>content_type:</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model/OID.html" title="Rex::Proto::Kerberos::Model::OID (module)">OID</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Kerberos/Model/OID.html#SignedData-constant" title="Rex::Proto::Kerberos::Model::OID::SignedData (constant)">SignedData</a></span></span><span class='comma'>,</span>
+    <span class='label'>data:</span> <span class='id identifier rubyid_signed_data'>signed_data</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_csr-class_method">
+  
+    .<strong>create_csr</strong>(private_key, cn, algorithm = &#39;SHA256&#39;) {|request| ... } &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>request</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/x509/request.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create_csr'>create_csr</span><span class='lparen'>(</span><span class='id identifier rubyid_private_key'>private_key</span><span class='comma'>,</span> <span class='id identifier rubyid_cn'>cn</span><span class='comma'>,</span> <span class='id identifier rubyid_algorithm'>algorithm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA256</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Request</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_subject'>subject</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Name</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+    <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CN</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_cn'>cn</span><span class='comma'>,</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>UTF8STRING</span><span class='rbracket'>]</span>
+  <span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_public_key'>public_key</span> <span class='op'>=</span> <span class='id identifier rubyid_private_key'>private_key</span><span class='period'>.</span><span class='id identifier rubyid_public_key'>public_key</span>
+
+  <span class='kw'>yield</span> <span class='id identifier rubyid_request'>request</span> <span class='kw'>if</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_sign'>sign</span><span class='lparen'>(</span><span class='id identifier rubyid_private_key'>private_key</span><span class='comma'>,</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Digest</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_algorithm'>algorithm</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Fri Jun 19 18:16:03 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

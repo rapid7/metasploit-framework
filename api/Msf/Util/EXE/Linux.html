@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Util::EXE::Linux
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Util::EXE::Linux";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Util.html" title="Msf::Util (module)">Util</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../EXE.html" title="Msf::Util::EXE (module)">EXE</a></span></span>
+     &raquo; 
+    <span class="title">Linux</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Util::EXE::Linux
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  <dl>
+      <dt>Extended by:</dt>
+      <dd><span class='object_link'><a href="Linux/ClassMethods.html" title="Msf::Util::EXE::Linux::ClassMethods (module)">ClassMethods</a></span></dd>
+  </dl>
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Linux/Aarch64.html" title="Msf::Util::EXE::Linux::Aarch64 (module)">Aarch64</a></span>, <span class='object_link'><a href="Linux/Armbe.html" title="Msf::Util::EXE::Linux::Armbe (module)">Armbe</a></span>, <span class='object_link'><a href="Linux/Armle.html" title="Msf::Util::EXE::Linux::Armle (module)">Armle</a></span>, <span class='object_link'><a href="Linux/Common.html" title="Msf::Util::EXE::Linux::Common (module)">Common</a></span>, <span class='object_link'><a href="Linux/Loongarch64.html" title="Msf::Util::EXE::Linux::Loongarch64 (module)">Loongarch64</a></span>, <span class='object_link'><a href="Linux/Mips64.html" title="Msf::Util::EXE::Linux::Mips64 (module)">Mips64</a></span>, <span class='object_link'><a href="Linux/Mipsbe.html" title="Msf::Util::EXE::Linux::Mipsbe (module)">Mipsbe</a></span>, <span class='object_link'><a href="Linux/Mipsle.html" title="Msf::Util::EXE::Linux::Mipsle (module)">Mipsle</a></span>, <span class='object_link'><a href="Linux/Ppc.html" title="Msf::Util::EXE::Linux::Ppc (module)">Ppc</a></span>, <span class='object_link'><a href="Linux/Ppc64.html" title="Msf::Util::EXE::Linux::Ppc64 (module)">Ppc64</a></span>, <span class='object_link'><a href="Linux/Ppce500v2.html" title="Msf::Util::EXE::Linux::Ppce500v2 (module)">Ppce500v2</a></span>, <span class='object_link'><a href="Linux/Riscv32le.html" title="Msf::Util::EXE::Linux::Riscv32le (module)">Riscv32le</a></span>, <span class='object_link'><a href="Linux/X64.html" title="Msf::Util::EXE::Linux::X64 (module)">X64</a></span>, <span class='object_link'><a href="Linux/X86.html" title="Msf::Util::EXE::Linux::X86 (module)">X86</a></span>, <span class='object_link'><a href="Linux/Zarch.html" title="Msf::Util::EXE::Linux::Zarch (module)">Zarch</a></span></dd>
+  </dl>
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="../EXE.html" title="Msf::Util::EXE (module)">Msf::Util::EXE</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/util/exe/linux.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Linux/Aarch64.html" title="Msf::Util::EXE::Linux::Aarch64 (module)">Aarch64</a></span>, <span class='object_link'><a href="Linux/Armbe.html" title="Msf::Util::EXE::Linux::Armbe (module)">Armbe</a></span>, <span class='object_link'><a href="Linux/Armle.html" title="Msf::Util::EXE::Linux::Armle (module)">Armle</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html" title="Msf::Util::EXE::Linux::ClassMethods (module)">ClassMethods</a></span>, <span class='object_link'><a href="Linux/Common.html" title="Msf::Util::EXE::Linux::Common (module)">Common</a></span>, <span class='object_link'><a href="Linux/Loongarch64.html" title="Msf::Util::EXE::Linux::Loongarch64 (module)">Loongarch64</a></span>, <span class='object_link'><a href="Linux/Mips64.html" title="Msf::Util::EXE::Linux::Mips64 (module)">Mips64</a></span>, <span class='object_link'><a href="Linux/Mipsbe.html" title="Msf::Util::EXE::Linux::Mipsbe (module)">Mipsbe</a></span>, <span class='object_link'><a href="Linux/Mipsle.html" title="Msf::Util::EXE::Linux::Mipsle (module)">Mipsle</a></span>, <span class='object_link'><a href="Linux/Ppc.html" title="Msf::Util::EXE::Linux::Ppc (module)">Ppc</a></span>, <span class='object_link'><a href="Linux/Ppc64.html" title="Msf::Util::EXE::Linux::Ppc64 (module)">Ppc64</a></span>, <span class='object_link'><a href="Linux/Ppce500v2.html" title="Msf::Util::EXE::Linux::Ppce500v2 (module)">Ppce500v2</a></span>, <span class='object_link'><a href="Linux/Riscv32le.html" title="Msf::Util::EXE::Linux::Riscv32le (module)">Riscv32le</a></span>, <span class='object_link'><a href="Linux/Riscv64le.html" title="Msf::Util::EXE::Linux::Riscv64le (module)">Riscv64le</a></span>, <span class='object_link'><a href="Linux/X64.html" title="Msf::Util::EXE::Linux::X64 (module)">X64</a></span>, <span class='object_link'><a href="Linux/X86.html" title="Msf::Util::EXE::Linux::X86 (module)">X86</a></span>, <span class='object_link'><a href="Linux/Zarch.html" title="Msf::Util::EXE::Linux::Zarch (module)">Zarch</a></span>
+    
+  
+    
+  
+</p>
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#included-class_method" title="included (class method)">.<strong>included</strong>(base)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/ClassMethods.html" title="Msf::Util::EXE::Linux::ClassMethods (module)">ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux (method)">to_executable_linux</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_aarch64-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_aarch64 (method)">to_executable_linux_aarch64</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_armbe-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_armbe (method)">to_executable_linux_armbe</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_armle-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_armle (method)">to_executable_linux_armle</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_loongarch64-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_loongarch64 (method)">to_executable_linux_loongarch64</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_mips64-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_mips64 (method)">to_executable_linux_mips64</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_mipsbe-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_mipsbe (method)">to_executable_linux_mipsbe</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_mipsle-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_mipsle (method)">to_executable_linux_mipsle</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_ppc-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_ppc (method)">to_executable_linux_ppc</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_ppc64-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_ppc64 (method)">to_executable_linux_ppc64</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_ppce500v2-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_ppce500v2 (method)">to_executable_linux_ppce500v2</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_riscv32le-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_riscv32le (method)">to_executable_linux_riscv32le</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_riscv64le-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_riscv64le (method)">to_executable_linux_riscv64le</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_x64-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_x64 (method)">to_executable_linux_x64</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_x86-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_x86 (method)">to_executable_linux_x86</a></span>, <span class='object_link'><a href="Linux/ClassMethods.html#to_executable_linux_zarch-instance_method" title="Msf::Util::EXE::Linux::ClassMethods#to_executable_linux_zarch (method)">to_executable_linux_zarch</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/Zarch/ClassMethods.html" title="Msf::Util::EXE::Linux::Zarch::ClassMethods (module)">Zarch::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/Zarch/ClassMethods.html#to_linux_zarch_elf-instance_method" title="Msf::Util::EXE::Linux::Zarch::ClassMethods#to_linux_zarch_elf (method)">#to_linux_zarch_elf</a></span>, <span class='object_link'><a href="Linux/Zarch/ClassMethods.html#to_linux_zarch_elf_dll-instance_method" title="Msf::Util::EXE::Linux::Zarch::ClassMethods#to_linux_zarch_elf_dll (method)">#to_linux_zarch_elf_dll</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Common/ClassMethods.html" title="Msf::Util::EXE::Common::ClassMethods (module)">Common::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Common/ClassMethods.html#elf%3F-instance_method" title="Msf::Util::EXE::Common::ClassMethods#elf? (method)">#elf?</a></span>, <span class='object_link'><a href="Common/ClassMethods.html#find_payload_tag-instance_method" title="Msf::Util::EXE::Common::ClassMethods#find_payload_tag (method)">#find_payload_tag</a></span>, <span class='object_link'><a href="Common/ClassMethods.html#get_file_contents-instance_method" title="Msf::Util::EXE::Common::ClassMethods#get_file_contents (method)">#get_file_contents</a></span>, <span class='object_link'><a href="Common/ClassMethods.html#macho%3F-instance_method" title="Msf::Util::EXE::Common::ClassMethods#macho? (method)">#macho?</a></span>, <span class='object_link'><a href="Common/ClassMethods.html#read_replace_script_template-instance_method" title="Msf::Util::EXE::Common::ClassMethods#read_replace_script_template (method)">#read_replace_script_template</a></span>, <span class='object_link'><a href="Common/ClassMethods.html#set_template_default-instance_method" title="Msf::Util::EXE::Common::ClassMethods#set_template_default (method)">#set_template_default</a></span>, <span class='object_link'><a href="Common/ClassMethods.html#to_exe_elf-instance_method" title="Msf::Util::EXE::Common::ClassMethods#to_exe_elf (method)">#to_exe_elf</a></span>, <span class='object_link'><a href="Common/ClassMethods.html#to_python_reflection-instance_method" title="Msf::Util::EXE::Common::ClassMethods#to_python_reflection (method)">#to_python_reflection</a></span>, <span class='object_link'><a href="Common/ClassMethods.html#to_war-instance_method" title="Msf::Util::EXE::Common::ClassMethods#to_war (method)">#to_war</a></span>, <span class='object_link'><a href="Common/ClassMethods.html#to_win32pe_psh_msil-instance_method" title="Msf::Util::EXE::Common::ClassMethods#to_win32pe_psh_msil (method)">#to_win32pe_psh_msil</a></span>, <span class='object_link'><a href="Common/ClassMethods.html#to_win32pe_psh_rc4-instance_method" title="Msf::Util::EXE::Common::ClassMethods#to_win32pe_psh_rc4 (method)">#to_win32pe_psh_rc4</a></span>, <span class='object_link'><a href="Common/ClassMethods.html#to_zip-instance_method" title="Msf::Util::EXE::Common::ClassMethods#to_zip (method)">#to_zip</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/X86/ClassMethods.html" title="Msf::Util::EXE::Linux::X86::ClassMethods (module)">X86::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/X86/ClassMethods.html#to_linux_x86_custom_elf-instance_method" title="Msf::Util::EXE::Linux::X86::ClassMethods#to_linux_x86_custom_elf (method)">#to_linux_x86_custom_elf</a></span>, <span class='object_link'><a href="Linux/X86/ClassMethods.html#to_linux_x86_elf-instance_method" title="Msf::Util::EXE::Linux::X86::ClassMethods#to_linux_x86_elf (method)">#to_linux_x86_elf</a></span>, <span class='object_link'><a href="Linux/X86/ClassMethods.html#to_linux_x86_elf_dll-instance_method" title="Msf::Util::EXE::Linux::X86::ClassMethods#to_linux_x86_elf_dll (method)">#to_linux_x86_elf_dll</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/X64/ClassMethods.html" title="Msf::Util::EXE::Linux::X64::ClassMethods (module)">X64::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/X64/ClassMethods.html#to_linux_x64_elf-instance_method" title="Msf::Util::EXE::Linux::X64::ClassMethods#to_linux_x64_elf (method)">#to_linux_x64_elf</a></span>, <span class='object_link'><a href="Linux/X64/ClassMethods.html#to_linux_x64_elf_dll-instance_method" title="Msf::Util::EXE::Linux::X64::ClassMethods#to_linux_x64_elf_dll (method)">#to_linux_x64_elf_dll</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/Riscv32le/ClassMethods.html" title="Msf::Util::EXE::Linux::Riscv32le::ClassMethods (module)">Riscv32le::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/Riscv32le/ClassMethods.html#to_linux_riscv32le_elf-instance_method" title="Msf::Util::EXE::Linux::Riscv32le::ClassMethods#to_linux_riscv32le_elf (method)">#to_linux_riscv32le_elf</a></span>, <span class='object_link'><a href="Linux/Riscv32le/ClassMethods.html#to_linux_riscv32le_elf_dll-instance_method" title="Msf::Util::EXE::Linux::Riscv32le::ClassMethods#to_linux_riscv32le_elf_dll (method)">#to_linux_riscv32le_elf_dll</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/Ppce500v2/ClassMethods.html" title="Msf::Util::EXE::Linux::Ppce500v2::ClassMethods (module)">Ppce500v2::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/Ppce500v2/ClassMethods.html#to_linux_ppce500v2_elf-instance_method" title="Msf::Util::EXE::Linux::Ppce500v2::ClassMethods#to_linux_ppce500v2_elf (method)">#to_linux_ppce500v2_elf</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/Ppc64/ClassMethods.html" title="Msf::Util::EXE::Linux::Ppc64::ClassMethods (module)">Ppc64::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/Ppc64/ClassMethods.html#to_linux_ppc64_elf-instance_method" title="Msf::Util::EXE::Linux::Ppc64::ClassMethods#to_linux_ppc64_elf (method)">#to_linux_ppc64_elf</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/Ppc/ClassMethods.html" title="Msf::Util::EXE::Linux::Ppc::ClassMethods (module)">Ppc::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/Ppc/ClassMethods.html#to_linux_ppc_elf-instance_method" title="Msf::Util::EXE::Linux::Ppc::ClassMethods#to_linux_ppc_elf (method)">#to_linux_ppc_elf</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/Mipsle/ClassMethods.html" title="Msf::Util::EXE::Linux::Mipsle::ClassMethods (module)">Mipsle::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/Mipsle/ClassMethods.html#to_linux_mipsle_elf-instance_method" title="Msf::Util::EXE::Linux::Mipsle::ClassMethods#to_linux_mipsle_elf (method)">#to_linux_mipsle_elf</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/Mipsbe/ClassMethods.html" title="Msf::Util::EXE::Linux::Mipsbe::ClassMethods (module)">Mipsbe::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/Mipsbe/ClassMethods.html#to_linux_mipsbe_elf-instance_method" title="Msf::Util::EXE::Linux::Mipsbe::ClassMethods#to_linux_mipsbe_elf (method)">#to_linux_mipsbe_elf</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/Mips64/ClassMethods.html" title="Msf::Util::EXE::Linux::Mips64::ClassMethods (module)">Mips64::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/Mips64/ClassMethods.html#to_linux_mips64_elf-instance_method" title="Msf::Util::EXE::Linux::Mips64::ClassMethods#to_linux_mips64_elf (method)">#to_linux_mips64_elf</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/Loongarch64/ClassMethods.html" title="Msf::Util::EXE::Linux::Loongarch64::ClassMethods (module)">Loongarch64::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/Loongarch64/ClassMethods.html#to_linux_loongarch64_elf-instance_method" title="Msf::Util::EXE::Linux::Loongarch64::ClassMethods#to_linux_loongarch64_elf (method)">#to_linux_loongarch64_elf</a></span>, <span class='object_link'><a href="Linux/Loongarch64/ClassMethods.html#to_linux_loongarch64_elf_dll-instance_method" title="Msf::Util::EXE::Linux::Loongarch64::ClassMethods#to_linux_loongarch64_elf_dll (method)">#to_linux_loongarch64_elf_dll</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/Armbe/ClassMethods.html" title="Msf::Util::EXE::Linux::Armbe::ClassMethods (module)">Armbe::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/Armbe/ClassMethods.html#to_linux_armbe_elf-instance_method" title="Msf::Util::EXE::Linux::Armbe::ClassMethods#to_linux_armbe_elf (method)">#to_linux_armbe_elf</a></span>, <span class='object_link'><a href="Linux/Armbe/ClassMethods.html#to_linux_armbe_elf_dll-instance_method" title="Msf::Util::EXE::Linux::Armbe::ClassMethods#to_linux_armbe_elf_dll (method)">#to_linux_armbe_elf_dll</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/Armle/ClassMethods.html" title="Msf::Util::EXE::Linux::Armle::ClassMethods (module)">Armle::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/Armle/ClassMethods.html#to_linux_armle_elf-instance_method" title="Msf::Util::EXE::Linux::Armle::ClassMethods#to_linux_armle_elf (method)">#to_linux_armle_elf</a></span>, <span class='object_link'><a href="Linux/Armle/ClassMethods.html#to_linux_armle_elf_dll-instance_method" title="Msf::Util::EXE::Linux::Armle::ClassMethods#to_linux_armle_elf_dll (method)">#to_linux_armle_elf_dll</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Linux/Aarch64/ClassMethods.html" title="Msf::Util::EXE::Linux::Aarch64::ClassMethods (module)">Aarch64::ClassMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Linux/Aarch64/ClassMethods.html#to_linux_aarch64_elf-instance_method" title="Msf::Util::EXE::Linux::Aarch64::ClassMethods#to_linux_aarch64_elf (method)">#to_linux_aarch64_elf</a></span>, <span class='object_link'><a href="Linux/Aarch64/ClassMethods.html#to_linux_aarch64_elf_dll-instance_method" title="Msf::Util::EXE::Linux::Aarch64::ClassMethods#to_linux_aarch64_elf_dll (method)">#to_linux_aarch64_elf_dll</a></span></p>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="included-class_method">
+  
+    .<strong>included</strong>(base)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/util/exe/linux.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_included'>included</span><span class='lparen'>(</span><span class='id identifier rubyid_base'>base</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_base'>base</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Linux/ClassMethods.html" title="Msf::Util::EXE::Linux::ClassMethods (module)">ClassMethods</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Fri Jun 19 18:12:54 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::MCP::RpcManager
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::MCP::RpcManager";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../MCP.html" title="Msf::MCP (module)">MCP</a></span></span>
+     &raquo; 
+    <span class="title">RpcManager</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::MCP::RpcManager
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::MCP::RpcManager</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/mcp/rpc_manager.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Manages the lifecycle of a Metasploit RPC server process.</p>
+
+<p>Probes the configured RPC port, auto-starts the server via Process.spawn of msfrpcd, and cleans up the child process on shutdown.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="LOCALHOST_HOSTS-constant" class="">LOCALHOST_HOSTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>localhost</span><span class='words_sep'> </span><span class='tstring_content'>127.0.0.1</span><span class='words_sep'> </span><span class='tstring_content'>::1</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="DEFAULT_WAIT_TIMEOUT-constant" class="">DEFAULT_WAIT_TIMEOUT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>30</span></pre></dd>
+      
+        <dt id="DEFAULT_WAIT_INTERVAL-constant" class="">DEFAULT_WAIT_INTERVAL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="STOP_GRACE_PERIOD-constant" class="">STOP_GRACE_PERIOD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_pid-instance_method" title="#rpc_pid (instance method)">#<strong>rpc_pid</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute rpc_pid.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#auto_start_enabled%3F-instance_method" title="#auto_start_enabled? (instance method)">#<strong>auto_start_enabled?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Whether auto-start is enabled based on config, API type, and host.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ensure_rpc_available-instance_method" title="#ensure_rpc_available (instance method)">#<strong>ensure_rpc_available</strong>  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Ensure an RPC server is available, auto-starting if needed.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(config:, output:)  &#x21d2; RpcManager </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of RpcManager.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_available%3F-instance_method" title="#rpc_available? (instance method)">#<strong>rpc_available?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Probe the configured RPC port to check if a server is listening.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_managed%3F-instance_method" title="#rpc_managed? (instance method)">#<strong>rpc_managed?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Whether this manager started and is managing an RPC server process.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start_rpc_server-instance_method" title="#start_rpc_server (instance method)">#<strong>start_rpc_server</strong>  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Start the Metasploit RPC server by spawning msfrpcd.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stop_rpc_server-instance_method" title="#stop_rpc_server (instance method)">#<strong>stop_rpc_server</strong>  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stop the managed RPC server process.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wait_for_rpc-instance_method" title="#wait_for_rpc (instance method)">#<strong>wait_for_rpc</strong>(timeout: DEFAULT_WAIT_TIMEOUT, interval: DEFAULT_WAIT_INTERVAL)  &#x21d2; true </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wait for the RPC server to become available.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(config:, output:)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::MCP::RpcManager (class)">RpcManager</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of RpcManager.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>config</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Application configuration hash</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>output</span>
+      
+      
+        <span class='type'>(<tt>IO</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Output stream for status messages</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/mcp/rpc_manager.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>config:</span><span class='comma'>,</span> <span class='label'>output:</span><span class='rparen'>)</span>
+  <span class='ivar'>@config</span> <span class='op'>=</span> <span class='id identifier rubyid_config'>config</span>
+  <span class='ivar'>@output</span> <span class='op'>=</span> <span class='id identifier rubyid_output'>output</span>
+  <span class='ivar'>@rpc_pid</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@rpc_managed</span> <span class='op'>=</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="rpc_pid-instance_method">
+  
+    #<strong>rpc_pid</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute rpc_pid.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/mcp/rpc_manager.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_pid'>rpc_pid</span>
+  <span class='ivar'>@rpc_pid</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="auto_start_enabled?-instance_method">
+  
+    #<strong>auto_start_enabled?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Whether auto-start is enabled based on config, API type, and host.</p>
+
+<p>Auto-start is only supported for:</p>
+<ul><li>
+<p>MessagePack API type (not JSON-RPC)</p>
+</li><li>
+<p>Localhost connections (cannot start a remote RPC server)</p>
+</li><li>
+<p>When auto_start_rpc config is not explicitly false</p>
+</li></ul>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64
+65
+66
+67
+68</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/mcp/rpc_manager.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_auto_start_enabled?'>auto_start_enabled?</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='ivar'>@config</span><span class='lbracket'>[</span><span class='symbol'>:msf_api</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>messagepack</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_localhost?'>localhost?</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='ivar'>@config</span><span class='lbracket'>[</span><span class='symbol'>:msf_api</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:auto_start_rpc</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>false</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ensure_rpc_available-instance_method">
+  
+    #<strong>ensure_rpc_available</strong>  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Ensure an RPC server is available, auto-starting if needed.</p>
+
+<p>When the RPC server is already listening, verifies that credentials (or a token for JSON-RPC) are available for the caller to authenticate.</p>
+
+<p>When the server is not available, auto-start is attempted only for MessagePack on localhost with auto_start_rpc enabled.  Random credentials are generated when none are provided.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Metasploit/RpcStartupError.html" title="Msf::MCP::Metasploit::RpcStartupError (class)">Msf::MCP::Metasploit::RpcStartupError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>If the server cannot be reached and auto-start is not possible, or if the server is running but no credentials/token were provided</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/mcp/rpc_manager.rb', line 169</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ensure_rpc_available'>ensure_rpc_available</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_rpc_available?'>rpc_available?</span>
+    <span class='ivar'>@output</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Metasploit RPC server is already running</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_validate_credentials_for_existing_server!'>validate_credentials_for_existing_server!</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='ivar'>@config</span><span class='lbracket'>[</span><span class='symbol'>:msf_api</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>json-rpc</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Metasploit.html" title="Msf::MCP::Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Metasploit/RpcStartupError.html" title="Msf::MCP::Metasploit::RpcStartupError (class)">RpcStartupError</a></span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RPC server is not running and auto-start is not supported for JSON-RPC API type.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_localhost?'>localhost?</span>
+    <span class='id identifier rubyid_message'>message</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RPC server is not available at </span><span class='embexpr_beg'>#{</span><span class='ivar'>@config</span><span class='lbracket'>[</span><span class='symbol'>:msf_api</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='ivar'>@config</span><span class='lbracket'>[</span><span class='symbol'>:msf_api</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_message'>message</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> Cannot auto-start RPC on remote hosts. Please start the RPC server manually.</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_auto_start_enabled?'>auto_start_enabled?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Metasploit.html" title="Msf::MCP::Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Metasploit/RpcStartupError.html" title="Msf::MCP::Metasploit::RpcStartupError (class)">RpcStartupError</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_message'>message</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_auto_start_enabled?'>auto_start_enabled?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Metasploit.html" title="Msf::MCP::Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Metasploit/RpcStartupError.html" title="Msf::MCP::Metasploit::RpcStartupError (class)">RpcStartupError</a></span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RPC server is not running on </span><span class='embexpr_beg'>#{</span><span class='ivar'>@config</span><span class='lbracket'>[</span><span class='symbol'>:msf_api</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='ivar'>@config</span><span class='lbracket'>[</span><span class='symbol'>:msf_api</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span> \
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>and auto-start is disabled.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_generate_random_credentials'>generate_random_credentials</span> <span class='kw'>unless</span> <span class='id identifier rubyid_credentials_provided?'>credentials_provided?</span>
+  <span class='id identifier rubyid_start_rpc_server'>start_rpc_server</span>
+  <span class='id identifier rubyid_wait_for_rpc'>wait_for_rpc</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_available?-instance_method">
+  
+    #<strong>rpc_available?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Probe the configured RPC port to check if a server is listening.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/mcp/rpc_manager.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_available?'>rpc_available?</span>
+  <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='ivar'>@config</span><span class='lbracket'>[</span><span class='symbol'>:msf_api</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_port'>port</span> <span class='op'>=</span> <span class='ivar'>@config</span><span class='lbracket'>[</span><span class='symbol'>:msf_api</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_socket'>socket</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>Tcp</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PeerHost</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PeerPort</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_port'>port</span>
+  <span class='rparen'>)</span>
+  <span class='id identifier rubyid_socket'>socket</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='id identifier rubyid_dlog'><span class='object_link'><a href="../../top-level-namespace.html#dlog-instance_method" title="#dlog (method)">dlog</a></span></span><span class='lparen'>(</span><span class='lbrace'>{</span> <span class='label'>message:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RPC server is available at </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_to_authority'>to_authority</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span><span class='comma'>,</span>
+       <span class='const'><span class='object_link'><a href="../MCP.html#LOG_SOURCE-constant" title="Msf::MCP::LOG_SOURCE (constant)">LOG_SOURCE</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../MCP.html#LOG_DEBUG-constant" title="Msf::MCP::LOG_DEBUG (constant)">LOG_DEBUG</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>true</span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ConnectionError</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_managed?-instance_method">
+  
+    #<strong>rpc_managed?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Whether this manager started and is managing an RPC server process.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/mcp/rpc_manager.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_managed?'>rpc_managed?</span>
+  <span class='ivar'>@rpc_managed</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start_rpc_server-instance_method">
+  
+    #<strong>start_rpc_server</strong>  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Start the Metasploit RPC server by spawning msfrpcd.</p>
+
+<p>Credentials are passed via environment variables to avoid exposing them on the command line.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Metasploit/RpcStartupError.html" title="Msf::MCP::Metasploit::RpcStartupError (class)">Msf::MCP::Metasploit::RpcStartupError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>If the server cannot be started</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/mcp/rpc_manager.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start_rpc_server'>start_rpc_server</span>
+  <span class='kw'>if</span> <span class='ivar'>@rpc_managed</span>
+    <span class='ivar'>@output</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RPC server is already managed by this process</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@output</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Starting Metasploit RPC server...</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span><span class='lparen'>(</span><span class='lbrace'>{</span> <span class='label'>message:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Starting Metasploit RPC server</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span><span class='comma'>,</span>
+       <span class='const'><span class='object_link'><a href="../MCP.html#LOG_SOURCE-constant" title="Msf::MCP::LOG_SOURCE (constant)">LOG_SOURCE</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../MCP.html#LOG_INFO-constant" title="Msf::MCP::LOG_INFO (constant)">LOG_INFO</a></span></span><span class='rparen'>)</span>
+
+  <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_executable?'>executable?</span><span class='lparen'>(</span><span class='const'>MSFRPCD_PATH</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Metasploit.html" title="Msf::MCP::Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Metasploit/RpcStartupError.html" title="Msf::MCP::Metasploit::RpcStartupError (class)">RpcStartupError</a></span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>msfrpcd executable not found. Cannot auto-start RPC server.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='id identifier rubyid_build_msfrpcd_args'>build_msfrpcd_args</span>
+  <span class='id identifier rubyid_env'>env</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MSF_RPC_USER</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='ivar'>@config</span><span class='lbracket'>[</span><span class='symbol'>:msf_api</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:user</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MSF_RPC_PASS</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='ivar'>@config</span><span class='lbracket'>[</span><span class='symbol'>:msf_api</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:password</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_pid'>pid</span> <span class='op'>=</span> <span class='const'>Process</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='id identifier rubyid_env'>env</span><span class='comma'>,</span> <span class='const'>MSFRPCD_PATH</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>out</span><span class='words_sep'> </span><span class='tstring_content'>err</span><span class='tstring_end'>]</span></span> <span class='op'>=&gt;</span> <span class='const'>File</span><span class='op'>::</span><span class='const'>NULL</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@rpc_pid</span> <span class='op'>=</span> <span class='id identifier rubyid_pid'>pid</span>
+  <span class='ivar'>@rpc_managed</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='ivar'>@output</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RPC server started via msfrpcd (PID: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pid'>pid</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stop_rpc_server-instance_method">
+  
+    #<strong>stop_rpc_server</strong>  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Stop the managed RPC server process.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/mcp/rpc_manager.rb', line 136</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stop_rpc_server'>stop_rpc_server</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='ivar'>@rpc_managed</span>
+
+  <span class='ivar'>@output</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Stopping managed RPC server...</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span><span class='lparen'>(</span><span class='lbrace'>{</span> <span class='label'>message:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Stopping managed RPC server (PID: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@rpc_pid</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span><span class='comma'>,</span>
+       <span class='const'><span class='object_link'><a href="../MCP.html#LOG_SOURCE-constant" title="Msf::MCP::LOG_SOURCE (constant)">LOG_SOURCE</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../MCP.html#LOG_INFO-constant" title="Msf::MCP::LOG_INFO (constant)">LOG_INFO</a></span></span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='const'>Process</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>TERM</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='ivar'>@rpc_pid</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_graceful_wait'>graceful_wait</span>
+  <span class='kw'>rescue</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>ESRCH</span>
+    <span class='comment'># Process already dead — that&#39;s fine
+</span>  <span class='kw'>rescue</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>EPERM</span>
+    <span class='ivar'>@output</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Warning: no permission to stop RPC process </span><span class='embexpr_beg'>#{</span><span class='ivar'>@rpc_pid</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@rpc_pid</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@rpc_managed</span> <span class='op'>=</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="wait_for_rpc-instance_method">
+  
+    #<strong>wait_for_rpc</strong>(timeout: DEFAULT_WAIT_TIMEOUT, interval: DEFAULT_WAIT_INTERVAL)  &#x21d2; <tt>true</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wait for the RPC server to become available.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>timeout</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>DEFAULT_WAIT_TIMEOUT</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Maximum seconds to wait (default: 30)</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>interval</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>DEFAULT_WAIT_INTERVAL</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Seconds between probes (default: 1)</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>true</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>When the server becomes available</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Metasploit/ConnectionError.html" title="Msf::MCP::Metasploit::ConnectionError (class)">Msf::MCP::Metasploit::ConnectionError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>If timeout is reached</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Metasploit/RpcStartupError.html" title="Msf::MCP::Metasploit::RpcStartupError (class)">Msf::MCP::Metasploit::RpcStartupError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>If the managed process exits</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/mcp/rpc_manager.rb', line 112</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wait_for_rpc'>wait_for_rpc</span><span class='lparen'>(</span><span class='label'>timeout:</span> <span class='const'><span class='object_link'><a href="#DEFAULT_WAIT_TIMEOUT-constant" title="Msf::MCP::RpcManager::DEFAULT_WAIT_TIMEOUT (constant)">DEFAULT_WAIT_TIMEOUT</a></span></span><span class='comma'>,</span> <span class='label'>interval:</span> <span class='const'><span class='object_link'><a href="#DEFAULT_WAIT_INTERVAL-constant" title="Msf::MCP::RpcManager::DEFAULT_WAIT_INTERVAL (constant)">DEFAULT_WAIT_INTERVAL</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_deadline'>deadline</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>+</span> <span class='id identifier rubyid_timeout'>timeout</span>
+
+  <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_rpc_available?'>rpc_available?</span>
+      <span class='ivar'>@output</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RPC server is ready</span><span class='tstring_end'>&#39;</span></span>
+      <span class='kw'>return</span> <span class='kw'>true</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_check_managed_process_alive!'>check_managed_process_alive!</span> <span class='kw'>if</span> <span class='ivar'>@rpc_managed</span>
+
+    <span class='kw'>if</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_deadline'>deadline</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Metasploit.html" title="Msf::MCP::Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Metasploit/ConnectionError.html" title="Msf::MCP::Metasploit::ConnectionError (class)">ConnectionError</a></span></span><span class='comma'>,</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Timed out waiting for RPC server after </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_timeout'>timeout</span><span class='embexpr_end'>}</span><span class='tstring_content'> seconds</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='ivar'>@output</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Waiting for RPC server to become available at </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_to_authority'>to_authority</span><span class='lparen'>(</span><span class='ivar'>@config</span><span class='lbracket'>[</span><span class='symbol'>:msf_api</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='ivar'>@config</span><span class='lbracket'>[</span><span class='symbol'>:msf_api</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>...</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='id identifier rubyid_interval'>interval</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Fri Jun 19 18:15:14 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

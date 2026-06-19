@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Sessions::Modem::UdpChannel
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Sessions::Modem::UdpChannel";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Sessions.html" title="Msf::Sessions (module)">Sessions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Modem.html" title="Msf::Sessions::Modem (class)">Modem</a></span></span>
+     &raquo; 
+    <span class="title">UdpChannel</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Sessions::Modem::UdpChannel
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="ChannelBase.html" title="Msf::Sessions::Modem::ChannelBase (class)">ChannelBase</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="ChannelBase.html" title="Msf::Sessions::Modem::ChannelBase (class)">ChannelBase</a></span></li>
+          
+            <li class="next">Msf::Sessions::Modem::UdpChannel</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd>Rex::IO::DatagramAbstraction</dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/base/sessions/modem.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <hr>
+
+<p>Generic UDP channel</p>
+
+<p>Mirrors the Meterpreter UDP channel (Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem::UdpChannel): it builds a real UDP socketpair via Rex::IO::DatagramAbstraction and hands the framework an lsock extended with Rex::Socket::Udp, so the returned object is a drop-in UDPSocket-alike (send/sendto/recv/recvfrom/read/write).</p>
+
+<p>Outbound datagrams are routed to the modem connection’s send() via the DirectChannelWrite mixin; inbound datagrams drained from recv are written into rsock followed by the sender’s sockaddr (the same two-write trick Meterpreter’s Datagram#dio_write_handler uses) so recvfrom() can reconstruct [data, host, port].</p>
+<hr>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="UdpChannel/DirectChannelWrite.html" title="Msf::Sessions::Modem::UdpChannel::DirectChannelWrite (module)">DirectChannelWrite</a></span>, <span class='object_link'><a href="UdpChannel/SocketInterface.html" title="Msf::Sessions::Modem::UdpChannel::SocketInterface (module)">SocketInterface</a></span>
+    
+  
+    
+  
+</p>
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="ChannelBase.html" title="Msf::Sessions::Modem::ChannelBase (class)">ChannelBase</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ChannelBase.html#cid-instance_method" title="Msf::Sessions::Modem::ChannelBase#cid (method)">#cid</a></span>, <span class='object_link'><a href="ChannelBase.html#params-instance_method" title="Msf::Sessions::Modem::ChannelBase#params (method)">#params</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dio_write-instance_method" title="#dio_write (instance method)">#<strong>dio_write</strong>(buf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Send a datagram toward the peer through the modem connection.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(session, cid, conn, params)  &#x21d2; UdpChannel </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a new UdpChannel.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="ChannelBase.html" title="Msf::Sessions::Modem::ChannelBase (class)">ChannelBase</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ChannelBase.html#close-instance_method" title="Msf::Sessions::Modem::ChannelBase#close (method)">#close</a></span>, <span class='object_link'><a href="ChannelBase.html#closed%3F-instance_method" title="Msf::Sessions::Modem::ChannelBase#closed? (method)">#closed?</a></span>, <span class='object_link'><a href="ChannelBase.html#remote_closed-instance_method" title="Msf::Sessions::Modem::ChannelBase#remote_closed (method)">#remote_closed</a></span>, <span class='object_link'><a href="ChannelBase.html#remote_closed%3F-instance_method" title="Msf::Sessions::Modem::ChannelBase#remote_closed? (method)">#remote_closed?</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(session, cid, conn, params)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Sessions::Modem::UdpChannel (class)">UdpChannel</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a new UdpChannel.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>session</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Modem.html" title="Msf::Sessions::Modem (class)">Modem</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>parent session</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>cid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>channel ID, unique within the session</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>conn</span>
+      
+      
+        <span class='type'>(<tt>#recv</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>modem connection object</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>params</span>
+      
+      
+        <span class='type'>(<tt>Rex::Socket::Parameters</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem.rb', line 313</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='comma'>,</span> <span class='id identifier rubyid_cid'>cid</span><span class='comma'>,</span> <span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_initialize_abstraction'>initialize_abstraction</span>
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_lsock'>lsock</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>Udp</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lsock'>lsock</span><span class='period'>.</span><span class='id identifier rubyid_initsock'>initsock</span>
+  <span class='id identifier rubyid_lsock'>lsock</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="UdpChannel/SocketInterface.html" title="Msf::Sessions::Modem::UdpChannel::SocketInterface (module)">SocketInterface</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lsock'>lsock</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="UdpChannel/DirectChannelWrite.html" title="Msf::Sessions::Modem::UdpChannel::DirectChannelWrite (module)">DirectChannelWrite</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lsock'>lsock</span><span class='period'>.</span><span class='id identifier rubyid_channel'>channel</span> <span class='op'>=</span> <span class='kw'>self</span>
+
+  <span class='id identifier rubyid_rsock'>rsock</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="UdpChannel/SocketInterface.html" title="Msf::Sessions::Modem::UdpChannel::SocketInterface (module)">SocketInterface</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_rsock'>rsock</span><span class='period'>.</span><span class='id identifier rubyid_channel'>channel</span> <span class='op'>=</span> <span class='kw'>self</span>
+
+  <span class='ivar'>@sockaddr</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_to_sockaddr'>to_sockaddr</span><span class='lparen'>(</span><span class='ivar'>@params</span><span class='period'>.</span><span class='id identifier rubyid_peerhost'>peerhost</span><span class='comma'>,</span> <span class='ivar'>@params</span><span class='period'>.</span><span class='id identifier rubyid_peerport'>peerport</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_start_reader_thread'>start_reader_thread</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ModemUdpChannelReader</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_data'>data</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>String</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_rsock'>rsock</span><span class='period'>.</span><span class='id identifier rubyid_syswrite'>syswrite</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_rsock'>rsock</span><span class='period'>.</span><span class='id identifier rubyid_syswrite'>syswrite</span><span class='lparen'>(</span><span class='ivar'>@sockaddr</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='kw'>true</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>StandardError</span>
+    <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_add_channel'>add_channel</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="dio_write-instance_method">
+  
+    #<strong>dio_write</strong>(buf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Send a datagram toward the peer through the modem connection. Invoked by the lsock’s DirectChannelWrite#syswrite and SocketInterface#send.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+344
+345
+346</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem.rb', line 344</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dio_write'>dio_write</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_send_to_connection'>send_to_connection</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Fri Jun 19 18:15:11 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>

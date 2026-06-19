@@ -1,0 +1,2884 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Sessions::Modem::Quectel::Driver
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Sessions::Modem::Quectel::Driver";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Sessions.html" title="Msf::Sessions (module)">Sessions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Modem.html" title="Msf::Sessions::Modem (class)">Modem</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Quectel.html" title="Msf::Sessions::Modem::Quectel (class)">Quectel</a></span></span>
+     &raquo; 
+    <span class="title">Driver</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Sessions::Modem::Quectel::Driver
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::Sessions::Modem::Quectel::Driver</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/base/sessions/modem/quectel.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Encapsulates serial I/O and URC parsing for the Quectel module.</p>
+
+<p>Initialization only opens the port, configures termios, and starts the background reader thread. The caller is responsible for the startup sequence (AT probe, ATE0, leftover-socket cleanup, health watchdog) so that it can interleave its own status output between steps.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="TCGETS-constant" class="">TCGETS =
+          <div class="docstring">
+  <div class="discussion">
+    <hr>
+
+<p>Linux termios constants for in-process serial port configuration. Source: asm-generic/ioctls.h and asm-generic/termbits.h (NCCS=19). Using ioctl avoids shelling out to stty.</p>
+<hr>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x5401</span></pre></dd>
+      
+        <dt id="TCSETSW-constant" class="">TCSETSW =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>get termios struct</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x5403</span></pre></dd>
+      
+        <dt id="TERMIOS_SIZE-constant" class="">TERMIOS_SIZE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>drain then apply termios struct</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>36</span></pre></dd>
+      
+        <dt id="BAUD_CONSTANTS-constant" class="">BAUD_CONSTANTS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Baud-rate values encoded in c_cflag (B* constants)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+   <span class='int'>9_600</span> <span class='op'>=&gt;</span> <span class='int'>0x0000_000D</span><span class='comma'>,</span>
+  <span class='int'>19_200</span> <span class='op'>=&gt;</span> <span class='int'>0x0000_000E</span><span class='comma'>,</span>
+  <span class='int'>38_400</span> <span class='op'>=&gt;</span> <span class='int'>0x0000_000F</span><span class='comma'>,</span>
+  <span class='int'>57_600</span> <span class='op'>=&gt;</span> <span class='int'>0x0000_1001</span><span class='comma'>,</span>
+ <span class='int'>115_200</span> <span class='op'>=&gt;</span> <span class='int'>0x0000_1002</span><span class='comma'>,</span>
+ <span class='int'>230_400</span> <span class='op'>=&gt;</span> <span class='int'>0x0000_1003</span><span class='comma'>,</span>
+ <span class='int'>460_800</span> <span class='op'>=&gt;</span> <span class='int'>0x0000_1004</span><span class='comma'>,</span>
+ <span class='int'>921_600</span> <span class='op'>=&gt;</span> <span class='int'>0x0000_1007</span><span class='comma'>,</span>
+<span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="CBAUD-constant" class="">CBAUD =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>baud-rate mask in c_cflag</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0000_100F</span></pre></dd>
+      
+        <dt id="CSIZE-constant" class="">CSIZE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>character-size mask</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0000_0030</span></pre></dd>
+      
+        <dt id="CS8-constant" class="">CS8 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>8-bit characters</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0000_0030</span></pre></dd>
+      
+        <dt id="CSTOPB-constant" class="">CSTOPB =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>2 stop bits (clear = 1 stop bit)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0000_0040</span></pre></dd>
+      
+        <dt id="CREAD-constant" class="">CREAD =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>enable receiver</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0000_0080</span></pre></dd>
+      
+        <dt id="PARENB-constant" class="">PARENB =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>parity enable</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0000_0100</span></pre></dd>
+      
+        <dt id="CRTSCTS-constant" class="">CRTSCTS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>RTS/CTS hardware flow control</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x8000_0000</span></pre></dd>
+      
+        <dt id="IFLAG_RAW_CLEAR-constant" class="">IFLAG_RAW_CLEAR =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>c_iflag bits cleared by cfmakeraw</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0001</span> <span class='op'>|</span>  <span class='comment'># IGNBRK
+</span><span class='int'>0x0002</span> <span class='op'>|</span>  <span class='comment'># BRKINT
+</span><span class='int'>0x0008</span> <span class='op'>|</span>  <span class='comment'># PARMRK
+</span><span class='int'>0x0020</span> <span class='op'>|</span>  <span class='comment'># ISTRIP
+</span><span class='int'>0x0040</span> <span class='op'>|</span>  <span class='comment'># INLCR
+</span><span class='int'>0x0080</span> <span class='op'>|</span>  <span class='comment'># IGNCR
+</span><span class='int'>0x0100</span> <span class='op'>|</span>  <span class='comment'># ICRNL
+</span><span class='int'>0x0400</span> <span class='op'>|</span>  <span class='comment'># IXON
+</span><span class='int'>0x1000</span></pre></dd>
+      
+        <dt id="OPOST-constant" class="">OPOST =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>IXOFF</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0000_0001</span></pre></dd>
+      
+        <dt id="LFLAG_RAW_CLEAR-constant" class="">LFLAG_RAW_CLEAR =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>c_lflag bits cleared by cfmakeraw</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0001</span> <span class='op'>|</span>  <span class='comment'># ISIG  - no signal generation (no Ctrl-C etc.)
+</span><span class='int'>0x0002</span> <span class='op'>|</span>  <span class='comment'># ICANON - line-by-line processing off
+</span><span class='int'>0x0008</span> <span class='op'>|</span>  <span class='comment'># ECHO
+</span><span class='int'>0x0010</span> <span class='op'>|</span>  <span class='comment'># ECHOE
+</span><span class='int'>0x0020</span> <span class='op'>|</span>  <span class='comment'># ECHOK
+</span><span class='int'>0x0040</span> <span class='op'>|</span>  <span class='comment'># ECHONL
+</span><span class='int'>0x8000</span></pre></dd>
+      
+        <dt id="VTIME_IDX-constant" class="">VTIME_IDX =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>IEXTEN</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="VMIN_IDX-constant" class="">VMIN_IDX =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>c_cc index: read timeout (tenths of a second)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#at_lock-instance_method" title="#at_lock (instance method)">#<strong>at_lock</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute at_lock.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cfg-instance_method" title="#cfg (instance method)">#<strong>cfg</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute cfg.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mutex-instance_method" title="#mutex (instance method)">#<strong>mutex</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute mutex.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open_lock-instance_method" title="#open_lock (instance method)">#<strong>open_lock</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute open_lock.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pending_send_sid-instance_method" title="#pending_send_sid (instance method)">#<strong>pending_send_sid</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute pending_send_sid.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#serial-instance_method" title="#serial (instance method)">#<strong>serial</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute serial.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#supported_platform%3F-class_method" title="supported_platform? (class method)">.<strong>supported_platform?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Serial port configuration uses Linux-specific termios ioctls (TCGETS/TCSETSW).</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#allocate_id-instance_method" title="#allocate_id (instance method)">#<strong>allocate_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>— SID pool management —.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#close-instance_method" title="#close (instance method)">#<strong>close</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#closed%3F-instance_method" title="#closed? (instance method)">#<strong>closed?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<h3 id="label-readiness-2Fhealth+helpers+-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D.">readiness/health helpers =====================================.</h3>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#connection_for_id-instance_method" title="#connection_for_id (instance method)">#<strong>connection_for_id</strong>(sid)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handle_line-instance_method" title="#handle_line (instance method)">#<strong>handle_line</strong>(line)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(port, baud, framework, cfg)  &#x21d2; Driver </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>c_cc index: minimum bytes before read returns.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#log_debug-instance_method" title="#log_debug (instance method)">#<strong>log_debug</strong>(msg)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#modem_ready%3F-instance_method" title="#modem_ready? (instance method)">#<strong>modem_ready?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open_tcp_client_socket-instance_method" title="#open_tcp_client_socket (instance method)">#<strong>open_tcp_client_socket</strong>(host, port)  &#x21d2; Connection<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Open an outbound TCP socket through the Quectel modem.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open_udp_socket-instance_method" title="#open_udp_socket (instance method)">#<strong>open_udp_socket</strong>(host, port)  &#x21d2; Connection<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Open an outbound UDP socket through the Quectel modem.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reader_loop-instance_method" title="#reader_loop (instance method)">#<strong>reader_loop</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>— Reader loop and line handler —.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#register_connection-instance_method" title="#register_connection (instance method)">#<strong>register_connection</strong>(sid, conn)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reinitialize_after_reboot-instance_method" title="#reinitialize_after_reboot (instance method)">#<strong>reinitialize_after_reboot</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#release_id-instance_method" title="#release_id (instance method)">#<strong>release_id</strong>(sid)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_at-instance_method" title="#send_at (instance method)">#<strong>send_at</strong>(cmd, timeout = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>— AT helper with CmdWaiter —.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_modem_ready-instance_method" title="#set_modem_ready (instance method)">#<strong>set_modem_ready</strong>(val, reason: nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start_health_watchdog-instance_method" title="#start_health_watchdog (instance method)">#<strong>start_health_watchdog</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#startup_wait_for_ok-instance_method" title="#startup_wait_for_ok (instance method)">#<strong>startup_wait_for_ok</strong>(total_timeout_s, interval_s, probe_timeout_s)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Poll AT until the modem responds with OK, up to total_timeout_s seconds (0 = no timeout).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wait_for_rdy-instance_method" title="#wait_for_rdy (instance method)">#<strong>wait_for_rdy</strong>(timeout)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wait up to <code>timeout</code> seconds for the RDY URC.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(port, baud, framework, cfg)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Sessions::Modem::Quectel::Driver (class)">Driver</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>c_cc index: minimum bytes before read returns</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 263</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='id identifier rubyid_baud'>baud</span><span class='comma'>,</span> <span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_cfg'>cfg</span><span class='rparen'>)</span>
+  <span class='ivar'>@framework</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span>
+  <span class='ivar'>@serial</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>r+b</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='ivar'>@serial</span><span class='period'>.</span><span class='id identifier rubyid_sync'>sync</span> <span class='op'>=</span> <span class='kw'>true</span>
+
+  <span class='id identifier rubyid_configure_serial_port'>configure_serial_port</span><span class='lparen'>(</span><span class='ivar'>@serial</span><span class='comma'>,</span> <span class='id identifier rubyid_baud'>baud</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@cfg</span> <span class='op'>=</span> <span class='id identifier rubyid_cfg'>cfg</span>
+
+  <span class='ivar'>@mutex</span>        <span class='op'>=</span> <span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>    <span class='comment'># serialize direct writes/reads as needed
+</span>  <span class='ivar'>@cmd_mutex</span>    <span class='op'>=</span> <span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@at_lock</span>      <span class='op'>=</span> <span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>    <span class='comment'># serialize all AT commands (prevents interleaving)
+</span>  <span class='ivar'>@pending_cmds</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>           <span class='comment'># FIFO of CmdWaiter
+</span>
+  <span class='ivar'>@line_buf</span>    <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_b'>b</span>
+  <span class='ivar'>@reader_stop</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='ivar'>@rdy_event</span>   <span class='op'>=</span> <span class='const'>Concurrent</span><span class='op'>::</span><span class='const'>Event</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+  <span class='comment'># Serialize QIOPEN operations (one open in-flight at a time)
+</span>  <span class='ivar'>@open_lock</span>        <span class='op'>=</span> <span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@pending_send_sid</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='ivar'>@id_mutex</span> <span class='op'>=</span> <span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@free_ids</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='int'>0</span><span class='op'>...</span><span class='ivar'>@cfg</span><span class='lbracket'>[</span><span class='symbol'>:modem_sockets</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
+  <span class='ivar'>@conns</span>    <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>              <span class='comment'># sid -&gt; Connection
+</span>
+  <span class='ivar'>@modem_ready</span>       <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='ivar'>@ready_mutex</span>       <span class='op'>=</span> <span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@health_fail_count</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='ivar'>@health_stop</span>       <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='ivar'>@closed</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='comment'># Spawn dedicated reader thread
+</span>  <span class='ivar'>@reader_thread</span> <span class='op'>=</span> <span class='ivar'>@framework</span><span class='period'>.</span><span class='id identifier rubyid_threads'>threads</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cellular_modem_reader</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_reader_loop'>reader_loop</span>
+  <span class='kw'>end</span>
+
+<span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span>
+  <span class='comment'># Stop background threads that may have been spawned before the failure.
+</span>  <span class='id identifier rubyid_close'>close</span>
+  <span class='id identifier rubyid_raise'>raise</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="at_lock-instance_method">
+  
+    #<strong>at_lock</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute at_lock.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+202
+203
+204</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 202</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_at_lock'>at_lock</span>
+  <span class='ivar'>@at_lock</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="cfg-instance_method">
+  
+    #<strong>cfg</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute cfg.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+200
+201
+202</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 200</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cfg'>cfg</span>
+  <span class='ivar'>@cfg</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="mutex-instance_method">
+  
+    #<strong>mutex</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute mutex.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+200
+201
+202</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 200</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mutex'>mutex</span>
+  <span class='ivar'>@mutex</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="open_lock-instance_method">
+  
+    #<strong>open_lock</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute open_lock.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+203
+204
+205</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 203</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_open_lock'>open_lock</span>
+  <span class='ivar'>@open_lock</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="pending_send_sid=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="pending_send_sid-instance_method">
+  
+    #<strong>pending_send_sid</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute pending_send_sid.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+201
+202
+203</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 201</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pending_send_sid'>pending_send_sid</span>
+  <span class='ivar'>@pending_send_sid</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="serial-instance_method">
+  
+    #<strong>serial</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute serial.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+200
+201
+202</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 200</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_serial'>serial</span>
+  <span class='ivar'>@serial</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="supported_platform?-class_method">
+  
+    .<strong>supported_platform?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Serial port configuration uses Linux-specific termios ioctls (TCGETS/TCSETSW).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+206
+207
+208</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 206</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_supported_platform?'>supported_platform?</span>
+  <span class='const'>RUBY_PLATFORM</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>linux</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="allocate_id-instance_method">
+  
+    #<strong>allocate_id</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>— SID pool management —</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+504
+505
+506
+507
+508
+509
+510
+511</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 504</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_allocate_id'>allocate_id</span>
+  <span class='ivar'>@id_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_sid'>sid</span> <span class='op'>=</span> <span class='ivar'>@free_ids</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No socket IDs available</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_sid'>sid</span>
+
+    <span class='id identifier rubyid_sid'>sid</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="close-instance_method">
+  
+    #<strong>close</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 420</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='ivar'>@closed</span>
+
+  <span class='ivar'>@closed</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='ivar'>@health_stop</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='ivar'>@reader_stop</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_conns'>conns</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='ivar'>@id_mutex</span> <span class='op'>&amp;&amp;</span> <span class='ivar'>@conns</span>
+    <span class='ivar'>@id_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_conns'>conns</span> <span class='op'>=</span> <span class='ivar'>@conns</span><span class='period'>.</span><span class='id identifier rubyid_values'>values</span>
+      <span class='ivar'>@conns</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
+      <span class='ivar'>@free_ids</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='int'>0</span><span class='op'>...</span><span class='ivar'>@cfg</span><span class='lbracket'>[</span><span class='symbol'>:modem_sockets</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='kw'>if</span> <span class='ivar'>@free_ids</span> <span class='op'>&amp;&amp;</span> <span class='ivar'>@cfg</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_conns'>conns</span> <span class='op'>=</span> <span class='ivar'>@conns</span><span class='op'>&amp;.</span><span class='id identifier rubyid_values'>values</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='ivar'>@conns</span><span class='op'>&amp;.</span><span class='id identifier rubyid_clear'>clear</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_conns'>conns</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:mark_closed</span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='ivar'>@serial</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>if</span> <span class='ivar'>@serial</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>IOError</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_stop_thread'>stop_thread</span><span class='lparen'>(</span><span class='ivar'>@health_thread</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stop_thread'>stop_thread</span><span class='lparen'>(</span><span class='ivar'>@reader_thread</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="closed?-instance_method">
+  
+    #<strong>closed?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<h3 id="label-readiness-2Fhealth+helpers+-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D-3D">readiness/health helpers =====================================</h3>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+308
+309
+310</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 308</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_closed?'>closed?</span>
+  <span class='ivar'>@closed</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="connection_for_id-instance_method">
+  
+    #<strong>connection_for_id</strong>(sid)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+528
+529
+530
+531
+532</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 528</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_connection_for_id'>connection_for_id</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+  <span class='ivar'>@id_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='ivar'>@conns</span><span class='lbracket'>[</span><span class='id identifier rubyid_sid'>sid</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_line-instance_method">
+  
+    #<strong>handle_line</strong>(line)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688
+689
+690
+691
+692
+693
+694
+695
+696
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707
+708
+709
+710
+711
+712
+713
+714
+715
+716
+717
+718
+719
+720
+721
+722
+723
+724
+725
+726
+727
+728
+729
+730
+731
+732
+733
+734
+735
+736
+737
+738
+739
+740
+741
+742
+743
+744
+745
+746
+747
+748
+749
+750
+751
+752
+753
+754
+755
+756
+757
+758
+759
+760
+761
+762
+763
+764
+765
+766
+767
+768
+769
+770</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 654</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_line'>handle_line</span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
+  <span class='comment'># Avoid spewing raw binary to the console (can happen if echo is re-enabled after reboot)
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_bytes'>bytes</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_b'>b</span><span class='op'>|</span> <span class='id identifier rubyid_b'>b</span> <span class='op'>&lt;</span> <span class='int'>0x09</span> <span class='op'>||</span> <span class='lparen'>(</span><span class='id identifier rubyid_b'>b</span> <span class='op'>&gt;</span> <span class='int'>0x0D</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_b'>b</span> <span class='op'>&lt;</span> <span class='int'>0x20</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_b'>b</span> <span class='op'>==</span> <span class='int'>0x7F</span> <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_hex'>hex</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_bytes'>bytes</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='lparen'>(</span><span class='int'>32</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_b'>b</span><span class='op'>|</span> <span class='id identifier rubyid_format'>format</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%02X</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_b'>b</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_log_debug'>log_debug</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>URC: [binary </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_bytesize'>bytesize</span><span class='embexpr_end'>}</span><span class='tstring_content'> bytes] </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hex'>hex</span><span class='embexpr_end'>}</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_bytesize'>bytesize</span> <span class='op'>&gt;</span> <span class='int'>32</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> ...</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_log_debug'>log_debug</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>URC: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Boot ready
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RDY</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_dlog'><span class='object_link'><a href="../../../../top-level-namespace.html#dlog-instance_method" title="#dlog (method)">dlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[URC] RDY</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cellular_modem</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='ivar'>@rdy_event</span><span class='period'>.</span><span class='id identifier rubyid_set'>set</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(POWERED DOWN|POWER DOWN|NORMAL POWER DOWN)</span><span class='regexp_end'>/i</span></span>
+    <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../../../../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[URC] </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cellular_modem</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_set_modem_ready'>set_modem_ready</span><span class='lparen'>(</span><span class='kw'>false</span><span class='comma'>,</span> <span class='label'>reason:</span> <span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># First, feed pending command waiter if any
+</span>  <span class='ivar'>@cmd_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_waiter'>waiter</span> <span class='op'>=</span> <span class='ivar'>@pending_cmds</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='rparen'>)</span>
+      <span class='kw'>case</span> <span class='id identifier rubyid_line'>line</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OK</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_buf'>buf</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OK</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_ok'>ok</span>  <span class='op'>=</span> <span class='kw'>true</span>
+        <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_set'>set</span>
+        <span class='ivar'>@pending_cmds</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^ERROR</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SEND FAIL</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_buf'>buf</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_line'>line</span>
+        <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_ok'>ok</span>  <span class='op'>=</span> <span class='kw'>false</span>
+        <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_set'>set</span>
+        <span class='ivar'>@pending_cmds</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_buf'>buf</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_line'>line</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># +QIOPEN: sid,err
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>+QIOPEN:</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_rest'>rest</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+      <span class='id identifier rubyid_parts'>parts</span> <span class='op'>=</span> <span class='id identifier rubyid_rest'>rest</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>,</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:strip</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_sid'>sid</span>  <span class='op'>=</span> <span class='id identifier rubyid_parts'>parts</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+      <span class='id identifier rubyid_err'>err</span>  <span class='op'>=</span> <span class='id identifier rubyid_parts'>parts</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span> <span class='op'>=</span> <span class='id identifier rubyid_connection_for_id'>connection_for_id</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_open_ok'>open_ok</span>  <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_err'>err</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_open_err'>open_err</span> <span class='op'>=</span> <span class='id identifier rubyid_err'>err</span>
+        <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_open_event'>open_event</span><span class='period'>.</span><span class='id identifier rubyid_set'>set</span>
+      <span class='kw'>end</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>StandardError</span>
+    <span class='kw'>end</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># +QIURC: &quot;recv&quot;,sid,len
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>+QIURC: &quot;recv&quot;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_parts'>parts</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>,</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_sid'>sid</span>   <span class='op'>=</span> <span class='id identifier rubyid_parts'>parts</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+      <span class='id identifier rubyid_len'>len</span>   <span class='op'>=</span> <span class='id identifier rubyid_parts'>parts</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>StandardError</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_b'>b</span>
+    <span class='kw'>while</span> <span class='id identifier rubyid_payload'>payload</span><span class='period'>.</span><span class='id identifier rubyid_bytesize'>bytesize</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_len'>len</span>
+      <span class='kw'>begin</span>
+        <span class='id identifier rubyid_chunk'>chunk</span> <span class='op'>=</span> <span class='ivar'>@serial</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>-</span> <span class='id identifier rubyid_payload'>payload</span><span class='period'>.</span><span class='id identifier rubyid_bytesize'>bytesize</span><span class='rparen'>)</span>
+      <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>EOFError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>IOError</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_chunk'>chunk</span>
+      <span class='id identifier rubyid_payload'>payload</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_chunk'>chunk</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span> <span class='op'>=</span> <span class='id identifier rubyid_connection_for_id'>connection_for_id</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_push_payload'>push_payload</span><span class='lparen'>(</span><span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># +QIURC: &quot;closed&quot;,sid
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>+QIURC: &quot;closed&quot;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_sid'>sid</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>,</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>StandardError</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span> <span class='op'>=</span> <span class='id identifier rubyid_connection_for_id'>connection_for_id</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_mark_closed'>mark_closed</span>
+    <span class='kw'>end</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># QISEND results / early rejects mapped via pending_send_sid
+</span>  <span class='kw'>if</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SEND OK</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SEND FAIL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ERROR</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_sid'>sid</span> <span class='op'>=</span> <span class='ivar'>@pending_send_sid</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_sid'>sid</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span> <span class='op'>=</span> <span class='id identifier rubyid_connection_for_id'>connection_for_id</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_ok'>ok</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SEND OK</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_ack_ok'>ack_ok</span> <span class='op'>=</span> <span class='id identifier rubyid_ok'>ok</span>
+      <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_ack_event'>ack_event</span><span class='period'>.</span><span class='id identifier rubyid_set'>set</span>
+
+      <span class='comment'># If the modem rejects QISEND before issuing a &#39;&gt;&#39; prompt, wake the sender
+</span>      <span class='comment'># that&#39;s blocked waiting on prompt_event.
+</span>      <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_ok'>ok</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_line'>line</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ERROR</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_prompt_ok'>prompt_ok</span> <span class='op'>=</span> <span class='kw'>false</span>
+        <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_prompt_event'>prompt_event</span><span class='period'>.</span><span class='id identifier rubyid_set'>set</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="log_debug-instance_method">
+  
+    #<strong>log_debug</strong>(msg)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+448
+449
+450</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 448</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_log_debug'>log_debug</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dlog'><span class='object_link'><a href="../../../../top-level-namespace.html#dlog-instance_method" title="#dlog (method)">dlog</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cellular_modem</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="modem_ready?-instance_method">
+  
+    #<strong>modem_ready?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+312
+313
+314</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 312</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_modem_ready?'>modem_ready?</span>
+  <span class='ivar'>@ready_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span> <span class='ivar'>@modem_ready</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open_tcp_client_socket-instance_method">
+  
+    #<strong>open_tcp_client_socket</strong>(host, port)  &#x21d2; <tt><span class='object_link'><a href="Connection.html" title="Msf::Sessions::Modem::Quectel::Connection (class)">Connection</a></span></tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Open an outbound TCP socket through the Quectel modem.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>host</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>remote IP address or hostname</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>port</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>remote TCP port</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Connection.html" title="Msf::Sessions::Modem::Quectel::Connection (class)">Connection</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>nil on timeout or error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+540
+541
+542</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 540</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_open_tcp_client_socket'>open_tcp_client_socket</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_open_socket'>open_socket</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>TCP</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>open_tcp_connection</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open_udp_socket-instance_method">
+  
+    #<strong>open_udp_socket</strong>(host, port)  &#x21d2; <tt><span class='object_link'><a href="Connection.html" title="Msf::Sessions::Modem::Quectel::Connection (class)">Connection</a></span></tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Open an outbound UDP socket through the Quectel modem.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>host</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>remote IP address or hostname</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>port</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>remote UDP port</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Connection.html" title="Msf::Sessions::Modem::Quectel::Connection (class)">Connection</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>nil on timeout or error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+550
+551
+552</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 550</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_open_udp_socket'>open_udp_socket</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_open_socket'>open_socket</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>UDP</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>open_udp_connection</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reader_loop-instance_method">
+  
+    #<strong>reader_loop</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>— Reader loop and line handler —</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 622</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reader_loop'>reader_loop</span>
+  <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+    <span class='kw'>break</span> <span class='kw'>if</span> <span class='ivar'>@reader_stop</span>
+    <span class='id identifier rubyid_ch'>ch</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_ch'>ch</span> <span class='op'>=</span> <span class='ivar'>@serial</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>EOFError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>IOError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>serial read error: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cellular_modem</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_ch'>ch</span>
+    <span class='comment'># QISEND &#39;&gt;&#39; prompt (single char, no CRLF)
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_ch'>ch</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>&gt;</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_sid'>sid</span> <span class='op'>=</span> <span class='ivar'>@pending_send_sid</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_sid'>sid</span>
+        <span class='id identifier rubyid_conn'>conn</span> <span class='op'>=</span> <span class='id identifier rubyid_connection_for_id'>connection_for_id</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_conn'>conn</span>
+          <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_prompt_ok'>prompt_ok</span> <span class='op'>=</span> <span class='kw'>true</span>
+          <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_prompt_event'>prompt_event</span><span class='period'>.</span><span class='id identifier rubyid_set'>set</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+      <span class='kw'>next</span>
+    <span class='kw'>end</span>
+    <span class='ivar'>@line_buf</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ch'>ch</span>
+    <span class='kw'>if</span> <span class='ivar'>@line_buf</span><span class='period'>.</span><span class='id identifier rubyid_end_with?'>end_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='ivar'>@line_buf</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+      <span class='ivar'>@line_buf</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
+      <span class='id identifier rubyid_handle_line'>handle_line</span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_connection-instance_method">
+  
+    #<strong>register_connection</strong>(sid, conn)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+522
+523
+524
+525
+526</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 522</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_register_connection'>register_connection</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='id identifier rubyid_conn'>conn</span><span class='rparen'>)</span>
+  <span class='ivar'>@id_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='ivar'>@conns</span><span class='lbracket'>[</span><span class='id identifier rubyid_sid'>sid</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_conn'>conn</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reinitialize_after_reboot-instance_method">
+  
+    #<strong>reinitialize_after_reboot</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 399</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reinitialize_after_reboot'>reinitialize_after_reboot</span>
+  <span class='comment'># After a power cycle, the module often resets settings like echo.
+</span>  <span class='comment'># If echo is enabled, the modem will echo QISEND payload bytes back on the AT port,
+</span>  <span class='comment'># which can look like &quot;binary URCs&quot; in the console. Re-assert ATE0 once we&#39;re back.
+</span>  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_send_at'>send_at</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ATE0</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='ivar'>@cfg</span><span class='lbracket'>[</span><span class='symbol'>:cmd_timeout</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_log_debug'>log_debug</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>reinitialize_after_reboot: ATE0 failed: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Best-effort drain any buffered garbage that may have accumulated during reboot.
+</span>  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_r'>r</span><span class='comma'>,</span> <span class='id identifier rubyid__w'>_w</span><span class='comma'>,</span> <span class='id identifier rubyid__e'>_e</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='ivar'>@serial</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='int'>0</span><span class='rparen'>)</span>
+      <span class='kw'>break</span> <span class='kw'>unless</span> <span class='id identifier rubyid_r'>r</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='ivar'>@serial</span><span class='rparen'>)</span>
+      <span class='ivar'>@serial</span><span class='period'>.</span><span class='id identifier rubyid_read_nonblock'>read_nonblock</span><span class='lparen'>(</span><span class='int'>4096</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>IO</span><span class='op'>::</span><span class='const'>WaitReadable</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>EOFError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>IOError</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="release_id-instance_method">
+  
+    #<strong>release_id</strong>(sid)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+513
+514
+515
+516
+517
+518
+519
+520</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 513</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_release_id'>release_id</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_sid'>sid</span>
+
+  <span class='ivar'>@id_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='ivar'>@conns</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+    <span class='ivar'>@free_ids</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_sid'>sid</span> <span class='kw'>unless</span> <span class='ivar'>@free_ids</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_at-instance_method">
+  
+    #<strong>send_at</strong>(cmd, timeout = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>— AT helper with CmdWaiter —</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 588</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_at'>send_at</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_timeout'>timeout</span> <span class='op'>||=</span> <span class='ivar'>@cfg</span><span class='lbracket'>[</span><span class='symbol'>:cmd_timeout</span><span class='rbracket'>]</span>
+  <span class='ivar'>@at_lock</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_waiter'>waiter</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="CmdWaiter.html" title="Msf::Sessions::Modem::Quectel::CmdWaiter (class)">CmdWaiter</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="CmdWaiter.html#initialize-instance_method" title="Msf::Sessions::Modem::Quectel::CmdWaiter#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+    <span class='ivar'>@cmd_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+      <span class='ivar'>@pending_cmds</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_waiter'>waiter</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_log_debug'>log_debug</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-&gt; AT </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+      <span class='ivar'>@serial</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>\r</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>unless</span> <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+      <span class='ivar'>@cmd_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+        <span class='ivar'>@pending_cmds</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_waiter'>waiter</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>TimeoutError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AT cmd timeout: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_l'>l</span><span class='op'>|</span>
+      <span class='id identifier rubyid_log_debug'>log_debug</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&lt;- </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_l'>l</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>unless</span> <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_ok'>ok</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AT cmd error: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_modem_ready-instance_method">
+  
+    #<strong>set_modem_ready</strong>(val, reason: nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 316</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_modem_ready'>set_modem_ready</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='comma'>,</span> <span class='label'>reason:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_changed'>changed</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='ivar'>@ready_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='kw'>if</span> <span class='ivar'>@modem_ready</span> <span class='op'>!=</span> <span class='id identifier rubyid_val'>val</span>
+      <span class='ivar'>@modem_ready</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+      <span class='id identifier rubyid_changed'>changed</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_changed'>changed</span>
+
+  <span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[MODEM] READY</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reason'>reason</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> \
+            <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[MODEM] NOT READY</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reason'>reason</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_val'>val</span> <span class='op'>?</span> <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../../../../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cellular_modem</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>:</span> <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../../../../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cellular_modem</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start_health_watchdog-instance_method">
+  
+    #<strong>start_health_watchdog</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 367</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start_health_watchdog'>start_health_watchdog</span>
+  <span class='ivar'>@health_stop</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='ivar'>@health_thread</span> <span class='op'>=</span> <span class='ivar'>@framework</span><span class='period'>.</span><span class='id identifier rubyid_threads'>threads</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cellular_modem_health_watchdog</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+      <span class='kw'>break</span> <span class='kw'>if</span> <span class='ivar'>@health_stop</span>
+      <span class='kw'>begin</span>
+        <span class='comment'># Probe modem liveness
+</span>        <span class='id identifier rubyid_send_at'>send_at</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AT</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='ivar'>@cfg</span><span class='lbracket'>[</span><span class='symbol'>:healthcheck_timeout</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='ivar'>@health_fail_count</span> <span class='op'>=</span> <span class='int'>0</span>
+
+        <span class='comment'># If we were previously NOT READY, run minimal re-init (echo off) after reboot
+</span>        <span class='kw'>unless</span> <span class='id identifier rubyid_modem_ready?'>modem_ready?</span>
+          <span class='id identifier rubyid_reinitialize_after_reboot'>reinitialize_after_reboot</span>
+          <span class='id identifier rubyid_set_modem_ready'>set_modem_ready</span><span class='lparen'>(</span><span class='kw'>true</span><span class='comma'>,</span> <span class='label'>reason:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>health probe OK</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>TimeoutError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>RuntimeError</span>
+        <span class='ivar'>@health_fail_count</span> <span class='op'>+=</span> <span class='int'>1</span>
+        <span class='kw'>if</span> <span class='ivar'>@health_fail_count</span> <span class='op'>&gt;=</span> <span class='ivar'>@cfg</span><span class='lbracket'>[</span><span class='symbol'>:healthcheck_max_fails</span><span class='rbracket'>]</span>
+          <span class='id identifier rubyid_set_modem_ready'>set_modem_ready</span><span class='lparen'>(</span><span class='kw'>false</span><span class='comma'>,</span> <span class='label'>reason:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>health probe failed </span><span class='embexpr_beg'>#{</span><span class='ivar'>@health_fail_count</span><span class='embexpr_end'>}</span><span class='tstring_content'>x</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+        <span class='ivar'>@health_fail_count</span> <span class='op'>+=</span> <span class='int'>1</span>
+        <span class='id identifier rubyid_log_debug'>log_debug</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>health probe exception: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='ivar'>@health_fail_count</span> <span class='op'>&gt;=</span> <span class='ivar'>@cfg</span><span class='lbracket'>[</span><span class='symbol'>:healthcheck_max_fails</span><span class='rbracket'>]</span>
+          <span class='id identifier rubyid_set_modem_ready'>set_modem_ready</span><span class='lparen'>(</span><span class='kw'>false</span><span class='comma'>,</span> <span class='label'>reason:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>health probe exception </span><span class='embexpr_beg'>#{</span><span class='ivar'>@health_fail_count</span><span class='embexpr_end'>}</span><span class='tstring_content'>x</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+      <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='period'>.</span><span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='ivar'>@cfg</span><span class='lbracket'>[</span><span class='symbol'>:healthcheck_interval</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="startup_wait_for_ok-instance_method">
+  
+    #<strong>startup_wait_for_ok</strong>(total_timeout_s, interval_s, probe_timeout_s)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Poll AT until the modem responds with OK, up to total_timeout_s seconds (0 = no timeout). Raises Rex::TimeoutError if the deadline is exceeded.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 333</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_startup_wait_for_ok'>startup_wait_for_ok</span><span class='lparen'>(</span><span class='id identifier rubyid_total_timeout_s'>total_timeout_s</span><span class='comma'>,</span> <span class='id identifier rubyid_interval_s'>interval_s</span><span class='comma'>,</span> <span class='id identifier rubyid_probe_timeout_s'>probe_timeout_s</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_total_timeout_s'>total_timeout_s</span> <span class='op'>=</span> <span class='id identifier rubyid_total_timeout_s'>total_timeout_s</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+  <span class='id identifier rubyid_interval_s'>interval_s</span> <span class='op'>=</span> <span class='id identifier rubyid_interval_s'>interval_s</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span>
+  <span class='id identifier rubyid_interval_s'>interval_s</span> <span class='op'>=</span> <span class='float'>1.0</span> <span class='kw'>if</span> <span class='id identifier rubyid_interval_s'>interval_s</span> <span class='op'>&lt;=</span> <span class='int'>0</span>
+
+  <span class='comment'># total_timeout_s == 0 means &quot;no timeout&quot; (wait indefinitely until AT returns OK)
+</span>  <span class='id identifier rubyid_deadline'>deadline</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_total_timeout_s'>total_timeout_s</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='lparen'>(</span><span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>+</span> <span class='id identifier rubyid_total_timeout_s'>total_timeout_s</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='kw'>nil</span>
+
+  <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_deadline'>deadline</span> <span class='op'>&amp;&amp;</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_deadline'>deadline</span>
+      <span class='id identifier rubyid_set_modem_ready'>set_modem_ready</span><span class='lparen'>(</span><span class='kw'>false</span><span class='comma'>,</span> <span class='label'>reason:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>startup probe timed out</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>TimeoutError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Startup AT probe timed out after </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_total_timeout_s'>total_timeout_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>s</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_send_at'>send_at</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AT</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_probe_timeout_s'>probe_timeout_s</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_set_modem_ready'>set_modem_ready</span><span class='lparen'>(</span><span class='kw'>true</span><span class='comma'>,</span> <span class='label'>reason:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>startup probe OK</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>TimeoutError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>RuntimeError</span>
+      <span class='comment'># modem not ready yet - keep polling
+</span>    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_log_debug'>log_debug</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>startup AT probe error: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='period'>.</span><span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='id identifier rubyid_interval_s'>interval_s</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="wait_for_rdy-instance_method">
+  
+    #<strong>wait_for_rdy</strong>(timeout)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wait up to <code>timeout</code> seconds for the RDY URC. Best-effort; returns true if seen, false if the modem was already past the boot banner.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+363
+364
+365</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/modem/quectel.rb', line 363</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wait_for_rdy'>wait_for_rdy</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+  <span class='ivar'>@rdy_event</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Fri Jun 19 18:15:21 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.5).
+</div>
+
+    </div>
+  </body>
+</html>
