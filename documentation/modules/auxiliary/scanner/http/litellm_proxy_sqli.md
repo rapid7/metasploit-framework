@@ -18,12 +18,13 @@ quote breaks out of the string and injects. The lookup runs on the
 authentication-failure path, which is reachable **before** authentication. Fixed
 in **1.83.7** by switching to a parameterized query (commit `4dc416ee74`).
 
-This module confirms the flaw with a benign **time-based** check: a baseline
-request, a `pg_sleep` payload, a second baseline (which must return quickly), and
-a doubled `pg_sleep` payload. It reports the target vulnerable only when the
-injected delays **scale** with the requested sleep while the controls stay fast,
-so a server that is merely slow or degrading is not flagged. It never reads or
-exfiltrates data.
+This module confirms the flaw with a benign **time-based** check built on the
+framework's PostgreSQL time-based blind SQL injection library
+(`Msf::Exploit::SQLi::PostgreSQLi::TimeBasedBlind`). It issues one request whose
+injected predicate calls `pg_sleep` only when a tautology is true and a second
+request whose predicate never sleeps, and reports the target vulnerable only when
+the first is delayed while the second returns promptly. A server that is merely
+slow delays both requests and is not flagged. It never reads or exfiltrates data.
 
 Detection requires the target to have provisioned at least one virtual key (see
 Setup). The injectable predicate is a `WHERE` clause that PostgreSQL evaluates
@@ -130,17 +131,16 @@ image for the patched (true-negative) case — both return fast.
 The LiteLLM chat completions endpoint that triggers key verification. Defaults to
 `/v1/chat/completions`.
 
-### SLEEP
-
-Base `pg_sleep` delay in seconds. The module also probes at `2 x SLEEP` and
-requires the delay to scale while two control requests stay fast. Because it
-issues several timed requests, a run takes roughly `3 x SLEEP` seconds per host.
-Default `5`.
-
 ### MODEL
 
 The `model` field placed in the request body. It need not be a real model — the
 key lookup fails before model dispatch. Default `gpt-3.5-turbo`.
+
+### SqliDelay
+
+Advanced option from the framework SQL injection mixin: the number of seconds the
+injected `pg_sleep` runs for the time-based check. A higher value is more robust
+against network jitter at the cost of a slower scan. Default `5.0`.
 
 ## Scenarios
 
@@ -157,7 +157,7 @@ msf6 auxiliary(scanner/http/litellm_proxy_sqli) > set RPORT 4000
 RPORT => 4000
 msf6 auxiliary(scanner/http/litellm_proxy_sqli) > run
 
-[+] 127.0.0.1:4000        - LiteLLM pre-auth SQL injection confirmed (CVE-2026-42208): controls 0.06s/0.07s, pg_sleep(5)=5.05s, pg_sleep(10)=10.04s
+[+] 127.0.0.1:4000        - The target is vulnerable. Time-based SQL injection via Authorization header confirmed (LiteLLM 1.83.3)
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
@@ -169,7 +169,7 @@ msf6 auxiliary(scanner/http/litellm_proxy_sqli) > set RPORT 4001
 RPORT => 4001
 msf6 auxiliary(scanner/http/litellm_proxy_sqli) > run
 
-[*] 127.0.0.1:4001        - Not vulnerable (pg_sleep(5) returned in 0.02s vs baseline 0.01s)
+[*] 127.0.0.1:4001        - The target is not exploitable. No time-based SQL injection signal observed
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
