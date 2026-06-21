@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     return false unless bypass
 
-    bypass.code == 200 || (bypass.code >= 500 && bypass.code <= 599)
+    bypass.code == 200 || bypass.code == 500
   end
 
   def check_host(_ip)
