@@ -99,11 +99,6 @@ class MetasploitModule < Msf::Auxiliary
     send_request_cgi('method' => 'GET', 'uri' => normalize_uri(target_uri.path))
   end
 
-  def gated_baseline
-    res = baseline_request
-    res && GATE_CODES.include?(res.code) ? res : nil
-  end
-
   # Returns { payload:, response: } for the first payload that defeats the gate,
   # or nil. Relative to the gated baseline, a bypass is detected when the middleware
   # gate no longer applies: either the response is no longer a gate status (e.g. the
@@ -143,9 +138,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
-    baseline = gated_baseline
+    baseline = baseline_request
     if baseline.nil?
-      vprint_status("#{peer} - #{target_uri.path} is not middleware-gated; set TARGETURI to a protected path")
+      print_error("#{peer} - No response to the baseline request on #{target_uri.path}")
+      return
+    end
+    unless GATE_CODES.include?(baseline.code)
+      vprint_status("#{peer} - #{target_uri.path} is not middleware-gated (#{describe_response(baseline)}); set TARGETURI to a protected path")
       return
     end
     vprint_status("#{peer} - Baseline #{describe_response(baseline)} on #{target_uri.path}#{nextjs?(baseline) ? ' (Next.js detected)' : ''}")
