@@ -18,9 +18,9 @@ PATH
     metasploit-framework (6.4.136)
       aarch64
       abbrev
-      actionpack (~> 8.0.0)
-      activerecord (~> 8.0.0)
-      activesupport (~> 8.0.0)
+      actionpack (~> 8.0.5)
+      activerecord (~> 8.0.5)
+      activesupport (~> 8.0.5)
       aws-sdk-ec2
       aws-sdk-ec2instanceconnect
       aws-sdk-iam
@@ -88,7 +88,7 @@ PATH
       pg
       puma
       rack (~> 3.1)
-      railties
+      railties (~> 8.0.5)
       rasn1 (= 0.14.0)
       rb-readline
       recog
