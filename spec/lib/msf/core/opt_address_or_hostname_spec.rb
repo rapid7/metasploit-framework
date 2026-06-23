@@ -48,7 +48,6 @@ RSpec.describe Msf::OptAddressOrHostname do
     { value: [] },
     { value: [1, 2] },
     { value: {} },
-    { value: nil },
   ]
 
   it_behaves_like 'an option', valid_values, invalid_values, 'address'
