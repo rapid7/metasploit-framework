@@ -26,7 +26,7 @@ class Server
     self.context = context
     self.sock = nil
 
-    self.myfilename = hash['FILENAME'] || ""
+    self.myfilename = (hash['FILENAME'] || '').dup
     self.myfilename << ("\x00" * (128 - self.myfilename.length))
 
     source = hash['SRVHOST'] || Rex::Socket.source_address
