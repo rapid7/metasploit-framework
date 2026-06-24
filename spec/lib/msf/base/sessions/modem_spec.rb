@@ -195,10 +195,9 @@ RSpec.describe Msf::Sessions::Modem do
       recv_queue << nil
       chan = described_class.new(session, 4, conn, params)
 
-      data, host, port = chan.lsock.recvfrom(65535, 2)
+      data, addr = chan.lsock.recvfrom(65535)
       expect(data).to eq('response')
-      expect(host).to eq('8.8.8.8')
-      expect(port).to eq(53)
+      expect(addr).to eq(['AF_INET', 53, '8.8.8.8', '8.8.8.8'])
       chan.close
     end
 
@@ -207,10 +206,9 @@ RSpec.describe Msf::Sessions::Modem do
       recv_queue << nil
       chan = described_class.new(session, 4, conn, params)
 
-      data, host, port = chan.lsock.recvfrom(1, 2)
+      data, addr = chan.lsock.recvfrom(1)
       expect(data).to eq('r')
-      expect(host).to eq('8.8.8.8')
-      expect(port).to eq(53)
+      expect(addr).to eq(['AF_INET', 53, '8.8.8.8', '8.8.8.8'])
       chan.close
     end
 
