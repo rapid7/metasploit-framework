@@ -63,6 +63,20 @@ RSpec.describe Msf::OptAddressOrHostname do
       end
     end
 
+    context 'with resolve_names: true' do
+      let(:opt) { described_class.new('LHOST', [false, 'test'], resolve_names: true) }
+
+      it 'accepts a hostname that resolves' do
+        allow(::Rex::Socket).to receive(:getaddress).with('tunnel.example.com', true).and_return('1.2.3.4')
+        expect(opt.valid?('tunnel.example.com')).to be_truthy
+      end
+
+      it 'rejects a hostname that does not resolve' do
+        allow(::Rex::Socket).to receive(:getaddress).with('tunnel.example.com', true).and_raise(::SocketError)
+        expect(opt.valid?('tunnel.example.com')).to be_falsey
+      end
+    end
+
     context 'with interface name errors' do
       before do
         allow(NetworkInterface).to receive(:interfaces).and_raise(NetworkInterface::Error)
