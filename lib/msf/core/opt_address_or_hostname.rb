@@ -41,12 +41,13 @@ class OptAddressOrHostname < OptAddressRoutable
       # Reject anything that looks like a dotted-decimal number sequence
       # (e.g. "192.0.2", "192.0.2.0.0") - Rex::Socket.is_name? accepts numeric
       # DNS labels, so these would pass without this guard. Require it to be a
-      # valid IPv4 address.
+      # valid IPv4 address, then delegate to parent for routable checks.
       if value =~ /^\d+(\.\d+)+$/
-        return Rex::Socket.is_ipv4?(value)
+        return false unless Rex::Socket.is_ipv4?(value)
+        return super
       end
 
-      return true if Rex::Socket.is_ip_addr?(value)
+      return super if Rex::Socket.is_ip_addr?(value)
 
       if Rex::Socket.is_name?(value)
         return true unless @resolve_names

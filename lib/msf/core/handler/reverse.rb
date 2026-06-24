@@ -48,9 +48,14 @@ module Msf
           return [ Rex::Socket.addr_atoi(bind_addr) == 0 ? any : bind_addr ]
         end
 
-        # No ReverseListenerBindAddress set — resolve LHOST to determine the
+        # No ReverseListenerBindAddress set -- resolve LHOST to determine the
         # bind address and whether to use IPv4 or IPv6 ANY as fallback.
-        addr_nbo = Rex::Socket.resolv_nbo(datastore['LHOST'])
+        begin
+          addr_nbo = Rex::Socket.resolv_nbo(datastore['LHOST'])
+        rescue
+          print_warning("LHOST '#{datastore['LHOST']}' is not locally resolvable. Binding to 0.0.0.0. Set ReverseListenerBindAddress to override.")
+          return ["0.0.0.0"]
+        end
         addr = Rex::Socket.addr_ntoa(addr_nbo)
 
         # First attempt to bind LHOST. If that fails, the user probably has

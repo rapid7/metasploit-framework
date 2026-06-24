@@ -21,10 +21,8 @@ RSpec.describe Msf::OptAddressOrHostname do
   valid_values = [
     { value: '192.0.2.1',    normalized: '192.0.2.1' },
     { value: '127.0.0.1',    normalized: '127.0.0.1' },
-    { value: '0.0.0.0',      normalized: '0.0.0.0' },
     { value: '2001:db8::',   normalized: '2001:db8::' },
     { value: '::1',          normalized: '::1' },
-    { value: '0::0',         normalized: '::' },
     # Tunnel / proxy hostnames that may not be locally resolvable
     { value: 'tunnel.example.com', normalized: 'tunnel.example.com' },
     { value: 'abc123.ngrok.io', normalized: 'abc123.ngrok.io' },
@@ -32,6 +30,9 @@ RSpec.describe Msf::OptAddressOrHostname do
   ] + (iface ? [{ value: iface[:name], normalized: iface[:addr] }] : [])
 
   invalid_values = [
+    # Wildcard bind addresses are not valid callback addresses for LHOST
+    { value: '0.0.0.0' },
+    { value: '0::0' },
     # Incomplete or excessive dotted-decimal (all numeric - must be valid IPv4)
     { value: '192.0.2' },
     { value: '192.0.2.0.0' },
