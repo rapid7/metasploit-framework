@@ -269,6 +269,15 @@ protected
     end
     addr = Rex::Socket.addr_ntoa(addr_nbo)
     any = Rex::Socket.is_ipv4?(addr) ? "0.0.0.0" : "::0"
+
+    begin
+      a = IPAddr.new(addr.to_s)
+      if IPAddr.new('127.0.0.1/8') === a || IPAddr.new('::1') === a
+        print_warning("You are binding to a loopback address by setting LHOST to #{addr}. Did you want ReverseListenerBindAddress?")
+      end
+    rescue
+    end
+
     [ addr, any ]
   end
 
