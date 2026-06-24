@@ -212,7 +212,7 @@ class MetasploitModule < Msf::Post
     begin
       svcctl&.close_service_handle(scm_handle) if scm_handle
     rescue RubySMB::Dcerpc::Error::SvcctlError, RubySMB::Error::RubySMBError
-      nil
+      vprint_warning("Could not close scm handle: #{e}")
     end
     cleanup_payload_file
   end

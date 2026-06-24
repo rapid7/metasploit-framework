@@ -28,7 +28,7 @@ cleaned up automatically unless `SERVICE_PERSIST` is set.
 1. Do: `set SESSION <smb_session_id>`
 1. Do: `set LHOST <your_listener_ip>`
 1. Do: `run`
-1. You should get a Meterpreter session on the target.
+1. You should get a Meterpreter session on the target running in the context of NT AUTHORITY\SYSTEM.
 
 Alternatively, you can upgrade directly from the sessions command:
 

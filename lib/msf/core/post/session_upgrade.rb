@@ -11,6 +11,7 @@
 # polling. Consuming modules implement `execute_upgrade` for delivery.
 #
 module Msf::Post::SessionUpgrade
+  prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Exploit::Retry
 
   def initialize(info = {})
@@ -81,7 +82,7 @@ module Msf::Post::SessionUpgrade
   private
 
   # Resolves the listener address using a three-source fallback:
-  # module datastore → framework datastore → session tunnel_local.
+  # module datastore > framework datastore > session tunnel_local.
   def resolve_lhost
     if datastore['LHOST'].present?
       return datastore['LHOST']
@@ -172,7 +173,7 @@ module Msf::Post::SessionUpgrade
       print_good('Meterpreter session opened successfully!')
       true
     else
-      print_error("No session received within #{timeout} seconds.")
+      print_error("No session received within #{timeout} seconds. Increase HANDLE_TIMEOUT to wait longer")
       false
     end
   end
