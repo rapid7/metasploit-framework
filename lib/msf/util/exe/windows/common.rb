@@ -7,29 +7,60 @@ module Msf::Util::EXE::Windows::Common
   end
 
   module ClassMethods
+    # Embeds the payload into a Windows service EXE template by appending it as a  dedicated PE section. The service
+    # template locates the section at runtime by the name patched into its ".payload" tag.
+    #
+    # @param  code [String] the raw payload
+    # @param  arch [Symbol] :x86 or :x64
+    # @param  opts [Hash]
+    # @option opts [String] :template
+    # @option opts [String] :servicename name of the service
+    # @option opts [String] :section_name name of the appended payload section
+    # @return      [String] Windows Service PE file
+    def to_winpe_service(code, arch, opts = {})
+      appender = Msf::Exe::SegmentAppender.new(
+        payload: code.dup,
+        template: opts[:template],
+        arch: arch,
+        section_name: opts[:section_name],
+        section_characteristics: %w[CONTAINS_DATA MEM_READ]
+      )
+      pe = appender.generate_pe
+
+      # Patch the service name if one was requested
+      name = opts[:servicename]
+      if name
+        bo = pe.index('SERVICENAME')
+        unless bo
+          raise 'Invalid PE Service EXE template: missing "SERVICENAME" tag'
+        end
+
+        pe[bo, 11] = [name].pack('a11')
+      end
+
+      # Tell the template which section holds the payload. The tag is 8 bytes
+      # wide to match the PE section name field; pad the name with NULs.
+      bo = pe.index('.payload')
+      unless bo
+        raise 'Invalid PE Service EXE template: missing ".payload" tag'
+      end
+
+      pe[bo, 8] = [appender.section_name].pack('a8')
+
+      pe
+    end
+
     # exe_sub_method
     #
     # @param  code [String]
     # @param  opts [Hash]
     # @option opts [Symbol] :exe_type
-    # @option opts [String] :service_exe
     # @option opts [Boolean] :sub_method
     # @return      [String]
     def exe_sub_method(code,opts ={})
       pe = self.get_file_contents(opts[:template])
 
       case opts[:exe_type]
-      when :service_exe
-        opts[:exe_max_sub_length] ||= 8192
-        name = opts[:servicename]
-        if name
-          bo = pe.index('SERVICENAME')
-          unless bo
-            raise RuntimeError, "Invalid PE Service EXE template: missing \"SERVICENAME\" tag"
-          end
-          pe[bo, 11] = [name].pack('a11')
-        end
-        pe[136, 4] = [rand(0x100000000)].pack('V') unless opts[:sub_method]
       when :dll
         opts[:exe_max_sub_length] ||= 4096
       when :exe_sub
