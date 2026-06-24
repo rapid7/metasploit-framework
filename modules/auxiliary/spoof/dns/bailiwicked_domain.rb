@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
       req.rd = 1
 
       srv_sock.put(req.encode)
-      res, = srv_sock.recvfrom(65535, 1.0)
+      res, = srv_sock.timed_recvfrom(65535, 1.0)
 
       if res && !res.empty?
         reps += 1
@@ -182,7 +182,7 @@ class MetasploitModule < Msf::Auxiliary
       req.rd = 1
 
       srv_sock.put(req.encode)
-      res, = srv_sock.recvfrom
+      res, = srv_sock.timed_recvfrom(65535)
 
       if res && !res.empty?
         res = Resolv::DNS::Message.decode(res)
@@ -209,7 +209,7 @@ class MetasploitModule < Msf::Auxiliary
       loop do
         cached = false
         srv_sock.put(query.encode)
-        answer, = srv_sock.recvfrom
+        answer, = srv_sock.timed_recvfrom(65535)
 
         if answer && !answer.empty?
           answer = Resolv::DNS::Message.decode(answer)
@@ -367,7 +367,7 @@ class MetasploitModule < Msf::Auxiliary
         query.rd = 0
 
         srv_sock.put(query.encode)
-        answer, = srv_sock.recvfrom
+        answer, = srv_sock.timed_recvfrom(65535)
 
         if answer && !answer.empty?
           answer = Resolv::DNS::Message.decode(answer)
@@ -419,7 +419,7 @@ class MetasploitModule < Msf::Auxiliary
     req.rd = 0
 
     while (times.length < num)
-      res, = sock.recvfrom(65535, 0.01)
+      res, = sock.timed_recvfrom(65535, 0.01)
 
       if res && !res.empty?
         res = Resolv::DNS::Message.decode(res)

@@ -159,7 +159,8 @@ module ReverseUdp
       loop do
         # Accept a client connection
         begin
-          inbound, peerhost, peerport = self.listener_sock.recvfrom
+          inbound, addr = self.listener_sock.recvfrom(65535)
+          peerhost, peerport = addr[3], addr[1]
           next if peerhost.nil?
           comm = self.listener_sock.channel.client if self.listener_sock.respond_to?(:channel) && self.listener_sock.channel.respond_to?(:client)
 

@@ -189,10 +189,10 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Errno::EISCONN
       udp_sock.write(message)
     end
-    reply = udp_sock.recvfrom(65535, datastore['WAIT'] / 1000.0)
+    reply = udp_sock.timed_recvfrom(65535, datastore['WAIT'] / 1000.0)
     while reply && reply[1]
       replies << reply
-      reply = udp_sock.recvfrom(65535, datastore['WAIT'] / 1000.0)
+      reply = udp_sock.timed_recvfrom(65535, datastore['WAIT'] / 1000.0)
     end
     replies
   end

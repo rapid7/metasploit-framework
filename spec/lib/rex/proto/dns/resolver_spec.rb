@@ -7,12 +7,14 @@ require 'rex/socket/udp'
 RSpec.describe Rex::Proto::DNS::Resolver do
   subject(:resolver) { described_class.new(config_file: nil, nameservers: [], log_file: File::NULL) }
 
+  let(:udp_answer) { ['answer', ['AF_INET', 53, '192.0.2.53', '192.0.2.53']] }
+
   let(:socket) do
     double(
       'Rex::Socket::Udp',
       close: nil,
       closed?: false,
-      recvfrom: ['answer', '192.0.2.53', 53],
+      timed_recvfrom: udp_answer,
       write: nil
     )
   end
@@ -27,11 +29,11 @@ RSpec.describe Rex::Proto::DNS::Resolver do
 
       answer = resolver.send_udp(nil, 'query', [['192.0.2.53', {}]])
 
-      expect(answer).to eq(['answer', '192.0.2.53', 53])
+      expect(answer).to eq(udp_answer)
     end
 
     it 'closes the UDP socket after a timeout' do
-      allow(socket).to receive(:recvfrom).and_raise(Timeout::Error)
+      allow(socket).to receive(:timed_recvfrom).and_raise(Timeout::Error)
       expect(socket).to receive(:close)
 
       expect(resolver.send_udp(nil, 'query', [['192.0.2.53', {}]])).to be_nil

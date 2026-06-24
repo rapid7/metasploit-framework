@@ -327,19 +327,16 @@ module Acceptance::Session::Mettle
         lines: {
           linux: {
             known_failures: [
-              "[-] FAILED: [UDP] Has the correct peer information",
               *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           },
           osx: {
               known_failures: [
-              "[-] FAILED: [UDP] Has the correct peer information",
               *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           },
           windows: {
             known_failures: [
-              "[-] FAILED: [UDP] Has the correct peer information",
               *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           }

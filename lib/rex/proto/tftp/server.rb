@@ -240,7 +240,8 @@ protected
       r,w,e = ::IO.select(rds,wds,eds,1)
 
       if (r != nil and r[0] == self.sock)
-        buf,host,port = self.sock.recvfrom(65535)
+        buf, addr = self.sock.recvfrom(65535)
+        host, port = addr[3], addr[1]
         # Lame compatabilitiy :-/
         from = [host, port]
         dispatch_request(from, buf)
