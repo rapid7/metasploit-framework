@@ -56,3 +56,7 @@ group :test do
   # stub and set expectations on HTTP requests
   gem 'webmock', '~> 3.18'
 end
+
+
+# Current master branch
+gem 'rex-zip', git: 'https://github.com/rapid7/rex-zip.git', ref: '2f79c77238ebb654ee2da17554252c6a5406a5c8'

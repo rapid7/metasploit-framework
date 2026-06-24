@@ -12,6 +12,14 @@ GIT
       with_env (= 1.1.0)
       xml-simple (~> 1.1.9)
 
+GIT
+  remote: https://github.com/rapid7/rex-zip.git
+  revision: 2f79c77238ebb654ee2da17554252c6a5406a5c8
+  ref: 2f79c77238ebb654ee2da17554252c6a5406a5c8
+  specs:
+    rex-zip (0.1.7)
+      rex-text
+
 PATH
   remote: .
   specs:
@@ -551,7 +559,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.65)
+    rex-socket (0.1.69)
       dnsruby
       rex-core
     rex-sslscan (0.1.13)
@@ -561,8 +569,6 @@ GEM
     rex-struct2 (0.1.5)
     rex-text (0.2.63)
       bigdecimal
-    rex-zip (0.1.6)
-      rex-text
     rexml (3.4.1)
     rinda (0.2.0)
       drb
@@ -719,6 +725,7 @@ DEPENDENCIES
   pry-byebug
   rake
   redcarpet
+  rex-zip!
   rspec-rails
   rspec-rerun
   rubocop (= 1.75.7)
