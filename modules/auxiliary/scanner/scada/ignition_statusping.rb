@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
       next unless version
 
       info_str = build_info_string(version, state, os, runtime, role, peer)
-      print_good("#{peer} - #{info_str}")
+      print_good("#{Rex::Socket.to_authority(ip, rport)} - #{info_str}")
 
       report_host(host: ip, os_name: os) if os
       report_note(
