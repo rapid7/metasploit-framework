@@ -22,7 +22,7 @@ module Msf::Util::EXE::Windows::Common
         payload: code.dup,
         template: opts[:template],
         arch: arch,
-        section_name: opts[:section_name],
+        section_name: opts[:section_name] || opts[:secname],
         section_characteristics: %w[CONTAINS_DATA MEM_READ]
       )
       pe = appender.generate_pe
