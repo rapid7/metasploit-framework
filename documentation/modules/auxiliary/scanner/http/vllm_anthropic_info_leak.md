@@ -26,10 +26,10 @@ response that leaks a `0x` heap address is reported **Vulnerable**; a sanitized
 message or an absent `/v1/messages` endpoint is reported **Safe**. The probe never
 sends a video URL and never reaches the heap-overflow code path (CRASH_SAFE).
 
-This module complements `auxiliary/scanner/http/vllm_multimodal_info_leak`
-(CVE-2026-22778), which probes the OpenAI `/v1/chat/completions` router. On a
-server patched for CVE-2026-22778 but not CVE-2026-54236 the two endpoints behave
-differently, so a separate module is warranted.
+This module complements a separate scanner for the OpenAI
+`/v1/chat/completions` router (CVE-2026-22778). On a server patched for
+CVE-2026-22778 but not CVE-2026-54236 the two endpoints behave differently, so a
+separate module is warranted.
 
 ### Setup with Docker
 

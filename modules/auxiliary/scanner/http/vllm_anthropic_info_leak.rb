@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -151,9 +153,9 @@ class MetasploitModule < Msf::Auxiliary
     code = check_host(ip)
 
     if code == Exploit::CheckCode::Vulnerable
-      print_good("#{peer} - #{code.message}")
+      print_good("#{peer} - #{code.reason}")
     else
-      print_status("#{peer} - #{code.message}")
+      print_status("#{peer} - #{code.reason}")
       return
     end
 
@@ -161,7 +163,7 @@ class MetasploitModule < Msf::Auxiliary
       host: rhost,
       port: rport,
       name: name,
-      info: code.message,
+      info: code.reason,
       refs: references
     )
   end
