@@ -21,10 +21,10 @@ class MetasploitModule < Msf::Auxiliary
           run state, OS, Java runtime, and GAN redundancy role without authentication.
 
           Endpoint and response format by version:
-          7.9.x  — /main/system/gwinfo  (semicolon-delimited key=value)
-          8.0.x  — /system/gwinfo       (semicolon-delimited key=value)
-          8.1.x  — /system/StatusPing   (JSON)
-          8.3.x  — /system/gwinfo       (semicolon-delimited key=value, additional fields)
+          7.9.x  - /main/system/gwinfo  (semicolon-delimited key=value)
+          8.0.x  - /system/gwinfo       (semicolon-delimited key=value)
+          8.1.x  - /system/StatusPing   (JSON)
+          8.3.x  - /system/gwinfo       (semicolon-delimited key=value, additional fields)
 
           For 8.0.x exploitation see exploit/multi/scada/inductive_ignition_rce.
         },
@@ -55,15 +55,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # Parse JSON format used by 8.1.x StatusPing
-  def parse_statusping(body)
-    document = JSON.parse(body)
+  def parse_statusping(res)
+    document = res.get_json_document
     return {} unless document.is_a?(Hash)
 
     %w[version state role peerAddress os runtimeVersion].each_with_object({}) do |key, info|
-      info[key] = document[key] if document[key]
+      info[key] = document[key] if document.key?(key)
     end
-  rescue JSON::ParserError
-    {}
   end
 
   def build_info_string(version, state, os, runtime, role, peer)
@@ -103,7 +101,7 @@ class MetasploitModule < Msf::Auxiliary
         # Skip the minimal 8.3.x StatusPing stub which returns only state
         next if res.body.strip == '{"state":"RUNNING"}'
 
-        d = parse_statusping(res.body)
+        d = parse_statusping(res)
         version = d['version']
         state = d['state']
         os = d['os']
