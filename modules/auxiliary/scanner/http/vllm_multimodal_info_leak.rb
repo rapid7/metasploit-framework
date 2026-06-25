@@ -11,8 +11,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   # Vulnerable: 0.8.3 <= version < 0.14.1 (fixed in 0.14.1).
-  AFFECTED_MIN = '0.8.3'.freeze
-  FIXED_IN = '0.14.1'.freeze
+  AFFECTED_MIN = '0.8.3'
+  FIXED_IN = '0.14.1'
 
   # PIL's UnidentifiedImageError repr embeds the BytesIO object's heap address.
   # Vulnerable builds echo it verbatim; the fix (sanitize_message) collapses it to
