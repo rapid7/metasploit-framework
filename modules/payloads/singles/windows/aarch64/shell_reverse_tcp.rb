@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -42,7 +44,12 @@ module MetasploitModule
   end
 
   def generate(_opts = {})
-    ip_bytes = Rex::Socket.addr_aton(datastore['LHOST'])
+    lhost = datastore['LHOST']
+    unless Rex::Socket.is_ipv4?(lhost)
+      raise ArgumentError, 'LHOST must be in IPv4 format.'
+    end
+
+    ip_bytes = Rex::Socket.addr_aton(lhost)
 
     # Map LHOST/LPORT onto the MOVK immediates inside fill_sockaddr_fast.
     # sin_port:  network-order bytes loaded as a little-endian 16-bit imm.

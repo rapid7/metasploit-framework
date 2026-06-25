@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rspec'
 
 RSpec.describe 'singles/windows/aarch64/shell_reverse_tcp' do
