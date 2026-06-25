@@ -79,7 +79,7 @@ msf6 auxiliary(scanner/http/splunk_postgres_sidecar_scanner) > set RHOSTS 127.0.
 msf6 auxiliary(scanner/http/splunk_postgres_sidecar_scanner) > set RPORT 8000
 msf6 auxiliary(scanner/http/splunk_postgres_sidecar_scanner) > run
 
-[+] 127.0.0.1:8000 - Vulnerable: the PostgreSQL sidecar recovery endpoint accepted an unauthenticated request (CVE-2026-20253)
+[+] 127.0.0.1:8000 - Vulnerable: a non-Splunk Basic credential bypassed authorization on the PostgreSQL sidecar recovery endpoint (CVE-2026-20253)
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```

