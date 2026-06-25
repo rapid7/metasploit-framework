@@ -15,19 +15,19 @@ execution via PostgreSQL's `lo_export`.
 
 Affected versions:
 
-- **10.0.0 – 10.0.6** (fixed in **10.0.7**)
-- **10.2.0 – 10.2.3** (fixed in **10.2.4**)
+- **10.0.0 - 10.0.6** (fixed in **10.0.7**)
+- **10.2.0 - 10.2.3** (fixed in **10.2.4**)
 - 10.4.0 and later are not affected; Splunk Cloud Platform is not affected.
 
-This module is **detection only** — it mirrors the public watchTowr detection
+This module is **detection only** -- it mirrors the public watchTowr detection
 artifact and never creates, truncates, or reads a file. It sends a POST to the
 recovery endpoint with a non-Splunk (Basic) `Authorization` header:
 
 - An affected build passes its (absent) authorization check and fails to decode
-  the empty body → **HTTP 400 `Failed to decode request`** → reported vulnerable.
-- A patched build rejects the Basic header → **HTTP 401 `Authorization header
-  must use Splunk token`** → reported not vulnerable.
-- Any other response → the sidecar endpoint is not present (not vulnerable, or
+  the empty body -> **HTTP 400 `Failed to decode request`** -> reported vulnerable.
+- A patched build rejects the Basic header -> **HTTP 401 `Authorization header
+  must use Splunk token`** -> reported not vulnerable.
+- Any other response -> the sidecar endpoint is not present (not vulnerable, or
   not Splunk Web).
 
 The Basic header is required: an unauthenticated request returns HTTP 401 on both
@@ -72,7 +72,7 @@ The locale segment Splunk Web places in its URLs (e.g. `en-US`, `en-GB`). The
 recovery endpoint is reached through `/<locale>/splunkd/__raw/...`. Default:
 `en-US`.
 
-## Scenario
+## Scenarios
 
 ```
 msf6 auxiliary(scanner/http/splunk_postgres_sidecar_scanner) > set RHOSTS 127.0.0.1

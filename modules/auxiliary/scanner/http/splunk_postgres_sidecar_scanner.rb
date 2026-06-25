@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    if res.code == 400 && res.body.to_s.include?('Failed to decode')
+    if res.code == 400 && res.body.to_s.include?('Failed to decode request')
       print_good("#{peer} - Vulnerable: the PostgreSQL sidecar recovery endpoint accepted an unauthenticated request (CVE-2026-20253)")
       report_vuln(
         host: rhost,
@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
         info: 'Unauthenticated access to /splunkd/__raw/v1/postgres/recovery/backup (HTTP 400 "Failed to decode request")',
         refs: references
       )
-    elsif res.code == 401
+    elsif res.code == 401 && res.body.to_s.include?('Splunk token')
       print_status("#{peer} - Not vulnerable: the recovery endpoint requires a Splunk token (patched)")
     else
       vprint_status("#{peer} - PostgreSQL sidecar recovery endpoint not detected (HTTP #{res.code}); likely not installed or not Splunk Web")
