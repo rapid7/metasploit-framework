@@ -136,7 +136,7 @@ module Msf::Util::EXE
         when ARCH_X64
           to_win64pe(framework, code, exeopts)
         when ARCH_AARCH64
-            to_winaarch64pe(framework, code, exeopts)
+          to_winaarch64pe(framework, code, exeopts)
         end
       when 'exe-service'
         case arch
