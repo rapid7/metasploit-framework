@@ -64,6 +64,8 @@ None
 - [ ] Included RSpec tests for library changes _(encouraged for `lib/` changes)_
 - [ ] Read the [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) and [module acceptance guidelines](https://docs.metasploit.com/docs/development/maintainers/process/guidelines-for-accepting-modules-and-enhancements.html)
 
+<!-- After the PR has been submitted, check on the GitHub Actions status and review the job for any failures (red-X marks). Resolve these issues as they will be flagged by review. -->
+
 <details>
 <summary>Hardware and Complex Software Module Guidance</summary>
 
