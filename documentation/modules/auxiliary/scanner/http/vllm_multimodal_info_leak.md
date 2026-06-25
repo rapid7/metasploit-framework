@@ -25,9 +25,8 @@ model is reported **Appears**; a version outside the affected range is reported
 **Safe**. The probe never sends a video URL and never reaches the heap-overflow
 code path (CRASH_SAFE).
 
-The companion module `auxiliary/scanner/http/vllm_anthropic_info_leak`
-(CVE-2026-54236) probes the Anthropic `/v1/messages` router, which remained
-vulnerable after the OpenAI-router fix landed.
+A separate companion module targets the Anthropic `/v1/messages` router
+(CVE-2026-54236), which remained vulnerable after the OpenAI-router fix landed.
 
 ### Setup with Docker
 
@@ -49,7 +48,7 @@ model id before running the module.
 1. Do: `use auxiliary/scanner/http/vllm_multimodal_info_leak`
 1. Do: `set RHOSTS <target>`
 1. Do: `run`
-1. On a vulnerable server (0.8.3–0.14.0) the module reports **Vulnerable** with the leaked heap address; on a patched server it reports **Safe**
+1. On a vulnerable server (0.8.3 - 0.14.0) the module reports **Vulnerable** with the leaked heap address; on a patched server it reports **Safe**
 
 ## Options
 
