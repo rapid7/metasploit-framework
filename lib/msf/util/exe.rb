@@ -156,10 +156,8 @@ module Msf::Util::EXE
         case arch
         when ARCH_X86, nil
           to_winpe_only(framework, code, exeopts)
-        when ARCH_X64
+        when ARCH_X64, ARCH_AARCH64
           to_winpe_only(framework, code, exeopts, arch)
-        when ARCH_AARCH64
-            to_winaarch64pe(framework, code, exeopts)
         end
       when 'msi'
         case arch
