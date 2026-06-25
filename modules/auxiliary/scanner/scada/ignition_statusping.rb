@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
       next unless version
 
       info_str = build_info_string(version, state, os, runtime, role, peer)
-      print_good("#{Rex::Socket.to_authority(ip, rport)} - #{info_str}")
+      print_good("#{peer} - #{info_str}")
 
       report_host(host: ip, os_name: os) if os
       report_note(
@@ -135,6 +135,6 @@ class MetasploitModule < Msf::Auxiliary
       break
     end
 
-    vprint_status("#{ip}:#{rport} - No Ignition endpoint responded") unless found
+    vprint_status("#{Rex::Socket.to_authority(ip, rport)} - No Ignition endpoint responded") unless found
   end
 end
