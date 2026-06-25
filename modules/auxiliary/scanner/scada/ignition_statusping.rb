@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -15,20 +17,18 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'Inductive Automation Ignition Gateway Fingerprint',
         'Description' => %q{
           Fingerprints Inductive Automation Ignition gateways across all major versions
-          by probing version-specific info endpoints. Extracts version, run state, OS,
-          Java runtime, and GAN redundancy role without authentication.
+          by probing version-specific unauthenticated info endpoints. Extracts version,
+          run state, OS, Java runtime, and GAN redundancy role without authentication.
 
-          Endpoint and format by version:
-          7.9.x  — /main/system/gwinfo  (key=value)
-          8.0.x  — /system/gwinfo       (key=value)
+          Endpoint and response format by version:
+          7.9.x  — /main/system/gwinfo  (semicolon-delimited key=value)
+          8.0.x  — /system/gwinfo       (semicolon-delimited key=value)
           8.1.x  — /system/StatusPing   (JSON)
-          8.3.x  — /system/gwinfo       (key=value, includes RuntimeVersion/RequireSsl)
+          8.3.x  — /system/gwinfo       (semicolon-delimited key=value, additional fields)
 
           For 8.0.x exploitation see exploit/multi/scada/inductive_ignition_rce.
-          For 8.1.x CVE modules see auxiliary/scanner/scada/ignition_auth_bypass and
-          auxiliary/scanner/scada/ignition_deser_check.
         },
-        'Author' => ['Ethan Thomason <ethan@cedartech.com>'],
+        'Author' => ['Ethan Thomason <ethan@ethomason.com>'],
         'License' => MSF_LICENSE,
         'References' => [
           ['URL', 'https://ethomason.com/posts/fingerprinting-ignition-gateways/'],
@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([Opt::RPORT(8088)])
   end
 
-  # Parse key=value format used by 7.9.x, 8.0.x, 8.3.x
+  # Parse semicolon-delimited key=value format used by 7.9.x, 8.0.x, 8.3.x
   # e.g. ContextStatus=RUNNING;Version=8.3.4;OS=Linux;RuntimeVersion=17.0.17
   def parse_gwinfo(body)
     info = {}
@@ -56,33 +56,14 @@ class MetasploitModule < Msf::Auxiliary
 
   # Parse JSON format used by 8.1.x StatusPing
   def parse_statusping(body)
-    info = {}
-    info['version'] = begin
-      body.match(/"version"\s*:\s*"([^"]+)"/)[1]
-    rescue StandardError
-      nil
+    document = JSON.parse(body)
+    return {} unless document.is_a?(Hash)
+
+    %w[version state role peerAddress os runtimeVersion].each_with_object({}) do |key, info|
+      info[key] = document[key] if document[key]
     end
-    info['state'] = begin
-      body.match(/"state"\s*:\s*"([^"]+)"/)[1]
-    rescue StandardError
-      nil
-    end
-    info['role'] = begin
-      body.match(/"role"\s*:\s*"([^"]+)"/)[1]
-    rescue StandardError
-      nil
-    end
-    info['peerAddress'] = begin
-      body.match(/"peerAddress"\s*:\s*"([^"]+)"/)[1]
-    rescue StandardError
-      nil
-    end
-    info['os'] = begin
-      body.match(/"os"\s*:\s*"([^"]+)"/)[1]
-    rescue StandardError
-      nil
-    end
-    info.compact
+  rescue JSON::ParserError
+    {}
   end
 
   def build_info_string(version, state, os, runtime, role, peer)
@@ -96,12 +77,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    # Probe order: gwinfo covers 7.9/8.0/8.3, StatusPing covers 8.1
     probes = [
       { uri: '/system/gwinfo', format: :kvp },
       { uri: '/system/StatusPing', format: :json },
       { uri: '/main/system/gwinfo', format: :kvp },
     ]
+
+    found = false
 
     probes.each do |probe|
       res = send_request_cgi({ 'method' => 'GET', 'uri' => probe[:uri] })
@@ -117,15 +99,15 @@ class MetasploitModule < Msf::Auxiliary
         os = d['OS']
         runtime = d['RuntimeVersion']
         role = d['RedundancyStatus']
-        # gwinfo doesn't expose peer address directly
       elsif probe[:format] == :json
-        # Skip if this is just the minimal 8.3.x StatusPing stub
+        # Skip the minimal 8.3.x StatusPing stub which returns only state
         next if res.body.strip == '{"state":"RUNNING"}'
 
         d = parse_statusping(res.body)
         version = d['version']
         state = d['state']
         os = d['os']
+        runtime = d['runtimeVersion']
         role = d['role']
         peer = d['peerAddress']
       end
@@ -133,19 +115,26 @@ class MetasploitModule < Msf::Auxiliary
       next unless version
 
       info_str = build_info_string(version, state, os, runtime, role, peer)
-      print_good("#{ip}:#{rport} - #{info_str}")
+      print_good("#{Rex::Socket.to_authority(ip, rport)} - #{info_str}")
 
-      report_host(host: ip, os_name: 'Ignition Gateway', os_flavor: version)
+      report_host(host: ip, os_name: os) if os
+      report_note(
+        host: ip,
+        type: 'ignition.gateway',
+        data: { version: version, state: state, role: role, runtime: runtime }
+      )
       report_service(
         host: ip,
         port: rport,
         proto: 'tcp',
-        name: 'http',
+        name: ssl ? 'https' : 'http',
         info: info_str
       )
-      break # found it, don't probe further
+
+      found = true
+      break
     end
 
-    vprint_status("#{ip}:#{rport} - No Ignition endpoint responded")
+    vprint_status("#{ip}:#{rport} - No Ignition endpoint responded") unless found
   end
 end

@@ -56,11 +56,11 @@ on alternate ports — common alternatives include `80`, `443`, `8043`.
 
 ```
 msf6 > use auxiliary/scanner/scada/ignition_statusping
-msf6 auxiliary(scanner/scada/ignition_statusping) > set RHOSTS 159.203.120.32
-RHOSTS => 159.203.120.32
+msf6 auxiliary(scanner/scada/ignition_statusping) > set RHOSTS 192.0.2.32
+RHOSTS => 192.0.2.32
 msf6 auxiliary(scanner/scada/ignition_statusping) > run
 
-[+] 159.203.120.32:8088 - Ignition 7.9.21 | State: RUNNING | OS: Linux | GAN role: Independent
+[+] 192.0.2.32:8088 - Ignition 7.9.21 | State: RUNNING | OS: Linux | GAN role: Independent
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
