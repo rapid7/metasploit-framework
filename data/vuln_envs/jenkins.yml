@@ -1,0 +1,49 @@
+name: jenkins
+description: Jenkins CI server with Groovy Script Console enabled
+
+versions:
+  "2.361":
+    image: vulnhub/jenkins:2.361
+    build_args:
+      JENKINS_VERSION: "2.361"
+  "2.375":
+    image: vulnhub/jenkins:2.375
+    build_args:
+      JENKINS_VERSION: "2.375"
+
+shared:
+  ports:
+    http: 8080
+
+  volumes:
+    jenkins_home:
+      container_path: /var/jenkins_home
+      persist: false
+
+  health_check:
+    type: http
+    path: /login
+    expected_status: 200
+    interval: 5
+    timeout: 2
+    retries: 12
+
+  credentials:
+    default:
+      username: admin
+      password: admin
+
+  datastore_defaults:
+    TARGETURI: /script
+
+  ci:
+    exploit:
+      payload: java/meterpreter/reverse_tcp
+      options:
+        LHOST: 127.0.0.1
+        LPORT: 4444
+    validation:
+      expected_session: true
+      session_type: meterpreter
+      expected_output: "uid="
+      timeout: 120
