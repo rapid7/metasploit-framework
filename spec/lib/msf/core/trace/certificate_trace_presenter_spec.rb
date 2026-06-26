@@ -80,8 +80,8 @@ RSpec.describe Msf::Trace::CertificateTracePresenter do
       expect(subject).to be_a(String)
     end
 
-    it 'includes the separator' do
-      expect(subject).to include('[CertificateTrace]')
+    it 'includes the x.509-labelled separator' do
+      expect(subject).to include('[CertificateTrace] x.509')
     end
 
     it 'includes subject' do
@@ -442,23 +442,23 @@ RSpec.describe Msf::Trace::CertificateTracePresenter do
     describe '#to_s_csr_metadata' do
       subject { described_class.new.to_s_csr_metadata(csr) }
 
-      it 'includes the CertificateTrace separator' do
-        expect(subject).to include('[CertificateTrace]')
+      it 'includes the CSR-labelled separator' do
+        expect(subject).to include('[CertificateTrace] CSR')
       end
 
       it 'includes the CSR subject' do
-        expect(subject).to include('CSR Subject')
+        expect(subject).to include('Subject')
         expect(subject).to include('Administrator')
       end
 
       it 'renders the public key as algorithm and bit size, not raw PEM' do
-        expect(subject).to include('CSR Pub Key')
+        expect(subject).to include('Public Key')
         expect(subject).to include('RSA-2048')
         expect(subject).not_to include('-----BEGIN')
       end
 
       it 'includes the signature algorithm' do
-        expect(subject).to include('CSR Sig Alg')
+        expect(subject).to include('Sig Alg')
       end
 
       it 'accepts DER bytes without raising' do
@@ -478,7 +478,7 @@ RSpec.describe Msf::Trace::CertificateTracePresenter do
       subject { described_class.new.to_s_csr_full(csr, attributes) }
 
       it 'includes everything from metadata' do
-        expect(subject).to include('CSR Subject')
+        expect(subject).to include('Subject')
         expect(subject).to include('RSA-2048')
       end
 

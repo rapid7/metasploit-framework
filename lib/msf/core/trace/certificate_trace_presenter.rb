@@ -25,7 +25,7 @@ module Msf
     #   mod.print_line(presenter.to_s_csr_full(csr, attributes))
     class CertificateTracePresenter
 
-      SEPARATOR = ('[CertificateTrace] ' + ('-' * 38)).freeze
+      SEPARATOR_WIDTH = 57 # '[CertificateTrace] ' (19) + 38 dashes, preserved
 
       # OIDs surfaced as named fields in to_s_full; excluded from the raw extension dump.
       NAMED_OIDS = %w[subjectAltName extendedKeyUsage keyUsage].freeze
@@ -127,7 +127,7 @@ module Msf
         fingerprint = OpenSSL::Digest::SHA256.hexdigest(@cert.to_der)
 
         [
-          SEPARATOR,
+          trace_separator('x.509'),
           "  Subject    : #{@cert.subject}",
           "  Issuer     : #{@cert.issuer}",
           "  Not Before : #{@cert.not_before}",
@@ -186,13 +186,13 @@ module Msf
         csr = self.class.coerce_csr(csr)
         return nil unless csr
 
-        lines = [SEPARATOR, "  CSR Subject : #{csr.subject}"]
+        lines = [trace_separator('CSR'), "  Subject    : #{csr.subject}"]
 
         public_key = csr_public_key(csr)
-        lines << "  CSR Pub Key : #{format_public_key(public_key)}" if public_key
+        lines << "  Public Key : #{format_public_key(public_key)}" if public_key
 
         sig_alg = csr_signature_algorithm(csr)
-        lines << "  CSR Sig Alg : #{sig_alg}" if sig_alg
+        lines << "  Sig Alg    : #{sig_alg}" if sig_alg
 
         lines.join("\n")
       rescue StandardError
@@ -444,6 +444,11 @@ module Msf
         s = s.b.force_encoding('UTF-8')
         s = s.scrub('?') unless s.valid_encoding?
         s.delete("\u0000")
+      end
+
+      def trace_separator(label)
+        prefix = "[CertificateTrace] #{label} "
+        prefix + ('-' * [SEPARATOR_WIDTH - prefix.length, 0].max)
       end
 
       def format_public_key(pk)
