@@ -1,0 +1,89 @@
+module Msf
+  class Plugin::VulnEnv < Msf::Plugin
+
+    class ConsoleCommandDispatcher
+      include Msf::Ui::Console::CommandDispatcher
+
+      def name
+        'VulnEnv'
+      end
+
+      def commands
+        {
+          'test_env' => 'Manage vulnerable test environments'
+        }
+      end
+
+      def cmd_test_env(*args)
+        if args.empty? || args.first == '-h' || args.first == '--help'
+          cmd_test_env_help
+          return
+        end
+
+        subcommand = args.shift
+
+        case subcommand
+        when 'build'
+          print_status("TODO: test_env build")
+        when 'list'
+          print_status("TODO: test_env list")
+        when 'stop'
+          print_status("TODO: test_env stop")
+        when 'start'
+          print_status("TODO: test_env start")
+        when 'remove'
+          print_status("TODO: test_env remove")
+        when 'remove-all'
+          print_status("TODO: test_env remove-all")
+        when 'exec'
+          print_status("TODO: test_env exec")
+        when 'help'
+          cmd_test_env_help
+        else
+          print_error("Unknown subcommand: #{subcommand}")
+          cmd_test_env_help
+        end
+      end
+
+      def cmd_test_env_help
+        print_line("Usage: test_env <command>")
+        print_line
+        print_line("Commands:")
+        print_line("  build      Build and launch environment for active module")
+        print_line("  list       List tracked environments")
+        print_line("  stop <ID>  Stop a running environment")
+        print_line("  start <ID> Restart a stopped environment")
+        print_line("  remove <ID> Tear down an environment")
+        print_line("  remove-all Tear down all environments")
+        print_line("  exec <ID>  Execute exploit against environment")
+        print_line("  help       Show this help")
+        print_line
+      end
+
+      def cmd_test_env_tabs(str, words)
+        if words.length == 1
+          return %w[build list stop start remove remove-all exec help]
+        end
+        []
+      end
+    end
+
+    def initialize(framework, opts)
+      super
+      add_console_dispatcher(ConsoleCommandDispatcher)
+      print_status("VulnEnv plugin loaded.")
+    end
+
+    def cleanup
+      remove_console_dispatcher('VulnEnv')
+    end
+
+    def name
+      'vulnenv'
+    end
+
+    def desc
+      'Automated vulnerable environment provisioning'
+    end
+  end
+end
