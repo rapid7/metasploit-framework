@@ -928,6 +928,11 @@ module Msf
               print_status("No payload configured, defaulting to #{chosen_payload}") if chosen_payload
             end
 
+            # Import payload options so validation applies immediately on set calls
+            if (mod.exploit? || mod.evasion?) && mod.datastore['PAYLOAD']
+              import_payload_options(mod)
+            end
+
             if framework.features.enabled?(Msf::FeatureManager::DISPLAY_MODULE_ACTION) && mod.respond_to?(:actions) && mod.actions.size > 1
               print_status "Setting default action %grn#{mod.action.name}%clr - view all #{mod.actions.size} actions with the %grnshow actions%clr command"
             end
