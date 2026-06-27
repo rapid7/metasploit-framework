@@ -6,23 +6,23 @@ This directory contains the architecture and workflow design for the `test_env` 
 
 | Document | Description |
 |----------|-------------|
-| [01-command-dispatcher.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/architecture/01-command-dispatcher.md) | How `test_env` is added to msfconsole via plugin dispatcher |
-| [02-module-metadata.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/architecture/02-module-metadata.md) | How modules expose `VulnEnv` metadata and how the plugin reads it |
-| [03-database-schema.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/architecture/03-database-schema.md) | Registry persistence: in-memory Phase 1, PostgreSQL Phase 2 |
-| [04-environment-schema.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/architecture/04-environment-schema.md) | YAML schema for shared environment definitions in `data/vuln_envs/` |
+| [01-command-dispatcher.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/test_env/architecture/01-command-dispatcher.md) | How `test_env` is added to msfconsole via plugin dispatcher |
+| [02-module-metadata.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/test_env/architecture/02-module-metadata.md) | How modules expose `VulnEnv` metadata and how the plugin reads it |
+| [03-database-schema.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/test_env/architecture/03-database-schema.md) | Registry persistence: in-memory Phase 1, PostgreSQL Phase 2 |
+| [04-environment-schema.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/test_env/architecture/04-environment-schema.md) | YAML schema for shared environment definitions in `data/vuln_envs/` |
 | [05-runtime-adapter.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/architecture/05-runtime-adapter.md) | Docker/Podman abstraction, port allocation, container labels |
 
 ## Workflow & Planning Documents
 
 | Document | Description |
 |----------|-------------|
-| [reference_modules.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/reference_modules.md) | 3 reference modules selected for implementation (ActiveMQ, Jenkins, Drupal) |
-| [workflow.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/workflow.md) | Target user workflows and console transcripts (acceptance criteria) |
-| [ci_workflow.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/ci_workflow.md) | GitHub Actions CI integration with resource scripts |
+| [reference_modules.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/test_env/reference_modules.md) | 3 reference modules selected for implementation (ActiveMQ, Jenkins, Drupal) |
+| [workflow.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/test_env/workflow.md) | Target user workflows and console transcripts (acceptance criteria) |
+| [ci_workflow.md](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/docs/test_env/ci_workflow.md) | GitHub Actions CI integration with resource scripts |
 
 ## Plugin File
 
-- `plugins/test_env.rb` — Main plugin implementation (Week 1 skeleton)
+- [plugins/test_env.rb](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/plugins/test_env.rb) — Main plugin implementation (Week 1 skeleton)
 
 ```
 nayera@Nero:~/git/metasploit-framework$ ./msfconsole -q -x "load test_env; exit"
@@ -47,4 +47,4 @@ Commands:
 
 ## Data Files
 
-- `data/vuln_envs/jenkins.yml` — Reference environment definition (Week 1 draft)
+- [data/vuln_envs/jenkins.ym](https://github.com/Nayeraneru/metasploit-framework/blob/vulnenv-week1/data/vuln_envs/jenkins.yml) — Reference environment definition (Week 1 draft)
