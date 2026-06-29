@@ -37,7 +37,7 @@ module Post
   # 	Whether or not the module should be run in the context of a background
   # 	job.
   #
-  def self.run_simple(omod, opts = {}, &block)
+  def self.run_simple(omod, opts = {}, job_listener: Msf::Simple::NoopJobListener.instance, &block)
 
     # Clone the module to prevent changes to the original instance
     mod = omod.replicant
@@ -64,11 +64,14 @@ module Post
       mod.init_ui(nil, nil)
     end
 
+    run_uuid = Rex::Text.rand_text_alphanumeric(24)
+    job_listener.waiting run_uuid
+    ctx = [mod, run_uuid, job_listener]
+
     #
     # Disable this until we can test background stuff a little better
     #
     if(mod.passive? or opts['RunAsJob'])
-      ctx = [ mod.replicant ]
       mod.job_id = mod.framework.jobs.start_bg_job(
         "Post: #{mod.refname}",
         ctx,
@@ -77,8 +80,8 @@ module Post
       )
       # Propagate this back to the caller for console mgmt
       omod.job_id = mod.job_id
+      return [run_uuid, mod.job_id]
     else
-      ctx = [ mod ]
       self.job_run_proc(ctx)
       self.job_cleanup_proc(ctx)
     end
@@ -87,8 +90,8 @@ module Post
   #
   # Calls the class method.
   #
-  def run_simple(opts = {}, &block)
-    Msf::Simple::Post.run_simple(self, opts, &block)
+  def run_simple(opts = {}, job_listener: Msf::Simple::NoopJobListener.instance, &block)
+    Msf::Simple::Post.run_simple(self, opts, job_listener: job_listener, &block)
   end
 
 protected
@@ -99,8 +102,9 @@ protected
   # XXX: Mostly Copy/pasted from simple/auxiliary.rb
   #
   def self.job_run_proc(ctx)
-    mod = ctx[0]
+    mod, run_uuid, job_listener = ctx
     begin
+      job_listener.start run_uuid
       mod.setup
       mod.framework.events.on_module_run(mod)
       # Grab the session object since we need to fire an event for not
@@ -109,33 +113,41 @@ protected
       s = mod.framework.sessions.get(mod.datastore["SESSION"])
       if s
         mod.framework.events.on_session_module_run(s, mod)
-        mod.run
+        result = mod.run
+        job_listener.completed(run_uuid, result, mod)
+        return result
       else
         mod.print_error("Session not found")
+        job_listener.failed(run_uuid, 'Session not found', mod)
         mod.cleanup
         return
       end
     rescue Msf::Post::Complete
+      job_listener.completed(run_uuid, nil, mod)
       mod.cleanup
       return
     rescue Msf::Post::Failed => e
       mod.error = e
       mod.print_error("Post aborted due to failure: #{e.message}")
+      job_listener.failed(run_uuid, e, mod)
       mod.cleanup
       return
     rescue ::Timeout::Error => e
       mod.error = e
       mod.print_error("Post triggered a timeout exception")
+      job_listener.failed(run_uuid, e, mod)
       mod.cleanup
       return
     rescue ::Interrupt => e
       mod.error = e
       mod.print_error("Post interrupted by the console user")
+      job_listener.failed(run_uuid, e, mod)
       mod.cleanup
       return
     rescue ::Msf::OptionValidateError => e
       mod.error = e
       ::Msf::Ui::Formatter::OptionValidateError.print_error(mod, e)
+      job_listener.failed(run_uuid, e, mod)
     rescue ::Exception => e
       mod.error = e
       mod.print_error("Post failed: #{e.class} #{e}")
@@ -148,6 +160,7 @@ protected
       end
 
       elog('Post failed', error: e)
+      job_listener.failed(run_uuid, e, mod)
       mod.cleanup
 
       return

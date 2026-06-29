@@ -806,27 +806,27 @@ private
   end
 
   def _run_post(mod, opts)
-    Msf::Simple::Post.run_simple(mod, {
+    uuid, job = Msf::Simple::Post.run_simple(mod, {
       'RunAsJob' => true,
       'Options'  => opts
-    })
+    }, job_listener: self.job_status_tracker)
     {
-      "job_id" => mod.job_id,
-      "uuid" => mod.uuid
+      "job_id" => job,
+      "uuid" => uuid
     }
   end
 
   def _run_evasion(mod, opts)
-    Msf::Simple::Evasion.run_simple(mod, {
+    uuid, job = Msf::Simple::Evasion.run_simple(mod, {
       'Payload'  => opts['PAYLOAD'],
       'Target'   => opts['TARGET'],
       'RunAsJob' => true,
       'Options'  => opts
-    })
+    }, job_listener: self.job_status_tracker)
 
     {
-      'job_id' => mod.job_id,
-      'uuid'   => mod.uuid
+      'job_id' => job,
+      'uuid'   => uuid
     }
   end
 

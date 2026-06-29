@@ -7,7 +7,7 @@ module Evasion
 
   include Module
 
-  def self.run_simple(oevasion, opts, &block)
+  def self.run_simple(oevasion, opts, job_listener: Msf::Simple::NoopJobListener.instance, &block)
     evasion = oevasion.replicant
     # Trap and print errors here (makes them UI-independent)
     begin
@@ -28,7 +28,7 @@ module Evasion
       evasion.options.validate(evasion.datastore)
 
       # Start it up
-      driver = EvasionDriver.new(evasion.framework)
+      driver = EvasionDriver.new(evasion.framework, job_listener: job_listener)
 
       # Initialize the driver instance
       driver.evasion = evasion
@@ -81,7 +81,7 @@ module Evasion
       end
 
       # Let's rock this party
-      driver.run
+      result = driver.run
 
       # Save the job identifier this evasion is running as
       evasion.job_id  = driver.job_id
@@ -100,11 +100,11 @@ module Evasion
       elog("Evasion failed (#{evasion.refname})", error: e)
     end
 
-    nil
+    result if opts['RunAsJob']
   end
 
-  def run_simple(opts = {}, &block)
-    Msf::Simple::Evasion.run_simple(self, opts, &block)
+  def run_simple(opts = {}, job_listener: Msf::Simple::NoopJobListener.instance, &block)
+    Msf::Simple::Evasion.run_simple(self, opts, job_listener: job_listener, &block)
   end
 
 end
