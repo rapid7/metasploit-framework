@@ -2086,6 +2086,15 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/loongarch64/reboot'
   end
 
+  context 'linux/loongarch64/exec' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/loongarch64/exec'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/loongarch64/exec'
+  end
+
   context 'linux/x64/exec' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [

