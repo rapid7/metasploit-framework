@@ -49,7 +49,9 @@ module Msf
         raise NotImplementedError, "#{self.class} must implement list"
       end
     end
-
+    # ============================================================
+    # DOCKER RUNTIME 
+    # ============================================================
     class DockerRuntime < BaseRuntime
       def available?
         _out, _err, status = Open3.capture3('docker', 'version')
@@ -172,6 +174,174 @@ module Msf
           key, value = pair.split('=', 2)
           hash[key] = value || ''
         end
+      end
+    end
+    # ============================================================
+    # PODMAN RUNTIME (Week 2 Day 3)
+    # ============================================================
+    class PodmanRuntime < BaseRuntime
+      def available?
+        _out, _err, status = Open3.capture3('podman', 'version')
+        status.success?
+      rescue Errno::ENOENT
+        false
+      end
+
+      def name
+        'podman'
+      end
+
+      def pull(image)
+        # podman requires fully qualified image names by default
+        # like: 'nginx' -> 'docker.io/library/nginx'
+        qualified = qualify_image(image)
+        _out, err, status = Open3.capture3('podman', 'pull', qualified)
+        if status.success?
+          true
+        else
+          #fallback: try original name if qualified fails
+          _out2, err2, status2 = Open3.capture3('podman', 'pull', image)
+          if status2.success?
+            true
+          else
+            elog("Podman pull failed: #{err}")
+            false
+          end
+        end
+      end
+
+      def run(image:, ports:, labels:, volumes: [], env: {}, name: nil)
+        cmd = ['podman', 'run', '-d']
+
+        ports.each do |container_port, host_port|
+          cmd += ['-p', "127.0.0.1:#{host_port}:#{container_port}"]
+        end
+
+        labels.each do |key, value|
+          cmd += ['--label', "#{key}=#{value}"]
+        end
+
+        volumes.each do |host_path, container_path|
+          cmd += ['-v', "#{host_path}:#{container_path}"]
+        end
+
+        env.each do |key, value|
+          cmd += ['-e', "#{key}=#{value}"]
+        end
+
+        cmd += ['--name', name] if name
+        cmd << qualify_image(image)
+
+        out, err, status = Open3.capture3(*cmd)
+        if status.success?
+          out.strip
+        else
+          raise "Podman run failed: #{err}"
+        end
+      end
+
+      def inspect(container_id)
+        out, _err, status = Open3.capture3('podman', 'inspect', container_id)
+        return nil unless status.success?
+        return nil if out.empty?
+
+        begin
+          data = JSON.parse(out)
+          data.first
+        rescue JSON::ParserError => e
+          elog("Podman inspect JSON parse error: #{e.message}")
+          nil
+        end
+      end
+
+      def stop(container_id)
+        _out, _err, status = Open3.capture3('podman', 'stop', container_id)
+        status.success?
+      end
+
+      def start(container_id)
+        _out, _err, status = Open3.capture3('podman', 'start', container_id)
+        status.success?
+      end
+
+      def remove(container_id)
+        _out, _err, status = Open3.capture3('podman', 'rm', container_id)
+        status.success?
+      end
+
+      def exec(container_id, command)
+        out, err, status = Open3.capture3('podman', 'exec', container_id, *command.split)
+        [out + err, status.exitstatus]
+      end
+
+      def list(filters: {})
+        cmd = ['podman', 'ps', '-a', '--format', '{{json .}}']
+
+        filters.each do |key, value|
+          cmd += ['--filter', "#{key}=#{value}"]
+        end
+
+        out, _err, status = Open3.capture3(*cmd)
+        return [] unless status.success?
+        return [] if out.empty?
+
+        containers = out.lines.map do |line|
+          begin
+            JSON.parse(line.strip)
+          rescue JSON::ParserError
+            nil
+          end
+        end.compact
+
+        containers.each do |c|
+          c['Labels'] = parse_labels(c['Labels']) if c['Labels'].is_a?(String)
+        end
+
+        containers
+      end
+
+      private
+
+      def qualify_image(image)
+        return image if image.include?('/')
+        "docker.io/library/#{image}"
+      end
+
+      def parse_labels(labels_string)
+        return {} if labels_string.nil? || labels_string.empty?
+
+        labels_string.split(',').each_with_object({}) do |pair, hash|
+          key, value = pair.split('=', 2)
+          hash[key] = value || ''
+        end
+      end
+    end
+
+    # ============================================================
+    # RUNTIME ADAPTER 
+    # ============================================================
+    class RuntimeAdapter
+      def self.detect(datastore = {})
+        runtime_pref = datastore['TEST_ENV_RUNTIME'] || ENV['TEST_ENV_RUNTIME'] || 'auto'
+
+        case runtime_pref
+        when 'docker'
+          docker = DockerRuntime.new
+          return docker if docker.available?
+          raise "Docker requested but not available"
+        when 'podman'
+          podman = PodmanRuntime.new
+          return podman if podman.available?
+          raise "Podman requested but not available"
+        else
+          # Auto-detect: Docker first, Podman fallback
+          docker = DockerRuntime.new
+          return docker if docker.available?
+          podman = PodmanRuntime.new
+          return podman if podman.available?
+        end
+
+        nil
       end
     end
     # =====================================================================
