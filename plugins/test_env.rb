@@ -1,6 +1,50 @@
 module Msf
   class Plugin::VulnEnv < Msf::Plugin
 
+    class PortAllocator
+      EPHEMERAL_START = 49152
+      EPHEMERAL_END   = 65535
+
+      def initialize(used_ports = [])
+        @used_ports = Set.new(used_ports)
+      end
+
+      def allocate(preferred = nil)
+        # 1. Try user-requested port first
+        if preferred && available?(preferred)
+          @used_ports.add(preferred)
+          return preferred
+        end
+
+        # 2. Fall back to ephemeral range
+        (EPHEMERAL_START..EPHEMERAL_END).each do |port|
+          next if @used_ports.include?(port)
+          if available?(port)
+            @used_ports.add(port)
+            return port
+          end
+        end
+
+        raise "No available ports in range #{EPHEMERAL_START}-#{EPHEMERAL_END}"
+      end
+
+      def release(port)
+        @used_ports.delete(port)
+      end
+
+      private
+
+      def available?(port)
+        return false if @used_ports.include?(port)
+
+        server = TCPServer.new('127.0.0.1', port)
+        server.close
+        true
+      rescue Errno::EADDRINUSE
+        false
+      end
+    end
+       
     class ConsoleCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
 
