@@ -177,7 +177,7 @@ module Msf
       end
     end
     # ============================================================
-    # PODMAN RUNTIME (Week 2 Day 3)
+    # PODMAN RUNTIME
     # ============================================================
     class PodmanRuntime < BaseRuntime
       def available?
