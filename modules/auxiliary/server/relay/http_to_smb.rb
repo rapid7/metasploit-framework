@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           If the relay succeeds, an SMB session to the target will be created. This can
           be used by any modules that support SMB sessions.
 
-          Supports HTTP and captures NTLMv1 as well as NTLMv2 hashes.
+          Supports SMBv2, SMBv3, and captures NTLMv1 as well as NTLMv2 hashes.
         },
         'Author' => [
           'jheysel-r7' # module
