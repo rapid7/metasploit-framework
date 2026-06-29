@@ -23,6 +23,9 @@ Gemfile.local.lock
 .solargraph.yml
 # database config for testing
 config/database.yml
+# mcp config for mcping
+config/mcp_config.yaml
+config/mcp_config.yml
 # target config file for testing
 features/support/targets.yml
 # Generated test files
