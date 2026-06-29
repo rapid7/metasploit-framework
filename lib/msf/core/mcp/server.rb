@@ -47,12 +47,20 @@ module Msf::MCP
         tools: [
           Tools::SearchModules,
           Tools::ModuleInfo,
+          Tools::ModuleExecute,
+          Tools::ModuleCheck,
+          Tools::ModuleResults,
+          Tools::RunningStats,
           Tools::HostInfo,
           Tools::ServiceInfo,
           Tools::VulnerabilityInfo,
           Tools::NoteInfo,
           Tools::CredentialInfo,
-          Tools::LootInfo
+          Tools::LootInfo,
+          Tools::SessionList,
+          Tools::SessionStop,
+          Tools::SessionRead,
+          Tools::SessionWrite
         ],
         server_context: @server_context,
         configuration: mcp_config

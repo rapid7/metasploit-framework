@@ -192,6 +192,125 @@ module Msf::MCP
       def self.validate_protocol!(protocol)
         validate_parameter!('Protocol', protocol.to_s.downcase, %w[tcp udp], allow_nil: true)
       end
+
+      # Module datastore option limits.
+      #
+      # These bounds keep payloads compatible with the MCP transport while still
+      # accommodating realistic Metasploit option sets.
+      MODULE_OPTIONS_MAX_KEYS = 100
+      # Matches the option name conventions used across the Framework: standard
+      # SCREAMING_SNAKE_CASE (RHOSTS, LPORT), CamelCase advanced options
+      # (SSLVersion, BasicAuth), namespaced mixin options separated by `::`
+      # (HTTP::compression, CMDSTAGER::FLAVOR, EXE::Custom), multi-level
+      # namespaces (HTML::javascript::escape), and hyphenated header-style
+      # names (BEARER-TOKEN). Each segment must start with a letter or
+      # underscore. Leading/trailing separators and double separators
+      # (`:::`, `--`) are rejected.
+      MODULE_OPTIONS_KEY_REGEX = /\A[A-Za-z_][A-Za-z0-9_]*(?:(?:::|-)[A-Za-z_][A-Za-z0-9_]*)*\z/
+      MODULE_OPTIONS_KEY_MAX_LENGTH = 128
+      MODULE_OPTIONS_VALUE_MAX_BYTES = 8 * 1024
+      MODULE_OPTIONS_TOTAL_MAX_BYTES = 64 * 1024
+
+      # Allowed scalar types for datastore values. The Metasploit datastore is flat,
+      # so no nested Hashes / Arrays are permitted.
+      MODULE_OPTION_SCALAR_TYPES = [String, Integer, Float, TrueClass, FalseClass, NilClass].freeze
+
+      # UUID format produced by Metasploit's RPC layer via Rex::Text.rand_text_alphanumeric(24).
+      # The generator emits exactly 24 characters drawn from a mixed-case alphanumeric pool.
+      MODULE_RUN_UUID_REGEX = /\A[A-Za-z0-9]{24}\z/
+
+      SESSION_ID_RANGE = 1..65535
+      SESSION_DATA_MAX_BYTES = 64 * 1024
+
+      # Validate module datastore options hash.
+      #
+      # Enforces structural limits before any RPC call so a misbehaving client
+      # cannot push an unbounded payload through to the framework.
+      #
+      # Keys may be Strings or Symbols (the MCP transport deep-symbolizes JSON
+      # input). Either form is validated against MODULE_OPTIONS_KEY_REGEX via
+      # `to_s`; the tool layer is responsible for normalizing to String keys
+      # before forwarding to the Metasploit datastore.
+      #
+      # @param options [Hash] Module datastore options
+      # @return [true] If valid
+      # @raise [ValidationError] If invalid
+      def self.validate_module_options!(options)
+        raise ValidationError, 'Module options must be a Hash' unless options.is_a?(Hash)
+
+        if options.size > MODULE_OPTIONS_MAX_KEYS
+          raise ValidationError, "Module options has too many keys (max #{MODULE_OPTIONS_MAX_KEYS})"
+        end
+
+        total_bytes = 0
+        options.each do |key, value|
+          unless key.is_a?(String) || key.is_a?(Symbol)
+            raise ValidationError, "Invalid module option key: #{key.inspect}"
+          end
+
+          key_str = key.to_s
+          if key_str.length > MODULE_OPTIONS_KEY_MAX_LENGTH
+            raise ValidationError, "Module option key exceeds #{MODULE_OPTIONS_KEY_MAX_LENGTH} chars: #{key.inspect}"
+          end
+          unless key_str.match?(MODULE_OPTIONS_KEY_REGEX)
+            raise ValidationError, "Invalid module option key: #{key.inspect}"
+          end
+
+          unless MODULE_OPTION_SCALAR_TYPES.any? { |klass| value.is_a?(klass) }
+            raise ValidationError, "Invalid module option value for #{key}: must be a scalar (String, Integer, Float, Boolean, or nil)"
+          end
+
+          if value.is_a?(String) && value.bytesize > MODULE_OPTIONS_VALUE_MAX_BYTES
+            raise ValidationError, "Module option #{key} string value exceeds #{MODULE_OPTIONS_VALUE_MAX_BYTES} bytes"
+          end
+
+          total_bytes += key.to_s.bytesize
+          total_bytes += value.bytesize if value.is_a?(String)
+          if total_bytes > MODULE_OPTIONS_TOTAL_MAX_BYTES
+            raise ValidationError, "Module options total payload exceeds #{MODULE_OPTIONS_TOTAL_MAX_BYTES} bytes"
+          end
+        end
+
+        true
+      end
+
+      # Validate a module run UUID returned by module.execute / module.check.
+      #
+      # @param uuid [String] UUID string
+      # @return [true] If valid
+      # @raise [ValidationError] If invalid
+      def self.validate_uuid!(uuid)
+        raise ValidationError, 'UUID must be a String' unless uuid.is_a?(String)
+
+        validate_parameter!('UUID', uuid, MODULE_RUN_UUID_REGEX, max_size: 24)
+      end
+
+      # Validate a session identifier.
+      #
+      # @param session_id [Integer] Session ID
+      # @return [true] If valid
+      # @raise [ValidationError] If invalid
+      def self.validate_session_id!(session_id)
+        raise ValidationError, 'Session ID must be an Integer' unless session_id.is_a?(Integer)
+
+        validate_parameter!('Session ID', session_id, SESSION_ID_RANGE)
+      end
+
+      # Validate session input data for session.interactive_write.
+      #
+      # @param data [String] Data to send to the session
+      # @return [true] If valid
+      # @raise [ValidationError] If invalid
+      def self.validate_session_data!(data)
+        raise ValidationError, 'Session data must be a String' unless data.is_a?(String)
+        raise ValidationError, 'Session data cannot be empty' if data.empty?
+
+        if data.bytesize > SESSION_DATA_MAX_BYTES
+          raise ValidationError, "Session data exceeds #{SESSION_DATA_MAX_BYTES} bytes"
+        end
+
+        true
+      end
     end
   end
 end

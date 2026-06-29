@@ -556,7 +556,7 @@ class RPC_Module < RPC_Base
     elsif self.job_status_tracker.waiting? uuid
       {"status" => "ready"}
     else
-      error(404, "Results not found for module instance #{uuid}")
+      error(500, "Results not found for module instance #{uuid}")
     end
   end
 
@@ -791,6 +791,8 @@ private
       "job_id" => job,
       "uuid" => uuid
     }
+  rescue ::NotImplementedError => e
+    error(500, e.message)
   end
 
   def _check_auxiliary(mod, opts)
@@ -803,6 +805,8 @@ private
       "job_id" => job,
       "uuid" => uuid
     }
+  rescue ::NotImplementedError => e
+    error(500, e.message)
   end
 
   def _run_post(mod, opts)

@@ -84,12 +84,20 @@ RSpec.describe Msf::MCP::Server do
           tools: array_including(
             Msf::MCP::Tools::SearchModules,
             Msf::MCP::Tools::ModuleInfo,
+            Msf::MCP::Tools::ModuleExecute,
+            Msf::MCP::Tools::ModuleCheck,
+            Msf::MCP::Tools::ModuleResults,
+            Msf::MCP::Tools::RunningStats,
             Msf::MCP::Tools::HostInfo,
             Msf::MCP::Tools::ServiceInfo,
             Msf::MCP::Tools::VulnerabilityInfo,
             Msf::MCP::Tools::NoteInfo,
             Msf::MCP::Tools::CredentialInfo,
-            Msf::MCP::Tools::LootInfo
+            Msf::MCP::Tools::LootInfo,
+            Msf::MCP::Tools::SessionList,
+            Msf::MCP::Tools::SessionStop,
+            Msf::MCP::Tools::SessionRead,
+            Msf::MCP::Tools::SessionWrite
           )
         )
       ).and_return(mock_mcp_server)

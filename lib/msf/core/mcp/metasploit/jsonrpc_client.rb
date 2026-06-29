@@ -129,6 +129,65 @@ module Msf::MCP
         call_api('db.loots', [options])
       end
 
+      # Execute a Metasploit module
+      # @param type [String] Module type ('exploit', 'auxiliary', 'post', 'payload', 'evasion')
+      # @param name [String] Module name (e.g. 'multi/handler')
+      # @param options [Hash] Module datastore options
+      # @return [Hash] Response containing 'job_id' and 'uuid' keys
+      def module_execute(type, name, options = {})
+        call_api('module.execute', [type, name, options])
+      end
+
+      # Run the check method of a Metasploit module
+      # @param type [String] Module type ('exploit' or 'auxiliary')
+      # @param name [String] Module name
+      # @param options [Hash] Module datastore options
+      # @return [Hash] Response containing 'job_id' and 'uuid' keys
+      def module_check(type, name, options = {})
+        call_api('module.check', [type, name, options])
+      end
+
+      # Get module execution results by UUID
+      # @param uuid [String] Module run UUID returned by module_execute / module_check
+      # @return [Hash] Result hash with 'status' key (and 'result' / 'error' as applicable)
+      def module_results(uuid)
+        call_api('module.results', [uuid])
+      end
+
+      # Get currently running module stats (waiting / running / results)
+      # @return [Hash] Hash with 'waiting', 'running', 'results' arrays of UUIDs
+      def running_stats
+        call_api('module.running_stats', [])
+      end
+
+      # List active sessions
+      # @return [Hash] Hash keyed by session ID with session info hashes as values
+      def session_list
+        call_api('session.list', [])
+      end
+
+      # Stop (kill) an active session
+      # @param session_id [Integer] Session ID
+      # @return [Hash] Response with 'result' key set to 'success'
+      def session_stop(session_id)
+        call_api('session.stop', [session_id])
+      end
+
+      # Read buffered output from an interactive session (meterpreter, DB, SMB)
+      # @param session_id [Integer] Session ID
+      # @return [Hash] Response with 'data' key containing the buffered output
+      def session_read(session_id)
+        call_api('session.interactive_read', [session_id])
+      end
+
+      # Send input to an interactive session
+      # @param session_id [Integer] Session ID
+      # @param data [String] Data to send to the session
+      # @return [Hash] Response with 'result' key
+      def session_write(session_id, data)
+        call_api('session.interactive_write', [session_id, data])
+      end
+
       # Shutdown client
       def shutdown
         @http&.finish if @http&.started?

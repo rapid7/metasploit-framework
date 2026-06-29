@@ -1,0 +1,52 @@
+# frozen_string_literal: true
+
+require 'spec_helper'
+require 'msf/core/rpc/v10/rpc_module'
+require 'msf/core/rpc/v10/rpc_job_status_tracker'
+
+RSpec.describe Msf::RPC::RPC_Module, '#rpc_check translates NotImplementedError into a proper RPC exception' do
+  let(:service) { double('Service') }
+  let(:job_status_tracker) { Msf::RPC::RpcJobStatusTracker.new }
+  let(:framework) { double('Framework', modules: modules) }
+  let(:modules) { double('ModuleManager') }
+  let(:rpc) do
+    instance = described_class.allocate
+    allow(instance).to receive(:framework).and_return(framework)
+    allow(instance).to receive(:job_status_tracker).and_return(job_status_tracker)
+    instance
+  end
+
+  context 'for an exploit module without a check method' do
+    it 'raises an Msf::RPC::Exception carrying the unsupported message instead of crashing the dispatcher' do
+      mod = double('ExploitModule')
+      allow(modules).to receive(:create).with('exploit/multi/handler').and_return(mod)
+      allow(mod).to receive(:type).and_return('exploit')
+
+      unsupported_msg = Msf::Exploit::CheckCode::Unsupported.message
+      allow(Msf::Simple::Exploit).to receive(:check_simple).and_raise(::NotImplementedError.new(unsupported_msg))
+
+      expect { rpc.rpc_check('exploit', 'multi/handler', {}) }
+        .to raise_error(Msf::RPC::Exception) { |e|
+          expect(e.code).to eq(500)
+          expect(e.message).to eq(unsupported_msg)
+        }
+    end
+  end
+
+  context 'for an auxiliary module without a check method' do
+    it 'raises an Msf::RPC::Exception carrying the unsupported message instead of crashing the dispatcher' do
+      mod = double('AuxiliaryModule')
+      allow(modules).to receive(:create).with('auxiliary/scanner/portscan/tcp').and_return(mod)
+      allow(mod).to receive(:type).and_return('auxiliary')
+
+      unsupported_msg = Msf::Exploit::CheckCode::Unsupported.message
+      allow(Msf::Simple::Auxiliary).to receive(:check_simple).and_raise(::NotImplementedError.new(unsupported_msg))
+
+      expect { rpc.rpc_check('auxiliary', 'scanner/portscan/tcp', {}) }
+        .to raise_error(Msf::RPC::Exception) { |e|
+          expect(e.code).to eq(500)
+          expect(e.message).to eq(unsupported_msg)
+        }
+    end
+  end
+end

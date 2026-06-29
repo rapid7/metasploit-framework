@@ -55,7 +55,7 @@ module Msf::MCP
             data.each_with_object({}) do |(k, v), result|
               result[k] = if k.to_s.match?(SENSITIVE_KEYS)
                             v.is_a?(Hash) || v.is_a?(Array) ? sanitize(v) : REDACTED
-                          elsif k.to_sym == :exception && v.is_a?(Exception)
+                          elsif k.to_s == 'exception' && v.is_a?(Exception)
                             ex_msg = { class: v.class.name, message: sanitize(v.message) }
                             if get_log_level(LOG_SOURCE) >= BACKTRACE_LOG_LEVEL
                               bt = v.backtrace&.first(5) || []
