@@ -1,6 +1,9 @@
-The Metasploit MCP Server (`msfmcpd`) provides AI applications with secure, structured access to Metasploit Framework data through the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). It acts as a middleware layer between AI clients (such as Claude, Cursor, or custom agents) and Metasploit, exposing 8 standardized tools for querying reconnaissance data and searching modules.
+The Metasploit MCP Server (`msfmcpd`) provides AI applications with secure, structured access to Metasploit Framework data and execution capabilities through the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). It acts as a middleware layer between AI clients (such as Claude, Cursor, or custom agents) and Metasploit, exposing 16 standardized tools for searching modules, querying reconnaissance data, executing modules, and interacting with sessions.
 
-This initial implementation is **read-only**. Only tools that query data (modules, hosts, services, vulnerabilities, etc.) are available. Tools for module execution, session interaction, and database modifications will be added in a future iteration.
+Tools are split into two classes:
+
+- **Read-only tools** (always enabled): query modules, hosts, services, vulnerabilities, notes, credentials, loot, jobs, and sessions.
+- **Dangerous tools** (gated, disabled by default): run module execution and check methods, stop sessions, and write to interactive sessions. These tools must be explicitly enabled by the operator via the `--enable-dangerous-actions` CLI flag, the `MSF_MCP_DANGEROUS_ACTIONS` environment variable, or the `mcp.dangerous_actions` configuration key. See [Dangerous Actions Mode](#dangerous-actions-mode) below.
 
 ## Architecture
 
@@ -9,7 +12,7 @@ flowchart TD
     ai_app["AI Application<br>(Claude, Cursor, etc.)"]
 
     subgraph msfmcp_server["MsfMcp Server"]
-        mcp_layer["MCP Layer (8 Tools)<br>Input Validation / Rate Limiting / Response Transformation"]
+        mcp_layer["MCP Layer (16 Tools)<br>Input Validation / Rate Limiting / Response Transformation<br>Dangerous Actions Gate"]
         rpc_manager["RPC Manager<br>Auto-detect / Auto-start / Lifecycle Management"]
         api_client["Metasploit API Client<br>MessagePack RPC (port 55553) / JSON-RPC (port 8081)<br>Session Management"]
 
@@ -95,6 +98,8 @@ Options:
   --password PASS              MSF API password (for MessagePack auth)
   --no-auto-start-rpc          Disable automatic RPC server startup
   --mcp-transport TRANSPORT    MCP server transport type ('stdio' or 'http')
+  --enable-dangerous-actions   Enable dangerous tools (module execute/check,
+                               session stop/write). Disabled by default.
   -h, --help                   Show this help message
   -v, --version                Show version information
 ```
@@ -118,6 +123,7 @@ All configuration settings can be overridden by environment variables:
 | `MSF_MCP_HOST` | MCP server host (for HTTP transport) |
 | `MSF_MCP_PORT` | MCP server port (for HTTP transport) |
 | `MSF_MCP_AUTH_TOKEN` | MCP server Bearer token for authentication (for HTTP transport) |
+| `MSF_MCP_DANGEROUS_ACTIONS` | Enable dangerous tools (`true`/`1`/`yes`/`on` to enable, anything else to disable) |
 
 Example using environment variables:
 
@@ -225,9 +231,11 @@ The same can be achieved through the environment variable, e.g. `MSF_MCP_AUTH_TO
 
 ## MCP Tools
 
-The server exposes 8 tools to AI applications via the MCP protocol.
+The server exposes 16 tools to AI applications via the MCP protocol. Tools marked **dangerous** are gated by [Dangerous Actions Mode](#dangerous-actions-mode) and return a tool error unless the operator has explicitly enabled it.
 
-### msf_search_modules
+### Read-only Tools
+
+#### msf_search_modules
 
 Search for Metasploit modules by keywords, CVE IDs, or module names.
 
@@ -235,7 +243,7 @@ Search for Metasploit modules by keywords, CVE IDs, or module names.
 - `limit` (integer, optional): Max results (1-1000, default: 100)
 - `offset` (integer, optional): Pagination offset (default: 0)
 
-### msf_module_info
+#### msf_module_info
 
 Get detailed information about a specific Metasploit module.
 
@@ -244,7 +252,7 @@ Get detailed information about a specific Metasploit module.
 
 Returns complete module details including options, targets, references, and authors.
 
-### msf_host_info
+#### msf_host_info
 
 Query discovered hosts from the Metasploit database.
 
@@ -254,7 +262,7 @@ Query discovered hosts from the Metasploit database.
 - `limit` (integer, optional): Max results (1-1000, default: 100)
 - `offset` (integer, optional): Pagination offset (default: 0)
 
-### msf_service_info
+#### msf_service_info
 
 Query discovered services on hosts.
 
@@ -267,7 +275,7 @@ Query discovered services on hosts.
 - `limit` (integer, optional): Max results (1-1000, default: 100)
 - `offset` (integer, optional): Pagination offset (default: 0)
 
-### msf_vulnerability_info
+#### msf_vulnerability_info
 
 Query discovered vulnerabilities.
 
@@ -279,7 +287,7 @@ Query discovered vulnerabilities.
 - `limit` (integer, optional): Max results (1-1000, default: 100)
 - `offset` (integer, optional): Pagination offset (default: 0)
 
-### msf_note_info
+#### msf_note_info
 
 Query notes stored in the database.
 
@@ -291,7 +299,7 @@ Query notes stored in the database.
 - `limit` (integer, optional): Max results (1-1000, default: 100)
 - `offset` (integer, optional): Pagination offset (default: 0)
 
-### msf_credential_info
+#### msf_credential_info
 
 Query discovered credentials.
 
@@ -299,13 +307,115 @@ Query discovered credentials.
 - `limit` (integer, optional): Max results (1-1000, default: 100)
 - `offset` (integer, optional): Pagination offset (default: 0)
 
-### msf_loot_info
+#### msf_loot_info
 
 Query collected loot (files, data dumps).
 
 - `workspace` (string, optional): Workspace name
 - `limit` (integer, optional): Max results (1-1000, default: 100)
 - `offset` (integer, optional): Pagination offset (default: 0)
+
+#### msf_module_results
+
+Retrieve the result of a previously executed module run by its UUID.
+
+- `uuid` (string, required): 24-character alphanumeric run UUID returned by `msf_module_execute` or `msf_module_check`
+
+Returns one of:
+
+- `{ "status": "ready" }` — job is queued but has not started yet
+- `{ "status": "running" }` — job is still executing
+- `{ "status": "completed", "result": ... }` — job finished; payload depends on module type (a check returns a `CheckCode` payload, a scanner returns per-host results, etc.)
+- `{ "status": "errored", "error": "..." }` — job finished with an error
+
+#### msf_running_stats
+
+Return a snapshot of running and waiting module runs known to the framework.
+
+Takes no parameters. Returns an object with:
+
+- `waiting`: list of run UUIDs queued but not yet started
+- `running`: list of run UUIDs currently executing
+- `results`: list of run UUIDs whose results are available via `msf_module_results`
+
+#### msf_session_list
+
+List active Metasploit sessions.
+
+Takes no parameters. Returns a hash keyed by integer session id, where each value describes the session type (e.g. `meterpreter`, `shell`), tunnel endpoints, the target host, and the originating module.
+
+#### msf_session_read
+
+Non-destructively read pending output from an interactive session (shell or meterpreter).
+
+- `session_id` (integer, required): Session id from `msf_session_list`
+
+Returns `{ "data": "...", "seq": N }`. The MCP server does not buffer; clients are responsible for reassembling reads. Returns an error if the session id is not active.
+
+### Dangerous Tools
+
+These four tools can change the state of the framework, remote targets, or running sessions. They are gated by [Dangerous Actions Mode](#dangerous-actions-mode) and return a tool error unless the operator has explicitly enabled it.
+
+#### msf_module_execute
+
+Run a Metasploit module as a background job.
+
+- `type` (string, required): Module type (`exploit`, `auxiliary`, `post`, `evasion`)
+- `name` (string, required): Module path (e.g., `multi/handler`)
+- `options` (object, required): Datastore options as a flat JSON object. Keys are Metasploit option names; namespaced (`HTTP::compression`) and hyphenated (`BEARER-TOKEN`) names are supported. Values must be scalars (string, integer, number, boolean, or null). No nested objects or arrays.
+
+Returns `{ "metadata": { "uuid": "<24 chars>", "job_id": N }, "next_steps": { ... } }`. Poll `msf_module_results` with the returned UUID to retrieve the outcome.
+
+This tool does not implement check-before-exploit. If a module supports `Msf::Exploit::Remote::AutoCheck`, the framework runs the check automatically; otherwise, run `msf_module_check` first.
+
+#### msf_module_check
+
+Run the `check` method of an exploit or auxiliary module to determine whether a target is vulnerable, without exploiting it.
+
+- `type` (string, required): Module type (`exploit` or `auxiliary`)
+- `name` (string, required): Module path
+- `options` (object, required): Datastore options (same shape as `msf_module_execute`)
+
+Returns `{ "metadata": { "uuid": "<24 chars>", "job_id": N } }`. Poll `msf_module_results` for the `CheckCode` (e.g. `Vulnerable`, `Safe`, `Detected`, `Appears`, `Unknown`).
+
+Modules that do not implement a `check` method surface as a tool error rather than a success payload.
+
+#### msf_session_stop
+
+Terminate an active session.
+
+- `session_id` (integer, required): Session id from `msf_session_list`
+
+Returns `{ "result": "success" }`. Returns a tool error if the session id is not active.
+
+#### msf_session_write
+
+Send data to an interactive session (shell or meterpreter).
+
+- `session_id` (integer, required): Session id from `msf_session_list`
+- `data` (string, required): Bytes to write to the session, capped at 64 KB per call
+
+Returns `{ "write_count": N }`. Use `msf_session_read` afterwards to retrieve any output produced by the command.
+
+## Dangerous Actions Mode
+
+The four tools listed under [Dangerous Tools](#dangerous-tools) are disabled by default and must be explicitly enabled. When the gate is closed, calls to any of those tools return an MCP tool error and the underlying RPC call is never issued.
+
+### Enabling
+
+Dangerous mode can be enabled through any of three mechanisms, in order of precedence (highest first):
+
+1. **CLI flag**: pass `--enable-dangerous-actions` to `msfmcpd`.
+2. **Environment variable**: set `MSF_MCP_DANGEROUS_ACTIONS=true` (also accepts `1`, `yes`, `on`).
+3. **Configuration file**: set `mcp.dangerous_actions: true` in `mcp_config.yaml`.
+
+When the gate is open, `msfmcpd` prints a warning banner on startup:
+
+```
+WARNING: dangerous actions mode is ENABLED. Destructive tools (module
+execute/check, session stop/write) are now callable from connected MCP
+clients.
+```
 
 ## Integration with AI Applications
 
@@ -352,9 +462,13 @@ If you use RVM to manage Ruby versions, specify the full path to RVM so the corr
 
 ## Security Considerations
 
+### Dangerous Actions Gate
+
+Tools that execute modules or interact with sessions are disabled by default. They must be explicitly enabled per session via CLI flag, environment variable, or configuration key — see [Dangerous Actions Mode](#dangerous-actions-mode). When the gate is closed, the RPC client is never invoked for a gated call.
+
 ### Input Validation
 
-All tool parameters are validated against strict JSON schemas. IP addresses are validated using Ruby's `IPAddr` class with CIDR support, workspace names are restricted to alphanumeric characters plus underscore/hyphen, port ranges are validated (1-65535), and search queries are limited to 500 characters.
+All tool parameters are validated against strict JSON schemas. IP addresses are validated using Ruby's `IPAddr` class with CIDR support, workspace names are restricted to alphanumeric characters plus underscore/hyphen, port ranges are validated (1-65535), and search queries are limited to 500 characters. Module datastore option keys must match Metasploit's option-name shape (identifier segments joined by `::` or `-`, up to 128 characters); option payloads are capped at 100 keys, 8 KB per string value, and 64 KB aggregate. Session data writes are capped at 64 KB per call.
 
 ### Credential Management
 
