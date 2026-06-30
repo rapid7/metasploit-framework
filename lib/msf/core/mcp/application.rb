@@ -304,15 +304,19 @@ module Msf::MCP
         max_threads = @config.dig(:mcp, :max_threads) || Msf::MCP::Server::PUMA_MAX_THREADS
         workers = @config.dig(:mcp, :workers) || Msf::MCP::Server::PUMA_WORKERS
 
-        @mcp_server.start(
-          transport: :http,
-          host: host,
-          port: port,
-          auth_token: auth_token,
-          min_threads: min_threads,
-          max_threads: max_threads,
-          workers: workers
-        )
+        begin
+          @mcp_server.start(
+            transport: :http,
+            host: host,
+            port: port,
+            auth_token: auth_token,
+            min_threads: min_threads,
+            max_threads: max_threads,
+            workers: workers
+          )
+        rescue Errno::EADDRINUSE => e
+          @output.puts "#{e.class}: #{e.message}"
+        end
       else
         @output.puts "Starting MCP server on stdio transport..."
         @output.puts "Server ready - waiting for MCP requests"
