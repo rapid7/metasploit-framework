@@ -1,6 +1,8 @@
 require 'set'
 require 'json'
 require 'open3'
+require 'shellwords'
+
 module Msf
   class Plugin::VulnEnv < Msf::Plugin
     # =====================================================================
@@ -47,11 +49,25 @@ module Msf
       def list(filters: {})
         raise NotImplementedError, "#{self.class} must implement list"
       end
+
+      private
+
+      def parse_labels(labels_string)
+        return {} if labels_string.nil? || labels_string.empty?
+
+        labels_string.split(',').each_with_object({}) do |pair, hash|
+          key, value = pair.split('=', 2)
+          hash[key] = value || ''
+        end
+      end
     end
+
     # ============================================================
     # DOCKER RUNTIME 
     # ============================================================
     class DockerRuntime < BaseRuntime
+      VALID_IMAGE_NAME = /\A[a-z0-9]+(?:[._-][a-z0-9]+)*(?:\/[a-z0-9]+(?:[._-][a-z0-9]+)*)*(?::[a-zA-Z0-9._-]+)?\z/
+
       def available?
         _out, _err, status = Open3.capture3('docker', 'version')
         status.success?
@@ -64,6 +80,7 @@ module Msf
       end
 
       def pull(image)
+        validate_image_name!(image)
         _out, err, status = Open3.capture3('docker', 'pull', image)
         if status.success?
           true
@@ -74,6 +91,7 @@ module Msf
       end
 
       def run(image:, ports:, labels:, volumes: [], env: {}, name: nil)
+        validate_image_name!(image)
         cmd = ['docker', 'run', '-d']
 
         ports.each do |container_port, host_port|
@@ -133,7 +151,7 @@ module Msf
       end
 
       def exec(container_id, command)
-        out, err, status = Open3.capture3('docker', 'exec', container_id, *command.split)
+        out, err, status = Open3.capture3('docker', 'exec', container_id, *Shellwords.split(command))
         [out + err, status.exitstatus]
       end
 
@@ -156,7 +174,6 @@ module Msf
           end
         end.compact
 
-        # Docker returns Labels as comma-separated string, not Hash
         containers.each do |c|
           c['Labels'] = parse_labels(c['Labels']) if c['Labels'].is_a?(String)
         end
@@ -166,15 +183,13 @@ module Msf
 
       private
 
-      def parse_labels(labels_string)
-        return {} if labels_string.nil? || labels_string.empty?
-
-        labels_string.split(',').each_with_object({}) do |pair, hash|
-          key, value = pair.split('=', 2)
-          hash[key] = value || ''
+      def validate_image_name!(image)
+        unless image.to_s.match?(VALID_IMAGE_NAME)
+          raise ArgumentError, "Invalid image name: #{image.inspect}"
         end
       end
     end
+
     # ============================================================
     # PODMAN RUNTIME
     # ============================================================
@@ -191,14 +206,12 @@ module Msf
       end
 
       def pull(image)
-        # podman requires fully qualified image names by default
-        # like: 'nginx' -> 'docker.io/library/nginx'
+        validate_image_name!(image)
         qualified = qualify_image(image)
         _out, err, status = Open3.capture3('podman', 'pull', qualified)
         if status.success?
           true
         else
-          #fallback: try original name if qualified fails
           _out2, err2, status2 = Open3.capture3('podman', 'pull', image)
           if status2.success?
             true
@@ -210,6 +223,7 @@ module Msf
       end
 
       def run(image:, ports:, labels:, volumes: [], env: {}, name: nil)
+        validate_image_name!(image)
         cmd = ['podman', 'run', '-d']
 
         ports.each do |container_port, host_port|
@@ -269,7 +283,7 @@ module Msf
       end
 
       def exec(container_id, command)
-        out, err, status = Open3.capture3('podman', 'exec', container_id, *command.split)
+        out, err, status = Open3.capture3('podman', 'exec', container_id, *Shellwords.split(command))
         [out + err, status.exitstatus]
       end
 
@@ -305,15 +319,6 @@ module Msf
         return image if image.include?('/')
         "docker.io/library/#{image}"
       end
-
-      def parse_labels(labels_string)
-        return {} if labels_string.nil? || labels_string.empty?
-
-        labels_string.split(',').each_with_object({}) do |pair, hash|
-          key, value = pair.split('=', 2)
-          hash[key] = value || ''
-        end
-      end
     end
 
     # ============================================================
@@ -321,28 +326,43 @@ module Msf
     # ============================================================
     class RuntimeAdapter
       def self.detect(datastore = {})
-        runtime_pref = datastore['TEST_ENV_RUNTIME'] || ENV['TEST_ENV_RUNTIME'] || 'auto'
+        runtime_pref = normalize_pref(datastore['TEST_ENV_RUNTIME'] || ENV['TEST_ENV_RUNTIME'])
 
         case runtime_pref
-        when 'docker'
-          docker = DockerRuntime.new
-          return docker if docker.available?
-          raise "Docker requested but not available"
-        when 'podman'
-          podman = PodmanRuntime.new
-          return podman if podman.available?
-          raise "Podman requested but not available"
-        else
-          # Auto-detect: Docker first, Podman fallback
-          docker = DockerRuntime.new
-          return docker if docker.available?
-          podman = PodmanRuntime.new
-          return podman if podman.available?
+        when 'docker'  then detect_docker
+        when 'podman'  then detect_podman
+        else                detect_auto
         end
+      end
 
+      def self.normalize_pref(raw)
+        pref = raw.to_s.downcase.strip
+        return pref if %w[auto docker podman].include?(pref)
+        elog("Invalid TEST_ENV_RUNTIME: #{raw.inspect}, falling back to auto")
+        'auto'
+      end
+
+      def self.detect_docker
+        docker = DockerRuntime.new
+        return docker if docker.available?
+        raise "Docker requested but not available"
+      end
+
+      def self.detect_podman
+        podman = PodmanRuntime.new
+        return podman if podman.available?
+        raise "Podman requested but not available"
+      end
+
+      def self.detect_auto
+        docker = DockerRuntime.new
+        return docker if docker.available?
+        podman = PodmanRuntime.new
+        return podman if podman.available?
         nil
       end
     end
+
     # =====================================================================
     # Port Allocator
     # =====================================================================
@@ -350,18 +370,18 @@ module Msf
       EPHEMERAL_START = 49152
       EPHEMERAL_END   = 65535
 
+      class NoPortsAvailable < RuntimeError; end
+
       def initialize(used_ports = [])
         @used_ports = Set.new(used_ports)
       end
 
       def allocate(preferred = nil)
-        # 1. Try user-requested port first
         if preferred && available?(preferred)
           @used_ports.add(preferred)
           return preferred
         end
 
-        # 2. Fall back to ephemeral range
         (EPHEMERAL_START..EPHEMERAL_END).each do |port|
           next if @used_ports.include?(port)
           if available?(port)
@@ -370,7 +390,7 @@ module Msf
           end
         end
 
-        raise "No available ports in range #{EPHEMERAL_START}-#{EPHEMERAL_END}"
+        raise NoPortsAvailable, "No available ports in range #{EPHEMERAL_START}-#{EPHEMERAL_END}"
       end
 
       def release(port)
@@ -389,10 +409,10 @@ module Msf
         false
       end
     end
+
     # =====================================================================
     # Console Command Dispatcher
     # =====================================================================
-       
     class ConsoleCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
 
@@ -440,9 +460,8 @@ module Msf
           print_status("TODO: test_env remove-all")
         when 'exec'
           print_status("TODO: test_env exec")
-
-        when 'status'     then cmd_test_env_status(args)
-
+        when 'status'
+          cmd_test_env_status(args)
         when 'help'
           cmd_test_env_help
         else
@@ -485,8 +504,8 @@ module Msf
           print_error("No container runtime configured.")
           print_error("Install Docker or Podman, or set TEST_ENV_RUNTIME.")
         end
-      end    
-       
+      end
+
       def cmd_test_env_tabs(str, words)
         if words.length == 1
           return %w[build list stop start remove remove-all exec status help]
@@ -494,24 +513,26 @@ module Msf
         []
       end
     end
+
     # =====================================================================
     # Plugin Lifecycle
     # =====================================================================
     def initialize(framework, opts)
       super
       @runtime = RuntimeAdapter.detect
-      ConsoleCommandDispatcher.runtime = @runtime  # Store for dispatcher access
+      ConsoleCommandDispatcher.runtime = @runtime
       if @runtime
         print_status("VulnEnv plugin loaded. Runtime: #{@runtime.name}")
       else
         print_error("VulnEnv plugin loaded, but no container runtime found.")
         print_error("Install Docker or Podman to use test_env.")
       end
-      add_console_dispatcher(ConsoleCommandDispatcher)  # Pass CLASS
+      add_console_dispatcher(ConsoleCommandDispatcher)
     end
-    
+
     def cleanup
       remove_console_dispatcher('VulnEnv')
+      ConsoleCommandDispatcher.runtime = nil
     end
 
     def name
