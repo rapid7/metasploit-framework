@@ -3,7 +3,6 @@ require 'json'
 require 'open3'
 module Msf
   class Plugin::VulnEnv < Msf::Plugin
-
     # =====================================================================
     # Runtime Abstraction Layer
     # =====================================================================
@@ -397,6 +396,17 @@ module Msf
     class ConsoleCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
 
+      # Class-level storage for runtime reference
+      @@runtime = nil
+
+      def self.runtime=(runtime)
+        @@runtime = runtime
+      end
+
+      def self.runtime
+        @@runtime
+      end
+
       def name
         'VulnEnv'
       end
@@ -430,6 +440,8 @@ module Msf
           print_status("TODO: test_env remove-all")
         when 'exec'
           print_status("TODO: test_env exec")
+        when 'test-runtime'
+          cmd_test_env_test_runtime(args)
         when 'help'
           cmd_test_env_help
         else
@@ -453,9 +465,56 @@ module Msf
         print_line
       end
 
+      def cmd_test_env_test_runtime(args)
+        begin
+          runtime = self.class.runtime
+          unless runtime
+            print_error("No container runtime available.")
+            return
+          end
+
+          print_status("Testing runtime: #{runtime.name}")
+
+          print_status("Pulling nginx...")
+          unless runtime.pull('nginx')
+            print_error("Pull failed.")
+            return
+          end
+          print_good("Pull succeeded.")
+
+          # Use a fixed high port to avoid Docker Desktop WSL issues
+          # PortAllocator starts at 49152 which may conflict on some systems
+          allocator = PortAllocator.new
+          host_port = allocator.allocate(55555) || allocator.allocate
+
+          print_status("Starting container on port #{host_port}...")
+          id = runtime.run(
+            image: 'nginx',
+            ports: {80 => host_port},
+            labels: {'msf.vulnenv.test' => 'integration'},
+            name: 'test-runtime-integration'
+          )
+          print_good("Container started: #{id[0..11]}")
+
+          info = runtime.inspect(id)
+          print_status("Status: #{info['State']['Status']}")
+
+          output, status = runtime.exec(id, 'echo test-runtime-ok')
+          print_status("Exec output: #{output.strip}") if status == 0
+
+          runtime.stop(id)
+          runtime.remove(id)
+          print_good("Test complete. Container cleaned up.")
+
+        rescue => e
+          print_error("Test failed: #{e.message}")
+          elog("test_env test-runtime error: #{e.class} - #{e.message}")
+        end
+      end
+      
       def cmd_test_env_tabs(str, words)
         if words.length == 1
-          return %w[build list stop start remove remove-all exec help]
+          return %w[build list stop start remove remove-all exec test-runtime help]
         end
         []
       end
@@ -465,10 +524,17 @@ module Msf
     # =====================================================================
     def initialize(framework, opts)
       super
-      add_console_dispatcher(ConsoleCommandDispatcher)
-      print_status("VulnEnv plugin loaded.")
+      @runtime = RuntimeAdapter.detect
+      ConsoleCommandDispatcher.runtime = @runtime  # Store for dispatcher access
+      if @runtime
+        print_status("VulnEnv plugin loaded. Runtime: #{@runtime.name}")
+      else
+        print_error("VulnEnv plugin loaded, but no container runtime found.")
+        print_error("Install Docker or Podman to use test_env.")
+      end
+      add_console_dispatcher(ConsoleCommandDispatcher)  # Pass CLASS
     end
-
+    
     def cleanup
       remove_console_dispatcher('VulnEnv')
     end
