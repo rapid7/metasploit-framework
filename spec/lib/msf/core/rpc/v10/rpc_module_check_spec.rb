@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'msf/core/rpc/v10/rpc_module'
 require 'msf/core/rpc/v10/rpc_job_status_tracker'
 
-RSpec.describe Msf::RPC::RPC_Module, '#rpc_check translates NotImplementedError into a proper RPC exception' do
+RSpec.describe Msf::RPC::RPC_Module, '#rpc_check propagates NotImplementedError from check_simple' do
   let(:service) { double('Service') }
   let(:job_status_tracker) { Msf::RPC::RpcJobStatusTracker.new }
   let(:framework) { double('Framework', modules: modules) }
@@ -17,7 +17,7 @@ RSpec.describe Msf::RPC::RPC_Module, '#rpc_check translates NotImplementedError 
   end
 
   context 'for an exploit module without a check method' do
-    it 'raises an Msf::RPC::Exception carrying the unsupported message instead of crashing the dispatcher' do
+    it 'lets ::NotImplementedError propagate so the transport layer can surface a 500 with backtrace' do
       mod = double('ExploitModule')
       allow(modules).to receive(:create).with('exploit/multi/handler').and_return(mod)
       allow(mod).to receive(:type).and_return('exploit')
@@ -26,15 +26,12 @@ RSpec.describe Msf::RPC::RPC_Module, '#rpc_check translates NotImplementedError 
       allow(Msf::Simple::Exploit).to receive(:check_simple).and_raise(::NotImplementedError.new(unsupported_msg))
 
       expect { rpc.rpc_check('exploit', 'multi/handler', {}) }
-        .to raise_error(Msf::RPC::Exception) { |e|
-          expect(e.code).to eq(500)
-          expect(e.message).to eq(unsupported_msg)
-        }
+        .to raise_error(::NotImplementedError, unsupported_msg)
     end
   end
 
   context 'for an auxiliary module without a check method' do
-    it 'raises an Msf::RPC::Exception carrying the unsupported message instead of crashing the dispatcher' do
+    it 'lets ::NotImplementedError propagate so the transport layer can surface a 500 with backtrace' do
       mod = double('AuxiliaryModule')
       allow(modules).to receive(:create).with('auxiliary/scanner/portscan/tcp').and_return(mod)
       allow(mod).to receive(:type).and_return('auxiliary')
@@ -43,10 +40,7 @@ RSpec.describe Msf::RPC::RPC_Module, '#rpc_check translates NotImplementedError 
       allow(Msf::Simple::Auxiliary).to receive(:check_simple).and_raise(::NotImplementedError.new(unsupported_msg))
 
       expect { rpc.rpc_check('auxiliary', 'scanner/portscan/tcp', {}) }
-        .to raise_error(Msf::RPC::Exception) { |e|
-          expect(e.code).to eq(500)
-          expect(e.message).to eq(unsupported_msg)
-        }
+        .to raise_error(::NotImplementedError, unsupported_msg)
     end
   end
 end

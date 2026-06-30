@@ -785,8 +785,6 @@ private
       "job_id" => job,
       "uuid" => uuid
     }
-  rescue ::NotImplementedError => e
-    error(500, e.message)
   end
 
   def _check_auxiliary(mod, opts)
@@ -799,8 +797,6 @@ private
       "job_id" => job,
       "uuid" => uuid
     }
-  rescue ::NotImplementedError => e
-    error(500, e.message)
   end
 
   def _run_post(mod, opts)
