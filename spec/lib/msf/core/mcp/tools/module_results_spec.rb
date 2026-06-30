@@ -69,5 +69,19 @@ RSpec.describe Msf::MCP::Tools::ModuleResults do
       expect(result.error?).to be true
       expect(result.content.first[:text]).to match(/Metasploit API error/)
     end
+
+    context 'dangerous_actions gate' do
+      it 'returns a successful response even when dangerous_actions is missing or false' do
+        contexts = [
+          { msf_client: msf_client, rate_limiter: rate_limiter, config: {} },
+          { msf_client: msf_client, rate_limiter: rate_limiter, config: {}, dangerous_actions: false }
+        ]
+        contexts.each do |ctx|
+          result = described_class.call(uuid: valid_uuid, server_context: ctx)
+          expect(result.error?).to be false
+          expect(result.structured_content[:data][:status]).to eq('completed')
+        end
+      end
+    end
   end
 end

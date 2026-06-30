@@ -79,5 +79,14 @@ RSpec.describe Msf::MCP::Tools::SessionList do
       expect(result.error?).to be true
       expect(result.content.first[:text]).to match(/Metasploit API error/)
     end
+
+    context 'dangerous_actions gate' do
+      it 'returns a successful response even when dangerous_actions is false' do
+        ctx = { msf_client: msf_client, rate_limiter: rate_limiter, config: {}, dangerous_actions: false }
+        result = described_class.call(server_context: ctx)
+        expect(result.error?).to be false
+        expect(result.structured_content[:data]).to eq(msf_response)
+      end
+    end
   end
 end

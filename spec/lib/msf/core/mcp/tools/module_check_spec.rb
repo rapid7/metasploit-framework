@@ -9,7 +9,8 @@ RSpec.describe Msf::MCP::Tools::ModuleCheck do
     {
       msf_client: msf_client,
       rate_limiter: rate_limiter,
-      config: {}
+      config: {},
+      dangerous_actions: true
     }
   end
 
@@ -98,6 +99,34 @@ RSpec.describe Msf::MCP::Tools::ModuleCheck do
       result = described_class.call(type: 'exploit', name: 'multi/handler', options: {}, server_context: server_context)
       expect(result.error?).to be true
       expect(result.content.first[:text]).to match(/Module not found/)
+    end
+  end
+
+  describe '.call with dangerous mode disabled' do
+    let(:disabled_context) do
+      {
+        msf_client: msf_client,
+        rate_limiter: rate_limiter,
+        config: {},
+        dangerous_actions: false
+      }
+    end
+
+    it 'returns an error response when dangerous_actions is false' do
+      result = described_class.call(type: 'exploit', name: 'multi/handler', options: {}, server_context: disabled_context)
+      expect(result.error?).to be true
+      expect(result.content.first[:text]).to match(/dangerous actions mode/i)
+      expect(result.content.first[:text]).to include('--enable-dangerous-actions')
+    end
+
+    it 'does not call msf_client.module_check when blocked' do
+      described_class.call(type: 'exploit', name: 'multi/handler', options: {}, server_context: disabled_context)
+      expect(msf_client).not_to have_received(:module_check)
+    end
+
+    it 'does not consume rate limit when blocked' do
+      described_class.call(type: 'exploit', name: 'multi/handler', options: {}, server_context: disabled_context)
+      expect(rate_limiter).not_to have_received(:check_rate_limit!)
     end
   end
 end

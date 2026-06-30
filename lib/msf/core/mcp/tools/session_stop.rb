@@ -60,6 +60,8 @@ module Msf::MCP
         def call(session_id:, server_context:)
           start_time = Time.now
 
+          dangerous_mode_required!(server_context)
+
           msf_client = server_context[:msf_client]
           rate_limiter = server_context[:rate_limiter]
 
@@ -76,6 +78,8 @@ module Msf::MCP
             [{ type: 'text', text: JSON.generate(metadata: metadata, data: data) }],
             structured_content: { metadata: metadata, data: data }
           )
+        rescue Msf::MCP::Tools::DangerousModeDisabledError => e
+          tool_error_response(e.message)
         rescue Msf::MCP::Security::RateLimitExceededError => e
           tool_error_response("Rate limit exceeded: #{e.message}")
         rescue Msf::MCP::Metasploit::AuthenticationError => e

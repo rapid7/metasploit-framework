@@ -9,7 +9,8 @@ RSpec.describe Msf::MCP::Tools::SessionStop do
     {
       msf_client: msf_client,
       rate_limiter: rate_limiter,
-      config: {}
+      config: {},
+      dangerous_actions: true
     }
   end
 
@@ -69,6 +70,34 @@ RSpec.describe Msf::MCP::Tools::SessionStop do
       result = described_class.call(session_id: 9999, server_context: server_context)
       expect(result.error?).to be true
       expect(result.content.first[:text]).to match(/Unknown Session ID/)
+    end
+  end
+
+  describe '.call with dangerous mode disabled' do
+    let(:disabled_context) do
+      {
+        msf_client: msf_client,
+        rate_limiter: rate_limiter,
+        config: {},
+        dangerous_actions: false
+      }
+    end
+
+    it 'returns an error response when dangerous_actions is false' do
+      result = described_class.call(session_id: 1, server_context: disabled_context)
+      expect(result.error?).to be true
+      expect(result.content.first[:text]).to match(/dangerous actions mode/i)
+      expect(result.content.first[:text]).to include('--enable-dangerous-actions')
+    end
+
+    it 'does not call msf_client.session_stop when blocked' do
+      described_class.call(session_id: 1, server_context: disabled_context)
+      expect(msf_client).not_to have_received(:session_stop)
+    end
+
+    it 'does not consume rate limit when blocked' do
+      described_class.call(session_id: 1, server_context: disabled_context)
+      expect(rate_limiter).not_to have_received(:check_rate_limit!)
     end
   end
 end

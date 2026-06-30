@@ -70,5 +70,14 @@ RSpec.describe Msf::MCP::Tools::SessionRead do
       expect(result.error?).to be true
       expect(result.content.first[:text]).to match(/Unknown Session ID/)
     end
+
+    context 'dangerous_actions gate' do
+      it 'returns a successful response even when dangerous_actions is false' do
+        ctx = { msf_client: msf_client, rate_limiter: rate_limiter, config: {}, dangerous_actions: false }
+        result = described_class.call(session_id: 1, server_context: ctx)
+        expect(result.error?).to be false
+        expect(result.structured_content[:data][:data]).to eq('meterpreter > sysinfo\n')
+      end
+    end
   end
 end

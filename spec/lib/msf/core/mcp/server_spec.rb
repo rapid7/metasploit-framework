@@ -137,6 +137,47 @@ RSpec.describe Msf::MCP::Server do
       )
     end
 
+    it 'defaults dangerous_actions to false in server_context' do
+      expect(::MCP::Server).to receive(:new).with(
+        hash_including(
+          server_context: hash_including(dangerous_actions: false)
+        )
+      ).and_return(mock_mcp_server)
+
+      described_class.new(
+        msf_client: mock_msf_client,
+        rate_limiter: rate_limiter
+      )
+    end
+
+    it 'propagates dangerous_actions: true into server_context' do
+      expect(::MCP::Server).to receive(:new).with(
+        hash_including(
+          server_context: hash_including(dangerous_actions: true)
+        )
+      ).and_return(mock_mcp_server)
+
+      described_class.new(
+        msf_client: mock_msf_client,
+        rate_limiter: rate_limiter,
+        dangerous_actions: true
+      )
+    end
+
+    it 'coerces non-true dangerous_actions values to false' do
+      expect(::MCP::Server).to receive(:new).with(
+        hash_including(
+          server_context: hash_including(dangerous_actions: false)
+        )
+      ).and_return(mock_mcp_server)
+
+      described_class.new(
+        msf_client: mock_msf_client,
+        rate_limiter: rate_limiter,
+        dangerous_actions: 'yes'
+      )
+    end
+
     it 'passes a configuration object with around_request and exception_reporter' do
       expect(::MCP::Server).to receive(:new) do |args|
         config = args[:configuration]

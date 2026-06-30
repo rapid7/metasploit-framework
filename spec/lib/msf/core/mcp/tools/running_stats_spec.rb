@@ -68,5 +68,14 @@ RSpec.describe Msf::MCP::Tools::RunningStats do
       expect(result.error?).to be true
       expect(result.content.first[:text]).to match(/Metasploit API error/)
     end
+
+    context 'dangerous_actions gate' do
+      it 'returns a successful response even when dangerous_actions is false' do
+        ctx = { msf_client: msf_client, rate_limiter: rate_limiter, config: {}, dangerous_actions: false }
+        result = described_class.call(server_context: ctx)
+        expect(result.error?).to be false
+        expect(result.structured_content[:data][:waiting]).to eq(['uuid_w_1'])
+      end
+    end
   end
 end

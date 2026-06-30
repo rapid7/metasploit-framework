@@ -101,6 +101,10 @@ module Msf::MCP
               errors[:'mcp.min_threads'] = "must be less than or equal to mcp.max_threads"
             end
           end
+
+          if config[:mcp].key?(:dangerous_actions) && ![true, false].include?(config[:mcp][:dangerous_actions])
+            errors[:'mcp.dangerous_actions'] = "must be boolean (true or false)"
+          end
         end
 
         # Validate conditional requirements based on API type
