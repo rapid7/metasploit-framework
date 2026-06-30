@@ -440,8 +440,9 @@ module Msf
           print_status("TODO: test_env remove-all")
         when 'exec'
           print_status("TODO: test_env exec")
-        when 'test-runtime'
-          cmd_test_env_test_runtime(args)
+
+        when 'status'     then cmd_test_env_status(args)
+
         when 'help'
           cmd_test_env_help
         else
@@ -461,60 +462,34 @@ module Msf
         print_line("  remove <ID> Tear down an environment")
         print_line("  remove-all Tear down all environments")
         print_line("  exec <ID>  Execute exploit against environment")
+        print_line("  status     Show runtime status")
         print_line("  help       Show this help")
         print_line
       end
 
-      def cmd_test_env_test_runtime(args)
-        begin
-          runtime = self.class.runtime
-          unless runtime
-            print_error("No container runtime available.")
-            return
+      def cmd_test_env_status(args)
+        runtime = self.class.runtime
+        
+        if runtime
+          print_status("Runtime: #{runtime.name}")
+          print_status("Available: #{runtime.available?}")
+          
+          begin
+            containers = runtime.list
+            print_status("Container engine responsive: yes")
+            print_status("Active containers: #{containers.length}")
+          rescue => e
+            print_error("Container engine check failed: #{e.message}")
           end
-
-          print_status("Testing runtime: #{runtime.name}")
-
-          print_status("Pulling nginx...")
-          unless runtime.pull('nginx')
-            print_error("Pull failed.")
-            return
-          end
-          print_good("Pull succeeded.")
-
-          # Use a fixed high port to avoid Docker Desktop WSL issues
-          # PortAllocator starts at 49152 which may conflict on some systems
-          allocator = PortAllocator.new
-          host_port = allocator.allocate(55555) || allocator.allocate
-
-          print_status("Starting container on port #{host_port}...")
-          id = runtime.run(
-            image: 'nginx',
-            ports: {80 => host_port},
-            labels: {'msf.vulnenv.test' => 'integration'},
-            name: 'test-runtime-integration'
-          )
-          print_good("Container started: #{id[0..11]}")
-
-          info = runtime.inspect(id)
-          print_status("Status: #{info['State']['Status']}")
-
-          output, status = runtime.exec(id, 'echo test-runtime-ok')
-          print_status("Exec output: #{output.strip}") if status == 0
-
-          runtime.stop(id)
-          runtime.remove(id)
-          print_good("Test complete. Container cleaned up.")
-
-        rescue => e
-          print_error("Test failed: #{e.message}")
-          elog("test_env test-runtime error: #{e.class} - #{e.message}")
+        else
+          print_error("No container runtime configured.")
+          print_error("Install Docker or Podman, or set TEST_ENV_RUNTIME.")
         end
-      end
-      
+      end    
+       
       def cmd_test_env_tabs(str, words)
         if words.length == 1
-          return %w[build list stop start remove remove-all exec test-runtime help]
+          return %w[build list stop start remove remove-all exec status help]
         end
         []
       end
