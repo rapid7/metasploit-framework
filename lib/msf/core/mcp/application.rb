@@ -282,7 +282,7 @@ module Msf::MCP
 
       if transport == :http
         @output.puts "Starting MCP server on HTTP transport..."
-        @output.puts "Server listening on http://#{Rex::Socket.to_authority(host, port)}/"
+        @output.puts "MCP server listening on http://#{Rex::Socket.to_authority(host, port)}/"
         auth_token = resolve_auth_token
         case auth_token
         when :disabled
@@ -292,7 +292,7 @@ module Msf::MCP
           @output.puts "Authentication: enabled"
           auth_token = @config.dig(:mcp, :auth_token)
         when :generated
-          auth_token = SecureRandom.hex(32)
+          auth_token = @mcp_server.class.generate_auth_token
           @output.puts "Authentication: Bearer token (auto-generated)"
           @output.puts "  Configure your MCP client with: Authorization: Bearer #{auth_token}"
         else

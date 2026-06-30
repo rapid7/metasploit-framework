@@ -23,6 +23,7 @@ module Msf
       # Valid option keys accepted by `mcp start` and `mcp restart`
       unless defined?(VALID_OPTIONS)
         VALID_OPTIONS = %w[
+          AuthToken
           ServerHost ServerPort
           RpcHost RpcPort RpcUser RpcPass RpcSSL
           RateLimit
@@ -67,6 +68,7 @@ module Msf
         print_line('  help    - Show this help message')
         print_line
         print_line('Options (for start/restart):')
+        print_line('  AuthToken=<token>           MCP server authentication token (default: random, blank: disabled)')
         print_line('  ServerHost=<host>           MCP server bind address (default: localhost)')
         print_line('  ServerPort=<port>           MCP server port (default: 3000)')
         print_line('  RpcHost=<host>              RPC server host (default: 127.0.0.1)')
@@ -130,7 +132,8 @@ module Msf
         opts = {}
         args.each do |arg|
           key, value = arg.split('=', 2)
-          unless key && value && !value.empty?
+          # AuthToken can be blank while the others have to be set (blank is explicitly disabled)
+          unless key && value && (key == 'AuthToken' || !value.empty?)
             print_error("Invalid option format: #{arg} (expected Key=Value)")
             return nil
           end
@@ -286,23 +289,33 @@ module Msf
 
       host = mcp_config[:host]
       port = mcp_config[:port]
+      if mcp_config.key?(:auth_token)
+        auth_token = mcp_config[:auth_token]
+        auth_token_generated = false
+      else
+        auth_token = @mcp_server.class.generate_auth_token
+        auth_token_generated = true
+      end
 
       @server_thread = framework.threads.spawn('MCPServer', false) do
-        @mcp_server.start(transport: :http, host: host, port: port)
+        print_status("Starting MCP server on HTTP transport...")
+        @mcp_server.start(transport: :http, host: host, port: port, auth_token: auth_token)
       end
 
       @started_at = Time.now
-      print_server_status(mcp_config)
+      print_status("MCP server listening on http://#{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])}/")
+      if auth_token_generated
+        print_status("Authentication: Bearer token (auto-generated)")
+        print_status("  Configure your MCP client with: Authorization: Bearer #{auth_token}")
+      else
+        print_status("Authentication: #{auth_token ? 'enabled' : 'disabled'}")
+      end
     rescue Msf::MCP::Metasploit::AuthenticationError => e
       raise Msf::MCP::Metasploit::AuthenticationError, "RPC authentication failed: #{e.message}"
     rescue Msf::MCP::Metasploit::ConnectionError => e
       raise Msf::MCP::Metasploit::ConnectionError, "RPC connection failed: #{e.message}"
     rescue Errno::EADDRINUSE
       raise Msf::MCP::Error, "Address already in use: #{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])}"
-    end
-
-    def print_server_status(mcp_config)
-      print_status("MCP server started on #{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])} (transport: http)")
     end
 
     def format_uptime
@@ -441,6 +454,10 @@ module Msf
         host: opts['ServerHost'] || Msf::MCP::Config::Defaults::MCP_HOST,
         port: Integer(opts['ServerPort'] || Msf::MCP::Config::Defaults::MCP_PORT)
       }
+
+      if opts.key?('AuthToken')
+        mcp_config[:auth_token] = opts['AuthToken'].blank? ? nil : opts['AuthToken']
+      end
 
       rate_limit_value = Integer(opts['RateLimit'] || Msf::MCP::Config::Defaults::RATE_LIMIT_REQUESTS_PER_MINUTE)
 
