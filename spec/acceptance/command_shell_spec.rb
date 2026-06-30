@@ -10,6 +10,8 @@ RSpec.describe 'CommandShell' do
       powershell:      Acceptance::Session::POWERSHELL,
       cmd:             Acceptance::Session::CMD,
       linux:           Acceptance::Session::LINUX,
+      osx:             Acceptance::Session::OSX,
+      osx_aarch64:     Acceptance::Session::OSX_AARCH64,
       python_ssl_2_6:  Acceptance::Session::PYTHON_SSL_2_6,
       python_ssl_2_7:  Acceptance::Session::PYTHON_SSL_2_7,
       python_ssl_3_4:  Acceptance::Session::PYTHON_SSL_3_4,

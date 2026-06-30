@@ -14,6 +14,19 @@ module Acceptance::Session
     end
   end
 
+  # @return [Symbol] The current CPU architecture
+  def self.current_arch
+    host_cpu = RbConfig::CONFIG['host_cpu']
+    case host_cpu
+    when /x86_64|x64|amd64/
+      :x64
+    when /aarch64|arm64/
+      :aarch64
+    else
+      :unknown
+    end
+  end
+
   # Allows restricting the tests of a specific Meterpreter's test suite with the METERPRETER environment variable
   # @return [TrueClass, FalseClass] True if the given Meterpreter should be run, false otherwise.
   def self.run_meterpreter?(meterpreter_config)
@@ -57,7 +70,13 @@ module Acceptance::Session
   # @param [Hash] payload_config
   # @return [Boolean]
   def self.supported_platform?(payload_config)
-    payload_config[:platforms].include?(current_platform)
+    return false unless payload_config[:platforms].any? { |p| Array(p)[0] == current_platform }
+
+    # If any platform entry specifies an arch constraint, honour it
+    arch_constraints = payload_config.fetch(:archs, nil)
+    return true if arch_constraints.nil?
+
+    arch_constraints.include?(current_arch)
   end
 
   # @param [Hash] module_test

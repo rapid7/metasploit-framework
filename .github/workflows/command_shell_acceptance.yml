@@ -73,6 +73,10 @@ jobs:
           # Linux
           - { command_shell: { name: linux }, ruby: '3.4', os: ubuntu-latest }
 
+          # macOS
+          - { command_shell: { name: osx }, ruby: '3.4', os: macos-15-intel }
+          - { command_shell: { name: osx_aarch64 }, ruby: '3.4', os: macos-15 }
+
           # CMD
           - { command_shell: { name: cmd }, ruby: '3.4', os: windows-2022 }
 
@@ -141,6 +145,9 @@ jobs:
         # Skip for now to ensure CI passes on Windows server 2025 powershell tests
         #env:
         #  BUNDLE_FORCE_RUBY_PLATFORM: true
+        env:
+          # Required for macOS pg gem compilation - Intel path (/usr/local/opt) and ARM64/Homebrew path (/opt/homebrew/opt)
+          PKG_CONFIG_PATH: "/usr/local/opt/libpq/lib/pkgconfig:/opt/homebrew/opt/libpq/lib/pkgconfig"
         uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c
         with:
           ruby-version: ${{ matrix.ruby }}

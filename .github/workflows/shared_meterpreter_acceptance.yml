@@ -93,6 +93,7 @@ jobs:
 
           # Mettle
           - { meterpreter: { name: mettle }, os: macos-15-intel }
+          - { meterpreter: { name: mettle }, os: macos-15 }
           - { meterpreter: { name: mettle }, os: ubuntu-latest }
 
     runs-on: ${{ matrix.os }}
@@ -190,7 +191,12 @@ jobs:
       - name: Compile mettle payloads - macOS
         if: ${{ matrix.meterpreter.name == 'mettle' && runner.os == 'macos' && inputs.build_mettle }}
         run: |
-          make TARGET=x86_64-apple-darwin
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "arm64" ]; then
+            make TARGET=aarch64-apple-darwin
+          else
+            make TARGET=x86_64-apple-darwin
+          fi
           rake build
         working-directory: mettle
 
@@ -210,8 +216,8 @@ jobs:
         env:
           # Introduces flakiness when downloading zlib etc: https://github.com/sparklemotion/nokogiri/issues/3521
           # BUNDLE_FORCE_RUBY_PLATFORM: true
-          # Required for macos13 pg gem compilation
-          PKG_CONFIG_PATH: "/usr/local/opt/libpq/lib/pkgconfig"
+          # Required for macOS pg gem compilation - Intel path (/usr/local/opt) and ARM64/Homebrew path (/opt/homebrew/opt)
+          PKG_CONFIG_PATH: "/usr/local/opt/libpq/lib/pkgconfig:/opt/homebrew/opt/libpq/lib/pkgconfig"
         # Pinned to avoid Windows compilation failure with nokogiri
         uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c
         with:

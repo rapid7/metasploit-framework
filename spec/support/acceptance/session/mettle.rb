@@ -24,6 +24,61 @@ module Acceptance::Session::Mettle
         name: "osx/x64/meterpreter_reverse_tcp",
         extension: "",
         platforms: [:osx],
+        archs: [:x64],
+        executable: true,
+        execute_cmd: ["${payload_path}"],
+        generate_options: {
+          '-f': "macho"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: true
+          }
+        }
+      },
+      {
+        name: "osx/x64/meterpreter/reverse_tcp",
+        extension: "",
+        platforms: [:osx],
+        archs: [:x64],
+        executable: true,
+        execute_cmd: ["${payload_path}"],
+        generate_options: {
+          '-f': "macho"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: true
+          }
+        }
+      },
+      {
+        name: "osx/aarch64/meterpreter_reverse_tcp",
+        extension: "",
+        platforms: [:osx],
+        archs: [:aarch64],
+        executable: true,
+        execute_cmd: ["${payload_path}"],
+        generate_options: {
+          '-f': "macho"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: true
+          }
+        }
+      },
+      {
+        name: "osx/aarch64/meterpreter/reverse_tcp",
+        extension: "",
+        platforms: [:osx],
+        archs: [:aarch64],
         executable: true,
         execute_cmd: ["${payload_path}"],
         generate_options: {
