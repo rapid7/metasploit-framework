@@ -70,6 +70,8 @@ module Auxiliary
     end
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
+    mod.run_uuid = run_uuid
+    omod.run_uuid = run_uuid
     job_listener.waiting run_uuid
     ctx = [mod, run_uuid, job_listener]
     run_as_job = opts['RunAsJob'].nil? ? mod.passive? : opts['RunAsJob']
@@ -128,6 +130,7 @@ module Auxiliary
     mod.validate
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
+    mod.run_uuid = run_uuid
     job_listener.waiting run_uuid
     ctx = [mod, run_uuid, job_listener]
 

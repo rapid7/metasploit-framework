@@ -65,6 +65,8 @@ module Post
     end
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
+    mod.run_uuid = run_uuid
+    omod.run_uuid = run_uuid
     job_listener.waiting run_uuid
     ctx = [mod, run_uuid, job_listener]
 
@@ -80,7 +82,6 @@ module Post
       )
       # Propagate this back to the caller for console mgmt
       omod.job_id = mod.job_id
-      return [run_uuid, mod.job_id]
     else
       self.job_run_proc(ctx)
       self.job_cleanup_proc(ctx)

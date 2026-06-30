@@ -88,7 +88,9 @@ RSpec.describe Msf::Simple::Post, '.run_simple' do
       user_output: nil,
       _import_extra_options: nil,
       :job_id= => nil,
-      job_id: 42
+      job_id: 42,
+      :run_uuid= => nil,
+      run_uuid: nil
     )
     allow(mod).to receive(:replicant).and_return(mod)
     allow(mod).to receive(:extend)
@@ -101,14 +103,15 @@ RSpec.describe Msf::Simple::Post, '.run_simple' do
     require 'rex/text'
   end
 
-  it 'generates a run uuid, notifies the listener, and returns [run_uuid, job_id]' do
-    result = described_class.run_simple(mod, { 'RunAsJob' => true }, job_listener: job_listener)
-    expect(result).to be_an(Array)
-    expect(result.length).to eq(2)
-    run_uuid, job_id = result
-    expect(run_uuid).to be_a(String)
-    expect(run_uuid.length).to be >= 8
-    expect(job_id).to eq(42)
-    expect(job_listener).to have_received(:waiting).with(run_uuid)
+  it 'generates a run uuid, notifies the listener, and assigns mod.run_uuid / mod.job_id' do
+    captured_uuid = nil
+    expect(job_listener).to receive(:waiting) { |uuid| captured_uuid = uuid }
+    expect(mod).to receive(:run_uuid=).with(kind_of(String)).at_least(:once)
+    expect(mod).to receive(:job_id=).with(42).at_least(:once)
+
+    described_class.run_simple(mod, { 'RunAsJob' => true }, job_listener: job_listener)
+
+    expect(captured_uuid).to be_a(String)
+    expect(captured_uuid.length).to be >= 8
   end
 end

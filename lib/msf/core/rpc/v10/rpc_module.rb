@@ -751,34 +751,28 @@ private
       opts['PAYLOAD'] = Msf::Payload.choose_payload(mod)
     end
 
-    s = Msf::Simple::Exploit.exploit_simple(mod, {
+    Msf::Simple::Exploit.exploit_simple(mod, {
       'Payload'  => opts['PAYLOAD'],
       'Target'   => opts['TARGET'],
       'RunAsJob' => true,
       'Options'  => opts,
       'JobListener' => self.job_status_tracker
     })
-    if s.is_a?(Array)
-      uuid, job = s
-    else
-      uuid = mod.uuid
-      job = mod.job_id
-    end
     {
-      "job_id" => job,
-      "uuid" => uuid
+      "job_id" => mod.job_id,
+      "uuid" => mod.run_uuid || mod.uuid
     }
   end
 
   def _run_auxiliary(mod, opts)
-    uuid, job = Msf::Simple::Auxiliary.run_simple(mod,{
+    Msf::Simple::Auxiliary.run_simple(mod,{
       'Action'   => opts['ACTION'],
       'RunAsJob' => true,
       'Options'  => opts
     }, job_listener: self.job_status_tracker)
     {
-      "job_id" => job,
-      "uuid" => uuid
+      "job_id" => mod.job_id,
+      "uuid" => mod.run_uuid || mod.uuid
     }
   end
 
@@ -810,18 +804,18 @@ private
   end
 
   def _run_post(mod, opts)
-    uuid, job = Msf::Simple::Post.run_simple(mod, {
+    Msf::Simple::Post.run_simple(mod, {
       'RunAsJob' => true,
       'Options'  => opts
     }, job_listener: self.job_status_tracker)
     {
-      "job_id" => job,
-      "uuid" => uuid
+      "job_id" => mod.job_id,
+      "uuid" => mod.run_uuid || mod.uuid
     }
   end
 
   def _run_evasion(mod, opts)
-    uuid, job = Msf::Simple::Evasion.run_simple(mod, {
+    Msf::Simple::Evasion.run_simple(mod, {
       'Payload'  => opts['PAYLOAD'],
       'Target'   => opts['TARGET'],
       'RunAsJob' => true,
@@ -829,8 +823,8 @@ private
     }, job_listener: self.job_status_tracker)
 
     {
-      'job_id' => job,
-      'uuid'   => uuid
+      'job_id' => mod.job_id,
+      'uuid'   => mod.run_uuid || mod.uuid
     }
   end
 

@@ -81,13 +81,15 @@ module Evasion
       end
 
       # Let's rock this party
-      result = driver.run
+      driver.run
 
       # Save the job identifier this evasion is running as
       evasion.job_id  = driver.job_id
+      evasion.run_uuid = driver.run_uuid
 
       # Propagate this back to the caller for console mgmt
       oevasion.job_id = evasion.job_id
+      oevasion.run_uuid = evasion.run_uuid
     rescue ::Interrupt
       evasion.error = $!
       raise $!
@@ -100,7 +102,7 @@ module Evasion
       elog("Evasion failed (#{evasion.refname})", error: e)
     end
 
-    result if opts['RunAsJob']
+    nil
   end
 
   def run_simple(opts = {}, job_listener: Msf::Simple::NoopJobListener.instance, &block)

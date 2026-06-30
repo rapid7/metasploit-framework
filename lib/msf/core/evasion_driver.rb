@@ -81,19 +81,20 @@ class EvasionDriver
     # evasion module instance
     evasion.generate_payload(payload)
 
-    run_uuid = Rex::Text.rand_text_alphanumeric(24)
-    self.job_listener.waiting run_uuid
+    self.run_uuid = Rex::Text.rand_text_alphanumeric(24)
+    evasion.run_uuid = self.run_uuid
+    self.job_listener.waiting self.run_uuid
 
     # No need to copy since we aren't creating a job.  We wait until
     # they're finished running to do anything else with them, so
     # nothing should be able to modify their datastore or other
     # settings until after they're done.
-    ctx = [ evasion, payload, run_uuid, self.job_listener ]
+    ctx = [ evasion, payload, self.run_uuid, self.job_listener ]
 
     job_run_proc(ctx)
     job_cleanup_proc(ctx)
 
-    [run_uuid, evasion.job_id]
+    nil
   end
 
   attr_accessor :evasion # :nodoc:
@@ -104,6 +105,12 @@ class EvasionDriver
   # job.
   #
   attr_accessor :job_id
+  #
+  # The run UUID generated for the most recent #run invocation. Used by the
+  # job listener and reported back to RPC clients via the module attribute of
+  # the same name.
+  #
+  attr_accessor :run_uuid
   attr_accessor :force_wait_for_session # :nodoc:
   attr_accessor :session # :nodoc:
 
