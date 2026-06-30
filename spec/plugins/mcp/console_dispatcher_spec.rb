@@ -46,6 +46,10 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
 
   let(:mock_server_class) do
     Class.new do
+      def self.generate_auth_token
+        'a' * 64
+      end
+
       def initialize(**_args); end
 
       def start(**_args); end
@@ -249,7 +253,7 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
     context 'when server is stopped' do
       it 'starts the server successfully' do
         mcp_plugin.start_server({})
-        expect(@output.join("\n")).to include('MCP server started')
+        expect(@output.join("\n")).to include('MCP server listening')
       end
 
       it 'sets the server instance' do

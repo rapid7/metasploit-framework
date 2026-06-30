@@ -48,6 +48,10 @@ RSpec.describe Msf::Plugin::MCP do
 
   let(:mock_server_class) do
     Class.new do
+      def self.generate_auth_token
+        'a' * 64
+      end
+
       def initialize(**_args); end
       def start(**_args); end
       def shutdown; end
@@ -123,7 +127,7 @@ RSpec.describe Msf::Plugin::MCP do
       end
 
       it 'prints a status message with the listening address' do
-        expect(@output.join("\n")).to include('MCP server started on localhost:3000 (transport: http)')
+        expect(@output.join("\n")).to include('MCP server listening on http://localhost:3000/')
       end
 
       it 'stores the server configuration' do
@@ -166,6 +170,10 @@ RSpec.describe Msf::Plugin::MCP do
     context 'when port is already in use' do
       let(:failing_server_class) do
         Class.new do
+          def self.generate_auth_token
+            'a' * 64
+          end
+
           def initialize(**_args); end
 
           def start(**_args)
