@@ -135,18 +135,6 @@ class BaseRuntime
 end
 ```
 
-### Docker Implementation
-
-
-
-### Podman Implementation
-
-
-
-## Port Allocation
-
-
-
 ## Container Label Schema
 
 All containers created by test_env receive these labels:
@@ -191,60 +179,15 @@ The `PortAllocator` class above handles this by:
 2. If not, scanning ephemeral range for available port
 3. Tracking used ports to avoid duplicates
 
-### Integration in test_env build
 
-```ruby
-def cmd_test_env_build(args)
-  # ... get module, VulnEnv config, definition ...
-  
-  shared = definition['shared']
-  port_mapping = vuln_env['port_mapping']  # {8080 => 'RPORT'}
-  
-  # Get used ports from registry
-  used = registry.used_ports
-  
-  # Allocate ports
-  allocator = PortAllocator.new(used)
-  allocated_ports = {}
-  
-  shared['ports'].each do |name, container_port|
-    # Check if user specified a port override: RPORT=8081
-    preferred = nil
-    if datastore_option = port_mapping[container_port]
-      preferred = args.find { |a| a.start_with?("#{datastore_option}=") }&.split('=')&.last&.to_i
-    end
-    
-    # Allocate (falls back automatically if preferred is taken)
-    host_port = allocator.allocate(preferred)
-    allocated_ports[container_port] = host_port
-  end
-  
-  # Start container with allocated ports
-  container_id = runtime.run(
-    image: env_config['image'],
-    ports: allocated_ports  # {80 => 49152}
-  )
-  
-  # Report actual ports to user
-  allocated_ports.each do |container_port, host_port|
-    if datastore_option = port_mapping[container_port]
-      if host_port != (preferred || container_port)
-        print_status("Port #{preferred || container_port} unavailable, using #{host_port}")
-      end
-      print_status("Mapped container:#{container_port} -> host:#{host_port} (#{datastore_option})")
-    end
-  end
-  
-  # Auto-set datastore options
-  allocated_ports.each do |container_port, host_port|
-    if datastore_option = port_mapping[container_port]
-      mod.datastore[datastore_option] = host_port
-      print_status("Set #{datastore_option} = #{host_port}")
-    end
-  end
-end
-```
-
+When `test_env build` runs, it:
+- Reads the vulnerability environment's `port_mapping` (e.g., `{8080 => 'RPORT'}`)
+- Checks if the user passed an override like `RPORT=8081`
+- Allocates each required port, falling back to the ephemeral range if the preferred port is taken
+- Starts the container with the allocated mappings
+- Reports actual ports to the user
+- Auto-sets the corresponding module datastore options
+- 
 ### Key Design Principles
 
 | Principle | Implementation |
