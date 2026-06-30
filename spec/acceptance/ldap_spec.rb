@@ -9,6 +9,7 @@ RSpec.describe 'LDAP modules' do
         session_module: 'auxiliary/scanner/ldap/ldap_login',
         type: 'LDAP',
         platforms: %i[linux osx windows],
+        session_info_pattern: /LDAP #{Regexp.escape(ENV.fetch('LDAP_LDAPUsername', 'DEV-AD\Administrator'))} @ \d+\.\d+\.\d+\.\d+/,
         datastore: {
           global: {},
           module: {
@@ -319,6 +320,14 @@ RSpec.describe 'LDAP modules' do
 
               session_id = session_message[session_opened_matcher, 1]
               expect(session_id).to_not be_nil
+            end
+
+            console.recvuntil(Acceptance::Console.prompt)
+
+            if target.session_info_pattern
+              console.sendline('sessions')
+              sessions_output = console.recvuntil(Acceptance::Console.prompt)
+              expect(Acceptance::Session.uncolorize(sessions_output)).to match(target.session_info_pattern)
             end
 
             session_id

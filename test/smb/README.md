@@ -2,6 +2,12 @@
 
 This contains a custom Docker image used for SMB acceptance testing.
 
+## Credentials
+
+| Username                 | Password                       |
+|--------------------------|--------------------------------|
+| `acceptance_tests_user`  | `acceptance_tests_password`    |
+
 ## Running
 
 - Build:

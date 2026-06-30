@@ -13,10 +13,13 @@ module Acceptance
       @type = options.fetch(:type)
       @session_module = options.fetch(:session_module)
       @datastore = options.fetch(:datastore)
+      @session_info_pattern = options[:session_info_pattern]
     end
 
-    def [](k)
-      options[k]
+    # Returns the session info pattern to verify after opening a session, or nil if not set.
+    # @return [Regexp, nil]
+    def session_info_pattern
+      @session_info_pattern
     end
 
     # @param [Hash] default_global_datastore

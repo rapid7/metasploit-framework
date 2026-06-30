@@ -1,0 +1,15 @@
+services:
+  ssh:
+    tty: true
+    network_mode: bridge
+    ports:
+      - "2222:22"
+    healthcheck:
+      test: ssh-keyscan -T 5 127.0.0.1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    build:
+      context: .
+      dockerfile: Dockerfile
