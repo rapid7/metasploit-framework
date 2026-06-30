@@ -377,7 +377,7 @@ int main(int argc, char** argv)
 
   // gDyld is a special struct that libdyld.dylib uses to interface with dyld4.
   // gDyld is not present in dyld3 and back.
-  void* gDyld = find_symbol(dyld, "__ZN5dyld45gDyldE", offset);
+  void* gDyld = 0;
   //printf("gDyld: %lld\n", gDyld);
   void * addr_main = 0;
   if (gDyld != 0) {
