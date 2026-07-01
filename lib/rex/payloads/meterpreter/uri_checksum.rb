@@ -63,7 +63,10 @@ module Rex
             return h if h[:uuid]
           }
 
-          nil
+          # No embedded UUID was found in any URI segment; fall back to a
+          # checksum-based mode lookup against the whole URI, e.g. for the
+          # INITW/INITJ/CONN handshake requests which don't carry a UUID yet.
+          process_uuid_string(uri.gsub(/[^a-zA-Z0-9_\-]/, ''))
         end
 
         # Map "random" get params to static strings.

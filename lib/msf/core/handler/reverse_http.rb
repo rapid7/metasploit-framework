@@ -188,6 +188,8 @@ module ReverseHttp
       u.chop!
     end
 
+    u = "/#{u}" unless u[0] == '/'
+
     u
   end
 
