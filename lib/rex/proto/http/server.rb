@@ -184,7 +184,7 @@ class Server
   #
   def add_response_headers(req, resp)
     resp['Server'] = self.server_name if not resp['Server']
-    expl = self.context['MsfExploit']
+    expl = self.context['MsfExploit'] if self.context
     expl.add_response_headers(req, resp) if expl&.respond_to?(:add_response_headers)
   end
 
@@ -282,7 +282,7 @@ protected
 
     # first, try to match up the request with a handler based on a matching
     # function that's present in the context, if specified.
-    expl = self.context['MsfExploit']
+    expl = self.context['MsfExploit'] if self.context
     resource_id = expl.find_resource_id(cli, request) if expl && expl.respond_to?(:find_resource_id)
     request.conn_id = resource_id
 
@@ -352,4 +352,3 @@ end
 end
 end
 end
-

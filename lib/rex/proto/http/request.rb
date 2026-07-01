@@ -1,6 +1,8 @@
 # -*- coding: binary -*-
 require 'uri'
 
+require 'rex/text'
+
 
 module Rex
 module Proto
@@ -224,7 +226,7 @@ class Request < Packet
   def body
     str = super || ''
     if str.length == 0 && PostRequests.include?(self.method)
-      str = param_tring
+      str = param_string
     end
     str
   end
