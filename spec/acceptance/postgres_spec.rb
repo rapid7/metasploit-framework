@@ -9,6 +9,7 @@ RSpec.describe 'Postgres sessions and postgres modules' do
         session_module: "auxiliary/scanner/postgres/postgres_login",
         type: 'PostgreSQL',
         platforms: [:linux, :osx, :windows],
+        session_info_pattern: /PostgreSQL #{Regexp.escape(ENV.fetch('POSTGRES_USERNAME', 'postgres'))} @ \d+\.\d+\.\d+\.\d+/,
         datastore: {
           global: {},
           module: {
@@ -303,6 +304,14 @@ RSpec.describe 'Postgres sessions and postgres modules' do
 
               session_id = session_message[session_opened_matcher, 1]
               expect(session_id).to_not be_nil
+            end
+
+            console.recvuntil(Acceptance::Console.prompt)
+
+            if target.session_info_pattern
+              console.sendline('sessions')
+              sessions_output = console.recvuntil(Acceptance::Console.prompt)
+              expect(Acceptance::Session.uncolorize(sessions_output)).to match(target.session_info_pattern)
             end
 
             session_id

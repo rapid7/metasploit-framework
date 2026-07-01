@@ -1,80 +1,43 @@
+# frozen_string_literal: true
+
 require 'acceptance_spec_helper'
 
-RSpec.describe 'MySQL sessions and MySQL modules' do
+RSpec.describe 'SSH sessions and SSH modules' do
   include_context 'wait_for_expect'
 
   tests = {
-    mysql: {
+    ssh: {
       target: {
-        session_module: "auxiliary/scanner/mysql/mysql_login",
-        type: 'MySQL',
-        platforms: [:linux, :osx, :windows],
-        session_info_pattern: /MySQL #{Regexp.escape(ENV.fetch('MYSQL_USERNAME', 'root'))} @ \d+\.\d+\.\d+\.\d+/,
+        session_module: 'auxiliary/scanner/ssh/ssh_login',
+        type: 'SSH',
+        platforms: %i[linux osx windows],
+        session_info_pattern: /SSH #{Regexp.escape(ENV.fetch('SSH_USERNAME', 'acceptance_tests_user'))} @ \d+\.\d+\.\d+\.\d+/,
         datastore: {
           global: {},
           module: {
-            username: ENV.fetch('MYSQL_USERNAME', 'root'),
-            password: ENV.fetch('MYSQL_PASSWORD', 'password'),
-            rhost: ENV.fetch('MYSQL_RHOST', '127.0.0.1'),
-            rport: ENV.fetch('MYSQL_RPORT', '3306'),
+            username: ENV.fetch('SSH_USERNAME', 'acceptance_tests_user'),
+            password: ENV.fetch('SSH_PASSWORD', 'acceptance_tests_password'),
+            rhost: ENV.fetch('SSH_RHOST', '127.0.0.1'),
+            rport: ENV.fetch('SSH_RPORT', '2222'),
           }
         }
       },
       module_tests: [
         {
-          name: "post/test/mysql",
-          platforms: [:linux, :osx, :windows],
+          name: 'post/test/unix',
+          platforms: %i[linux osx],
           targets: [:session],
           skipped: false,
         },
         {
-          name: "auxiliary/scanner/mysql/mysql_hashdump",
-          platforms: [:linux, :osx, :windows],
-          targets: [:session, :rhost],
+          name: 'auxiliary/scanner/ssh/ssh_version',
+          platforms: %i[linux osx windows],
+          targets: [:rhost],
           skipped: false,
           lines: {
             all: {
               required: [
-                /Saving HashString as Loot/
-              ]
-            },
-          }
-        },
-        {
-          name: "auxiliary/scanner/mysql/mysql_version",
-          platforms: [:linux, :osx, :windows],
-          targets: [:session, :rhost],
-          skipped: false,
-          lines: {
-            all: {
-              required: [
-                /\d+\.\d+\.\d+\.\d+:\d+ is running MySQL \d+.\d+.*/
-              ]
-            },
-          }
-        },
-        {
-          name: "auxiliary/admin/mysql/mysql_sql",
-          platforms: [:linux, :osx, :windows],
-          targets: [:session, :rhost],
-          skipped: false,
-          lines: {
-            all: {
-              required: [
-                /\| \d+.\d+.*/,
-              ]
-            },
-          }
-        },
-        {
-          name: "auxiliary/admin/mysql/mysql_enum",
-          platforms: [:linux, :osx, :windows],
-          targets: [:session, :rhost],
-          skipped: false,
-          lines: {
-            all: {
-              required: [
-                /MySQL Version: \d+.\d+.*/,
+                /SSH server version: SSH-\d+\.\d+-/,
               ]
             },
           }
@@ -85,7 +48,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
 
   allure_test_environment = AllureRspec.configuration.environment_properties
 
-  let_it_be(:current_platform) { Acceptance::Session::current_platform }
+  let_it_be(:current_platform) { Acceptance::Session.current_platform }
 
   # Driver instance, keeps track of all open processes/payloads/etc, so they can be closed cleanly
   let_it_be(:driver) do
@@ -106,19 +69,6 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
     console.recvuntil(/\d+ exploit modules[^\n]*\n/)
     console.recvuntil(/\d+ post modules[^\n]*\n/)
     console.recvuntil(Acceptance::Console.prompt)
-
-    # Read the remaining console
-    # console.sendline "quit -y"
-    # console.recv_available
-
-    features = %w[
-      mysql_session_type
-    ]
-
-    features.each do |feature|
-      console.sendline("features set #{feature} true")
-      console.recvuntil(Acceptance::Console.prompt)
-    end
 
     console
   end
@@ -151,7 +101,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
         # Skip any ignored lines from the validation input
         validated_lines = test_result.lines.reject do |line|
           is_acceptable = known_failures.any? do |acceptable_failure|
-            is_matching_line = is_matching_line.value.is_a?(Regexp) ? line.match?(acceptable_failure.value) : line.include?(acceptable_failure.value)
+            is_matching_line = acceptable_failure.value.is_a?(Regexp) ? line.match?(acceptable_failure.value) : line.include?(acceptable_failure.value)
             is_matching_line &&
               acceptable_failure.if?(test_environment)
           end || line.match?(/Passed: \d+; Failed: \d+/)
@@ -167,6 +117,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
         # Assert all expected lines are present
         required_lines.each do |required|
           next unless required.if?(test_environment)
+
           if required.value.is_a?(Regexp)
             expect(test_result).to match(required.value)
           else
@@ -174,8 +125,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
           end
         end
 
-        # Assert all ignored lines are present, if they are not present - they should be removed from
-        # the calling config
+        # Assert all ignored lines are present; if they are not present they should be removed from the calling config
         known_failures.each do |acceptable_failure|
           next if acceptable_failure.flaky?(test_environment)
           next unless acceptable_failure.if?(test_environment)
@@ -215,7 +165,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
       #{target_configuration_details}
 
       ## Replication commands
-      #{replication_commands.empty? ? 'no additional commands run' : replication_commands.join("\n")}
+      #{replication_commands.empty? ? '# no additional commands run' : replication_commands.join("\n")}
     EOF
 
     Allure.add_attachment(
@@ -253,15 +203,12 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
       test_config[:module_tests].each do |module_test|
         describe(
           module_test[:name],
-          if: (
-            Acceptance::Session.supported_platform?(module_test)
-          )
+          if: Acceptance::Session.supported_platform?(module_test)
         ) do
           let(:target) { Acceptance::Target.new(test_config[:target]) }
 
           let(:default_global_datastore) do
-            {
-            }
+            {}
           end
 
           let(:test_environment) { allure_test_environment }
@@ -300,6 +247,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
 
             console.recvuntil(Acceptance::Console.prompt)
 
+            # Verify the session info line shows the correct user and target host
             if target.session_info_pattern
               console.sendline('sessions')
               sessions_output = console.recvuntil(Acceptance::Console.prompt)
@@ -323,18 +271,18 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
             console.reset
           end
 
-          context "when targeting a session", if: module_test[:targets].include?(:session) do
+          context 'when targeting a session', if: module_test[:targets].include?(:session) do
             it(
               "#{Acceptance::Session.current_platform}/#{runtime_name} session opens and passes the #{module_test[:name].inspect} tests"
             ) do
               with_test_harness(module_test) do |replication_commands|
                 # Ensure we have a valid session id; We intentionally omit this from a `before(:each)` to ensure the allure attachments are generated if the session dies
                 expect(session_id).to_not(be_nil, proc do
-                  "There should be a session present"
+                  'There should be a session present'
                 end)
 
                 use_module = "use #{module_test[:name]}"
-                run_module = "run session=#{session_id} Verbose=true"
+                run_module = "run session=#{session_id} #{target.datastore_options(default_module_datastore: default_module_datastore.merge(module_test.fetch(:datastore, {})))} Verbose=true"
 
                 replication_commands << use_module
                 console.sendline(use_module)
@@ -348,13 +296,13 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
             end
           end
 
-          context "when targeting an rhost", if: module_test[:targets].include?(:rhost) do
+          context 'when targeting an rhost', if: module_test[:targets].include?(:rhost) do
             it(
               "#{Acceptance::Session.current_platform}/#{runtime_name} rhost opens and passes the #{module_test[:name].inspect} tests"
             ) do
               with_test_harness(module_test) do |replication_commands|
                 use_module = "use #{module_test[:name]}"
-                run_module = "run #{target.datastore_options(default_module_datastore: default_module_datastore)} Verbose=true"
+                run_module = "run #{target.datastore_options(default_module_datastore: default_module_datastore.merge(module_test.fetch(:datastore, {})))} Verbose=true"
 
                 replication_commands << use_module
                 console.sendline(use_module)
