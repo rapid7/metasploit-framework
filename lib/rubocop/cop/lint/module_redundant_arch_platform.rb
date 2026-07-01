@@ -7,9 +7,11 @@ module RuboCop
       # `Arch` or `Platform` at the top level of update_info when that
       # information is already present in all targets.
       #
-      # The framework merges target metadata into the module metadata, so
-      # specifying `Arch` or `Platform` at the top level is redundant when
-      # every target already carries that information.
+      # The framework uses target-level Arch/Platform when present, falling
+      # back to the module-level value only when the target does not specify
+      # them (see `Msf::Exploit#target_arch` and `#target_platform`).
+      # Therefore, specifying `Arch` or `Platform` at the top level is
+      # redundant when every target already carries that information.
       #
       # @example
       #   # bad - Arch at top level when all targets define it
@@ -49,9 +51,11 @@ module RuboCop
       #     ]
       #   )
       class ModuleRedundantArchPlatform < Base
+        extend AutoCorrector
 
-        REDUNDANT_ARCH_MSG = 'Remove top-level `Arch` as it is already defined in all `Targets`'
-        REDUNDANT_PLATFORM_MSG = 'Remove top-level `Platform` as it is already defined in all `Targets`'
+        REDUNDANT_KEY_MSG = 'Remove top-level `%<key>s` as it is already defined in all `Targets`'
+
+        CHECKED_KEYS = %w[Arch Platform].freeze
 
         def_node_matcher :find_update_info_node, <<~PATTERN
           (def :initialize _args (begin (super $(send nil? {:update_info :merge_info} (lvar :info) (hash ...))) ...))
@@ -68,36 +72,34 @@ module RuboCop
           hash = update_info_node.arguments.find { |argument| argument.type == :hash }
           return if hash.nil?
 
-          top_level_keys = {}
+          top_level_pairs = {}
           targets_node = nil
 
           hash.each_pair do |key, value|
             next unless key.type == :str
 
-            case key.value
-            when 'Arch', 'Platform'
-              top_level_keys[key.value] = key
-            when 'Targets'
+            if CHECKED_KEYS.include?(key.value)
+              top_level_pairs[key.value] = hash.pairs.find { |pair| pair.key == key }
+            elsif key.value == 'Targets'
               targets_node = value
             end
           end
 
-          # Only flag if both Targets and the key exist at the top level
           return if targets_node.nil?
-          return if top_level_keys.empty?
-
-          # Targets should be an array of arrays
+          return if top_level_pairs.empty?
           return unless targets_node.type == :array
 
           targets = targets_node.children
           return if targets.empty?
 
-          if top_level_keys.key?('Arch') && all_targets_define_key?(targets, 'Arch')
-            add_offense(top_level_keys['Arch'], message: REDUNDANT_ARCH_MSG)
-          end
+          CHECKED_KEYS.each do |key_name|
+            pair = top_level_pairs[key_name]
+            next unless pair
+            next unless all_targets_define_key?(targets, key_name)
 
-          if top_level_keys.key?('Platform') && all_targets_define_key?(targets, 'Platform')
-            add_offense(top_level_keys['Platform'], message: REDUNDANT_PLATFORM_MSG)
+            add_offense(pair.key, message: format(REDUNDANT_KEY_MSG, key: key_name)) do |corrector|
+              remove_pair(corrector, pair)
+            end
           end
         end
 
@@ -117,6 +119,41 @@ module RuboCop
               pair.key.type == :str && pair.key.value == key_name
             end
           end
+        end
+
+        # Removes a key-value pair from the hash, including the trailing comma
+        # and any whitespace/newline that follows.
+        def remove_pair(corrector, pair)
+          range = pair.source_range
+          # Extend range to include trailing comma and whitespace up to the next line
+          end_pos = range.end_pos
+          source = range.source_buffer.source
+
+          # Consume trailing comma and whitespace/newline
+          while end_pos < source.length && source[end_pos] =~ /[ \t]/
+            end_pos += 1
+          end
+          if end_pos < source.length && source[end_pos] == ','
+            end_pos += 1
+            # Consume whitespace after comma up to and including newline
+            while end_pos < source.length && source[end_pos] =~ /[ \t]/
+              end_pos += 1
+            end
+            if end_pos < source.length && source[end_pos] == "\n"
+              end_pos += 1
+            end
+          elsif end_pos < source.length && source[end_pos] == "\n"
+            end_pos += 1
+          end
+
+          # Also consume the leading whitespace on this line (indent)
+          start_pos = range.begin_pos
+          while start_pos > 0 && source[start_pos - 1] =~ /[ \t]/
+            start_pos -= 1
+          end
+
+          removal_range = Parser::Source::Range.new(range.source_buffer, start_pos, end_pos)
+          corrector.remove(removal_range)
         end
       end
     end

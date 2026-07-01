@@ -9,7 +9,7 @@ RSpec.describe RuboCop::Cop::Lint::ModuleRedundantArchPlatform do
   let(:config) { RuboCop::Config.new(empty_rubocop_config) }
 
   context 'when Arch is redundant' do
-    it 'registers an offense when all targets define Arch' do
+    it 'registers an offense and autocorrects' do
       expect_offense(<<~RUBY)
         class DummyModule
           def initialize(info = {})
@@ -31,12 +31,31 @@ RSpec.describe RuboCop::Cop::Lint::ModuleRedundantArchPlatform do
           end
         end
       RUBY
-      expect_no_corrections
+
+      expect_correction(<<~RUBY)
+        class DummyModule
+          def initialize(info = {})
+            super(
+              update_info(
+                info,
+                'Name' => 'Test module',
+                'Description' => 'A test module',
+                'Author' => ['example'],
+                'License' => MSF_LICENSE,
+                'Targets' => [
+                  ['Windows x86', { 'Arch' => ARCH_X86 }],
+                  ['Windows x64', { 'Arch' => ARCH_X64 }]
+                ]
+              )
+            )
+          end
+        end
+      RUBY
     end
   end
 
   context 'when Platform is redundant' do
-    it 'registers an offense when all targets define Platform' do
+    it 'registers an offense and autocorrects' do
       expect_offense(<<~RUBY)
         class DummyModule
           def initialize(info = {})
@@ -58,12 +77,31 @@ RSpec.describe RuboCop::Cop::Lint::ModuleRedundantArchPlatform do
           end
         end
       RUBY
-      expect_no_corrections
+
+      expect_correction(<<~RUBY)
+        class DummyModule
+          def initialize(info = {})
+            super(
+              update_info(
+                info,
+                'Name' => 'Test module',
+                'Description' => 'A test module',
+                'Author' => ['example'],
+                'License' => MSF_LICENSE,
+                'Targets' => [
+                  ['Windows x86', { 'Platform' => 'win', 'Arch' => ARCH_X86 }],
+                  ['Windows x64', { 'Platform' => 'win', 'Arch' => ARCH_X64 }]
+                ]
+              )
+            )
+          end
+        end
+      RUBY
     end
   end
 
   context 'when both Arch and Platform are redundant' do
-    it 'registers offenses for both' do
+    it 'registers offenses for both and autocorrects' do
       expect_offense(<<~RUBY)
         class DummyModule
           def initialize(info = {})
@@ -87,7 +125,26 @@ RSpec.describe RuboCop::Cop::Lint::ModuleRedundantArchPlatform do
           end
         end
       RUBY
-      expect_no_corrections
+
+      expect_correction(<<~RUBY)
+        class DummyModule
+          def initialize(info = {})
+            super(
+              update_info(
+                info,
+                'Name' => 'Test module',
+                'Description' => 'A test module',
+                'Author' => ['example'],
+                'License' => MSF_LICENSE,
+                'Targets' => [
+                  ['Windows x86', { 'Platform' => 'win', 'Arch' => ARCH_X86 }],
+                  ['Windows x64', { 'Platform' => 'win', 'Arch' => ARCH_X64 }]
+                ]
+              )
+            )
+          end
+        end
+      RUBY
     end
   end
 
@@ -182,12 +239,29 @@ RSpec.describe RuboCop::Cop::Lint::ModuleRedundantArchPlatform do
           end
         end
       RUBY
-      expect_no_corrections
+
+      expect_correction(<<~RUBY)
+        class DummyModule
+          def initialize(info = {})
+            super(update_info(
+              info,
+              'Name' => 'Test module',
+              'Description' => 'A test module',
+              'Author' => ['example'],
+              'License' => MSF_LICENSE,
+              'Targets' => [
+                ['Windows x86', { 'Arch' => ARCH_X86 }],
+                ['Windows x64', { 'Arch' => ARCH_X64 }]
+              ]
+            ))
+          end
+        end
+      RUBY
     end
   end
 
   context 'with single target' do
-    it 'registers an offense when the single target defines Arch' do
+    it 'registers an offense when the single target defines Arch and Platform' do
       expect_offense(<<~RUBY)
         class DummyModule
           def initialize(info = {})
@@ -210,7 +284,25 @@ RSpec.describe RuboCop::Cop::Lint::ModuleRedundantArchPlatform do
           end
         end
       RUBY
-      expect_no_corrections
+
+      expect_correction(<<~RUBY)
+        class DummyModule
+          def initialize(info = {})
+            super(
+              update_info(
+                info,
+                'Name' => 'Test module',
+                'Description' => 'A test module',
+                'Author' => ['example'],
+                'License' => MSF_LICENSE,
+                'Targets' => [
+                  ['Windows', { 'Platform' => 'win', 'Arch' => [ARCH_X86, ARCH_X64] }]
+                ]
+              )
+            )
+          end
+        end
+      RUBY
     end
   end
 
@@ -236,7 +328,25 @@ RSpec.describe RuboCop::Cop::Lint::ModuleRedundantArchPlatform do
           end
         end
       RUBY
-      expect_no_corrections
+
+      expect_correction(<<~RUBY)
+        class DummyModule
+          def initialize(info = {})
+            super(
+              merge_info(
+                info,
+                'Name' => 'Test module',
+                'Description' => 'A test module',
+                'Author' => ['example'],
+                'License' => MSF_LICENSE,
+                'Targets' => [
+                  ['Windows x86', { 'Arch' => ARCH_X86 }]
+                ]
+              )
+            )
+          end
+        end
+      RUBY
     end
   end
 
@@ -255,6 +365,31 @@ RSpec.describe RuboCop::Cop::Lint::ModuleRedundantArchPlatform do
                 'Arch' => ARCH_X86,
                 'Platform' => 'win',
                 'Targets' => []
+              )
+            )
+          end
+        end
+      RUBY
+    end
+  end
+
+  context 'when target has no options hash' do
+    it 'does not register an offense for targets without hash element' do
+      expect_no_offenses(<<~RUBY)
+        class DummyModule
+          def initialize(info = {})
+            super(
+              update_info(
+                info,
+                'Name' => 'Test module',
+                'Description' => 'A test module',
+                'Author' => ['example'],
+                'License' => MSF_LICENSE,
+                'Arch' => ARCH_X86,
+                'Platform' => 'win',
+                'Targets' => [
+                  ['Automatic']
+                ]
               )
             )
           end
