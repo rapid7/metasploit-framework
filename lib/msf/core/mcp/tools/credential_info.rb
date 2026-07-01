@@ -33,8 +33,7 @@ module Msf::MCP
             minimum: 0,
             default: 0
           }
-        },
-        required: [:workspace]
+        }
       )
 
       output_schema(

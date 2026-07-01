@@ -32,7 +32,8 @@ module Msf::MCP
             description: 'Module datastore options as a JSON object. Keys are Metasploit option ' \
                          'names (e.g. RHOSTS, RPORT, LHOST, LPORT, PAYLOAD, TARGET, ACTION). ' \
                          'Namespaced mixin options that use the `::` separator are also accepted ' \
-                         '(e.g. HTTP::compression, CMDSTAGER::FLAVOR, EXE::Custom). ' \
+                         '(e.g. HTTP::compression, CMDSTAGER::FLAVOR, EXE::Custom), as are ' \
+                         'hyphenated identifiers (e.g. BEARER-TOKEN). ' \
                          'Values must be scalars (string, integer, float, boolean, or null). ' \
                          'Example: {"RHOSTS": "192.0.2.10", "RPORT": 4444, "PAYLOAD": "windows/meterpreter/reverse_tcp"}. ' \
                          'No nested objects or arrays.',

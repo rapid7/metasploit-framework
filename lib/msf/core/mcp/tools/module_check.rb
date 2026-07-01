@@ -36,7 +36,8 @@ module Msf::MCP
             type: 'object',
             description: 'Module datastore options as a JSON object. Keys are Metasploit option ' \
                          'names (e.g. RHOSTS, RPORT). Namespaced mixin options that use the `::` ' \
-                         'separator are also accepted (e.g. HTTP::compression, SMB::ChunkSize). ' \
+                         'separator are also accepted (e.g. HTTP::compression, SMB::ChunkSize), ' \
+                         'as are hyphenated identifiers (e.g. BEARER-TOKEN). ' \
                          'Values must be scalars (string, integer, float, boolean, or null). ' \
                          'Example: {"RHOSTS": "192.0.2.10", "RPORT": 445}. ' \
                          'No nested objects or arrays.',

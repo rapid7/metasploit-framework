@@ -195,8 +195,11 @@ module Msf::MCP
 
       # Module datastore option limits.
       #
-      # These bounds keep payloads compatible with the MCP transport while still
-      # accommodating realistic Metasploit option sets.
+      # Bounds an oversized options hash before it reaches the Metasploit
+      # datastore. Real modules register on the order of 10-60 options across
+      # all inherited mixins, so 100 is a comfortable ceiling. This is a
+      # defence-in-depth cap against DoS-style input abuse from an MCP client,
+      # not a transport limit (MCP itself does not restrict payload size).
       MODULE_OPTIONS_MAX_KEYS = 100
       # Matches the option name conventions used across the Framework: standard
       # SCREAMING_SNAKE_CASE (RHOSTS, LPORT), CamelCase advanced options

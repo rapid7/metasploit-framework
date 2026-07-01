@@ -233,6 +233,21 @@ The same can be achieved through the environment variable, e.g. `MSF_MCP_AUTH_TO
 
 The server exposes 16 tools to AI applications via the MCP protocol. Tools marked **dangerous** are gated by [Dangerous Actions Mode](#dangerous-actions-mode) and return a tool error unless the operator has explicitly enabled it.
 
+### Response envelope
+
+Every successful tool response is wrapped in the same envelope:
+
+```jsonc
+{
+  "metadata": { "query_time": <seconds> /* plus tool-specific keys */ },
+  "data": <tool-specific payload>
+}
+```
+
+`metadata.query_time` is the wall-clock time (in seconds) the MCP server spent handling the call. Individual tools may add fields to `metadata` (for example, database tools include `workspace`, `total_items`, `returned_items`, `limit`, and `offset`; `msf_session_list` includes `total_sessions`). The shapes documented per tool below describe `data` only.
+
+Errors surface as MCP tool errors (`isError: true` responses with a `text` content). Validation errors, rate-limit rejections, authentication failures, and Metasploit API errors all follow that path.
+
 ### Read-only Tools
 
 #### msf_search_modules
@@ -247,7 +262,7 @@ Search for Metasploit modules by keywords, CVE IDs, or module names.
 
 Get detailed information about a specific Metasploit module.
 
-- `type` (string, required): Module type (`exploit`, `auxiliary`, `post`, `payload`, `encoder`, `nop`)
+- `type` (string, required): Module type (`exploit`, `auxiliary`, `post`, `payload`, `encoder`, `evasion`, `nop`)
 - `name` (string, required): Module path (e.g., `windows/smb/ms17_010_eternalblue`)
 
 Returns complete module details including options, targets, references, and authors.
@@ -321,7 +336,7 @@ Retrieve the result of a previously executed module run by its UUID.
 
 - `uuid` (string, required): 24-character alphanumeric run UUID returned by `msf_module_execute` or `msf_module_check`
 
-Returns one of:
+`data` is one of:
 
 - `{ "status": "ready" }` — job is queued but has not started yet
 - `{ "status": "running" }` — job is still executing
@@ -332,7 +347,7 @@ Returns one of:
 
 Return a snapshot of running and waiting module runs known to the framework.
 
-Takes no parameters. Returns an object with:
+Takes no parameters. `data` is an object with:
 
 - `waiting`: list of run UUIDs queued but not yet started
 - `running`: list of run UUIDs currently executing
@@ -342,15 +357,15 @@ Takes no parameters. Returns an object with:
 
 List active Metasploit sessions.
 
-Takes no parameters. Returns a hash keyed by integer session id, where each value describes the session type (e.g. `meterpreter`, `shell`), tunnel endpoints, the target host, and the originating module.
+Takes no parameters. `data` is a hash keyed by session id (serialised as a string when transported over JSON), where each value describes the session type (e.g. `meterpreter`, `shell`), tunnel endpoints, the target host, and the originating module. `metadata.total_sessions` reports the number of entries in `data`.
 
 #### msf_session_read
 
-Non-destructively read pending output from an interactive session (shell or meterpreter).
+Non-destructively read pending output from an interactive session (meterpreter, database, or SMB).
 
 - `session_id` (integer, required): Session id from `msf_session_list`
 
-Returns `{ "data": "...", "seq": N }`. The MCP server does not buffer; clients are responsible for reassembling reads. Returns an error if the session id is not active.
+Returns `data: { "data": "..." }`. The MCP server does not buffer; clients are responsible for reassembling reads. Returns a tool error if the session id is not active.
 
 ### Dangerous Tools
 
@@ -360,11 +375,11 @@ These four tools can change the state of the framework, remote targets, or runni
 
 Run a Metasploit module as a background job.
 
-- `type` (string, required): Module type (`exploit`, `auxiliary`, `post`, `evasion`)
+- `type` (string, required): Module type (`exploit`, `auxiliary`, `post`, `payload`, `evasion`)
 - `name` (string, required): Module path (e.g., `multi/handler`)
 - `options` (object, required): Datastore options as a flat JSON object. Keys are Metasploit option names; namespaced (`HTTP::compression`) and hyphenated (`BEARER-TOKEN`) names are supported. Values must be scalars (string, integer, number, boolean, or null). No nested objects or arrays.
 
-Returns `{ "metadata": { "uuid": "<24 chars>", "job_id": N }, "next_steps": { ... } }`. Poll `msf_module_results` with the returned UUID to retrieve the outcome.
+Returns `data: { "job_id": N, "uuid": "<24 chars>" }`. Poll `msf_module_results` with the returned UUID to retrieve the outcome.
 
 This tool does not implement check-before-exploit. If a module supports `Msf::Exploit::Remote::AutoCheck`, the framework runs the check automatically; otherwise, run `msf_module_check` first.
 
@@ -376,9 +391,9 @@ Run the `check` method of an exploit or auxiliary module to determine whether a 
 - `name` (string, required): Module path
 - `options` (object, required): Datastore options (same shape as `msf_module_execute`)
 
-Returns `{ "metadata": { "uuid": "<24 chars>", "job_id": N } }`. Poll `msf_module_results` for the `CheckCode` (e.g. `Vulnerable`, `Safe`, `Detected`, `Appears`, `Unknown`).
+Returns `data: { "job_id": N, "uuid": "<24 chars>" }`. Poll `msf_module_results` for the `CheckCode` (e.g. `Vulnerable`, `Safe`, `Detected`, `Appears`, `Unknown`).
 
-Modules that do not implement a `check` method surface as a tool error rather than a success payload.
+When the target module does not implement a `check` method, the tool returns a **successful** response with `data: { "status": "unsupported", "message": "Module does not implement a check method" }` rather than a tool error, so clients can distinguish "not supported" from a transport or runtime failure.
 
 #### msf_session_stop
 
@@ -386,16 +401,16 @@ Terminate an active session.
 
 - `session_id` (integer, required): Session id from `msf_session_list`
 
-Returns `{ "result": "success" }`. Returns a tool error if the session id is not active.
+Returns `data: { "result": "success" }`. Returns a tool error if the session id is not active.
 
 #### msf_session_write
 
-Send data to an interactive session (shell or meterpreter).
+Send data to an interactive session (meterpreter, database, or SMB). Use `msf_session_read` afterwards to retrieve any output produced.
 
 - `session_id` (integer, required): Session id from `msf_session_list`
-- `data` (string, required): Bytes to write to the session, capped at 64 KB per call
+- `data` (string, required): Bytes to write to the session, capped at 10,000 characters per call
 
-Returns `{ "write_count": N }`. Use `msf_session_read` afterwards to retrieve any output produced by the command.
+Returns `data: { "result": "<framework result string>" }`.
 
 ## Dangerous Actions Mode
 
