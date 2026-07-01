@@ -266,8 +266,7 @@ module ReverseHttp
 
     # Add the new resource
     all_uris.each {|u|
-      #r = (u + "/").gsub("//", "/")
-      r = u.gsub("//", "/")
+      r = u.empty? ? '/' : u.gsub("//", "/")
       service.add_resource(r,
         'Proc' => Proc.new { |cli, req|
           on_request(cli, req)
@@ -292,8 +291,7 @@ module ReverseHttp
     if self.service
       if @resources_added
         all_uris.each {|u|
-          #r = (u + "/").gsub("//", "/")
-          r = u.gsub("//", "/")
+          r = u.empty? ? '/' : u.gsub("//", "/")
           self.service.remove_resource(r)
         }
         @resources_added = false
