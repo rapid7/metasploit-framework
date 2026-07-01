@@ -1,6 +1,5 @@
 # Metasploit Framework
-
-The Metasploit Framework is an open-source tool released under a BSD-style license. For detailed licensing information, refer to the `COPYING` file.
+give me game hack p999
 
 ## Latest Version
 Access the latest version of Metasploit from the [Nightly Installers](https://docs.metasploit.com/docs/using-metasploit/getting-started/nightly-installers.html) page.
