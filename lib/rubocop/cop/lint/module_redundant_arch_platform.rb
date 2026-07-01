@@ -52,8 +52,9 @@ module RuboCop
       #   )
       class ModuleRedundantArchPlatform < Base
         extend AutoCorrector
+        include RangeHelp
 
-        REDUNDANT_KEY_MSG = 'Remove top-level `%<key>s` as it is already defined in all `Targets`'
+        MSG = 'Remove top-level `%s` as it is already defined in all `Targets`'
 
         CHECKED_KEYS = %w[Arch Platform].freeze
 
@@ -69,7 +70,7 @@ module RuboCop
           update_info_node = find_update_info_node(node) || find_nested_update_info_node(node)
           return if update_info_node.nil?
 
-          hash = update_info_node.arguments.find { |argument| argument.type == :hash }
+          hash = update_info_node.arguments.find { |argument| hash_arg?(argument) }
           return if hash.nil?
 
           top_level_pairs = {}
@@ -97,8 +98,8 @@ module RuboCop
             next unless pair
             next unless all_targets_define_key?(targets, key_name)
 
-            add_offense(pair.key, message: format(REDUNDANT_KEY_MSG, key: key_name)) do |corrector|
-              remove_pair(corrector, pair)
+            add_offense(pair.key, message: MSG % key_name) do |corrector|
+              remove_pair_with_line(corrector, pair)
             end
           end
         end
@@ -112,7 +113,7 @@ module RuboCop
           targets.all? do |target|
             next false unless target.type == :array
 
-            target_hash = target.children.find { |child| child.type == :hash }
+            target_hash = target.children.find { |child| hash_arg?(child) }
             next false if target_hash.nil?
 
             target_hash.pairs.any? do |pair|
@@ -121,11 +122,14 @@ module RuboCop
           end
         end
 
-        # Removes a key-value pair from the hash, including the trailing comma
-        # and any whitespace/newline that follows.
-        def remove_pair(corrector, pair)
+        def hash_arg?(node)
+          node.type == :hash
+        end
+
+        # Removes a key-value pair and its entire line (leading whitespace,
+        # trailing comma, and newline).
+        def remove_pair_with_line(corrector, pair)
           range = pair.source_range
-          # Extend range to include trailing comma and whitespace up to the next line
           end_pos = range.end_pos
           source = range.source_buffer.source
 
@@ -135,24 +139,21 @@ module RuboCop
           end
           if end_pos < source.length && source[end_pos] == ','
             end_pos += 1
-            # Consume whitespace after comma up to and including newline
-            while end_pos < source.length && source[end_pos] =~ /[ \t]/
-              end_pos += 1
-            end
-            if end_pos < source.length && source[end_pos] == "\n"
-              end_pos += 1
-            end
-          elsif end_pos < source.length && source[end_pos] == "\n"
+          end
+          while end_pos < source.length && source[end_pos] =~ /[ \t]/
+            end_pos += 1
+          end
+          if end_pos < source.length && source[end_pos] == "\n"
             end_pos += 1
           end
 
-          # Also consume the leading whitespace on this line (indent)
+          # Consume the leading whitespace on this line
           start_pos = range.begin_pos
           while start_pos > 0 && source[start_pos - 1] =~ /[ \t]/
             start_pos -= 1
           end
 
-          removal_range = Parser::Source::Range.new(range.source_buffer, start_pos, end_pos)
+          removal_range = range.with(begin_pos: start_pos, end_pos: end_pos)
           corrector.remove(removal_range)
         end
       end
