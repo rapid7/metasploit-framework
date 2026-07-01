@@ -167,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status('DTLS handshake succeeded (self-signed cert accepted)') unless silent
 
     [ssl, ctx, udp_sock, rbio, wbio]
-  rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED => e
+  rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED, ::Errno::ECONNRESET => e
     print_error("Connection failed: #{e.message}") unless silent
     cleanup_dtls(ssl, ctx, udp_sock)
     [nil, nil, nil, nil, nil]
