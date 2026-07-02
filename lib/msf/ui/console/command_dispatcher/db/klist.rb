@@ -27,7 +27,8 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
     ['-h', '--help'] => [false, 'Help banner'],
     ['-i', '--index'] => [true, 'Kerberos entry ID(s) to search for, e.g. `-i 1` or `-i 1,2,3` or `-i 1 -i 2 -i 3`'],
     ['-a', '--activate'] => [false, 'Activates *all* matching kerberos entries'],
-    ['-A', '--deactivate'] => [false, 'Deactivates *all* matching kerberos entries']
+    ['-A', '--deactivate'] => [false, 'Deactivates *all* matching kerberos entries'],
+    ['-t', '--trace'] => [true, 'Show trace output for a single Kerberos ticket by ID or path']
   )
 
   def cmd_klist(*args)
@@ -38,6 +39,7 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
     host_ranges = []
     id_search = []
     verbose = false
+    trace_target = nil
     @@klist_opts.parse(args) do |opt, _idx, val|
       case opt
       when '-h', '--help'
@@ -45,6 +47,8 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
         return
       when '-v', '--verbose'
         verbose = true
+      when '-t', '--trace'
+        trace_target = val
       when '-d', '--delete'
         mode = :delete
       when '-i', '--id'
@@ -60,12 +64,21 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
         end
       end
     end
-
     # Sentinel value meaning all
     host_ranges.push(nil) if host_ranges.empty?
+    trace_path = nil
+    if trace_target
+      if trace_target.match?(/\A\d+\z/)
+        id_search = [trace_target]
+      else
+        id_search = []
+        trace_path = File.expand_path(trace_target)
+      end
+    end
     id_search = nil if id_search.empty?
 
     ticket_results = ticket_search(host_ranges, id_search)
+    ticket_results.select! { |ticket_result| File.expand_path(ticket_result.path.to_s) == trace_path } if trace_path
 
     print_line('Kerberos Cache')
     print_line('==============')
@@ -88,9 +101,16 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
       # TODO: should be able to use the results returned from updating loot
       # but it returns a base 64'd data field which breaks when bindata tries to parse it as a ccache
       ticket_results = ticket_search(host_ranges, id_search)
+      ticket_results.select! { |ticket_result| File.expand_path(ticket_result.path.to_s) == trace_path } if trace_path
     end
 
-    if verbose
+    if trace_target
+      ticket_results.each.with_index do |ticket_result, index|
+        presenter = Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter.new(ticket_result.ccache)
+        print_line presenter.present_trace(source: "Cache[#{index}] id=#{ticket_result.id}")
+        print_line
+      end
+    elsif verbose
       ticket_results.each.with_index do |ticket_result, index|
         ticket_details = Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter.new(ticket_result.ccache).present
         print_line "Cache[#{index}]:"

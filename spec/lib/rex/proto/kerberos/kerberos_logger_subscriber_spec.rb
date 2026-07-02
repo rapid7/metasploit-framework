@@ -734,10 +734,18 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
       EOF
     end
 
+    let(:presented_credentials) do
+      <<~EOF.rstrip
+        Creds: 1
+          Credential[0]:
+            #{presented_credential.gsub("\n", "\n    ")}
+      EOF
+    end
+
     let(:presenter) do
       instance_double(
         Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter,
-        present_cred: presented_credential
+        present_credentials: presented_credentials
       )
     end
 
@@ -809,6 +817,25 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
           renew_till: renew_till
         )
       end
+      let(:presented_credentials) do
+        <<~EOF.rstrip
+          Creds: 1
+            Credential[0]:
+              Server: krbtgt/EXAMPLE.LOCAL@EXAMPLE.LOCAL
+              Client: Administrator@EXAMPLE.LOCAL
+              Ticket etype: 18 (AES256)
+              Subkey: false
+              Ticket Length: 1234
+              Ticket Flags: 0x00000000 ()
+              Addresses: 0
+              Authdatas: 0
+              Times:
+                Auth time: #{auth_time.localtime}
+                Start time: #{start_time.localtime}
+                End time: #{end_time.localtime}
+                Renew Till: #{renew_till.localtime}
+        EOF
+      end
 
       it 'prints only high-level credential metadata' do
         log_credential
@@ -876,7 +903,7 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
       let(:presenter) { instance_double(Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter) }
 
       before do
-        allow(presenter).to receive(:present_cred).with(credential).and_raise(RuntimeError, 'boom')
+        allow(presenter).to receive(:present_credentials).with([credential], trace_mode: trace_mode).and_raise(RuntimeError, 'boom')
       end
 
       it 'prints the presenter error message' do
