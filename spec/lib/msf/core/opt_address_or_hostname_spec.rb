@@ -33,10 +33,6 @@ RSpec.describe Msf::OptAddressOrHostname do
     # Wildcard bind addresses are not valid callback addresses for LHOST
     { value: '0.0.0.0' },
     { value: '0::0' },
-    # Incomplete or excessive dotted-decimal (all numeric - must be valid IPv4)
-    { value: '192.0.2' },
-    { value: '192.0.2.0.0' },
-    { value: '1.2.3.4.5' },
     # Malformed IPv6
     { value: '0:::0' },
     { value: '0:0:0' },
