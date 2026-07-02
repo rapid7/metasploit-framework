@@ -36,8 +36,6 @@ class OptAddressOrHostname < OptAddressRoutable
     return false unless value.kind_of?(String) || value.kind_of?(NilClass)
 
     if value && !value.empty?
-      return true if interfaces.include?(value)
-
       return super if Rex::Socket.is_ip_addr?(value)
 
       if Rex::Socket.is_name?(value)

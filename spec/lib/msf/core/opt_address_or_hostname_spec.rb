@@ -79,7 +79,7 @@ RSpec.describe Msf::OptAddressOrHostname do
       end
 
       it 'rescues and falls back to IP/hostname checks' do
-        expect(opt).to receive(:elog).with(an_instance_of(NetworkInterface::Error)).at_least(:once)
+        expect(opt).to receive(:elog).with(an_instance_of(NetworkInterface::Error))
         expect(opt.valid?('192.0.2.1')).to be_truthy
       end
     end
