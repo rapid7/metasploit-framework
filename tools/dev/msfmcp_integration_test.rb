@@ -647,6 +647,10 @@ class IntegrationTests
 
     @runner.run('msf_module_execute launches a module') do
       type, name = split_module_spec(@options[:execute_module] || DEFAULT_EXECUTE_MODULE)
+      if type == 'exploit'
+        raise SkipTest, 'covered by full exploit lifecycle test (avoids handler contention)'
+      end
+
       # When the user keeps the bundled default module, apply its companion
       # defaults so the test is runnable with just --rhost.
       defaults = @options[:execute_module].nil? ? { 'PORTS' => '22' } : {}
@@ -677,24 +681,22 @@ class IntegrationTests
                             { session_id: 99_999, data: 'whoami' })
       assert_tool_error(r)
     end
-
-    if (sid = @options[:session_id])
-      @runner.run("msf_session_read returns buffered data for session #{sid}") do
-        r = @client.call_tool('msf_session_read', { session_id: sid })
-        assert_tool_success(r)
-      end
-    end
   end
 
   # --- Full exploit lifecycle ---------------------------------------------
   #
-  # Chains the dangerous tools together against a real target:
-  #   msf_module_execute -> msf_running_stats / msf_module_results
-  #     -> msf_session_list -> msf_session_write (sysinfo)
-  #     -> msf_session_read -> msf_session_stop -> msf_session_list (gone)
+  # Sequential polling flow (fails fast on explicit error signals):
   #
-  # Only runs when the module under test is an exploit -- the other module
-  # types don't necessarily open a session.
+  #   1. msf_module_execute                                 -> capture uuid
+  #   2. msf_running_stats (poll until uuid in :results)    -> run finished
+  #   3. msf_module_results (poll until 'session N opened') -> capture SID
+  #   4. msf_session_list                                   -> confirm SID
+  #   5. msf_session_write (type-appropriate probe command)
+  #   6. msf_session_read (poll until probe output matches)
+  #   7. msf_session_stop + msf_session_list                -> confirm cleanup
+  #
+  # Only runs when the module under test is an exploit -- other module types
+  # don't necessarily open a session.
   def test_exploit_lifecycle
     type, name = split_module_spec(@options[:execute_module] || DEFAULT_EXECUTE_MODULE)
 
@@ -716,77 +718,67 @@ class IntegrationTests
     end
 
     exploit_uuid = nil
-    exploit_job_id = nil
     session_id = nil
-    reported_sid = nil
-    baseline_sids = []
+    session_type = nil
+    probe = nil
 
-    @runner.run('msf_session_list snapshot before exploit') do
-      r = @client.call_tool('msf_session_list')
-      assert_tool_success(r)
-      baseline_sids = session_ids_from(parse_tool_data(r))
-    end
-
+    # Step 1: launch the exploit.
     @runner.run("msf_module_execute launches exploit #{name}") do
       r = @client.call_tool('msf_module_execute',
                             { type: type, name: name, options: tool_options })
       assert_tool_success(r)
       data = parse_tool_data(r)
-      exploit_uuid   = data[:data][:uuid]
-      exploit_job_id = data[:data][:job_id]
+      exploit_uuid = data[:data][:uuid]
       assert exploit_uuid, 'expected uuid'
-      assert exploit_job_id, 'expected job_id'
+      assert data[:data][:job_id], 'expected job_id'
     end
 
     unless exploit_uuid
-      # Bail out cleanly so the remaining lifecycle steps don't cascade.
       @runner.run('exploit lifecycle aborted') do
         raise SkipTest, 'no uuid returned from msf_module_execute'
       end
       return
     end
 
-    @runner.run('msf_running_stats lists the launched run') do
-      # Poll briefly: the run may still be in `waiting` before it starts.
-      stats = poll_until(
+    # Step 2: wait for the run to complete (uuid appears in :results).
+    @runner.run("msf_running_stats reports run #{exploit_uuid} finished") do
+      done = poll_until(
+        timeout: @options[:exploit_timeout],
+        predicate: ->(data) { Array(data[:data][:results]).include?(exploit_uuid) }
+      ) { @client.call_tool('msf_running_stats') }
+      assert done, "uuid #{exploit_uuid} not in running_stats.results after #{@options[:exploit_timeout]}s"
+    end
+
+    # Step 3: poll the run's result text for the 'session N opened' line.
+    # Fail fast if the result indicates the module errored or explicitly
+    # reports that no session was created.
+    @runner.run('msf_module_results reports a session-opened line') do
+      last_result_text = nil
+      outcome = poll_until(
         timeout: 30,
         predicate: lambda do |data|
-          [data[:data][:waiting], data[:data][:running], data[:data][:results]]
-            .flatten.include?(exploit_uuid)
-        end
-      ) { @client.call_tool('msf_running_stats') }
-      assert stats, "UUID #{exploit_uuid} not visible in running_stats after 30s"
-    end
+          status = data[:data][:status].to_s
+          result_text = data[:data][:result].to_s
+          last_result_text = result_text
 
-    @runner.run('msf_module_results returns a terminal status') do
-      terminal = poll_until(
-        timeout: @options[:exploit_timeout],
-        predicate: ->(data) { %w[completed errored].include?(data[:data][:status].to_s) }
+          if status == 'errored'
+            raise AssertionFailed, "module run errored: #{data[:data][:error].inspect}"
+          end
+          if NO_SESSION_PATTERNS.any? { |pat| result_text.match?(pat) }
+            raise AssertionFailed, "module reported no session opened: #{result_text.inspect}"
+          end
+
+          result_text.match?(SESSION_OPENED_PATTERN)
+        end
       ) { @client.call_tool('msf_module_results', { uuid: exploit_uuid }) }
-      assert terminal, "module_results did not reach terminal state in #{@options[:exploit_timeout]}s"
-      if terminal[:data][:status].to_s == 'errored'
-        raise AssertionFailed, "module run errored: #{terminal[:data][:error].inspect}"
-      end
-      reported_sid = extract_reported_sid(terminal[:data][:result].to_s)
-    end
 
-    @runner.run('msf_session_list surfaces the new session') do
-      # Match against the diff with the pre-execute snapshot. Fall back to
-      # the SID reported by ExploitDriver's completion message ("Meterpreter
-      # session N opened ...") when the snapshot diff is empty -- that only
-      # happens when the SID was recycled by an earlier deregister, which
-      # is rare but possible.
-      selected = nil
-      found = poll_until(
-        timeout: 15,
-        predicate: lambda do |data|
-          current = session_ids_from(data)
-          selected = select_new_session_id(baseline_sids, current, reported_sid)
-          !selected.nil?
-        end
-      ) { @client.call_tool('msf_session_list') }
-      assert found, "no new session opened (baseline=#{baseline_sids.inspect}, reported_sid=#{reported_sid.inspect})"
-      session_id = selected
+      unless outcome
+        raise AssertionFailed,
+              "no 'session opened' line detected within 30s; last result=#{last_result_text.inspect}"
+      end
+
+      session_id = extract_reported_sid(outcome[:data][:result].to_s)
+      assert session_id, "could not parse SID from result: #{outcome[:data][:result].inspect}"
     end
 
     unless session_id
@@ -796,23 +788,39 @@ class IntegrationTests
       return
     end
 
-    @runner.run("msf_session_write sends sysinfo to session #{session_id}") do
+    # Step 4: confirm the session is in msf_session_list, and capture its
+    # type so the probe command can be chosen accordingly.
+    @runner.run("msf_session_list contains session #{session_id}") do
+      r = @client.call_tool('msf_session_list')
+      assert_tool_success(r)
+      data = parse_tool_data(r)
+      entry = data[:data][session_id.to_s.to_sym]
+      assert entry, "session #{session_id} not in list: #{session_ids_from(data).inspect}"
+      session_type = entry[:type].to_s
+      probe = probe_for(session_type)
+    end
+
+    # Step 5: send the type-appropriate probe command.
+    @runner.run("msf_session_write sends #{probe[:description]} to #{session_type} session #{session_id}") do
       r = @client.call_tool('msf_session_write',
-                            { session_id: session_id, data: "sysinfo\n" })
+                            { session_id: session_id, data: probe[:command] })
       assert_tool_success(r)
     end
 
-    @runner.run("msf_session_read returns sysinfo output from session #{session_id}") do
-      # Meterpreter buffers output asynchronously; poll until we see a
-      # non-empty payload that looks like sysinfo (Computer:/OS:/Meterpreter:).
-      matched = poll_until(
-        timeout: 15,
-        predicate: lambda do |data|
-          buf = data[:data][:data].to_s
-          buf.match?(/Computer|OS\s*:|Meterpreter|System Language/i) && !buf.empty?
-        end
-      ) { @client.call_tool('msf_session_read', { session_id: session_id }) }
-      assert matched, 'sysinfo output not returned within 15s'
+    # Step 6: poll session_read for the expected output (or, for DB/SMB/LDAP
+    # sessions where no universal probe response exists, verify only that
+    # the read call succeeds).
+    @runner.run("msf_session_read returns expected output from session #{session_id}") do
+      if probe[:verify] == :success_only
+        r = @client.call_tool('msf_session_read', { session_id: session_id })
+        assert_tool_success(r)
+      else
+        matched = poll_until(
+          timeout: 15,
+          predicate: ->(data) { probe[:verify].call(data[:data][:data].to_s) }
+        ) { @client.call_tool('msf_session_read', { session_id: session_id }) }
+        assert matched, "probe output (#{probe[:description]}) not received within 15s for #{session_type} session"
+      end
     end
 
     @runner.run("msf_session_stop terminates session #{session_id}") do
@@ -991,24 +999,55 @@ class IntegrationTests
   # (see lib/msf/core/exploit_driver.rb).
   SESSION_OPENED_PATTERN = /\S+ session (\d+) opened\b/i.freeze
 
+  # Substrings that identify a run that completed without opening a session.
+  # Matching any of these short-circuits the module.results poll so the test
+  # fails immediately rather than waiting for the poll to time out.
+  NO_SESSION_PATTERNS = [
+    /but no session was created/i,
+    /handler failed to bind/i,
+    /exploit aborted due to failure/i
+  ].freeze
+
   def extract_reported_sid(result_text)
     match = result_text.match(SESSION_OPENED_PATTERN)
     match ? match[1].to_i : nil
   end
 
-  # Return the SID this test should drive against. Prefer the reported SID
-  # when it is actually present in the current session list (this is the
-  # session ExploitDriver picked as the run's primary result). Otherwise
-  # fall back to the newest SID that wasn't in the pre-execute snapshot.
-  def select_new_session_id(baseline_sids, current_sids, reported_sid)
-    baseline = baseline_sids.to_a
-    current  = current_sids.to_a
-    return reported_sid if reported_sid && current.include?(reported_sid)
-
-    diff = current - baseline
-    return nil if diff.empty?
-
-    diff.min
+  # Choose a session-appropriate write/read probe. Returns a hash with:
+  #   :description -> short label for test names
+  #   :command     -> string to send via msf_session_write
+  #   :verify      -> either :success_only (skip content check) or a lambda
+  #                    that takes the buffered read output and returns truthy
+  #                    when the expected response has arrived.
+  #
+  # meterpreter uses `sysinfo` (recognisable output). shell / powershell use
+  # `echo MSF_PROBE_<nonce>` and match against the nonce so buffered output
+  # from earlier commands can't produce a false positive. DB / SMB / LDAP
+  # sessions have no universal probe response, so the read is verified only
+  # as "did the call succeed" -- semantic checks for those types belong in
+  # dedicated tests.
+  def probe_for(session_type)
+    case session_type.to_s
+    when 'meterpreter'
+      {
+        description: 'sysinfo',
+        command: "sysinfo\n",
+        verify: ->(buf) { buf.match?(/Computer\s*:|OS\s*:|Meterpreter\s*:|System Language/i) }
+      }
+    when 'shell', 'powershell'
+      marker = "MSF_PROBE_#{SecureRandom.hex(4)}"
+      {
+        description: "echo #{marker}",
+        command: "echo #{marker}\n",
+        verify: ->(buf) { buf.include?(marker) }
+      }
+    else
+      {
+        description: 'help (success-only)',
+        command: "help\n",
+        verify: :success_only
+      }
+    end
   end
 
   def default_db_query_for(name)
@@ -1066,7 +1105,6 @@ OptionParser.new do |opts|
   opts.on('--rhost IP',    'RHOSTS target for dangerous tests (e.g. 192.0.2.10)') { |v| options[:rhost] = v }
   opts.on('--lhost IP',    'LHOST for payload-bound dangerous tests')            { |v| options[:lhost] = v }
   opts.on('--lport PORT',  Integer, 'LPORT for payload-bound dangerous tests')   { |v| options[:lport] = v }
-  opts.on('--session-id N', Integer, 'Existing session id for session read test') { |v| options[:session_id] = v }
   opts.on('--check-module SPEC',
           'Module spec for msf_module_check as TYPE:NAME',
           "(default: #{IntegrationTests::DEFAULT_CHECK_MODULE})") { |v| options[:check_module] = v }

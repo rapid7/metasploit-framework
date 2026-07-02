@@ -6,13 +6,13 @@ module Msf::MCP
     # MCP Tool: Send Input to an Interactive Session
     #
     # Wraps the `session.interactive_write` RPC endpoint. The provided data is
-    # appended to the session's input buffer and processed by the active
-    # interactive UI (meterpreter, database, SMB).
+    # forwarded to the session for processing (meterpreter, database, SMB, LDAP,
+    # shell, powershell).
     #
     class SessionWrite < ::MCP::Tool
       tool_name 'msf_session_write'
       description 'Send input data to an interactive Metasploit session '\
-                  '(meterpreter, database, SMB). Use msf_session_read to retrieve output.'
+                  '(meterpreter, database, SMB, LDAP, shell, powershell). Use msf_session_read to retrieve output.'
 
       input_schema(
         properties: {

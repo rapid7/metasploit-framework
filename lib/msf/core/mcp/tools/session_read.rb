@@ -6,12 +6,12 @@ module Msf::MCP
     # MCP Tool: Read Output from an Interactive Session
     #
     # Wraps the `session.interactive_read` RPC endpoint. Works for meterpreter,
-    # DB, and SMB session types that support the interactive UI buffer.
+    # DB, SMB, LDAP, and shell/powershell session types.
     #
     class SessionRead < ::MCP::Tool
       tool_name 'msf_session_read'
       description 'Read buffered output from an interactive Metasploit session '\
-                  '(meterpreter, database, SMB).'
+                  '(meterpreter, database, SMB, LDAP, shell, powershell).'
 
       input_schema(
         properties: {
