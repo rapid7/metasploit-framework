@@ -29,16 +29,6 @@ on:
   pull_request:
     branches:
       - '*'
-    paths:
-      - 'metsploit-framework.gemspec'
-      - 'Gemfile.lock'
-      - '**/**postgres**'
-      - 'lib/metasploit/framework/tcp/**'
-      - 'lib/metasploit/framework/login_scanner/**'
-      - 'spec/acceptance/**'
-      - 'spec/support/acceptance/**'
-      - 'spec/acceptance_spec_helper.rb'
-      - '.github/**'
 #   Example of running as a cron, to weed out flaky tests
 #  schedule:
 #    - cron: '*/15 * * * *'

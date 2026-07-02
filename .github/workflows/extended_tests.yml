@@ -21,10 +21,6 @@ on:
   pull_request_target:
     branches:
       - '*'
-    paths:
-      - '**/**ldap**'
-      - '**/**kerberos**'
-      - '**/**gss**'
 
 jobs:
   add-labels:

@@ -39,22 +39,6 @@ on:
   pull_request:
     branches:
       - '*'
-    paths:
-      - 'metasploit-framework.gemspec'
-      - 'Gemfile.lock'
-      - 'data/templates/**'
-      - 'modules/payloads/**'
-      - 'lib/msf/core/payload/**'
-      - 'lib/msf/core/handler/**'
-      - 'lib/msf/core/post/**'
-      - 'lib/msf/core/session/**'
-      - 'lib/msf/base/sessions/**'
-      - 'tools/dev/**'
-      - 'test/modules/post/**'
-      - 'spec/acceptance/**'
-      - 'spec/support/acceptance/**'
-      - 'spec/acceptance_spec_helper.rb'
-      - '.github/**'
 #   Example of running as a cron, to weed out flaky tests
 #  schedule:
 #    - cron: '*/15 * * * *'
