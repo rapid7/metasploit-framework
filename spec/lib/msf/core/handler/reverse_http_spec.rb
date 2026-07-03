@@ -39,7 +39,7 @@ RSpec.describe Msf::Handler::ReverseHttp do
     context 'when add_resource raised and resource was not added' do
       before do
         payload.service = mock_service
-        payload.resource_added = false
+        payload.instance_variable_set(:@resources_added, false)
       end
 
       it 'does not remove the resource but still derefs the service' do
@@ -53,7 +53,7 @@ RSpec.describe Msf::Handler::ReverseHttp do
     context 'when the resource was successfully added' do
       before do
         payload.service = mock_service
-        payload.resource_added = true
+        payload.instance_variable_set(:@resources_added, true)
       end
 
       it 'removes the resource and derefs the service' do
@@ -61,7 +61,7 @@ RSpec.describe Msf::Handler::ReverseHttp do
         expect(mock_service).to receive(:deref)
         payload.stop_handler
         expect(payload.service).to be_nil
-        expect(payload.resource_added).to eq(false)
+        expect(payload.instance_variable_get(:@resources_added)).to eq(false)
       end
     end
   end

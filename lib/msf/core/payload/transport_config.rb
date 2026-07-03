@@ -96,6 +96,7 @@ module Msf::Payload::TransportConfig
       host:            ds['HttpHostHeader'],
       cookie:          ds['HttpCookie'],
       referer:         ds['HttpReferer'],
+      c2_profile:      opts[:c2_profile],
       custom_headers:  get_custom_headers(ds)
     }.merge(timeout_config(opts))
   end
