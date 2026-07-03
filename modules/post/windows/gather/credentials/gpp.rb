@@ -378,14 +378,14 @@ class MetasploitModule < Msf::Post
   def get_domain_reg
     locations = []
     # Lots of redundancy but hey this is quick!
-    locations << ['HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\', 'Domain']
-    locations << ['HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\', 'DefaultDomainName']
-    locations << ['HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\', 'MachineDomain']
+    locations << ['HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters', 'Domain']
+    locations << ['HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon', 'DefaultDomainName']
+    locations << ['HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History', 'MachineDomain']
 
     domains = []
 
     # Pulls cached domains from registry
-    domain_cache = registry_enumvals('HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DomainCache\\')
+    domain_cache = registry_enumvals('HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DomainCache')
     if domain_cache
       domain_cache.each { |ud| domains << ud }
     end

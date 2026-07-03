@@ -47,12 +47,12 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2016-3236'],
         ['MSB', 'MS16-077']
       ],
-      'DisclosureDate' => 'Jun 14 2016'
+      'DisclosureDate' => '2016-06-14'
     )
 
     register_options(
       [
-        OptAddress.new('SRVHOST', [ true, "The local host to listen on.", '0.0.0.0' ]),
+        OptAddressLocal.new('SRVHOST', [ true, "The local host to listen on.", '0.0.0.0' ]),
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 137 ]),
         OptString.new('NBNAME', [ true, "The NetBIOS name to spoof a reply for", 'WPAD' ]),
         OptAddress.new('NBADDR', [ true, "The address that the NetBIOS name should resolve to", Rex::Socket.source_address("50.50.50.50") ]),
@@ -137,7 +137,7 @@ class MetasploitModule < Msf::Auxiliary
           if pps > @targ_rate
             sleep(0.01)
           end
-        rescue Errno::ECONNREFUSED
+        rescue Errno::ECONNREFUSED, Errno::ECONNRESET
           print_error("Error: Target sent us an ICMP port unreachable, port is likely closed")
           live = false
           break

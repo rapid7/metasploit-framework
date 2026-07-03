@@ -45,9 +45,9 @@ class MetasploitModule < Msf::Post
 
   def check
     osx_version = cmd_exec('sw_vers -productVersion')
-    return Exploit::CheckCode::Vulnerable if osx_version =~ /^10\.13[.[0-3]]?$/
+    return Exploit::CheckCode::Vulnerable('macOS 10.13.0-10.13.3 is vulnerable to APFS password disclosure') if osx_version =~ /^10\.13[.[0-3]]?$/
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('macOS version is not vulnerable to APFS password disclosure')
   end
 
   def run

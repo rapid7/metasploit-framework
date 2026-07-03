@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf::Util::EXE::OSX::X86
   include Msf::Util::EXE::Common
   include Msf::Util::EXE::OSX::Common

@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptAddress.new('SRVHOST', [ true, "The local host to listen on.", '0.0.0.0' ]),
+        OptAddressLocal.new('SRVHOST', [ true, "The local host to listen on.", '0.0.0.0' ]),
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 69 ]),
         OptPath.new('TFTPROOT', [ true, "The TFTP root directory to serve files from", Dir.tmpdir ]),
         OptPath.new('OUTPUTPATH', [ true, "The directory in which uploaded files will be written.", Dir.tmpdir ])
@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def srvhost
-    srvhost || '0.0.0.0'
+    datastore['SRVHOST'] || '0.0.0.0'
   end
 
   def srvport

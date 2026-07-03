@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Encoder
 
     register_advanced_options(
       [
-        OptEnum.new('Base64Decoder', [ false, 'The binary to use for base64 decoding', '', %w[base64 base64-long base64-short openssl] ])
+        OptString.new('Base64Decoder', [ false, 'The binary to use for base64 decoding', '', %w[base64 base64-long base64-short openssl] ])
       ]
     )
   end

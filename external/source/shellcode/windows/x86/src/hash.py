@@ -76,10 +76,11 @@ def unicode(string, uppercase=True):
 def hash(module, function, bits=13, print_hash=True):
     module_hash = 0
     function_hash = 0
-    for c in unicode(module + '\x00'):
+    for c in unicode(module):
         module_hash = ror(module_hash, bits)
         module_hash += ord(c)
-    for c in str(function + b'\x00'):
+    function_hash = module_hash
+    for c in str(function + '\x00'):
         function_hash = ror(function_hash, bits)
         function_hash += ord(c)
     h = module_hash + function_hash & 0xFFFFFFFF

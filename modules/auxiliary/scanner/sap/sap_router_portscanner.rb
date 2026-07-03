@@ -367,7 +367,7 @@ class MetasploitModule < Msf::Auxiliary
             r << res
           end
         rescue ::Rex::ConnectionRefused
-          print_error("#{ip}:#{port} - Unable to connect to SAPRouter #{rhost}:#{rport} - Connection Refused")
+          print_error("#{ip}:#{port} - Unable to connect to SAPRouter #{Rex::Socket.to_authority(rhost, rport)} - Connection Refused")
         rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error => e
           vprint_error(e.message)
         rescue ::Rex::Post::Meterpreter::RequestError => e

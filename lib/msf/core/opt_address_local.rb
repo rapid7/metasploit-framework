@@ -16,6 +16,9 @@ class OptAddressLocal < OptAddressRoutable
 
     return true if interfaces.include?(value)
 
+    # the 0.0.0.0 / :: addresses are valid local addresses for the purpose of binding
+    return true if Rex::Socket.is_ip_addr?(value) && Rex::Socket.addr_atoi(value) == 0
+
     # todo: this should probably have additional validation to ensure that the address is able to be bound to, this
     # would mean that the address is either locally available, or available via a Rex::Socket channel, e.g. a Meterpreter
     # session

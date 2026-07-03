@@ -17,16 +17,16 @@ Contributing modules in [GO](https://golang.org/) can be achieved in a few simpl
 import "metasploit/module"
 func main() {
   metadata := &module.Metadata{
-    Name: "<module name",
+    Name: "<module name>",
     Description: "<describe>",
     Authors: []string{"<author 1>", "<author 2>"},
-    Date: "<date module written",
+    Date: "<date module written>",
     Type:"<module type>",
     Privileged:  <true|false>,
     References:  []module.Reference{},
     Options: map[string]module.Option{	
-      "<option 1":     {Type: "<type>", Description: "<description>", Required: <true|false>, Default: "<default>"},		
-      "<option 2":     {Type: "<type>", Description: "<description>", Required: <true|false>, Default: "<default>"},
+      "<option 1>":     {Type: "<type>", Description: "<description>", Required: <true|false>, Default: "<default>"},		
+      "<option 2>":     {Type: "<type>", Description: "<description>", Required: <true|false>, Default: "<default>"},
   }}
 
   module.Init(metadata, <the entry method to your module>)

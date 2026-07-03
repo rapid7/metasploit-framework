@@ -78,6 +78,12 @@ Used only when the `RUN_SINGLE_QUERY` action is used. Should be a comma separate
 of attributes to display from the full result set for each entry that was returned by the
 target LDAP server. Used to filter the results down to manageable sets of data.
 
+### LDAP::QuerySacl
+Query the SACL on security descriptors. If the authenticated user does not have permission
+to view the SACL, the entire security descriptor will be omitted by the server. Setting
+this to false enables the other fields of the security descriptor to be viewed when those
+permissions are not present. Only applicable for Active Directory LDAP servers.
+
 ## Scenarios
 
 ### RUN_SINGLE_QUERY with Table Output

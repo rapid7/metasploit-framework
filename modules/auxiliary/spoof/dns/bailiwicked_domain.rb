@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
       req.rd = 1
 
       srv_sock.put(req.encode)
-      res, = srv_sock.recvfrom(65535, 1.0)
+      res, = srv_sock.timed_recvfrom(65535, 1.0)
 
       if res && !res.empty?
         reps += 1
@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if ports.keys.empty?
       vprint_error('ERROR: This server is not replying to recursive requests')
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Server is not replying to recursive requests')
     end
 
     if (reps < 30)
@@ -144,14 +144,14 @@ class MetasploitModule < Msf::Auxiliary
       if (ports_r != 100)
         vprint_status("INFO: This server's source ports are not really random and may still be exploitable, but not by this tool.")
         # Not exploitable by this tool, so we lower this to Appears on purpose to lower the user's confidence
-        return Exploit::CheckCode::Appears
+        return Exploit::CheckCode::Appears('Source ports are not truly random but may still be exploitable')
       end
     else
       vprint_error('FAIL: This server uses a static source port and is vulnerable to poisoning')
-      return Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Vulnerable('Server uses a static source port')
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Server source ports appear sufficiently random')
   end
 
   def run
@@ -182,7 +182,7 @@ class MetasploitModule < Msf::Auxiliary
       req.rd = 1
 
       srv_sock.put(req.encode)
-      res, = srv_sock.recvfrom
+      res, = srv_sock.timed_recvfrom(65535)
 
       if res && !res.empty?
         res = Resolv::DNS::Message.decode(res)
@@ -209,7 +209,7 @@ class MetasploitModule < Msf::Auxiliary
       loop do
         cached = false
         srv_sock.put(query.encode)
-        answer, = srv_sock.recvfrom
+        answer, = srv_sock.timed_recvfrom(65535)
 
         if answer && !answer.empty?
           answer = Resolv::DNS::Message.decode(answer)
@@ -367,7 +367,7 @@ class MetasploitModule < Msf::Auxiliary
         query.rd = 0
 
         srv_sock.put(query.encode)
-        answer, = srv_sock.recvfrom
+        answer, = srv_sock.timed_recvfrom(65535)
 
         if answer && !answer.empty?
           answer = Resolv::DNS::Message.decode(answer)
@@ -419,7 +419,7 @@ class MetasploitModule < Msf::Auxiliary
     req.rd = 0
 
     while (times.length < num)
-      res, = sock.recvfrom(65535, 0.01)
+      res, = sock.timed_recvfrom(65535, 0.01)
 
       if res && !res.empty?
         res = Resolv::DNS::Message.decode(res)

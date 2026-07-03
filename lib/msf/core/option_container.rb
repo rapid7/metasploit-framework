@@ -19,6 +19,7 @@ module Msf
   autoload :OptPort, 'msf/core/opt_port'
   autoload :OptRaw, 'msf/core/opt_raw'
   autoload :OptRegexp, 'msf/core/opt_regexp'
+  autoload :OptSessionTlvLogging, 'msf/core/opt_session_tlv_logging'
   autoload :OptString, 'msf/core/opt_string'
 
   #
@@ -161,7 +162,9 @@ module Msf
     def add_option(option, name = nil, owner = nil, advanced = false, evasion = false)
       if option.kind_of?(Array)
         option = option.shift.new(name, option)
-      elsif !option.kind_of?(OptBase)
+      elsif option.kind_of?(OptBase)
+        option = option.dup
+      else
         raise ArgumentError,
           "The option named #{name} did not come in a compatible format.",
           caller

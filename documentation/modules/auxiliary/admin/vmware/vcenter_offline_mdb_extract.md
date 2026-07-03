@@ -3,7 +3,7 @@ This module will accept files from a live vCenter appliance or from a vCenter ap
 archive; either or both files can be supplied to the module depending on the situation. The module
 will extract the vCenter SSO IdP signing credential from the vmdir database, which can be used to
 create forged SAML assertions and access the SSO directory as an administrator. The vmafd service
-contains the vCenter certificate store which from which the module will attempt to extract all vmafd
+contains the vCenter certificate store, from which the module will attempt to extract all vmafd
 certificates that also have a corresponding private key. Portions of this module are based on
 information published by Zach Hanley at Horizon3:
 

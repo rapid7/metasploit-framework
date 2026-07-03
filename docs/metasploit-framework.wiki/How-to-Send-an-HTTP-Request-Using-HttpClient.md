@@ -81,14 +81,17 @@ Any object passed to `cookie` that isn't an instance of HttpCookieJar will have 
 
 ----
 
-Module authors can also pass an instance of `HttpCookieJar` with the `cookie` option:
+Module authors can also pass an instance of `HttpCookieJar` with the `cookie` option.
+
+Important: Cookies added to a `HttpCookieJar` must have both `domain` and `path` set, and cookie values must be strings. Without these attributes the underlying cookie store will raise an `ArgumentError`.
 
 ```ruby
 cj = Msf::Exploit::Remote::HTTP::HttpCookieJar.new
 
-cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('PHPSESSID', @phpsessid))
-cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('AsWebStatisticsCooKie', 1))
-cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('shellinaboxCooKie', 1))
+target_host = datastore['RHOST']
+cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('PHPSESSID', @phpsessid, domain: target_host, path: '/'))
+cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('AsWebStatisticsCooKie', '1', domain: target_host, path: '/'))
+cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('shellinaboxCooKie', '1', domain: target_host, path: '/'))
 
 res = send_request_cgi({
   'method' => 'GET',

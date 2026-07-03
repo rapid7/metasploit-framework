@@ -26,6 +26,7 @@ module Metasploit
             if res_json['version']
               # report the version
               framework_module.print_brute(level: :good, ip: ip, msg: "Softing Secure Integration Server #{res_json['version']}") if framework_module
+              report_service(service_opts)
               return false
             end
           end
@@ -149,9 +150,7 @@ module Metasploit
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
 
           begin
@@ -162,6 +161,10 @@ module Metasploit
           end
 
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('softing_sis')
         end
 
       end

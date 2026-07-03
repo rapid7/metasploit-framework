@@ -23,11 +23,20 @@ module RuboCop
           (def :initialize _args (super $(send nil? {:update_info :merge_info} (lvar :info) (hash ...)) ...))
         PATTERN
 
+        def_node_matcher :find_super_hash_node, <<~PATTERN
+          {(def :initialize _args (begin (super $(hash ...)) ...))
+           (def :initialize _args (super $(hash ...)))}
+        PATTERN
+
         def on_def(node)
           update_info_node = find_update_info_node(node) || find_nested_update_info_node(node)
-          return if update_info_node.nil?
+          hash = if update_info_node
+                   update_info_node.arguments.find { |argument| hash_arg?(argument) }
+                 else
+                   find_super_hash_node(node)
+                 end
+          return if hash.nil?
 
-          hash = update_info_node.arguments.find { |argument| hash_arg?(argument) }
           hash.each_pair do |key, value|
             next unless key.value == 'DisclosureDate'
             next if valid_disclosure_date?(value)

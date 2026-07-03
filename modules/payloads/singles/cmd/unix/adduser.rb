@@ -6,7 +6,7 @@
 require 'unix_crypt'
 
 module MetasploitModule
-  CachedSize = :dynamic
+  CachedSize = 153
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions

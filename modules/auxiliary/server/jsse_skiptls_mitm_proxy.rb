@@ -41,16 +41,16 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'http://www.oracle.com/technetwork/topics/security/cpujan2015-1972971.html'],
         ['URL', 'https://www-304.ibm.com/support/docview.wss?uid=swg21695474']
       ],
-      'DisclosureDate' => 'Jan 20 2015'
+      'DisclosureDate' => '2015-01-20'
     )
 
     register_options(
       [
-        OptString.new('FAKEHOST', [ false, 'The fake server address', nil]),
+        OptAddress.new('FAKEHOST', [ false, 'The fake server address', nil]),
         OptString.new('FAKEPORT', [ false, 'The fake server port', 443]),
-        OptString.new('HOST', [ true, 'The server address', nil]),
+        OptAddress.new('HOST', [ true, 'The server address', nil]),
         OptPort.new('PORT', [ true, 'The server port', 443]),
-        OptString.new('SRVHOST', [ true, 'The proxy address', '0.0.0.0']),
+        OptAddress.new('SRVHOST', [ true, 'The proxy address', '0.0.0.0']),
         OptString.new('SRVPORT', [ true, 'The proxy port', 443])
       ]
     )

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
  module Msf::Util::EXE::OSX::Ppc
   include Msf::Util::EXE::Common
   include Msf::Util::EXE::OSX::Common

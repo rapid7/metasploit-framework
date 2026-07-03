@@ -171,7 +171,7 @@ else
   #
   # Execute the agent
   #
-  print_status("Executing the VNC agent with endpoint #{rhost}:#{rport}...")
+  print_status("Executing the VNC agent with endpoint #{Rex::Socket.to_authority(rhost, rport)}...")
   pid = session.sys.process.execute(tempexe, nil, {'Hidden' => true})
 end
 

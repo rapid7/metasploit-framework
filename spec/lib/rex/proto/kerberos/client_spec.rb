@@ -24,11 +24,13 @@ RSpec.describe Rex::Proto::Kerberos::Client do
 
   let(:rhost) { '127.0.0.1' }
   let(:rport) { 88 }
+  let(:subscriber) { instance_double(Rex::Proto::Kerberos::KerberosSubscriber, on_request: nil, on_response: nil) }
 
   subject(:client) do
     opts = {
       host: rhost,
       port: rport,
+      subscriber: subscriber
     }
     described_class.new(opts)
   end
@@ -119,6 +121,7 @@ RSpec.describe Rex::Proto::Kerberos::Client do
     context "when TCP connection" do
       it "returns the written data length" do
         request = Rex::Proto::Kerberos::Model::KdcRequest.decode(sample_asn1_request)
+        expect(subscriber).to receive(:on_request).with(request)
         expect(subject.send_request(request)).to eq(req_length)
       end
     end
@@ -171,6 +174,7 @@ RSpec.describe Rex::Proto::Kerberos::Client do
           subject.connect
           subject.connection.write(res_error)
           subject.connection.seek(0)
+          expect(subscriber).to receive(:on_response).with(instance_of(Rex::Proto::Kerberos::Model::KrbError))
           expect(subject.recv_response).to be_a(Rex::Proto::Kerberos::Model::KrbError)
         end
       end
@@ -180,6 +184,7 @@ RSpec.describe Rex::Proto::Kerberos::Client do
           subject.connect
           subject.connection.write(res_valid)
           subject.connection.seek(0)
+          expect(subscriber).to receive(:on_response).with(instance_of(Rex::Proto::Kerberos::Model::KdcResponse))
           expect(subject.recv_response).to be_a(Rex::Proto::Kerberos::Model::KdcResponse)
         end
       end

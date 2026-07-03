@@ -2,8 +2,6 @@
 module Msf
 module Exe
 
-  require 'metasm'
-
   class SegmentInjector
 
     attr_accessor :payload

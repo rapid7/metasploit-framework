@@ -223,7 +223,7 @@ module Rex
       return unless in_item
       return unless has_text
       response_text = @text.dup
-      response_header_text,response_body_text = response_text.split(/\r*\n\r*\n/n,2)
+      response_header_text,response_body_text = response_text.split(/\r*\n\r*\n/,2)
       return unless response_header_text
       response_header = Rex::Proto::Http::Packet::Header.new
       response_header.from_s response_header_text

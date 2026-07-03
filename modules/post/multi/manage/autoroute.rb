@@ -44,8 +44,8 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('SUBNET', [false, 'Subnet (IPv4, for example, 10.10.10.0)', nil]),
-        OptString.new('NETMASK', [false, 'Netmask (IPv4 as "255.255.255.0" or CIDR as "/24"', '255.255.255.0']),
+        OptAddress.new('SUBNET', [false, 'Subnet (IPv4, for example, 10.10.10.0)', nil]),
+        OptAddress.new('NETMASK', [false, 'Netmask (IPv4 as "255.255.255.0")', '255.255.255.0']),
         OptEnum.new('CMD', [true, 'Specify the autoroute command', 'autoadd', ['add', 'autoadd', 'print', 'delete', 'default']])
       ]
     )

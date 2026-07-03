@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         ['CWE', '754'],
         ['URL', 'http://git.openssl.org/?p=openssl.git;a=commit;h=f404943bcab4898d18f3ac1b36479d1d7bbbb9e6']
       ],
-      'DisclosureDate' => 'Jul 9 2015'
+      'DisclosureDate' => '2015-07-09'
     )
 
     register_options(
@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SUBJECT', [ false, 'The subject field for the fake certificate', '/C=US/ST=California/L=Mountain View/O=Example Inc/CN=*.example.com']),
         OptString.new('HOST', [ true, 'The server address', nil]),
         OptPort.new('PORT', [ true, 'The server port', 443]),
-        OptString.new('SRVHOST', [ true, 'The proxy address', '0.0.0.0']),
+        OptAddress.new('SRVHOST', [ true, 'The proxy address', '0.0.0.0']),
         OptString.new('SRVPORT', [ true, 'The proxy port', 443])
       ]
     )

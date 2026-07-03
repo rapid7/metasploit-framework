@@ -370,7 +370,7 @@ class MetasploitModule < Msf::Post
     begin
       if !session.fs.file.exist?(version_path)
         print_error('Pulse Secure Connect client is not installed on this system')
-        return Msf::Exploit::CheckCode::Safe
+        return Msf::Exploit::CheckCode::Safe('Pulse Secure Connect client is not installed on this system')
       end
       version_file = begin
         session.fs.file.open(version_path)
@@ -379,7 +379,7 @@ class MetasploitModule < Msf::Post
       end
       if version_file.nil?
         print_error('Cannot open Pulse Secure Connect version file.')
-        return Msf::Exploit::CheckCode::Unknown
+        return Msf::Exploit::CheckCode::Unknown('Cannot open Pulse Secure Connect version file')
       end
       version_data = version_file.read.to_s
       version_file.close
@@ -388,18 +388,18 @@ class MetasploitModule < Msf::Post
       print_status("Target is running Pulse Secure Connect build #{build}.")
       if vuln_builds.any? { |build_range| Rex::Version.new(build).between?(*build_range) }
         print_good('This version is considered vulnerable.')
-        return Msf::Exploit::CheckCode::Vulnerable
+        return Msf::Exploit::CheckCode::Vulnerable("Pulse Secure Connect build #{build} is vulnerable")
       end
 
       if is_system?
         print_good("You're executing from a privileged process so this version is considered vulnerable.")
-        return Msf::Exploit::CheckCode::Vulnerable
+        return Msf::Exploit::CheckCode::Vulnerable('Running as SYSTEM with Pulse Secure Connect installed')
       end
 
       print_warning("You're executing from an unprivileged process so this version is considered safe.")
       print_warning('However, there might be leftovers from previous versions in the registry.')
       print_warning('We recommend running this script in elevated mode to obtain credentials saved by recent versions.')
-      return Msf::Exploit::CheckCode::Appears
+      return Msf::Exploit::CheckCode::Appears("Pulse Secure Connect build #{build} may have leftover credentials")
     rescue Rex::Post::Meterpreter::RequestError => e
       vprint_error(e.message)
     end

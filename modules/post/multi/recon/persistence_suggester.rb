@@ -239,7 +239,7 @@ class MetasploitModule < Msf::Post
     results = runnable_exploits.map.with_index do |mod, index|
       print "%bld%blu[*]%clr Running check method for exploit #{index + 1} / #{runnable_exploits.count}\r"
       begin
-        checkcode = mod[:module].check
+        checkcode = mod[:module].check_simple
       rescue StandardError => e
         elog("#Local Persistence Suggester failed with: #{e.class} when using #{mod[:module].shortname}", error: e)
         vprint_error "Check with module #{mod[:module].fullname} failed with error #{e.class}"

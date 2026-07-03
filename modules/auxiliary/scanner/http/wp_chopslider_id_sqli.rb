@@ -58,10 +58,10 @@ class MetasploitModule < Msf::Auxiliary
       v = Rex::Version.new(Regexp.last_match(1))
       print_status "Version detected: #{v}"
       if v <= Rex::Version.new('3.4')
-        return Msf::Exploit::CheckCode::Appears
+        return Msf::Exploit::CheckCode::Appears("ChopSlider version #{v} appears to be vulnerable")
       end
     end
-    Msf::Exploit::CheckCode::Unknown
+    Msf::Exploit::CheckCode::Unknown('ChopSlider plugin not detected')
   end
 
   def run_host(ip)

@@ -35,6 +35,30 @@ module Metasploit
           @chunk_size ||= 1700
         end
 
+        # Checks if the target is a WordPress site with XML-RPC enabled
+        #
+        # @return [false] if the target looks like WordPress with XML-RPC
+        # @return [String] a human-readable error message if it doesn't
+        def check_setup
+          set_default
+          xmlrpc_uri = normalize_uri(base_uri, wordpress_url_xmlrpc)
+          res = send_request({
+            'method' => 'GET',
+            'uri'    => xmlrpc_uri
+          })
+
+          return 'Unable to connect to the WordPress XML-RPC endpoint' unless res
+          return 'Unable to locate WordPress XML-RPC endpoint (Is WordPress installed and is XML-RPC enabled?)' unless res.code == 200 && res.body.include?('XML-RPC server accepts POST requests only')
+
+          report_service(service_opts)
+
+          false
+        end
+
+        def service_opts
+          build_service_opts('wordpress')
+        end
+
         # Returns the XML data that is used for the login.
         #
         # @param user [String] username
@@ -120,9 +144,7 @@ module Metasploit
                 credential.private = pass
                 result_opts = {
                   credential: credential,
-                  host: host,
-                  port: port,
-                  protocol: 'tcp'
+                  **service_as_result(service_opts)
                 }
                 result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL)
                 return Result.new(result_opts)
@@ -132,13 +154,15 @@ module Metasploit
 
           result_opts = {
             credential: credential,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
 
           result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT)
           return Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('wordpress')
         end
 
       end

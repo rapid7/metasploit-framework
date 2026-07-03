@@ -76,11 +76,11 @@ class MetasploitModule < Msf::Auxiliary
         :name => self.name,
         :refs => self.references
       )
-      return Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Vulnerable('Bash environment variable injection via mod_cgi confirmed')
     elsif res && res.code == 500
       injected_res_code = res.code
     else
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Target does not appear to be vulnerable to Shellshock via mod_cgi')
     end
 
     res = send_request_cgi({
@@ -89,12 +89,12 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if res && injected_res_code == res.code
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Injected and normal responses returned the same status code')
     elsif res && injected_res_code != res.code
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears('Target returned a different status code for the injected request')
     end
 
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('Unable to determine if the target is vulnerable')
   end
 
   def run_host(ip)

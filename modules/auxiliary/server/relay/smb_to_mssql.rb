@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def relay_targets
-    Msf::Exploit::Remote::SMB::Relay::TargetList.new(
+    Msf::Exploit::Remote::Relay::TargetList.new(
       :mssql,
       datastore['RPORT'],
       datastore['RHOSTS'],
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
     elog('Failed to setup the session', error: e)
   end
 
-  # @param [Msf::Exploit::Remote::SMB::Relay::NTLM::Target::MSSQL::Client] relay_connection
+  # @param [Msf::Exploit::Remote::Relay::NTLM::Target::MSSQL::Client] relay_connection
   # @return [Msf::Sessions::MSSQL]
   def session_setup(relay_connection, relay_identity)
     mssql_session = Msf::Sessions::MSSQL.new(

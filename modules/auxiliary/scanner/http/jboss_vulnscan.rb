@@ -55,10 +55,10 @@ class MetasploitModule < Msf::Auxiliary
     if res
 
       info = http_fingerprint(:response => res)
-      print_status("#{rhost}:#{rport} Fingerprint: #{info}")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Fingerprint: #{info}")
 
       if res.body && />(JBoss[^<]+)/.match(res.body)
-        print_error("#{rhost}:#{rport} JBoss error message: #{$1}")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} JBoss error message: #{$1}")
       end
 
       apps = [
@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
         '/invoker/readonly'
       ]
 
-      print_status("#{rhost}:#{rport} Checking http...")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Checking http...")
       apps.each do |app|
         check_app(app)
       end
@@ -85,10 +85,10 @@ class MetasploitModule < Msf::Auxiliary
         1099 => 'Naming Service',
         4444 => 'RMI invoker'
       }
-      print_status("#{rhost}:#{rport} Checking services...")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Checking services...")
       ports.each do |port, service|
         status = test_connection(ip, port) == :up ? "open" : "closed"
-        print_status("#{rhost}:#{rport} #{service} tcp/#{port}: #{status}")
+        print_status("#{Rex::Socket.to_authority(rhost, rport)} #{service} tcp/#{port}: #{status}")
       end
     end
   end
@@ -101,32 +101,32 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     unless res
-      print_status("#{rhost}:#{rport} #{app} not found")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} #{app} not found")
       return
     end
 
     case
     when res.code == 200
-      print_good("#{rhost}:#{rport} #{app} does not require authentication (200)")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} #{app} does not require authentication (200)")
     when res.code == 403
-      print_status("#{rhost}:#{rport} #{app} restricted (403)")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} #{app} restricted (403)")
     when res.code == 401
-      print_status("#{rhost}:#{rport} #{app} requires authentication (401): #{res.headers['WWW-Authenticate']}")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} #{app} requires authentication (401): #{res.headers['WWW-Authenticate']}")
       bypass_auth(app)
       basic_auth_default_creds(app)
     when res.code == 404
-      print_status("#{rhost}:#{rport} #{app} not found (404)")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} #{app} not found (404)")
     when res.code == 301, res.code == 302
-      print_status("#{rhost}:#{rport} #{app} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} #{app} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
     when res.code == 500 && app == "/invoker/readonly"
-      print_good("#{rhost}:#{rport} #{app} responded (#{res.code})")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} #{app} responded (#{res.code})")
     else
-      print_status("#{rhost}:#{rport} Don't know how to handle response code #{res.code}")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Don't know how to handle response code #{res.code}")
     end
   end
 
   def jboss_as_default_creds
-    print_status("#{rhost}:#{rport} Checking for JBoss AS default creds")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} Checking for JBoss AS default creds")
 
     session = jboss_as_session_setup(rhost, rport)
     return false if session.nil?
@@ -149,10 +149,10 @@ class MetasploitModule < Msf::Auxiliary
 
     # Valid creds if 302 redirected to summary.seam and not error.seam
     if res && res.code == 302 && res.headers.to_s !~ /error.seam/m && res.headers.to_s =~ /summary.seam/m
-      print_good("#{rhost}:#{rport} Authenticated using #{username}:#{password} at /admin-console/")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} Authenticated using #{username}:#{password} at /admin-console/")
       add_creds(username, password)
     else
-      print_status("#{rhost}:#{rport} Could not guess admin credentials")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Could not guess admin credentials")
     end
   end
 
@@ -194,7 +194,7 @@ class MetasploitModule < Msf::Auxiliary
       viewstate = /javax.faces.ViewState" value="(.*)" auto/.match(res.body).captures[0]
       jsessionid = /JSESSIONID=(.*);/.match(res.headers.to_s).captures[0]
     rescue ::NoMethodError
-      print_status("#{rhost}:#{rport} Could not guess admin credentials")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Could not guess admin credentials")
       return nil
     end
 
@@ -202,7 +202,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def bypass_auth(app)
-    print_status("#{rhost}:#{rport} Check for verb tampering (#{datastore['VERB']})")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} Check for verb tampering (#{datastore['VERB']})")
 
     res = send_request_raw({
       'uri' => app,
@@ -211,9 +211,9 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if res && res.code == 200
-      print_good("#{rhost}:#{rport} Got authentication bypass via HTTP verb tampering at #{app}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} Got authentication bypass via HTTP verb tampering at #{app}")
     else
-      print_status("#{rhost}:#{rport} Could not get authentication bypass via HTTP verb tampering")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Could not get authentication bypass via HTTP verb tampering")
     end
   end
 
@@ -226,10 +226,10 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if res && res.code == 200
-      print_good("#{rhost}:#{rport} Authenticated using admin:admin at #{app}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} Authenticated using admin:admin at #{app}")
       add_creds("admin", "admin")
     else
-      print_status("#{rhost}:#{rport} Could not guess admin credentials")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Could not guess admin credentials")
     end
   end
 

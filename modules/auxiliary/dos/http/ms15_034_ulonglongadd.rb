@@ -163,16 +163,16 @@ class MetasploitModule < Msf::Auxiliary
 
         target_uri.path = uri # Needed for the DoS attack
 
-        return Exploit::CheckCode::Vulnerable
+        return Exploit::CheckCode::Vulnerable('Target returned expected vulnerable response to range header')
       elsif res && res.body.include?('The request has an invalid header name')
         vprint_status("#{vmessage} [#{res.code}] - Safe")
 
-        return Exploit::CheckCode::Safe
+        return Exploit::CheckCode::Safe('Target rejected the range header')
       else
         vprint_status("#{vmessage} - Unknown")
       end
     end
 
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('Could not determine vulnerability status')
   end
 end

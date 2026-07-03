@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       if res.nil? || res.code != 200
-        return Exploit::CheckCode::Unknown
+        return Exploit::CheckCode::Unknown('No response or unexpected HTTP status code')
       end
 
       # Check PhP
@@ -73,12 +73,12 @@ class MetasploitModule < Msf::Auxiliary
       # Check forum MyBB
       if res.body.match("&#077;&#089;&#066;&#066;")
         print_good("MyBB forum found running on #{web_server} / #{php_version}")
-        return Exploit::CheckCode::Detected
+        return Exploit::CheckCode::Detected('MyBB forum detected')
       else
-        return Exploit::CheckCode::Unknown
+        return Exploit::CheckCode::Unknown('Target does not appear to be a MyBB forum')
       end
     rescue
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('An error occurred during the check')
     end
   end
 

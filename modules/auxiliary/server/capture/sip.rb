@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 5060 ]),
-        OptAddress.new('SRVHOST', [ true, 'The local host to listen on.', '0.0.0.0' ]),
+        OptAddressLocal.new('SRVHOST', [ true, 'The local host to listen on.', '0.0.0.0' ]),
         OptString.new('NONCE', [ true, 'The server byte nonce', '1234' ]),
         OptString.new('JOHNPWFILE', [ false, 'The prefix to the local filename to store the hashes in JOHN format', nil ]),
       ]
@@ -147,12 +147,14 @@ class MetasploitModule < Msf::Auxiliary
     server_ip = sip_sanitize_address(srvhost)
 
     while @run
-      res = @sock.recvfrom
+      res = @sock.timed_recvfrom(65535)
+      next unless res
+
       @requestor = {
-        ip: res[1],
-        port: res[2]
+        ip: res[1][3],
+        port: res[1][1]
       }
-      client_ip = sip_sanitize_address(res[1])
+      client_ip = sip_sanitize_address(res[1][3])
       next if !res[0] || res[0].empty?
 
       request = sip_parse_request(res[0])

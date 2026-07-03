@@ -51,13 +51,7 @@ module Metasploit
                 # https://hashcat.net/forum/thread-7854-post-42417.html#pid42417 ironically gives Token encoding exception
                 c = cred.private.data.sub('$pbkdf2-sha256', 'sha256').split('$')
 
-                # This method takes a string which is likely base64 encoded
-                # however, there is an arbitrary amount of = missing from the end
-                # so we attempt to add = until we are able to decode it
-                #
-                # @param str [String] the base64-ish string
-                # @return [String] the corrected string
-                def add_equals_to_base64(str)
+                add_equals_to_base64 = lambda do |str|
                   ['', '=', '=='].each do |equals|
                     to_test = "#{str}#{equals}"
                     Base64.strict_decode64(to_test)
@@ -68,9 +62,9 @@ module Metasploit
                   nil
                 end
 
-                c[2] = add_equals_to_base64(c[2].gsub('.', '+')) # pad back out
-                c[3] = add_equals_to_base64(c[3].gsub('.', '+')) # pad back out
-                return c.join(':')
+                c[2] = add_equals_to_base64.call(c[2].gsub('.', '+')) # pad back out
+                c[3] = add_equals_to_base64.call(c[3].gsub('.', '+')) # pad back out
+                return "#{cred.id}:#{c.join(':')}"
               when /hmac-md5/
                 data = cred.private.data.split('#')
                 password = Rex::Text.encode_base64("#{cred.public.username} #{data[1]}")
@@ -131,10 +125,12 @@ module Metasploit
                 # https://hashcat.net/forum/thread-8833.html
                 # while we can do the transformation, we'd have to throw extra flags at hashcat which aren't currently written into the lib for automation
                 nil
-              when /^krb5$/
-                return "#{cred.id}:#{cred.private.data}"
+              # when /^krb5$/
+              #  return "#{cred.id}:#{cred.private.data}"
               when /^(krb5.|timeroast$)/
-                return cred.private.data
+                #             krb5tgs, krb5tgs-aes128, krb5tgs-aes256, krb5asrep, timeroast
+                ## hash-mode: 13100    19600           19700           18200      31300
+                return "#{cred.id}:#{cred.private.data}"
               end
             end
             nil

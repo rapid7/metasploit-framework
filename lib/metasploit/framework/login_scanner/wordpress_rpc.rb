@@ -7,19 +7,34 @@ module Metasploit
       # Wordpress XML RPC login scanner
       class WordpressRPC < HTTP
 
+        # Checks if the target is a WordPress XML-RPC endpoint
+        #
+        # @return [false] if the target looks like a WordPress XML-RPC endpoint
+        # @return [String] a human-readable error message if it doesn't
+        def check_setup
+          res = send_request({
+            'method' => 'GET',
+            'uri'    => uri
+          })
+
+          return 'Unable to connect to the WordPress XML-RPC endpoint' unless res
+          return 'Unable to locate WordPress XML-RPC endpoint (Is WordPress installed and is XML-RPC enabled?)' unless res.code == 200 && res.body.include?('XML-RPC server accepts POST requests only')
+
+          report_service(service_opts)
+
+          false
+        end
+
+        def service_opts
+          build_service_opts('wordpress')
+        end
+
         # (see Base#attempt_login)
         def attempt_login(credential)
           result_opts = {
               credential: credential,
-              host: host,
-              port: port,
-              protocol: 'tcp'
+              **service_as_result(service_opts)
           }
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
 
           begin
 
@@ -66,6 +81,10 @@ module Metasploit
         def set_sane_defaults
           @method = "POST".freeze
           super
+        end
+
+        def service_opts
+          build_service_opts('wordpress')
         end
 
       end

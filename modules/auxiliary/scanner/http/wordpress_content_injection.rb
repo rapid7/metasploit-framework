@@ -60,15 +60,15 @@ class MetasploitModule < Msf::Auxiliary
     if (version = wordpress_version)
       version = Rex::Version.new(version)
     else
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('WordPress version not detected')
     end
 
     vprint_status("WordPress #{version}: #{full_uri}")
 
     if version.between?(Rex::Version.new('4.7'), Rex::Version.new('4.7.1'))
-      Exploit::CheckCode::Appears
+      Exploit::CheckCode::Appears('WordPress version is in the vulnerable range 4.7 - 4.7.1')
     else
-      Exploit::CheckCode::Detected
+      Exploit::CheckCode::Detected('WordPress detected but version is outside the vulnerable range')
     end
   end
 

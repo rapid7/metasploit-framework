@@ -143,7 +143,15 @@ class MetasploitModule < Msf::Auxiliary
         return Exploit::CheckCode::Unknown('Failed to check the permissions on the target object.')
       end
 
-      Exploit::CheckCode::Vulnerable('The object can be written to.')
+      Exploit::CheckCode::Vulnerable(
+        'The object can be written to.',
+        vuln: {
+          resource: {
+            ldap_dn: obj.dn
+          },
+          service: report_ldap_service
+        }
+      )
     end
   end
 
@@ -280,15 +288,15 @@ class MetasploitModule < Msf::Auxiliary
     create_credential(credential_data)
 
     info = "#{datastore['LDAPDomain']}\\#{datastore['TARGET_USER']} Certificate"
-    stored_path = store_loot('windows.ad.cs', 'application/x-pkcs12', rhost, pkcs12.to_der, 'certificate.pfx', info)
+    stored_path = store_loot('windows.ad.cs', 'application/x-pkcs12', session ? session.client.peerhost : rhost, pkcs12.to_der, 'certificate.pfx', info)
     print_status("Certificate stored at: #{stored_path}")
     stored_path
   end
 
   def ldap_service_data
     {
-      host: rhost,
-      port: rport,
+      host: session ? session.client.peerhost : rhost,
+      port: session ? session.client.peerport : rport,
       proto: 'tcp',
       name: 'ldap',
       info: "Module: #{fullname}, #{datastore['LDAP::AUTH']} authentication"

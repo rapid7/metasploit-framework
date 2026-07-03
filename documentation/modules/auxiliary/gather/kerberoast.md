@@ -66,7 +66,7 @@ $krb5tgs$23$*kerber.roastable$MSF.LOCAL$http/abc2.msf.local*$d335dc07b2c018de2a1
 $krb5tgs$17$low.admin$MSF.LOCAL$*http/abc.msf.local*$a1c7c1c1e31e36cdb0721928$b69b48...
 [!] NOTE: Multiple encryption types returned - will require separate cracking runs for each type.
 [*] To obtain the crackable values for a praticular type, run `creds`:
-[*] creds -t krb5tgs-rc4 -O 20.248.208.9 -o <outfile.(jtr|hcat)>
+[*] creds -t krb5tgs -O 20.248.208.9 -o <outfile.(jtr|hcat)>
 [*] creds -t krb5tgs-aes128 -O 20.248.208.9 -o <outfile.(jtr|hcat)>
 [*] Auxiliary module execution completed
 ```

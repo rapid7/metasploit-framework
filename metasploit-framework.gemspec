@@ -67,14 +67,14 @@ Gem::Specification.new do |spec|
   # Metasploit::Concern hooks
   spec.add_runtime_dependency 'metasploit-concern'
   # Metasploit::Credential database models
-  spec.add_runtime_dependency 'metasploit-credential'
+  spec.add_runtime_dependency 'metasploit-credential', '>= 6.0.21'
   # Database models shared between framework and Pro.
-  spec.add_runtime_dependency 'metasploit_data_models', '>= 6.0.7'
+  spec.add_runtime_dependency 'metasploit_data_models', '>= 6.0.15'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.240'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.245'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.46'
   # Needed by msfgui and other rpc components
@@ -95,7 +95,7 @@ Gem::Specification.new do |spec|
   # https://github.com/ged/ruby-pg/commit/c90ac644e861857ae75638eb6954b1cb49617090
   spec.add_runtime_dependency 'pg'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
-  spec.add_runtime_dependency 'railties'
+  spec.add_runtime_dependency 'railties', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # required for OS fingerprinting
   spec.add_runtime_dependency 'recog'
   # required for bitlocker fvek extraction
@@ -107,12 +107,12 @@ Gem::Specification.new do |spec|
   # Required for Metasploit Web Services
   spec.add_runtime_dependency 'puma'
   spec.add_runtime_dependency 'ruby-mysql'
-  # webserver - pinned due to: https://github.com/github/secure_headers/issues/514
-  spec.add_runtime_dependency 'thin', '~> 1.x'
-  # rack pinned due to authlogic warnings when setting cookie keys with a / char present: https://github.com/binarylogic/authlogic/issues/779
-  spec.add_runtime_dependency 'rack', '~> 2.2'
-  # 4.x needs tested and verified for JSON RPC service
-  spec.add_runtime_dependency 'sinatra', '~> 3.2'
+
+  spec.add_runtime_dependency 'rack', '~> 3.1'
+  # 4.x supports Rack 3 for JSON RPC service
+  spec.add_runtime_dependency 'sinatra', '~> 4.1'
+  # Web server for msfdb web services; 2.x supports Rack 3
+  spec.add_runtime_dependency 'thin', '~> 2.0'
   spec.add_runtime_dependency 'warden'
   spec.add_runtime_dependency 'swagger-blocks'
   # Required for JSON-RPC client
@@ -151,7 +151,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'net-ssh'
   spec.add_runtime_dependency 'ed25519' # Adds ed25519 keys for net-ssh
   spec.add_runtime_dependency 'bcrypt_pbkdf'
-  spec.add_runtime_dependency 'ruby_smb', '~> 3.3.15'
+  spec.add_runtime_dependency 'ruby_smb', '~> 3.3.19'
   spec.add_runtime_dependency 'net-imap' # Used in Postgres auth for its SASL stringprep implementation
   spec.add_runtime_dependency 'date', '3.4.1' # Temporarily pinned until 3.5 can be tested
   spec.add_runtime_dependency 'net-ldap'
@@ -207,8 +207,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rb-readline'
   # Needed by some modules
   spec.add_runtime_dependency 'rubyzip'
-  # Needed for some post modules
-  spec.add_runtime_dependency 'sqlite3', '1.7.3'
+  # Needed for some post modules; Rails 8 requires >= 2.1
+  spec.add_runtime_dependency 'sqlite3', '~> 2.1'
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
   # Needed so that disk size output isn't horrible
@@ -220,7 +220,7 @@ Gem::Specification.new do |spec|
   # Nexpose Gem
   spec.add_runtime_dependency 'nexpose'
   # Needed for NDMP sockets
-  spec.add_runtime_dependency 'xdr'
+  spec.add_runtime_dependency 'xdr', '~> 3.0'
   # Needed for ::Msf...CertProvider
   spec.add_runtime_dependency 'faker'
   # SSH server library with ed25519
@@ -270,6 +270,8 @@ Gem::Specification.new do |spec|
 
   # Needed for caching validation
   spec.add_runtime_dependency 'parallel'
+
+  spec.add_runtime_dependency 'mcp', '0.13.0'
 
   # Standard libraries: https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/
   %w[

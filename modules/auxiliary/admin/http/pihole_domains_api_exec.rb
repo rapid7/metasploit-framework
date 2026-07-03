@@ -59,21 +59,21 @@ class MetasploitModule < Msf::Auxiliary
 
       if web_version.nil?
         print_error("#{peer} - Could not connect to web service - no response or non-200 HTTP code")
-        return Exploit::CheckCode::Unknown
+        return Exploit::CheckCode::Unknown('Could not connect to web service')
       end
 
       if web_version && Rex::Version.new(web_version) <= Rex::Version.new('5.6')
         vprint_good("Web Interface Version Detected: #{web_version}")
-        return Exploit::CheckCode::Appears
+        return Exploit::CheckCode::Appears("Pi-hole web interface version #{web_version} is vulnerable")
       else
         vprint_bad("Web Interface Version Detected: #{web_version}")
-        return Exploit::CheckCode::Safe
+        return Exploit::CheckCode::Safe("Pi-hole web interface version #{web_version} is not vulnerable")
       end
     rescue ::Rex::ConnectionError
       print_error("#{peer} - Could not connect to the web service")
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Could not connect to the web service')
     end
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Target does not appear to be Pi-hole')
   end
 
   def validate_command

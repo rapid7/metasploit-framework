@@ -203,13 +203,18 @@ if $PROGRAM_NAME == __FILE__
     end
   }
 
+  # Allow credentials via environment variables (used by msfmcpd auto-start
+  # to avoid passing secrets on the command line).
+  opts['User'] ||= ENV['MSF_RPC_USER'] if ENV['MSF_RPC_USER']
+  opts['Pass'] ||= ENV['MSF_RPC_PASS'] if ENV['MSF_RPC_PASS']
+
   $0 = "msfrpcd"
 
   begin
     if json_rpc
 
-      if !File.file?(ws_ssl_key_default) || !File.file?(ws_ssl_cert_default)
-        $stdout.puts "[-] It doesn't appear msfdb has been run; please run 'msfdb init' first."
+      if opts['SSL'] && (!File.file?(ws_ssl_key) || !File.file?(ws_ssl_cert))
+        $stdout.puts "[-] It doesn't appear msfdb has been run; please run 'msfdb init' first to generate SSL certificates."
         abort
       end
 

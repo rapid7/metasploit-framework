@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptAddress.new('SRVHOST', [ true, 'The local host to listen on.', '0.0.0.0' ]),
+        OptAddressLocal.new('SRVHOST', [ true, 'The local host to listen on.', '0.0.0.0' ]),
         OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 53 ]),
       ]
     )

@@ -77,17 +77,17 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
     else
       vprint_error "#{ip}:#{rport} - FTP - Cannot connect, skipping"
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Failed to connect via FTP')
     end
 
     if is_modicon
       vprint_status "#{ip}:#{rport} - FTP - Matches Modicon fingerprint"
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Detected('FTP banner matches Modicon fingerprint')
     end
 
     vprint_error "#{ip}:#{rport} - FTP - Skipping due to fingerprint mismatch"
 
-    return Exploit::CheckCode::Safe
+    return Exploit::CheckCode::Safe('FTP banner does not match Modicon fingerprint')
   end
 
   def run
@@ -207,7 +207,7 @@ class MetasploitModule < Msf::Auxiliary
       proof = 'Usual defaults'
     end
 
-    print_status("#{rhost}:#{rport} - FTP - Storing HTTP credentials")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - FTP - Storing HTTP credentials")
     logins << ['http', httpuser, httppass]
 
     report_cred(
@@ -246,7 +246,7 @@ class MetasploitModule < Msf::Auxiliary
       modicon_ftpuser = 'USER'
       modicon_ftppass = 'USERUSER' # from the manual.  Verified.
     end
-    print_status("#{rhost}:#{rport} - FTP - Storing hashed FTP credentials")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - FTP - Storing hashed FTP credentials")
     # The collected hash is not directly reusable, so it shouldn't be an
     # auth credential in the Cred sense. TheLightCosine should fix some day.
     # Can be used for telnet as well if telnet is enabled.
@@ -256,7 +256,7 @@ class MetasploitModule < Msf::Auxiliary
       proto: 'tcp',
       sname: 'ftp',
       ntype: 'scada.modicon.ftp-password',
-      data: "User:#{modicon_ftpuser} VXWorks_Password:#{modicon_ftppass}"
+      data: { user: modicon_ftpuser, vxworks_password: modicon_ftppass }
     )
     logins << ['VxWorks', modicon_ftpuser, modicon_ftppass]
 

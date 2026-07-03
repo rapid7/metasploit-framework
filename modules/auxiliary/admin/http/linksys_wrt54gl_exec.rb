@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('HttpUsername', [ true, 'User to login with', 'admin']),
         OptString.new('HttpPassword', [ false, 'Password to login with', 'password']),
         OptString.new('CMD', [ true, 'The command to execute', 'ping 127.0.0.1']),
-        OptString.new('NETMASK', [ false, 'LAN Netmask of the router', '255.255.255.0']),
+        OptAddress.new('NETMASK', [ false, 'LAN Netmask of the router', '255.255.255.0']),
         OptAddress.new('LANIP', [ false, 'LAN IP address of the router (default is RHOST)']),
         OptString.new('ROUTER_NAME', [ false, 'Name of the router', 'cisco']),
         OptString.new('WAN_DOMAIN', [ false, 'WAN Domain Name', 'test']),

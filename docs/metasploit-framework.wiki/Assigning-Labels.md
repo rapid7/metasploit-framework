@@ -2,7 +2,15 @@ Maintainers can assign labels to both issues and pull requests.
 
 ### Attic
 
-When we move something to the attic it means that what you submitted is a thing that we want but the circumstances were not quite right for landing it. Sometimes this is on us, and sometimes the contribution needs more work. We recognize that contributors work on the PRs they submit at their own pace. Take a look at the comments and review suggestions on your PR, and feel free to re-open it if and when you have time to work on it again. Don't think you'll be able to get it across the finish line? Find a community champion to do it for you.
+When we move something to the attic, it means what you submitted is something we want, but the circumstances
+weren't right for landing it as-is — sometimes that's on us, sometimes the contribution needs more work to meet our
+standards. Attic'd PRs remain open contributions: the original author is welcome to pick the work back up whenever they
+have time, and anyone in the community is equally welcome to carry it across the finish line, whether by collaborating
+with the original author or opening a fresh PR that builds on the work. If you'd like to take over an attic'd PR,
+comment on it so others know it's being worked on.
+
+After 60 days of inactivity, we'll close and attic PRs to keep the active queue manageable. Closing doesn't mean the
+work is rejected - the PR and its history stay available, and it can be revisited at any time.
 
 ### Bug
 

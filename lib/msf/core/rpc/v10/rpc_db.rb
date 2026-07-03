@@ -252,6 +252,8 @@ public
   #    * 'port' [Integer] Port.
   #    * 'proto' [String] Protocol.
   #    * 'sname' [String] Service name.
+  #    * 'realm_key' [String] Realm key type.
+  #    * 'realm_value' [String] Realm value.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.creds', {})
   def rpc_creds(xopts)
@@ -298,7 +300,9 @@ public
           :host => host,
           :port => port,
           :proto => proto,
-          :sname => sname
+          :sname => sname,
+          :realm_key => cred.realm.try(:key),
+          :realm_value => cred.realm.try(:value)
         }
       end
       ret
@@ -371,7 +375,7 @@ public
   #
   # @param [Hash] xopts Options:
   # @option xopts [String] :workspace Name of the workspace.
-  # @option xopts [String] :addresses Host addresses
+  # @option xopts [String, Array<String>] :addresses Address or CIDR range to filter by; may be an array of either.
   # @option xopts [Boolean] :only_up If true, return hosts that are up.
   # @option xopts [Integer] :limit Maximum number of hosts to return.
   # @option xopts [Integer] :offset return the hosts starting at index `offset`.
@@ -393,6 +397,7 @@ public
   #    * 'updated_at' [Integer] Last updated at.
   #    * 'purpose' [String] Host purpose (example: server)
   #    * 'info' [String] Additional information about the host.
+  #    * 'comments' [String] The host's comments.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.hosts', {})
   def rpc_hosts(xopts)
@@ -401,33 +406,60 @@ public
 
     conditions = {}
     conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:only_up]
-    conditions[:address] = opts[:addresses] if opts[:addresses]
 
-    limit = opts.delete(:limit) || 100
+    cidr_addrs = exact_addrs = []
+    if opts[:addresses]
+      addresses = Array(opts[:addresses])
+      cidr_addrs, exact_addrs = addresses.partition { |a| a.to_s.include?('/') }
+      cidr_addrs.map! { |c| IPAddr.new(c).cidr }
+    end
+
+    limit  = opts.delete(:limit)  || 100
     offset = opts.delete(:offset) || 0
 
     ret = {}
     ret[:hosts] = []
-    wspace.hosts.where(conditions).offset(offset).order(:address).limit(limit).each do |h|
+
+    host_query = wspace.hosts.where(conditions)
+    if exact_addrs.any? || cidr_addrs.any?
+      address_filter_sql = []
+      bind_values = []
+
+      if exact_addrs.any?
+        address_filter_sql << 'hosts.address IN (?)'
+        bind_values << exact_addrs
+      end
+
+      if cidr_addrs.any?
+        address_filter_sql << cidr_addrs.map { 'hosts.address <<= ?::cidr' }.join(' OR ')
+        bind_values.concat(cidr_addrs)
+      end
+
+      host_query = host_query.where(["(#{address_filter_sql.join(') OR (')})", *bind_values])
+    end
+
+    hosts = host_query.order(:address).offset(offset).limit(limit)
+
+    hosts.each do |h|
       host = {}
       host[:created_at] = h.created_at.to_i
-      host[:address] = h.address.to_s
-      host[:mac] = h.mac.to_s
-      host[:name] = h.name.to_s
-      host[:state] = h.state.to_s
-      host[:os_name] = h.os_name.to_s
-      host[:os_flavor] = h.os_flavor.to_s
-      host[:os_sp] = h.os_sp.to_s
-      host[:os_lang] = h.os_lang.to_s
+      host[:address]    = h.address.to_s
+      host[:mac]        = h.mac.to_s
+      host[:name]       = h.name.to_s
+      host[:state]      = h.state.to_s
+      host[:os_name]    = h.os_name.to_s
+      host[:os_flavor]  = h.os_flavor.to_s
+      host[:os_sp]      = h.os_sp.to_s
+      host[:os_lang]    = h.os_lang.to_s
       host[:updated_at] = h.updated_at.to_i
-      host[:purpose] = h.purpose.to_s
-      host[:info] = h.info.to_s
-      ret[:hosts]  << host
+      host[:purpose]    = h.purpose.to_s
+      host[:info]       = h.info.to_s
+      host[:comments]   = h.comments.to_s
+      ret[:hosts] << host
     end
     ret
   }
   end
-
 
   # Returns information about services.
   #
@@ -453,6 +485,8 @@ public
   #    * 'state' [String] Service state.
   #    * 'name' [String] Service name.
   #    * 'info' [String] Additional information about the service.
+  #    * 'resource' [Hash] Service resource.
+  #    * 'parents' [Array<Hash>] List of parent services with same set of keys as the service.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.services', {})
   def rpc_services( xopts)
@@ -471,18 +505,8 @@ public
     ret = {}
     ret[:services] = []
 
-    wspace.services.includes(:host).where(conditions).offset(offset).limit(limit).each do |s|
-      service = {}
-      host = s.host
-      service[:host] = host.address || "unknown"
-      service[:created_at] = s[:created_at].to_i
-      service[:updated_at] = s[:updated_at].to_i
-      service[:port] = s[:port]
-      service[:proto] = s[:proto].to_s
-      service[:state] = s[:state].to_s
-      service[:name] = s[:name].to_s
-      service[:info] = s[:info].to_s
-      ret[:services] << service
+    wspace.services.includes(:host, :parents).where(conditions).offset(offset).limit(limit).each do |s|
+      ret[:services] << process_service(s)
     end
     ret
   }
@@ -511,6 +535,7 @@ public
   #    * 'host' [String] Vulnerable host.
   #    * 'name' [String] Exploit that was used.
   #    * 'refs' [String] Vulnerability references.
+  #    * 'resource' [String] Vulnerability resource.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.vulns', {})
   def rpc_vulns(xopts)
@@ -541,6 +566,7 @@ public
       vuln[:host] = v.host.address || nil
       vuln[:name] = v.name
       vuln[:refs] = reflist.join(',')
+      vuln[:resource] = v.resource
       ret[:vulns] << vuln
     end
     ret
@@ -1130,8 +1156,8 @@ end
   #    * 'time' [Integer] Creation date.
   #    * 'host' [String] Host address.
   #    * 'service' [String] Service name or port.
-  #    * 'type' [String] Host type.
-  #    * 'data' [String] Host data.
+  #    * 'type' [String] Note type.
+  #    * 'data' [Hash, String, nil] Note data.
   # @example Here's how you would use this from the client:
   #  # This gives you all the notes.
   #  rpc.call('db.notes', {})
@@ -1157,7 +1183,7 @@ end
       note[:host] = n.host.address if n.host
       note[:service] = n.service.name || n.service.port  if n.service
       note[:type ] = n.ntype.to_s
-      note[:data] = n.data.inspect
+      note[:data] = n.data
       ret[:notes] << note
     end
     ret
@@ -1987,6 +2013,35 @@ end
     end
   end
 
+
+  private
+
+  # Process an Mdm::Service object to a hash, with recursive parent lookup.
+  #
+  # @param mdm_service [Mdm::Service] The service record to process.
+  # @param recursion_depth [Integer] Current recursion iteration count
+  # @return [Hash] Serialized service data.
+  def process_service(mdm_service, recursion_depth = 0)
+    error(500, "Recursion limit reached when processing service parents for #{mdm_service.name}") unless recursion_depth >= 0 && recursion_depth <= 10
+
+    service = {}
+    host = mdm_service.host
+
+    service[:host] = host.address || "unknown"
+    service[:created_at] = mdm_service[:created_at].to_i
+    service[:updated_at] = mdm_service[:updated_at].to_i
+    service[:port] = mdm_service[:port]
+    service[:proto] = mdm_service[:proto].to_s
+    service[:state] = mdm_service[:state].to_s
+    service[:name] = mdm_service[:name].to_s
+    service[:info] = mdm_service[:info].to_s
+    service[:resource] = mdm_service[:resource]
+    service[:parents] = mdm_service.parents.map do |parent|
+      process_service(parent, recursion_depth + 1)
+    end
+
+    service
+  end
 
 end
 end

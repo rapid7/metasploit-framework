@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     # Check connection and issue initial query
-    print_status("Attempting to connect to the database server at #{rhost}:#{rport} as #{datastore['USERNAME']}...")
+    print_status("Attempting to connect to the database server at #{Rex::Socket.to_authority(rhost, rport)} as #{datastore['USERNAME']}...")
 
     unless mssql_login_datastore
       print_error('Login was unsuccessful. Check your credentials.')

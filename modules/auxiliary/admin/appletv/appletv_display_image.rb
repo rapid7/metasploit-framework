@@ -2,10 +2,8 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
-
   def initialize(info = {})
     super(
       update_info(
@@ -33,7 +31,6 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
-
     # Make the PASSWORD option more visible and hope the user is more aware of this option
     register_options([
       Opt::RPORT(7000),
@@ -41,7 +38,6 @@ class MetasploitModule < Msf::Auxiliary
       OptPath.new('FILE', [true, 'Image to upload and show']),
       OptString.new('HttpPassword', [false, 'The password for AppleTV AirPlay'])
     ])
-
     # We're not actually using any of these against AppleTV in our Rex HTTP client init,
     # so deregister them so we don't overwhelm the user with fake options.
     deregister_options(
@@ -57,10 +53,17 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  # Sends an image request to AppleTV device.
   #
-  # Sends an image request to AppleTV. HttpClient isn't used because we actually need to keep
-  # the connection alive so that the video can keep playing.
+  # @note HttpClient isn't used because we need to keep the connection alive
+  #   so that the image can keep displaying for the specified duration.
   #
+  # @param opts [Hash] HTTP request options
+  # @option opts [String] :method HTTP method (e.g., 'PUT')
+  # @option opts [String] :uri Request URI path
+  # @option opts [String] :data Image binary data to send
+  #
+  # @return [Rex::Proto::Http::Response, nil] HTTP response object or nil on timeout
   def send_image_request(opts)
     http = Rex::Proto::Http::Client.new(
       rhost,
@@ -76,33 +79,32 @@ class MetasploitModule < Msf::Auxiliary
       datastore['HttpPassword']
     )
     add_socket(http)
-
     http.set_config('agent' => datastore['UserAgent'])
-
     req = http.request_raw(opts)
     res = http.send_recv(req)
-
     Rex.sleep(datastore['TIME']) if res.code == 200
     http.close
-
     res
   end
 
+  # Reads image file from disk.
+  #
+  # @return [String] Binary image data
   def get_image_data
     File.open(datastore['FILE'], 'rb') { |f| f.read(f.stat.size) }
   end
 
+  # Displays image on AppleTV device.
+  #
+  # @return [void]
   def show_image
     image = get_image_data
-
     opts = {
       'method' => 'PUT',
       'uri' => '/photo',
       'data' => image
     }
-
     res = send_image_request(opts)
-
     if !res
       print_status('The connection timed out')
     elsif res.code == 200
@@ -112,6 +114,9 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  # Executes the module to display image on target AppleTV.
+  #
+  # @return [void]
   def run
     print_status("Image request sent. Duration set: #{datastore['TIME']} seconds")
     show_image

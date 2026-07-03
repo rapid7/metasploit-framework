@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://www.rapid7.com/blog/post/2014/10/28/r7-2014-15-gnu-wget-ftp-symlink-arbitrary-filesystem-access' ]
       ],
       'DefaultAction' => 'Service',
-      'DisclosureDate' => 'Oct 27 2014'
+      'DisclosureDate' => '2014-10-27'
     )
 
     register_options(

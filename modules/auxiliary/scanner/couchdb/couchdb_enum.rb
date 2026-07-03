@@ -71,38 +71,43 @@ class MetasploitModule < Msf::Auxiliary
       return false
     end
 
-    if res && res.code == 401
+    if res.code == 401
       print_bad("#{peer} - Authentication required.")
       return false
     end
 
-    if res && res.code == 200
-      res_json = res.get_json_document
-
-      if res_json.empty?
-        vprint_bad("#{peer} - Cannot parse the response, seems like it's not CouchDB.")
-        return false
-      end
-
-      @version = res_json['version'] if res_json['version']
-      return true
+    unless res.code == 200
+      vprint_bad("#{peer} - Unexpected HTTP status #{res.code}, does not appear to be CouchDB.")
+      return false
     end
 
-    vprint_warning("#{peer} - Version not found")
+    res_json = res.get_json_document
+
+    unless res_json.is_a?(Hash) && res_json.key?('couchdb')
+      vprint_bad("#{peer} - Response does not appear to be from CouchDB.")
+      return false
+    end
+
+    @version = res_json['version']
+    unless @version
+      vprint_warning("#{peer} - CouchDB detected but version not found in response.")
+      return false
+    end
+
     true
   end
 
   def check
-    return Exploit::CheckCode::Unknown unless get_version
+    return Exploit::CheckCode::Unknown('Failed to retrieve CouchDB version') unless get_version
 
     version = Rex::Version.new(@version)
-    return Exploit::CheckCode::Unknown if version.version.empty?
+    return Exploit::CheckCode::Unknown('CouchDB version string is empty') if version.version.empty?
 
     vprint_good("#{peer} - Found CouchDB version #{version}")
 
-    return Exploit::CheckCode::Appears if version < Rex::Version.new('1.7.0') || version.between?(Rex::Version.new('2.0.0'), Rex::Version.new('2.1.0'))
+    return Exploit::CheckCode::Appears("CouchDB version #{version} is in the vulnerable range") if version < Rex::Version.new('1.7.0') || version.between?(Rex::Version.new('2.0.0'), Rex::Version.new('2.1.0'))
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('CouchDB version is not in the vulnerable range')
   end
 
   def get_dbs(auth)

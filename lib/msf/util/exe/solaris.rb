@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf::Util::EXE::Solaris
   include Msf::Util::EXE::Common
   include Msf::Util::EXE::Solaris::X86

@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if method == 'UDP'
       udp_sock.put(testing_pkt)
-      res, = udp_sock.recvfrom(65535)
+      res, = udp_sock.timed_recvfrom(65535)
       disconnect_udp
     elsif method == 'TCP'
       sock.put(testing_pkt)
@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
     end
 
-    if res && res.empty?
+    if res.nil? || res.empty?
       print_error("#{msg} The remote server is not responding to DNS requests.")
       return false
     end
@@ -283,13 +283,13 @@ class MetasploitModule < Msf::Auxiliary
     udp_sock.put(data) if method == 'UDP'
     sock.put(data) if method == 'TCP'
 
-    res, = udp_sock.recvfrom(65535, 1) if method == 'UDP'
+    res, = udp_sock.timed_recvfrom(65535, 1) if method == 'UDP'
     res, = sock.get_once(-1, 1) if method == 'TCP'
 
     disconnect_udp if method == 'UDP'
     disconnect if method == 'TCP'
 
-    if res && res.empty?
+    if res.nil? || res.empty?
       @fail_count += 1
       if @fail_count == 1
         @probably_vuln = @lastdata if !@lastdata.nil?

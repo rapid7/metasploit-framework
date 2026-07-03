@@ -32,6 +32,40 @@ RSpec.describe Msf::Handler::ReverseHttp do
 
   end
 
+  describe '#stop_handler' do
+    let(:mock_service) { double('service') }
+    let(:payload) { create_payload }
+
+    context 'when add_resource raised and resource was not added' do
+      before do
+        payload.service = mock_service
+        payload.resource_added = false
+      end
+
+      it 'does not remove the resource but still derefs the service' do
+        expect(mock_service).not_to receive(:remove_resource)
+        expect(mock_service).to receive(:deref)
+        payload.stop_handler
+        expect(payload.service).to be_nil
+      end
+    end
+
+    context 'when the resource was successfully added' do
+      before do
+        payload.service = mock_service
+        payload.resource_added = true
+      end
+
+      it 'removes the resource and derefs the service' do
+        expect(mock_service).to receive(:remove_resource).with('/')
+        expect(mock_service).to receive(:deref)
+        payload.stop_handler
+        expect(payload.service).to be_nil
+        expect(payload.resource_added).to eq(false)
+      end
+    end
+  end
+
   describe '#luri' do
     subject(:luri) do
       create_payload.luri

@@ -54,17 +54,17 @@ class MetasploitModule < Msf::Auxiliary
     }, 20)
 
     if res and res.code == 401
-      print_error("#{rhost}:#{rport} Failed to authenticate to this device")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} Failed to authenticate to this device")
       return
     end
 
     if res and res.code != 200
-      print_error("#{rhost}:#{rport} Unexpected response code from this device #{res.code}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} Unexpected response code from this device #{res.code}")
       return
     end
 
     if res and res.body and res.body =~ /Cisco (Internetwork Operating System|IOS) Software/
-      print_good("#{rhost}:#{rport} Successfully authenticated to this device")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} Successfully authenticated to this device")
       store_valid_credential(user: datastore['HttpUsername'], private: datastore['HttpPassword'])
 
       # Report a vulnerability only if no password was specified
@@ -91,10 +91,10 @@ class MetasploitModule < Msf::Auxiliary
 
       if res and res.body and res.body =~ /<FORM METHOD([^\>]+)\>(.*)/mi
         config = $2.gsub(/<\/[A-Z].*/i, '').strip
-        print_good("#{rhost}:#{rport} Processing the configuration file...")
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} Processing the configuration file...")
         cisco_ios_config_eater(rhost, rport, config)
       else
-        print_error("#{rhost}:#{rport} Error: could not retrieve the IOS configuration")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} Error: could not retrieve the IOS configuration")
       end
 
     end

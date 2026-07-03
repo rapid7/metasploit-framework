@@ -226,6 +226,7 @@ class RPC_Module < RPC_Base
     res['privileged'] = m.privileged?
     res['check'] = m.has_check?
     res['default_options'] = m.default_options
+    res['notes'] = m.notes
 
     res['references'] = []
     m.references.each do |r|

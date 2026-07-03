@@ -61,7 +61,9 @@ RSpec.describe Metasploit::Framework::LoginScanner::SymantecWebGateway do
       context 'when target is Symantec Web Gateway' do
         let(:response) { swg_html_response }
         it 'returns false' do
+          allow(subject).to receive(:report_service)
           expect(subject.check_setup).to be(false)
+          expect(subject).to have_received(:report_service).with(hash_including(name: 'symantec_web_gateway', proto: 'tcp'))
         end
       end
 

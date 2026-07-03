@@ -210,10 +210,10 @@ class MetasploitModule < Msf::Auxiliary
   # msf/core/exploit/http/server.rb
   #
   def start_http(opts = {})
-    # Ensture all dependencies are present before initializing HTTP
+    # Ensure all dependencies are present before initializing HTTP
     use_zlib
 
-    comm = _determin_server_comm(bindhost)
+    comm = _determine_server_comm(bindhost)
 
     # Default the server host / port
     opts = {

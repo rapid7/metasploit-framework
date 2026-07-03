@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptAddress.new('SRVHOST', [ true, "The local host to listen on.", '0.0.0.0' ]),
+        OptAddressLocal.new('SRVHOST', [ true, "The local host to listen on.", '0.0.0.0' ]),
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 53 ]),
         OptAddress.new('TARGETHOST', [ false, "The address that all names should resolve to", nil ]),
         OptString.new('TARGETDOMAIN', [ true, "The list of target domain names we want to fully resolve (BYPASS) or fake resolve (FAKE). Use '*' for wildcard.", 'www.google.com']),

@@ -11,7 +11,6 @@ require 'monitor'
 #
 
 require 'metasploit/framework/version'
-require 'rex/socket/ssl'
 require 'metasploit/framework/thread_factory_provider'
 module Msf
 
@@ -70,6 +69,7 @@ class Framework
     self.events    = EventDispatcher.new(self)
     self.modules   = ModuleManager.new(self,types)
     self.datastore = DataStore.new
+    self.datastore.import_options(DataStore::GLOBAL_OPTION_DEFINITIONS)
     self.jobs      = Rex::JobContainer.new
     self.analyze   = Analyze.new(self)
     self.plugins   = PluginManager.new(self)

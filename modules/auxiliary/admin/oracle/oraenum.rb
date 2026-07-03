@@ -114,12 +114,12 @@ class MetasploitModule < Msf::Auxiliary
       if vparm['sql92_security'] == 'FALSE'
         print_status("\tSQL92 Security restriction on SELECT is not Enabled")
         report_ora_enum_note(
-          'SQL92: Disabled'
+          { :sql92 => 'Disabled' }
         )
       else
         print_status("\tSQL92 Security restriction on SELECT is Enabled")
         report_ora_enum_note(
-          'SQL92: Enabled'
+          { :sql92 => 'Enabled' }
         )
       end
 
@@ -129,12 +129,12 @@ class MetasploitModule < Msf::Auxiliary
         if vparm['dblink_encrypt_login'] == 'FALSE'
           print_status("\tLink Encryption for Logins is not Enabled")
           report_ora_enum_note(
-            'Link Encryption: Disabled'
+            { :link_encryption => 'Disabled' }
           )
         else
           print_status("\tLink Encryption for Logins is Enabled")
           report_ora_enum_note(
-            'Link Encryption: Enabled'
+            { :link_encryption => 'Enabled' }
           )
         end
       end
@@ -142,14 +142,14 @@ class MetasploitModule < Msf::Auxiliary
       print_status("\tUTL Directory Access is set to #{vparm['utl_file_dir']}") if vparm['utl_file_dir'] != ' '
       if !vparm['utl_file_dir']
         report_ora_enum_note(
-          "UTL_DIR: #{vparm['utl_file_dir']}"
+          { :utl_dir => vparm['utl_file_dir'] }
         )
       end
 
       print_status("\tAudit log is saved at #{vparm['audit_file_dest']}")
       if !vparm['audit_file_dest']
         report_ora_enum_note(
-          "Audit Log Location: #{vparm['audit_file_dest']}"
+          { :audit_log_location => vparm['audit_file_dest'] }
         )
       end
     end
@@ -167,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
       lockout = prepare_exec(query)
       print_status("\tCurrent Account Lockout Time is set to #{lockout[0].chomp}")
       report_ora_enum_note(
-        "Account Lockout Time: #{lockout[0].chomp}"
+        { :account_lockout_time => lockout[0].chomp }
       )
     rescue StandardError => e
       if e.to_s =~ /ORA-00942: table or view does not exist/
@@ -187,7 +187,7 @@ class MetasploitModule < Msf::Auxiliary
       failed_logins = prepare_exec(query)
       print_status("\tThe Number of Failed Logins before an account is locked is set to #{failed_logins[0].chomp}")
       report_ora_enum_note(
-        "Account Fail Logins Permitted: #{failed_logins[0].chomp}"
+        { :account_fail_logins_permitted => failed_logins[0].chomp }
       )
     rescue StandardError => e
       if e.to_s =~ /ORA-00942: table or view does not exist/
@@ -207,7 +207,7 @@ class MetasploitModule < Msf::Auxiliary
       grace_time = prepare_exec(query)
       print_status("\tThe Password Grace Time is set to #{grace_time[0].chomp}")
       report_ora_enum_note(
-        "Account Password Grace Time: #{grace_time[0].chomp}"
+        { :account_password_grace_time => grace_time[0].chomp }
       )
     rescue StandardError => e
       if e.to_s =~ /ORA-00942: table or view does not exist/
@@ -227,7 +227,7 @@ class MetasploitModule < Msf::Auxiliary
       passlife_time = prepare_exec(query)
       print_status("\tThe Lifetime of Passwords is set to #{passlife_time[0].chomp}")
       report_ora_enum_note(
-        "Password Life Time: #{passlife_time[0].chomp}"
+        { :password_life_time => passlife_time[0].chomp }
       )
     rescue StandardError => e
       if e.to_s =~ /ORA-00942: table or view does not exist/
@@ -247,7 +247,7 @@ class MetasploitModule < Msf::Auxiliary
       passreuse = prepare_exec(query)
       print_status("\tThe Number of Times a Password can be reused is set to #{passreuse[0].chomp}")
       report_ora_enum_note(
-        "Password Reuse Time: #{passreuse[0].chomp}"
+        { :password_reuse_time => passreuse[0].chomp }
       )
     rescue StandardError => e
       if e.to_s =~ /ORA-00942: table or view does not exist/
@@ -267,7 +267,7 @@ class MetasploitModule < Msf::Auxiliary
       passreusemax = prepare_exec(query)
       print_status("\tThe Maximum Number of Times a Password needs to be changed before it can be reused is set to #{passreusemax[0].chomp}")
       report_ora_enum_note(
-        "Password Maximum Reuse Time: #{passreusemax[0].chomp}"
+        { :password_maximum_reuse_time => passreusemax[0].chomp }
       )
       print_status("\tThe Number of Times a Password can be reused is set to #{passreuse[0].chomp}")
     rescue StandardError => e
@@ -289,12 +289,12 @@ class MetasploitModule < Msf::Auxiliary
       if passrand[0] =~ /NULL/
         print_status("\tPassword Complexity is not checked")
         report_ora_enum_note(
-          'Password Complexity is not being checked for new passwords'
+          { :password_complexity => 'Not checked' }
         )
       else
         print_status("\tPassword Complexity is being checked")
         report_ora_enum_note(
-          'Password Complexity is being checked for new passwords'
+          { :password_complexity => 'Checked' }
         )
       end
     rescue StandardError => e
@@ -329,7 +329,7 @@ class MetasploitModule < Msf::Auxiliary
       activeacc.each do |aa|
         print_status("\t#{aa.chomp}")
         report_ora_enum_note(
-          "Active Account #{aa.chomp}"
+          { :active_account => aa.chomp }
         )
       end
     rescue StandardError => e
@@ -361,7 +361,7 @@ class MetasploitModule < Msf::Auxiliary
       disabledacc.each do |da|
         print_status("\t#{da.chomp}")
         report_ora_enum_note(
-          "Disabled Account #{da.chomp}"
+          { :disabled_account => da.chomp }
         )
       end
     rescue StandardError => e
@@ -383,7 +383,7 @@ class MetasploitModule < Msf::Auxiliary
       dbaacc.each do |dba|
         print_status("\t#{dba.chomp}")
         report_ora_enum_note(
-          "Account with DBA Priv  #{dba.chomp}"
+          { :dba_account => dba.chomp }
         )
       end
     rescue StandardError => e
@@ -405,7 +405,7 @@ class MetasploitModule < Msf::Auxiliary
       altersys.each do |as|
         print_status("\t#{as.chomp}")
         report_ora_enum_note(
-          "Account with ALTER SYSTEM Priv  #{as.chomp}"
+          { :alter_system_account => as.chomp }
         )
       end
     rescue StandardError => e
@@ -427,7 +427,7 @@ class MetasploitModule < Msf::Auxiliary
       javaacc.each do |j|
         print_status("\t#{j.chomp}")
         report_ora_enum_note(
-          "Account with JAVA ADMIN Priv  #{j.chomp}"
+          { :java_admin_account => j.chomp }
         )
       end
     rescue StandardError => e
@@ -450,7 +450,7 @@ class MetasploitModule < Msf::Auxiliary
       libpriv.each do |lp|
         print_status("\t#{lp.chomp}")
         report_ora_enum_note(
-          "Account with CREATE LIBRARY Priv  #{lp.chomp}"
+          { :create_library_account => lp.chomp }
         )
       end
     rescue StandardError => e
@@ -472,7 +472,7 @@ class MetasploitModule < Msf::Auxiliary
         defpwd.each do |dp|
           print_status("\tThe account #{dp.chomp} has a default password.")
           report_ora_enum_note(
-            "Account with Default Password #{dp.chomp}"
+            { :default_password_account => dp.chomp }
           )
         end
 
@@ -495,7 +495,7 @@ class MetasploitModule < Msf::Auxiliary
 
           print_status("\tDefault pass for account #{accrcrd[0]} is #{accrcrd[1]} ")
           report_ora_enum_note(
-            "Account with Default Password #{accrcrd[0]} is #{accrcrd[1]}"
+            { :default_password_account => accrcrd[0], :default_password => accrcrd[1] }
           )
         end
       end

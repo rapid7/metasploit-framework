@@ -24,6 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2024-28995'],
+          ['EDB', '52311'],
           ['URL', 'http://web.archive.org/web/20250213123538/https://www.solarwinds.com/trust-center/security-advisories/cve-2024-28995'],
           ['URL', 'https://attackerkb.com/topics/2k7UrkHyl3/cve-2024-28995/rapid7-analysis']
         ],
@@ -87,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
       return Msf::Exploit::CheckCode::Vulnerable("SolarWinds Serv-U version #{version[1]} (#{os.nil? ? 'Unknown OS' : os[1]})")
     end
 
-    Msf::Exploit::CheckCode::Safe
+    Msf::Exploit::CheckCode::Safe('Target does not appear to be a vulnerable SolarWinds Serv-U instance')
   end
 
   def run

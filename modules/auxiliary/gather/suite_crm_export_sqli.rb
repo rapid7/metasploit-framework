@@ -74,9 +74,9 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status "Version detected: #{version}"
 
-    return Exploit::CheckCode::Vulnerable if version <= Rex::Version.new('7.12.5')
+    return Exploit::CheckCode::Vulnerable("SuiteCRM version #{version} is vulnerable") if version <= Rex::Version.new('7.12.5')
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe("SuiteCRM version #{version} is not vulnerable")
   end
 
   def authenticate

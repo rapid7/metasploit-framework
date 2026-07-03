@@ -58,17 +58,17 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     unless res
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('No response received from target')
     end
 
     if res.body.include?('Access denied')
       # This probably means the Views Module actually isn't installed
       print_error("Access denied")
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Drupal Views module does not appear to be installed')
     elsif res.message != 'OK' || res.body != '[  ]'
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Drupal Views user autocomplete endpoint not accessible')
     else
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears('Drupal Views user enumeration endpoint is accessible')
     end
   end
 

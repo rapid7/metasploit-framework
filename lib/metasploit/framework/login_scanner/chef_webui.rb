@@ -28,9 +28,7 @@ module Metasploit
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
 
           begin
@@ -62,6 +60,8 @@ module Metasploit
           rescue ::EOFError, Errno::ETIMEDOUT, OpenSSL::SSL::SSLError, Rex::ConnectionError, ::Timeout::Error
             return "Unable to connect to target"
           end
+
+          report_service(service_opts)
 
           false
         end
@@ -142,6 +142,10 @@ module Metasploit
           end
 
           {:status => Metasploit::Model::Login::Status::INCORRECT, :proof => res.body}
+        end
+
+        def service_opts
+          build_service_opts('chef_webui')
         end
 
       end

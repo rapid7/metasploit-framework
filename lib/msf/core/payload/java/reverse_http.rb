@@ -15,6 +15,9 @@ module Payload::Java::ReverseHttp
   include Msf::Payload::UUID::Options
   include Msf::Payload::Java::PayloadOptions
 
+  # Mark the payload as dynamic as random length URIs are generated, and zip compression with a single char change can lead to size changes even if the original payload is the same length
+  ForceDynamicCachedSize = true
+
   #
   # Register Java reverse_http specific options
   #

@@ -52,4 +52,4 @@ Automating a series of discrete functions is generally /not/ the responsibility 
 
 Console functionality should have a focus on exploit and security tool development, with the exploit developer as the typical user. End users should be pointed to an interface such as the Community Edition or MSFGUI and should not expect much in terms of user-friendliness from the console. The console should be considered a debug mode for Metasploit and as close to bare-metal functionality as possible. 
 
-External tools, such `msfpayload` and `msfvenom`, are designed to make exploit development easier and exercise specific techniques. We are happy to continue evaluating tools of this nature for inclusion in the Framework; these should be accompanied by documentation (!), how-to tutorials for quick start, and other helpful text.
+External tools, such as `msfvenom`, are designed to make exploit development easier and exercise specific techniques. We are happy to continue evaluating tools of this nature for inclusion in the Framework; these should be accompanied by documentation (!), how-to tutorials for quick start, and other helpful text.

@@ -149,11 +149,11 @@ class MetasploitModule < Msf::Auxiliary
     res = add_admin_account('test', 'test')
 
     if res == :success || res == :user_already_exists || res == :weak_password
-      Exploit::CheckCode::Vulnerable
+      Exploit::CheckCode::Vulnerable('Authentication bypass succeeded on DCNM REST API')
     elsif res == :failed_to_connect
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Unknown('Failed to connect to the target or determine vulnerability status')
     else
-      Exploit::CheckCode::Unknown
+      Exploit::CheckCode::Unknown('Could not determine vulnerability status')
     end
   end
 

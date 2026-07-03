@@ -74,9 +74,9 @@ class MetasploitModule < Msf::Auxiliary
     test_string = Rex::Text.rand_text_alphanumeric(encoded_swf.length)
     io = URI.parse(exploit_url(test_string)).open
     if io.read.start_with? test_string
-      Msf::Exploit::CheckCode::Vulnerable
+      Msf::Exploit::CheckCode::Vulnerable('JSONP endpoint reflects callback with sufficient length')
     else
-      Msf::Exploit::CheckCode::Safe
+      Msf::Exploit::CheckCode::Safe('JSONP endpoint does not reflect callback as expected')
     end
   end
 

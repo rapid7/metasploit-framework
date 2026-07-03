@@ -19,23 +19,8 @@ module Msf
 
     def normalize(value)
       return unless value.kind_of?(String)
-      return value unless interfaces.include?(value)
-
-      addrs = NetworkInterface.addresses(value).values.flatten
-
-      # Strip interface name from address (see getifaddrs(3))
-      addrs = addrs.map { |x| x['addr'].split('%').first }.select do |addr|
-        begin
-          IPAddr.new(addr)
-        rescue IPAddr::Error
-          false
-        end
-      end
-
-      # Sort for deterministic normalization; preference ipv4 addresses followed by their value
-      sorted_addrs = addrs.sort_by { |addr| ip_addr = IPAddr.new(addr); [ip_addr.ipv4? ? 0 : 1, ip_addr.to_i] }
-
-      sorted_addrs.any? ? sorted_addrs.first : ''
+      return normalize_interface(value) if interfaces.include?(value)
+      return normalize_ip_address(value) if Rex::Socket.is_ip_addr?(value)
     end
 
     def valid?(value, check_empty: true, datastore: nil)
@@ -55,6 +40,30 @@ module Msf
       end
 
       super
+    end
+
+    private
+
+    def normalize_interface(value)
+      addrs = NetworkInterface.addresses(value).values.flatten
+
+      # Strip interface name from address (see getifaddrs(3))
+      addrs = addrs.map { |x| x['addr'].split('%').first }.select do |addr|
+        begin
+          IPAddr.new(addr)
+        rescue IPAddr::Error
+          false
+        end
+      end
+
+      # Sort for deterministic normalization; preference ipv4 addresses followed by their value
+      sorted_addrs = addrs.sort_by { |addr| ip_addr = IPAddr.new(addr); [ip_addr.ipv4? ? 0 : 1, ip_addr.to_i] }
+
+      sorted_addrs.any? ? sorted_addrs.first : ''
+    end
+
+    def normalize_ip_address(value)
+      IPAddr.new(value).to_s
     end
   end
 end

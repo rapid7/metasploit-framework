@@ -81,18 +81,18 @@ class MetasploitModule < Msf::Auxiliary
             refs: references
           )
           vprint_status("#{peer}: Track-It! version #{version} is less than #{fix_version}")
-          return Exploit::CheckCode::Vulnerable
+          return Exploit::CheckCode::Vulnerable("Track-It! version #{version} is vulnerable to password reset")
         else
           vprint_status("#{peer}: Track-It! version #{version} is not less than #{fix_version}")
-          return Exploit::CheckCode::Safe
+          return Exploit::CheckCode::Safe("Track-It! version #{version} is not vulnerable")
         end
       else
         vprint_error("#{peer}: unable to get Track-It! version")
-        return Exploit::CheckCode::Unknown
+        return Exploit::CheckCode::Unknown('Unable to determine Track-It! version')
       end
     else
       vprint_status("#{peer}: does not appear to be running Track-It!")
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Target does not appear to be running Track-It!')
     end
   end
 

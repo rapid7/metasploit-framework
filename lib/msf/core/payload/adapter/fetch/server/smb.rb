@@ -1,7 +1,7 @@
 module Msf::Payload::Adapter::Fetch::Server::SMB
 
   include ::Msf::Exploit::Remote::SMB::LogAdapter
-  include ::Msf::Exploit::Remote::SMB::Server::HashCapture
+  include ::Msf::Exploit::Remote::Relay::NTLM::HashCapture
 
   def start_smb_server(srvport, srvhost)
     vprint_status("Starting SMB server on #{Rex::Socket.to_authority(srvhost, srvport)}")
@@ -9,11 +9,12 @@ module Msf::Payload::Adapter::Fetch::Server::SMB
     log_device = LogDevice::Framework.new(framework)
     logger = Logger.new(self, log_device)
 
-    ntlm_provider = Msf::Exploit::Remote::SMB::Server::HashCapture::HashCaptureNTLMProvider.new(
+    ntlm_provider = Msf::Exploit::Remote::Relay::NTLM::HashCapture::HashCaptureNTLMProvider.new(
       allow_anonymous: true,
       allow_guests: true,
       listener: self,
-      ntlm_type3_status: nil
+      ntlm_type3_status: nil,
+      service_name: 'SMB'
     )
 
     fetch_service = Rex::ServiceManager.start(

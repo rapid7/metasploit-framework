@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Post
 
   def outlook_installed?
     key_base = 'HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676'
-    installed = registry_getvaldata("#{key_base}\\", 'NextAccountID')
+    installed = registry_getvaldata(key_base, 'NextAccountID')
 
     if installed.blank? || installed == 0
       return false

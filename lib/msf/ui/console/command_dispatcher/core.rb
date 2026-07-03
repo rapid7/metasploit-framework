@@ -1640,6 +1640,12 @@ class Core
               print_line(output) if output
             when 'mssql', 'postgresql', 'mysql'
               session.run_cmd(cmd, driver.output)
+            when 'hwbridge'
+              if session.respond_to?(:console) && session.console
+                session.console.run_single(cmd)
+              else
+                print_error("Session #{s} has no hwbridge console; skipping...")
+              end
             end
           ensure
             # Restore timeout for each session
@@ -1809,11 +1815,33 @@ class Core
         end
       end
     when 'upexec'
-      print_status("Executing 'post/multi/manage/shell_to_meterpreter' on " +
-                    "session(s): #{session_list}")
       session_list.each do |sess_id|
         session = verify_session(sess_id)
-        if session
+        next unless session
+
+        if session.type == 'smb'
+          # Route SMB sessions to the dedicated upgrade module
+          mod = framework.modules.create('post/windows/manage/smb_to_meterpreter')
+          unless mod
+            print_error('Failed to create post/windows/manage/smb_to_meterpreter module.')
+            next
+          end
+
+          print_status("Executing 'post/windows/manage/smb_to_meterpreter' on session: [#{sess_id}]")
+          opts = { 'SESSION' => sess_id.to_s }
+          if session.exploit_datastore
+            %w[LHOST LPORT TARGET_ARCH].each do |key|
+              opts[key] = session.exploit_datastore[key] if session.exploit_datastore[key]
+            end
+          end
+          mod.run_simple(
+            'LocalInput' => driver.input,
+            'LocalOutput' => driver.output,
+            'Options' => opts
+          )
+        else
+          print_status("Executing 'post/multi/manage/shell_to_meterpreter' on " \
+                        "session: [#{sess_id}]")
           if session.respond_to?(:response_timeout)
             last_known_timeout = session.response_timeout
             session.response_timeout = response_timeout
@@ -2189,25 +2217,6 @@ class Core
         value = mod.first
       end
     end
-
-    # Set ENCODER
-    if name.upcase == 'ENCODER' && active_module && active_module.exploit? && !clear
-      value = trim_path(value, 'encoder')
-
-      payload = active_module.framework.payloads.create(datastore['PAYLOAD'])
-      
-      unless payload
-        print_error("Please set a valid PAYLOAD before setting the ENCODER.")
-        return false
-      end
-
-      index_from_list(payload.compatible_encoders, value) do |mod|
-        return false unless mod && mod.respond_to?(:first)
-        # [name, class] from compatible_encoders
-        value = mod.first
-      end
-    end
-
 
     unless global || valid_options.any? { |vo| vo.casecmp?(name) }
       message = "Unknown datastore option: #{name}."

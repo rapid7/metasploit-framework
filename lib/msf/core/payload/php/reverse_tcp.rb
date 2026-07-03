@@ -68,7 +68,7 @@ if (!$s && ($f = 'socket_create') && is_callable($f)) {
 	$s_type = 'socket';
 }
 if (!$s_type) {
-	die('no socket funcs');
+	die('no socket func');
 }
 if (!$s) { die('no socket'); }
 ^

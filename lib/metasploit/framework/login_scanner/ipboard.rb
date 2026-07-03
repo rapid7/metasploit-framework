@@ -15,19 +15,34 @@ module Metasploit
         # @return [String]
         attr_accessor :http_password
 
+        # Checks if the target is an IP Board instance
+        #
+        # @return [false] if the target looks like IP Board
+        # @return [String] a human-readable error message if it doesn't
+        def check_setup
+          res = send_request({
+            'uri'    => uri,
+            'method' => 'GET'
+          })
+
+          return 'Unable to connect to the IP Board login page' unless res
+          return 'Unable to locate IP Board login page (Is this really IP Board?)' unless res.code == 200 && res.body =~ /name='auth_key'\s+value='/i
+
+          report_service(service_opts)
+
+          false
+        end
+
+        def service_opts
+          build_service_opts('ipboard')
+        end
+
         # (see Base#attempt_login)
         def attempt_login(credential)
           result_opts = {
               credential: credential,
-              host: host,
-              port: port,
-              protocol: 'tcp'
+              **service_as_result(service_opts)
           }
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
 
           begin
 
@@ -93,6 +108,10 @@ module Metasploit
         # @raise [RuntimeError]
         def method=(_)
           raise RuntimeError, "Method must be POST for IPBoard"
+        end
+
+        def service_opts
+          build_service_opts('ipboard')
         end
 
       end

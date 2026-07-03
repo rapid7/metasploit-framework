@@ -1,0 +1,25 @@
+# Valid MessagePack configuration for testing
+msf_api:
+  type: messagepack
+  host: localhost
+  port: 55553
+  endpoint: /api/
+  user: test_user
+  password: test_password
+
+# MCP server configuration
+mcp:
+  transport: stdio
+  host: localhost
+  port: 3000
+
+# Rate limiting
+rate_limit:
+  enabled: true
+  requests_per_minute: 60
+  burst_size: 10
+
+# Logging
+logging:
+  enabled: false
+  level: INFO

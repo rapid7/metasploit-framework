@@ -26,7 +26,8 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['URL', 'https://github.com/SecuraBV/Timeroast/'],
-          ['URL', 'https://www.secura.com/uploads/whitepapers/Secura-WP-Timeroasting-v3.pdf']
+          ['URL', 'https://www.secura.com/uploads/whitepapers/Secura-WP-Timeroasting-v3.pdf'],
+          ['ATT&CK', Mitre::Attack::Technique::T1110_002_PASSWORD_CRACKING]
         ],
         'Notes' => {
           'Stability' => [],
@@ -64,12 +65,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def recv_response(timeout: 0)
     begin
-      raw, = udp_sock.recvfrom(68, timeout) # 68 is always the number of bytes expected
+      raw, = udp_sock.timed_recvfrom(68, timeout) # 68 is always the number of bytes expected
     rescue ::Rex::SocketError, ::IOError
       return nil
     end
 
-    return nil if raw.empty?
+    return nil if raw.nil? || raw.empty?
 
     Rex::Proto::NTP::Header::NTPHeader.read(raw)
   end

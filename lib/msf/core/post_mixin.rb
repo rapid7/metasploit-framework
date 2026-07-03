@@ -21,7 +21,7 @@ module Msf::PostMixin
     )
 
     register_options( [
-      Msf::OptInt.new('SESSION', [ true, 'The session to run this module on' ])
+      Msf::OptInt.new('SESSION', [ true, 'The session to run this module on', -1 ])
     ] , Msf::Post)
   end
 end

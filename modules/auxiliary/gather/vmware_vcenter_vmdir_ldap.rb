@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
       unless entries&.find { |entry| entry[:vmwstsprivatekey].any? }
         print_error("#{ldap.peerinfo} is NOT vulnerable to CVE-2020-3952") unless datastore['LDAPPassword'].present?
         print_error('Dump failed')
-        return Exploit::CheckCode::Safe
+        return Exploit::CheckCode::Safe('Dump did not contain expected vmwSTSPrivateKey attribute')
       end
 
       print_good("#{ldap.peerinfo} is vulnerable to CVE-2020-3952") unless datastore['LDAPPassword'].present?
@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
     ldif_filename = store_loot(
       name, # ltype
       'text/plain', # ctype
-      rhost, # host
+      session ? session.client.peerhost : rhost, # host
       ldif, # data
       nil, # filename
       "Base DN: #{base_dn}" # info
@@ -156,8 +156,8 @@ class MetasploitModule < Msf::Auxiliary
       workspace_id: myworkspace_id,
       module_fullname: fullname,
       origin_type: :service,
-      address: rhost,
-      port: rport,
+      address: session ? session.client.peerhost : rhost,
+      port: session ? session.client.peerport : rport,
       protocol: 'tcp',
       service_name: 'vmdir/ldap'
     }

@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def relay_targets
-    Msf::Exploit::Remote::SMB::Relay::TargetList.new(
+    Msf::Exploit::Remote::Relay::TargetList.new(
       (datastore['SSL'] ? :https : :http),
       datastore['RPORT'],
       datastore['RELAY_TARGETS'],
@@ -80,9 +80,9 @@ class MetasploitModule < Msf::Auxiliary
     )
     disconnect
 
-    return Exploit::CheckCode::Detected if res&.code == 401
+    return Exploit::CheckCode::Detected('SCCM HTTP server detected') if res&.code == 401
 
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('Target does not appear to be an SCCM HTTP server')
   end
 
   def run

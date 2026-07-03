@@ -81,6 +81,37 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDisclosureDateFormat do
     expect_no_corrections
   end
 
+  it 'rejects invalid DisclosureDate values when super is called with a hash directly' do
+    expect_offense(<<~RUBY)
+      class DummyModule
+        def initialize
+          super(
+            'Name' => 'Simple module name',
+            'Description' => 'Lorem ipsum dolor sit amet',
+            'Author' => [ 'example1', 'example2' ],
+            'License' => MSF_LICENSE,
+            'DisclosureDate' => 'Nov 12 2013'
+                                ^^^^^^^^^^^^^ Modules should specify a DisclosureDate with the required format '%Y-%m-%d', for example '2020-10-02'
+          )
+        end
+      end
+    RUBY
+
+    expect_correction(<<~RUBY)
+      class DummyModule
+        def initialize
+          super(
+            'Name' => 'Simple module name',
+            'Description' => 'Lorem ipsum dolor sit amet',
+            'Author' => [ 'example1', 'example2' ],
+            'License' => MSF_LICENSE,
+            'DisclosureDate' => '2013-11-12'
+          )
+        end
+      end
+    RUBY
+  end
+
   it 'provides an autocorrection when the DisclosureDate can safely be converted to the required format' do
     expect_offense(<<~RUBY)
       class DummyModule

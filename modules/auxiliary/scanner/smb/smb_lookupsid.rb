@@ -177,6 +177,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Each result contains 0 or more arrays containing: SID Type, Name, RID
     results.compact.each do |result_set|
+      next unless result_set.respond_to?(:each)
       result_set.each { |result| sids_table << result }
     end
 
@@ -195,7 +196,9 @@ class MetasploitModule < Msf::Auxiliary
     results_table = format_results(results)
     results_table.rows = results_table.rows.uniq # Remove potentially duplicate entries from port 139 & 445
 
-    print_line
-    print_line results_table.to_s
+    unless results_table.rows.empty?
+      print_line
+      print_line results_table.to_s
+    end
   end
 end

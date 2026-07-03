@@ -3,7 +3,7 @@ require 'rex/proto/mssql/client_mixin'
 require 'rex/text'
 require 'msf/core/exploit'
 require 'msf/core/exploit/remote'
-require 'msf/core/exploit/remote/kerberos/clock_skew'
+require 'msf/core/opt_timedelta'
 
 module Rex
   module Proto
@@ -389,7 +389,7 @@ module Rex
             framework: framework,
             framework_module: framework_module,
             ticket_storage: Msf::Exploit::Remote::Kerberos::Ticket::Storage::WriteOnly.new(framework: framework, framework_module: framework_module),
-            clock_skew: Msf::Exploit::Remote::Kerberos::ClockSkew.parse(framework_module.datastore['KrbClockSkew'])
+            clock_skew: framework_module.datastore['KrbClockSkew']
           )
 
           kerberos_result = kerberos_authenticator.authenticate
@@ -462,7 +462,7 @@ module Rex
           # Rem : One have to set check_status to false here because sql server sp0 (and maybe above)
           # has a strange behavior that differs from the specifications
           # upon receiving the ntlm_negotiate request it send an ntlm_challenge but the status flag of the tds packet header
-          # is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentification
+          # is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentication
           resp = mssql_send_recv(pkt, 15, false)
 
           # Strip the TDS header

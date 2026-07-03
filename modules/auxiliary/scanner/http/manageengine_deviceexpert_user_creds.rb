@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    get_users ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe
+    get_users ? Exploit::CheckCode::Vulnerable('Successfully retrieved user credentials') : Exploit::CheckCode::Safe('Could not retrieve user credentials')
   end
 
   def get_users

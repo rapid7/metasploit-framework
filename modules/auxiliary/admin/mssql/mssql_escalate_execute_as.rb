@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     if session
       set_mssql_session(session.client)
     else
-      print_status("Attempting to connect to the database server at #{rhost}:#{rport} as #{datastore['USERNAME']}...")
+      print_status("Attempting to connect to the database server at #{Rex::Socket.to_authority(rhost, rport)} as #{datastore['USERNAME']}...")
       if mssql_login_datastore
         print_good('Connected.')
       else

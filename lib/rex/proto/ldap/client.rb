@@ -132,9 +132,6 @@ module Rex
           base_dn
         end
 
-        # Monkeypatch upstream library to support the extended Whoami request. Delete
-        # this after https://github.com/ruby-ldap/ruby-net-ldap/pull/425 is released.
-        # This is not the only occurrence of a patch for this functionality.
         def ldapwhoami(args = {})
           instrument "ldapwhoami.net_ldap", args do |payload|
             @result = use_connection(args, &:ldapwhoami)

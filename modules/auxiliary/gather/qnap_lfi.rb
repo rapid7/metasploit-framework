@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     unless res && res.code == 200 && (xml = res.get_xml_document)
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Target does not appear to be a QNAP device')
     end
 
     info = %w[modelName version build patch].map do |node|
@@ -77,9 +77,9 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status("QNAP #{info[0]} #{info[1..].join('-')} detected")
 
-    return Exploit::CheckCode::Appears if info[2].to_i < 20191206
+    return Exploit::CheckCode::Appears("QNAP #{info[0]} build #{info[2]} is older than the patched build 20191206") if info[2].to_i < 20191206
 
-    Exploit::CheckCode::Detected
+    Exploit::CheckCode::Detected("QNAP #{info[0]} #{info[1..].join('-')} detected, but build is not confirmed vulnerable")
   end
 
   def run

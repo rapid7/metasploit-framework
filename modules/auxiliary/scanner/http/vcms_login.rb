@@ -143,6 +143,21 @@ class MetasploitModule < Msf::Auxiliary
     @uri = normalize_uri(target_uri.path)
     @uri << "/" if @uri[-1, 1] != "/"
 
+    res = send_request_raw({
+      'method' => 'GET',
+      'uri' => @uri
+    })
+
+    unless res
+      print_error("#{peer} - Could not connect to the V-CMS login page")
+      return
+    end
+
+    unless res.code == 200 && res.body.include?('V-CMS')
+      print_error("#{peer} - Application does not appear to be V-CMS. Module will not continue.")
+      return
+    end
+
     super
   end
 
