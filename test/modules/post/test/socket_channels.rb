@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Post
       [
         OptAddressLocal.new('LHOST', [true, 'The local IP address to use for binding.', '127.0.0.1']),
         OptAddress.new('RHOST', [true, 'The remote IP address to use for binding.', '127.0.0.1']),
+        OptInt.new('TIMEOUT', [true, 'The timeout in seconds to use when waiting for socket operations.', ENV['CI'] ? 30 : 5]),
       ], self.class
     )
   end
@@ -41,7 +42,7 @@ class MetasploitModule < Msf::Post
     super
   end
 
-  def tcp_client_socket_pair(params={}, timeout: 5)
+  def tcp_client_socket_pair(params={}, timeout: datastore['TIMEOUT'])
     params = Rex::Socket::Parameters.new('Proto' => 'tcp', 'PeerHost' => datastore['LHOST'], **params)
 
     server = TCPSocketServer.new(host: params.peerhost, port: params.peerport)
@@ -52,7 +53,7 @@ class MetasploitModule < Msf::Post
     [client, server_client]
   end
 
-  def tcp_server_socket_trio(params={}, timeout: 5)
+  def tcp_server_socket_trio(params={}, timeout: datastore['TIMEOUT'])
     params = Rex::Socket::Parameters.new('Proto' => 'tcp', 'LocalHost' => datastore['RHOST'], 'Server' => true, **params)
 
     server = session.create(params)
@@ -64,7 +65,7 @@ class MetasploitModule < Msf::Post
     [client, server_client, server]
   end
 
-  def tcp_server_socket_pair(params={}, timeout: 5)
+  def tcp_server_socket_pair(params={}, timeout: datastore['TIMEOUT'])
     client, server_client, server = tcp_server_socket_trio(params, timeout: timeout)
     server.close
     [client, server_client]
@@ -125,7 +126,10 @@ class MetasploitModule < Msf::Post
     it '[TCP-Client] Propagates close events to the peer' do
       client, server_client = tcp_client_socket_pair
       client.close
-      ret = retry_until_truthy(timeout: 5) { server_client.eof? }
+      # Use IO.select with a short poll interval to avoid blocking indefinitely on eof?
+      ret = retry_until_truthy(timeout: datastore['TIMEOUT']) do
+        IO.select([server_client], nil, nil, 0.1) && server_client.eof?
+      end
       server_client.close
       ret
     end
@@ -135,7 +139,7 @@ class MetasploitModule < Msf::Post
       server_client.close
       # this behavior is wrong, it should just be an EOF, but when the channel is cleaned up, the socket is closed
       # this is how it's worked for years, so we'll test that it's still consistently wrong
-      retry_until_truthy(timeout: 5) { client.closed? }
+      retry_until_truthy(timeout: datastore['TIMEOUT']) { client.closed? }
     end
   end
 
@@ -195,7 +199,7 @@ class MetasploitModule < Msf::Post
       server.close
 
       # Try to connect a new client - should fail since server is closed
-      ret = retry_until_truthy(timeout: 5) do
+      ret = retry_until_truthy(timeout: datastore['TIMEOUT']) do
         begin
           new_client = TCPSocket.new(server.params.localhost, server.params.localport)
           new_client.close
@@ -214,7 +218,10 @@ class MetasploitModule < Msf::Post
     it '[TCP-Server] Propagates close events to the peer' do
       client, server_client = tcp_server_socket_pair
       server_client.close
-      ret = retry_until_truthy(timeout: 5) { client.eof? }
+      # Use IO.select with a short poll interval to avoid blocking indefinitely on eof?
+      ret = retry_until_truthy(timeout: datastore['TIMEOUT']) do
+        IO.select([client], nil, nil, 0.1) && client.eof?
+      end
       client.close
       ret
     end
@@ -224,7 +231,7 @@ class MetasploitModule < Msf::Post
       client.close
       # this behavior is wrong, it should just be an EOF, but when the channel is cleaned up, the socket is closed
       # this is how it's worked for years, so we'll test that it's still consistently wrong
-      ret = retry_until_truthy(timeout: 5) { server_client.closed? }
+      ret = retry_until_truthy(timeout: datastore['TIMEOUT']) { server_client.closed? }
       ret
     end
   end
@@ -252,11 +259,32 @@ class MetasploitModule < Msf::Post
       data = Random.new.bytes(rand(10..100))
       # Now server can send to the client's address
       server_client.send(data, 0, client.localhost, client.localport)
-      _, addrinfo = client.recvfrom(data.length)
-      ret = addrinfo.is_a?(Array)
-      ret &&= addrinfo[0] == 'AF_INET'
-      ret &&= addrinfo[1] == server_client.local_address.ip_port
-      ret &&= addrinfo[3] == server_client.local_address.ip_address
+      ret = IO.select([client], nil, nil, datastore['TIMEOUT'])
+      if ret
+        _, addrinfo = client.recvfrom(data.length)
+        expected_family = 'AF_INET'
+        expected_port = server_client.local_address.ip_port
+        expected_addr = server_client.local_address.ip_address
+        ret = addrinfo.is_a?(Array)
+        unless ret
+          print_error("Expected addrinfo to be an Array, got #{addrinfo.class}")
+        end
+        ret &&= addrinfo[0] == expected_family
+        unless addrinfo[0] == expected_family
+          print_error("Expected address family #{expected_family.inspect}, got #{addrinfo[0].inspect}")
+        end
+        ret &&= addrinfo[1] == expected_port
+        unless addrinfo[1] == expected_port
+          print_error("Expected peer port #{expected_port}, got #{addrinfo[1].inspect}")
+        end
+        ret &&= addrinfo[3] == expected_addr
+        unless addrinfo[3] == expected_addr
+          print_error("Expected peer address #{expected_addr.inspect}, got #{addrinfo[3].inspect}")
+        end
+      else
+        print_error("Timed out after #{datastore['TIMEOUT']}s waiting to receive data from peer")
+        ret = false
+      end
       client.close
       server_client.close
       ret
@@ -266,8 +294,14 @@ class MetasploitModule < Msf::Post
       client, server_client = udp_socket_pair
       data = Random.new.bytes(rand(10..100))
       server_client.send(data, 0, client.localhost, client.localport)
-      received, _ = client.recvfrom(data.length)
-      ret = received == data
+      ret = IO.select([client], nil, nil, datastore['TIMEOUT'])
+      if ret
+        received, _ = client.recvfrom(data.length)
+        ret = received == data
+      else
+        print_error("Timed out after #{datastore['TIMEOUT']}s waiting to receive data from peer")
+        ret = false
+      end
       client.close
       server_client.close
       ret
@@ -277,8 +311,14 @@ class MetasploitModule < Msf::Post
       client, server_client = udp_socket_pair
       data = Random.new.bytes(rand(10..100))
       client.send(data, 0, server_client.local_address.ip_address, server_client.local_address.ip_port)
-      received, _ = server_client.recvfrom(data.length)
-      ret = received == data
+      ret = IO.select([server_client], nil, nil, datastore['TIMEOUT'])
+      if ret
+        received, _ = server_client.recvfrom(data.length)
+        ret = received == data
+      else
+        print_error("Timed out after #{datastore['TIMEOUT']}s waiting to receive data from peer")
+        ret = false
+      end
       client.close
       server_client.close
       ret
