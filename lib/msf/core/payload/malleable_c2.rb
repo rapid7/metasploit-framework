@@ -115,7 +115,7 @@ module Msf::Payload::MalleableC2
           # blank line
           next
         elsif scanner.scan(/#[^\n]*/)
-          # comment — anchorless so it matches indented comments too
+          # comment -- anchorless so it matches indented comments too
           # (the prior `\s+` rule has already eaten any leading
           # whitespace by the time we get here)
           next
@@ -450,7 +450,7 @@ module Msf::Payload::MalleableC2
           profile.sets << parse_set
         elsif block_ahead?
           # Any `name { ... }` is a block. We keep the ones we understand
-          # (http-get/http-post/etc.) and harmlessly retain the rest —
+          # (http-get/http-post/etc.) and harmlessly retain the rest --
           # unsupported CS blocks like dns-beacon/process-inject/post-ex
           # are parsed for structure and simply ignored by to_tlv.
           profile.sections << parse_section
