@@ -131,13 +131,18 @@ TLV_TYPE_C2_UA                 = TLV_META_TYPE_STRING | 716 # User agent
 TLV_TYPE_C2_CERT_HASH          = TLV_META_TYPE_RAW    | 717 # Expected SSL certificate hash
 TLV_TYPE_C2_PREFIX             = TLV_META_TYPE_RAW    | 718 # Data to prepend to the outgoing payload
 TLV_TYPE_C2_SUFFIX             = TLV_META_TYPE_RAW    | 719 # Data to append to the outgoing payload
-TLV_TYPE_C2_ENC                = TLV_META_TYPE_UINT   | 720 # Request encoding flags (Base64|URL|Base64url)
+TLV_TYPE_C2_ENC_INBOUND        = TLV_META_TYPE_UINT   | 720 # Server-inbound (client->server) body/metadata encoding
 TLV_TYPE_C2_PREFIX_SKIP        = TLV_META_TYPE_UINT   | 721 # Size of prefix to skip (in bytes)
 TLV_TYPE_C2_SUFFIX_SKIP        = TLV_META_TYPE_UINT   | 722 # Size of suffix to skip (in bytes)
 TLV_TYPE_C2_UUID_COOKIE        = TLV_META_TYPE_STRING | 723 # Name of the cookie to put the UUID in
 TLV_TYPE_C2_UUID_GET           = TLV_META_TYPE_STRING | 724 # Name of the GET parameter to put the UUID in
 TLV_TYPE_C2_UUID_HEADER        = TLV_META_TYPE_STRING | 725 # Name of the header to put the UUID in
 TLV_TYPE_C2_UUID               = TLV_META_TYPE_STRING | 726 # string representation of the UUID for C2s
+TLV_TYPE_SESSION_FLAGS         = TLV_META_TYPE_UINT   | 727 # session-level config flags (e.g. FLAG_STAGELESS, FLAG_DEBUG)
+TLV_TYPE_C2_ENC_OUTBOUND       = TLV_META_TYPE_UINT   | 728 # Client->server (request) body encoding (POST only)
+TLV_TYPE_C2_ENC_UUID           = TLV_META_TYPE_UINT   | 729 # Encoding applied to the UUID before placement (URL/header/cookie)
+TLV_TYPE_C2_UUID_PREFIX        = TLV_META_TYPE_STRING | 730 # String to prepend to the encoded UUID
+TLV_TYPE_C2_UUID_SUFFIX        = TLV_META_TYPE_STRING | 731 # String to append to the encoded UUID
 
 #
 # C2 Encoding flags

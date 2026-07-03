@@ -114,8 +114,10 @@ module Msf::Payload::MalleableC2
         if scanner.scan(/\s+/)
           # blank line
           next
-        elsif scanner.scan(/^\s*#.*$/)
-          # comment
+        elsif scanner.scan(/#[^\n]*/)
+          # comment — anchorless so it matches indented comments too
+          # (the prior `\s+` rule has already eaten any leading
+          # whitespace by the time we get here)
           next
         elsif scanner.scan(/\"(\\.|[^"])*\"/)
           @tokens << Token.new(:string, scanner.matched[1..-2])
@@ -176,7 +178,12 @@ module Msf::Payload::MalleableC2
         post_uri = http_post.get_set('uri')
       }
 
-      [base_uri, get_uri, post_uri].compact
+      # A `set uri` value may list several space-separated candidate URIs
+      # (Cobalt Strike picks one at random per request). Split them out so
+      # the handler registers a mount for each candidate, otherwise the
+      # literal "uri-a uri-b" string is registered as a single unmatchable
+      # resource.
+      [base_uri, get_uri, post_uri].compact.flat_map {|u| u.split(/\s+/) }.reject(&:empty?).uniq
     end
 
     def wrap_outbound_get(raw_bytes)
@@ -248,9 +255,10 @@ module Msf::Payload::MalleableC2
       http_get.get_section('client') {|client|
         self.add_http_tlv(get_uri, client, get_tlv)
         add_skip_tlvs(get_tlv, self.http_get&.server&.output)
+        add_inbound_encoding_tlv(get_tlv, self.http_get&.server&.output)
 
         client.get_section('metadata') {|meta|
-          add_encoding_tlv(get_tlv, meta)
+          add_uuid_transform_tlvs(get_tlv, meta)
           add_uuid_tlvs(get_tlv, meta)
         }
       }
@@ -263,17 +271,15 @@ module Msf::Payload::MalleableC2
       http_post.get_section('client') {|client|
         self.add_http_tlv(post_uri, client, post_tlv)
         add_skip_tlvs(post_tlv, self.http_post&.server&.output)
+        add_inbound_encoding_tlv(post_tlv, self.http_post&.server&.output)
 
         client.get_section('output') {|client_output|
-          add_encoding_tlv(post_tlv, client_output)
-
-          prepend_data = client_output.get_directive('prepend').map{|d|d.args[0]}.join("")
-          post_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX, prepend_data) unless prepend_data.empty?
-          append_data = client_output.get_directive('append').map{|d|d.args[0]}.join("")
-          post_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX, append_data) unless append_data.empty?
+          add_outbound_encoding_tlv(post_tlv, client_output)
+          add_prepend_append_tlvs(post_tlv, client_output, MET::TLV_TYPE_C2_PREFIX, MET::TLV_TYPE_C2_SUFFIX)
         }
 
         client.get_section('id') {|client_id|
+          add_uuid_transform_tlvs(post_tlv, client_id)
           add_uuid_tlvs(post_tlv, client_id)
         }
       }
@@ -290,11 +296,42 @@ module Msf::Payload::MalleableC2
       group_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX_SKIP, suffix_len) unless suffix_len == 0
     end
 
-    def add_encoding_tlv(group_tlv, section)
-      enc_flags = MET::C2_ENCODING_NONE
-      enc_flags = MET::C2_ENCODING_B64URL if section.has_directive('base64url')
-      enc_flags = MET::C2_ENCODING_B64 if section.has_directive('base64')
-      group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != MET::C2_ENCODING_NONE
+    def encoding_flags_for(section)
+      return MET::C2_ENCODING_NONE if section.nil?
+      return MET::C2_ENCODING_B64 if section.has_directive('base64')
+      return MET::C2_ENCODING_B64URL if section.has_directive('base64url')
+      MET::C2_ENCODING_NONE
+    end
+
+    # Client->server body/metadata encoding (request)
+    def add_outbound_encoding_tlv(group_tlv, section)
+      enc = encoding_flags_for(section)
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC_OUTBOUND, enc) if enc != MET::C2_ENCODING_NONE
+    end
+
+    # Server->client body encoding (response)
+    def add_inbound_encoding_tlv(group_tlv, section)
+      enc = encoding_flags_for(section)
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC_INBOUND, enc) if enc != MET::C2_ENCODING_NONE
+    end
+
+    # UUID placement encoding + prepend/append wrappers. Section is
+    # `client.metadata` (GET) or `client.id` (POST).
+    def add_uuid_transform_tlvs(group_tlv, section)
+      return if section.nil?
+
+      enc = encoding_flags_for(section)
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_ENC_UUID, enc) if enc != MET::C2_ENCODING_NONE
+      add_prepend_append_tlvs(group_tlv, section, MET::TLV_TYPE_C2_UUID_PREFIX, MET::TLV_TYPE_C2_UUID_SUFFIX)
+    end
+
+    # Concatenate every `prepend`/`append` directive in `section` and emit
+    # them as the given prefix/suffix TLVs (skipping empty strings).
+    def add_prepend_append_tlvs(group_tlv, section, prefix_type, suffix_type)
+      prepend_data = section.get_directive('prepend').map{|d|d.args[0]}.join("")
+      group_tlv.add_tlv(prefix_type, prepend_data) unless prepend_data.empty?
+      append_data = section.get_directive('append').map{|d|d.args[0]}.join("")
+      group_tlv.add_tlv(suffix_type, append_data) unless append_data.empty?
     end
 
     def add_uuid_tlvs(group_tlv, section)
@@ -316,14 +353,27 @@ module Msf::Payload::MalleableC2
     end
 
     def add_uri(base_uri, section, group_tlv)
-      uri = (base_uri || "").dup
       query_string = section.get_directive('parameter').map {|dir| "#{dir.args[0]}=#{URI.encode_uri_component(dir.args[1])}" }.join("&")
-      unless query_string.empty?
-        uri << "?"
-        uri << query_string
+
+      # `set uri` may carry a space-separated list of candidate URIs. Emit
+      # one TLV_TYPE_C2_URI per candidate so the client can pick one at
+      # random; an empty/absent uri collapses to a single empty candidate
+      # to preserve the prior (query-string-only) behaviour.
+      candidates = (base_uri || "").split(/\s+/).reject(&:empty?)
+      candidates = [""] if candidates.empty?
+
+      emitted = []
+      candidates.each do |candidate|
+        uri = candidate.dup
+        unless query_string.empty?
+          uri << "?"
+          uri << query_string
+        end
+        next if uri.empty?
+        group_tlv.add_tlv(MET::TLV_TYPE_C2_URI, uri)
+        emitted << uri
       end
-      group_tlv.add_tlv(MET::TLV_TYPE_C2_URI, uri) unless uri.empty?
-      uri
+      emitted
     end
   end
 
@@ -398,8 +448,16 @@ module Msf::Payload::MalleableC2
       while current_token
         if match_keyword('set')
           profile.sets << parse_set
-        elsif current_token.type == :keyword && @lexer.is_block_keyword?(current_token.value)
+        elsif block_ahead?
+          # Any `name { ... }` is a block. We keep the ones we understand
+          # (http-get/http-post/etc.) and harmlessly retain the rest —
+          # unsupported CS blocks like dns-beacon/process-inject/post-ex
+          # are parsed for structure and simply ignored by to_tlv.
           profile.sections << parse_section
+        elsif name_token?
+          # A stray top-level directive we don't model. Consume it (up to
+          # its `;`) and move on rather than failing the whole profile.
+          parse_directive
         else
           raise "Unexpected token at top level: #{current_token.type}=#{current_token.value}"
         end
@@ -418,19 +476,17 @@ module Msf::Payload::MalleableC2
     end
 
     def parse_section
-      name = expect(:keyword).value
+      name = expect_name.value
       expect_symbol('{')
       section = ParsedSection.new(name)
 
       while !match_symbol('}') && current_token
         if match_keyword('set')
           section.entries << parse_set
-        elsif current_token.type == :keyword
-          if @lexer.is_block_keyword?(current_token.value)
-            section.sections << parse_section
-          else
-            section.entries << parse_directive
-          end
+        elsif block_ahead?
+          section.sections << parse_section
+        elsif name_token?
+          section.entries << parse_directive
         else
           raise "Unexpected content in block #{name}: #{current_token.value}"
         end
@@ -441,7 +497,7 @@ module Msf::Payload::MalleableC2
     end
 
     def parse_directive
-      type = expect(:keyword).value
+      type = expect_name.value
       args = []
       while current_token && !match_symbol(';')
         if [:string, :identifier, :keyword].include?(current_token.type)
@@ -459,9 +515,33 @@ module Msf::Payload::MalleableC2
       @lexer.tokens[@index]
     end
 
+    def peek_token(offset = 1)
+      @lexer.tokens[@index + offset]
+    end
+
     def next_token
       @index += 1
       current_token
+    end
+
+    # A bare name that can head a block, directive or set key. Block
+    # detection no longer depends on a keyword whitelist, so profiles can
+    # carry CS blocks we don't model (dns-beacon, process-inject, ...)
+    # without breaking the parse.
+    def name_token?
+      t = current_token
+      !t.nil? && (t.type == :identifier || t.type == :keyword)
+    end
+
+    # True when the current token names a block, i.e. it's followed by `{`.
+    def block_ahead?
+      return false unless name_token?
+      nt = peek_token(1)
+      !nt.nil? && nt.type == :symbol && nt.value == '{'
+    end
+
+    def expect_name
+      expect([:identifier, :keyword])
     end
 
     def expect(types)
