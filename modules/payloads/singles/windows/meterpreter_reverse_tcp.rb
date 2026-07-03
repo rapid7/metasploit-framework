@@ -58,6 +58,6 @@ module MetasploitModule
     config = Rex::Payloads::Meterpreter::Config.new(config_opts)
 
     # return the binary version of it
-    config.to_b
+    "\x00" * 8 + config.to_b
   end
 end
