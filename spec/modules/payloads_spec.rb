@@ -1712,6 +1712,42 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'java/shell_reverse_tcp'
   end
 
+  context 'java/meterpreter_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/java/meterpreter_bind_tcp'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'java/meterpreter_bind_tcp'
+  end
+
+  context 'java/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/java/meterpreter_reverse_http'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'java/meterpreter_reverse_http'
+  end
+
+  context 'java/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/java/meterpreter_reverse_https'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'java/meterpreter_reverse_https'
+  end
+
+  context 'java/meterpreter_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/java/meterpreter_reverse_tcp'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'java/meterpreter_reverse_tcp'
+  end
+
   context 'linux/aarch64/chmod' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2985,6 +3021,44 @@ RSpec.describe 'modules/payloads', :content do
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'php/meterpreter_reverse_tcp'
+  end
+
+  context 'php/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/php/meterpreter_reverse_http'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'php/meterpreter_reverse_http'
+  end
+
+  context 'php/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/php/meterpreter_reverse_https'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'php/meterpreter_reverse_https'
+  end
+
+  context 'php/meterpreter/reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/php/reverse_http',
+                              'stages/php/meterpreter'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'php/meterpreter/reverse_http'
+  end
+
+  context 'php/meterpreter/reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/php/reverse_https',
+                              'stages/php/meterpreter'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'php/meterpreter/reverse_https'
   end
 
   context 'php/reverse_php' do

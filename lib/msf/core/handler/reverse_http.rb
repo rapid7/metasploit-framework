@@ -287,14 +287,14 @@ module ReverseHttp
   #
   #   * query parameter   (profile: `parameter "name";`)
   #   * request header    (profile: `header    "name";`)
-  #   * trailing path seg (default — no placement directive)
+  #   * trailing path seg (default -- no placement directive)
   #
   # For the path case, the URI looks like `<base>/<id>`, where `<base>`
   # is the profile's per-verb `set uri` if defined, otherwise `LURI`
   # (each is registered as a separate mount point in `all_uris`).
   # Taking the last `/`-separated segment skips the base regardless of
   # which one was used. Profile authors should not put `/` in
-  # prepend/append directives — that would split the id across segments
+  # prepend/append directives -- that would split the id across segments
   # and defeat this scheme.
   #
   # If the profile applied `prepend` / `append` / `base64` / `base64url`
@@ -325,7 +325,7 @@ module ReverseHttp
 
   # Reverse the prepend/append + base64 transforms the profile applied
   # to the id on the payload side. If a declared wrapper is missing from
-  # the candidate, leave the candidate alone — this is not a payload
+  # the candidate, leave the candidate alone -- this is not a payload
   # request, and `process_uri_resource` will return nil for it.
   def unwrap_profile_uuid(candidate, placement)
     prefix = placement.prepend.map{|d| d.args[0]}.join('')
@@ -357,8 +357,8 @@ module ReverseHttp
 
   # Return the live meterpreter session whose passive dispatcher is
   # registered for this bare conn_id, or nil if none matches. Used so
-  # MC2 traffic — which Rex routes to on_request because the profile
-  # URI prefix outranks the session's /<conn_id> mount — can still be
+  # MC2 traffic -- which Rex routes to on_request because the profile
+  # URI prefix outranks the session's /<conn_id> mount -- can still be
   # delivered to the right session instead of triggering a fresh
   # "orphaned attach" on every poll.
   def session_for_conn_id(bare_conn_id)

@@ -61,9 +61,9 @@ PATH
       metasploit-concern
       metasploit-credential (>= 6.0.21)
       metasploit-model
-      metasploit-payloads (= 2.0.245)
+      metasploit-payloads (= 2.0.246.pre.7)
       metasploit_data_models (>= 6.0.15)
-      metasploit_payloads-mettle (= 1.0.46)
+      metasploit_payloads-mettle (= 1.0.48.pre.3)
       mqtt
       msgpack (~> 1.6.0)
       mutex_m
@@ -369,7 +369,7 @@ GEM
       drb
       mutex_m
       railties (>= 7.0, < 8.1)
-    metasploit-payloads (2.0.245)
+    metasploit-payloads (2.0.246.pre.7)
     metasploit_data_models (6.0.18)
       activerecord (>= 7.0, < 8.1)
       activesupport (>= 7.0, < 8.1)
@@ -383,7 +383,7 @@ GEM
       railties (>= 7.0, < 8.1)
       recog
       webrick
-    metasploit_payloads-mettle (1.0.46)
+    metasploit_payloads-mettle (1.0.48.pre.3)
     method_source (1.1.0)
     mime-types (3.7.0)
       logger
