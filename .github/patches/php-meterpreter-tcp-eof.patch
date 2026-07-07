@@ -1,4 +1,3 @@
-diff --git a/php/meterpreter/meterpreter.php b/php/meterpreter/meterpreter.php
 --- a/php/meterpreter/meterpreter.php
 +++ b/php/meterpreter/meterpreter.php
 @@ -1972,6 +1972,17 @@ function read($resource, $len=null) {
