@@ -5,6 +5,7 @@ require 'digest'
 class Msf::Payload::MachO
 
   def initialize(data)
+    @raw_data = data.dup
     @macho = MachO::MachOFile.new_from_bin(data)
   end
 
@@ -59,7 +60,12 @@ class Msf::Payload::MachO
   # See: https://developer.apple.com/forums/thread/702351
   # See: https://github.com/apple-oss-distributions/Security/blob/e4ea024c9bbd3bfda30ec6df270bfb4c7438d1a9/SecurityTool/sharedTool/codesign.c#L323
   def sign
-    raw_data = @macho.serialize
+    # Use the original binary data rather than @macho.serialize. On Linux,
+    # ruby-macho's serialize can reorder or drop sections for newer macOS
+    # load commands (LC_DYLD_CHAINED_FIXUPS, LC_DYLD_EXPORTS_TRIE), which
+    # causes the LC_CODE_SIGNATURE.dataoff to point to the wrong location
+    # in the reconstructed output.
+    raw_data = @raw_data.dup
     code_signature_index = @macho[:LC_CODE_SIGNATURE][0].dataoff
     code_signature = raw_data[code_signature_index..]
     s_magic, s_length, s_count, code_indexes = code_signature.unpack("N3a*")
