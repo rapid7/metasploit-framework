@@ -294,7 +294,7 @@ protected
       p = resources[request.resource]
       # This branch is reached when resource_id is nil (e.g. fetch-payload
       # adapters have no find_resource_id), so the matched resource is the
-      # request resource itself — not resource_id, which would nil-deref.
+      # request resource itself -- not resource_id, which would nil-deref.
       len = request.resource.length
       root = request.resource
     else
