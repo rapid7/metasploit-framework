@@ -129,7 +129,7 @@ module Scriptable
         opts[k.downcase] = v
       end
       if mod.type == "post"
-        mod.run_simple(
+        mod.run_simple({
           # Run with whatever the default stance is for now.  At some
           # point in the future, we'll probably want a way to force a
           # module to run in the background
@@ -137,7 +137,7 @@ module Scriptable
           'LocalInput'  => self.user_input,
           'LocalOutput' => self.user_output,
           'Options'     => opts
-        )
+        })
       elsif mod.type == "exploit"
         # well it must be a local, we're not currently supporting anything else
         if mod.exploit_type == "local"
@@ -160,13 +160,13 @@ module Scriptable
           # session
           local_exploit_opts = local_exploit_opts.merge(opts)
 
-          mod.exploit_simple(
+          mod.exploit_simple({
             'Payload'       => local_exploit_opts.delete('payload'),
             'Target'        => local_exploit_opts.delete('target'),
             'LocalInput'    => self.user_input,
             'LocalOutput'   => self.user_output,
             'Options'       => local_exploit_opts
-            )
+            })
 
         end # end if local
       end # end if exploit

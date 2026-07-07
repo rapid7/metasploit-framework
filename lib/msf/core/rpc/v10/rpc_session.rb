@@ -181,7 +181,7 @@ class RPC_Session < RPC_Base
     rpc_interactive_read(sid)
   end
 
-  # Reads the output from an interactive session (meterpreter, DB sessions, SMB)
+  # Reads the output from an interactive session (meterpreter, DB sessions, SMB, shell, powershell)
   #
   # @note Multiple concurrent callers writing and reading the same Meterperter session can lead to
   #  a conflict, where one caller gets the others output and vice versa. Concurrent access to a
@@ -190,12 +190,21 @@ class RPC_Session < RPC_Base
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Unknown Session ID.
   #                              * 500 Session doesn't support interactive operations.
+  #                              * 500 Session is disconnected.
   # @return [Hash] It contains the following key:
   #  * 'data' [String] Data read.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.interactive_read', 2)
   def rpc_interactive_read(sid)
     session = _valid_interactive_session(sid)
+
+    if SHELL_SESSION_TYPES.include?(session.type)
+      begin
+        return { 'data' => session.shell_read.to_s }
+      rescue ::Exception => e
+        error(500, "Session Disconnected: #{e.class} #{e}")
+      end
+    end
 
     unless session.user_output.respond_to?(:dump_buffer)
       session.init_ui(Rex::Ui::Text::Input::Buffer.new, Rex::Ui::Text::Output::Buffer.new)
@@ -302,7 +311,7 @@ class RPC_Session < RPC_Base
     rpc_interactive_write(sid, data)
   end
 
-  # Sends an input to an interactive prompt (meterpreter, DB sessions, SMB)
+  # Sends an input to an interactive prompt (meterpreter, DB sessions, SMB, shell, powershell)
   # You may want to use #rpc_interactive_read to retrieve the output.
   # @note Multiple concurrent callers writing and reading the same Meterperter session can lead to
   #       a conflict, where one caller gets the others output and vice versa. Concurrent access to
@@ -312,12 +321,23 @@ class RPC_Session < RPC_Base
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Unknown Session ID.
   #                              * 500 Session doesn't support interactive operations.
+  #                              * 500 Session is disconnected.
   # @return [Hash] A hash indicating the action was successful or not. It contains the following key:
   #  * 'result' [String] Either 'success' or 'failure'.
   # @example Here's how you would use this from the client:
   # rpc.call('session.interactive_write', 2, "sysinfo")
   def rpc_interactive_write(sid, data)
     session = _valid_interactive_session(sid)
+
+    if SHELL_SESSION_TYPES.include?(session.type)
+      begin
+        payload = data.end_with?("\n") ? data : "#{data}\n"
+        session.shell_write(payload)
+        return { 'result' => 'success' }
+      rescue ::Exception => e
+        error(500, "Session Disconnected: #{e.class} #{e}")
+      end
+    end
 
     unless session.user_output.respond_to? :dump_buffer
       session.init_ui(Rex::Ui::Text::Input::Buffer.new, Rex::Ui::Text::Output::Buffer.new)
@@ -532,7 +552,11 @@ class RPC_Session < RPC_Base
     mysql
     smb
     ldap
+    shell
+    powershell
   ].freeze
+
+  SHELL_SESSION_TYPES = %w[shell powershell].freeze
 
   def _find_module(_mtype, mname)
     mod = framework.modules.create(mname)

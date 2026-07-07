@@ -101,7 +101,8 @@ module Msf
       private
 
       def add_result(id, result, mod)
-        string = result.to_json
+        sanitized = result.transform_values { |v| json_safe(v) }
+        string = sanitized.to_json
         results.write(id, string)
       rescue ::Exception => e
         wlog("Job with id: #{id} finished but the result could not be stored")
@@ -109,6 +110,22 @@ module Msf
         add_fallback_result(id, mod)
       ensure
         running.delete(id)
+      end
+
+      # Framework objects (Session, LoginScanner::Result) hold cyclic refs that blow to_json's stack.
+      def json_safe(value)
+        case value
+        when nil, true, false, Numeric, String, Symbol
+          value
+        when Msf::Exploit::CheckCode
+          value
+        when Hash
+          value.each_with_object({}) { |(k, v), h| h[json_safe(k)] = json_safe(v) }
+        when Array
+          value.map { |v| json_safe(v) }
+        else
+          value.to_s
+        end
       end
 
       def add_fallback_result(id, mod)

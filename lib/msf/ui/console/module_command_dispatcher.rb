@@ -226,10 +226,10 @@ module ModuleCommandDispatcher
 
     begin
       if instance.respond_to?(:check_simple)
-        code = instance.check_simple(
+        code = instance.check_simple({
           'LocalInput'  => driver.input,
           'LocalOutput' => driver.output
-        )
+        })
       else
         msg = "Check failed: #{instance.type.capitalize} modules do not support check."
         raise NotImplementedError, msg

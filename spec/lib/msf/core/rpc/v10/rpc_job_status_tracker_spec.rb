@@ -170,6 +170,97 @@ RSpec.describe Msf::RPC::RpcJobStatusTracker do
             )
           end
         end
+
+        context 'The job result contains framework objects that cannot be JSON-serialized' do
+          let(:framework_object) do
+            klass = Class.new do
+              def initialize
+                @self_ref = self
+              end
+
+              def to_s
+                'framework-object-summary'
+              end
+            end
+            klass.new
+          end
+          let(:host_result) do
+            {
+              '192.0.2.10' => {
+                successful_logins: [framework_object],
+                successful_sessions: [framework_object],
+                banner: 'SMB 3.0'
+              }
+            }
+          end
+
+          before(:each) do
+            job_status_tracker.completed(job_id, host_result, mod)
+          end
+
+          it 'preserves the outer hash structure' do
+            stored = job_status_tracker.result(job_id)
+            expect(stored['result']['192.0.2.10']).to be_a(Hash)
+            expect(stored['result']['192.0.2.10'].keys)
+              .to include('successful_logins', 'successful_sessions', 'banner')
+          end
+
+          it 'stringifies non-primitive leaves via to_s' do
+            stored = job_status_tracker.result(job_id)
+            expect(stored['result']['192.0.2.10']['successful_logins'])
+              .to eq(['framework-object-summary'])
+            expect(stored['result']['192.0.2.10']['successful_sessions'])
+              .to eq(['framework-object-summary'])
+          end
+
+          it 'preserves JSON-primitive leaves as-is' do
+            stored = job_status_tracker.result(job_id)
+            expect(stored['result']['192.0.2.10']['banner']).to eq('SMB 3.0')
+          end
+
+          it 'does not fall through to the "could not be stored" fallback' do
+            expect(job_status_tracker.result(job_id)).not_to have_key('error')
+          end
+        end
+
+        context 'The job result contains a Msf::Exploit::CheckCode' do
+          let(:check_result) { Msf::Exploit::CheckCode::Vulnerable }
+          let(:mock_result) { { host: '192.0.2.10', check: check_result } }
+
+          before(:each) do
+            job_status_tracker.completed(job_id, mock_result, mod)
+          end
+
+          it 'preserves the CheckCode round-trip through JSON' do
+            stored = job_status_tracker.result(job_id)
+            expect(stored['result']['check']).to eq(check_result.to_json.then { |s| ::JSON.parse(s) })
+          end
+        end
+
+        context 'The job result preserves JSON primitive types' do
+          let(:mock_result) do
+            {
+              count: 3,
+              rate: 1.5,
+              found: true,
+              missing: nil,
+              tag: :scanner
+            }
+          end
+
+          before(:each) do
+            job_status_tracker.completed(job_id, mock_result, mod)
+          end
+
+          it 'preserves numbers, booleans, nil, and stringifies symbols per JSON conventions' do
+            stored = job_status_tracker.result(job_id)['result']
+            expect(stored['count']).to eq(3)
+            expect(stored['rate']).to eq(1.5)
+            expect(stored['found']).to be true
+            expect(stored['missing']).to be_nil
+            expect(stored['tag']).to eq('scanner')
+          end
+        end
       end
     end
   end

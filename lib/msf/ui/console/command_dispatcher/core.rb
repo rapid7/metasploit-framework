@@ -1834,11 +1834,11 @@ class Core
               opts[key] = session.exploit_datastore[key] if session.exploit_datastore[key]
             end
           end
-          mod.run_simple(
+          mod.run_simple({
             'LocalInput' => driver.input,
             'LocalOutput' => driver.output,
             'Options' => opts
-          )
+          })
         else
           print_status("Executing 'post/multi/manage/shell_to_meterpreter' on " \
                         "session: [#{sess_id}]")
