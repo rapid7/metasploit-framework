@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # Decrypts the meterpreter.php from the installed metasploit-payloads gem,
-# applies the TCP EOF fix, re-encrypts, and writes it back.
+# applies the TCP EOF fix for both socket and stream channel types,
+# re-encrypts, and writes it back.
 #
 # Usage: bundle exec ruby .github/patches/patch_php_meterpreter.rb
 
@@ -12,11 +13,33 @@ target   = File.join(gem_path, 'data', 'meterpreter', 'meterpreter.php')
 puts "Patching: #{target}"
 
 plaintext = MetasploitPayloads::Crypto.decrypt(ciphertext: File.binread(target))
+patched   = plaintext.dup
 
-patched = plaintext.sub(
+# Fix 1: socket case - socket_read returns "" or false on peer close
+patched = patched.sub(
+  /^( +my_print\("Reading TCP socket"\);\n +)\$buff \.= socket_read\(\$resource, \$len, PHP_BINARY_READ\);(\n)/
+) do
+  $~[1] +
+  "$result = socket_read($resource, $len, PHP_BINARY_READ);\n" \
+  "      # socket_read returns \"\" or false when the peer closes the connection.\n" \
+  "      if ($result === false || $result === '') {\n" \
+  "        $buff = false;\n" \
+  "      } else {\n" \
+  "        $buff .= $result;\n" \
+  "      }" +
+  $~[2]
+end
+
+abort('ERROR: fix 1 (socket EOF) did not apply') if patched == plaintext
+
+# Fix 2: stream case - fread returns "" on peer close when unread_bytes == 0
+before_fix2 = patched.dup
+patched = patched.sub(
   /^( +\$tmp = fread\(\$resource, \$len\);\n +\$last_requested_len = \$len;\n)/
 ) do
   $~[1] +
+  "        # An empty fread on a stream that stream_select reported as readable\n" \
+  "        # means the peer has closed the connection (EOF).\n" \
   "        if ($tmp === false || ($tmp === '' && $resource !== $msgsock)) {\n" \
   "          if (empty($buff)) {\n" \
   "            $buff = false;\n" \
@@ -25,7 +48,7 @@ patched = plaintext.sub(
   "        }\n"
 end
 
-abort('ERROR: patch did not apply - pattern not found in meterpreter.php') if patched == plaintext
+abort('ERROR: fix 2 (stream EOF) did not apply') if patched == before_fix2
 
 File.binwrite(target, MetasploitPayloads::Crypto.encrypt(plaintext: patched))
-puts 'meterpreter.php patched successfully'
+puts 'meterpreter.php patched successfully (socket + stream EOF fixes applied)'
