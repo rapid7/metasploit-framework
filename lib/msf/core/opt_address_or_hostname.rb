@@ -45,7 +45,7 @@ class OptAddressOrHostname < OptAddressRoutable
         begin
           ::Rex::Socket.getaddress(value, true)
           return true
-        rescue
+        rescue StandardError
           return false
         end
       end
