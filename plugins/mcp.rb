@@ -24,7 +24,7 @@ module Msf
       unless defined?(VALID_OPTIONS)
         VALID_OPTIONS = %w[
           AuthToken
-          ServerHost ServerPort
+          ServerHost ServerPort DangerousActions
           RpcHost RpcPort RpcUser RpcPass RpcSSL
           RateLimit
         ].freeze
@@ -71,6 +71,7 @@ module Msf
         print_line('  AuthToken=<token>           MCP server authentication token (default: random, blank: disabled)')
         print_line('  ServerHost=<host>           MCP server bind address (default: localhost)')
         print_line('  ServerPort=<port>           MCP server port (default: 3000)')
+        print_line('  DangerousActions=<true|false> Enable destructive tools like module execution and session control (default: false)')
         print_line('  RpcHost=<host>              RPC server host (default: 127.0.0.1)')
         print_line('  RpcPort=<port>              RPC server port (default: 55552)')
         print_line('  RpcUser=<user>              RPC username (default: msf)')
@@ -284,7 +285,8 @@ module Msf
 
       @mcp_server = Msf::MCP::Server.new(
         msf_client: @msf_client,
-        rate_limiter: @rate_limiter
+        rate_limiter: @rate_limiter,
+        dangerous_actions: mcp_config[:dangerous_actions]
       )
 
       host = mcp_config[:host]
@@ -309,6 +311,11 @@ module Msf
         print_status("  Configure your MCP client with: Authorization: Bearer #{auth_token}")
       else
         print_status("Authentication: #{auth_token ? 'enabled' : 'disabled'}")
+      end
+      if mcp_config[:dangerous_actions]
+        print_warning('Dangerous actions mode is ENABLED. Destructive tools (module execution, session control) are accessible.')
+      else
+        print_status('Dangerous actions mode is disabled')
       end
     rescue Msf::MCP::Metasploit::AuthenticationError => e
       raise Msf::MCP::Metasploit::AuthenticationError, "RPC authentication failed: #{e.message}"
@@ -399,7 +406,8 @@ module Msf
     def validate_options!(opts)
       validate_port_option!(opts, 'ServerPort')
       validate_port_option!(opts, 'RpcPort')
-      validate_rpc_ssl_option!(opts)
+      validate_boolean_option!(opts, 'RpcSSL')
+      validate_boolean_option!(opts, 'DangerousActions')
       validate_rate_limit_option!(opts)
       validate_rpc_credentials!(opts)
     end
@@ -413,11 +421,11 @@ module Msf
       end
     end
 
-    def validate_rpc_ssl_option!(opts)
-      return unless opts['RpcSSL']
+    def validate_boolean_option!(opts, key)
+      return unless opts[key]
 
-      unless %w[true false].include?(opts['RpcSSL'])
-        option_error('RpcSSL', '"true" or "false"')
+      unless %w[true false].include?(opts[key].to_s.downcase)
+        option_error(key, '"true" or "false"')
       end
     end
 
@@ -452,7 +460,9 @@ module Msf
       mcp_config = {
         transport: 'http',
         host: opts['ServerHost'] || Msf::MCP::Config::Defaults::MCP_HOST,
-        port: Integer(opts['ServerPort'] || Msf::MCP::Config::Defaults::MCP_PORT)
+        port: Integer(opts['ServerPort'] || Msf::MCP::Config::Defaults::MCP_PORT),
+        dangerous_actions: parse_bool(opts['DangerousActions'],
+                                      default: Msf::MCP::Config::Defaults::DANGEROUS_ACTIONS)
       }
 
       if opts.key?('AuthToken')
@@ -499,7 +509,7 @@ module Msf
         port: Integer(opts['RpcPort'] || Msf::MCP::Config::Defaults::MSGRPC_PORT),
         user: opts['RpcUser'] || Msf::MCP::Config::Defaults::RPC_USER,
         pass: opts['RpcPass'],
-        ssl: (opts['RpcSSL'] || 'false') == 'true'
+        ssl: parse_bool(opts['RpcSSL'], default: Msf::MCP::Config::Defaults::RPC_SSL)
       }
     end
 
@@ -522,11 +532,9 @@ module Msf
     end
 
     def resolve_ssl(opts, server)
-      if opts['RpcSSL']
-        opts['RpcSSL'] == 'true'
-      else
-        server.options[:ssl] ? true : false
-      end
+      return parse_bool(opts['RpcSSL'], default: false) if opts['RpcSSL']
+
+      server.options[:ssl] ? true : false
     end
 
     # No msgrpc loaded and no explicit creds — start one automatically
@@ -535,14 +543,14 @@ module Msf
       user = Msf::MCP::Config::Defaults::RPC_USER
       host = opts['RpcHost'] || Msf::MCP::Config::Defaults::RPC_HOST
       port = opts['RpcPort'] || Msf::MCP::Config::Defaults::MSGRPC_PORT
-      ssl = opts['RpcSSL'] || 'false'
+      ssl_bool = parse_bool(opts['RpcSSL'], default: Msf::MCP::Config::Defaults::RPC_SSL)
 
       msgrpc_opts = {
         'Pass' => pass,
         'User' => user,
         'ServerHost' => host,
         'ServerPort' => port,
-        'SSL' => ssl
+        'SSL' => ssl_bool.to_s
       }
 
       framework.plugins.load('msgrpc', msgrpc_opts)
@@ -555,13 +563,20 @@ module Msf
         port: Integer(port),
         user: user,
         pass: pass,
-        ssl: ssl == 'true'
+        ssl: ssl_bool
       }
     end
 
     def option_error(option_name, expected_format)
       error_detail = "Invalid value for #{option_name}: expected #{expected_format}"
       raise Msf::MCP::Config::ValidationError, { option_name => error_detail }
+    end
+
+    # Case-insensitive boolean-string parser. Returns +default+ when +value+ is nil.
+    def parse_bool(value, default:)
+      return default if value.nil?
+
+      value.to_s.casecmp?('true')
     end
 
   end

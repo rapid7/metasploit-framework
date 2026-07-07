@@ -187,6 +187,64 @@ RSpec.describe Msf::Plugin::MCP do
       end
     end
 
+    context 'dangerous_actions startup indication' do
+      it 'prints a status line noting dangerous mode is disabled by default' do
+        plugin.start_server({})
+        expect(@output.join("\n")).to include('Dangerous actions mode is disabled')
+      end
+
+      it 'prints a warning banner when DangerousActions=true' do
+        plugin.start_server('DangerousActions' => 'true')
+        expect(@error.join("\n")).to match(/Dangerous actions mode is ENABLED/)
+      end
+
+      it 'accepts DangerousActions case-insensitively' do
+        plugin.start_server('DangerousActions' => 'TRUE')
+        expect(plugin.server_config[:mcp][:dangerous_actions]).to eq(true)
+        expect(@error.join("\n")).to match(/Dangerous actions mode is ENABLED/)
+      end
+
+      it 'defaults dangerous_actions from Msf::MCP::Config::Defaults::DANGEROUS_ACTIONS when unset' do
+        plugin.start_server({})
+        expect(plugin.server_config[:mcp][:dangerous_actions])
+          .to eq(Msf::MCP::Config::Defaults::DANGEROUS_ACTIONS)
+      end
+    end
+
+    context 'wiring dangerous_actions into Msf::MCP::Server' do
+      it 'passes dangerous_actions: false to Msf::MCP::Server.new by default' do
+        expect(mock_server_class).to receive(:new)
+          .with(hash_including(dangerous_actions: false))
+          .and_call_original
+        plugin.start_server({})
+      end
+
+      it 'passes dangerous_actions: true to Msf::MCP::Server.new when enabled' do
+        expect(mock_server_class).to receive(:new)
+          .with(hash_including(dangerous_actions: true))
+          .and_call_original
+        plugin.start_server('DangerousActions' => 'true')
+      end
+    end
+
+    context 'RpcSSL case-insensitive parsing (end-to-end)' do
+      it 'accepts RpcSSL=TRUE and resolves ssl to true' do
+        plugin.start_server('RpcHost' => '192.0.2.10',
+                            'RpcUser' => 'msf',
+                            'RpcPass' => 'remote_pass',
+                            'RpcSSL'  => 'TRUE')
+        expect(plugin.server_config[:rpc][:ssl]).to eq(true)
+      end
+
+      it 'accepts RpcSSL=False and resolves ssl to false' do
+        plugin.start_server('RpcHost' => '192.0.2.10',
+                            'RpcUser' => 'msf',
+                            'RpcPass' => 'remote_pass',
+                            'RpcSSL'  => 'False')
+        expect(plugin.server_config[:rpc][:ssl]).to eq(false)
+      end
+    end
+
     context 'with stdio transport' do
       it 'rejects stdio as an unknown option since Transport is no longer accepted' do
         dispatcher = Msf::Plugin::MCP::McpCommandDispatcher.new(driver)

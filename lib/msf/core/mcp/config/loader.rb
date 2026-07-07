@@ -68,6 +68,7 @@ module Msf::MCP
                                         end
 
         config[:mcp][:transport] ||= 'stdio'
+        config[:mcp][:dangerous_actions] = config[:mcp].fetch(:dangerous_actions, false)
 
         if config[:mcp][:transport] == 'http'
           config[:mcp][:host] ||= Defaults::MCP_HOST
@@ -135,6 +136,11 @@ module Msf::MCP
         config[:mcp][:min_threads] = ENV['MSF_MCP_MIN_THREADS'].to_i if ENV['MSF_MCP_MIN_THREADS']
         config[:mcp][:max_threads] = ENV['MSF_MCP_MAX_THREADS'].to_i if ENV['MSF_MCP_MAX_THREADS']
         config[:mcp][:workers] = ENV['MSF_MCP_WORKERS'].to_i if ENV['MSF_MCP_WORKERS']
+
+        # Dangerous actions gate override
+        if ENV['MSF_MCP_DANGEROUS_ACTIONS'] && !ENV['MSF_MCP_DANGEROUS_ACTIONS'].empty?
+          config[:mcp][:dangerous_actions] = parse_boolean(ENV['MSF_MCP_DANGEROUS_ACTIONS'])
+        end
       end
 
       # Parse a string value into a boolean

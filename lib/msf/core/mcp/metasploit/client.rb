@@ -9,7 +9,10 @@ module Msf::MCP
     class Client
       extend Forwardable
 
-      def_delegators :@client, :authenticate, :search_modules, :module_info, :db_hosts, :db_services, :db_vulns, :db_notes, :db_creds, :db_loot, :shutdown
+      def_delegators :@client, :authenticate, :search_modules, :module_info,
+                     :db_hosts, :db_services, :db_vulns, :db_notes, :db_creds, :db_loot,
+                     :module_execute, :module_check, :module_results, :running_stats,
+                     :session_list, :session_stop, :session_read, :session_write, :shutdown
 
       ##
       # Initialize Metasploit client with explicit parameters

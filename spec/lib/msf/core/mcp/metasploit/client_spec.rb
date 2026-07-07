@@ -170,6 +170,46 @@ RSpec.describe Msf::MCP::Metasploit::Client do
       expect(client.db_notes({ workspace: 'default' })).to eq({ 'notes' => [] })
     end
 
+    it 'delegates module_execute to underlying client' do
+      allow(jsonrpc_client).to receive(:module_execute).with('exploit', 'multi/handler', {}).and_return({ 'job_id' => 1, 'uuid' => 'abc' })
+      expect(client.module_execute('exploit', 'multi/handler', {})).to eq({ 'job_id' => 1, 'uuid' => 'abc' })
+    end
+
+    it 'delegates module_check to underlying client' do
+      allow(jsonrpc_client).to receive(:module_check).with('exploit', 'multi/handler', {}).and_return({ 'job_id' => 2, 'uuid' => 'def' })
+      expect(client.module_check('exploit', 'multi/handler', {})).to eq({ 'job_id' => 2, 'uuid' => 'def' })
+    end
+
+    it 'delegates module_results to underlying client' do
+      allow(jsonrpc_client).to receive(:module_results).with('abc').and_return({ 'status' => 'completed' })
+      expect(client.module_results('abc')).to eq({ 'status' => 'completed' })
+    end
+
+    it 'delegates running_stats to underlying client' do
+      allow(jsonrpc_client).to receive(:running_stats).and_return({ 'waiting' => [], 'running' => [], 'results' => [] })
+      expect(client.running_stats).to eq({ 'waiting' => [], 'running' => [], 'results' => [] })
+    end
+
+    it 'delegates session_list to underlying client' do
+      allow(jsonrpc_client).to receive(:session_list).and_return({})
+      expect(client.session_list).to eq({})
+    end
+
+    it 'delegates session_stop to underlying client' do
+      allow(jsonrpc_client).to receive(:session_stop).with(3).and_return({ 'result' => 'success' })
+      expect(client.session_stop(3)).to eq({ 'result' => 'success' })
+    end
+
+    it 'delegates session_read to underlying client' do
+      allow(jsonrpc_client).to receive(:session_read).with(3).and_return({ 'data' => 'output' })
+      expect(client.session_read(3)).to eq({ 'data' => 'output' })
+    end
+
+    it 'delegates session_write to underlying client' do
+      allow(jsonrpc_client).to receive(:session_write).with(3, 'cmd').and_return({ 'result' => 'success' })
+      expect(client.session_write(3, 'cmd')).to eq({ 'result' => 'success' })
+    end
+
     it 'delegates shutdown to underlying client' do
       allow(jsonrpc_client).to receive(:shutdown)
       client.shutdown

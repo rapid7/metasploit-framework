@@ -881,4 +881,68 @@ RSpec.describe Msf::MCP::Config::Loader do
       end
     end
   end
+
+  describe 'dangerous_actions defaults' do
+    let(:config_hash) { {} }
+
+    it 'defaults mcp.dangerous_actions to false' do
+      config = described_class.load_from_hash(config_hash)
+      expect(config[:mcp][:dangerous_actions]).to be false
+    end
+
+    it 'preserves explicit true' do
+      config = described_class.load_from_hash(mcp: { dangerous_actions: true })
+      expect(config[:mcp][:dangerous_actions]).to be true
+    end
+
+    it 'preserves explicit false' do
+      config = described_class.load_from_hash(mcp: { dangerous_actions: false })
+      expect(config[:mcp][:dangerous_actions]).to be false
+    end
+  end
+
+  describe 'MSF_MCP_DANGEROUS_ACTIONS env override' do
+    around do |example|
+      original = ENV['MSF_MCP_DANGEROUS_ACTIONS']
+      example.run
+    ensure
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = original
+    end
+
+    it 'enables dangerous_actions when env is "true"' do
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = 'true'
+      config = described_class.load_from_hash({})
+      expect(config[:mcp][:dangerous_actions]).to be true
+    end
+
+    it 'enables dangerous_actions when env is "1"' do
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = '1'
+      config = described_class.load_from_hash({})
+      expect(config[:mcp][:dangerous_actions]).to be true
+    end
+
+    it 'enables dangerous_actions when env is "yes"' do
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = 'yes'
+      config = described_class.load_from_hash({})
+      expect(config[:mcp][:dangerous_actions]).to be true
+    end
+
+    it 'disables dangerous_actions when env is "false"' do
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = 'false'
+      config = described_class.load_from_hash(mcp: { dangerous_actions: true })
+      expect(config[:mcp][:dangerous_actions]).to be false
+    end
+
+    it 'overrides an explicit hash value' do
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = 'true'
+      config = described_class.load_from_hash(mcp: { dangerous_actions: false })
+      expect(config[:mcp][:dangerous_actions]).to be true
+    end
+
+    it 'ignores empty env value' do
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = ''
+      config = described_class.load_from_hash(mcp: { dangerous_actions: true })
+      expect(config[:mcp][:dangerous_actions]).to be true
+    end
+  end
 end

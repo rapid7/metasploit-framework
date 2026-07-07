@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rex/stopwatch'
+
 module Msf::MCP
   module Tools
     ##
@@ -51,8 +53,7 @@ module Msf::MCP
             minimum: 0,
             default: 0
           }
-        },
-        required: [:workspace]
+        }
       )
 
       output_schema(
@@ -108,8 +109,6 @@ module Msf::MCP
         # @return [MCP::Tool::Response] Structured response with note information
         #
         def call(workspace: 'default', host: nil, type: nil, ports: nil, protocol: nil, limit: Msf::MCP::Security::InputValidator::LIMIT_DEFAULT, offset: 0, server_context:)
-          start_time = Time.now
-
           # Extract dependencies from server context
           msf_client = server_context[:msf_client]
           rate_limiter = server_context[:rate_limiter]
@@ -131,7 +130,9 @@ module Msf::MCP
           options[:ntype] = type if type
           options[:ports] = ports if ports
           options[:proto] = protocol if protocol
-          raw_notes = msf_client.db_notes(options)
+          raw_notes, elapsed = Rex::Stopwatch.elapsed_time do
+            msf_client.db_notes(options)
+          end
 
           # Transform response
           transformed = Metasploit::ResponseTransformer.transform_notes(raw_notes)
@@ -147,7 +148,7 @@ module Msf::MCP
           # Build metadata
           metadata = {
             workspace: workspace,
-            query_time: (Time.now - start_time).round(3),
+            query_time: elapsed.round(3),
             total_items: total_items,
             returned_items: paginated_data.size,
             limit: limit,
