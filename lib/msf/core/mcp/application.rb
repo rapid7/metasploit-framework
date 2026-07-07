@@ -316,6 +316,11 @@ module Msf::MCP
           )
         rescue Errno::EADDRINUSE => e
           @output.puts "#{e.class}: #{e.message}"
+          elog({
+            message: 'Cannot start the MCP server',
+            context: { host: host, port: port },
+            exception: e
+          }, LOG_SOURCE, LOG_ERROR)
         end
       else
         @output.puts "Starting MCP server on stdio transport..."
