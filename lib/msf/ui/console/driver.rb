@@ -350,9 +350,9 @@ class Driver < Msf::Ui::Driver
     path ||= File.join(Msf::Config.config_directory, 'msfconsole.rc')
 
     begin
-      rcfd = File.open(path, 'w')
-      rcfd.write(data)
-      rcfd.close
+      File.open(path, 'w') do |rcfd|
+        rcfd.write(data)
+      end
     rescue ::Exception
     end
   end

@@ -1252,18 +1252,22 @@ module Net # :nodoc:
 
         ans = nil
         response = ""
-        nameservers.each do |ns, _unused|
-          begin
-            @config[:udp_timeout].timeout do
-              @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
-              socket.send(packet_data,0,ns.to_s,@config[:port])
-              ans = socket.recvfrom(@config[:packet_size])
+        begin
+          nameservers.each do |ns, _unused|
+            begin
+              @config[:udp_timeout].timeout do
+                @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
+                socket.send(packet_data,0,ns.to_s,@config[:port])
+                ans = socket.recvfrom(@config[:packet_size])
+              end
+              break if ans
+            rescue Timeout::Error
+              @logger.warn "Nameserver #{ns} not responding within UDP timeout, trying next one"
+              next
             end
-            break if ans
-          rescue Timeout::Error
-            @logger.warn "Nameserver #{ns} not responding within UDP timeout, trying next one"
-            next
           end
+        ensure
+          socket.close
         end
         ans
       end
