@@ -32,15 +32,18 @@ end
 
 abort('ERROR: fix 1 (socket EOF) did not apply') if patched == plaintext
 
-# Fix 2: stream case - fread returns "" on peer close when unread_bytes == 0
+# Fix 2: stream case - fread returns "" on peer close when unread_bytes == 0.
+# No msgsock guard needed: the C2 socket always has unread_bytes > 0 when
+# stream_select fires for it, so it never hits this else branch.
 before_fix2 = patched.dup
 patched = patched.sub(
   /^( +\$tmp = fread\(\$resource, \$len\);\n +\$last_requested_len = \$len;\n)/
 ) do
   $~[1] +
   "        # An empty fread on a stream that stream_select reported as readable\n" \
-  "        # means the peer has closed the connection (EOF).\n" \
-  "        if ($tmp === false || ($tmp === '' && $resource !== $msgsock)) {\n" \
+  "        # means the peer has closed the connection (EOF). feof() may not return\n" \
+  "        # true immediately on all stream types (e.g. SSL), so treat \"\" as EOF.\n" \
+  "        if ($tmp === false || $tmp === '') {\n" \
   "          if (empty($buff)) {\n" \
   "            $buff = false;\n" \
   "          }\n" \
