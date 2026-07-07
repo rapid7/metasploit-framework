@@ -32,11 +32,17 @@ module MetasploitModule
         'Session'       => Msf::Sessions::Meterpreter_mips64_Linux
       )
     )
+
+    register_options([
+      OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load'])
+    ])
   end
 
   def generate(_opts = {})
     opts = {
       scheme: 'tcp',
+      extensions: (datastore['EXTENSIONS'] || '').split(','),
+      mettle_platform: 'mips64-linux-muslsf',
       stageless: true
     }.merge(mettle_logging_config)
     payload = MetasploitPayloads::Mettle.new('mips64-linux-muslsf', generate_config(opts)).to_binary :exec

@@ -3,12 +3,14 @@ require 'rex/socket/x509_certificate'
 require 'rex/post/meterpreter/extension_mapper'
 require 'rex/post/meterpreter/packet'
 require 'msf/core/payload/malleable_c2'
+require 'rex/payloads/meterpreter/uri_checksum'
 require 'securerandom'
 
 class Rex::Payloads::Meterpreter::Config
 
   include Msf::Payload::UUID::Options
   include Msf::ReflectiveDLLLoader
+  include Rex::Payloads::Meterpreter::UriChecksum
 
   MET = Rex::Post::Meterpreter
 
@@ -59,7 +61,7 @@ private
       session_guid = [SecureRandom.uuid.gsub('-', '')].pack('H*')
     end
 
-    tlv.add_tlv(MET::TLV_TYPE_EXITFUNC, exit_func)
+    tlv.add_tlv(MET::TLV_TYPE_EXITFUNC, exit_func) if exit_func
     tlv.add_tlv(MET::TLV_TYPE_SESSION_EXPIRY, opts[:expiration])
     tlv.add_tlv(MET::TLV_TYPE_UUID, uuid)
     tlv.add_tlv(MET::TLV_TYPE_SESSION_GUID, session_guid)
@@ -67,11 +69,13 @@ private
     if opts[:debug_build] && opts[:log_path]
       tlv.add_tlv(MET::TLV_TYPE_DEBUG_LOG, opts[:log_path])
     end
+
+    if opts[:flags] && opts[:flags] != 0
+      tlv.add_tlv(MET::TLV_TYPE_SESSION_FLAGS, opts[:flags])
+    end
   end
 
   def add_c2_tlv(tlv, opts)
-    # Build the URL from the given parameters, and pad it out to the
-    # correct size
     lhost = opts[:lhost]
     if lhost && opts[:scheme].start_with?('http') && Rex::Socket.is_ipv6?(lhost)
       lhost = "[#{lhost}]"
@@ -83,36 +87,45 @@ private
       c2_tlv = profile.to_tlv
     else
       c2_tlv = MET::GroupTlv.new(MET::TLV_TYPE_C2)
+    end
 
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_UA, opts[:ua]) unless (opts[:ua] || '').empty?
+    # Fall back to the datastore UA when the profile didn't `set useragent`
+    # (or there's no profile at all).
+    unless (opts[:ua] || '').empty? || c2_tlv.tlvs.any? { |t| t.type == MET::TLV_TYPE_C2_UA }
+      c2_tlv.add_tlv(MET::TLV_TYPE_C2_UA, opts[:ua])
     end
 
     c2_tlv.add_tlv(MET::TLV_TYPE_C2_COMM_TIMEOUT, opts[:comm_timeout])
     c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_TOTAL, opts[:retry_total])
     c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_WAIT, opts[:retry_wait])
 
-    url = "#{opts[:scheme]}://#{Rex::Socket.to_authority(lhost, opts[:lport])}"
-    url << "/#{opts[:uri].delete_prefix('/').delete_suffix('/')}/" if opts[:uri]
-    url << "?#{opts[:scope_id]}" if opts[:scope_id]
+    # Only build a C2 URL when we actually have a host. Staged payloads
+    # inherit the stager's socket and carry no host; guard so a nil lhost
+    # cannot reach Rex::Socket.to_authority (which requires a String).
+    if lhost && !lhost.to_s.empty?
+      url = "#{opts[:scheme]}://#{Rex::Socket.to_authority(lhost, opts[:lport])}"
+      url << "/#{opts[:uri].delete_prefix('/').delete_suffix('/')}/" if opts[:uri]
+      url << "?#{opts[:scope_id]}" if opts[:scope_id]
 
-    c2_tlv.add_tlv(MET::TLV_TYPE_C2_URL, url)
+      c2_tlv.add_tlv(MET::TLV_TYPE_C2_URL, url)
 
-    # if the transport URI is for a HTTP payload we need to add a stack
-    # of other stuff that can only be set in MSF, not in the C2 profile
-    if url.start_with?('http')
-      proxy_url = ''
-      if opts[:proxy_host] && opts[:proxy_port]
-        prefix = 'http://'
-        prefix = 'socks=' if opts[:proxy_type].to_s.downcase == 'socks'
-        proxy_url = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
+      # if the transport URI is for a HTTP payload we need to add a stack
+      # of other stuff that can only be set in MSF, not in the C2 profile
+      if url.start_with?('http')
+        proxy_url = ''
+        if opts[:proxy_host] && opts[:proxy_port]
+          prefix = 'http://'
+          prefix = 'socks=' if opts[:proxy_type].to_s.downcase == 'socks'
+          proxy_url = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
+        end
+
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_URL, proxy_url) unless (proxy_url || '').empty?
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_USER, opts[:proxy_user]) unless (opts[:proxy_user] || '').empty?
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_PASS, opts[:proxy_pass]) unless (opts[:proxy_pass] || '').empty?
+
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_CERT_HASH, opts[:ssl_cert_hash]) unless (opts[:ssl_cert_hash] || '').empty?
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_HEADERS, opts[:custom_headers]) unless (opts[:custom_headers] || '').empty?
       end
-
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_URL, proxy_url) unless (proxy_url || '').empty?
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_USER, opts[:proxy_user]) unless (opts[:proxy_user] || '').empty?
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_PASS, opts[:proxy_pass]) unless (opts[:proxy_pass] || '').empty?
-
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_CERT_HASH, opts[:ssl_cert_hash]) unless (opts[:ssl_cert_hash] || '').empty?
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_HEADER, opts[:custom_headers]) unless (opts[:custom_headers] || '').empty?
     end
 
     tlv.tlvs << c2_tlv
@@ -120,8 +133,26 @@ private
 
   def add_extension_tlv(tlv, ext_name, ext_init_path, file_extension, debug_build: false)
     ext_name = ext_name.strip.downcase
-    ext, _ = load_rdi_dll(MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
-                                                              file_extension, debug: debug_build))
+    # Windows DLLs go through Reflective DLL Injection prep; mettle bins
+    # come per-platform from the mettle gem; jar/py/php ship as-is.
+    case file_extension.to_s
+    when /\.dll$/
+      ext_path = MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
+                                                     file_extension, debug: debug_build)
+      ext, _ = load_rdi_dll(ext_path)
+    when 'bin'
+      begin
+        ext = MetasploitPayloads::Mettle.load_extension(@opts[:mettle_platform], ext_name, 'bin')
+      rescue MetasploitPayloads::Mettle::NotFoundError
+        # Mettle bakes some extensions (e.g. stdapi) directly into the
+        # binary, so there's no separate <name>.bin to ship. Silently
+        # skip and let the runtime use whatever's already registered.
+        $stderr.puts("[!] EXTENSIONS=#{ext_name}: no separate '#{ext_name}.bin' for #{@opts[:mettle_platform]} (already built in?), skipping")
+        return
+      end
+    else
+      ext = MetasploitPayloads.read('meterpreter', "ext_server_#{ext_name}.#{file_extension}".downcase)
+    end
 
     ext_tlv = MET::GroupTlv.new(MET::TLV_TYPE_EXTENSION)
     ext_tlv.add_tlv(MET::TLV_TYPE_DATA, ext)
@@ -144,10 +175,10 @@ private
       add_c2_tlv(config_packet, t)
     end
 
-    # configure the extensions - this will have to change when posix comes
-    # into play.
-    file_extension = 'x86.dll'
-    file_extension = 'x64.dll' unless is_x86?
+    # Each runtime tells us which on-disk extension file matches the
+    # payload (e.g. 'x86.dll', 'x64.dll', 'py', 'php', 'jar'); skip the
+    # extension TLV emission when the caller didn't supply one.
+    file_extension = @opts[:ext_format]
 
     @opts[:extensions] = [] if @opts[:extensions].blank?
     prev_length = @opts[:extensions].length
@@ -163,14 +194,12 @@ private
 
     ext_inits = (@opts[:ext_init] || '').split(':').map{|v| v.split(',')}.to_h{|l| l}
 
-    (@opts[:extensions] || []).each do |e|
-      add_extension_tlv(config_packet, e, ext_inits[e], file_extension, debug_build: @opts[:debug_build])
+    if file_extension
+      (@opts[:extensions] || []).each do |e|
+        add_extension_tlv(config_packet, e, ext_inits[e], file_extension, debug_build: @opts[:debug_build])
+      end
     end
 
-    # comms handle needs to have space added, as this is where things are patched by the stager
-    comms_handle = "\x00" * 8
-    config_bytes = config_packet.to_r
-
-    comms_handle + config_bytes
+    config_packet.to_r
   end
 end

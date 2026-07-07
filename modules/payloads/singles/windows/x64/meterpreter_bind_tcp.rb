@@ -49,6 +49,7 @@ module MetasploitModule
       uuid: opts[:uuid],
       transports: [transport_config_bind_tcp(opts)],
       extensions: (datastore['EXTENSIONS'] || '').split(','),
+      ext_format: 'x64.dll',
       ext_init: datastore['EXTINIT'] || '',
       stageless: true
     }.merge(meterpreter_logging_config(opts))
@@ -57,6 +58,6 @@ module MetasploitModule
     config = Rex::Payloads::Meterpreter::Config.new(config_opts)
 
     # return the binary version of it
-    config.to_b
+    "\x00" * 8 + config.to_b
   end
 end

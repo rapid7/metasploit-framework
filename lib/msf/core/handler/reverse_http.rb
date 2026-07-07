@@ -280,24 +280,69 @@ module ReverseHttp
     end
   end
 
+  # Extract the connection id (the checksum-tuned base64url UUID string
+  # produced by `generate_uri_uuid`) from an incoming request, so that
+  # `process_uri_resource` can map it to a session. The id can arrive in
+  # three places depending on the C2 profile placement directive:
+  #
+  #   * query parameter   (profile: `parameter "name";`)
+  #   * request header    (profile: `header    "name";`)
+  #   * trailing path seg (default — no placement directive)
+  #
+  # For the path case, the URI looks like `<base>/<id>`, where `<base>`
+  # is the profile's per-verb `set uri` if defined, otherwise `LURI`
+  # (each is registered as a separate mount point in `all_uris`).
+  # Taking the last `/`-separated segment skips the base regardless of
+  # which one was used. Profile authors should not put `/` in
+  # prepend/append directives — that would split the id across segments
+  # and defeat this scheme.
+  #
+  # If the profile applied `prepend` / `append` / `base64` / `base64url`
+  # to the id on the payload side, undo those transforms here before
+  # handing the result to `process_uri_resource`.
   def find_resource_id(cli, request)
     if request.method == 'POST'
-      directive = self.c2_profile&.http_post&.client&.id&.parameter
-      cid = request.qstring[directive[0].args[0]] if directive && directive.length > 0
-      unless cid
-        directive = self.c2_profile&.http_post&.client&.id&.header
-        cid = request.headers[directive[0].args[0]] if directive && directive.length > 0
-      end
+      placement = self.c2_profile&.http_post&.client&.id
     else
-      directive = self.c2_profile&.http_get&.client&.metadata&.parameter
+      placement = self.c2_profile&.http_get&.client&.metadata
+    end
+
+    cid = nil
+    if placement
+      directive = placement.parameter
       cid = request.qstring[directive[0].args[0]] if directive && directive.length > 0
       unless cid
-        directive = self.c2_profile&.http_get&.client&.metadata&.header
+        directive = placement.header
         cid = request.headers[directive[0].args[0]] if directive && directive.length > 0
       end
     end
 
-    request.conn_id = cid || request.resource.split('?')[0].split('/').compact.last
+    cid ||= request.resource.split('?')[0].split('/').compact.last
+    cid = unwrap_profile_uuid(cid, placement) if cid && placement
+
+    request.conn_id = cid
+  end
+
+  # Reverse the prepend/append + base64 transforms the profile applied
+  # to the id on the payload side. If a declared wrapper is missing from
+  # the candidate, leave the candidate alone — this is not a payload
+  # request, and `process_uri_resource` will return nil for it.
+  def unwrap_profile_uuid(candidate, placement)
+    prefix = placement.prepend.map{|d| d.args[0]}.join('')
+    suffix = placement.append.map{|d| d.args[0]}.join('')
+
+    return candidate unless prefix.empty? || candidate.start_with?(prefix)
+    return candidate unless suffix.empty? || candidate.end_with?(suffix)
+
+    candidate = candidate[prefix.length..] unless prefix.empty?
+    candidate = candidate[0...-suffix.length] unless suffix.empty?
+
+    if placement.has_directive('base64')
+      candidate = Rex::Text.decode_base64(candidate)
+    elsif placement.has_directive('base64url')
+      candidate = Rex::Text.decode_base64url(candidate)
+    end
+    candidate
   end
 
   def add_response_headers(req, resp)
@@ -308,6 +353,21 @@ module ReverseHttp
       headers = self.c2_profile&.http_post&.server&.header || []
       headers.each {|h| resp[h.args[0]] = h.args[1]}
     end
+  end
+
+  # Return the live meterpreter session whose passive dispatcher is
+  # registered for this bare conn_id, or nil if none matches. Used so
+  # MC2 traffic — which Rex routes to on_request because the profile
+  # URI prefix outranks the session's /<conn_id> mount — can still be
+  # delivered to the right session instead of triggering a fresh
+  # "orphaned attach" on every poll.
+  def session_for_conn_id(bare_conn_id)
+    return nil if framework.nil? || bare_conn_id.nil? || bare_conn_id.empty?
+    framework.sessions.each_value do |s|
+      next unless s.respond_to?(:connection_uuid)
+      return s if s.connection_uuid == bare_conn_id
+    end
+    nil
   end
 
   #
@@ -391,7 +451,7 @@ protected
       uuid.arch      ||= self.arch
       uuid.platform  ||= self.platform
 
-      request_summary = "#{luri} with UA '#{req.headers['User-Agent']}'"
+      request_summary = "URI '#{req.resource}' with UA '#{req.headers['User-Agent']}'"
 
       if info[:mode] && info[:mode] != :connect
         conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
@@ -435,7 +495,7 @@ protected
     # Process the requested resource.
     case info[:mode]
       when :init_connect
-        print_status("Redirecting stageless connection from #{request_summary} to #{conn_id}")
+        print_status("Redirecting stageless: #{request_summary} -> UUID #{conn_id.gsub(/\//, '')}")
 
         # Handle the case where stageless payloads call in on the same URI when they
         # first connect. From there, we tell them to callback on a connect URI that
@@ -447,10 +507,21 @@ protected
         resp.body = pkt.to_r
         resp.body = self.c2_profile.wrap_outbound_get(resp.body) if self.c2_profile
 
-      when :init_python, :init_native, :init_java, :connect
+      when :init_python, :init_native, :init_java, :init_php, :connect
         # TODO: at some point we may normalise these three cases into just :init
 
         if info[:mode] == :connect
+          # If a session already exists for this conn_id, hand the
+          # request to its passive dispatcher. Without this, MC2
+          # profiles loop forever on "orphaned attach" because the
+          # profile URI prefix outranks the session's /<conn_id>
+          # mount in Rex's VirtualDirectory routing.
+          existing = session_for_conn_id(req.conn_id)
+          if existing
+            existing.send(:on_passive_request, cli, req)
+            self.pending_connections -= 1
+            return
+          end
           print_status("Attaching orphaned/stageless session...")
         else
           begin
