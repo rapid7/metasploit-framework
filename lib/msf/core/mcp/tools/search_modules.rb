@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rex/stopwatch'
+
 module Msf::MCP
   module Tools
     ##
@@ -90,8 +92,6 @@ module Msf::MCP
         # @return [MCP::Tool::Response] Structured response with search results
         #
         def call(query:, limit: Msf::MCP::Security::InputValidator::LIMIT_DEFAULT, offset: 0, server_context:)
-          start_time = Time.now
-
           # Extract dependencies from server context
           msf_client = server_context[:msf_client]
           rate_limiter = server_context[:rate_limiter]
@@ -104,7 +104,9 @@ module Msf::MCP
           Msf::MCP::Security::InputValidator.validate_pagination!(limit, offset)
 
           # Call Metasploit API
-          raw_modules = msf_client.search_modules(query)
+          raw_modules, elapsed = Rex::Stopwatch.elapsed_time do
+            msf_client.search_modules(query)
+          end
 
           # Transform response
           transformed = Metasploit::ResponseTransformer.transform_modules(raw_modules)
@@ -120,7 +122,7 @@ module Msf::MCP
           # Build metadata
           metadata = {
             query: query,
-            query_time: (Time.now - start_time).round(3),
+            query_time: elapsed.round(3),
             total_items: total_items,
             returned_items: paginated_data.size,
             limit: limit,

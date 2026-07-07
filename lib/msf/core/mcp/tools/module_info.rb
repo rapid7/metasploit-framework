@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rex/stopwatch'
+
 module Msf::MCP
   module Tools
     ##
@@ -93,8 +95,6 @@ module Msf::MCP
         # @return [MCP::Tool::Response] Structured response with module details
         #
         def call(type:, name:, server_context:)
-          start_time = Time.now
-
           # Extract dependencies from server context
           msf_client = server_context[:msf_client]
           rate_limiter = server_context[:rate_limiter]
@@ -107,14 +107,16 @@ module Msf::MCP
           Msf::MCP::Security::InputValidator.validate_module_name!(name)
 
           # Call Metasploit API
-          raw_module_info = msf_client.module_info(type, name)
+          raw_module_info, elapsed = Rex::Stopwatch.elapsed_time do
+            msf_client.module_info(type, name)
+          end
 
           # Transform response
           transformed = Metasploit::ResponseTransformer.transform_module_info(raw_module_info)
 
           # Build metadata
           metadata = {
-            query_time: (Time.now - start_time).round(3)
+            query_time: elapsed.round(3)
           }
 
           # Return MCP response

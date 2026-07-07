@@ -280,5 +280,86 @@ RSpec.describe Msf::Plugin::MCP do
         expect(config[:user]).to eq('custom')
       end
     end
+
+    describe 'RpcSSL default and case-insensitive parsing' do
+      let(:plugins_collection) do
+        instance_double('Msf::PluginManager').tap do |pm|
+          allow(pm).to receive(:find).and_return(nil)
+          allow(pm).to receive(:load).and_return(true)
+        end
+      end
+
+      before do
+        allow(framework).to receive(:plugins).and_return(plugins_collection)
+        allow(Rex::Text).to receive(:rand_text_alphanumeric).with(12).and_return('abcdefghijkl')
+      end
+
+      it 'defaults explicit-RPC ssl to Msf::MCP::Config::Defaults::RPC_SSL when RpcSSL is not set' do
+        config = plugin.send(:resolve_rpc_config, { 'RpcHost' => '192.0.2.0', 'RpcPass' => 'remote_pass' })
+        expect(config[:ssl]).to eq(Msf::MCP::Config::Defaults::RPC_SSL)
+      end
+
+      it 'accepts RpcSSL=TRUE on the explicit RPC path (case-insensitive)' do
+        config = plugin.send(:resolve_rpc_config,
+                             { 'RpcHost' => '192.0.2.0', 'RpcPass' => 'remote_pass', 'RpcSSL' => 'TRUE' })
+        expect(config[:ssl]).to eq(true)
+      end
+
+      it 'accepts RpcSSL=False on the explicit RPC path (case-insensitive)' do
+        config = plugin.send(:resolve_rpc_config,
+                             { 'RpcHost' => '192.0.2.0', 'RpcPass' => 'remote_pass', 'RpcSSL' => 'False' })
+        expect(config[:ssl]).to eq(false)
+      end
+
+      it 'defaults auto-started msgrpc ssl to Msf::MCP::Config::Defaults::RPC_SSL when RpcSSL is not set' do
+        config = plugin.send(:resolve_rpc_config, {})
+        expect(config[:ssl]).to eq(Msf::MCP::Config::Defaults::RPC_SSL)
+      end
+
+      it 'forwards the resolved ssl as a "true"/"false" string to the msgrpc plugin loader' do
+        expected = Msf::MCP::Config::Defaults::RPC_SSL.to_s
+        expect(plugins_collection).to receive(:load)
+          .with('msgrpc', hash_including('SSL' => expected))
+        plugin.send(:resolve_rpc_config, {})
+      end
+
+      it 'forwards the requested ssl value case-insensitively to the msgrpc plugin loader' do
+        expect(plugins_collection).to receive(:load)
+          .with('msgrpc', hash_including('SSL' => 'true'))
+        plugin.send(:resolve_rpc_config, { 'RpcSSL' => 'TRUE' })
+      end
+    end
+
+    describe 'RpcSSL case-insensitive parsing on the introspection path' do
+      let(:msgrpc_server) do
+        instance_double(
+          'Msf::RPC::Service',
+          srvhost: '127.0.0.1',
+          srvport: 55552,
+          users: { 'msf' => 'p' },
+          options: { ssl: false }
+        )
+      end
+
+      let(:msgrpc_plugin) do
+        instance_double('Msf::Plugin::MSGRPC', name: 'msgrpc', server: msgrpc_server)
+      end
+
+      let(:plugins_collection) { [msgrpc_plugin] }
+
+      before do
+        allow(framework).to receive(:plugins).and_return(plugins_collection)
+      end
+
+      it 'accepts RpcSSL=TRUE and overrides the introspected value' do
+        config = plugin.send(:resolve_rpc_config, { 'RpcSSL' => 'TRUE' })
+        expect(config[:ssl]).to eq(true)
+      end
+
+      it 'accepts RpcSSL=False and overrides the introspected value' do
+        config = plugin.send(:resolve_rpc_config, { 'RpcSSL' => 'False' })
+        expect(config[:ssl]).to eq(false)
+      end
+    end
   end
 end

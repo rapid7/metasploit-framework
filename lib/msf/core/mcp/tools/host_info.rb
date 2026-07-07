@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rex/stopwatch'
+
 module Msf::MCP
   module Tools
     ##
@@ -104,8 +106,6 @@ module Msf::MCP
         # @return [MCP::Tool::Response] Structured response with host information
         #
         def call(workspace: 'default', addresses: nil, only_up: false, limit: Msf::MCP::Security::InputValidator::LIMIT_DEFAULT, offset: 0, server_context:)
-          start_time = Time.now
-
           # Extract dependencies from server context
           msf_client = server_context[:msf_client]
           rate_limiter = server_context[:rate_limiter]
@@ -124,7 +124,9 @@ module Msf::MCP
           options = { workspace: workspace }
           options[:addresses] = addresses if addresses
           options[:only_up] = only_up if only_up
-          raw_hosts = msf_client.db_hosts(options)
+          raw_hosts, elapsed = Rex::Stopwatch.elapsed_time do
+            msf_client.db_hosts(options)
+          end
 
           # Transform response
           transformed = Metasploit::ResponseTransformer.transform_hosts(raw_hosts)
@@ -140,7 +142,7 @@ module Msf::MCP
           # Build metadata
           metadata = {
             workspace: workspace,
-            query_time: (Time.now - start_time).round(3),
+            query_time: elapsed.round(3),
             total_items: total_items,
             returned_items: paginated_data.size,
             limit: limit,

@@ -24,15 +24,17 @@ module Msf::MCP
     #
     # @param msf_client [Metasploit::Client] Configured and authenticated Metasploit client
     # @param rate_limiter [Security::RateLimiter] Configured rate limiter
+    # @param dangerous_actions [Boolean] Whether dangerous (destructive) tools are permitted
     #
-    def initialize(msf_client:, rate_limiter:)
+    def initialize(msf_client:, rate_limiter:, dangerous_actions: false)
       @msf_client = msf_client
 
       # Create server context (passed to all tool calls)
-      # Tools only need msf_client and rate_limiter
+      # Tools only need msf_client, rate_limiter, and the dangerous_actions gate.
       @server_context = {
         msf_client: @msf_client,
-        rate_limiter: rate_limiter
+        rate_limiter: rate_limiter,
+        dangerous_actions: dangerous_actions == true
       }
 
       # Create MCP configuration with request lifecycle callbacks
@@ -47,12 +49,20 @@ module Msf::MCP
         tools: [
           Tools::SearchModules,
           Tools::ModuleInfo,
+          Tools::ModuleExecute,
+          Tools::ModuleCheck,
+          Tools::ModuleResults,
+          Tools::RunningStats,
           Tools::HostInfo,
           Tools::ServiceInfo,
           Tools::VulnerabilityInfo,
           Tools::NoteInfo,
           Tools::CredentialInfo,
-          Tools::LootInfo
+          Tools::LootInfo,
+          Tools::SessionList,
+          Tools::SessionStop,
+          Tools::SessionRead,
+          Tools::SessionWrite
         ],
         server_context: @server_context,
         configuration: mcp_config

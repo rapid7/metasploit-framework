@@ -660,6 +660,200 @@ RSpec.describe Msf::MCP::Security::InputValidator do
     end
   end
 
+  describe '.validate_module_options!' do
+    it 'accepts an empty hash' do
+      expect(described_class.validate_module_options!({})).to be true
+    end
+
+    it 'accepts a hash of valid scalar values' do
+      options = { 'RHOSTS' => '192.0.2.10', 'RPORT' => 445, 'VERBOSE' => true, 'RATIO' => 1.5, 'NULL_KEY' => nil }
+      expect(described_class.validate_module_options!(options)).to be true
+    end
+
+    it 'accepts Symbol keys (MCP transport deep-symbolizes JSON input)' do
+      options = { RHOSTS: '192.0.2.10', RPORT: 445, VERBOSE: true }
+      expect(described_class.validate_module_options!(options)).to be true
+    end
+
+    it 'rejects non-Hash input' do
+      expect {
+        described_class.validate_module_options!('not a hash')
+      }.to raise_error(Msf::MCP::Security::ValidationError, /Module options must be a Hash/)
+    end
+
+    it 'rejects hashes with too many keys' do
+      options = (1..(described_class::MODULE_OPTIONS_MAX_KEYS + 1)).map { |i| ["KEY_#{i}", i] }.to_h
+      expect {
+        described_class.validate_module_options!(options)
+      }.to raise_error(Msf::MCP::Security::ValidationError, /too many keys/)
+    end
+
+    it 'rejects keys that do not match the datastore convention' do
+      expect {
+        described_class.validate_module_options!('1BAD' => 'x')
+      }.to raise_error(Msf::MCP::Security::ValidationError, /Invalid module option key/)
+    end
+
+    it 'accepts namespaced mixin option keys with the `::` separator (HTTP::compression, CMDSTAGER::FLAVOR)' do
+      options = {
+        'HTTP::compression' => 'gzip',
+        'CMDSTAGER::FLAVOR' => 'wget',
+        'EXE::Custom' => '/tmp/x.exe',
+        'SMB::ChunkSize' => 500,
+        'DCERPC::ReadTimeout' => 10,
+        'HTML::javascript::escape' => true
+      }
+      expect(described_class.validate_module_options!(options)).to be true
+    end
+
+    it 'accepts hyphenated header-style option keys (BEARER-TOKEN)' do
+      expect(described_class.validate_module_options!('BEARER-TOKEN' => 'abc')).to be true
+    end
+
+    it 'rejects keys containing whitespace' do
+      expect {
+        described_class.validate_module_options!('Domain SID' => 'x')
+      }.to raise_error(Msf::MCP::Security::ValidationError, /Invalid module option key/)
+    end
+
+    it 'rejects keys with leading separators' do
+      expect {
+        described_class.validate_module_options!('::HTTP' => 'x')
+      }.to raise_error(Msf::MCP::Security::ValidationError, /Invalid module option key/)
+    end
+
+    it 'rejects keys with trailing separators' do
+      expect {
+        described_class.validate_module_options!('HTTP::' => 'x')
+      }.to raise_error(Msf::MCP::Security::ValidationError, /Invalid module option key/)
+    end
+
+    it 'rejects keys exceeding the length cap' do
+      oversized_key = 'A' * (described_class::MODULE_OPTIONS_KEY_MAX_LENGTH + 1)
+      expect {
+        described_class.validate_module_options!(oversized_key => 'x')
+      }.to raise_error(Msf::MCP::Security::ValidationError, /exceeds.*chars/)
+    end
+
+    it 'rejects non-scalar values (Array)' do
+      expect {
+        described_class.validate_module_options!('RHOSTS' => ['192.0.2.10'])
+      }.to raise_error(Msf::MCP::Security::ValidationError, /must be a scalar/)
+    end
+
+    it 'rejects non-scalar values (Hash)' do
+      expect {
+        described_class.validate_module_options!('OPTS' => { nested: 1 })
+      }.to raise_error(Msf::MCP::Security::ValidationError, /must be a scalar/)
+    end
+
+    it 'rejects string values exceeding the per-value cap' do
+      oversized = 'A' * (described_class::MODULE_OPTIONS_VALUE_MAX_BYTES + 1)
+      expect {
+        described_class.validate_module_options!('RHOSTS' => oversized)
+      }.to raise_error(Msf::MCP::Security::ValidationError, /exceeds.*bytes/)
+    end
+
+    it 'rejects payloads exceeding the total byte cap' do
+      max_value = 'A' * (described_class::MODULE_OPTIONS_VALUE_MAX_BYTES)
+      options = {}
+      ((described_class::MODULE_OPTIONS_TOTAL_MAX_BYTES / described_class::MODULE_OPTIONS_VALUE_MAX_BYTES) + 1).times do |i|
+        options["KEY_#{i}"] = max_value
+      end
+      expect {
+        described_class.validate_module_options!(options)
+      }.to raise_error(Msf::MCP::Security::ValidationError, /total payload exceeds/)
+    end
+  end
+
+  describe '.validate_uuid!' do
+    it 'accepts a 24-char mixed-case alphanumeric UUID (matches Rex::Text.rand_text_alphanumeric(24))' do
+      expect(described_class.validate_uuid!('Q72h3dKD5nALt39rT0AXpDCR')).to be true
+    end
+
+    it 'accepts an all-lowercase 24-char alphanumeric UUID' do
+      expect(described_class.validate_uuid!('abcdef0123456789abcdef01')).to be true
+    end
+
+    it 'accepts an all-uppercase 24-char alphanumeric UUID' do
+      expect(described_class.validate_uuid!('ABCDEF0123456789ABCDEF01')).to be true
+    end
+
+    it 'rejects UUIDs with special characters' do
+      expect {
+        described_class.validate_uuid!('abc-1234abcdef0123456789')
+      }.to raise_error(Msf::MCP::Security::ValidationError, /UUID/)
+    end
+
+    it 'rejects UUIDs shorter than 24 characters' do
+      expect {
+        described_class.validate_uuid!('a1b2c3d4')
+      }.to raise_error(Msf::MCP::Security::ValidationError, /UUID/)
+    end
+
+    it 'rejects UUIDs longer than 24 characters' do
+      expect {
+        described_class.validate_uuid!('a' * 25)
+      }.to raise_error(Msf::MCP::Security::ValidationError, /UUID/)
+    end
+
+    it 'rejects non-String input' do
+      expect {
+        described_class.validate_uuid!(12345)
+      }.to raise_error(Msf::MCP::Security::ValidationError, /UUID must be a String/)
+    end
+  end
+
+  describe '.validate_session_id!' do
+    it 'accepts a valid integer session id' do
+      expect(described_class.validate_session_id!(1)).to be true
+      expect(described_class.validate_session_id!(65535)).to be true
+    end
+
+    it 'rejects 0 and negative ids' do
+      expect {
+        described_class.validate_session_id!(0)
+      }.to raise_error(Msf::MCP::Security::ValidationError, /Session ID/)
+    end
+
+    it 'rejects ids above the range' do
+      expect {
+        described_class.validate_session_id!(65536)
+      }.to raise_error(Msf::MCP::Security::ValidationError, /Session ID/)
+    end
+
+    it 'rejects non-Integer input' do
+      expect {
+        described_class.validate_session_id!('1')
+      }.to raise_error(Msf::MCP::Security::ValidationError, /Session ID must be an Integer/)
+    end
+  end
+
+  describe '.validate_session_data!' do
+    it 'accepts non-empty strings' do
+      expect(described_class.validate_session_data!('sysinfo')).to be true
+    end
+
+    it 'rejects empty strings' do
+      expect {
+        described_class.validate_session_data!('')
+      }.to raise_error(Msf::MCP::Security::ValidationError, /Session data cannot be empty/)
+    end
+
+    it 'rejects non-String input' do
+      expect {
+        described_class.validate_session_data!(12345)
+      }.to raise_error(Msf::MCP::Security::ValidationError, /Session data must be a String/)
+    end
+
+    it 'rejects data exceeding the size cap' do
+      oversized = 'A' * (described_class::SESSION_DATA_MAX_BYTES + 1)
+      expect {
+        described_class.validate_session_data!(oversized)
+      }.to raise_error(Msf::MCP::Security::ValidationError, /Session data exceeds/)
+    end
+  end
+
   describe 'fuzzing tests' do
     it 'handles random IP-like strings' do
       1000.times do
