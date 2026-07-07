@@ -158,7 +158,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'net-sftp'
   spec.add_runtime_dependency 'winrm'
   spec.add_runtime_dependency 'ffi', '< 1.17.0'
-  spec.add_runtime_dependency 'jwt' # Needed by modules/exploits/multi/http/ghostcms_cve_2026_29053.rb module
+  spec.add_runtime_dependency 'jwt' # Needed by modules/exploits/multi/http/ghostcms_auth_rce_cve_2026_29053.rb module
 
   #
   # REX Libraries
