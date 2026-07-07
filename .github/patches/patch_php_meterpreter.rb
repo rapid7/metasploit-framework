@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # Decrypts the meterpreter.php from the installed metasploit-payloads gem,
-# applies the TCP EOF fix for both socket and stream channel types,
-# re-encrypts, and writes it back.
+# applies TCP EOF fixes, re-encrypts, and writes it back.
 #
 # Usage: bundle exec ruby .github/patches/patch_php_meterpreter.rb
 
@@ -32,9 +31,7 @@ end
 
 abort('ERROR: fix 1 (socket EOF) did not apply') if patched == plaintext
 
-# Fix 2: stream case - fread returns "" on peer close when unread_bytes == 0.
-# No msgsock guard needed: the C2 socket always has unread_bytes > 0 when
-# stream_select fires for it, so it never hits this else branch.
+# Fix 2: stream case - fread returns "" on peer close when unread_bytes == 0
 before_fix2 = patched.dup
 patched = patched.sub(
   /^( +\$tmp = fread\(\$resource, \$len\);\n +\$last_requested_len = \$len;\n)/
@@ -53,5 +50,19 @@ end
 
 abort('ERROR: fix 2 (stream EOF) did not apply') if patched == before_fix2
 
+# Fix 3: set global $msgsock in dispatch_tcp so handle_dead_resource_channel
+# can write the core_channel_close notification packet to the C2 socket.
+# In the new transport-loop architecture the C2 socket is stored as
+# $transport['_socket'] and only assigned to a local $msgsock, but
+# handle_dead_resource_channel uses `global $msgsock`.
+before_fix3 = patched.dup
+patched = patched.sub(
+  /^( +)\$msgsock = \$transport\['_socket'\];/
+) do
+  $~[1] + "global $msgsock;\n" + $~[0]
+end
+
+abort('ERROR: fix 3 (global $msgsock in dispatch_tcp) did not apply') if patched == before_fix3
+
 File.binwrite(target, MetasploitPayloads::Crypto.encrypt(plaintext: patched))
-puts 'meterpreter.php patched successfully (socket + stream EOF fixes applied)'
+puts 'meterpreter.php patched successfully (socket EOF + stream EOF + global $msgsock fixes applied)'
