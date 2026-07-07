@@ -1,0 +1,21 @@
+diff --git a/php/meterpreter/meterpreter.php b/php/meterpreter/meterpreter.php
+--- a/php/meterpreter/meterpreter.php
++++ b/php/meterpreter/meterpreter.php
+@@ -1972,6 +1972,17 @@ function read($resource, $len=null) {
+       } else {
+         $tmp = fread($resource, $len);
+         $last_requested_len = $len;
++        # An empty fread on a stream that stream_select reported as readable
++        # means the peer has closed the connection (EOF). feof() may not return
++        # true immediately on all stream types (e.g. SSL), so treat "" as EOF
++        # for non-C2 channel sockets.
++        if ($tmp === false || ($tmp === '' && $resource !== $msgsock)) {
++          if (empty($buff)) {
++            my_print("----  EOF ON " . get_resource_map_id($resource) . "  ----");
++            $buff = false;
++          }
++          break;
++        }
+         $buff .= $tmp;
+         if (strlen($tmp) < $len) {
+           break;
