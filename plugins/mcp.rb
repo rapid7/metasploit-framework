@@ -133,7 +133,7 @@ module Msf
         args.each do |arg|
           key, value = arg.split('=', 2)
           # AuthToken can be blank while the others have to be set (blank is explicitly disabled)
-          unless key && value && (key == 'AuthToken' || !value.empty?)
+          unless key && value && (key.casecmp('AuthToken').zero? || !value.empty?)
             print_error("Invalid option format: #{arg} (expected Key=Value)")
             return nil
           end
@@ -297,8 +297,8 @@ module Msf
         auth_token_generated = true
       end
 
+      print_status('Starting MCP server on HTTP transport...')
       @server_thread = framework.threads.spawn('MCPServer', false) do
-        print_status("Starting MCP server on HTTP transport...")
         @mcp_server.start(transport: :http, host: host, port: port, auth_token: auth_token)
       end
 
