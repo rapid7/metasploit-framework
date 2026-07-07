@@ -166,10 +166,10 @@ RSpec.describe 'cmd/linux/http/x64' do
         )
       end
 
-      it 'uses tee to write the file instead of shell redirection' do
+      it 'uses shell redirection to write the file' do
         cmd = subject.generate_fetch_commands
-        expect(cmd).to include('| tee')
-        expect(cmd).not_to match(/GET -m GET[^|]+>(?!\s*\/dev\/null)/)
+        expect(cmd).not_to include('| tee')
+        expect(cmd).to match(/GET -m GET[^|]+>/)
       end
     end
 
