@@ -76,6 +76,8 @@ RSpec.describe Msf::MCP::Tools::CredentialInfo do
       expect(data_items[:user]).to eq({ type: 'string' })
       expect(data_items[:type]).to eq({ type: 'string' })
       expect(data_items[:updated_at]).to eq({ type: 'string' })
+      expect(data_items[:realm_key]).to eq({ type: 'string' })
+      expect(data_items[:realm_value]).to eq({ type: 'string' })
     end
   end
 
