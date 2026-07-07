@@ -1,4 +1,6 @@
 # -*- coding: binary -*-
+# frozen_string_literal: true
+
 require 'network_interface'
 
 module Msf
