@@ -344,19 +344,9 @@ jobs:
         working-directory: metasploit-framework
 
       - name: Patch meterpreter.php in installed gem
-        if: ${{ matrix.meterpreter.name == 'php' && runner.os != 'Windows' }}
-        shell: bash
+        if: ${{ matrix.meterpreter.name == 'php' }}
         run: |
-          GEM_PATH=$(bundle show metasploit-payloads)
-          patch --fuzz=10 "${GEM_PATH}/data/meterpreter/meterpreter.php" .github/patches/php-meterpreter-tcp-eof.patch
-        working-directory: metasploit-framework
-
-      - name: Patch meterpreter.php in installed gem (Windows)
-        if: ${{ matrix.meterpreter.name == 'php' && runner.os == 'Windows' }}
-        shell: pwsh
-        run: |
-          $gemPath = bundle show metasploit-payloads
-          patch --fuzz=10 "$gemPath\data\meterpreter\meterpreter.php" .github\patches\php-meterpreter-tcp-eof.patch
+          bundle exec ruby .github/patches/patch_php_meterpreter.rb
         working-directory: metasploit-framework
 
       - name: Acceptance
