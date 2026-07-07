@@ -173,6 +173,52 @@ RSpec.describe Msf::MCP::Config::Validator do
       end
     end
 
+    context 'with MCP auth token validation' do
+      let(:base_config) do
+        {
+          msf_api: {
+            type: 'messagepack',
+            host: 'localhost',
+            user: 'msf',
+            password: 'password'
+          },
+          mcp: {
+            transport: 'http'
+          }
+        }
+      end
+
+      it 'accepts nil, empty, and printable non-whitespace string tokens' do
+        [nil, '', 'password', 'abc_123-XYZ.~'].each do |auth_token|
+          config = base_config.merge(mcp: base_config[:mcp].merge(auth_token: auth_token))
+          expect(described_class.validate!(config)).to be true
+        end
+      end
+
+      it 'rejects non-string tokens' do
+        config = base_config.merge(mcp: base_config[:mcp].merge(auth_token: 123))
+
+        expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /mcp\.auth_token must be a string/)
+      end
+
+      it 'rejects whitespace and non-printable tokens' do
+        ['with space', "tab\t", "newline\n", "bad\x7f"].each do |auth_token|
+          config = base_config.merge(mcp: base_config[:mcp].merge(auth_token: auth_token))
+
+          expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /mcp\.auth_token must be a valid token/)
+        end
+      end
+
+      it 'rejects auth tokens for stdio transport' do
+        config = base_config.merge(mcp: { transport: 'stdio', auth_token: 'password' })
+
+        expect { described_class.validate!(config) }.to raise_error(
+          Msf::MCP::Config::ValidationError,
+          /mcp\.auth_token authentication must only be used with the 'http' transport/
+        )
+      end
+    end
+
     context 'with Puma thread/worker validation' do
       let(:valid_base) do
         {

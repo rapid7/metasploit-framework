@@ -53,6 +53,7 @@ RSpec.describe Msf::Plugin::MCP do
       end
 
       def initialize(**_args); end
+
       def start(**_args); end
       def shutdown; end
     end
@@ -142,6 +143,47 @@ RSpec.describe Msf::Plugin::MCP do
       it 'applies the provided host and port' do
         expect(plugin.server_config[:mcp][:host]).to eq('0.0.0.0')
         expect(plugin.server_config[:mcp][:port]).to eq(8080)
+      end
+    end
+
+    context 'with AuthToken options' do
+      let(:mock_server) { instance_double(mock_server_class, shutdown: nil) }
+
+      before do
+        allow(mock_server_class).to receive(:new).and_return(mock_server)
+        allow(mock_server).to receive(:class).and_return(mock_server_class)
+        allow(threads_manager).to receive(:spawn) do |_name, _critical, &block|
+          block.call
+          mock_thread
+        end
+      end
+
+      it 'generates a bearer token when AuthToken is omitted' do
+        expect(mock_server).to receive(:start).with(hash_including(auth_token: 'a' * 64))
+
+        plugin.start_server({})
+
+        expect(@output.join("\n")).to include('Authentication: Bearer token (auto-generated)')
+        expect(@output.join("\n")).to include("Authorization: Bearer #{'a' * 64}")
+      end
+
+      it 'uses an explicit AuthToken without printing it' do
+        expect(mock_server_class).not_to receive(:generate_auth_token)
+        expect(mock_server).to receive(:start).with(hash_including(auth_token: 'custom-token'))
+
+        plugin.start_server('AuthToken' => 'custom-token')
+
+        expect(@output.join("\n")).to include('Authentication: enabled')
+        expect(@output.join("\n")).not_to include('custom-token')
+      end
+
+      it 'disables authentication when AuthToken is blank' do
+        expect(mock_server_class).not_to receive(:generate_auth_token)
+        expect(mock_server).to receive(:start).with(hash_including(auth_token: nil))
+
+        plugin.start_server('AuthToken' => '')
+
+        expect(@output.join("\n")).to include('Authentication: disabled')
       end
     end
 
@@ -605,6 +647,21 @@ RSpec.describe Msf::Plugin::MCP do
           expect(opts).to eq('RateLimit' => '120')
         end
         dispatcher.cmd_mcp('start', 'RateLimit=120')
+      end
+
+      it 'parses AuthToken values including blank and case-insensitive keys' do
+        parsed_options = []
+        allow(plugin_instance).to receive(:start_server) { |opts| parsed_options << opts }
+
+        dispatcher.cmd_mcp('start', 'AuthToken=')
+        dispatcher.cmd_mcp('start', 'AuthToken=custom-token')
+        dispatcher.cmd_mcp('start', 'authtoken=')
+
+        expect(parsed_options).to eq([
+          { 'AuthToken' => '' },
+          { 'AuthToken' => 'custom-token' },
+          { 'AuthToken' => '' }
+        ])
       end
 
       it 'starts with empty opts when no options given' do
