@@ -1,6 +1,8 @@
 require_relative './shared'
 
 module Acceptance::Session::Mettle
+  MALLEABLE_C2_FIXTURE_PATH = File.expand_path('../../../../../spec/file_fixtures/malleable_c2', __FILE__)
+
   METTLE_METERPRETER = {
     payloads: [
       {
@@ -34,6 +36,150 @@ module Acceptance::Session::Mettle
           module: {
             MeterpreterTryToFork: false,
             MeterpreterDebugBuild: true
+          }
+        }
+      },
+      {
+        name: "linux/x64/meterpreter_reverse_http",
+        extension: "",
+        platforms: [:linux],
+        executable: true,
+        execute_cmd: ["${payload_path}"],
+        generate_options: {
+          '-f': "elf"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "linux/x64/meterpreter_reverse_http",
+        extension: "",
+        platforms: [:linux],
+        executable: true,
+        execute_cmd: ["${payload_path}"],
+        generate_options: {
+          '-f': "elf"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+          }
+        }
+      },
+      {
+        name: "osx/x64/meterpreter_reverse_http",
+        extension: "",
+        platforms: [:osx],
+        executable: true,
+        execute_cmd: ["${payload_path}"],
+        generate_options: {
+          '-f': "macho"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "osx/x64/meterpreter_reverse_http",
+        extension: "",
+        platforms: [:osx],
+        executable: true,
+        execute_cmd: ["${payload_path}"],
+        generate_options: {
+          '-f': "macho"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+          }
+        }
+      },
+      {
+        name: "linux/x64/meterpreter_reverse_https",
+        extension: "",
+        platforms: [:linux],
+        executable: true,
+        execute_cmd: ["${payload_path}"],
+        generate_options: {
+          '-f': "elf"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "linux/x64/meterpreter_reverse_https",
+        extension: "",
+        platforms: [:linux],
+        executable: true,
+        execute_cmd: ["${payload_path}"],
+        generate_options: {
+          '-f': "elf"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+          }
+        }
+      },
+      {
+        name: "osx/x64/meterpreter_reverse_https",
+        extension: "",
+        platforms: [:osx],
+        executable: true,
+        execute_cmd: ["${payload_path}"],
+        generate_options: {
+          '-f': "macho"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "osx/x64/meterpreter_reverse_https",
+        extension: "",
+        platforms: [:osx],
+        executable: true,
+        execute_cmd: ["${payload_path}"],
+        generate_options: {
+          '-f': "macho"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
           }
         }
       }
