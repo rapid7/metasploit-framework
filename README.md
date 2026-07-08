@@ -50,3 +50,12 @@ To contribute to Metasploit:
 1. **Setup Development Environment:** Follow the instructions in the [Development Setup Guide](https://docs.metasploit.com/docs/development/get-started/setting-up-a-metasploit-development-environment.html) on GitHub.
 2. **Clone the Repository:** Obtain the source code from the official repository.
 3. **Submit a Pull Request:** After making changes, submit a pull request for review. Additional details can be found in the [Contributing Guide](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md).
+
+
+## Known Issues and Workarounds
+
+The maintainers are aware of the following issues:
+
+- Issue mentioned in the bug tracker
+- Users should follow the recommended practices
+- See the documentation for more details
