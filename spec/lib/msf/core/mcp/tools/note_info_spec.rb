@@ -77,7 +77,7 @@ RSpec.describe Msf::MCP::Tools::NoteInfo do
       expect(data_items[:host]).to eq({ type: 'string' })
       expect(data_items[:service_name_or_port]).to eq({ type: 'string' })
       expect(data_items[:note_type]).to eq({ type: 'string' })
-      expect(data_items[:data]).to eq({ type: 'string' })
+      expect(data_items[:data]).to eq({ type: ['object', 'string', 'null'] })
       expect(data_items[:created_at]).to eq({ type: 'string' })
     end
   end
