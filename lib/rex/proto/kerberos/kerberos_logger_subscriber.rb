@@ -13,6 +13,17 @@ module Rex
     module Kerberos
       # Logs Kerberos requests/responses
       class KerberosLoggerSubscriber < KerberosSubscriber
+        TRACE_MODE_OFF = 'off'
+        TRACE_MODE_METADATA = 'metadata'
+        TRACE_MODE_TICKET = 'ticket'
+        TRACE_MODE_FULL = 'full'
+        TRACE_MODES = [
+          TRACE_MODE_OFF,
+          TRACE_MODE_METADATA,
+          TRACE_MODE_TICKET,
+          TRACE_MODE_FULL
+        ].freeze
+
         def initialize(logger:)
           super()
           raise 'Incompatible logger' unless logger.respond_to?(:print_line) && logger.respond_to?(:datastore)
@@ -22,16 +33,16 @@ module Rex
 
         # (see Rex::Proto::Kerberos::KerberosSubscriber#on_request)
         def on_request(request)
-          return unless trace_enabled?
+          return unless message_trace_enabled?
 
           request_color, _response_color = trace_colors
           print_header('Request', request)
-          @logger.print_line("%clr#{request_color}#{format_message(request)}%clr")
+          @logger.print_line("%clr#{request_color}#{format_message_for_trace_mode(request)}%clr")
         end
 
         # (see Rex::Proto::Kerberos::KerberosSubscriber#on_response)
         def on_response(response)
-          return unless trace_enabled?
+          return unless message_trace_enabled?
 
           _request_color, response_color = trace_colors
           print_header('Response', response)
@@ -40,22 +51,35 @@ module Rex
             return
           end
 
-          @logger.print_line("%clr#{response_color}#{format_message(response)}%clr")
+          @logger.print_line("%clr#{response_color}#{format_message_for_trace_mode(response)}%clr")
         end
 
         # (see Rex::Proto::Kerberos::KerberosSubscriber#on_credential)
         def on_credential(credential, source: nil)
-          return unless trace_enabled?
+          return unless credential_trace_enabled?
           return if credential.nil?
 
           print_credential_header(source)
-          @logger.print_line(format_credential(credential))
+          @logger.print_line(format_credential_for_trace_mode(credential))
         end
 
         private
 
-        def trace_enabled?
-          @logger.datastore['KerberosTicketTrace']
+        def message_trace_enabled?
+          [TRACE_MODE_METADATA, TRACE_MODE_FULL].include?(trace_mode)
+        end
+
+        def credential_trace_enabled?
+          [TRACE_MODE_METADATA, TRACE_MODE_TICKET, TRACE_MODE_FULL].include?(trace_mode)
+        end
+
+        def trace_mode
+          configured_trace_mode = @logger.datastore['KerberosTicketTrace']
+          return TRACE_MODE_FULL if configured_trace_mode == true
+          return TRACE_MODE_OFF if blank_value?(configured_trace_mode)
+
+          normalized_trace_mode = configured_trace_mode.to_s.downcase
+          TRACE_MODES.include?(normalized_trace_mode) ? normalized_trace_mode : TRACE_MODE_OFF
         end
 
         def trace_colors
@@ -104,11 +128,21 @@ module Rex
           end
         end
 
-        def format_message(message)
+        def format_message_for_trace_mode(message)
+          format_message(message, redact_binary: trace_mode != TRACE_MODE_FULL)
+        end
+
+        def format_credential_for_trace_mode(credential)
+          return format_credential_metadata(credential) if trace_mode == TRACE_MODE_METADATA
+
+          format_credential(credential)
+        end
+
+        def format_message(message, redact_binary:)
           return 'null' if message.nil?
 
           if message.respond_to?(:attributes)
-            serialized_message = serialize_element(message)
+            serialized_message = serialize_element(message, redact_binary: redact_binary)
             readable_text_presenter.present(serialized_message)
           else
             # Fall back for non-model objects.
@@ -128,12 +162,42 @@ module Rex
           "Credential presenter error: #{e.class}: #{e.message}"
         end
 
-        def serialize_element(element)
+        def format_credential_metadata(credential)
+          [
+            'Creds: 1',
+            "  Credential[0]:\n#{present_credential_metadata(credential).indent(4)}"
+          ].join("\n")
+        rescue StandardError => e
+          "Credential presenter error: #{e.class}: #{e.message}"
+        end
+
+        def present_credential_metadata(credential)
+          ticket_flags = credential.ticket_flags.to_i
+          output = []
+
+          output << "Server: #{credential.server}"
+          output << "Client: #{credential.client}"
+          output << "Ticket etype: #{credential.keyblock.enctype} (#{Rex::Proto::Kerberos::Crypto::Encryption.const_name(credential.keyblock.enctype)})"
+          output << "Subkey: #{credential.is_skey == 1}"
+          output << "Ticket Length: #{credential.ticket.length}"
+          output << "Ticket Flags: 0x#{ticket_flags.to_s(16).rjust(8, '0')} (#{Rex::Proto::Kerberos::Model::KdcOptionFlags.new(ticket_flags).enabled_flag_names.join(', ')})"
+          output << "Addresses: #{credential.address_count}"
+          output << "Authdatas: #{credential.authdata_count}"
+          output << 'Times:'
+          output << "Auth time: #{present_time(credential.authtime)}".indent(2)
+          output << "Start time: #{present_time(credential.starttime)}".indent(2)
+          output << "End time: #{present_time(credential.endtime)}".indent(2)
+          output << "Renew Till: #{present_time(credential.renew_till)}".indent(2)
+
+          output.join("\n")
+        end
+
+        def serialize_element(element, redact_binary:)
           element.attributes.each_with_object({}) do |attribute, output|
             value = element.public_send(attribute)
             next if value.nil?
 
-            output[serialized_attribute_key(element, attribute)] = serialize_value(value, element: element, attribute: attribute.to_sym)
+            output[serialized_attribute_key(element, attribute)] = serialize_value(value, element: element, attribute: attribute.to_sym, redact_binary: redact_binary)
           end
         end
 
@@ -147,10 +211,10 @@ module Rex
           end
         end
 
-        def serialize_value(value, element: nil, attribute: nil)
+        def serialize_value(value, redact_binary:, element: nil, attribute: nil)
           if value.respond_to?(:attributes)
             # Recursively serialize nested Kerberos model objects.
-            serialize_element(value)
+            serialize_element(value, redact_binary: redact_binary)
           elsif kerberos_error_code?(value)
             # Normalize ErrorCode-like objects to a compact structured form.
             {
@@ -159,19 +223,19 @@ module Rex
               'description' => value.description
             }
           else
-            serialize_scalar_value(value, element: element, attribute: attribute)
+            serialize_scalar_value(value, element: element, attribute: attribute, redact_binary: redact_binary)
           end
         end
 
-        def serialize_scalar_value(value, element: nil, attribute: nil)
+        def serialize_scalar_value(value, redact_binary:, element: nil, attribute: nil)
           case value
           when Array
-            value.map { |entry| serialize_value(entry, element: element, attribute: attribute) }
+            value.map { |entry| serialize_value(entry, element: element, attribute: attribute, redact_binary: redact_binary) }
           when Set
-            value.to_a.map { |entry| serialize_value(entry, element: element, attribute: attribute) }
+            value.to_a.map { |entry| serialize_value(entry, element: element, attribute: attribute, redact_binary: redact_binary) }
           when Hash
             value.each_with_object({}) do |(key, entry), output|
-              output[key.to_s] = serialize_value(entry)
+              output[key.to_s] = serialize_value(entry, redact_binary: redact_binary)
             end
           when Rex::Proto::Kerberos::Model::KerberosFlags
             {
@@ -181,7 +245,7 @@ module Rex
           when Time
             value.utc.iso8601
           when String
-            serialize_string(value)
+            serialize_string(value, redact_binary: redact_binary)
           when Symbol
             value.to_s
           when Integer
@@ -262,11 +326,16 @@ module Rex
           value.respond_to?(:name) && value.respond_to?(:value) && value.respond_to?(:description)
         end
 
-        def serialize_string(value)
+        def serialize_string(value, redact_binary:)
           return value if printable_string?(value)
 
-          # Expand binary/non-printable strings fully in hex.
+          return "[binary #{value.bytesize} bytes]" if redact_binary
+
           "[binary #{value.bytesize} bytes: #{value.unpack1('H*')}]"
+        end
+
+        def present_time(time)
+          time.localtime.to_s
         end
 
         def ticket_presenter
