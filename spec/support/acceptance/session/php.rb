@@ -1,6 +1,8 @@
 require_relative './shared'
 
 module Acceptance::Session::Php
+  MALLEABLE_C2_FIXTURE_PATH = File.expand_path('../../../../../spec/file_fixtures/malleable_c2', __FILE__)
+
   PHP_METERPRETER = {
     payloads: [
       {
@@ -15,6 +17,70 @@ module Acceptance::Session::Php
           global: {},
           module: {
             MeterpreterDebugBuild: true
+          }
+        }
+      },
+      {
+        name: "php/meterpreter_reverse_http",
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter_reverse_http",
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter_reverse_https",
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter_reverse_https",
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
           }
         }
       }
