@@ -140,6 +140,9 @@ module Msf::MCP
       require 'puma/launcher'
       require 'puma/log_writer'
 
+      # Guard against shutdown racing with startup
+      raise Msf::MCP::Error, 'MCP server was shut down before HTTP transport could start' unless @mcp_server
+
       transport = ::MCP::Server::Transports::StreamableHTTPTransport.new(@mcp_server)
 
       # Build the Rack application with logging middleware.

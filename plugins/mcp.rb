@@ -10,6 +10,7 @@ module Msf
   #
   ###
   class Plugin::MCP < Msf::Plugin
+    include Msf::Exploit::Retry
 
     #
     # Console command dispatcher for the `mcp` command and its subcommands.
@@ -226,6 +227,8 @@ module Msf
       # Ensure server is left in a clean stopped state on failure
       stop_mcp_server
       unload_auto_started_rpc
+      # Prevent stale config from making status report a "stopped" server
+      @server_config = nil
       print_error("Failed to start MCP server: #{e.message}")
     end
 
@@ -253,6 +256,8 @@ module Msf
       # Ensure server is left in a clean stopped state on failure
       stop_mcp_server
       unload_auto_started_rpc
+      # Prevent stale config from making status report a "stopped" server
+      @server_config = nil
       print_error("Failed to restart MCP server: #{e.message}")
     end
 
@@ -298,9 +303,17 @@ module Msf
       end
 
       print_status('Starting MCP server on HTTP transport...')
+      # Catch port conflicts synchronously before spawning async thread
+      verify_port_available!(host, port)
+
+      # Capture reference so the thread isn't affected if shutdown nils @mcp_server
+      mcp_server = @mcp_server
       @server_thread = framework.threads.spawn('MCPServer', false) do
-        @mcp_server.start(transport: :http, host: host, port: port, auth_token: auth_token)
+        mcp_server.start(transport: :http, host: host, port: port, auth_token: auth_token)
       end
+
+      # Catches TOCTOU races where port freed between pre-flight and spawn
+      verify_mcp_server_started!(host, port)
 
       @started_at = Time.now
       print_status("MCP server listening on http://#{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])}/")
@@ -314,6 +327,7 @@ module Msf
       raise Msf::MCP::Metasploit::AuthenticationError, "RPC authentication failed: #{e.message}"
     rescue Msf::MCP::Metasploit::ConnectionError => e
       raise Msf::MCP::Metasploit::ConnectionError, "RPC connection failed: #{e.message}"
+    # Fallback for TOCTOU race: port taken between verify_port_available! and actual bind
     rescue Errno::EADDRINUSE
       raise Msf::MCP::Error, "Address already in use: #{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])}"
     end
@@ -381,11 +395,7 @@ module Msf
 
       begin
         msgrpc = framework.plugins.find { |p| p.name == 'msgrpc' }
-        if msgrpc
-          # Give msgrpc server time to initialize before attempting unload
-          sleep(0.5) unless msgrpc.respond_to?(:server) && msgrpc.server
-          framework.plugins.unload(msgrpc)
-        end
+        framework.plugins.unload(msgrpc) if msgrpc
       rescue StandardError => e
         print_warning("Failed to unload auto-started msgrpc: #{e.message}")
       end
@@ -478,8 +488,11 @@ module Msf
       @auto_started_rpc = false
 
       if (msgrpc = find_loaded_msgrpc)
-        introspect_msgrpc(msgrpc, opts)
-      elsif explicit_rpc_credentials?(opts)
+        result = introspect_msgrpc(msgrpc, opts)
+        return result if result
+      end
+
+      if explicit_rpc_credentials?(opts)
         resolve_explicit_rpc(opts)
       else
         auto_start_msgrpc(opts)
@@ -503,13 +516,17 @@ module Msf
       }
     end
 
+    # Skip zombie plugins whose server failed to bind
     def find_loaded_msgrpc
-      framework.plugins.find { |p| p.name == 'msgrpc' }
+      framework.plugins.find { |p| p.name == 'msgrpc' && p.respond_to?(:server) && p.server }
     end
 
     # Extract connection details from a running msgrpc plugin instance
     def introspect_msgrpc(plugin, opts)
       server = plugin.server
+      # Defensive guard in case server became nil after find_loaded_msgrpc check
+      return nil unless server
+
       user, pass = server.users.first
 
       {
@@ -548,6 +565,9 @@ module Msf
       framework.plugins.load('msgrpc', msgrpc_opts)
       @auto_started_rpc = true
 
+      # Confirm the server actually bound before claiming success
+      verify_msgrpc_started!(host, port)
+
       print_status("Auto-started msgrpc - User: #{user}, Pass: #{pass}")
 
       {
@@ -557,6 +577,59 @@ module Msf
         pass: pass,
         ssl: ssl == 'true'
       }
+    end
+
+    # Polls TCP port until reachable or timeout. Raises with service_name in message.
+    def wait_for_port!(host, port, service_name, timeout: 5)
+      print_status("Waiting for #{service_name} to become available on #{Rex::Socket.to_authority(host, port.to_s)}...")
+      result = poll_until_truthy(timeout: timeout, interval: 0.25) do
+        sock = Rex::Socket::Tcp.create('PeerHost' => host, 'PeerPort' => port.to_i, 'Timeout' => 1)
+        sock.close
+        true
+      rescue ::Rex::ConnectionRefused, ::Rex::ConnectionTimeout, ::Errno::ECONNREFUSED
+        nil
+      end
+
+      return if result
+
+      raise Msf::MCP::Error,
+            "#{service_name} failed to start on #{Rex::Socket.to_authority(host, port.to_s)} (port may already be in use)"
+    end
+
+    # Pre-flight check: catch EADDRINUSE synchronously before spawning async server thread
+    def verify_port_available!(host, port)
+      test_server = TCPServer.new(host, port.to_i)
+      test_server.close
+    rescue Errno::EADDRINUSE
+      raise Msf::MCP::Error, "Address already in use: #{Rex::Socket.to_authority(host, port.to_s)}"
+    rescue Errno::EADDRNOTAVAIL
+      raise Msf::MCP::Error, "Address not available: #{Rex::Socket.to_authority(host, port.to_s)}"
+    end
+
+    # Confirms msgrpc plugin loaded and its server is listening
+    def verify_msgrpc_started!(host, port, timeout: 5)
+      msgrpc = framework.plugins.find { |p| p.name == 'msgrpc' }
+      unless msgrpc
+        raise Msf::MCP::Error, 'msgrpc plugin failed to load'
+      end
+
+      # Wait for server object to initialize
+      print_status("Waiting for msgrpc server to initialize on #{Rex::Socket.to_authority(host, port.to_s)}...")
+      poll_until_truthy(timeout: timeout, interval: 0.25) do
+        msgrpc.respond_to?(:server) && msgrpc.server
+      end
+
+      unless msgrpc.server
+        raise Msf::MCP::Error,
+              "msgrpc server failed to start on #{Rex::Socket.to_authority(host, port.to_s)} (port may already be in use)"
+      end
+
+      wait_for_port!(host, port, 'msgrpc server', timeout: timeout)
+    end
+
+    # Confirms MCP server is listening after thread spawn
+    def verify_mcp_server_started!(host, port, timeout: 5)
+      wait_for_port!(host, port, 'MCP server', timeout: timeout)
     end
 
     def option_error(option_name, expected_format)
