@@ -136,7 +136,7 @@ RSpec.describe 'Meterpreter' do
             end
 
             console.sendline payload.handler_command(default_module_datastore: default_module_datastore)
-            console.recvuntil(/Started reverse TCP handler[^\n]*\n/)
+            console.recvuntil(/Started (?:reverse TCP|HTTPS? reverse) handler[^\n]*\n/)
             payload_process = executed_payload
             session_id = nil
 

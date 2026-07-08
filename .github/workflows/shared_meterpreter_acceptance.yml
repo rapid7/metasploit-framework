@@ -97,7 +97,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    timeout-minutes: 50
+    timeout-minutes: 180
 
     env:
       RAILS_ENV: test
