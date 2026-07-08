@@ -79,12 +79,17 @@ module Msf
           return
         end
         arch = Rex::Arch.from_uname(arch_param)
+        if arch_param == 'mips'
+          print_warning("Detected 'mips' architecture using 'uname'. Normally, this means mipsbe, but it sometimes means mips[el|le].")
+          print_warning('Serving a mipsbe payload. If the payload fails, retry with an explicit mipsle payload.')
+        end
         if arch.nil?
           print_error("Failed to identify the architecture in Query String #{arch_param}")
           cli.send_response(fetch_error_response(404, 'Not Found'))
           return
         end
         vprint_status("Building payload for #{arch} arch")
+
         opts[:arch] = arch
         # Call generate with arch and dynamic_arch populated properly to build the right binary
         payload_exe = generate(opts)
