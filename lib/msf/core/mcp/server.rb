@@ -87,12 +87,12 @@ module Msf::MCP
     # Shutdown the MCP server and cleanup resources
     #
     def shutdown
-      @puma_launcher&.stop
+      @puma_server&.stop(true)
     rescue StandardError => e
       elog({ message: 'Error stopping Puma', exception: e }, LOG_SOURCE, LOG_ERROR)
     ensure
       @puma_log_io&.close
-      @puma_launcher = nil
+      @puma_server = nil
       @puma_log_io = nil
       @msf_client&.shutdown
       @mcp_server = nil
@@ -130,8 +130,7 @@ module Msf::MCP
     def start_http(host, port, auth_token, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
       require 'rack'
       require 'puma'
-      require 'puma/configuration'
-      require 'puma/launcher'
+      require 'puma/server'
       require 'puma/log_writer'
 
       transport = ::MCP::Server::Transports::StreamableHTTPTransport.new(@mcp_server)
@@ -147,26 +146,25 @@ module Msf::MCP
       # Use Puma's server API directly so we can stop it gracefully on shutdown.
       bind_host = host.include?(':') ? "[#{host}]" : host
       @puma_log_io = File.open(File::NULL, 'w')
-      begin
-        puma_config = Puma::Configuration.new do |config|
-          config.bind "tcp://#{bind_host}:#{port}"
-          config.threads min_threads, max_threads
-          config.workers workers
-          config.log_requests false
-          config.app rack_app
-        end
 
+      begin
         # Suppress Puma's startup banner by providing a silent log writer
         log_writer = Puma::LogWriter.new(@puma_log_io, @puma_log_io)
-        @puma_launcher = Puma::Launcher.new(puma_config, log_writer: log_writer)
-        @puma_launcher.run
+
+        @puma_server = Puma::Server.new(rack_app, nil, {
+          log_writer: log_writer,
+          min_threads: min_threads,
+          max_threads: max_threads
+        })
+        @puma_server.add_tcp_listener(bind_host, port)
+        @puma_server.run.join
       rescue StandardError
         begin
-          @puma_launcher&.stop
+          @puma_server&.stop(true)
         rescue StandardError
           nil
         end
-        @puma_launcher = nil
+        @puma_server = nil
         @puma_log_io&.close
         @puma_log_io = nil
         raise
