@@ -83,7 +83,9 @@ module Msf::MCP
                 protocol: { type: 'string' },
                 state: { type: 'string' },
                 name: { type: 'string' },
-                info: { type: 'string' }
+                info: { type: 'string' },
+                resource: { type: 'object' },
+                parents: { type: 'array', items: { type: 'object' } }
               }
             }
           }

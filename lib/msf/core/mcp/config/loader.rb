@@ -77,6 +77,15 @@ module Msf::MCP
           config[:mcp][:workers] ||= Msf::MCP::Server::PUMA_WORKERS
         end
 
+        # auth_token: only normalize if the key was explicitly provided.
+        # Absent key means "not configured" -- the application layer generates
+        # a token at startup so it can decide whether to print it.
+        # nil or "" becomes nil (authentication disabled); non-empty string is used as-is.
+        if config[:mcp].key?(:auth_token)
+          val = config[:mcp][:auth_token]
+          config[:mcp][:auth_token] = nil if val.nil? || (val.is_a?(String) && val.empty?)
+        end
+
         config[:rate_limit][:enabled] = config[:rate_limit].fetch(:enabled, true)
         config[:rate_limit][:requests_per_minute] ||= Defaults::RATE_LIMIT_REQUESTS_PER_MINUTE
         config[:rate_limit][:burst_size] ||= 10
@@ -113,6 +122,15 @@ module Msf::MCP
         config[:mcp][:host] = ENV['MSF_MCP_HOST'] if ENV['MSF_MCP_HOST']
         config[:mcp][:port] = ENV['MSF_MCP_PORT'].to_i if ENV['MSF_MCP_PORT']
 
+        # MCP authentication -- env var overrides config/default
+        #   unset            -- leave whatever apply_defaults established
+        #   set to ""        -- nil (disable authentication)
+        #   set to non-empty -- use as the bearer token
+        if ENV.key?('MSF_MCP_AUTH_TOKEN')
+          mcp_token = ENV['MSF_MCP_AUTH_TOKEN']
+          config[:mcp][:auth_token] = mcp_token.empty? ? nil : mcp_token
+        end
+
         # MCP Puma server tuning overrides
         config[:mcp][:min_threads] = ENV['MSF_MCP_MIN_THREADS'].to_i if ENV['MSF_MCP_MIN_THREADS']
         config[:mcp][:max_threads] = ENV['MSF_MCP_MAX_THREADS'].to_i if ENV['MSF_MCP_MAX_THREADS']
@@ -121,7 +139,7 @@ module Msf::MCP
 
       # Parse a string value into a boolean
       #
-      # @param value [String] String to parse ('true', '1', 'yes' → true; anything else → false)
+      # @param value [String] String to parse ('true', '1', 'yes' -> true; anything else -> false)
       # @return [Boolean]
       def self.parse_boolean(value)
         %w[true 1 yes].include?(value.to_s.downcase)

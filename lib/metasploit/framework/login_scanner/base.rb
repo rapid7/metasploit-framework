@@ -208,6 +208,7 @@ module Metasploit
             successful_users = Set.new
             ignored_users = Set.new
             first_attempt = true
+            service_reported = false
 
             each_credential do |credential|
               # Skip users for whom we've have already found a password
@@ -239,6 +240,34 @@ module Metasploit
               result.freeze
 
               yield result if block_given?
+
+              # Any non-UNABLE_TO_CONNECT status means the service is reachable.
+              # A connection-refused proof means the host is up but service not listening.
+              unless service_reported
+                if result.status != Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+                  framework_module.report_host(
+                    host: host,
+                    workspace_id: framework_module.myworkspace_id
+                  ) if framework_module&.respond_to?(:report_host)
+
+                  framework_module.report_service({
+                      host: host,
+                      port: port,
+                      proto: 'tcp',
+                      workspace_id: framework_module.myworkspace_id
+                    }.tap { |h| h[:name] = result.service_name if result.service_name.present? }
+                  ) if framework_module&.respond_to?(:report_service)
+
+                  service_reported = true
+                elsif connection_refused_proof?(result.proof)
+                  framework_module.report_host(
+                    host: host,
+                    workspace_id: framework_module.myworkspace_id
+                  ) if framework_module&.respond_to?(:report_host)
+
+                  service_reported = true
+                end
+              end
 
               if result.success?
                 consecutive_error_count = 0
@@ -314,6 +343,15 @@ module Metasploit
           # @return [void]
           def set_sane_defaults
             self.connection_timeout = 30 if self.connection_timeout.nil?
+          end
+
+          # Returns true when the proof from an UNABLE_TO_CONNECT result
+          # indicates the remote port actively refused the connection.
+          # e.g. The host is up but the service is not listening.
+          def connection_refused_proof?(proof)
+            return false if proof.nil?
+            return true if proof.is_a?(::Rex::ConnectionRefused) || proof.is_a?(::Errno::ECONNREFUSED)
+            proof.to_s =~ /\bconnection\s+refused\b|\bECONNREFUSED\b/i ? true : false
           end
 
           # This method validates that the credentials supplied

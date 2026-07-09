@@ -1,7 +1,7 @@
 # Metasploit RPC API connection (MessagePack)
 msf_api:
   type: messagepack
-  host: localhost
+  host: 127.0.0.1
   port: 55553
   ssl: true
   endpoint: /api/
@@ -13,8 +13,9 @@ msf_api:
 mcp:
   transport: stdio  # stdio (default) or http
   # MCP server network configuration (for HTTP transport only)
-  host: localhost  # Host to bind to (default: localhost)
+  host: 127.0.0.1  # Host to bind to (default: localhost)
   port: 3000       # Port to listen on (default: 3000)
+  # auth_token: ... # Bearer token for authentication (default: randomly generated, one-time token)
   # Puma server tuning (for HTTP transport only)
   # min_threads: 0   # Minimum thread pool size (default: 0)
   # max_threads: 5   # Maximum thread pool size (default: 5)

@@ -164,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
     #
     # Another way to speed things up is to use fancy threading, but that's for another
     # day.
-    while (r = @udp_sock.recvfrom(65535, 0.1) and recvpacks < 2)
+    while (r = @udp_sock.timed_recvfrom(65535, 0.1) and recvpacks < 2)
       res = r[0]
       if res.length == 269 # auth reply packet
         if res[17, 1] == "\x00" and res[19, 1] == "\xD2" # Magic bytes

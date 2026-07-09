@@ -52,6 +52,7 @@ module Msf::MCP
           stance: info['stance'],
           actions: info['actions'],
           default_action: info['default_action'],
+          notes: info['notes'],
           # TODO: write transformer for options
           options: info['options']
         }.compact
@@ -76,7 +77,8 @@ module Msf::MCP
             os_language: host['os_lang'],
             updated_at: format_timestamp(host['updated_at']),
             purpose: host['purpose'],
-            info: host['info']
+            info: host['info'],
+            comments: host['comments']
           }.compact
         end
       end
@@ -87,18 +89,25 @@ module Msf::MCP
       def self.transform_services(response)
         return [] unless response.is_a?(Hash) && response['services'].is_a?(Array)
 
-        response['services'].map do |service|
-          {
-            host_address: service['host'],
-            created_at: format_timestamp(service['created_at']),
-            updated_at: format_timestamp(service['updated_at']),
-            port: service['port'],
-            protocol: service['proto'],
-            state: service['state'],
-            name: service['name'],
-            info: service['info'],
-          }.compact
-        end
+        response['services'].map { |service| transform_service(service) }
+      end
+
+      # Transform a single service, recursively transforming its parent services.
+      # @param service [Hash] Raw service data
+      # @return [Hash] Transformed service
+      def self.transform_service(service)
+        {
+          host_address: service['host'],
+          created_at: format_timestamp(service['created_at']),
+          updated_at: format_timestamp(service['updated_at']),
+          port: service['port'],
+          protocol: service['proto'],
+          state: service['state'],
+          name: service['name'],
+          info: service['info'],
+          resource: service['resource'],
+          parents: (service['parents'] || []).map { |parent| transform_service(parent) }
+        }.compact
       end
 
       # Transform vulnerabilities response
@@ -114,7 +123,8 @@ module Msf::MCP
             protocol: vuln['proto'],
             name: vuln['name'],
             references: parse_refs(vuln['refs']),
-            created_at: format_timestamp(vuln['time'])
+            created_at: format_timestamp(vuln['time']),
+            resource: vuln['resource']
           }.compact
         end
       end
@@ -151,7 +161,9 @@ module Msf::MCP
             user: cred['user'],
             secret: cred['pass'],
             type: cred['type'],
-            updated_at: format_timestamp(cred['updated_at'])
+            updated_at: format_timestamp(cred['updated_at']),
+            realm_key: cred['realm_key'],
+            realm_value: cred['realm_value']
           }.compact
         end
       end

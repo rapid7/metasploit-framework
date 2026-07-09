@@ -148,7 +148,7 @@ module Auxiliary::UDPScanner
 
       retry
 
-    rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED
+    rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED, ::Errno::ECONNRESET
       # This fires for host unreachable, net unreachable, and broadcast sends
       # We can safely ignore all of these for UDP sends
     end
@@ -173,7 +173,13 @@ module Auxiliary::UDPScanner
       readable, _, _ = ::IO.select(@udp_sockets.values, nil, nil, timeout)
       if readable
         for sock in readable
-          res = sock.recvfrom(65535, timeout)
+          begin
+            res = sock.recvfrom(65535)
+          rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED, ::Errno::ECONNRESET
+            # A connected UDP socket surfaces ICMP port-unreachable differently
+            # by platform; skip this socket and keep processing the others.
+            next
+          end
 
           # Ignore invalid responses
           break if not res[1]
@@ -182,12 +188,12 @@ module Auxiliary::UDPScanner
           next if not (res[0] and res[0].length > 0)
 
           # Trim the IPv6-compat prefix off if needed
-          shost = res[1].sub(/^::ffff:/, '')
+          shost = res[1][3].sub(/^::ffff:/, '')
 
           # Ignore the response if we have a boundary
           next unless inside_workspace_boundary?(shost)
 
-          queue << [res[0], shost, res[2]]
+          queue << [res[0], shost, res[1][1]]
 
           if queue.length > datastore['ScannerRecvQueueLimit']
             break

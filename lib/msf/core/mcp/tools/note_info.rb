@@ -74,7 +74,7 @@ module Msf::MCP
                 host: { type: 'string' },
                 service_name_or_port: { type: 'string' },
                 note_type: { type: 'string' },
-                data: { type: 'string' },
+                data: { type: ['object', 'string', 'null'] },
                 created_at: { type: 'string' }
               }
             }
