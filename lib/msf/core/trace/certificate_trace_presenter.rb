@@ -120,14 +120,16 @@ module Msf
 
       # Returns a formatted metadata string: subject, issuer, validity, SHA-256 fingerprint.
       #
+      # @param label [String] separator header label (e.g. 'x.509' for an issued
+      #   cert, 'Peer Cert' for a server TLS cert, 'Chain 1/2' for a chain member)
       # @return [String, nil] nil if certificate could not be parsed
-      def to_s_metadata
+      def to_s_metadata(label: 'x.509')
         return nil unless @cert
 
         fingerprint = OpenSSL::Digest::SHA256.hexdigest(@cert.to_der)
 
         [
-          trace_separator('x.509'),
+          trace_separator(label),
           "  Subject    : #{@cert.subject}",
           "  Issuer     : #{@cert.issuer}",
           "  Not Before : #{@cert.not_before}",
@@ -139,9 +141,10 @@ module Msf
       # Returns a formatted full string: metadata + serial, version, public key algorithm,
       # SAN / EKU / Key Usage as named fields, then remaining extensions.
       #
+      # @param label [String] separator header label (see {#to_s_metadata})
       # @return [String, nil] nil if certificate could not be parsed
-      def to_s_full
-        base = to_s_metadata
+      def to_s_full(label: 'x.509')
+        base = to_s_metadata(label: label)
         return nil unless base
 
         lines = [base]
