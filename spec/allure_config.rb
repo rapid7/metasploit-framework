@@ -2,6 +2,21 @@ require "allure-rspec"
 require "active_support"
 require "active_support/core_ext/object"
 
+# Print allure attachments to stdout so they are visible in CI logs without needing the allure report
+module AllureStdoutPrinter
+  def add_attachment(name:, source:, type:, test_case: true)
+    separator = '-' * 60
+    $stdout.puts "\n#{separator}"
+    $stdout.puts "ALLURE ATTACHMENT: #{name}"
+    $stdout.puts separator
+    $stdout.puts source.to_s
+    $stdout.puts separator
+    $stdout.flush
+    super
+  end
+end
+Allure.singleton_class.prepend(AllureStdoutPrinter)
+
 AllureRspec.configure do |config|
   config.results_directory = "tmp/allure-raw-data"
   config.clean_results_directory = true

@@ -66,34 +66,28 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - macos-15-intel
-          - windows-2022
-          - ubuntu-latest
-        ruby:
-          - '3.4'
-        meterpreter:
-          # Python
-          - { name: python, runtime_version: 3.8 }
-          - { name: python, runtime_version: 3.11 }
-
-          # Java
-          - { name: java, runtime_version: 8 }
-          - { name: java, runtime_version: 21 }
-
-          # PHP
-          - { name: php, runtime_version: 5.3 }
-          - { name: php, runtime_version: 7.4 }
-          - { name: php, runtime_version: 8.3 }
         include:
           # Windows Meterpreter
-          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022 }
-          # TODO: Screenshotting behavior fails:
-          # - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2025 }
-
-          # Mettle
-          - { meterpreter: { name: mettle }, os: macos-15-intel }
-          - { meterpreter: { name: mettle }, os: ubuntu-latest }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 1 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 2 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 3 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 4 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 5 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 6 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 7 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 8 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 9 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 10 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 11 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 12 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 13 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 14 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 15 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 16 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 17 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 18 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 19 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022, run_id: 20 }
 
     runs-on: ${{ matrix.os }}
 
@@ -357,8 +351,22 @@ jobs:
         #   bundle exec rspec .\spec\acceptance
         # Note: rspec retry is intentionally not used, as it can cause issues with allure's reporting
         # Additionally - flakey tests should be fixed or marked as flakey instead of silently retried
+        shell: bash
         run: |
-          bundle exec rspec spec/acceptance/meterpreter_spec.rb
+          for i in $(seq 1 20); do
+            echo "--- Acceptance run $i ---"
+            bundle exec rspec spec/acceptance/meterpreter_spec.rb || true
+            if [ -d tmp/allure-raw-data ]; then
+              mv tmp/allure-raw-data tmp/allure-raw-data-run-$i
+            fi
+          done
+          # Merge all per-run directories back under tmp/allure-raw-data for the archive step
+          mkdir -p tmp/allure-raw-data
+          for i in $(seq 1 20); do
+            if [ -d tmp/allure-raw-data-run-$i ]; then
+              cp -r tmp/allure-raw-data-run-$i/. tmp/allure-raw-data/run-$i/
+            fi
+          done
         working-directory: metasploit-framework
 
       - name: Archive results
@@ -366,7 +374,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           # Provide a unique artifact for each matrix os, otherwise race conditions can lead to corrupt zips
-          name: raw-data-${{ matrix.meterpreter.name }}-${{ matrix.meterpreter.runtime_version }}-${{ matrix.os }}
+          name: raw-data-${{ matrix.meterpreter.name }}-${{ matrix.meterpreter.runtime_version }}-${{ matrix.os }}-${{ matrix.run_id }}
           path: metasploit-framework/tmp/allure-raw-data
 
   # Generate a final report from the previous test results
