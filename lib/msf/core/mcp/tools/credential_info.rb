@@ -60,7 +60,9 @@ module Msf::MCP
                 user: { type: 'string' },
                 secret: { type: 'string' },
                 type: { type: 'string' },
-                updated_at: { type: 'string' }
+                updated_at: { type: 'string' },
+                realm_key: { type: 'string' },
+                realm_value: { type: 'string' }
               }
             }
           }

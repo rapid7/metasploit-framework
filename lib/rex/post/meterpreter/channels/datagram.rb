@@ -29,13 +29,16 @@ class Datagram < Rex::Post::Meterpreter::Channel
 
   module SocketInterface
     include Rex::Post::Meterpreter::SocketAbstraction::SocketInterface
+
+    MAX_SOCKADDR_LENGTH = 128
+
     def type?
       'udp'
     end
 
     def recvfrom_nonblock(length, flags = 0)
       data = super(length, flags)[0]
-      sockaddr = super(length, flags)[0]
+      sockaddr = super(MAX_SOCKADDR_LENGTH, flags)[0]
       [data, sockaddr]
     end
 

@@ -28,6 +28,7 @@ require:
   - ./lib/rubocop/cop/lint/datastore_srvhost_usage.rb
   - ./lib/rubocop/cop/lint/bare_check_code_in_non_exploit.rb
   - ./lib/rubocop/cop/lint/check_code_missing_reason.rb
+  - ./lib/rubocop/cop/lint/module_redundant_arch_platform.rb
 
 Lint/CheckCodeMissingReason:
   Enabled: true
@@ -213,6 +214,11 @@ Lint/ModuleEnforceNotes:
     - 'modules/exploits/**/*'
     - 'modules/auxiliary/**/*'
     - 'modules/post/**/*'
+
+Lint/ModuleRedundantArchPlatform:
+  Enabled: true
+  Include:
+    - 'modules/**/*'
 
 Lint/DeprecatedGemVersion:
   Enabled: true

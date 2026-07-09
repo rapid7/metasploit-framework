@@ -117,6 +117,7 @@ All configuration settings can be overridden by environment variables:
 | `MSF_MCP_TRANSPORT` | MCP transport type (`stdio` or `http`) |
 | `MSF_MCP_HOST` | MCP server host (for HTTP transport) |
 | `MSF_MCP_PORT` | MCP server port (for HTTP transport) |
+| `MSF_MCP_AUTH_TOKEN` | MCP server Bearer token for authentication (for HTTP transport) |
 
 Example using environment variables:
 
@@ -174,6 +175,53 @@ When auto-start is disabled and no RPC server is running, you must start `msfrpc
 ```
 msfrpcd -U your_username -P your_password -p 55553
 ```
+
+## Authentication
+
+The HTTP transport supports authentication through a Bearer token as set in the Authorization header (e.g.
+`Authorization: Bearer ...`). By default, if the token is not set, a random token will be generated automatically and
+printed when the MCP server starts.
+
+For example:
+
+```
+Initializing MCP server...
+Starting MCP server on HTTP transport...
+Server listening on http://localhost:3000/
+Authentication: Bearer token (auto-generated)
+  Configure your MCP client with: Authorization: Bearer 2fc41c38eccfe505b44cde1bc96dc4bf72e4abe163a689a3e25bd05e8c081cbd
+Press Ctrl+C to shutdown
+```
+
+Using the automatically generated token means the MCP client's configuration will need to be updated each time the
+server is restarted. A persistent token can be defined in two ways:
+
+1. In the configuration file, by defining `auth_token` to a non-empty string under the `mcp` key, e.g.:
+
+```yaml
+mcp:
+  transport: http
+  # ... other config keys
+  auth_token: MY-SUPER-SECURE-TOKEN
+```
+
+2. By setting the `MSF_MCP_AUTH_TOKEN` environment variable. As with other configuration options, the environment
+  variable takes precedence over the configuration.
+
+### Disabling Authentication
+
+While not advisable, authentication can be disabled by setting the configuration to null or an empty string. In this
+case the server will respond to HTTP requests from any client that can connect to it. Use caution when disabling 
+authentication.
+
+```yaml
+mcp:
+  transport: http
+  # ... other config keys
+  auth_token: null # DISABLE HTTP AUTHENTICATION
+```
+
+The same can be achieved through the environment variable, e.g. `MSF_MCP_AUTH_TOKEN="" ./msfmcpd --mcp-transport http`.
 
 ## MCP Tools
 
@@ -330,6 +378,9 @@ The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) is an int
 
 ```
 npx @modelcontextprotocol/inspector
+
+# stdio transport type usage:
+npx @modelcontextprotocol/inspector -- bundle exec ./msfmcpd
 ```
 
 ## Troubleshooting

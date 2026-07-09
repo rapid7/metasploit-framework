@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       begin
         connect_udp
         udp_sock.write(data)
-        r = udp_sock.recvfrom(65535, 0.1)
+        r = udp_sock.timed_recvfrom(65535, 0.1)
 
         if r and r[1]
           vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Response: #{r[0]}")

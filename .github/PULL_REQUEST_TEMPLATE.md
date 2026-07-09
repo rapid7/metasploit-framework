@@ -2,7 +2,7 @@ Thank you for contributing to Metasploit Framework! Your time and effort help ma
 
 <!-- For trivial changes (typo fixes, comment corrections, minor doc edits): you may delete sections that don't apply. -->
 
-<!-- PRs missing a description, verification steps, or test evidence will be closed. Each PR should address a single module, bug fix, or cohesive logical change. For full guidance, see CONTRIBUTING.md and the module acceptance guidelines linked below. If your PR is not yet complete, mark it as a draft or prefix the title with WIP. -->
+<!-- PRs missing a description, verification steps, or test evidence will be closed. Each PR should address a single module, bug fix, or cohesive logical change. For full guidance, see CONTRIBUTING.md and the module acceptance guidelines linked below. If your PR is not yet complete, mark it as a draft. -->
 
 ## Description
 
@@ -47,7 +47,6 @@ None
 | Field | Details |
 |-------|---------|
 | **Operating System** | <!-- e.g., Ubuntu 22.04, Windows 11, macOS 14.2 --> |
-| **Ruby Version** | <!-- e.g., 3.2.2 (run `ruby -v`) --> |
 | **Target Software/Hardware** | <!-- Name and version of the software or hardware targeted by this change --> |
 | **Docker Image / Vagrant Setup** | <!-- (Optional) Image name or setup instructions if applicable, otherwise remove this row --> |
 
@@ -59,14 +58,13 @@ None
 
 ## Pre-Submission Checklist
 
-- [ ] Ran [`rubocop`](https://docs.metasploit.com/docs/development/quality/using-rubocop.html) on new files with no new offenses _(net new files only)_
-- [ ] Ran [`msftidy`](https://docs.metasploit.com/docs/development/quality/msftidy.html) on changed module files with no new offenses _(modules only)_
-- [ ] Ran [`msftidy_docs`](https://docs.metasploit.com/docs/development/quality/writing-module-documentation.html#before-you-submit-your-pr-msftidy_docsrb) on changed documentation files with no new offenses _(documentation files only)_
 - [ ] Included a corresponding documentation markdown file in `documentation/modules` _(new modules only)_
 - [ ] No sensitive information (IP addresses, credentials, API keys, hashes) in code or documentation
 - [ ] Tested on the target environment specified in the Environment section above
 - [ ] Included RSpec tests for library changes _(encouraged for `lib/` changes)_
 - [ ] Read the [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) and [module acceptance guidelines](https://docs.metasploit.com/docs/development/maintainers/process/guidelines-for-accepting-modules-and-enhancements.html)
+
+<!-- After the PR has been submitted, check on the GitHub Actions status and review the job for any failures (red-X marks). Resolve these issues as they will be flagged by review. -->
 
 <details>
 <summary>Hardware and Complex Software Module Guidance</summary>

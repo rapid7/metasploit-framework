@@ -77,6 +77,8 @@ RSpec.describe Msf::MCP::Tools::ServiceInfo do
       expect(data_items[:host_address]).to eq({ type: 'string' })
       expect(data_items[:state]).to eq({ type: 'string' })
       expect(data_items[:info]).to eq({ type: 'string' })
+      expect(data_items[:resource]).to eq({ type: 'object' })
+      expect(data_items[:parents]).to eq({ type: 'array', items: { type: 'object' } })
     end
   end
 

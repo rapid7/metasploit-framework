@@ -291,7 +291,7 @@ RSpec.describe Msf::Serializer::ReadableText do
           Name                              Current Setting                                   Required  Description
           ----                              ---------------                                   --------  -----------
           DomainControllerRhost                                                               no        The resolvable rhost for the Domain Controller
-          KerberosTicketTrace               false                                             no        Show AS/TGS/AP Kerberos requests and responses
+          KerberosTicketTrace               off                                               no        Kerberos ticket trace mode (Accepted: off, metadata, ticket, full)
           KerberosTicketTraceColors         red/blu                                           no        Kerberos request and response colors for KerberosTicketTrace (unset to disable)
           KrbClockSkew                      0s                                                yes       Adjust Kerberos client clock by this offset (e.g. 90s, -5m, 1h)
           Winrm::Krb5Ccname                                                                   no        The ccache file to use for kerberos authentication
@@ -353,7 +353,7 @@ RSpec.describe Msf::Serializer::ReadableText do
           Name                              Current Setting                                   Required  Description
           ----                              ---------------                                   --------  -----------
           DomainControllerRhost                                                               no        The resolvable rhost for the Domain Controller
-          KerberosTicketTrace               false                                             no        Show AS/TGS/AP Kerberos requests and responses
+          KerberosTicketTrace               off                                               no        Kerberos ticket trace mode (Accepted: off, metadata, ticket, full)
           KerberosTicketTraceColors         red/blu                                           no        Kerberos request and response colors for KerberosTicketTrace (unset to disable)
           KrbClockSkew                      0s                                                yes       Adjust Kerberos client clock by this offset (e.g. 90s, -5m, 1h)
           Winrm::Krb5Ccname                                                                   no        The ccache file to use for kerberos authentication

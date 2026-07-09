@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def send_probe(udp_sock, probe)
     udp_sock.put(probe)
-    data = udp_sock.recvfrom
+    data = udp_sock.timed_recvfrom(65535)
     if data && !data[0].empty?
       return data[0]
     else

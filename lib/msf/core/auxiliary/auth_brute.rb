@@ -318,7 +318,11 @@ module Auxiliary::AuthBrute
         prev_iterator = datastore['PASSWORD_SPRAY'] ? p : u # Update the iterator
       end
 
-      ret = block.call(u, p)
+      ret = begin
+        block.call(u, p)
+      rescue ::Rex::ConnectionRefused, ::Errno::ECONNREFUSED
+        :connection_refused
+      end
 
       case ret
       when :abort # Skip the current host entirely.
@@ -334,6 +338,15 @@ module Auxiliary::AuthBrute
         print_brute abort_msg
         break
 
+      when :connection_refused # Host is up, but service not listening. Record and stop.
+        print_brute(
+          :level => :verror,
+          :ip => datastore['RHOST'],
+          :port => datastore['RPORT'],
+          :msg => "Connection refused")
+        report_host(host: datastore['RHOST']) if framework.db.active
+        break
+
       when :next_user # This means success for that user.
         @@credentials_skipped[fq_user] = p
         if datastore['STOP_ON_SUCCESS'] # See?
@@ -343,7 +356,7 @@ module Auxiliary::AuthBrute
       when :skip_user # Skip the user in non-success cases.
         @@credentials_skipped[fq_user] = p
 
-      when :connection_error # Report an error, skip this cred, but don't neccisarily abort.
+      when :connection_error # Report an error, skip this cred, but don't necessarily abort.
         print_brute(
           :level => :verror,
           :ip => datastore['RHOST'],
@@ -812,7 +825,11 @@ module Auxiliary::AuthBrute
     msg = opts[:msg] || opts[:message]
     proto = opts[:proto] || opts[:protocol] || proto_from_fullname
 
-    complete_message = build_brute_message(host_ip,host_port,proto,msg)
+    complete_message = if is_a?(Msf::Auxiliary::Scanner)
+      msg.to_s
+    else
+      build_brute_message(host_ip, host_port, proto, msg)
+    end
 
     print_method = "print_#{level}"
     if self.respond_to? print_method

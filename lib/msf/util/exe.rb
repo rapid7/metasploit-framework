@@ -135,6 +135,8 @@ module Msf::Util::EXE
           to_win32pe(framework, code, exeopts)
         when ARCH_X64
           to_win64pe(framework, code, exeopts)
+        when ARCH_AARCH64
+          to_winaarch64pe(framework, code, exeopts)
         end
       when 'exe-service'
         case arch
@@ -154,7 +156,7 @@ module Msf::Util::EXE
         case arch
         when ARCH_X86, nil
           to_winpe_only(framework, code, exeopts)
-        when ARCH_X64
+        when ARCH_X64, ARCH_AARCH64
           to_winpe_only(framework, code, exeopts, arch)
         end
       when 'msi'

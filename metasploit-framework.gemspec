@@ -95,7 +95,7 @@ Gem::Specification.new do |spec|
   # https://github.com/ged/ruby-pg/commit/c90ac644e861857ae75638eb6954b1cb49617090
   spec.add_runtime_dependency 'pg'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
-  spec.add_runtime_dependency 'railties'
+  spec.add_runtime_dependency 'railties', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # required for OS fingerprinting
   spec.add_runtime_dependency 'recog'
   # required for bitlocker fvek extraction
@@ -207,8 +207,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rb-readline'
   # Needed by some modules
   spec.add_runtime_dependency 'rubyzip'
-  # Needed for some post modules
-  spec.add_runtime_dependency 'sqlite3', '1.7.3'
+  # Needed for some post modules; Rails 8 requires >= 2.1
+  spec.add_runtime_dependency 'sqlite3', '~> 2.1'
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
   # Needed so that disk size output isn't horrible
@@ -220,7 +220,7 @@ Gem::Specification.new do |spec|
   # Nexpose Gem
   spec.add_runtime_dependency 'nexpose'
   # Needed for NDMP sockets
-  spec.add_runtime_dependency 'xdr'
+  spec.add_runtime_dependency 'xdr', '~> 3.0'
   # Needed for ::Msf...CertProvider
   spec.add_runtime_dependency 'faker'
   # SSH server library with ed25519
