@@ -2014,6 +2014,26 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/riscv32le/reboot'
   end
 
+  context 'linux/riscv32le/shell/bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/linux/riscv32le/bind_tcp',
+                              'stages/linux/riscv32le/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv32le/shell/bind_tcp'
+  end
+
+  context 'linux/riscv32le/shell/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/linux/riscv32le/reverse_tcp',
+                              'stages/linux/riscv32le/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv32le/shell/reverse_tcp'
+  end
+
   context 'linux/riscv32le/shell_bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2057,6 +2077,26 @@ RSpec.describe 'modules/payloads', :content do
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/riscv64le/reboot'
+  end
+
+  context 'linux/riscv64le/shell/bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/linux/riscv64le/bind_tcp',
+                              'stages/linux/riscv64le/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv64le/shell/bind_tcp'
+  end
+
+  context 'linux/riscv64le/shell/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/linux/riscv64le/reverse_tcp',
+                              'stages/linux/riscv64le/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv64le/shell/reverse_tcp'
   end
 
   context 'linux/riscv64le/shell_bind_tcp' do
