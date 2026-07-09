@@ -135,7 +135,7 @@ module Msf
         # Mettle reserves a fixed 8 KB slot in the binary for the config
         # block. Catch the overflow here with a useful message instead of
         # letting the gem's `to_binary` raise a generic "config block too
-        # large" — baked-in EXTENSIONS= is the usual culprit.
+        # large" -- baked-in EXTENSIONS= is the usual culprit.
         if opts[:config_block].length > MetasploitPayloads::Mettle::CONFIG_BLOCK_MAX
           raise ArgumentError, "Mettle config block (#{opts[:config_block].length} bytes) exceeds the #{MetasploitPayloads::Mettle::CONFIG_BLOCK_MAX}-byte embedded slot. " \
             "Drop EXTENSIONS= and `load <ext>` once the session is up."

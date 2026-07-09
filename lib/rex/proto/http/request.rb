@@ -219,7 +219,7 @@ class Request < Packet
 
   #
   # Returns a hijacked version of the body that shoves the request's query string in as a
-  # replacement in cases where there is no body. YOLO! ¯\_(ツ)_/¯
+  # replacement in cases where there is no body. YOLO! (shrug)
   #
   def body
     str = super || ''

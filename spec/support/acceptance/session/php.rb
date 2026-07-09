@@ -144,9 +144,7 @@ module Acceptance::Session::Php
             known_failures: []
           },
           osx: {
-            known_failures: [
-              "[-] FAILED: should return a list of processes"
-            ]
+            known_failures: []
           },
           windows: {
             known_failures: []

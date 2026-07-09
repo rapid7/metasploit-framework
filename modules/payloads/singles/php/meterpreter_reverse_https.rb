@@ -10,7 +10,7 @@ module MetasploitModule
   include Msf::Payload::Php::ReverseHttp
   include Msf::Payload::TransportConfig
   include Msf::Payload::UUID::Options
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Php
 
   def initialize(info = {})
     super(

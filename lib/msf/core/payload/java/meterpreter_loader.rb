@@ -18,7 +18,7 @@ module Payload::Java::MeterpreterLoader
   include Msf::Sessions::MeterpreterOptions::Java
 
   # Resource path the stageless StagelessMain bootstrap reads. Deliberately
-  # innocuous — no meterpreter/metasploit markers in the name.
+  # innocuous -- no meterpreter/metasploit markers in the name.
   STAGELESS_CONFIG_RESOURCE = 'META-INF/data'.freeze
   STAGELESS_MAIN_CLASS = 'com.metasploit.meterpreter.StagelessMain'.freeze
 
@@ -44,7 +44,7 @@ module Payload::Java::MeterpreterLoader
   #
   # When opts[:stageless] is set, returns a self-contained jar with the
   # TLV config embedded as a resource and Main-Class pinned to
-  # StagelessMain — ready to run under `java -jar`.
+  # StagelessMain -- ready to run under `java -jar`.
   #
   def stage_meterpreter(opts={})
     met = MetasploitPayloads.read('meterpreter', 'meterpreter.jar')
