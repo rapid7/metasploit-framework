@@ -124,6 +124,11 @@ module Msf::Payload::Adapter::Fetch
   # @param opts [Hash] Payload generation options.
   # @return [String] The fetch command to run on the target.
   def generate(opts = {})
+    # get every datastore option that start with EXE::
+    exe_opts = datastore.keys.select { |k| k.start_with?('EXE::') || k.start_with?('MSI::') }.each_with_object({}) do |k, h|
+      h[k] = datastore[k]
+    end
+    opts.merge!(exe_opts)
     opts[:arch] ||= module_info['AdaptedArch']
     opts[:code] = super
     @srvexe = generate_payload_exe(opts)
