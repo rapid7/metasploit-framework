@@ -71,14 +71,13 @@ RSpec.describe Msf::Post::File do
       klass = Class.new do
         include described_mixin
         attr_accessor :session
-        def cmd_exec(*_args); ''; end
+        def create_process(*_args, **_kwargs); ''; end
         def print_warning(_msg); end
         def print_error(_msg); end
         def elog(*_args); end
       end
       obj = klass.allocate
       obj.session = double('session', platform: 'linux')
-      allow(obj.session).to receive(:escape_arg) { |arg| "'#{arg}'" }
       obj
     end
 
@@ -103,60 +102,60 @@ RSpec.describe Msf::Post::File do
     context 'on Unix' do
 
       it 'returns writable directories' do
-        allow(subject).to receive(:cmd_exec).and_return("/tmp\n/var/tmp\n")
+        allow(subject).to receive(:create_process).and_return("/tmp\n/var/tmp\n")
         expect(subject.find_writable_directories).to eq(['/tmp', '/var/tmp'])
       end
 
       it 'filters out non-absolute paths and error lines' do
-        allow(subject).to receive(:cmd_exec).and_return("/tmp\nfind: permission denied\n/var/tmp\n")
+        allow(subject).to receive(:create_process).and_return("/tmp\nfind: permission denied\n/var/tmp\n")
         expect(subject.find_writable_directories).to eq(['/tmp', '/var/tmp'])
       end
 
       it 'returns an empty array when no directories are found' do
-        allow(subject).to receive(:cmd_exec).and_return('')
+        allow(subject).to receive(:create_process).and_return('')
         expect(subject.find_writable_directories).to eq([])
       end
 
-      it 'passes the timeout to cmd_exec' do
-        expect(subject).to receive(:cmd_exec).with("find '/' -maxdepth 2 -type d -writable 2>/dev/null", nil, 15).and_return("/tmp\n")
+      it 'passes the timeout to create_process' do
+        expect(subject).to receive(:create_process).with('find', args: ['/', '-maxdepth', '2', '-type', 'd', '-writable'], time_out: 15).and_return("/tmp\n")
         subject.find_writable_directories
       end
 
-      it 'passes a custom timeout to cmd_exec' do
-        expect(subject).to receive(:cmd_exec).with("find '/' -maxdepth 2 -type d -writable 2>/dev/null", nil, 60).and_return("/tmp\n")
+      it 'passes a custom timeout to create_process' do
+        expect(subject).to receive(:create_process).with('find', args: ['/', '-maxdepth', '2', '-type', 'd', '-writable'], time_out: 60).and_return("/tmp\n")
         subject.find_writable_directories(timeout: 60)
       end
 
       it 'uses default timeout when timeout is 0' do
-        expect(subject).to receive(:cmd_exec).with("find '/' -maxdepth 2 -type d -writable 2>/dev/null", nil, 15).and_return("/tmp\n")
+        expect(subject).to receive(:create_process).with('find', args: ['/', '-maxdepth', '2', '-type', 'd', '-writable'], time_out: 15).and_return("/tmp\n")
         subject.find_writable_directories(timeout: 0)
       end
 
       it 'warns when max_depth is greater than 2' do
         expect(subject).to receive(:print_warning).with(/Large max_depth/)
-        allow(subject).to receive(:cmd_exec).and_return("/tmp\n")
+        allow(subject).to receive(:create_process).and_return("/tmp\n")
         subject.find_writable_directories(max_depth: 5)
       end
 
       it 'does not warn when max_depth is 2 or less' do
         expect(subject).not_to receive(:print_warning)
-        allow(subject).to receive(:cmd_exec).and_return("/tmp\n")
+        allow(subject).to receive(:create_process).and_return("/tmp\n")
         subject.find_writable_directories(max_depth: 2)
       end
 
       it 'passes -maxdepth 0 to search only the base directory' do
-        expect(subject).to receive(:cmd_exec).with("find '/' -maxdepth 0 -type d -writable 2>/dev/null", nil, 15).and_return("/\n")
+        expect(subject).to receive(:create_process).with('find', args: ['/', '-maxdepth', '0', '-type', 'd', '-writable'], time_out: 15).and_return("/\n")
         expect(subject.find_writable_directories(max_depth: 0)).to eq(['/'])
       end
 
       it 'uses custom path and max_depth' do
         allow(subject).to receive(:print_warning)
-        expect(subject).to receive(:cmd_exec).with("find '/var' -maxdepth 3 -type d -writable 2>/dev/null", nil, 15).and_return("/var/tmp\n")
+        expect(subject).to receive(:create_process).with('find', args: ['/var', '-maxdepth', '3', '-type', 'd', '-writable'], time_out: 15).and_return("/var/tmp\n")
         expect(subject.find_writable_directories(path: '/var', max_depth: 3)).to eq(['/var/tmp'])
       end
 
       it 'returns nil on failure' do
-        allow(subject).to receive(:cmd_exec).and_raise(RuntimeError, 'connection failed')
+        allow(subject).to receive(:create_process).and_raise(RuntimeError, 'connection failed')
         allow(subject).to receive(:print_error)
         allow(subject).to receive(:elog)
         expect(subject.find_writable_directories).to be_nil
@@ -171,6 +170,7 @@ RSpec.describe Msf::Post::File do
         include described_mixin
         attr_accessor :session
         def cmd_exec(_cmd); ''; end
+        def create_process(*_args, **_kwargs); ''; end
       end
       obj = klass.allocate
       obj.session = double('session')
@@ -190,21 +190,21 @@ RSpec.describe Msf::Post::File do
 
       it 'returns true when the file is writable' do
         allow(subject).to receive(:file?).with('C:\\writable.txt').and_return(true)
-        allow(subject).to receive(:cmd_exec).and_return('TESTTOKEN')
+        allow(subject).to receive(:create_process).and_return('TESTTOKEN')
         expect(subject.writable?('C:\\writable.txt')).to be true
       end
 
       it 'returns false when the file is not writable' do
         allow(subject).to receive(:file?).with('C:\\locked.txt').and_return(true)
-        allow(subject).to receive(:cmd_exec).and_return('')
+        allow(subject).to receive(:create_process).and_return('')
         expect(subject.writable?('C:\\locked.txt')).to be false
       end
 
       it 'returns true when the directory is writable' do
         allow(subject).to receive(:directory?).with('C:\\somedir').and_return(true)
         allow(Rex::Text).to receive(:rand_text_alpha).and_return('RANDFILE')
-        allow(subject).to receive(:cmd_exec)
-          .with('type nul >> "C:\\somedir\\RANDFILE.tmp" 2>nul && del "C:\\somedir\\RANDFILE.tmp" && echo TESTTOKEN')
+        allow(subject).to receive(:create_process)
+          .with('cmd.exe', args: ['/C', 'type nul >> "C:\\somedir\\RANDFILE.tmp" 2>nul && del "C:\\somedir\\RANDFILE.tmp" && echo TESTTOKEN'])
           .and_return('TESTTOKEN')
         expect(subject.writable?('C:\\somedir')).to be true
       end
@@ -212,7 +212,7 @@ RSpec.describe Msf::Post::File do
       it 'returns false when the directory is not writable' do
         allow(subject).to receive(:directory?).with('C:\\somedir').and_return(true)
         allow(Rex::Text).to receive(:rand_text_alpha).and_return('RANDFILE')
-        allow(subject).to receive(:cmd_exec).and_return('')
+        allow(subject).to receive(:create_process).and_return('')
         expect(subject.writable?('C:\\somedir')).to be false
       end
 
@@ -224,8 +224,8 @@ RSpec.describe Msf::Post::File do
 
       it 'issues the correct cmd.exe command' do
         allow(subject).to receive(:file?).with('C:\\test.txt').and_return(true)
-        expect(subject).to receive(:cmd_exec)
-          .with('type nul >> "C:\\test.txt" 2>nul && echo TESTTOKEN')
+        expect(subject).to receive(:create_process)
+          .with('cmd.exe', args: ['/C', 'type nul >> "C:\\test.txt" 2>nul && echo TESTTOKEN'])
           .and_return('')
         subject.writable?('C:\\test.txt')
       end
@@ -297,7 +297,7 @@ RSpec.describe Msf::Post::File do
 
       it 'returns true when the file is writable' do
         allow(subject).to receive(:file?).with('C:\\writable.txt').and_return(true)
-        allow(subject).to receive(:cmd_exec).and_return('TESTTOKEN')
+        allow(subject).to receive(:create_process).and_return('TESTTOKEN')
         expect(subject.writable?('C:\\writable.txt')).to be true
       end
 
@@ -310,8 +310,8 @@ RSpec.describe Msf::Post::File do
       it 'returns true when the directory is writable' do
         allow(subject).to receive(:directory?).with('C:\\somedir').and_return(true)
         allow(Rex::Text).to receive(:rand_text_alpha).and_return('RANDFILE')
-        allow(subject).to receive(:cmd_exec)
-          .with("$f=[System.IO.File]::Create('C:\\somedir\\RANDFILE.tmp');if($?){$f.Close();[System.IO.File]::Delete('C:\\somedir\\RANDFILE.tmp');echo TESTTOKEN}")
+        allow(subject).to receive(:create_process)
+          .with('powershell.exe', args: ['-NoProfile', '-Command', "$f=[System.IO.File]::Create('C:\\somedir\\RANDFILE.tmp');if($?){$f.Close();[System.IO.File]::Delete('C:\\somedir\\RANDFILE.tmp');echo TESTTOKEN}"])
           .and_return('TESTTOKEN')
         expect(subject.writable?('C:\\somedir')).to be true
       end
@@ -319,7 +319,7 @@ RSpec.describe Msf::Post::File do
       it 'returns false when the directory is not writable' do
         allow(subject).to receive(:directory?).with('C:\\somedir').and_return(true)
         allow(Rex::Text).to receive(:rand_text_alpha).and_return('RANDFILE')
-        allow(subject).to receive(:cmd_exec).and_return('')
+        allow(subject).to receive(:create_process).and_return('')
         expect(subject.writable?('C:\\somedir')).to be false
       end
     end
@@ -331,12 +331,12 @@ RSpec.describe Msf::Post::File do
       end
 
       it 'returns true when test -w succeeds' do
-        allow(subject).to receive(:cmd_exec).and_return('true')
+        allow(subject).to receive(:create_process).and_return('true')
         expect(subject.writable?('/tmp/file')).to be true
       end
 
       it 'returns false when test -w fails' do
-        allow(subject).to receive(:cmd_exec).and_return('')
+        allow(subject).to receive(:create_process).and_return('')
         expect(subject.writable?('/etc/shadow')).to be false
       end
     end
