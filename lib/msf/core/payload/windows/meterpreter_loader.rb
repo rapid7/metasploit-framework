@@ -126,7 +126,7 @@ module Payload::Windows::MeterpreterLoader
 
     # sanity check bootstrap length to ensure we dont overwrite the DOS headers e_lfanew entry
     if bootstrap.length > 62
-      raise RuntimeError, "Meterpreter loader (x64) generated an oversized bootstrap!"
+      raise RuntimeError, "Meterpreter loader (x86) generated an oversized bootstrap!"
     end
 
     # patch the bootstrap code into the dll's DOS header...
