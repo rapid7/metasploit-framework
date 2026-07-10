@@ -28,7 +28,7 @@ RSpec.describe 'Reporting schema presence', type: :model do
         'module_type',
         'kind',
         'options_snapshot',
-        'originating_ui',
+        'originating_interface',
         'originating_user_id',
         'originating_token_ref',
         'parent_execution_id',
@@ -49,7 +49,7 @@ RSpec.describe 'Reporting schema presence', type: :model do
       expect(klass::MODULE_TYPES).to match_array(
         %w[exploit auxiliary post payload encoder evasion nop external]
       )
-      expect(klass::ORIGINATING_UIS).to match_array(
+      expect(klass::ORIGINATING_INTERFACES).to match_array(
         %w[console rpc json_rpc mcp external import plugin autocheck]
       )
       expect(klass::TERMINAL_STATUSES).to match_array(
@@ -92,8 +92,7 @@ RSpec.describe 'Reporting schema presence', type: :model do
         'lifecycle_phase',
         'failure_reason',
         'occurred_at',
-        'created_at',
-        'updated_at'
+        'created_at'
       )
     end
 
@@ -123,8 +122,7 @@ RSpec.describe 'Reporting schema presence', type: :model do
         'name',
         'payload',
         'occurred_at',
-        'created_at',
-        'updated_at'
+        'created_at'
       )
     end
   end

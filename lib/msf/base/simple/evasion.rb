@@ -84,7 +84,7 @@ module Evasion
       execution = Msf::Reporting::Execution.start!(
         framework: evasion.framework,
         mod: evasion,
-        originating_ui: opts['OriginatingUi'] || 'console',
+        originating_interface: opts['OriginatingInterface'] || 'console',
         kind: Msf::Reporting::Execution::KIND_RUN
       )
 

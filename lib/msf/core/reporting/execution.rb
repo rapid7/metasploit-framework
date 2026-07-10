@@ -11,7 +11,7 @@ module Msf
     #   execution = Msf::Reporting::Execution.start!(
     #     framework: framework,
     #     mod: mod,
-    #     originating_ui: 'console'
+    #     originating_interface: 'console'
     #   )
     #   Msf::Reporting::CurrentExecution.with(execution) do
     #     mod.run
@@ -64,8 +64,8 @@ module Msf
       #
       # @param framework [Msf::Framework] required.
       # @param mod [Msf::Module] required; the module about to run.
-      # @param originating_ui [String, Symbol] one of
-      #   +Mdm::ModuleExecution::ORIGINATING_UIS+ (e.g. +'console'+,
+      # @param originating_interface [String, Symbol] one of
+      #   +Mdm::ModuleExecution::ORIGINATING_INTERFACES+ (e.g. +'console'+,
       #   +'rpc'+, +'mcp'+).
       # @param parent_execution_id [Integer, nil] FK to the parent row
       #   when this execution was spawned from another module.
@@ -76,7 +76,7 @@ module Msf
       #   +Time.now.utc+.
       # @return [Mdm::ModuleExecution, nil] +nil+ when no workspace can
       #   be resolved or persistence fails.
-      def start!(framework:, mod:, originating_ui:, parent_execution_id: nil, kind: KIND_RUN, started_at: nil)
+      def start!(framework:, mod:, originating_interface:, parent_execution_id: nil, kind: KIND_RUN, started_at: nil)
         workspace = resolve_workspace(framework)
         return nil if workspace.nil?
 
@@ -86,7 +86,7 @@ module Msf
           module_type: module_type_for(mod),
           kind: kind.to_s,
           options_snapshot: capture_options_snapshot(mod),
-          originating_ui: originating_ui.to_s,
+          originating_interface: originating_interface.to_s,
           originating_user_id: nil,
           originating_token_ref: nil,
           parent_execution_id: parent_execution_id,

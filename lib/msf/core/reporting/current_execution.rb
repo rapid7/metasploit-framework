@@ -15,7 +15,7 @@ module Msf
     # afterwards.
     #
     # @example
-    #   execution = Msf::Reporting::Execution.start!(framework:, mod:, originating_ui: 'console')
+    #   execution = Msf::Reporting::Execution.start!(framework:, mod:, originating_interface: 'console')
     #   Msf::Reporting::CurrentExecution.with(execution) do
     #     mod.run
     #   end

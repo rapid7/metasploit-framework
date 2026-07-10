@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/cdelafuente-r7/metasploit_data_models
-  revision: 7bafa640b845bfe2b3adf39351fd27986ba65385
+  revision: 55207fb79c197509a8d4b616b9fef1f9f9bfab18
   branch: module-execution-data-models
   specs:
     metasploit_data_models (6.0.19)

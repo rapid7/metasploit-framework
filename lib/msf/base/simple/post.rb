@@ -67,7 +67,7 @@ module Post
     # Disable this until we can test background stuff a little better
     #
     if(mod.passive? or opts['RunAsJob'])
-      ctx = [ mod.replicant, { originating_ui: opts['OriginatingUi'] || 'console' } ]
+      ctx = [ mod.replicant, { originating_interface: opts['OriginatingInterface'] || 'console' } ]
       mod.job_id = mod.framework.jobs.start_bg_job(
         "Post: #{mod.refname}",
         ctx,
@@ -77,7 +77,7 @@ module Post
       # Propagate this back to the caller for console mgmt
       omod.job_id = mod.job_id
     else
-      ctx = [ mod, { originating_ui: opts['OriginatingUi'] || 'console' } ]
+      ctx = [ mod, { originating_interface: opts['OriginatingInterface'] || 'console' } ]
       self.job_run_proc(ctx)
       self.job_cleanup_proc(ctx)
     end
@@ -103,7 +103,7 @@ protected
     execution = Msf::Reporting::Execution.start!(
       framework: mod.framework,
       mod: mod,
-      originating_ui: lifecycle_opts[:originating_ui] || 'console',
+      originating_interface: lifecycle_opts[:originating_interface] || 'console',
       kind: Msf::Reporting::Execution::KIND_RUN
     )
     Msf::Reporting::Execution.clear_module_unhandled_exception(mod)

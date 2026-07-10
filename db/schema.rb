@@ -392,7 +392,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_08_120002) do
     t.text "failure_reason"
     t.timestamptz "occurred_at", null: false
     t.timestamptz "created_at", null: false
-    t.timestamptz "updated_at", null: false
     t.index ["module_execution_id", "occurred_at"], name: "idx_module_execution_errors_on_execution_and_occurred_at"
     t.check_constraint "lifecycle_phase = ANY (ARRAY['setup'::text, 'check'::text, 'exploit'::text, 'cleanup'::text, 'post'::text, 'run'::text])", name: "module_execution_errors_lifecycle_phase_check"
   end
@@ -403,7 +402,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_08_120002) do
     t.jsonb "payload"
     t.timestamptz "occurred_at", null: false
     t.timestamptz "created_at", null: false
-    t.timestamptz "updated_at", null: false
     t.index ["module_execution_id", "occurred_at"], name: "idx_module_execution_events_on_execution_and_occurred_at"
     t.index ["name", "occurred_at"], name: "idx_module_execution_events_on_name_and_occurred_at"
   end
@@ -414,7 +412,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_08_120002) do
     t.text "module_type", null: false
     t.text "kind", default: "run", null: false
     t.jsonb "options_snapshot"
-    t.text "originating_ui", null: false
+    t.text "originating_interface", null: false
     t.bigint "originating_user_id"
     t.text "originating_token_ref"
     t.bigint "parent_execution_id"
@@ -427,7 +425,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_08_120002) do
     t.jsonb "last_single_entity_errors"
     t.timestamptz "created_at", null: false
     t.timestamptz "updated_at", null: false
-    t.index ["kind", "originating_ui"], name: "idx_module_executions_on_kind_and_originating_ui"
+    t.index ["kind", "originating_interface"], name: "idx_module_executions_on_kind_and_originating_interface"
     t.index ["module_reference_name", "started_at"], name: "idx_module_executions_on_reference_name_and_started_at", order: { started_at: :desc }
     t.index ["originating_user_id"], name: "index_module_executions_on_originating_user_id"
     t.index ["parent_execution_id"], name: "idx_module_executions_on_parent_execution_id_not_null", where: "(parent_execution_id IS NOT NULL)"
@@ -437,7 +435,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_08_120002) do
     t.check_constraint "ended_at IS NULL OR ended_at >= started_at", name: "module_executions_ended_at_after_started_at_check"
     t.check_constraint "kind = ANY (ARRAY['run'::text, 'check'::text, 'import'::text, 'direct_write'::text])", name: "module_executions_kind_check"
     t.check_constraint "module_type = ANY (ARRAY['exploit'::text, 'auxiliary'::text, 'post'::text, 'payload'::text, 'encoder'::text, 'evasion'::text, 'nop'::text, 'external'::text])", name: "module_executions_module_type_check"
-    t.check_constraint "originating_ui = ANY (ARRAY['console'::text, 'rpc'::text, 'json_rpc'::text, 'mcp'::text, 'external'::text, 'import'::text, 'plugin'::text, 'autocheck'::text])", name: "module_executions_originating_ui_check"
+    t.check_constraint "originating_interface = ANY (ARRAY['console'::text, 'rpc'::text, 'json_rpc'::text, 'mcp'::text, 'external'::text, 'import'::text, 'plugin'::text, 'autocheck'::text])", name: "module_executions_originating_interface_check"
     t.check_constraint "terminal_status IS NULL OR (terminal_status = ANY (ARRAY['running'::text, 'success'::text, 'neutral'::text, 'expected_failure'::text, 'unhandled_exception'::text]))", name: "module_executions_terminal_status_check"
   end
 

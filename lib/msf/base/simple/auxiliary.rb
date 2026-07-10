@@ -71,8 +71,8 @@ module Auxiliary
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
     job_listener.waiting run_uuid
-    originating_ui = opts['OriginatingUi'] || 'console'
-    ctx = [mod, run_uuid, job_listener, { originating_ui: originating_ui, kind: Msf::Reporting::Execution::KIND_RUN }]
+    originating_interface = opts['OriginatingInterface'] || 'console'
+    ctx = [mod, run_uuid, job_listener, { originating_interface: originating_interface, kind: Msf::Reporting::Execution::KIND_RUN }]
     run_as_job = opts['RunAsJob'].nil? ? mod.passive? : opts['RunAsJob']
     if run_as_job
       mod.job_id = mod.framework.jobs.start_bg_job(
@@ -130,8 +130,8 @@ module Auxiliary
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
     job_listener.waiting run_uuid
-    originating_ui = opts['OriginatingUi'] || 'console'
-    ctx = [mod, run_uuid, job_listener, { originating_ui: originating_ui, kind: Msf::Reporting::Execution::KIND_CHECK }]
+    originating_interface = opts['OriginatingInterface'] || 'console'
+    ctx = [mod, run_uuid, job_listener, { originating_interface: originating_interface, kind: Msf::Reporting::Execution::KIND_CHECK }]
 
     if opts['RunAsJob']
       mod.job_id = mod.framework.jobs.start_bg_job(
@@ -176,11 +176,11 @@ protected
     job_listener = ctx[2]
     lifecycle_opts = ctx[3] || {}
     execution_kind = lifecycle_opts[:kind] || Msf::Reporting::Execution::KIND_RUN
-    originating_ui = lifecycle_opts[:originating_ui] || 'console'
+    originating_interface = lifecycle_opts[:originating_interface] || 'console'
     execution = Msf::Reporting::Execution.start!(
       framework: mod.framework,
       mod: mod,
-      originating_ui: originating_ui,
+      originating_interface: originating_interface,
       kind: execution_kind
     )
     Msf::Reporting::Execution.clear_module_unhandled_exception(mod)

@@ -45,7 +45,7 @@ RSpec.describe 'Msf::Simple::Auxiliary lifecycle wiring' do
   describe 'run path' do
     let(:ctx) do
       [mod, run_uuid, listener,
-       { originating_ui: 'console', kind: Msf::Reporting::Execution::KIND_RUN }]
+       { originating_interface: 'console', kind: Msf::Reporting::Execution::KIND_RUN }]
     end
 
     it 'starts an execution, exposes it as current, and finalizes success' do
@@ -53,7 +53,7 @@ RSpec.describe 'Msf::Simple::Auxiliary lifecycle wiring' do
         hash_including(
           framework: framework,
           mod: mod,
-          originating_ui: 'console',
+          originating_interface: 'console',
           kind: 'run'
         )
       ).and_return(execution)
@@ -106,7 +106,7 @@ RSpec.describe 'Msf::Simple::Auxiliary lifecycle wiring' do
   describe 'check path' do
     let(:ctx) do
       [mod, run_uuid, listener,
-       { originating_ui: 'console', kind: Msf::Reporting::Execution::KIND_CHECK }]
+       { originating_interface: 'console', kind: Msf::Reporting::Execution::KIND_CHECK }]
     end
 
     it 'creates an execution with kind=check and maps Vulnerable -> success' do

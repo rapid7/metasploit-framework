@@ -130,7 +130,7 @@ RSpec.describe 'Msf::Reporting::Execution capture integration' do
       )
 
       listener = Msf::Simple::NoopJobListener.instance
-      ctx = [mod, 'uuid', listener, { originating_ui: 'console', kind: 'run' }]
+      ctx = [mod, 'uuid', listener, { originating_interface: 'console', kind: 'run' }]
       Msf::Simple::Auxiliary.send(:job_run_proc, ctx, &:run)
     end
   end
@@ -178,7 +178,7 @@ RSpec.describe 'Msf::Reporting::Execution capture integration' do
         )
       )
 
-      ctx = [mod, { originating_ui: 'console' }]
+      ctx = [mod, { originating_interface: 'console' }]
       Msf::Simple::Post.send(:job_run_proc, ctx)
     end
   end

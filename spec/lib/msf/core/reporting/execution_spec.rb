@@ -28,7 +28,7 @@ RSpec.describe Msf::Reporting::Execution do
           module_type: 'exploit',
           kind: 'run',
           options_snapshot: datastore,
-          originating_ui: 'console',
+          originating_interface: 'console',
           parent_execution_id: nil,
           terminal_status: 'running',
           single_entity_failure_count: 0
@@ -36,7 +36,7 @@ RSpec.describe Msf::Reporting::Execution do
       ).and_return(execution_row)
 
       expect(
-        described_class.start!(framework: framework, mod: mod, originating_ui: 'console')
+        described_class.start!(framework: framework, mod: mod, originating_interface: 'console')
       ).to be(execution_row)
     end
 
@@ -53,7 +53,7 @@ RSpec.describe Msf::Reporting::Execution do
       described_class.start!(
         framework: framework,
         mod: mod,
-        originating_ui: :rpc,
+        originating_interface: :rpc,
         parent_execution_id: 42,
         kind: 'check',
         started_at: now
@@ -64,7 +64,7 @@ RSpec.describe Msf::Reporting::Execution do
       allow(::Mdm::ModuleExecution).to receive(:create!).and_raise(StandardError, 'db down')
       expect(described_class).to receive(:wlog).with(/failed to create ModuleExecution/)
       expect(
-        described_class.start!(framework: framework, mod: mod, originating_ui: 'console')
+        described_class.start!(framework: framework, mod: mod, originating_interface: 'console')
       ).to be_nil
     end
 
@@ -73,7 +73,7 @@ RSpec.describe Msf::Reporting::Execution do
       empty_framework = double('framework', db: empty_db)
       expect(::Mdm::ModuleExecution).not_to receive(:create!)
       expect(
-        described_class.start!(framework: empty_framework, mod: mod, originating_ui: 'console')
+        described_class.start!(framework: empty_framework, mod: mod, originating_interface: 'console')
       ).to be_nil
     end
 
@@ -82,7 +82,7 @@ RSpec.describe Msf::Reporting::Execution do
       inactive_framework = double('framework', db: inactive_db)
       expect(::Mdm::ModuleExecution).not_to receive(:create!)
       expect(
-        described_class.start!(framework: inactive_framework, mod: mod, originating_ui: 'console')
+        described_class.start!(framework: inactive_framework, mod: mod, originating_interface: 'console')
       ).to be_nil
     end
   end

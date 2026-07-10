@@ -41,11 +41,11 @@ RSpec.describe 'Msf::Simple::Post lifecycle wiring' do
   end
 
   let(:mod) { mod_class.new(framework) }
-  let(:ctx) { [mod, { originating_ui: 'console' }] }
+  let(:ctx) { [mod, { originating_interface: 'console' }] }
 
   it 'starts an execution, exposes it as current, and finalizes success' do
     expect(Msf::Reporting::Execution).to receive(:start!).with(
-      hash_including(framework: framework, mod: mod, originating_ui: 'console', kind: 'run')
+      hash_including(framework: framework, mod: mod, originating_interface: 'console', kind: 'run')
     ).and_return(execution)
     expect(mod).to receive(:run).and_wrap_original do |original|
       expect(Msf::Reporting::CurrentExecution.current).to be(execution)

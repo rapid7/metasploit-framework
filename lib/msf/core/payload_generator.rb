@@ -592,7 +592,7 @@ module Msf
       execution = Msf::Reporting::Execution.start!(
         framework: framework,
         mod: mod,
-        originating_ui: 'console',
+        originating_interface: 'console',
         kind: Msf::Reporting::Execution::KIND_RUN
       )
       unhandled_exception = false

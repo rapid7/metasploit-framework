@@ -32,7 +32,7 @@ RSpec.describe Msf::PayloadGenerator, '#wrap_with_execution_lifecycle' do
 
   it 'starts an execution, exposes it as current, and finalizes success on a clean run' do
     expect(Msf::Reporting::Execution).to receive(:start!).with(
-      hash_including(framework: framework, mod: mod, originating_ui: 'console', kind: 'run')
+      hash_including(framework: framework, mod: mod, originating_interface: 'console', kind: 'run')
     ).and_return(execution)
     expect(Msf::Reporting::Execution).to receive(:finalize!).with(
       execution,
