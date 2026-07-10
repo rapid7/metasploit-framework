@@ -544,12 +544,59 @@ module Acceptance
     end
 
     def reset
-      sendline('sessions -K')
-      recvuntil(Console.prompt)
+      # Interrupt any module or session that may still be running and blocking.
+      # We send SIGINT repeatedly — each signal unwinds one level of blocking
+      # (e.g. a hung HTTP transport, a nested recv call, a running module) until
+      # msfconsole returns to its prompt.
+      #
+      # Note: writing \x03 to the pipe does NOT work here because msfconsole is
+      # started with --no-readline and there is no terminal driver to translate
+      # the byte into a signal. SIGINT must be sent directly to the process.
+      interrupted = false
+      10.times do |attempt|
+        $stdout.puts "[console.reset] Sending SIGINT (attempt #{attempt + 1}/10)"
+        $stdout.flush
+        @all_data.write("[console.reset] Sending SIGINT (attempt #{attempt + 1}/10)\n")
+        Process.kill('INT', wait_thread.pid)
+        recvuntil(Console.prompt, timeout: 10)
+        $stdout.puts "[console.reset] Prompt returned after SIGINT"
+        $stdout.flush
+        @all_data.write("[console.reset] Prompt returned after SIGINT\n")
+        interrupted = true
+        break
+      rescue ChildProcessRecvError
+        # Still not at prompt — drain whatever arrived and try again
+        $stdout.puts "[console.reset] No prompt after SIGINT, draining buffer and retrying"
+        $stdout.flush
+        @all_data.write("[console.reset] No prompt after SIGINT, draining buffer and retrying\n")
+        recv_available(timeout: 2)
+      rescue Errno::ESRCH
+        # Process is already gone
+        @all_data.write("[console.reset] Process already gone\n")
+        break
+      end
 
-      sendline('jobs -K')
-      recvuntil(Console.prompt)
+      unless interrupted
+        $stdout.puts "[console.reset] Exhausted SIGINT retries, proceeding with cleanup"
+        $stdout.flush
+        @all_data.write("[console.reset] Exhausted SIGINT retries, proceeding with cleanup\n")
+        recv_available(timeout: 2)
+      end
     ensure
+      begin
+        sendline('sessions -K')
+        recvuntil(Console.prompt, timeout: 30)
+      rescue ChildProcessRecvError
+        recv_available(timeout: 2)
+      end
+
+      begin
+        sendline('jobs -K')
+        recvuntil(Console.prompt, timeout: 30)
+      rescue ChildProcessRecvError
+        recv_available(timeout: 2)
+      end
+
       @all_data.reopen('')
     end
   end
