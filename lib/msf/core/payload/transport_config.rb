@@ -32,9 +32,13 @@ module Msf::Payload::TransportConfig
 
   def transport_config_bind_tcp(opts={})
     ds = opts[:datastore] || datastore
+    # For bind TCP the framework connects *to* the target, so the transport URL
+    # host must be the target's address. LHOST is not meaningful for bind payloads
+    # and is often left blank, so fall back to RHOST when LHOST is not set.
+    lhost = ds['LHOST'].presence || ds['RHOST']
     {
       scheme: 'tcp',
-      lhost:  ds['LHOST'],
+      lhost:  lhost,
       lport:  ds['LPORT'].to_i
     }.merge(timeout_config(opts))
   end
