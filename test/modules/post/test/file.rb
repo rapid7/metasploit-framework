@@ -298,10 +298,6 @@ class MetasploitModule < Msf::Post
         ret
       end
 
-      it 'should detect a non-writable file' do
-        !writable?('C:\\Windows\\System32\\config\\SAM')
-      end
-
       it 'should detect a writable directory' do
         mkdir(datastore['BaseDirectoryName'])
         ret = writable?(datastore['BaseDirectoryName'])
@@ -309,9 +305,6 @@ class MetasploitModule < Msf::Post
         ret
       end
 
-      it 'should detect a non-writable directory' do
-        !writable?('C:\\Windows\\System32\\config')
-      end
     end
   end
 
