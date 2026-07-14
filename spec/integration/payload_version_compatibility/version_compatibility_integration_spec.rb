@@ -22,7 +22,7 @@ RSpec.describe 'Payload version compatibility integration' do
     {
       'Name' => 'Mock Payload',
       'SupportedVersions' => {
-        'Windows' => [Msf::Module::VersionRange.new(min: Msf::WindowsVersion::XP_SP2)]
+        'win' => [Msf::Module::VersionRange.new(min: Msf::WindowsVersion::XP_SP2)]
       }
     }
   end
@@ -79,7 +79,7 @@ RSpec.describe 'Payload version compatibility integration' do
       end
     end
 
-    context 'when target is Automatic (no RuntimeVersions declared)' do
+    context 'when target is Automatic (no PlatformVersions declared)' do
       before do
         exploit.datastore['TARGET'] = automatic_target_index
       end

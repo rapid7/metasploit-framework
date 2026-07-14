@@ -28,7 +28,7 @@ module Payload::Python::MeterpreterLoader
       'Arch'          => ARCH_PYTHON,
       'Stager'        => {'Payload' => ""},
       'SupportedVersions' => {
-        'Python' => [
+        'python' => [
           Module::VersionRange.new(min: Msf::Payload::Python::MeterpreterVersion::MINIMUM_VERSION, max: '2.7'),
           Module::VersionRange.new(min: '3.1')
         ]

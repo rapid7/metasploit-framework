@@ -37,10 +37,10 @@ RSpec.describe Msf::Module::VersionCompatibility do
   end
 
   describe '#version_compatibility_warnings' do
-    context 'when target does not declare RuntimeVersions' do
+    context 'when target does not declare PlatformVersions' do
       let(:target_opts) { {} }
       let(:payload_module_info) do
-        { 'Name' => 'Mock Payload', 'SupportedVersions' => supported_versions_from_min('Windows', Msf::WindowsVersion::XP_SP2) }
+        { 'Name' => 'Mock Payload', 'SupportedVersions' => supported_versions_from_min('win', Msf::WindowsVersion::XP_SP2) }
       end
 
       it 'returns no warnings' do
@@ -49,7 +49,7 @@ RSpec.describe Msf::Module::VersionCompatibility do
     end
 
     context 'when payload does not declare SupportedVersions' do
-      let(:target_opts) { { 'RuntimeVersions' => { 'Windows' => Msf::WindowsVersion::Win2000 } } }
+      let(:target_opts) { { 'PlatformVersions' => { 'win' => Msf::WindowsVersion::Win2000 } } }
       let(:payload_module_info) { {} }
 
       it 'returns no warnings' do
@@ -60,7 +60,7 @@ RSpec.describe Msf::Module::VersionCompatibility do
     context 'when target is nil' do
       let(:target_opts) { nil }
       let(:payload_module_info) do
-        { 'SupportedVersions' => supported_versions_from_min('Windows', Msf::WindowsVersion::XP_SP2) }
+        { 'SupportedVersions' => supported_versions_from_min('win', Msf::WindowsVersion::XP_SP2) }
       end
 
       before do
@@ -73,9 +73,9 @@ RSpec.describe Msf::Module::VersionCompatibility do
     end
 
     context 'when target version is below payload minimum' do
-      let(:target_opts) { { 'RuntimeVersions' => { 'Windows' => Msf::WindowsVersion::Win2000 } } }
+      let(:target_opts) { { 'PlatformVersions' => { 'win' => Msf::WindowsVersion::Win2000 } } }
       let(:payload_module_info) do
-        { 'SupportedVersions' => supported_versions_from_min('Windows', Msf::WindowsVersion::XP_SP2) }
+        { 'SupportedVersions' => supported_versions_from_min('win', Msf::WindowsVersion::XP_SP2) }
       end
 
       it 'returns a warning' do
@@ -85,9 +85,9 @@ RSpec.describe Msf::Module::VersionCompatibility do
     end
 
     context 'when target version equals payload minimum' do
-      let(:target_opts) { { 'RuntimeVersions' => { 'Windows' => Msf::WindowsVersion::XP_SP2 } } }
+      let(:target_opts) { { 'PlatformVersions' => { 'win' => Msf::WindowsVersion::XP_SP2 } } }
       let(:payload_module_info) do
-        { 'SupportedVersions' => supported_versions_from_min('Windows', Msf::WindowsVersion::XP_SP2) }
+        { 'SupportedVersions' => supported_versions_from_min('win', Msf::WindowsVersion::XP_SP2) }
       end
 
       it 'returns no warnings' do
@@ -96,9 +96,9 @@ RSpec.describe Msf::Module::VersionCompatibility do
     end
 
     context 'when target version exceeds payload minimum' do
-      let(:target_opts) { { 'RuntimeVersions' => { 'Windows' => Msf::WindowsVersion::Win7_SP0 } } }
+      let(:target_opts) { { 'PlatformVersions' => { 'win' => Msf::WindowsVersion::Win7_SP0 } } }
       let(:payload_module_info) do
-        { 'SupportedVersions' => supported_versions_from_min('Windows', Msf::WindowsVersion::XP_SP2) }
+        { 'SupportedVersions' => supported_versions_from_min('win', Msf::WindowsVersion::XP_SP2) }
       end
 
       it 'returns no warnings' do
@@ -107,9 +107,9 @@ RSpec.describe Msf::Module::VersionCompatibility do
     end
 
     context 'when versions are provided as strings' do
-      let(:target_opts) { { 'RuntimeVersions' => { 'Windows' => '5.0.2195' } } }
+      let(:target_opts) { { 'PlatformVersions' => { 'win' => '5.0.2195' } } }
       let(:payload_module_info) do
-        { 'SupportedVersions' => supported_versions_from_min('Windows', '5.1.2600.2') }
+        { 'SupportedVersions' => supported_versions_from_min('win', '5.1.2600.2') }
       end
 
       it 'returns a warning' do
@@ -119,9 +119,9 @@ RSpec.describe Msf::Module::VersionCompatibility do
     end
 
     context 'when runtime keys do not overlap' do
-      let(:target_opts) { { 'RuntimeVersions' => { 'Linux' => '5.4.0' } } }
+      let(:target_opts) { { 'PlatformVersions' => { 'linux' => '5.4.0' } } }
       let(:payload_module_info) do
-        { 'SupportedVersions' => supported_versions_from_min('Windows', Msf::WindowsVersion::XP_SP2) }
+        { 'SupportedVersions' => supported_versions_from_min('win', Msf::WindowsVersion::XP_SP2) }
       end
 
       it 'returns no warnings' do
@@ -132,17 +132,17 @@ RSpec.describe Msf::Module::VersionCompatibility do
     context 'with multiple runtime keys both incompatible' do
       let(:target_opts) do
         {
-          'RuntimeVersions' => {
-            'Windows' => Msf::WindowsVersion::XP_SP0,
-            'Python' => '2.7'
+          'PlatformVersions' => {
+            'win' => Msf::WindowsVersion::XP_SP0,
+            'python' => '2.7'
           }
         }
       end
       let(:payload_module_info) do
         {
           'SupportedVersions' => {
-            'Windows' => [Msf::Module::VersionRange.new(min: Msf::WindowsVersion::XP_SP2)],
-            'Python' => [Msf::Module::VersionRange.new(min: '3.4')]
+            'win' => [Msf::Module::VersionRange.new(min: Msf::WindowsVersion::XP_SP2)],
+            'python' => [Msf::Module::VersionRange.new(min: '3.4')]
           }
         }
       end
@@ -160,11 +160,11 @@ RSpec.describe Msf::Module::VersionCompatibility do
 
     context 'with multiple version ranges where target falls in a later range' do
       # Python payload: supports 2.5-2.7 and 3.1+
-      let(:target_opts) { { 'RuntimeVersions' => { 'Python' => '3.6' } } }
+      let(:target_opts) { { 'PlatformVersions' => { 'python' => '3.6' } } }
       let(:payload_module_info) do
         {
           'SupportedVersions' => {
-            'Python' => [
+            'python' => [
               Msf::Module::VersionRange.new(min: '2.5', max: '2.7'),
               Msf::Module::VersionRange.new(min: '3.1')
             ]
@@ -178,11 +178,11 @@ RSpec.describe Msf::Module::VersionCompatibility do
     end
 
     context 'with multiple version ranges where target falls in the first range' do
-      let(:target_opts) { { 'RuntimeVersions' => { 'Python' => '2.6' } } }
+      let(:target_opts) { { 'PlatformVersions' => { 'python' => '2.6' } } }
       let(:payload_module_info) do
         {
           'SupportedVersions' => {
-            'Python' => [
+            'python' => [
               Msf::Module::VersionRange.new(min: '2.5', max: '2.7'),
               Msf::Module::VersionRange.new(min: '3.1')
             ]
@@ -197,11 +197,11 @@ RSpec.describe Msf::Module::VersionCompatibility do
 
     context 'with multiple version ranges where target falls in a gap' do
       # Python 3.0 is between 2.7 and 3.1 — unsupported
-      let(:target_opts) { { 'RuntimeVersions' => { 'Python' => '3.0' } } }
+      let(:target_opts) { { 'PlatformVersions' => { 'python' => '3.0' } } }
       let(:payload_module_info) do
         {
           'SupportedVersions' => {
-            'Python' => [
+            'python' => [
               Msf::Module::VersionRange.new(min: '2.5', max: '2.7'),
               Msf::Module::VersionRange.new(min: '3.1')
             ]
@@ -216,9 +216,9 @@ RSpec.describe Msf::Module::VersionCompatibility do
     end
 
     context 'when Windows XP SP0/SP1 target is compared to Meterpreter minimum' do
-      let(:target_opts) { { 'RuntimeVersions' => { 'Windows' => Msf::WindowsVersion::XP_SP0 } } }
+      let(:target_opts) { { 'PlatformVersions' => { 'win' => Msf::WindowsVersion::XP_SP0 } } }
       let(:payload_module_info) do
-        { 'SupportedVersions' => supported_versions_from_min('Windows', Msf::WindowsVersion::XP_SP2) }
+        { 'SupportedVersions' => supported_versions_from_min('win', Msf::WindowsVersion::XP_SP2) }
       end
 
       it 'returns a warning' do
@@ -228,9 +228,9 @@ RSpec.describe Msf::Module::VersionCompatibility do
     end
 
     context 'when Windows XP SP2 target is compared to Meterpreter minimum' do
-      let(:target_opts) { { 'RuntimeVersions' => { 'Windows' => Msf::WindowsVersion::XP_SP2 } } }
+      let(:target_opts) { { 'PlatformVersions' => { 'win' => Msf::WindowsVersion::XP_SP2 } } }
       let(:payload_module_info) do
-        { 'SupportedVersions' => supported_versions_from_min('Windows', Msf::WindowsVersion::XP_SP2) }
+        { 'SupportedVersions' => supported_versions_from_min('win', Msf::WindowsVersion::XP_SP2) }
       end
 
       it 'returns no warnings' do
@@ -239,9 +239,9 @@ RSpec.describe Msf::Module::VersionCompatibility do
     end
 
     context 'when Windows Server 2003 SP0 target is compared to Meterpreter minimum' do
-      let(:target_opts) { { 'RuntimeVersions' => { 'Windows' => Msf::WindowsVersion::Server2003_SP0 } } }
+      let(:target_opts) { { 'PlatformVersions' => { 'win' => Msf::WindowsVersion::Server2003_SP0 } } }
       let(:payload_module_info) do
-        { 'SupportedVersions' => supported_versions_from_min('Windows', Msf::WindowsVersion::XP_SP2) }
+        { 'SupportedVersions' => supported_versions_from_min('win', Msf::WindowsVersion::XP_SP2) }
       end
 
       it 'returns no warnings because Server 2003 (5.2) is above XP SP2 (5.1)' do

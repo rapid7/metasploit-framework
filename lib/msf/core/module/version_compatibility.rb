@@ -17,7 +17,7 @@ module Msf::Module::VersionCompatibility
   def version_compatibility_warnings(payload_instance)
     warnings = []
 
-    target_versions = current_target_runtime_versions
+    target_versions = current_target_platform_versions
     return warnings unless target_versions.is_a?(Hash) && !target_versions.empty?
 
     supported = payload_instance.supported_versions
@@ -36,7 +36,7 @@ module Msf::Module::VersionCompatibility
       lowest_min = ranges.map(&:min).min
       required_name = human_readable_version_string(runtime, lowest_min)
       target_name = human_readable_version_string(runtime, target_ver)
-      warnings << "Payload requires #{runtime} version within a supported range (minimum #{required_name}), but the target provides #{target_name}"
+      warnings << "Payload requires #{platform_display_name(runtime)} version within a supported range (minimum #{required_name}), but the target provides #{target_name}"
     end
 
     warnings
@@ -52,20 +52,32 @@ module Msf::Module::VersionCompatibility
     value.is_a?(Rex::Version) ? value : Rex::Version.new(value.to_s)
   end
 
-  # Map a runtime (Windows, Python etc.) and a version to a human-readable string.
-  # For example 'Windows', '5.1.2600.2' would get mapped to 'Windows XP Service Pack 2 (5.1.2600.2)'
+  # Map a runtime (win, python etc.) and a version to a human-readable string.
+  # For example 'win', '5.1.2600.2' would get mapped to 'Windows XP Service Pack 2 (5.1.2600.2)'
   #
-  # @param runtime [String] The runtime key (e.g., 'Windows', 'Python').
+  # @param runtime [String] The runtime key (e.g., 'win', 'python').
   # @param version [Rex::Version] The version to look up.
   # @return [String] A human-readable string
   def human_readable_version_string(runtime, version)
     case runtime
-    when 'Windows'
+    when 'win'
       name = windows_version_name(version)
       return "#{name} (#{version})" if name
     end
 
-    "#{runtime} (#{version})"
+    "#{platform_display_name(runtime)} (#{version})"
+  end
+
+  # Map a platform key (matching the module Platform hash values) to a human-readable name.
+  # For example 'win' => 'Windows', 'python' => 'Python'. Falls back to the raw key when the
+  # platform is not recognized.
+  #
+  # @param runtime [String] The platform key (e.g., 'win', 'python').
+  # @return [String] A human-readable platform name.
+  def platform_display_name(runtime)
+    Msf::Module::Platform.find_platform(runtime).realname
+  rescue ArgumentError
+    runtime
   end
 
   # Look up a Windows version's human-readable name from the WindowsVersion mappings.
@@ -88,11 +100,11 @@ module Msf::Module::VersionCompatibility
   # Get the lowest runtime version requirements from an array of targets.
   #
   # @param targets [Array<Msf::Target>] The array of targets to query over.
-  # @return [Hash] The RuntimeVersions hash from the targets array.
-  def lowest_runtime_versions_from_targets(targets)
+  # @return [Hash] The PlatformVersions hash from the targets array.
+  def lowest_platform_versions_from_targets(targets)
     lowest_versions = {}
     targets.each do |t|
-      versions = t.opts['RuntimeVersions']
+      versions = t.opts['PlatformVersions']
       next unless versions.is_a?(Hash)
 
       versions.each do |runtime, version|
@@ -106,15 +118,15 @@ module Msf::Module::VersionCompatibility
     lowest_versions
   end
 
-  # Retrieve RuntimeVersions from the currently selected target.
+  # Retrieve PlatformVersions from the currently selected target.
   # When the Automatic target is selected, the lowest supported version of each defined
-  # runtime (Windows, Python, etc.) is returned instead.
+  # runtime (win, python, etc.) is returned instead.
   #
-  # @return [Hash, nil] The RuntimeVersions hash from the active target, or nil.
-  def current_target_runtime_versions
+  # @return [Hash, nil] The PlatformVersions hash from the active target, or nil.
+  def current_target_platform_versions
     return nil unless respond_to?(:target) && target
 
-    target_versions = target.opts['RuntimeVersions']
+    target_versions = target.opts['PlatformVersions']
     if target_versions.is_a?(Hash) && !target_versions.empty?
       return target_versions
     end
@@ -124,7 +136,7 @@ module Msf::Module::VersionCompatibility
 
     return nil unless respond_to?(:targets) && targets.is_a?(Array)
 
-    lowest_versions = lowest_runtime_versions_from_targets(targets)
+    lowest_versions = lowest_platform_versions_from_targets(targets)
     lowest_versions.any? ? lowest_versions : nil
   end
 end

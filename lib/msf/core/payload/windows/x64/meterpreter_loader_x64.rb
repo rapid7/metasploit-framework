@@ -28,7 +28,7 @@ module Payload::Windows::MeterpreterLoader_x64
       'PayloadCompat' => { 'Convention' => 'sockrdi handlerdi -https' },
       'Stage'         => { 'Payload'   => "" },
       'SupportedVersions' => {
-        'Windows' => [
+        'win' => [
           Module::VersionRange.new(min: Msf::Payload::Windows::MeterpreterVersion::MINIMUM_VERSION)
         ]
       }
