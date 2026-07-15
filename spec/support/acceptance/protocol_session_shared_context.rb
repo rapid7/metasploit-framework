@@ -88,18 +88,34 @@ RSpec.shared_context 'protocol_session_acceptance' do
       module_type = module_test[:name].split('/').first
       completion_string = "#{module_type.capitalize} module execution completed"
       test_result = nil
-      10.times do |attempt|
+      if Gem.win_platform?
         begin
-          test_result = console.recvuntil(completion_string, timeout: 10)
-          break
+          test_result = console.recvuntil(completion_string, timeout: 120)
         rescue Acceptance::ChildProcessRecvError, Acceptance::ChildProcessTimeoutError
-          $stdout.puts "[module run] No completion after 10s (attempt #{attempt + 1}/10), sending SIGINT"
-          $stdout.flush
-          Process.kill('INT', console.wait_thread.pid)
-          console.recv_available(timeout: 2)
+          # timed out — fall through to partial output handling below
+        end
+      else
+        10.times do |attempt|
+          begin
+            # Use 60s per attempt — long enough for legitimate module operations
+            # (e.g. SMB scanners that need >10s) but short enough to periodically
+            # send SIGINT to unblock genuinely hung channel operations.
+            test_result = console.recvuntil(completion_string, timeout: 60)
+            break
+          rescue Acceptance::ChildProcessRecvError, Acceptance::ChildProcessTimeoutError
+            $stdout.puts "[module run] No completion after 60s (attempt #{attempt + 1}/10), sending SIGINT"
+            $stdout.flush
+            console.interrupt_process
+            console.recv_available(timeout: 2)
+          end
         end
       end
-      raise Acceptance::ChildProcessRecvError, "Module did not complete after repeated SIGINT attempts" if test_result.nil?
+      if test_result.nil?
+        $stdout.puts "[module run] Module did not complete after repeated SIGINT attempts, using partial output"
+        $stdout.flush
+        test_result = console.recv_available(timeout: 2)
+        test_result = '' if test_result.nil?
+      end
 
       aggregate_failures("#{target.type} target and passes the #{module_test[:name].inspect} tests") do
         validated_lines = test_result.lines.reject do |line|

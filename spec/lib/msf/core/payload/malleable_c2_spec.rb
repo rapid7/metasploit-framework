@@ -41,5 +41,41 @@ RSpec.describe Msf::Payload::MalleableC2 do
         expect(profile.uris).to contain_exactly('/jquery-3.3.1.min.js', '/jquery-3.3.1.min.js/save')
       end
     end
+
+    describe 'ParsedProfile#to_tlv' do
+      context 'with minimal_uris_headers.profile' do
+        subject(:profile) do
+          parser.parse(File.join(fixture_path, 'minimal_uris_headers.profile'))
+        end
+
+        it 'does not emit a static query string for single-arg metadata parameter directives' do
+          # The profile declares `metadata { parameter "callback"; }` — this is a UUID
+          # placement directive (the payload fills in the UUID at runtime), not a static
+          # key=value query param. It must NOT appear as "callback=" in the emitted URI TLV,
+          # otherwise the PHP payload sends GET /path?callback= (empty) on every poll,
+          # which the handler cannot map to a session and channel reads block forever.
+          tlv = profile.to_tlv
+          get_tlv = tlv.tlvs.find { |t| t.type == Msf::Payload::MalleableC2::MET::TLV_TYPE_C2_GET }
+          uri_tlvs = get_tlv.tlvs.select { |t| t.type == Msf::Payload::MalleableC2::MET::TLV_TYPE_C2_URI }
+          uri_tlvs.each do |uri_tlv|
+            expect(uri_tlv.value).not_to include('callback='),
+              "GET URI '#{uri_tlv.value}' contains 'callback=' — single-arg parameter directives " \
+              "must not be emitted as static query string parameters"
+          end
+        end
+
+        it 'does not emit a static query string for single-arg id parameter directives' do
+          # Similarly, `id { parameter "id"; }` in http-post is a placement directive.
+          tlv = profile.to_tlv
+          post_tlv = tlv.tlvs.find { |t| t.type == Msf::Payload::MalleableC2::MET::TLV_TYPE_C2_POST }
+          uri_tlvs = post_tlv.tlvs.select { |t| t.type == Msf::Payload::MalleableC2::MET::TLV_TYPE_C2_URI }
+          uri_tlvs.each do |uri_tlv|
+            expect(uri_tlv.value).not_to include('id='),
+              "POST URI '#{uri_tlv.value}' contains 'id=' — single-arg id parameter directives " \
+              "must not be emitted as static query string parameters"
+          end
+        end
+      end
+    end
   end
 end

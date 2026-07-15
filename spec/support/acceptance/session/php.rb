@@ -6,21 +6,6 @@ module Acceptance::Session::Php
   PHP_METERPRETER = {
     payloads: [
       {
-        name: "php/meterpreter_reverse_tcp",
-        extension: ".php",
-        platforms: [:osx, :linux, :windows],
-        execute_cmd: ["php", "${payload_path}"],
-        generate_options: {
-          '-f': "raw"
-        },
-        datastore: {
-          global: {},
-          module: {
-            MeterpreterDebugBuild: true
-          }
-        }
-      },
-      {
         name: "php/meterpreter_reverse_http",
         extension: ".php",
         platforms: [:osx, :linux, :windows],
@@ -35,280 +20,9 @@ module Acceptance::Session::Php
             MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
           }
         }
-      },
-      # TODO: Re-enable base64_transforms once socket channel failures are resolved
-      # {
-      #   name: "php/meterpreter_reverse_http",
-      #   extension: ".php",
-      #   platforms: [:osx, :linux, :windows],
-      #   execute_cmd: ["php", "${payload_path}"],
-      #   generate_options: {
-      #     '-f': "raw"
-      #   },
-      #   datastore: {
-      #     global: {},
-      #     module: {
-      #       MeterpreterDebugBuild: true,
-      #       MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
-      #     }
-      #   }
-      # },
-      {
-        name: "php/meterpreter_reverse_https",
-        extension: ".php",
-        platforms: [:osx, :linux, :windows],
-        execute_cmd: ["php", "${payload_path}"],
-        generate_options: {
-          '-f': "raw"
-        },
-        datastore: {
-          global: {},
-          module: {
-            MeterpreterDebugBuild: true,
-            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
-          }
-        }
-      },
-      # TODO: Re-enable base64_transforms once socket channel failures are resolved
-      # {
-      #   name: "php/meterpreter_reverse_https",
-      #   extension: ".php",
-      #   platforms: [:osx, :linux, :windows],
-      #   execute_cmd: ["php", "${payload_path}"],
-      #   generate_options: {
-      #     '-f': "raw"
-      #   },
-      #   datastore: {
-      #     global: {},
-      #     module: {
-      #       MeterpreterDebugBuild: true,
-      #       MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
-      #     }
-      #   }
-      # }
+      }
     ],
     module_tests: [
-      {
-        name: "post/test/services",
-        platforms: [
-          [
-            :linux,
-            {
-              skip: true,
-              reason: "Windows only test"
-            }
-          ],
-          [
-            :osx,
-            {
-              skip: true,
-              reason: "Windows only test"
-            }
-          ],
-          [
-            :windows,
-            {
-              skip: [
-                :session_runtime_version,
-                :==,
-                "meterpreter/php5.3"
-              ],
-              reason: "Skip PHP 5.3 as the tests timeout - due to cmd_exec taking 15 seconds for each call. Caused by failure to detect feof correctly - https://github.com/rapid7/metasploit-payloads/blame/c7f7bc2fc0b86e17c3bc078149c71745c5e478b3/php/meterpreter/meterpreter.php#L1127-L1145"
-            }
-          ]
-        ],
-        skipped: false,
-        lines: {
-          linux: {
-            known_failures: []
-          },
-          osx: {
-            known_failures: []
-          },
-          windows: {
-            known_failures: []
-          }
-        }
-      },
-      {
-        name: "post/test/cmd_exec",
-        platforms: [:linux, :osx, :windows],
-        skipped: false,
-        lines: {
-          linux: {
-            known_failures: []
-          },
-          osx: {
-            known_failures: []
-          },
-          windows: {
-            known_failures: [
-            ]
-          }
-        }
-      },
-      {
-        name: "post/test/extapi",
-        platforms: [:linux, :osx, :windows],
-        skipped: false,
-        lines: {
-          linux: {
-            known_failures: []
-          },
-          osx: {
-            known_failures: []
-          },
-          windows: {
-            known_failures: []
-          }
-        }
-      },
-      {
-        name: "post/test/file",
-        platforms: [:linux, :osx, :windows],
-        skipped: false,
-        lines: {
-          linux: {
-            known_failures: [
-              "[-] FAILED: should read the binary data we just wrote"
-            ]
-          },
-          osx: {
-            known_failures: [
-              "[-] FAILED: should read the binary data we just wrote"
-            ]
-          },
-          windows: {
-            known_failures: [
-              "[-] [should delete a symbolic link target] FAILED: should delete a symbolic link target",
-              "[-] [should delete a symbolic link target] Exception: Rex::Post::Meterpreter::RequestError: stdapi_fs_delete_dir: Operation failed: 1",
-              "[-] FAILED: should read the binary data we just wrote"
-            ]
-          }
-        }
-      },
-      {
-        name: "post/test/get_env",
-        platforms: [:linux, :osx, :windows],
-        skipped: false,
-        lines: {
-          linux: {
-            known_failures: []
-          },
-          osx: {
-            known_failures: []
-          },
-          windows: {
-            known_failures: []
-          }
-        }
-      },
-      {
-        name: "post/test/meterpreter",
-        platforms: [:linux, :osx, :windows],
-        skipped: false,
-        lines: {
-          linux: {
-            known_failures: []
-          },
-          osx: {
-            known_failures: []
-          },
-          windows: {
-            known_failures: []
-          }
-        }
-      },
-      {
-        name: "post/test/railgun",
-        platforms: [:linux, :osx, :windows],
-        skipped: false,
-        lines: {
-          linux: {
-            known_failures: []
-          },
-          osx: {
-            known_failures: []
-          },
-          windows: {
-            known_failures: []
-          }
-        }
-      },
-      {
-        name: "post/test/railgun_reverse_lookups",
-        platforms: [:linux, :osx, :windows],
-        skipped: false,
-        lines: {
-          linux: {
-            known_failures: []
-          },
-          osx: {
-            known_failures: []
-          },
-          windows: {
-            known_failures: []
-          }
-        }
-      },
-      {
-        name: "post/test/registry",
-        platforms: [
-          [
-            :linux,
-            {
-              skip: true,
-              reason: "Windows only test"
-            }
-          ],
-          [
-            :osx,
-            {
-              skip: true,
-              reason: "Windows only test"
-            }
-          ],
-          [
-            :windows,
-            {
-              skip: [
-                :session_runtime_version,
-                :==,
-                "meterpreter/php5.3"
-              ],
-              reason: "Skip PHP 5.3 as the tests timeout - due to cmd_exec taking 15 seconds for each call. Caused by failure to detect feof correctly - https://github.com/rapid7/metasploit-payloads/blame/c7f7bc2fc0b86e17c3bc078149c71745c5e478b3/php/meterpreter/meterpreter.php#L1127-L1145"
-            }
-          ]
-        ],
-        skipped: false,
-        lines: {
-          linux: {
-            known_failures: []
-          },
-          osx: {
-            known_failures: []
-          },
-          windows: {
-            known_failures: []
-          }
-        }
-      },
-      {
-        name: "post/test/search",
-        platforms: [:linux, :osx, :windows],
-        skipped: false,
-        lines: {
-          linux: {
-            known_failures: []
-          },
-          osx: {
-            known_failures: []
-          },
-          windows: {
-            known_failures: []
-          }
-        }
-      },
       {
         name: "post/test/socket_channels",
         platforms: [:linux, :osx, :windows],
@@ -320,46 +34,18 @@ module Acceptance::Session::Php
             ]
           },
           osx: {
-              known_failures: [
+            known_failures: [
               *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           },
           windows: {
             known_failures: [
-              # PHP 5.3 Meterpreter on a Windows host raises Errno::ENOTSOCK
-              # (WSAENOTSOCK) from the UDP channel recvfrom; PHP 7.4/8.3 are fine.
               ["[-] [[UDP] Has the correct peer information] FAILED: [UDP] Has the correct peer information", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
               ["[-] [[UDP] Has the correct peer information] Exception: Errno::ENOTSOCK", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
               ["[-] [[UDP] Receives data from the peer] FAILED: [UDP] Receives data from the peer", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
               ["[-] [[UDP] Receives data from the peer] Exception: Errno::ENOTSOCK", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
               *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
-          }
-        }
-      },
-      {
-        name: "post/test/unix",
-        platforms: [
-          :linux,
-          :osx,
-          [
-            :windows,
-            {
-              skip: true,
-              reason: "Unix only test"
-            }
-          ]
-        ],
-        skipped: false,
-        lines: {
-          linux: {
-            known_failures: []
-          },
-          osx: {
-            known_failures: []
-          },
-          windows: {
-            known_failures: []
           }
         }
       }

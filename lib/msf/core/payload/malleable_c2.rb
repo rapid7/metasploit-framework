@@ -353,7 +353,14 @@ module Msf::Payload::MalleableC2
     end
 
     def add_uri(base_uri, section, group_tlv)
-      query_string = section.get_directive('parameter').map {|dir| "#{dir.args[0]}=#{URI.encode_uri_component(dir.args[1])}" }.join("&")
+      # Only include parameter directives that have two args (key + static value).
+      # Single-arg parameters (e.g. `parameter "callback"` in a metadata block)
+      # are UUID placement directives — the payload fills in the value at runtime —
+      # and must not be emitted as static query string key=value pairs here.
+      query_string = section.get_directive('parameter')
+                            .select {|dir| dir.args.length >= 2 && !dir.args[1].nil?}
+                            .map {|dir| "#{dir.args[0]}=#{URI.encode_uri_component(dir.args[1])}" }
+                            .join("&")
 
       # `set uri` may carry a space-separated list of candidate URIs. Emit
       # one TLV_TYPE_C2_URI per candidate so the client can pick one at

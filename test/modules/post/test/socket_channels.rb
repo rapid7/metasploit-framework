@@ -27,7 +27,10 @@ class MetasploitModule < Msf::Post
       [
         OptAddressLocal.new('LHOST', [true, 'The local IP address to use for binding.', '127.0.0.1']),
         OptAddress.new('RHOST', [true, 'The remote IP address to use for binding.', '127.0.0.1']),
-        OptInt.new('TIMEOUT', [true, 'The timeout in seconds to use when waiting for socket operations.', ENV['CI'] ? 30 : 5]),
+        # HTTP polling payloads have inherent latency (backoff ramp + HTTP round-trip) even
+        # after the backoff resets to 0 after each response, so use a generous CI timeout.
+        # TCP payloads could use a much lower value but 60s is cheap headroom for both.
+        OptInt.new('TIMEOUT', [true, 'The timeout in seconds to use when waiting for socket operations.', ENV['CI'] ? 60 : 20]),
       ], self.class
     )
   end

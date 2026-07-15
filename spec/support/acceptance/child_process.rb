@@ -543,6 +543,20 @@ module Acceptance
       /msf.*>\s+/
     end
 
+    # Send an interrupt to the msfconsole process.
+    # On Unix, this delivers SIGINT directly to the process, which msfconsole
+    # handles to interrupt a running module and return to the prompt.
+    # On Windows, SIGINT via Process.kill is not supported and writing \x03 to
+    # a pipe has no effect (there is no terminal driver with --no-readline).
+    # Windows callers must rely on the recvuntil timeout to detect the hang.
+    def interrupt_process
+      return if Gem.win_platform?
+
+      Process.kill('INT', wait_thread.pid)
+    rescue Errno::ESRCH
+      # Process already gone, nothing to interrupt
+    end
+
     def reset
       # Interrupt any module or session that may still be running and blocking.
       # We send SIGINT repeatedly — each signal unwinds one level of blocking
@@ -552,28 +566,33 @@ module Acceptance
       # Note: writing \x03 to the pipe does NOT work here because msfconsole is
       # started with --no-readline and there is no terminal driver to translate
       # the byte into a signal. SIGINT must be sent directly to the process.
+      #
+      # On Windows, Process.kill('INT') is not supported, so the interrupt loop
+      # is skipped entirely — we proceed directly to sessions -K / jobs -K cleanup.
       interrupted = false
-      10.times do |attempt|
-        $stdout.puts "[console.reset] Sending SIGINT (attempt #{attempt + 1}/10)"
-        $stdout.flush
-        @all_data.write("[console.reset] Sending SIGINT (attempt #{attempt + 1}/10)\n")
-        Process.kill('INT', wait_thread.pid)
-        recvuntil(Console.prompt, timeout: 10)
-        $stdout.puts "[console.reset] Prompt returned after SIGINT"
-        $stdout.flush
-        @all_data.write("[console.reset] Prompt returned after SIGINT\n")
-        interrupted = true
-        break
-      rescue ChildProcessRecvError
-        # Still not at prompt — drain whatever arrived and try again
-        $stdout.puts "[console.reset] No prompt after SIGINT, draining buffer and retrying"
-        $stdout.flush
-        @all_data.write("[console.reset] No prompt after SIGINT, draining buffer and retrying\n")
-        recv_available(timeout: 2)
-      rescue Errno::ESRCH
-        # Process is already gone
-        @all_data.write("[console.reset] Process already gone\n")
-        break
+      unless Gem.win_platform?
+        10.times do |attempt|
+          $stdout.puts "[console.reset] Sending SIGINT (attempt #{attempt + 1}/10)"
+          $stdout.flush
+          @all_data.write("[console.reset] Sending SIGINT (attempt #{attempt + 1}/10)\n")
+          interrupt_process
+          recvuntil(Console.prompt, timeout: 10)
+          $stdout.puts "[console.reset] Prompt returned after SIGINT"
+          $stdout.flush
+          @all_data.write("[console.reset] Prompt returned after SIGINT\n")
+          interrupted = true
+          break
+        rescue ChildProcessRecvError
+          # Still not at prompt — drain whatever arrived and try again
+          $stdout.puts "[console.reset] No prompt after SIGINT, draining buffer and retrying"
+          $stdout.flush
+          @all_data.write("[console.reset] No prompt after SIGINT, draining buffer and retrying\n")
+          recv_available(timeout: 2)
+        rescue Errno::ESRCH
+          # Process is already gone
+          @all_data.write("[console.reset] Process already gone\n")
+          break
+        end
       end
 
       unless interrupted

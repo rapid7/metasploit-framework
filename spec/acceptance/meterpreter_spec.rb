@@ -223,7 +223,10 @@ RSpec.describe 'Meterpreter' do
                   resource_command = "resource scripts/resource/meterpreter_compatibility.rc"
                   replication_commands << resource_command
                   console.sendline(resource_command)
-                  result = console.recvuntil(Acceptance::Console.prompt)
+                  # Use a finite timeout rather than the default 480s.
+                  # On Windows SIGINT cannot interrupt a stuck session so we
+                  # cap at 120s to avoid the full CI timeout.
+                  result = console.recvuntil(Acceptance::Console.prompt, timeout: 120)
 
                   available_commands = result.lines(chomp: true).find do |line|
                     line.start_with?("{") && line.end_with?("}") && JSON.parse(line)
@@ -397,19 +400,35 @@ RSpec.describe 'Meterpreter' do
                     # C2 session whose HTTP channel has stalled). Each SIGINT unwinds one level of
                     # blocking inside the running module, eventually allowing it to print the completion
                     # line and return to the prompt.
+                    # On Windows, SIGINT cannot be delivered so we use a single longer timeout instead.
                     test_result = nil
-                    10.times do |attempt|
+                    if Gem.win_platform?
                       begin
-                        test_result = console.recvuntil('Post module execution completed', timeout: 10)
-                        break
+                        test_result = console.recvuntil('Post module execution completed', timeout: 120)
                       rescue Acceptance::ChildProcessRecvError, Acceptance::ChildProcessTimeoutError
-                        $stdout.puts "[module run] No completion after 10s (attempt #{attempt + 1}/10), sending SIGINT"
-                        $stdout.flush
-                        Process.kill('INT', console.wait_thread.pid)
-                        console.recv_available(timeout: 2)
+                        # timed out — fall through to partial output handling below
+                      end
+                    else
+                      10.times do |attempt|
+                        begin
+                          test_result = console.recvuntil('Post module execution completed', timeout: 60)
+                          break
+                        rescue Acceptance::ChildProcessRecvError, Acceptance::ChildProcessTimeoutError
+                          $stdout.puts "[module run] No completion after 60s (attempt #{attempt + 1}/10), sending SIGINT"
+                          $stdout.flush
+                          console.interrupt_process
+                          console.recv_available(timeout: 2)
+                        end
                       end
                     end
-                    raise Acceptance::ChildProcessRecvError, "Module did not complete after repeated SIGINT attempts" if test_result.nil?
+                    if test_result.nil?
+                      # Exhausted retries — drain whatever partial output remains and use it as the
+                      # result so the test fails with meaningful output rather than a generic error.
+                      $stdout.puts "[module run] Module did not complete after repeated SIGINT attempts, using partial output"
+                      $stdout.flush
+                      test_result = console.recv_available(timeout: 2)
+                      test_result = '' if test_result.nil?
+                    end
 
                     # Ensure there are no failures, and assert tests are complete
                     aggregate_failures("#{payload_config[:name].inspect} payload and passes the #{module_test[:name].inspect} tests") do
