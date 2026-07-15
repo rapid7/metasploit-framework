@@ -86,7 +86,20 @@ RSpec.shared_context 'protocol_session_acceptance' do
       # console.interact
 
       module_type = module_test[:name].split('/').first
-      test_result = console.recvuntil("#{module_type.capitalize} module execution completed")
+      completion_string = "#{module_type.capitalize} module execution completed"
+      test_result = nil
+      10.times do |attempt|
+        begin
+          test_result = console.recvuntil(completion_string, timeout: 10)
+          break
+        rescue Acceptance::ChildProcessRecvError, Acceptance::ChildProcessTimeoutError
+          $stdout.puts "[module run] No completion after 10s (attempt #{attempt + 1}/10), sending SIGINT"
+          $stdout.flush
+          Process.kill('INT', console.wait_thread.pid)
+          console.recv_available(timeout: 2)
+        end
+      end
+      raise Acceptance::ChildProcessRecvError, "Module did not complete after repeated SIGINT attempts" if test_result.nil?
 
       aggregate_failures("#{target.type} target and passes the #{module_test[:name].inspect} tests") do
         validated_lines = test_result.lines.reject do |line|

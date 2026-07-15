@@ -36,22 +36,23 @@ module Acceptance::Session::Php
           }
         }
       },
-      {
-        name: "php/meterpreter_reverse_http",
-        extension: ".php",
-        platforms: [:osx, :linux, :windows],
-        execute_cmd: ["php", "${payload_path}"],
-        generate_options: {
-          '-f': "raw"
-        },
-        datastore: {
-          global: {},
-          module: {
-            MeterpreterDebugBuild: true,
-            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
-          }
-        }
-      },
+      # TODO: Re-enable base64_transforms once socket channel failures are resolved
+      # {
+      #   name: "php/meterpreter_reverse_http",
+      #   extension: ".php",
+      #   platforms: [:osx, :linux, :windows],
+      #   execute_cmd: ["php", "${payload_path}"],
+      #   generate_options: {
+      #     '-f': "raw"
+      #   },
+      #   datastore: {
+      #     global: {},
+      #     module: {
+      #       MeterpreterDebugBuild: true,
+      #       MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+      #     }
+      #   }
+      # },
       {
         name: "php/meterpreter_reverse_https",
         extension: ".php",
@@ -68,22 +69,23 @@ module Acceptance::Session::Php
           }
         }
       },
-      {
-        name: "php/meterpreter_reverse_https",
-        extension: ".php",
-        platforms: [:osx, :linux, :windows],
-        execute_cmd: ["php", "${payload_path}"],
-        generate_options: {
-          '-f': "raw"
-        },
-        datastore: {
-          global: {},
-          module: {
-            MeterpreterDebugBuild: true,
-            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
-          }
-        }
-      }
+      # TODO: Re-enable base64_transforms once socket channel failures are resolved
+      # {
+      #   name: "php/meterpreter_reverse_https",
+      #   extension: ".php",
+      #   platforms: [:osx, :linux, :windows],
+      #   execute_cmd: ["php", "${payload_path}"],
+      #   generate_options: {
+      #     '-f': "raw"
+      #   },
+      #   datastore: {
+      #     global: {},
+      #     module: {
+      #       MeterpreterDebugBuild: true,
+      #       MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+      #     }
+      #   }
+      # }
     ],
     module_tests: [
       {

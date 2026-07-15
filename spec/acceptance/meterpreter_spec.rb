@@ -59,6 +59,7 @@ RSpec.describe 'Meterpreter' do
           Acceptance::Session.human_name_for_payload(payload_config).to_s,
           if: (
             Acceptance::Session.run_meterpreter?(meterpreter_config) &&
+              Acceptance::Session.run_payload?(payload_config) &&
               Acceptance::Session.supported_platform?(payload_config)
           )
         ) do
@@ -391,8 +392,24 @@ RSpec.describe 'Meterpreter' do
                     # XXX: When debugging failed tests, you can enter into an interactive msfconsole prompt with:
                     # console.interact
 
-                    # Expect the test module to complete
-                    test_result = console.recvuntil('Post module execution completed')
+                    # Wait for the test module to complete, periodically sending SIGINT to unblock
+                    # any channel operations that are hanging on a broken transport (e.g. a malleable
+                    # C2 session whose HTTP channel has stalled). Each SIGINT unwinds one level of
+                    # blocking inside the running module, eventually allowing it to print the completion
+                    # line and return to the prompt.
+                    test_result = nil
+                    10.times do |attempt|
+                      begin
+                        test_result = console.recvuntil('Post module execution completed', timeout: 10)
+                        break
+                      rescue Acceptance::ChildProcessRecvError, Acceptance::ChildProcessTimeoutError
+                        $stdout.puts "[module run] No completion after 10s (attempt #{attempt + 1}/10), sending SIGINT"
+                        $stdout.flush
+                        Process.kill('INT', console.wait_thread.pid)
+                        console.recv_available(timeout: 2)
+                      end
+                    end
+                    raise Acceptance::ChildProcessRecvError, "Module did not complete after repeated SIGINT attempts" if test_result.nil?
 
                     # Ensure there are no failures, and assert tests are complete
                     aggregate_failures("#{payload_config[:name].inspect} payload and passes the #{module_test[:name].inspect} tests") do

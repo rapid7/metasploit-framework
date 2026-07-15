@@ -150,7 +150,48 @@ RSpec.describe Msf::Handler::ReverseHttp do
       end
 
       specify 'just a slash' do
-        expect(luri).to eql('/')
+        expect(luri).to eql('')
+      end
+    end
+
+    context 'with a blank LURI (default)' do
+      let(:datastore) do
+        { 'LURI' => '' }
+      end
+
+      specify 'returns empty string' do
+        expect(luri).to eql('')
+      end
+
+      specify 'does not produce a double-slash when concatenated with a /path' do
+        # This is the key regression case: luri + "/some/path" must not produce "//some/path".
+        # A double-slash causes the transport config URI embedded in the payload to mismatch
+        # the URI registered on the handler, breaking post-session HTTP communication.
+        expect(luri + '/some/generated/path').to eql('/some/generated/path')
+      end
+    end
+
+    context 'with LURI unset' do
+      let(:datastore) do
+        { 'LHOST' => '127.0.0.1' }
+      end
+
+      specify 'returns empty string' do
+        expect(luri).to eql('')
+      end
+
+      specify 'does not produce a double-slash when concatenated with a /path' do
+        expect(luri + '/some/generated/path').to eql('/some/generated/path')
+      end
+    end
+
+    context 'with a non-root LURI prefix' do
+      let(:datastore) do
+        { 'LURI' => '/custom' }
+      end
+
+      specify 'does not produce a double-slash when concatenated with a /path' do
+        expect(luri + '/some/generated/path').to eql('/custom/some/generated/path')
       end
     end
 

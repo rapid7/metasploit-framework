@@ -212,7 +212,6 @@ class MetasploitModule < Msf::Post
     upload_show_args_binary(show_args_binary)
     upload_show_args_binary(show_args_binary_space)
     upload_show_args_binary(show_args_binary_special)
-  
     test_string = Rex::Text.rand_text_alpha(4)
   
     it 'should accept blank strings and return the create_process output' do
@@ -270,5 +269,18 @@ class MetasploitModule < Msf::Post
       output = create_process(show_args_binary_special[:cmd], args: [test_string, test_string])
       valid_show_args_response?(output, expected: [show_args_binary_special[:cmd], test_string, test_string])
     end
+  end
+
+  def cleanup
+    [show_args_binary, show_args_binary_space, show_args_binary_special].each do |details|
+      path = details[:upload_path]
+      if file_exist?(path)
+        file_rm(path)
+        vprint_status("Cleaned up #{path}")
+      end
+    rescue StandardError => e
+      print_warning("Failed to clean up #{path}: #{e}")
+    end
+    super
   end
 end

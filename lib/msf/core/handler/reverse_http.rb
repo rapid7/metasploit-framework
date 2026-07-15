@@ -184,9 +184,17 @@ module ReverseHttp
 
     u = base_uri.dup
 
+    # Return empty string for blank LURI (no prefix). This avoids producing
+    # double-slash URIs like //path when luri is concatenated with a generated
+    # URI that already starts with /.
+    return '' if u.empty?
+
     while u[-1] == '/'
       u.chop!
     end
+
+    # Also return empty string if the input was only slashes (e.g. LURI='/')
+    return '' if u.empty?
 
     u = "/#{u}" unless u[0] == '/'
 

@@ -31,6 +31,29 @@ module Acceptance::Session
     ENV['SESSION_MODULE_TEST'].include?(module_test)
   end
 
+  # Allows restricting which payload configs are run with the SESSION_PAYLOAD environment variable.
+  # Matches against the payload name exactly (e.g. SESSION_PAYLOAD=php/meterpreter_reverse_http)
+  # and optionally the malleable C2 profile filename after a comma
+  # (e.g. SESSION_PAYLOAD=php/meterpreter_reverse_http,base64_transforms).
+  # @return [TrueClass, FalseClass] True if the given payload config should be run, false otherwise.
+  def self.run_payload?(payload_config)
+    return true if ENV['SESSION_PAYLOAD'].blank?
+
+    filter = ENV['SESSION_PAYLOAD']
+    parts = filter.split(',').map(&:strip)
+    payload_name = payload_config[:name].to_s
+
+    # Exact match on payload name (first part before comma)
+    return false unless payload_name == parts[0]
+
+    # If a profile name is also specified (second part after comma), match against the MALLEABLEC2 filename
+    return true if parts.length == 1
+
+    profile_path = payload_config.dig(:datastore, :module, :MALLEABLEC2).to_s
+    profile_name = File.basename(profile_path, '.*')
+    parts[1..].any? { |part| profile_name.include?(part) }
+  end
+
   # Allows restricting the tests of a specific session's test suite with the SESSION environment variable
   # @return [TrueClass, FalseClass] True if the given session should be run, false otherwise.
   def self.run_session?(session_config)
