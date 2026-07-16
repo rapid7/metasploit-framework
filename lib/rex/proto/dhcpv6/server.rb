@@ -116,7 +116,10 @@ module Rex
             buf, addr = sock.recvfrom(65535)
             next if buf.nil? || buf.empty?
 
-            client_host = addr[3]
+            # recvfrom's sender info has varied across rex-socket versions: newer
+            # returns [af, port, host, host], older returns the host string
+            # directly. Handle both so the reply reaches the real client.
+            client_host = addr.is_a?(::Array) ? addr[3] : addr
             result = handle_request(buf)
             next if result.nil?
 
@@ -133,7 +136,10 @@ module Rex
         def join_multicast_group
           group = Rex::Socket.addr_aton(Constants::ALL_DHCP_RELAY_AGENTS_AND_SERVERS)
           ifindex = interface_index
-          sock.setsockopt(::Socket::IPPROTO_IPV6, ipv6_join_group_opt, group + [ifindex].pack('N'))
+          # struct ipv6_mreq = 16-byte multicast address + native-order interface
+          # index; the index must be packed in the host's byte order, not network
+          # order, or the kernel joins on the wrong (usually zero) interface.
+          sock.setsockopt(::Socket::IPPROTO_IPV6, ipv6_join_group_opt, group + [ifindex].pack('L'))
         rescue StandardError => e
           elog('Failed to join DHCPv6 multicast group', error: e)
         end
