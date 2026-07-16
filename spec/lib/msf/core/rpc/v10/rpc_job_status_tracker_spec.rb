@@ -261,6 +261,109 @@ RSpec.describe Msf::RPC::RpcJobStatusTracker do
             expect(stored['tag']).to eq('scanner')
           end
         end
+
+        context 'The job result contains an object whose #to_s raises' do
+          let(:raising_object) do
+            Class.new do
+              def to_s
+                raise 'boom'
+              end
+            end.new
+          end
+          let(:mock_result) { { host: '192.0.2.10', detail: raising_object } }
+
+          before(:each) do
+            job_status_tracker.completed(job_id, mock_result, mod)
+          end
+
+          it 'does not crash the tracker' do
+            expect(job_status_tracker).to be_finished(job_id)
+          end
+
+          it 'does not fall through to the "could not be stored" fallback' do
+            expect(job_status_tracker.result(job_id)).not_to have_key('error')
+          end
+
+          it 'substitutes a class-tagged placeholder for the raising leaf' do
+            stored = job_status_tracker.result(job_id)['result']
+            expect(stored['detail']).to include('unserialisable', 'RuntimeError')
+          end
+
+          it 'preserves sibling primitive leaves' do
+            stored = job_status_tracker.result(job_id)['result']
+            expect(stored['host']).to eq('192.0.2.10')
+          end
+        end
+
+        context 'The job result contains an object whose #to_s returns a huge string' do
+          let(:huge_object) do
+            Class.new do
+              def to_s
+                'x' * 1_000_000
+              end
+            end.new
+          end
+          let(:mock_result) { { blob: huge_object } }
+
+          before(:each) do
+            job_status_tracker.completed(job_id, mock_result, mod)
+          end
+
+          it 'truncates the stringified leaf to the 4096-byte cap' do
+            stored = job_status_tracker.result(job_id)['result']
+            expect(stored['blob'].bytesize).to eq(4096)
+          end
+        end
+
+        context 'The job result contains an object whose #to_s returns a non-String' do
+          let(:non_string_object) do
+            Class.new do
+              def to_s
+                42
+              end
+            end.new
+          end
+          let(:mock_result) { { detail: non_string_object } }
+
+          before(:each) do
+            job_status_tracker.completed(job_id, mock_result, mod)
+          end
+
+          it 'falls back to a class-tagged placeholder rather than crashing the tracker' do
+            stored = job_status_tracker.result(job_id)['result']
+            expect(stored['detail']).to be_a(String)
+            expect(stored['detail']).to include('unserialisable')
+          end
+
+          it 'does not fall through to the "could not be stored" fallback' do
+            expect(job_status_tracker.result(job_id)).not_to have_key('error')
+          end
+        end
+
+        context 'The job result contains an object whose #to_s returns invalid UTF-8' do
+          let(:binary_object) do
+            Class.new do
+              def to_s
+                (+"header-\xC3\x28-tail").force_encoding(Encoding::UTF_8)
+              end
+            end.new
+          end
+          let(:mock_result) { { blob: binary_object } }
+
+          before(:each) do
+            job_status_tracker.completed(job_id, mock_result, mod)
+          end
+
+          it 'scrubs the invalid bytes so the JSON encode succeeds' do
+            stored = job_status_tracker.result(job_id)['result']
+            expect(stored['blob']).to be_a(String)
+            expect(stored['blob'].valid_encoding?).to be true
+          end
+
+          it 'does not fall through to the "could not be stored" fallback' do
+            expect(job_status_tracker.result(job_id)).not_to have_key('error')
+          end
+        end
       end
     end
   end

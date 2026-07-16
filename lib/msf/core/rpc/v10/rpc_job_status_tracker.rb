@@ -124,8 +124,21 @@ module Msf
         when Array
           value.map { |v| json_safe(v) }
         else
-          value.to_s
+          stringify_unknown(value)
         end
+      end
+
+      # Convert an unrecognised value to a JSON-safe string. Guards against
+      # `to_s` implementations that raise, produce invalid UTF-8, or dump
+      # unbounded state. On failure the value's class name is returned instead
+      # so operators still get a diagnosable placeholder.
+      def stringify_unknown(value)
+        str = value.to_s
+        str = str.byteslice(0, 4096) if str.bytesize > 4096
+        str.valid_encoding? ? str : str.scrub
+      rescue ::Exception => e
+        class_name = (value.class.name || value.class.to_s) rescue 'UnknownClass'
+        "#<#{class_name}: unserialisable (#{e.class})>"
       end
 
       def add_fallback_result(id, mod)

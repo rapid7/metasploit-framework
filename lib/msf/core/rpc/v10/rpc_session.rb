@@ -135,6 +135,7 @@ class RPC_Session < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('session.shell_write', 2, "DATA")
   def rpc_shell_write( sid, data)
+    error(400, 'Data must be a String') unless data.is_a?(String)
     s = _valid_session(sid,"shell")
     begin
       res = s.shell_write(data)
@@ -251,6 +252,7 @@ class RPC_Session < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('session.ring_put', 2, "DATA")
   def rpc_ring_put(sid, data)
+    error(400, 'Data must be a String') unless data.is_a?(String)
     s = _valid_session(sid,"ring")
     begin
       res = s.shell_write(data)
@@ -327,6 +329,7 @@ class RPC_Session < RPC_Base
   # @example Here's how you would use this from the client:
   # rpc.call('session.interactive_write', 2, "sysinfo")
   def rpc_interactive_write(sid, data)
+    error(400, 'Data must be a String') unless data.is_a?(String)
     session = _valid_interactive_session(sid)
 
     if SHELL_SESSION_TYPES.include?(session.type)
