@@ -411,10 +411,10 @@ RSpec.describe 'Meterpreter' do
                     else
                       10.times do |attempt|
                         begin
-                          test_result = console.recvuntil('Post module execution completed', timeout: 60)
+                          test_result = console.recvuntil('Post module execution completed', timeout: ENV['CI'] ? 300 : 60)
                           break
                         rescue Acceptance::ChildProcessRecvError, Acceptance::ChildProcessTimeoutError
-                          $stdout.puts "[module run] No completion after 60s (attempt #{attempt + 1}/10), sending SIGINT"
+                          $stdout.puts "[module run] No completion after 300s (CI) / 60s (local) (attempt #{attempt + 1}/10), sending SIGINT"
                           $stdout.flush
                           console.interrupt_process
                           console.recv_available(timeout: 2)

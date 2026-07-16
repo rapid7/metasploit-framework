@@ -27,9 +27,6 @@ class MetasploitModule < Msf::Post
       [
         OptAddressLocal.new('LHOST', [true, 'The local IP address to use for binding.', '127.0.0.1']),
         OptAddress.new('RHOST', [true, 'The remote IP address to use for binding.', '127.0.0.1']),
-        # HTTP polling payloads have inherent latency (backoff ramp + HTTP round-trip) even
-        # after the backoff resets to 0 after each response, so use a generous CI timeout.
-        # TCP payloads could use a much lower value but 60s is cheap headroom for both.
         OptInt.new('TIMEOUT', [true, 'The timeout in seconds to use when waiting for socket operations.', ENV['CI'] ? 60 : 20]),
       ], self.class
     )
@@ -50,38 +47,10 @@ class MetasploitModule < Msf::Post
 
     server = TCPSocketServer.new(host: params.peerhost, port: params.peerport)
     params.peerport = server.port
-    # DEBUG(2026-07): trace channel setup timing so we can pinpoint hangs on
-    # the malleable-C2 / PHP HTTP transport. Remove once stable.
-    debug_ts_start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    print_status("DEBUG: session.create -> #{params.peerhost}:#{params.peerport} (tcp client channel)")
     client = session.create(params)
-    print_status("DEBUG: session.create returned in #{'%.2f' % (Process.clock_gettime(Process::CLOCK_MONOTONIC) - debug_ts_start)}s cid=#{debug_channel_id(client)} client.class=#{client.class}")
-    debug_ts_start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     server_client = server.start(timeout: timeout)
-    print_status("DEBUG: server.start returned in #{'%.2f' % (Process.clock_gettime(Process::CLOCK_MONOTONIC) - debug_ts_start)}s")
     server.stop
     [client, server_client]
-  end
-
-  # DEBUG(2026-07): best-effort resolver for the meterpreter channel id backing
-  # a socket returned by session.create — may be a Rex::Post::Meterpreter::Stream,
-  # a TCPSocket-like wrapper, or a plain socket depending on the session. Never
-  # raises so debug prints don't crash the test.
-  def debug_channel_id(socket_or_channel)
-    return socket_or_channel.cid if socket_or_channel.respond_to?(:cid)
-
-    # Rex::Socket wrappers expose the underlying channel via #channel
-    if socket_or_channel.respond_to?(:channel) && socket_or_channel.channel.respond_to?(:cid)
-      return socket_or_channel.channel.cid
-    end
-
-    # Some wrappers expose the socket via #sock; peek at instance vars as a last resort
-    inner = socket_or_channel.instance_variable_get(:@channel) || socket_or_channel.instance_variable_get(:@sock)
-    return inner.cid if inner.respond_to?(:cid)
-
-    '?'
-  rescue StandardError
-    '?'
   end
 
   def tcp_server_socket_trio(params={}, timeout: datastore['TIMEOUT'])
@@ -137,17 +106,8 @@ class MetasploitModule < Msf::Post
     it '[TCP-Client] Receives data from the peer' do
       client, server_client = tcp_client_socket_pair
       data = Random.new.bytes(rand(10..100))
-      # DEBUG(2026-07): trace payload/timing to find where malleable-C2 PHP hangs.
-      # Guard cid lookup — client may be a plain socket wrapper without #cid.
-      dbg_cid = debug_channel_id(client)
-      print_status("DEBUG: cid=#{dbg_cid} client.class=#{client.class} server_client.write #{data.length} bytes to peer")
-      t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       server_client.write(data)
-      print_status("DEBUG: server_client.write returned in #{'%.2f' % (Process.clock_gettime(Process::CLOCK_MONOTONIC) - t0)}s; calling client.read(#{data.length})...")
-      t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      received = client.read(data.length)
-      print_status("DEBUG: client.read returned in #{'%.2f' % (Process.clock_gettime(Process::CLOCK_MONOTONIC) - t0)}s; got #{received.nil? ? 'nil' : "#{received.length} bytes"}")
-      ret = received == data
+      ret = client.read(data.length) == data
       client.close
       server_client.close
       ret
@@ -156,16 +116,8 @@ class MetasploitModule < Msf::Post
     it '[TCP-Client] Sends data to the peer' do
       client, server_client = tcp_client_socket_pair
       data = Random.new.bytes(rand(10..100))
-      # DEBUG(2026-07): trace payload/timing to find where malleable-C2 PHP hangs.
-      dbg_cid = debug_channel_id(client)
-      print_status("DEBUG: cid=#{dbg_cid} client.class=#{client.class} client.write #{data.length} bytes")
-      t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       client.write(data)
-      print_status("DEBUG: client.write returned in #{'%.2f' % (Process.clock_gettime(Process::CLOCK_MONOTONIC) - t0)}s; server_client.read...")
-      t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      received = server_client.read(data.length)
-      print_status("DEBUG: server_client.read returned in #{'%.2f' % (Process.clock_gettime(Process::CLOCK_MONOTONIC) - t0)}s; got #{received.nil? ? 'nil' : "#{received.length} bytes"}")
-      ret = received == data
+      ret = server_client.read(data.length) == data
       client.close
       server_client.close
       ret
@@ -173,44 +125,21 @@ class MetasploitModule < Msf::Post
 
     it '[TCP-Client] Propagates close events to the peer' do
       client, server_client = tcp_client_socket_pair
-      # DEBUG(2026-07): trace close propagation direction (client -> peer).
-      dbg_cid = debug_channel_id(client)
-      print_status("DEBUG: cid=#{dbg_cid} client.class=#{client.class} calling client.close")
-      t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       client.close
-      print_status("DEBUG: client.close returned in #{'%.2f' % (Process.clock_gettime(Process::CLOCK_MONOTONIC) - t0)}s; polling server_client.eof? ...")
       # Use IO.select with a short poll interval to avoid blocking indefinitely on eof?
-      t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       ret = retry_until_truthy(timeout: datastore['TIMEOUT']) do
         IO.select([server_client], nil, nil, 0.1) && server_client.eof?
       end
-      print_status("DEBUG: retry loop finished in #{'%.2f' % (Process.clock_gettime(Process::CLOCK_MONOTONIC) - t0)}s ret=#{ret.inspect}")
       server_client.close
       ret
     end
 
     it '[TCP-Client] Propagates close events from the peer' do
       client, server_client = tcp_client_socket_pair
-      # DEBUG(2026-07): trace close propagation direction (peer -> client). On
-      # HTTP transports the framework can only learn about a peer close via an
-      # explicit core_channel_read poll returning EOF/failure.
-      dbg_cid = debug_channel_id(client)
-      print_status("DEBUG: cid=#{dbg_cid} client.class=#{client.class} calling server_client.close")
       server_client.close
       # this behavior is wrong, it should just be an EOF, but when the channel is cleaned up, the socket is closed
       # this is how it's worked for years, so we'll test that it's still consistently wrong
-      t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      dbg_last_state = nil
-      ret = retry_until_truthy(timeout: datastore['TIMEOUT']) do
-        state = "closed?=#{client.closed?} eof?=#{client.respond_to?(:eof?) ? client.eof? : 'n/a'} elapsed=#{'%.1f' % (Process.clock_gettime(Process::CLOCK_MONOTONIC) - t0)}s"
-        if state != dbg_last_state
-          print_status("DEBUG: cid=#{dbg_cid} #{state}")
-          dbg_last_state = state
-        end
-        client.closed?
-      end
-      print_status("DEBUG: retry loop finished ret=#{ret.inspect} final state closed?=#{client.closed?}")
-      ret
+      retry_until_truthy(timeout: datastore['TIMEOUT']) { client.closed? }
     end
   end
 

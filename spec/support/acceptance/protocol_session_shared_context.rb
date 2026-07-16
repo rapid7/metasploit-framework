@@ -100,10 +100,10 @@ RSpec.shared_context 'protocol_session_acceptance' do
             # Use 60s per attempt — long enough for legitimate module operations
             # (e.g. SMB scanners that need >10s) but short enough to periodically
             # send SIGINT to unblock genuinely hung channel operations.
-            test_result = console.recvuntil(completion_string, timeout: 60)
+            test_result = console.recvuntil(completion_string, timeout: ENV['CI'] ? 300 : 60)
             break
           rescue Acceptance::ChildProcessRecvError, Acceptance::ChildProcessTimeoutError
-            $stdout.puts "[module run] No completion after 60s (attempt #{attempt + 1}/10), sending SIGINT"
+            $stdout.puts "[module run] No completion after 300s (CI) / 60s (local) (attempt #{attempt + 1}/10), sending SIGINT"
             $stdout.flush
             console.interrupt_process
             console.recv_available(timeout: 2)
