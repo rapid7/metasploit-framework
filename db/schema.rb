@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_11_000000) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_08_120002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -381,6 +381,66 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_11_000000) do
     t.index ["mtype"], name: "index_module_details_on_mtype"
     t.index ["name"], name: "index_module_details_on_name"
     t.index ["refname"], name: "index_module_details_on_refname"
+  end
+
+  create_table "module_execution_errors", force: :cascade do |t|
+    t.bigint "module_execution_id", null: false
+    t.text "exception_class"
+    t.text "message"
+    t.text "backtrace"
+    t.text "lifecycle_phase", null: false
+    t.text "failure_reason"
+    t.timestamptz "occurred_at", null: false
+    t.timestamptz "created_at", null: false
+    t.index ["module_execution_id", "occurred_at"], name: "idx_module_execution_errors_on_execution_and_occurred_at"
+    t.check_constraint "lifecycle_phase = ANY (ARRAY['setup'::text, 'check'::text, 'exploit'::text, 'cleanup'::text, 'post'::text, 'run'::text])", name: "module_execution_errors_lifecycle_phase_check"
+  end
+
+  create_table "module_execution_events", force: :cascade do |t|
+    t.bigint "module_execution_id", null: false
+    t.text "name", null: false
+    t.jsonb "payload"
+    t.timestamptz "occurred_at", null: false
+    t.timestamptz "created_at", null: false
+    t.index ["module_execution_id", "occurred_at"], name: "idx_module_execution_events_on_execution_and_occurred_at"
+    t.index ["name", "occurred_at"], name: "idx_module_execution_events_on_name_and_occurred_at"
+  end
+
+  create_table "module_executions", force: :cascade do |t|
+    t.bigint "workspace_id", null: false
+    t.text "module_reference_name", null: false
+    t.text "module_type", null: false
+    t.text "kind", default: "run", null: false
+    t.jsonb "options_snapshot"
+    t.text "originating_interface", null: false
+    t.bigint "originating_user_id"
+    t.text "originating_token_ref"
+    t.bigint "parent_execution_id"
+    t.timestamptz "started_at", null: false
+    t.timestamptz "ended_at"
+    t.text "terminal_status"
+    t.text "failure_reason"
+    t.text "failure_message"
+    t.text "check_code"
+    t.text "check_message"
+    t.integer "single_entity_failure_count", default: 0, null: false
+    t.jsonb "last_single_entity_errors"
+    t.timestamptz "created_at", null: false
+    t.timestamptz "updated_at", null: false
+    t.index ["kind", "originating_interface"], name: "idx_module_executions_on_kind_and_originating_interface"
+    t.index ["module_reference_name", "started_at"], name: "idx_module_executions_on_reference_name_and_started_at", order: { started_at: :desc }
+    t.index ["originating_user_id"], name: "index_module_executions_on_originating_user_id"
+    t.index ["parent_execution_id"], name: "idx_module_executions_on_parent_execution_id_not_null", where: "(parent_execution_id IS NOT NULL)"
+    t.index ["workspace_id", "started_at"], name: "idx_module_executions_on_workspace_and_started_at", order: { started_at: :desc }
+    t.index ["workspace_id"], name: "index_module_executions_on_workspace_id"
+    t.check_constraint "check_code IS NULL OR (check_code = ANY (ARRAY['vulnerable'::text, 'appears'::text, 'detected'::text, 'safe'::text, 'unknown'::text, 'unsupported'::text]))", name: "module_executions_check_code_check"
+    t.check_constraint "ended_at IS NULL AND (terminal_status IS NULL OR terminal_status = 'running'::text) OR ended_at IS NOT NULL AND terminal_status IS NOT NULL AND terminal_status <> 'running'::text", name: "module_executions_terminal_status_lifecycle_check"
+    t.check_constraint "ended_at IS NULL OR ended_at >= started_at", name: "module_executions_ended_at_after_started_at_check"
+    t.check_constraint "kind = 'check'::text OR check_code IS NULL AND check_message IS NULL", name: "module_executions_check_code_only_on_check_kind"
+    t.check_constraint "kind = ANY (ARRAY['run'::text, 'check'::text, 'import'::text, 'direct_write'::text])", name: "module_executions_kind_check"
+    t.check_constraint "module_type = ANY (ARRAY['exploit'::text, 'auxiliary'::text, 'post'::text, 'payload'::text, 'encoder'::text, 'evasion'::text, 'nop'::text, 'external'::text])", name: "module_executions_module_type_check"
+    t.check_constraint "originating_interface = ANY (ARRAY['console'::text, 'rpc'::text, 'json_rpc'::text, 'mcp'::text, 'external'::text, 'import'::text, 'plugin'::text, 'autocheck'::text])", name: "module_executions_originating_interface_check"
+    t.check_constraint "terminal_status IS NULL OR (terminal_status = ANY (ARRAY['running'::text, 'success'::text, 'neutral'::text, 'expected_failure'::text, 'unhandled_exception'::text]))", name: "module_executions_terminal_status_check"
   end
 
   create_table "module_mixins", id: :serial, force: :cascade do |t|
@@ -825,6 +885,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_11_000000) do
     t.boolean "import_fingerprint", default: false
   end
 
+  add_foreign_key "module_execution_errors", "module_executions", on_delete: :cascade
+  add_foreign_key "module_execution_events", "module_executions", on_delete: :cascade
+  add_foreign_key "module_executions", "module_executions", column: "parent_execution_id"
+  add_foreign_key "module_executions", "users", column: "originating_user_id"
+  add_foreign_key "module_executions", "workspaces"
   add_foreign_key "service_links", "services", column: "child_id"
   add_foreign_key "service_links", "services", column: "parent_id"
 end

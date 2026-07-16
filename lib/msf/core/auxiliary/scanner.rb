@@ -101,6 +101,8 @@ def run
     end
   end
 
+  parent_execution = Msf::Reporting::CurrentExecution.current
+
   begin
 
   if (self.respond_to?('run_host'))
@@ -126,7 +128,7 @@ def run
           nmod = self.replicant
           nmod.datastore = thr_datastore
 
-          begin
+          Msf::Reporting::CurrentExecution.with(parent_execution) do
             res << { targ => nmod.run_host(targ) }
           rescue ::Rex::BindFailed
             if datastore['CHOST']
@@ -138,10 +140,11 @@ def run
           rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
             raise $!
           rescue ::Exception => e
+            Msf::Reporting::Execution.capture_exception!(nmod, e)
             print_status("Error: #{targ}: #{e.class} #{e.message}")
             elog("Error running against host #{targ}", error: e)
           ensure
-            nmod.cleanup
+            Msf::Reporting::Execution.with_phase_cleanup(nmod) { nmod.cleanup }
           end
         end
       end
@@ -215,7 +218,7 @@ def run
           thread = framework.threads.spawn("ScannerBatch(#{self.refname})", false, batch) do |bat|
             nmod = self.replicant
             mybatch = bat.dup
-            begin
+            Msf::Reporting::CurrentExecution.with(parent_execution) do
               nmod.run_batch(mybatch)
             rescue ::Rex::BindFailed
               if datastore['CHOST']
@@ -227,9 +230,10 @@ def run
             rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
               raise $!
             rescue ::Exception => e
+              Msf::Reporting::Execution.capture_exception!(nmod, e)
               print_status("Error: #{mybatch[0]}-#{mybatch[-1]}: #{e}")
             ensure
-              nmod.cleanup
+              Msf::Reporting::Execution.with_phase_cleanup(nmod) { nmod.cleanup }
             end
           end
           thread[:batch_size] = batch.length
@@ -354,13 +358,11 @@ def add_delay_jitter(_delay, _jitter)
 end
 
 def fail_with(reason, msg = nil, abort: false)
-  if abort
-    # raising Failed will case the run to be aborted
-    raise Msf::Auxiliary::Failed, "#{reason.to_s}: #{msg}"
-  else
-    # raising AttemptFailed will cause the run_host / run_batch to be aborted
-    raise Msf::Auxiliary::Scanner::AttemptFailed, "#{reason.to_s}: #{msg}"
-  end
+  Msf::Reporting::Execution.record_failure!(self, failure_reason: reason, message: msg)
+  exception_class = abort ? Msf::Auxiliary::Failed : Msf::Auxiliary::Scanner::AttemptFailed
+  exception = exception_class.new("#{reason}: #{msg}")
+  Msf::Reporting::Execution.mark_exception_recorded(exception)
+  raise exception
 end
 
 end

@@ -1,4 +1,23 @@
 GIT
+  remote: https://github.com/cdelafuente-r7/metasploit_data_models
+  revision: f0acdb12346b0493ac48b2178c47721e97fa86a1
+  branch: module-execution-data-models
+  specs:
+    metasploit_data_models (6.0.19)
+      activerecord (>= 7.0, < 8.1)
+      activesupport (>= 7.0, < 8.1)
+      arel-helpers
+      bigdecimal
+      drb
+      metasploit-concern
+      metasploit-model (>= 5.0.4)
+      mutex_m
+      pg
+      railties (>= 7.0, < 8.1)
+      recog
+      webrick
+
+GIT
   remote: https://github.com/rapid7/LicenseFinder
   revision: 2b1aefcfd6d0745d17843050c1c89f973c1fa98c
   ref: 2b1aefcfd6d0745d17843050c1c89f973c1fa98c
@@ -370,19 +389,6 @@ GEM
       mutex_m
       railties (>= 7.0, < 8.1)
     metasploit-payloads (2.0.245)
-    metasploit_data_models (6.0.18)
-      activerecord (>= 7.0, < 8.1)
-      activesupport (>= 7.0, < 8.1)
-      arel-helpers
-      bigdecimal
-      drb
-      metasploit-concern
-      metasploit-model (>= 5.0.4)
-      mutex_m
-      pg
-      railties (>= 7.0, < 8.1)
-      recog
-      webrick
     metasploit_payloads-mettle (1.0.46)
     method_source (1.1.0)
     mime-types (3.7.0)
@@ -715,6 +721,7 @@ DEPENDENCIES
   license_finder!
   memory_profiler
   metasploit-framework!
+  metasploit_data_models!
   octokit
   pry-byebug
   rake

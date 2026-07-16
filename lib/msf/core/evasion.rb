@@ -151,7 +151,10 @@ module Msf
     end
 
     def fail_with(reason, msg=nil)
-      raise Msf::Evasion::Failed, "#{reason}: #{msg}"
+      Msf::Reporting::Execution.record_failure!(self, failure_reason: reason, message: msg)
+      exception = Msf::Evasion::Failed.new("#{reason}: #{msg}")
+      Msf::Reporting::Execution.mark_exception_recorded(exception)
+      raise exception
     end
 
     def evasion_commands
