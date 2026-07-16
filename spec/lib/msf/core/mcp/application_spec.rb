@@ -376,6 +376,10 @@ RSpec.describe Msf::MCP::Application do
   describe '#start_mcp_server' do
     let(:mock_mcp_server) { instance_double(Msf::MCP::Server) }
 
+    before do
+      allow(mock_mcp_server).to receive(:class).and_return(Msf::MCP::Server)
+    end
+
     it 'starts server with stdio transport by default' do
       app = described_class.new([], output: output)
       app.instance_variable_set(:@config, valid_config)
@@ -413,7 +417,7 @@ RSpec.describe Msf::MCP::Application do
       app.send(:start_mcp_server)
 
       expect(output.string).to include('Starting MCP server on HTTP transport...')
-      expect(output.string).to include('Server listening on http://0.0.0.0:3000')
+      expect(output.string).to include('MCP server listening on http://0.0.0.0:3000')
     end
 
     it 'uses default host and port for HTTP transport' do

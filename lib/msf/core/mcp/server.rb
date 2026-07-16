@@ -98,6 +98,12 @@ module Msf::MCP
       @mcp_server = nil
     end
 
+    # Generate a random authentication token
+    # @return [String]
+    def self.generate_auth_token
+      SecureRandom.hex(32)
+    end
+
     private
 
     ##
