@@ -99,13 +99,49 @@ RSpec.describe Msf::Reporting::Execution do
         ended_at: ended,
         terminal_status: 'expected_failure',
         failure_reason: 'no-target',
-        failure_message: 'no target reached'
+        failure_message: 'no target reached',
+        check_code: nil,
+        check_message: nil
       )
       described_class.finalize!(
         execution,
         terminal_status: 'expected_failure',
         failure_reason: 'no-target',
         failure_message: 'no target reached',
+        ended_at: ended
+      )
+    end
+
+    it 'stores check_code and check_message when supplied' do
+      execution = double('execution_row', id: 13)
+      ended = Time.utc(2025, 6, 1, 0, 0, 0)
+      expect(execution).to receive(:update!).with(
+        ended_at: ended,
+        terminal_status: 'neutral',
+        failure_reason: nil,
+        failure_message: nil,
+        check_code: 'safe',
+        check_message: 'nothing here'
+      )
+      described_class.finalize!(
+        execution,
+        terminal_status: 'neutral',
+        check_code: Msf::Exploit::CheckCode::Safe,
+        check_message: 'nothing here',
+        ended_at: ended
+      )
+    end
+
+    it 'accepts a bare string for check_code' do
+      execution = double('execution_row', id: 14)
+      ended = Time.utc(2025, 6, 1, 0, 0, 0)
+      expect(execution).to receive(:update!).with(
+        hash_including(check_code: 'vulnerable', check_message: nil)
+      )
+      described_class.finalize!(
+        execution,
+        terminal_status: 'success',
+        check_code: 'vulnerable',
         ended_at: ended
       )
     end

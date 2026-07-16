@@ -67,7 +67,9 @@ RSpec.describe 'Msf::Simple::Auxiliary lifecycle wiring' do
         execution,
         terminal_status: 'success',
         failure_reason: nil,
-        failure_message: nil
+        failure_message: nil,
+        check_code: nil,
+        check_message: nil
       )
 
       Msf::Simple::Auxiliary.send(:job_run_proc, ctx, &:run)
@@ -82,7 +84,9 @@ RSpec.describe 'Msf::Simple::Auxiliary lifecycle wiring' do
         execution,
         terminal_status: 'expected_failure',
         failure_reason: Msf::Module::Failure::NoTarget,
-        failure_message: 'no target'
+        failure_message: 'no target',
+        check_code: nil,
+        check_message: nil
       )
 
       Msf::Simple::Auxiliary.send(:job_run_proc, ctx, &:run)
@@ -96,7 +100,9 @@ RSpec.describe 'Msf::Simple::Auxiliary lifecycle wiring' do
         execution,
         terminal_status: 'unhandled_exception',
         failure_reason: Msf::Module::Failure::Unknown,
-        failure_message: 'kaboom'
+        failure_message: 'kaboom',
+        check_code: nil,
+        check_message: nil
       )
 
       Msf::Simple::Auxiliary.send(:job_run_proc, ctx, &:run)
@@ -117,7 +123,9 @@ RSpec.describe 'Msf::Simple::Auxiliary lifecycle wiring' do
         execution,
         terminal_status: 'success',
         failure_reason: nil,
-        failure_message: nil
+        failure_message: nil,
+        check_code: Msf::Exploit::CheckCode::Vulnerable,
+        check_message: Msf::Exploit::CheckCode::Vulnerable.message
       )
 
       Msf::Simple::Auxiliary.send(:job_run_proc, ctx) { |m| m.check }
@@ -130,7 +138,9 @@ RSpec.describe 'Msf::Simple::Auxiliary lifecycle wiring' do
         execution,
         terminal_status: 'neutral',
         failure_reason: nil,
-        failure_message: nil
+        failure_message: nil,
+        check_code: Msf::Exploit::CheckCode::Safe,
+        check_message: Msf::Exploit::CheckCode::Safe.message
       )
 
       Msf::Simple::Auxiliary.send(:job_run_proc, ctx) { |m| m.check }
@@ -143,10 +153,91 @@ RSpec.describe 'Msf::Simple::Auxiliary lifecycle wiring' do
         execution,
         terminal_status: 'unhandled_exception',
         failure_reason: nil,
-        failure_message: 'check broke'
+        failure_message: 'check broke',
+        check_code: nil,
+        check_message: nil
       )
 
       Msf::Simple::Auxiliary.send(:job_run_proc, ctx) { |m| m.check }
+    end
+
+    it 'maps a fail_with inside check to expected_failure with typed reason and detail' do
+      allow(mod).to receive(:check) do
+        mod.fail_reason = Msf::Module::Failure::NoTarget
+        mod.fail_detail = 'no target from check'
+        raise Msf::Auxiliary::Failed, 'no target from check'
+      end
+      allow(Msf::Reporting::Execution).to receive(:start!).and_return(execution)
+      expect(Msf::Reporting::Execution).to receive(:finalize!).with(
+        execution,
+        terminal_status: 'expected_failure',
+        failure_reason: Msf::Module::Failure::NoTarget,
+        failure_message: 'no target from check',
+        check_code: nil,
+        check_message: nil
+      )
+
+      Msf::Simple::Auxiliary.send(:job_run_proc, ctx) { |m| m.check }
+    end
+  end
+
+  describe 'cleanup on the happy path' do
+    let(:ctx) do
+      [mod, run_uuid, listener,
+       { originating_interface: 'console', kind: Msf::Reporting::Execution::KIND_RUN }]
+    end
+
+    it 'invokes mod.cleanup exactly once on the happy path' do
+      allow(Msf::Reporting::Execution).to receive(:start!).and_return(execution)
+      allow(Msf::Reporting::Execution).to receive(:finalize!)
+      expect(mod).to receive(:cleanup).once
+
+      Msf::Simple::Auxiliary.send(:job_run_proc, ctx, &:run)
+    end
+
+    it 'invokes mod.cleanup while CurrentExecution is still bound to the execution' do
+      allow(Msf::Reporting::Execution).to receive(:start!).and_return(execution)
+      allow(Msf::Reporting::Execution).to receive(:finalize!)
+
+      observed = nil
+      allow(mod).to receive(:cleanup) do
+        observed = Msf::Reporting::CurrentExecution.current
+      end
+
+      Msf::Simple::Auxiliary.send(:job_run_proc, ctx, &:run)
+      expect(observed).to be(execution)
+    end
+
+    it 'wraps mod.cleanup with with_phase_cleanup so raised exceptions record phase=cleanup' do
+      allow(Msf::Reporting::Execution).to receive(:start!).and_return(execution)
+      allow(Msf::Reporting::Execution).to receive(:finalize!)
+      allow(mod).to receive(:cleanup).and_raise(RuntimeError, 'cleanup boom')
+
+      expect(::Mdm::ModuleExecutionError).to receive(:create!).with(
+        hash_including(
+          module_execution: execution,
+          lifecycle_phase: 'cleanup',
+          exception_class: 'RuntimeError'
+        )
+      )
+
+      Msf::Simple::Auxiliary.send(:job_run_proc, ctx, &:run)
+    end
+
+    it 'does not invoke mod.cleanup twice when a rescue branch also runs cleanup' do
+      allow(Msf::Reporting::Execution).to receive(:start!).and_return(execution)
+      allow(Msf::Reporting::Execution).to receive(:finalize!)
+      allow(mod).to receive(:run).and_raise(Msf::Auxiliary::Complete)
+      expect(mod).to receive(:cleanup).once
+
+      Msf::Simple::Auxiliary.send(:job_run_proc, ctx, &:run)
+    end
+
+    it 'notify_job_complete does NOT re-invoke mod.cleanup' do
+      allow(mod.framework.events).to receive(:on_module_complete)
+      expect(mod).not_to receive(:cleanup)
+
+      Msf::Simple::Auxiliary.send(:notify_job_complete, [mod])
     end
   end
 end

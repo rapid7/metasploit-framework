@@ -37,6 +37,8 @@ RSpec.describe 'Reporting schema presence', type: :model do
         'terminal_status',
         'failure_reason',
         'failure_message',
+        'check_code',
+        'check_message',
         'single_entity_failure_count',
         'last_single_entity_errors',
         'created_at',
@@ -47,13 +49,16 @@ RSpec.describe 'Reporting schema presence', type: :model do
     it 'exposes the documented enum constants' do
       expect(klass::KINDS).to match_array(%w[run check import direct_write])
       expect(klass::MODULE_TYPES).to match_array(
-        %w[exploit auxiliary post payload encoder evasion nop external]
+        %w[exploit auxiliary post payload encoder evasion nop]
       )
       expect(klass::ORIGINATING_INTERFACES).to match_array(
         %w[console rpc json_rpc mcp external import plugin autocheck]
       )
       expect(klass::TERMINAL_STATUSES).to match_array(
         %w[running success neutral expected_failure unhandled_exception]
+      )
+      expect(klass::CHECK_CODES).to match_array(
+        %w[vulnerable appears detected safe unknown unsupported]
       )
     end
 

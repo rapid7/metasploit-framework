@@ -79,14 +79,14 @@ module Auxiliary
         "Auxiliary: #{mod.refname}",
         ctx,
         Proc.new { |ctx_| self.job_run_proc(ctx_, &:run) },
-        Proc.new { |ctx_| self.job_cleanup_proc(ctx_) }
+        Proc.new { |ctx_| self.notify_job_complete(ctx_) }
       )
       # Propagate this back to the caller for console mgmt
       omod.job_id = mod.job_id
       return [run_uuid, mod.job_id]
     else
       result = self.job_run_proc(ctx, &:run)
-      self.job_cleanup_proc(ctx)
+      self.notify_job_complete(ctx)
 
       return result
     end
@@ -142,7 +142,7 @@ module Auxiliary
             m.check
           end
         end,
-        Proc.new { |ctx_| self.job_cleanup_proc(ctx_) }
+        Proc.new { |ctx_| self.notify_job_complete(ctx_) }
       )
 
       [run_uuid, mod.job_id]
@@ -151,7 +151,7 @@ module Auxiliary
       result = self.job_run_proc(ctx) do |m|
         m.check
       end
-      self.job_cleanup_proc(ctx)
+      self.notify_job_complete(ctx)
 
       result
     end
@@ -187,6 +187,19 @@ protected
     last_check_code = nil
     result = nil
     failure_exception = nil
+    # +invoke_cleanup+ guarantees +mod.cleanup+ runs at most once,
+    # inside +Msf::Reporting::CurrentExecution.with+ so cleanup-phase
+    # errors are attributed to the active +Mdm::ModuleExecution+ row.
+    # Every code path below (happy + each rescue branch) MUST call it;
+    # the flag is set before invocation so an exception raised by
+    # cleanup itself does not re-enter this method.
+    cleanup_called = false
+    invoke_cleanup = lambda do
+      next if cleanup_called
+
+      cleanup_called = true
+      Msf::Reporting::Execution.with_phase_cleanup(mod) { mod.cleanup }
+    end
     begin
       Msf::Reporting::CurrentExecution.with(execution) do
         job_listener.start run_uuid
@@ -198,9 +211,10 @@ protected
         # Store the check result if the block returned a CheckCode
         mod.check_code = result if result.is_a?(Msf::Exploit::CheckCode)
         last_check_code = result if result.is_a?(Msf::Exploit::CheckCode)
+        invoke_cleanup.call
       rescue Msf::Auxiliary::Complete => e
         failure_exception = e
-        Msf::Reporting::Execution.with_phase_cleanup(mod) { mod.cleanup }
+        invoke_cleanup.call
         return
       rescue Msf::Auxiliary::Failed => e
         mod.error = e
@@ -212,7 +226,7 @@ protected
           mod.fail_reason = Msf::Module::Failure::Unknown
         end
         mod.fail_detail ||= e.to_s
-        Msf::Reporting::Execution.with_phase_cleanup(mod) { mod.cleanup }
+        invoke_cleanup.call
         return
       rescue ::Timeout::Error => e
         mod.error = e
@@ -220,7 +234,7 @@ protected
         mod.fail_reason = Msf::Module::Failure::TimeoutExpired
         mod.fail_detail ||= e.to_s
         mod.print_error("Auxiliary triggered a timeout exception")
-        Msf::Reporting::Execution.with_phase_cleanup(mod) { mod.cleanup }
+        invoke_cleanup.call
         return
       rescue ::Interrupt => e
         mod.error = e
@@ -228,7 +242,7 @@ protected
         mod.fail_reason = Msf::Module::Failure::UserInterrupt
         mod.fail_detail ||= e.to_s
         mod.print_error("Stopping running against current target...")
-        Msf::Reporting::Execution.with_phase_cleanup(mod) { mod.cleanup }
+        invoke_cleanup.call
         mod.print_status("Control-C again to force quit all targets.")
         begin
           Rex.sleep(0.5)
@@ -242,6 +256,7 @@ protected
         mod.fail_reason = Msf::Module::Failure::BadConfig
         mod.fail_detail ||= e.to_s
         ::Msf::Ui::Formatter::OptionValidateError.print_error(mod, e)
+        invoke_cleanup.call
       rescue ::Exception => e
         mod.error = e
         failure_exception = e
@@ -259,7 +274,7 @@ protected
 
         elog('Auxiliary failed', error: e)
         Msf::Reporting::Execution.capture_exception!(mod, e, failure_reason: mod.fail_reason)
-        Msf::Reporting::Execution.with_phase_cleanup(mod) { mod.cleanup }
+        invoke_cleanup.call
       end
     ensure
       # Notify the job listener exactly once. +failure_exception+ is
@@ -289,7 +304,9 @@ protected
           execution,
           terminal_status: terminal_status,
           failure_reason: failure_reason,
-          failure_message: failure_message
+          failure_message: failure_message,
+          check_code: last_check_code,
+          check_message: last_check_code.respond_to?(:message) ? last_check_code.message : nil
         )
       end
     end
@@ -306,6 +323,19 @@ protected
     if execution_kind == Msf::Reporting::Execution::KIND_CHECK
       if unhandled
         return [Msf::Reporting::Execution::TERMINAL_UNHANDLED_EXCEPTION, nil, mod.error&.message]
+      end
+
+      # A +fail_with+ inside +#check+ should never happen, but since there
+      # is no logic to guarantee this, we should handle this corner case.
+      # A +fail_with+ inside +#check+ raises +Msf::Auxiliary::Failed+;
+      # the outer rescue chain does not populate +last_check_code+, but
+      # +mod.fail_reason+ carries the typed reason. Surface that as
+      # +expected_failure+ instead of collapsing it into the CheckCode
+      # mapping (which would fall back to +neutral+).
+      reason = mod.fail_reason if mod.respond_to?(:fail_reason)
+      if reason && reason != Msf::Module::Failure::None
+        detail = mod.respond_to?(:fail_detail) ? mod.fail_detail : nil
+        return [Msf::Reporting::Execution::TERMINAL_EXPECTED_FAILURE, reason, detail]
       end
 
       return [Msf::Reporting::Execution.terminal_status_for_check_code(last_check_code), nil, nil]
@@ -327,13 +357,14 @@ protected
   end
 
   #
-  # Clean up the module after the job completes.
+  # Fires the +on_module_complete+ framework event after the job has
+  # finished. Passed as the +clean_proc+ callback to +start_bg_job+ so
+  # it runs from +Rex::Job#synchronized_cleanup+ in the async path, and
+  # invoked directly from +run_simple+ / +check_simple+ in the sync path.
   #
-  def self.job_cleanup_proc(ctx)
+  def self.notify_job_complete(ctx)
     mod = ctx[0]
     mod.framework.events.on_module_complete(mod)
-    # Allow the exploit to cleanup after itself, that messy bugger.
-    mod.cleanup
   end
 
 end

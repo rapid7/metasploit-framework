@@ -137,4 +137,98 @@ RSpec.describe Msf::Reporting::Execution, '.phase_for / .with_phase_setup / .wit
       end.to raise_error(StandardError)
     end
   end
+
+  describe '.phase_for + Msf::Reporting::CurrentPhase' do
+    after { Msf::Reporting::CurrentPhase.clear }
+
+    it 'returns the CurrentPhase override even without an execution' do
+      Msf::Reporting::CurrentPhase.with(Msf::Reporting::Execution::PHASE_SETUP) do
+        expect(described_class.phase_for(exploit_mod, execution: nil)).to eq('setup')
+      end
+    end
+
+    it 'lets CurrentPhase win over the execution.kind == check branch' do
+      Msf::Reporting::CurrentPhase.with(Msf::Reporting::Execution::PHASE_CLEANUP) do
+        expect(described_class.phase_for(exploit_mod, execution: check_execution)).to eq('cleanup')
+      end
+    end
+
+    it 'falls back to phase_for defaults when the override is nil' do
+      Msf::Reporting::CurrentPhase.with(nil) do
+        expect(described_class.phase_for(exploit_mod, execution: execution)).to eq('exploit')
+      end
+    end
+  end
+
+  describe 'with_phase_setup pushes onto CurrentPhase' do
+    after { Msf::Reporting::CurrentPhase.clear }
+
+    it 'exposes CurrentPhase = setup inside the block' do
+      captured = nil
+      described_class.with_phase_setup(exploit_mod) do
+        captured = Msf::Reporting::CurrentPhase.current
+      end
+      expect(captured).to eq('setup')
+    end
+
+    it 'restores CurrentPhase after the block returns' do
+      described_class.with_phase_setup(exploit_mod) { :ok }
+      expect(Msf::Reporting::CurrentPhase.current).to be_nil
+    end
+
+    it 'restores CurrentPhase when the block raises' do
+      expect do
+        described_class.with_phase_setup(exploit_mod) { raise 'boom' }
+      end.to raise_error(RuntimeError, 'boom')
+      expect(Msf::Reporting::CurrentPhase.current).to be_nil
+    end
+  end
+
+  describe 'with_phase_cleanup pushes onto CurrentPhase' do
+    after { Msf::Reporting::CurrentPhase.clear }
+
+    it 'exposes CurrentPhase = cleanup inside the block' do
+      captured = nil
+      described_class.with_phase_cleanup(exploit_mod) do
+        captured = Msf::Reporting::CurrentPhase.current
+      end
+      expect(captured).to eq('cleanup')
+    end
+  end
+
+  describe 'with_phase_setup / with_phase_cleanup default failure_reason' do
+    it 'records setup unhandled exceptions with failure_reason = Unknown' do
+      err = StandardError.new('setup boom')
+      expect(::Mdm::ModuleExecutionError).to receive(:create!).with(
+        hash_including(
+          lifecycle_phase: 'setup',
+          exception_class: 'StandardError',
+          failure_reason: Msf::Module::Failure::Unknown
+        )
+      )
+
+      expect do
+        Msf::Reporting::CurrentExecution.with(execution) do
+          described_class.with_phase_setup(exploit_mod) { raise err }
+        end
+      end.to raise_error(StandardError)
+    end
+
+    it 'records cleanup unhandled exceptions with failure_reason = Unknown' do
+      err = StandardError.new('cleanup boom')
+      expect(::Mdm::ModuleExecutionError).to receive(:create!).with(
+        hash_including(
+          lifecycle_phase: 'cleanup',
+          exception_class: 'StandardError',
+          failure_reason: Msf::Module::Failure::Unknown
+        )
+      )
+
+      expect do
+        Msf::Reporting::CurrentExecution.with(execution) do
+          described_class.with_phase_cleanup(exploit_mod) { raise err }
+        end
+      end.to raise_error(StandardError)
+    end
+  end
 end

@@ -421,6 +421,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_08_120002) do
     t.text "terminal_status"
     t.text "failure_reason"
     t.text "failure_message"
+    t.text "check_code"
+    t.text "check_message"
     t.integer "single_entity_failure_count", default: 0, null: false
     t.jsonb "last_single_entity_errors"
     t.timestamptz "created_at", null: false
@@ -431,8 +433,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_08_120002) do
     t.index ["parent_execution_id"], name: "idx_module_executions_on_parent_execution_id_not_null", where: "(parent_execution_id IS NOT NULL)"
     t.index ["workspace_id", "started_at"], name: "idx_module_executions_on_workspace_and_started_at", order: { started_at: :desc }
     t.index ["workspace_id"], name: "index_module_executions_on_workspace_id"
+    t.check_constraint "check_code IS NULL OR (check_code = ANY (ARRAY['vulnerable'::text, 'appears'::text, 'detected'::text, 'safe'::text, 'unknown'::text, 'unsupported'::text]))", name: "module_executions_check_code_check"
     t.check_constraint "ended_at IS NULL AND (terminal_status IS NULL OR terminal_status = 'running'::text) OR ended_at IS NOT NULL AND terminal_status IS NOT NULL AND terminal_status <> 'running'::text", name: "module_executions_terminal_status_lifecycle_check"
     t.check_constraint "ended_at IS NULL OR ended_at >= started_at", name: "module_executions_ended_at_after_started_at_check"
+    t.check_constraint "kind = 'check'::text OR check_code IS NULL AND check_message IS NULL", name: "module_executions_check_code_only_on_check_kind"
     t.check_constraint "kind = ANY (ARRAY['run'::text, 'check'::text, 'import'::text, 'direct_write'::text])", name: "module_executions_kind_check"
     t.check_constraint "module_type = ANY (ARRAY['exploit'::text, 'auxiliary'::text, 'post'::text, 'payload'::text, 'encoder'::text, 'evasion'::text, 'nop'::text, 'external'::text])", name: "module_executions_module_type_check"
     t.check_constraint "originating_interface = ANY (ARRAY['console'::text, 'rpc'::text, 'json_rpc'::text, 'mcp'::text, 'external'::text, 'import'::text, 'plugin'::text, 'autocheck'::text])", name: "module_executions_originating_interface_check"

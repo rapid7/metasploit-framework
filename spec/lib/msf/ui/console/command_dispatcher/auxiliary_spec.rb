@@ -660,6 +660,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
           '192.0.2.1:445         - Running for target 192.0.2.1:445 with normalized datastore value 3.5',
           '192.0.2.1:445         - Cleanup for target 192.0.2.1:445',
           '192.0.2.1:445         - Scanned 1 of 1 hosts (100% complete)',
+          '192.0.2.1:445         - Cleanup for target 192.0.2.1:445',
           'Auxiliary module running as background job 0.'
         ]
 
@@ -762,6 +763,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
           '192.0.2.1:445         - Running batch ["192.0.2.1"]:445 with normalized datastore value 3.5',
           '192.0.2.1:445         - Cleanup for target 192.0.2.1:445',
           '192.0.2.1:445         - Scanned 1 of 1 hosts (100% complete)',
+          '192.0.2.1:445         - Cleanup for target 192.0.2.1:445',
           'Auxiliary module running as background job 0.'
         ]
 

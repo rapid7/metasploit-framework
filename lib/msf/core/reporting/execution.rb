@@ -47,14 +47,8 @@ module Msf
       # @api private
       RECORDED_EXCEPTION_IVAR = :@_msf_reporting_error_recorded
 
-      # Module-instance ivar set by +Msf::Exploit#handle_exception+
-      # whenever it captures an unmapped exception (i.e. anything that
-      # is not +Msf::Exploit::Failed+/+Complete+/+OptionValidateError+/
-      # +::Interrupt+). +Msf::Simple::Exploit.finalize_exploit_execution+
-      # consults it so the parent +Mdm::ModuleExecution+ row records
-      # +unhandled_exception+ instead of +expected_failure+ when an
-      # exploit raised an exception that the driver swallowed via
-      # +handle_exception+.
+      # Module-instance ivar set whenever a non-+Msf::Exploit::Failed+
+      # exception has been observed for the current module run.
       # @api private
       UNHANDLED_EXCEPTION_IVAR = :@_msf_reporting_unhandled_exception
 
@@ -115,18 +109,30 @@ module Msf
       #   constant string when applicable.
       # @param failure_message [String, nil] human-readable failure
       #   detail; stored verbatim.
+      # @param check_code [String, Symbol, Msf::Exploit::CheckCode, nil]
+      #   the +Msf::Exploit::CheckCode#code+ produced by a +kind='check'+
+      #   execution. Ignored (and rejected by the DB CHECK constraint)
+      #   for other kinds. A +Msf::Exploit::CheckCode+ instance is
+      #   accepted for convenience and its +#code+ is extracted.
+      # @param check_message [String, nil] human-readable +CheckCode+
+      #   message.
       # @param ended_at [Time, nil] override for tests; defaults to
       #   +Time.now.utc+.
       # @return [Mdm::ModuleExecution, nil] the same execution passed in.
-      def finalize!(execution, terminal_status:, failure_reason: nil, failure_message: nil, ended_at: nil)
+      def finalize!(execution, terminal_status:, failure_reason: nil, failure_message: nil, check_code: nil, check_message: nil, ended_at: nil)
         return nil if execution.nil?
+
+        code_str = check_code.respond_to?(:code) ? check_code.code : check_code
+        code_str = code_str.to_s if code_str
 
         Msf::Reporting::ConnectionPool.with_connection do
           execution.update!(
             ended_at: ended_at || Time.now.utc,
             terminal_status: terminal_status.to_s,
             failure_reason: failure_reason,
-            failure_message: failure_message
+            failure_message: failure_message,
+            check_code: code_str,
+            check_message: check_message
           )
         end
         execution
@@ -281,6 +287,9 @@ module Msf
       # @param execution [Mdm::ModuleExecution, nil]
       # @return [String]
       def phase_for(mod, execution: nil)
+        override = Msf::Reporting::CurrentPhase.current
+        return override if override
+
         kind = execution.respond_to?(:kind) ? execution.kind.to_s : nil
         return PHASE_CHECK if kind == KIND_CHECK
 
@@ -313,10 +322,19 @@ module Msf
       # @yield with no arguments.
       # @return [Object] the block's return value.
       def with_phase_cleanup(mod)
-        yield
-      rescue ::Exception => e # rubocop:disable Lint/RescueException -- attribute setup/cleanup failures (including Interrupt) before the surrounding wrapper rescues
-        capture_exception!(mod, e, lifecycle_phase: Msf::Reporting::Execution::PHASE_CLEANUP)
-        raise
+        Msf::Reporting::CurrentPhase.with(PHASE_CLEANUP) do
+          yield
+        rescue ::Exception => e # rubocop:disable Lint/RescueException
+          # Attribute setup/cleanup failures (including Interrupt) before
+          # the surrounding wrapper rescues
+          capture_exception!(
+            mod,
+            e,
+            lifecycle_phase: PHASE_CLEANUP,
+            failure_reason: Msf::Module::Failure::Unknown
+          )
+          raise
+        end
       end
 
       # Run +block+ around a +mod.setup+ invocation and capture any
@@ -338,10 +356,18 @@ module Msf
       # @yield with no arguments.
       # @return [Object] the block's return value.
       def with_phase_setup(mod)
-        yield
-      rescue ::Exception => e # rubocop:disable Lint/RescueException -- attribute setup/cleanup failures (including Interrupt) before the surrounding wrapper rescues
-        capture_exception!(mod, e, lifecycle_phase: Msf::Reporting::Execution::PHASE_SETUP)
-        raise
+        Msf::Reporting::CurrentPhase.with(PHASE_SETUP) do
+          yield
+        rescue ::Exception => e # rubocop:disable Lint/RescueException
+          # Attribute setup/cleanup failures (including Interrupt) before the surrounding wrapper rescues
+          capture_exception!(
+            mod,
+            e,
+            lifecycle_phase: PHASE_SETUP,
+            failure_reason: Msf::Module::Failure::Unknown
+          )
+          raise
+        end
       end
 
       # Serialize a backtrace for storage in
