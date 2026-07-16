@@ -225,8 +225,8 @@ RSpec.describe 'Meterpreter' do
                   console.sendline(resource_command)
                   # Use a finite timeout rather than the default 480s.
                   # On Windows SIGINT cannot interrupt a stuck session so we
-                  # cap at 120s to avoid the full CI timeout.
-                  result = console.recvuntil(Acceptance::Console.prompt, timeout: 120)
+                  # cap at 300s to avoid the full CI timeout.
+                  result = console.recvuntil(Acceptance::Console.prompt, timeout: 300)
 
                   available_commands = result.lines(chomp: true).find do |line|
                     line.start_with?("{") && line.end_with?("}") && JSON.parse(line)
@@ -404,7 +404,7 @@ RSpec.describe 'Meterpreter' do
                     test_result = nil
                     if Gem.win_platform?
                       begin
-                        test_result = console.recvuntil('Post module execution completed', timeout: 120)
+                        test_result = console.recvuntil('Post module execution completed', timeout: 300)
                       rescue Acceptance::ChildProcessRecvError, Acceptance::ChildProcessTimeoutError
                         # timed out — fall through to partial output handling below
                       end

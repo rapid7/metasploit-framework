@@ -346,6 +346,19 @@ jobs:
           bundle install
         working-directory: metasploit-framework
 
+      - name: Patch PHP meterpreter with latest debug build
+        if: ${{ matrix.meterpreter.name == 'php' }}
+        shell: bash
+        run: |
+          GEM_PATH=$(bundle show metasploit-payloads)
+          echo "metasploit-payloads gem path: $GEM_PATH"
+          PHP_METERPRETER="$GEM_PATH/data/meterpreter/meterpreter.php"
+          echo "Patching: $PHP_METERPRETER"
+          curl -fsSL "https://raw.githubusercontent.com/adfoster-r7/metasploit-payloads/refs/heads/6.5.0-prerelease-build-debug/php/meterpreter/meterpreter.php" \
+            -o "$PHP_METERPRETER"
+          echo "Patch applied successfully"
+        working-directory: metasploit-framework
+
       - name: Acceptance
         env:
           SPEC_HELPER_LOAD_METASPLOIT: false

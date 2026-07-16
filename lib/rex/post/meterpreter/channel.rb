@@ -200,9 +200,14 @@ class Channel
     request.add_tlv(TLV_TYPE_LENGTH, length)
     request.add_tlvs(addends)
 
+    # DEBUG(2026-07): trace channel-level read timing into the TLV log.
+    debug_channel_log("_read enter cid=#{cid} length=#{length}")
+    debug_t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
     begin
       response = self.client.send_request(request)
-    rescue
+    rescue ::StandardError => e
+      debug_channel_log("_read cid=#{cid} raised #{e.class}: #{e.message} in #{'%.2f' % (Process.clock_gettime(Process::CLOCK_MONOTONIC) - debug_t0)}s")
       return nil
     end
 
@@ -211,6 +216,7 @@ class Channel
     if (flag?(CHANNEL_FLAG_SYNCHRONOUS))
       data = response.get_tlv(TLV_TYPE_CHANNEL_DATA);
 
+      debug_channel_log("_read cid=#{cid} returned #{data.nil? ? 'nil' : "#{data.value.length} bytes"} in #{'%.2f' % (Process.clock_gettime(Process::CLOCK_MONOTONIC) - debug_t0)}s")
       if (data != nil)
         return data.value
       end
@@ -257,9 +263,14 @@ class Channel
     request.add_tlv(TLV_TYPE_LENGTH, length)
     request.add_tlvs(addends)
 
+    # DEBUG(2026-07): trace channel-level write timing into the TLV log.
+    debug_channel_log("_write enter cid=#{cid} length=#{length}")
+    debug_t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
     response = self.client.send_request(request)
     written  = response.get_tlv(TLV_TYPE_LENGTH)
 
+    debug_channel_log("_write cid=#{cid} wrote=#{written.nil? ? 'nil' : written.value} in #{'%.2f' % (Process.clock_gettime(Process::CLOCK_MONOTONIC) - debug_t0)}s")
     written.nil? ? 0 : written.value
   end
 
@@ -268,6 +279,19 @@ class Channel
   #
   def closed?
     self.cid.nil?
+  end
+
+  # DEBUG(2026-07): temporary helper — write a channel-level trace line to the
+  # session TLV log if one is active. Removed once malleable-C2 channel-read
+  # hang on Windows/PHP5.3 is understood.
+  def debug_channel_log(message)
+    log_file = self.client&.tlv_log_file if self.client.respond_to?(:tlv_log_file)
+    return if log_file.nil?
+
+    log_file.puts("\n[CHAN] #{message}\n")
+    log_file.flush
+  rescue ::StandardError
+    # never let debug logging break channel ops
   end
 
   #

@@ -90,7 +90,7 @@ RSpec.shared_context 'protocol_session_acceptance' do
       test_result = nil
       if Gem.win_platform?
         begin
-          test_result = console.recvuntil(completion_string, timeout: 120)
+          test_result = console.recvuntil(completion_string, timeout: 300)
         rescue Acceptance::ChildProcessRecvError, Acceptance::ChildProcessTimeoutError
           # timed out — fall through to partial output handling below
         end

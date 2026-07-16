@@ -139,6 +139,9 @@ module PacketDispatcher
 
     # Short-circuit send when using a passive dispatcher
     if self.passive_service
+      # DEBUG(2026-07): note the command_id going into the HTTP passive queue
+      # so we can correlate with GET polls in the TLV log.
+      debug_log_send_queue_push(packet, raw)
       send_queue.push(raw)
       return raw.size # Lie!
     end
@@ -692,6 +695,10 @@ protected
         self.tlv_log_file.close unless self.tlv_log_file.nil?
 
         self.tlv_log_file = ::File.open(pathname, 'a+')
+        # DEBUG(2026-07): sync writes so entries survive force-kill on Windows.
+        # Without this the buffered tail of the TLV log is lost when msfconsole
+        # is force-terminated by the acceptance harness (see spec/support/acceptance).
+        self.tlv_log_file.sync = true
       end
 
       if packet_type == :recv
@@ -699,6 +706,8 @@ protected
       elsif packet_type == :send
         self.tlv_log_file.puts("\nSEND: #{packet.inspect}\n")
       end
+      # DEBUG(2026-07): explicit flush belt-and-braces for Windows buffering.
+      self.tlv_log_file.flush
     rescue ::StandardError => e
       self.tlv_logging_error_occured = true
       print_error "Failed writing to TLV Log File: #{pathname} with error: #{e.message}. Turning off logging for this session: #{self.inspect}..."
@@ -749,9 +758,14 @@ module HttpPacketDispatcher
     self.last_checkin = ::Time.now
 
     if req.method == 'GET'
+      queue_depth_before = send_queue.length
       rpkt = send_queue.shift || ''
       rpkt = self.wrap_packet(rpkt) if self.respond_to?(:wrap_packet)
       resp.body = rpkt
+      # DEBUG(2026-07): trace HTTP polls into TLV log so we can see which
+      # commands PHP received on which request. Remove once malleable-C2
+      # channel-read hang on Windows/PHP5.3 is understood.
+      debug_log_http_passive("GET", req, rpkt, queue_depth_before)
       begin
         cli.send_response(resp)
       rescue ::Exception => e
@@ -767,7 +781,11 @@ module HttpPacketDispatcher
         packet.add_raw(body)
         packet.parse_header!
         packet = decrypt_inbound_packet(packet)
+        # DEBUG(2026-07): trace HTTP POSTs (payload -> framework) into TLV log.
+        debug_log_http_passive(req.method, req, body, nil, inbound_packet: packet)
         dispatch_inbound_packet(packet)
+      else
+        debug_log_http_passive(req.method, req, nil, nil)
       end
       cli.send_response(resp)
     end
@@ -777,6 +795,58 @@ module HttpPacketDispatcher
     end
   end
 
+  # DEBUG(2026-07): temporary helper — write HTTP passive dispatcher events to
+  # the TLV log so we can correlate them with SEND/RECV entries. Removed once
+  # the malleable-C2 channel-read hang on Windows/PHP5.3 is diagnosed.
+  def debug_log_http_passive(method, req, body, queue_depth_before, inbound_packet: nil)
+    return if tlv_log_output != :file || tlv_log_file.nil? || tlv_logging_error_occured
+
+    body_len = body.is_a?(String) ? body.length : 0
+    line = "[HTTP] method=#{method} uri=#{req.resource.to_s.inspect} body_len=#{body_len}"
+    if queue_depth_before
+      line << " queue_depth_before=#{queue_depth_before} queue_depth_after=#{send_queue.length}"
+    end
+    if inbound_packet
+      begin
+        cmd_tlv = inbound_packet.get_tlv(TLV_TYPE_COMMAND_ID)
+        line << " inbound_command_id=#{cmd_tlv.value}" if cmd_tlv
+        chan_tlv = inbound_packet.get_tlv(TLV_TYPE_CHANNEL_ID)
+        line << " inbound_channel_id=#{chan_tlv.value}" if chan_tlv
+        line << " packet_type=#{inbound_packet.type}" if inbound_packet.respond_to?(:type)
+      rescue ::StandardError => _e
+        # debug-only; ignore parse failures
+      end
+    end
+    tlv_log_file.puts("\n#{line}\n")
+    tlv_log_file.flush
+  rescue ::StandardError => _e
+    # never let debug logging break the dispatcher
+  end
+
+  # DEBUG(2026-07): temporary helper — log when a packet is queued for HTTP
+  # passive delivery so we know exactly what the framework wants PHP to run.
+  def debug_log_send_queue_push(packet, raw)
+    return if tlv_log_output != :file || tlv_log_file.nil? || tlv_logging_error_occured
+
+    cmd_id = nil
+    chan_id = nil
+    req_id = nil
+    begin
+      cmd_tlv = packet.get_tlv(TLV_TYPE_COMMAND_ID)
+      cmd_id = cmd_tlv.value if cmd_tlv
+      chan_tlv = packet.get_tlv(TLV_TYPE_CHANNEL_ID)
+      chan_id = chan_tlv.value if chan_tlv
+      req_tlv = packet.get_tlv(TLV_TYPE_REQUEST_ID)
+      req_id = req_tlv.value if req_tlv
+    rescue ::StandardError => _e
+      # debug-only; ignore TLV lookup failures
+    end
+    line = "[QUEUE] send_queue.push command_id=#{cmd_id.inspect} channel_id=#{chan_id.inspect} request_id=#{req_id.inspect} raw_bytes=#{raw.length} queue_depth_after=#{send_queue.length + 1}"
+    tlv_log_file.puts("\n#{line}\n")
+    tlv_log_file.flush
+  rescue ::StandardError => _e
+    # never let debug logging break the dispatcher
+  end
 end
 
 end; end; end

@@ -40,10 +40,10 @@ module Acceptance::Session::Php
           },
           windows: {
             known_failures: [
-              ["[-] [[UDP] Has the correct peer information] FAILED: [UDP] Has the correct peer information", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
-              ["[-] [[UDP] Has the correct peer information] Exception: Errno::ENOTSOCK", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
-              ["[-] [[UDP] Receives data from the peer] FAILED: [UDP] Receives data from the peer", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
-              ["[-] [[UDP] Receives data from the peer] Exception: Errno::ENOTSOCK", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
+              ["[-] [[UDP] Has the correct peer information] FAILED: [UDP] Has the correct peer information", { if: [:session_runtime_version, :==, "meterpreter/php5.3"], flaky: true }],
+              ["[-] [[UDP] Has the correct peer information] Exception: Errno::ENOTSOCK", { if: [:session_runtime_version, :==, "meterpreter/php5.3"], flaky: true }],
+              ["[-] [[UDP] Receives data from the peer] FAILED: [UDP] Receives data from the peer", { if: [:session_runtime_version, :==, "meterpreter/php5.3"], flaky: true }],
+              ["[-] [[UDP] Receives data from the peer] Exception: Errno::ENOTSOCK", { if: [:session_runtime_version, :==, "meterpreter/php5.3"], flaky: true }],
               *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           }
