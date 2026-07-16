@@ -61,6 +61,37 @@ module Msf
       fetch_service
     end
 
+    def identify_arch(query_string)
+      arch_param = query_string.include?('arch') ? query_string['arch'] : nil
+      endian_param = query_string.include?('endian') ? query_string['endian'] : nil
+      vprint_status("Detected #{arch_param}") unless arch_param.nil?
+      vprint_status("Detected big endian") if endian_param == '2'
+      vprint_status("Detected little endian") if endian_param == '1'
+      vprint_status("No Endian data detected") if endian_param == nil
+      if arch_param.nil? || arch_param.strip.empty?
+        print_error('Fetch request missing required arch query parameter')
+        cli.send_response(fetch_error_response(400, 'Bad Request'))
+        return nil
+      end
+      arch = Rex::Arch.from_uname(arch_param)
+      # Mips hosts lie.  We need to verify the Endian value
+      if arch_param == 'mips'
+        if endian_param.nil?
+          print_warning("Uname reports 'mips' and no endian data received.")
+          print_warning("We are guessing this means mipsel and are serving a mipsel payload.")
+          print_warning("If it fails, try using an explicit mipsbe payload.")
+          arch = Rex::Arch.from_uname('mipsel')
+        elsif endian_param.to_i = 1
+          arch = Rex::Arch.from_uname('mipsel')
+        elsif endian_param.to_i = 2
+          arch = Rex::Arch.from_uname('mips')
+        else
+          print_bad("Unknown endian value reported: #{endian_param}")
+          arch = nil
+        end
+      arch
+    end
+
     def on_request_uri(cli, request, srv_entry)
       opts = srv_entry[:opts].dup
       client = cli.peerhost
@@ -72,17 +103,7 @@ module Msf
       if opts[:dynamic_arch]
         vprint_status("Dynamic Payload Detected, expecting a Query String in the request...")
         query_string = request.uri_parts['QueryString'] || {}
-        arch_param = query_string['arch']
-        if arch_param.nil? || arch_param.strip.empty?
-          print_error('Fetch request missing required arch query parameter')
-          cli.send_response(fetch_error_response(400, 'Bad Request'))
-          return
-        end
-        arch = Rex::Arch.from_uname(arch_param)
-        if arch_param == 'mips'
-          print_warning("Detected 'mips' architecture using 'uname'. Normally, this means mipsbe, but it sometimes means mips[el|le].")
-          print_warning('Serving a mipsbe payload. If the payload fails, retry with an explicit mipsle payload.')
-        end
+        vprint_status("query_string = #{query_string}")
         if arch.nil?
           print_error("Failed to identify the architecture in Query String #{arch_param}")
           cli.send_response(fetch_error_response(404, 'Not Found'))
