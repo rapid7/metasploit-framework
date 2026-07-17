@@ -864,6 +864,14 @@ class ReadableText
       row[-1] << " #{session.platform}"
     end
 
+    if session.respond_to?(:async_mode_enabled?) && session.async_mode_enabled?
+      row[-1] << " (async)"
+    end
+
+    if session.respond_to?(:async_mode_enabled?) && session.async_mode_enabled?
+      row[-1] << " (async)"
+    end
+
     if show_extended
       if session.respond_to?(:last_checkin) && session.last_checkin
         row << "#{(Time.now.to_i - session.last_checkin.to_i)}s ago"
