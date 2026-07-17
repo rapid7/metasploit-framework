@@ -879,12 +879,18 @@ protected
     fd = session.fs.file.new(file_name, 'rb')
 
     data = ''.b
-    data << fd.read
-    data << fd.read until fd.eof?
+    # Use chunk-based reading rather than fd.eof? because feof() in PHP meterpreter
+    # can return true prematurely after the first chunk on TCP transport, even when
+    # more data remains. Loop until read returns nil/empty instead.
+    loop do
+      chunk = fd.read
+      break if chunk.nil? || chunk.empty?
+
+      data << chunk
+    end
 
     data
   rescue EOFError
-    # Sometimes fd isn't marked EOF in time?
     data
   rescue ::Rex::Post::Meterpreter::RequestError => e
     print_error("Failed to open file: #{file_name}: #{e}")

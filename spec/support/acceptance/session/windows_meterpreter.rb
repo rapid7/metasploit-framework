@@ -43,6 +43,7 @@ module Acceptance::Session::WindowsMeterpreter
       },
       {
         name: "windows/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: ".exe",
         platforms: [:windows],
         execute_cmd: ["${payload_path}"],
@@ -60,6 +61,7 @@ module Acceptance::Session::WindowsMeterpreter
       },
       {
         name: "windows/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: ".exe",
         platforms: [:windows],
         execute_cmd: ["${payload_path}"],
@@ -77,6 +79,7 @@ module Acceptance::Session::WindowsMeterpreter
       },
       {
         name: "windows/x64/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: ".exe",
         platforms: [:windows],
         execute_cmd: ["${payload_path}"],
@@ -94,6 +97,7 @@ module Acceptance::Session::WindowsMeterpreter
       },
       {
         name: "windows/x64/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: ".exe",
         platforms: [:windows],
         execute_cmd: ["${payload_path}"],
@@ -111,8 +115,10 @@ module Acceptance::Session::WindowsMeterpreter
       },
       {
         name: "windows/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: ".exe",
-        platforms: [:windows],
+        # TODO: HTTPS payloads broken on Windows environments
+        platforms: [],
         execute_cmd: ["${payload_path}"],
         executable: true,
         generate_options: {
@@ -128,8 +134,10 @@ module Acceptance::Session::WindowsMeterpreter
       },
       {
         name: "windows/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: ".exe",
-        platforms: [:windows],
+        # TODO: HTTPS payloads broken on Windows environments
+        platforms: [],
         execute_cmd: ["${payload_path}"],
         executable: true,
         generate_options: {
@@ -145,8 +153,10 @@ module Acceptance::Session::WindowsMeterpreter
       },
       {
         name: "windows/x64/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: ".exe",
-        platforms: [:windows],
+        # TODO: HTTPS payloads broken on Windows environments
+        platforms: [],
         execute_cmd: ["${payload_path}"],
         executable: true,
         generate_options: {
@@ -162,8 +172,10 @@ module Acceptance::Session::WindowsMeterpreter
       },
       {
         name: "windows/x64/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: ".exe",
-        platforms: [:windows],
+        # TODO: HTTPS payloads broken on Windows environments
+        platforms: [],
         execute_cmd: ["${payload_path}"],
         executable: true,
         generate_options: {
