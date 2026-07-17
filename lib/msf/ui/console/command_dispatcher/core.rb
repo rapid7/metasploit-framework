@@ -1753,6 +1753,11 @@ class Core
         if session
           if session.respond_to?(:response_timeout)
             last_known_timeout = session.response_timeout
+            # Don't lower the timeout if the session is in async mode —
+            # async sessions need longer timeouts to accommodate poll intervals.
+            if session.respond_to?(:async_mode_enabled?) && session.async_mode_enabled?
+              response_timeout = [response_timeout, last_known_timeout].max
+            end
             session.response_timeout = response_timeout
             session.on_run_command_error_proc = log_on_timeout_error("Send timed out. Timeout currently #{session.response_timeout} seconds, you can configure this with %grnsessions --interact <id> --timeout <value>%clr")
           end
