@@ -93,11 +93,26 @@ class Console
     self.commands << cmd
   end
 
+  # Commands that are allowed when async mode is enabled.
+  # Everything else is blocked since direct commands would block
+  # on the slow poll interval.
+  ASYNC_ALLOWED_COMMANDS = %w[
+    background bg exit quit help
+    async
+  ].freeze
+
   #
   # Runs the specified command wrapper in something to catch meterpreter
   # exceptions.
   #
   def run_command(dispatcher, method, arguments)
+    # In async mode, only allow async-related and session management commands.
+    # All others must be run via 'async run <cmd>'.
+    if client.async_mode_enabled? && !ASYNC_ALLOWED_COMMANDS.include?(method)
+      log_error("Cannot run '#{method}' directly in async mode. Use 'async run #{method}' or 'async mode off' first.")
+      return
+    end
+
     begin
       super
     rescue Exception => e
@@ -127,7 +142,7 @@ class Console
 
     elog(msg, 'meterpreter')
 
-    dlog("Call stack:\n#{$@.join("\n")}", 'meterpreter')
+    dlog("Call stack:\n#{$@&.join("\n")}", 'meterpreter') if $@
   end
 
   attr_reader :client # :nodoc:
