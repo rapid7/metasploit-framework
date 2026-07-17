@@ -2,6 +2,7 @@
 
 require 'rex/post/meterpreter/command_mapper'
 require 'rex/post/meterpreter/packet_response_waiter'
+require 'rex/post/meterpreter/async_result_store'
 require 'rex/exceptions'
 require 'pathname'
 
@@ -82,6 +83,43 @@ module PacketDispatcher
     self.recv_queue   = []
     self.waiters      = []
     self.alive        = true
+  end
+
+  #
+  # Returns the async result store, creating it if needed.
+  #
+  # @return [AsyncResultStore]
+  #
+  def async_store
+    @async_store ||= AsyncResultStore.new
+  end
+
+  #
+  # Sends a request asynchronously without blocking. The response will be
+  # captured via a completion_routine callback and stored in the async_store.
+  #
+  # @param packet [Packet] the request packet to send
+  # @param label [String] human-readable label for the command
+  # @return [String] the request ID (rid) for later retrieval
+  #
+  def send_request_async(packet, label: nil)
+    rid = packet.rid
+    async_store.queue(rid, label)
+
+    send_packet(packet,
+      completion_routine: Proc.new { |response, param|
+        if response && response.result == 0
+          async_store.complete(param[:rid], response)
+        elsif response
+          einfo = lookup_error(response.result)
+          async_store.error(param[:rid], einfo)
+        else
+          async_store.error(param[:rid], 'No response received')
+        end
+      },
+      completion_param: { rid: rid }
+    )
+    rid
   end
 
   def shutdown_passive_dispatcher
