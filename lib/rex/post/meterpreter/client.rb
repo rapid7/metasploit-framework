@@ -503,6 +503,19 @@ class Client
   # Whether or not to use a debug build for loaded extensions
   #
   attr_accessor :debug_build
+  #
+  # Whether async mode is currently enabled on this session
+  #
+  attr_accessor :async_mode_enabled
+
+  # Locally stored async config values (applied when async mode is enabled)
+  def async_config
+    @async_config ||= { poll_interval: 60, jitter: 0, work_start: 0, work_end: 24, work_days: 0x7F }
+  end
+
+  def async_mode_enabled?
+    !!self.async_mode_enabled
+  end
 
 protected
   attr_accessor :parser, :ext_aliases # :nodoc:
