@@ -740,32 +740,35 @@ class Console::CommandDispatcher::Core
   # Display help for async command.
   #
   def cmd_async_help
-    print_line('Usage: async <subcommand> [options]')
-    print_line
-    print_line('Manage async polling mode for HTTP transport.')
-    print_line
-    print_line('Subcommands:')
-    print_line('  mode [on|off]         Toggle async mode on/off, or show current status')
-    print_line('  config [options]      Configure polling interval and business hours')
-    print_line('  run <command>         Enqueue a command for async execution')
-    print_line('  queue [rid]           View queued commands or a specific result')
-    print_line('  queue -c              Clear completed results')
-    print_line
-    print_line('Config options:')
-    print_line('  -i <seconds>   Poll interval in seconds (default: 60)')
-    print_line('  -j <percent>   Jitter percentage 0-99 (default: 0)')
-    print_line('  -s <hour>      Work hours start 0-23 (default: 0)')
-    print_line('  -e <hour>      Work hours end 0-23 (default: 24)')
-    print_line('  -d <days>      Work days: sun,mon,tue,wed,thu,fri,sat or mon-fri (default: all)')
-    print_line
-    print_line('Examples:')
-    print_line('  async mode on')
-    print_line('  async config -i 300 -j 20 -s 8 -e 17 -d mon-fri')
-    print_line('  async run ls')
-    print_line('  async run execute -f cmd.exe -a "/c whoami" -H')
-    print_line('  async queue')
-    print_line('  async queue a1b2c3d4')
-    print_line
+    print(<<~HELP
+      Usage: async <subcommand> [options]
+
+      Manage async polling mode for HTTP transport.
+
+      Subcommands:
+        mode [on|off]         Toggle async mode on/off, or show current status
+        config [options]      Configure polling interval and business hours
+        run <command>         Enqueue a command for async execution
+        queue [rid]           View queued commands or a specific result
+        queue -c              Clear completed results
+
+      Config options:
+        -i <seconds>   Poll interval in seconds (default: 60)
+        -j <percent>   Jitter percentage 0-99 (default: 0)
+        -s <hour>      Work hours start 0-23 (default: 0)
+        -e <hour>      Work hours end 0-23 (default: 24)
+        -d <days>      Work days: sun,mon,tue,wed,thu,fri,sat or mon-fri (default: all)
+
+      Examples:
+        async mode on
+        async config -i 300 -j 20 -s 8 -e 17 -d mon-fri
+        async run ls
+        async run execute -f cmd.exe -a "/c whoami" -H
+        async queue
+        async queue a1b2c3d4
+
+    HELP
+    )
   end
 
   DAY_NAMES = { 'sun' => 0, 'mon' => 1, 'tue' => 2, 'wed' => 3, 'thu' => 4, 'fri' => 5, 'sat' => 6 }.freeze
@@ -880,14 +883,17 @@ class Console::CommandDispatcher::Core
 
     if args.empty?
       # Dump current config values
-      print_line
-      print_line("Async Configuration:")
-      print_line("  Poll interval : #{cfg[:poll_interval]}s")
-      print_line("  Jitter        : #{cfg[:jitter]}%")
-      print_line("  Work hours    : #{cfg[:work_start]}:00 - #{cfg[:work_end]}:00")
-      print_line("  Work days     : #{format_work_days(cfg[:work_days])}")
-      print_line("  Mode          : #{client.async_mode_enabled? ? 'enabled' : 'disabled'}")
-      print_line
+      print(<<~CONFIG
+
+        Async Configuration:
+          Poll interval : #{cfg[:poll_interval]}s
+          Jitter        : #{cfg[:jitter]}%
+          Work hours    : #{cfg[:work_start]}:00 - #{cfg[:work_end]}:00
+          Work days     : #{format_work_days(cfg[:work_days])}
+          Mode          : #{client.async_mode_enabled? ? 'enabled' : 'disabled'}
+
+      CONFIG
+      )
       return
     end
 
