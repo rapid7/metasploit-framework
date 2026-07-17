@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'set'
+require 'securerandom'
 require 'rex/post/meterpreter'
 require 'rex'
 
@@ -77,7 +78,9 @@ class Console::CommandDispatcher::Core
       'transport'                => 'Manage the transport mechanisms',
       'get_timeouts'             => 'Get the current session timeout values',
       'set_timeouts'             => 'Set the current session timeout values',
-      'ssl_verify'               => 'Modify the SSL certificate verification setting'
+      'ssl_verify'               => 'Modify the SSL certificate verification setting',
+      # async mode commands
+      'async'                    => 'Manage async polling mode (mode, config, run, queue)',
     }
 
     if msf_loaded?
@@ -107,6 +110,8 @@ class Console::CommandDispatcher::Core
       ],
       'get_timeouts' => [COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS],
       'set_timeouts' => [COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS],
+      # async mode
+      'async'        => [COMMAND_ID_CORE_ASYNC_MODE],
     }
 
     # XXX: Remove this line once the payloads gem has had another major version bump from 2.x to 3.x and
@@ -729,6 +734,301 @@ class Console::CommandDispatcher::Core
     else
       print_error("Target instance failed to go to sleep.")
     end
+  end
+
+  #
+  # Display help for async command.
+  #
+  def cmd_async_help
+    print_line('Usage: async <subcommand> [options]')
+    print_line
+    print_line('Manage async polling mode for HTTP transport.')
+    print_line
+    print_line('Subcommands:')
+    print_line('  mode [on|off]         Toggle async mode on/off, or show current status')
+    print_line('  config [options]      Configure polling interval and business hours')
+    print_line('  run <command>         Enqueue a command for async execution')
+    print_line('  queue [rid]           View queued commands or a specific result')
+    print_line('  queue -c              Clear completed results')
+    print_line
+    print_line('Config options:')
+    print_line('  -i <seconds>   Poll interval in seconds (default: 60)')
+    print_line('  -j <percent>   Jitter percentage 0-99 (default: 0)')
+    print_line('  -s <hour>      Work hours start 0-23 (default: 0)')
+    print_line('  -e <hour>      Work hours end 0-23 (default: 24)')
+    print_line('  -d <days>      Work days: sun,mon,tue,wed,thu,fri,sat or mon-fri (default: all)')
+    print_line
+    print_line('Examples:')
+    print_line('  async mode on')
+    print_line('  async config -i 300 -j 20 -s 8 -e 17 -d mon-fri')
+    print_line('  async run ls')
+    print_line('  async run execute -f cmd.exe -a "/c whoami" -H')
+    print_line('  async queue')
+    print_line('  async queue a1b2c3d4')
+    print_line
+  end
+
+  DAY_NAMES = { 'sun' => 0, 'mon' => 1, 'tue' => 2, 'wed' => 3, 'thu' => 4, 'fri' => 5, 'sat' => 6 }.freeze
+
+  #
+  # Parse a day specification into a bitmask.
+  #
+  def parse_work_days(spec)
+    return spec.to_i if spec =~ /\A0x[0-9a-f]+\z/i || spec =~ /\A\d+\z/
+
+    if spec == 'mon-fri'
+      return 0x3E # bits 1-5
+    elsif spec == 'all'
+      return 0x7F
+    end
+
+    mask = 0
+    spec.split(',').each do |day|
+      day = day.strip.downcase[0..2]
+      bit = DAY_NAMES[day]
+      mask |= (1 << bit) if bit
+    end
+    mask
+  end
+
+  #
+  # Format a work days bitmask into a human-readable string.
+  #
+  def format_work_days(mask)
+    return 'all' if mask == 0x7F
+    return 'mon-fri' if mask == 0x3E
+
+    names = DAY_NAMES.sort_by { |_, v| v }.select { |_, v| (mask & (1 << v)) != 0 }.map(&:first)
+    names.empty? ? 'none' : names.join(', ')
+  end
+
+  #
+  # Handle the async command with subcommands.
+  #
+  def cmd_async(*args)
+    if args.empty? || args.include?('-h')
+      cmd_async_help
+      return
+    end
+
+    subcmd = args.shift
+    case subcmd
+    when 'mode'
+      async_subcmd_mode(args)
+    when 'config'
+      async_subcmd_config(args)
+    when 'run'
+      async_subcmd_run(args)
+    when 'queue'
+      async_subcmd_queue(args)
+    else
+      cmd_async_help
+    end
+  end
+
+  #
+  # Tab completion for async.
+  #
+  def cmd_async_tabs(str, words)
+    if words.length == 1
+      %w[mode config run queue].select { |o| o.start_with?(str) }
+    elsif words.length == 2 && words[0] == 'mode'
+      %w[on off].select { |o| o.start_with?(str) }
+    else
+      []
+    end
+  end
+
+  #
+  # async mode [on|off]
+  #
+  def async_subcmd_mode(args)
+    subcmd = args.shift
+    if subcmd.nil?
+      if client.async_mode_enabled?
+        print_good('Async mode: enabled')
+      else
+        print_status('Async mode: disabled')
+      end
+      return
+    end
+
+    case subcmd
+    when 'on'
+      cfg = client.async_config
+      print_status("Enabling async mode (poll #{cfg[:poll_interval]}s, jitter #{cfg[:jitter]}%)...")
+      client.core.async_mode(enabled: true, **cfg)
+      print_good('Async mode enabled. Use "async run <cmd>" to enqueue commands.')
+      print_warning('Channels, port forwards, interactive shell, and post modules are unavailable in async mode.')
+      if cfg[:work_start] != 0 || cfg[:work_end] != 24
+        print_warning("Business hours #{cfg[:work_start]}:00-#{cfg[:work_end]}:00 use the TARGET's local time.")
+      end
+    when 'off'
+      print_status('Disabling async mode...')
+      client.core.async_mode(enabled: false)
+      print_good('Async mode disabled. Session is now interactive.')
+    else
+      print_error("Unknown mode: #{subcmd}. Use 'on' or 'off'.")
+    end
+  end
+
+  #
+  # async config -i <interval> -j <jitter> -s <start> -e <end> -d <days>
+  #
+  def async_subcmd_config(args)
+    cfg = client.async_config
+
+    if args.empty?
+      # Dump current config values
+      print_line
+      print_line("Async Configuration:")
+      print_line("  Poll interval : #{cfg[:poll_interval]}s")
+      print_line("  Jitter        : #{cfg[:jitter]}%")
+      print_line("  Work hours    : #{cfg[:work_start]}:00 - #{cfg[:work_end]}:00")
+      print_line("  Work days     : #{format_work_days(cfg[:work_days])}")
+      print_line("  Mode          : #{client.async_mode_enabled? ? 'enabled' : 'disabled'}")
+      print_line
+      return
+    end
+
+    opts = Rex::Parser::Arguments.new(
+      '-i' => [true, 'Poll interval (seconds)'],
+      '-j' => [true, 'Jitter percent (0-99)'],
+      '-s' => [true, 'Work start hour (0-23)'],
+      '-e' => [true, 'Work end hour (0-23)'],
+      '-d' => [true, 'Work days']
+    )
+    opts.parse(args) do |opt, _idx, val|
+      case opt
+      when '-i'
+        cfg[:poll_interval] = val.to_i
+      when '-j'
+        cfg[:jitter] = val.to_i
+      when '-s'
+        cfg[:work_start] = val.to_i
+      when '-e'
+        cfg[:work_end] = val.to_i
+      when '-d'
+        cfg[:work_days] = parse_work_days(val)
+      end
+    end
+
+    print_good("Async configuration updated (poll #{cfg[:poll_interval]}s, jitter #{cfg[:jitter]}%, hours #{cfg[:work_start]}:00-#{cfg[:work_end]}:00).")
+    if client.async_mode_enabled?
+      print_status('Async mode is active. Sending updated config to target...')
+      client.core.async_mode(enabled: true, **cfg)
+      print_good('Config applied to active session.')
+    else
+      print_status('Config saved locally. Use "async mode on" to activate.')
+    end
+  end
+
+  #
+  # async run <command line>
+  #
+  def async_subcmd_run(args)
+    if args.empty?
+      print_error('Usage: async run <command> [arguments]')
+      return
+    end
+
+    cmd_line = args.join(' ')
+    rid = SecureRandom.hex(16)
+    client.async_store.queue(rid, cmd_line)
+
+    Rex::ThreadFactory.spawn("AsyncCmd-#{rid[0..7]}", false) do
+      output_buf = +''
+      original_print_proc = shell.on_print_proc
+      shell.on_print_proc = proc { |msg| output_buf << msg.to_s }
+      begin
+        shell.run_single(cmd_line)
+        client.async_store.complete(rid, nil, output_buf.empty? ? '(no output)' : output_buf)
+        print_status("Async command completed: #{cmd_line} (rid: #{rid[0..7]})")
+      rescue ::Exception => e
+        client.async_store.error(rid, "#{e.class}: #{e.message}")
+        print_error("Async command failed: #{cmd_line} - #{e.message}")
+      ensure
+        shell.on_print_proc = original_print_proc
+      end
+    end
+
+    print_status("Queued: #{cmd_line} (rid: #{rid[0..7]})")
+  end
+
+  #
+  # async queue [rid] [-c]
+  #
+  def async_subcmd_queue(args)
+    store = client.async_store
+
+    if args.include?('-c')
+      cleared = store.clear_completed
+      print_good("Cleared #{cleared} completed result(s).")
+      return
+    end
+
+    # If a specific rid is given, show its output
+    if args.length > 0 && !args[0].start_with?('-')
+      rid = args[0]
+      entry = store.fetch(rid)
+      if entry.nil?
+        # Try partial match
+        all = store.all
+        matches = all.keys.select { |k| k.start_with?(rid) }
+        if matches.length == 1
+          rid = matches.first
+          entry = store.fetch(rid)
+        elsif matches.length > 1
+          print_error("Ambiguous rid '#{rid}' matches #{matches.length} entries.")
+          return
+        else
+          print_error("No result found for rid '#{rid}'.")
+          return
+        end
+      end
+
+      print_line("Command: #{entry[:label]}")
+      print_line("Status:  #{entry[:status]}")
+      print_line("Queued:  #{entry[:queued_at]}")
+      if entry[:completed_at]
+        elapsed = entry[:completed_at] - entry[:queued_at]
+        print_line("Done:    #{entry[:completed_at]} (#{elapsed.round(1)}s)")
+      end
+      print_line
+      if entry[:output]
+        print_line(entry[:output])
+      else
+        print_status('No output captured.')
+      end
+      return
+    end
+
+    # Show summary table
+    results = store.all
+    if results.empty?
+      print_status('No async commands queued.')
+      return
+    end
+
+    tbl = Rex::Text::Table.new(
+      'Header' => 'Async Command Queue',
+      'Indent' => 2,
+      'Columns' => ['RID (short)', 'Command', 'Status', 'Age']
+    )
+
+    results.each do |rid, entry|
+      age = ::Time.now - entry[:queued_at]
+      age_str = if age < 60
+                  "#{age.round(0)}s"
+                elsif age < 3600
+                  "#{(age / 60).round(0)}m"
+                else
+                  "#{(age / 3600).round(1)}h"
+                end
+      tbl << [rid[0..7], entry[:label] || '(unknown)', entry[:status].to_s, age_str]
+    end
+
+    print_line(tbl.to_s)
   end
 
   #
