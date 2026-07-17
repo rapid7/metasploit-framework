@@ -109,6 +109,7 @@ TLV_TYPE_PIVOT_STAGE_DATA      = TLV_META_TYPE_RAW    |  651
 TLV_TYPE_PIVOT_NAMED_PIPE_NAME = TLV_META_TYPE_STRING |  653
 
 #
+<<<<<<< HEAD
 # Configuration & C2 options
 #
 TLV_TYPE_SESSION_EXPIRY        = TLV_META_TYPE_UINT   | 700 # Session expiration time
@@ -143,6 +144,15 @@ TLV_TYPE_C2_ENC_OUTBOUND       = TLV_META_TYPE_UINT   | 728 # Client->server (re
 TLV_TYPE_C2_ENC_UUID           = TLV_META_TYPE_UINT   | 729 # Encoding applied to the UUID before placement (URL/header/cookie)
 TLV_TYPE_C2_UUID_PREFIX        = TLV_META_TYPE_STRING | 730 # String to prepend to the encoded UUID
 TLV_TYPE_C2_UUID_SUFFIX        = TLV_META_TYPE_STRING | 731 # String to append to the encoded UUID
+
+# Async mode
+#
+TLV_TYPE_ASYNC_ENABLED         = TLV_META_TYPE_BOOL   | 700
+TLV_TYPE_ASYNC_POLL_INTERVAL   = TLV_META_TYPE_UINT   | 701
+TLV_TYPE_ASYNC_POLL_JITTER     = TLV_META_TYPE_UINT   | 702
+TLV_TYPE_ASYNC_WORK_START      = TLV_META_TYPE_UINT   | 703
+TLV_TYPE_ASYNC_WORK_END        = TLV_META_TYPE_UINT   | 704
+TLV_TYPE_ASYNC_WORK_DAYS       = TLV_META_TYPE_UINT   | 705
 
 #
 # C2 Encoding flags
