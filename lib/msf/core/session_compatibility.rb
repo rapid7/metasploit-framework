@@ -40,6 +40,13 @@ module Msf
       # for its platform, capabilities, etc.
       check_for_session_readiness if session.type == "meterpreter"
 
+      # Block post modules from running against sessions in async mode.
+      # Async mode uses long polling intervals making multi-step post modules
+      # impractical or broken (each send_request blocks for a full poll cycle).
+      if session.type == 'meterpreter' && session.respond_to?(:async_mode_enabled?) && session.async_mode_enabled?
+        raise Msf::ValidationError, "Session #{session.sid} is in async mode. Post modules cannot run against async sessions. Use 'async_mode off' in the session first."
+      end
+
       incompatibility_reasons = session_incompatibility_reasons(session)
       if incompatibility_reasons.any?
         print_warning('SESSION may not be compatible with this module:')
