@@ -108,7 +108,8 @@ class Console
   def run_command(dispatcher, method, arguments)
     # In async mode, only allow async-related and session management commands.
     # All others must be run via 'async run <cmd>'.
-    if client.async_mode_enabled? && !ASYNC_ALLOWED_COMMANDS.include?(method)
+    # @async_bypass is set by async_subcmd_run to allow dispatched commands through.
+    if client.async_mode_enabled? && !@async_bypass && !ASYNC_ALLOWED_COMMANDS.include?(method)
       log_error("Cannot run '#{method}' directly in async mode. Use 'async run #{method}' or 'async mode off' first.")
       return
     end

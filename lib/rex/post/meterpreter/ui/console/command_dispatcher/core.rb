@@ -947,6 +947,7 @@ class Console::CommandDispatcher::Core
       original_print_proc = shell.on_print_proc
       shell.on_print_proc = proc { |msg| output_buf << msg.to_s }
       begin
+        shell.instance_variable_set(:@async_bypass, true)
         shell.run_single(cmd_line)
         client.async_store.complete(rid, nil, output_buf.empty? ? '(no output)' : output_buf)
         print_status("Async command completed: #{cmd_line} (rid: #{rid[0..7]})")
@@ -954,6 +955,7 @@ class Console::CommandDispatcher::Core
         client.async_store.error(rid, "#{e.class}: #{e.message}")
         print_error("Async command failed: #{cmd_line} - #{e.message}")
       ensure
+        shell.instance_variable_set(:@async_bypass, false)
         shell.on_print_proc = original_print_proc
       end
     end
