@@ -51,4 +51,59 @@ RSpec.describe 'auxiliary/spoof/ipv6/ipv6_ra_dns_takeover' do
       expect { mod.run }.to raise_error(Msf::Auxiliary::Failed, /SPOOF_IP6 must be a valid IPv6/)
     end
   end
+
+  describe '#handle_router_solicitation' do
+    before do
+      mod.instance_variable_set(:@ra_smac, '00:11:22:33:44:55')
+      mod.instance_variable_set(:@ra_shost, 'fe80::1')
+      mod.instance_variable_set(:@ra_domains, [])
+      mod.instance_variable_set(:@ra_router_lifetime, 0)
+    end
+
+    def router_solicitation(src_mac: 'aa:bb:cc:dd:ee:ff', src_addr: 'fe80::5')
+      p = PacketFu::IPv6Packet.new
+      p.eth_saddr = src_mac
+      p.ipv6_saddr = src_addr
+      p.ipv6_daddr = 'ff02::2'
+      p.ipv6_next = 0x3a
+      p.payload = [133, 0, 0, 0].pack('CCnN')
+      p.to_s
+    end
+
+    it 'answers a solicitation with a unicast RA back to the solicitor' do
+      injected = nil
+      allow(mod).to receive(:inject) { |data| injected = data }
+
+      expect(mod.send(:handle_router_solicitation, router_solicitation)).to be(true)
+
+      ra = PacketFu::Packet.parse(injected)
+      expect(ra.eth_daddr).to eq('aa:bb:cc:dd:ee:ff')
+      expect(ra.ipv6_daddr).to eq('fe80::5')
+      expect(ra.icmpv6_type).to eq(134) # Router Advertisement
+    end
+
+    it 'multicasts the RA when the solicitation source is unspecified' do
+      injected = nil
+      allow(mod).to receive(:inject) { |data| injected = data }
+
+      mod.send(:handle_router_solicitation, router_solicitation(src_addr: '::'))
+
+      ra = PacketFu::Packet.parse(injected)
+      expect(ra.ipv6_daddr).to eq('ff02::1')
+    end
+
+    it 'ignores a nil read and does not inject' do
+      expect(mod).not_to receive(:inject)
+      expect(mod.send(:handle_router_solicitation, nil)).to be(false)
+    end
+
+    it 'ignores non-solicitation traffic' do
+      allow(mod).to receive(:inject)
+      p = PacketFu::IPv6Packet.new
+      p.ipv6_next = 0x3a
+      p.payload = [128, 0, 0, 0].pack('CCnN') # Echo request, not a solicitation
+      expect(mod).not_to receive(:inject)
+      expect(mod.send(:handle_router_solicitation, p.to_s)).to be(false)
+    end
+  end
 end
