@@ -29,7 +29,7 @@ RSpec.describe Msf::Payload::MalleableC2 do
         it 'raises an exception' do
           expect {
             parser.parse('/nonexistent/path.profile')
-          }.to raise_error(Exception)
+          }.to raise_error(Errno::ENOENT)
         end
       end
     end

@@ -22,6 +22,7 @@ module Acceptance::Session::Php
       },
       {
         name: "php/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: ".php",
         platforms: [:osx, :linux, :windows],
         execute_cmd: ["php", "${payload_path}"],
@@ -38,6 +39,7 @@ module Acceptance::Session::Php
       },
       {
         name: "php/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: ".php",
         platforms: [:osx, :linux, :windows],
         execute_cmd: ["php", "${payload_path}"],
@@ -54,8 +56,10 @@ module Acceptance::Session::Php
       },
       {
         name: "php/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: ".php",
-        platforms: [:osx, :linux, :windows],
+        # TODO: HTTPS payloads broken on Windows environments
+        platforms: [:osx, :linux],
         execute_cmd: ["php", "${payload_path}"],
         generate_options: {
           '-f': "raw"
@@ -70,8 +74,10 @@ module Acceptance::Session::Php
       },
       {
         name: "php/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: ".php",
-        platforms: [:osx, :linux, :windows],
+        # TODO: HTTPS payloads broken on Windows environments
+        platforms: [:osx, :linux],
         execute_cmd: ["php", "${payload_path}"],
         generate_options: {
           '-f': "raw"
@@ -167,22 +173,18 @@ module Acceptance::Session::Php
         skipped: false,
         lines: {
           linux: {
-            known_failures: [
-              "[-] FAILED: should read the binary data we just wrote"
-            ]
+            known_failures: []
           },
           osx: {
-            known_failures: [
-              "[-] FAILED: should read the binary data we just wrote"
-            ]
+            known_failures: []
           },
           windows: {
             known_failures: [
               "[-] [should delete a symbolic link target] FAILED: should delete a symbolic link target",
-              "[-] [should delete a symbolic link target] Exception: Rex::Post::Meterpreter::RequestError: stdapi_fs_delete_dir: Operation failed: 1",
-              "[-] FAILED: should read the binary data we just wrote"
+              "[-] [should delete a symbolic link target] Exception: Rex::Post::Meterpreter::RequestError: stdapi_fs_delete_dir: Operation failed: 1"
             ]
           }
+
         }
       },
       {

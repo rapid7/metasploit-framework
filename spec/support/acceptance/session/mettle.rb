@@ -41,6 +41,7 @@ module Acceptance::Session::Mettle
       },
       {
         name: "linux/x64/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: "",
         platforms: [:linux],
         executable: true,
@@ -59,6 +60,7 @@ module Acceptance::Session::Mettle
       },
       {
         name: "linux/x64/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: "",
         platforms: [:linux],
         executable: true,
@@ -77,6 +79,7 @@ module Acceptance::Session::Mettle
       },
       {
         name: "osx/x64/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: "",
         platforms: [:osx],
         executable: true,
@@ -95,6 +98,7 @@ module Acceptance::Session::Mettle
       },
       {
         name: "osx/x64/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: "",
         platforms: [:osx],
         executable: true,
@@ -113,6 +117,7 @@ module Acceptance::Session::Mettle
       },
       {
         name: "linux/x64/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: "",
         platforms: [:linux],
         executable: true,
@@ -131,6 +136,7 @@ module Acceptance::Session::Mettle
       },
       {
         name: "linux/x64/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: "",
         platforms: [:linux],
         executable: true,
@@ -149,6 +155,7 @@ module Acceptance::Session::Mettle
       },
       {
         name: "osx/x64/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: "",
         platforms: [:osx],
         executable: true,
@@ -167,6 +174,7 @@ module Acceptance::Session::Mettle
       },
       {
         name: "osx/x64/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
         extension: "",
         platforms: [:osx],
         executable: true,

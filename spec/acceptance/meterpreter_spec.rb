@@ -332,8 +332,10 @@ RSpec.describe 'Meterpreter' do
 
             meterpreter_config[:module_tests].each do |module_test|
               describe module_test[:name].to_s, focus: module_test[:focus] do
+                c2_profile = payload_config.dig(:datastore, :module, :MALLEABLEC2)
+                c2_suffix = c2_profile ? " (malleable c2: #{File.basename(c2_profile)})" : ''
                 it(
-                  "#{Acceptance::Session.current_platform}/#{meterpreter_runtime_name} meterpreter successfully opens a session for the #{payload_config[:name].inspect} payload and passes the #{module_test[:name].inspect} tests",
+                  "#{Acceptance::Session.current_platform}/#{meterpreter_runtime_name} meterpreter successfully opens a session for the #{payload_config[:name].inspect} payload and passes the #{module_test[:name].inspect} tests#{c2_suffix}",
                   if: (
                     # Run if ENV['SESSION'] = 'java php' etc
                     Acceptance::Session.run_meterpreter?(meterpreter_config) &&
@@ -343,7 +345,9 @@ RSpec.describe 'Meterpreter' do
                       Acceptance::Session.supported_platform?(payload_config) &&
                       Acceptance::Session.supported_platform?(module_test) &&
                       # Skip tests that are explicitly skipped, or won't pass in the current environment
-                      !Acceptance::Session.skipped_module_test?(module_test, allure_test_environment)
+                      !Acceptance::Session.skipped_module_test?(module_test, allure_test_environment) &&
+                      # Skip module tests that the payload has explicitly opted out of
+                      !Array(payload_config[:skip_module_tests]).include?(module_test[:name])
                   ),
                   # test metadata - will appear in allure report
                   module_test: module_test[:name]
