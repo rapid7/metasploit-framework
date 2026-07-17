@@ -70,6 +70,8 @@ module Auxiliary
     end
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
+    mod.run_uuid = run_uuid
+    omod.run_uuid = run_uuid
     job_listener.waiting run_uuid
     ctx = [mod, run_uuid, job_listener]
     run_as_job = opts['RunAsJob'].nil? ? mod.passive? : opts['RunAsJob']
@@ -94,8 +96,8 @@ module Auxiliary
   #
   # Calls the class method.
   #
-  def run_simple(opts = {}, &block)
-    Msf::Simple::Auxiliary.run_simple(self, opts, &block)
+  def run_simple(opts = {}, job_listener: Msf::Simple::NoopJobListener.instance, &block)
+    Msf::Simple::Auxiliary.run_simple(self, opts, job_listener: job_listener, &block)
   end
 
   #
@@ -128,6 +130,7 @@ module Auxiliary
     mod.validate
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
+    mod.run_uuid = run_uuid
     job_listener.waiting run_uuid
     ctx = [mod, run_uuid, job_listener]
 
@@ -158,8 +161,8 @@ module Auxiliary
   #
   # Calls the class method.
   #
-  def check_simple(opts = {})
-    Msf::Simple::Auxiliary.check_simple(self, opts)
+  def check_simple(opts = {}, job_listener: Msf::Simple::NoopJobListener.instance)
+    Msf::Simple::Auxiliary.check_simple(self, opts, job_listener: job_listener)
   end
 
 

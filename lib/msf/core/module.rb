@@ -424,6 +424,14 @@ module Msf
     attr_accessor :job_id
 
     #
+    # The run UUID produced by the most recent invocation of this module via
+    # one of the Simple wrappers (exploit_simple / run_simple). Mirrors the
+    # value reported to the job listener and tracked by
+    # Msf::RPC::RpcJobStatusTracker.
+    #
+    attr_accessor :run_uuid
+
+    #
     # The last exception to occur using this module
     #
     attr_accessor :error

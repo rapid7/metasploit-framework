@@ -391,12 +391,12 @@ class Console::CommandDispatcher::Core
         end
 
         opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
-        reloaded_mod.run_simple(
+        reloaded_mod.run_simple({
           #'RunAsJob' => true,
           'LocalInput'  => shell.input,
           'LocalOutput' => shell.output,
           'OptionStr'   => opts
-        )
+        })
       else
         # the rest of the arguments get passed in through the binding
         client.execute_script(script_name, args)
