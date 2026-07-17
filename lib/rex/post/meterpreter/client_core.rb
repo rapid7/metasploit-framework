@@ -538,6 +538,50 @@ class ClientCore < Extension
   end
 
   #
+  # Enable or disable async mode on the implant.
+  # When enabled, the implant polls at the configured interval
+  # and only during business hours.
+  #
+  # @param opts [Hash] configuration options
+  # @option opts [Boolean] :enabled enable/disable async mode
+  # @option opts [Integer] :poll_interval seconds between check-ins
+  # @option opts [Integer] :jitter jitter percentage (0-99)
+  # @option opts [Integer] :work_start business hours start (0-23)
+  # @option opts [Integer] :work_end business hours end (0-23)
+  # @option opts [Integer] :work_days bitmask of active days (bit0=Sun..bit6=Sat)
+  # @return [Rex::Post::Meterpreter::Packet] response packet
+  #
+  def async_mode(opts = {})
+    request = Packet.create_request(COMMAND_ID_CORE_ASYNC_MODE)
+    request.add_tlv(TLV_TYPE_ASYNC_ENABLED, opts[:enabled])
+    request.add_tlv(TLV_TYPE_ASYNC_POLL_INTERVAL, opts[:poll_interval]) if opts[:poll_interval]
+    request.add_tlv(TLV_TYPE_ASYNC_POLL_JITTER, opts[:jitter]) if opts[:jitter]
+    request.add_tlv(TLV_TYPE_ASYNC_WORK_START, opts[:work_start]) if opts[:work_start]
+    request.add_tlv(TLV_TYPE_ASYNC_WORK_END, opts[:work_end]) if opts[:work_end]
+    request.add_tlv(TLV_TYPE_ASYNC_WORK_DAYS, opts[:work_days]) if opts[:work_days]
+    response = client.send_request(request)
+    client.async_mode_enabled = response.get_tlv_value(TLV_TYPE_ASYNC_ENABLED)
+
+    # Adjust response_timeout to accommodate the poll interval.
+    # Commands need to wait at least poll_interval + jitter for the implant
+    # to check in, plus time to execute and respond.
+    if client.async_mode_enabled
+      poll = opts[:poll_interval] || 60
+      jitter_pct = opts[:jitter] || 0
+      # Timeout = 3× worst-case poll interval (poll + max jitter)
+      worst_case = poll + (poll * jitter_pct / 100)
+      new_timeout = [worst_case * 3, client.response_timeout].max
+      @pre_async_response_timeout ||= client.response_timeout
+      client.response_timeout = new_timeout
+    elsif defined?(@pre_async_response_timeout) && @pre_async_response_timeout
+      client.response_timeout = @pre_async_response_timeout
+      @pre_async_response_timeout = nil
+    end
+
+    response
+  end
+
+  #
   # Change the active transport to the next one in the transport list.
   #
   def transport_next
