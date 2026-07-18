@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Ray Dashboard Logs API Path Traversal',
         'Description' => %q{
-          Ray Dashboard versions before 2.56.0 are vulnerable to path traversal
+          Ray Dashboard versions 2.56.0 and earlier are vulnerable to path traversal
           through the /api/v0/logs endpoint, allowing unauthenticated filesystem
           enumeration via attacker-controlled glob paths.
         },
