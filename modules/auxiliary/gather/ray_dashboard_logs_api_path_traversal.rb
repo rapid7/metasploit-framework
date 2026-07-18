@@ -131,12 +131,12 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     loot_path = store_loot(
-      'ray.dashboard.filesystem.enumeration',
+      'ray.dashboard.files',
       'text/plain',
       rhost,
       entries.join("\n"),
-      'ray_filesystem_entries.txt',
-      'Ray Dashboard filesystem enumeration'
+      'ray_dashboard_files.txt',
+      'Ray Dashboard filesystem paths retrieved via path traversal'
     )
 
     print_good("Loot stored in: #{loot_path}")
