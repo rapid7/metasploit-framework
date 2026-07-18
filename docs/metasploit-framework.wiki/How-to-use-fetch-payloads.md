@@ -37,6 +37,20 @@ For example:
 3. Start a served payload handler for the served payload to call back to
 4. Generate a command to execute on a remote host that will download the served payload and run it.
 
+## Fetch Multi
+The Fetch Multi Arch payload (cmd/linux/http[s]/multi/<payload>) is a specific Linux Fetch payload type that identifies
+the architecture of the target host during the execution of the command-based stager. The command-based stager embeds
+the architecture as a query string in the download request so that the fetch server serves the right payload for the
+target architecture. This allows users to launch a remote exploit without knowing the architecture of the target
+system.
+Limitations: 
+1. The payload uses a query string to report the target arch, so it only works with HTTP[S] fetch protocol payloads.
+2. We don't support much AARCH64 on Windows, and x86 is well-emulated on Windows hosts, so for now, this only supports
+Linux.
+3. There exists a curious and annoying feature in some mips kernels that they return `mips` as the `uname -m` value.  This
+_normally_ means that the target is mipsbe, but there are some cases when it is actually mipsel/mipsle.  If your target
+reports that the uname value is 'mips' it will be served a mipsbe payload, but there will be a warning message that
+suggests you try an explicit mipsle payload if the automatic mipsbe payload fails.
 
 ## A Simple Stand-Alone Example
 The fastest way to understand Fetch Payloads is to use them and examine the output. For example, let's assume a Linux

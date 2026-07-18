@@ -75,6 +75,22 @@ module Msf::MCP
           end
         end
 
+        # Validate MCP authentication token
+        if config[:mcp].is_a?(Hash) && config[:mcp].key?(:auth_token)
+          auth_token = config[:mcp][:auth_token]
+          if auth_token.is_a?(String)
+            unless auth_token.match?(/\A[!-~]*\z/)
+              errors[:'mcp.auth_token'] = "must be a valid token"
+            end
+          elsif auth_token != nil
+            errors[:'mcp.auth_token'] = "must be a string"
+          end
+
+          unless config[:mcp][:transport] == 'http'
+            errors[:'mcp.auth_token'] = "authentication must only be used with the 'http' transport"
+          end
+        end
+
         # Validate MCP Puma thread/worker settings
         if config[:mcp].is_a?(Hash)
           if config[:mcp].key?(:min_threads)

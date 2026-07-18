@@ -38,7 +38,7 @@ module Msf::Payload::Adapter::Fetch::Server::SMB
 
   def cleanup_smb_fetch_service(fetch_service)
     fetch_service.remove_share(@fetch_virtual_disk)
-    fetch_service.deref
+    fetch_service = nil
   end
 
   def fetch_protocol
