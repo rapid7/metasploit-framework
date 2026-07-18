@@ -17,7 +17,7 @@ This module was successfully tested on:
 3. Install Ray (v2.56.0) in your VM.
    `python3 -m pip install pip install ray==2.56.0`
 4. Start the ray service.
-   `ray start --head --node-ip-address=<insert ip> --dashboard-host=<inert ip>`
+   `ray start --head --node-ip-address=<insert ip> --dashboard-host=<insert ip>`
 
 
 ## Verification Steps
