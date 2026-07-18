@@ -1,6 +1,8 @@
 require_relative './shared'
 
 module Acceptance::Session::Php
+  MALLEABLE_C2_FIXTURE_PATH = File.expand_path('../../../../../spec/file_fixtures/malleable_c2', __FILE__)
+
   PHP_METERPRETER = {
     payloads: [
       {
@@ -15,6 +17,76 @@ module Acceptance::Session::Php
           global: {},
           module: {
             MeterpreterDebugBuild: true
+          }
+        }
+      },
+      {
+        name: "php/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        # TODO: HTTPS payloads broken on Windows environments
+        platforms: [:osx, :linux],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        # TODO: HTTPS payloads broken on Windows environments
+        platforms: [:osx, :linux],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
           }
         }
       }
@@ -101,22 +173,18 @@ module Acceptance::Session::Php
         skipped: false,
         lines: {
           linux: {
-            known_failures: [
-              "[-] FAILED: should read the binary data we just wrote"
-            ]
+            known_failures: []
           },
           osx: {
-            known_failures: [
-              "[-] FAILED: should read the binary data we just wrote"
-            ]
+            known_failures: []
           },
           windows: {
             known_failures: [
               "[-] [should delete a symbolic link target] FAILED: should delete a symbolic link target",
-              "[-] [should delete a symbolic link target] Exception: Rex::Post::Meterpreter::RequestError: stdapi_fs_delete_dir: Operation failed: 1",
-              "[-] FAILED: should read the binary data we just wrote"
+              "[-] [should delete a symbolic link target] Exception: Rex::Post::Meterpreter::RequestError: stdapi_fs_delete_dir: Operation failed: 1"
             ]
           }
+
         }
       },
       {
