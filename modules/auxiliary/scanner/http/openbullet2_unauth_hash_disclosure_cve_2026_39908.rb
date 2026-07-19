@@ -30,8 +30,8 @@ class MetasploitModule < Msf::Auxiliary
           'Maksim Rogov', # Vulnerability Discovery & Metasploit Module
         ],
         'References' => [
-          ['CVE', 'CVE-2026-25555'],
-          ['CVE', 'CVE-2026-39908'],
+          ['CVE', '2026-25555'],
+          ['CVE', '2026-39908'],
           ['URL', 'https://hackernoon.com/one-empty-header-to-admin-how-an-auth-bypass-breaks-openbullet2']
         ],
         'DisclosureDate' => '2026-06-04',
