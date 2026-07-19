@@ -4,8 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  Rank = ExcellentRanking
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::FILEFORMAT
   include Msf::Exploit::Remote::SMB::Server::Share
