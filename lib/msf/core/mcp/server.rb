@@ -132,6 +132,7 @@ module Msf::MCP
     def start_http(host, port, auth_token, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
       require 'rack'
       require 'puma'
+      require 'puma/configuration'
       require 'puma/server'
       require 'puma/log_writer'
 
