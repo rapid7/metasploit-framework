@@ -76,18 +76,18 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Check new value : OID #{oid} => #{check}")
 
     else
-      print_status("#{ip} - OID not writable or does not provide WRITE access with community '#{comm}'")
+      print_status("OID not writable or does not provide WRITE access with community '#{comm}'")
     end
   rescue ::SNMP::RequestTimeout
-    print_error("#{ip} - SNMP request timeout with community '#{comm}'.")
+    print_error("SNMP request timeout with community '#{comm}'.")
   rescue ::Rex::ConnectionError
-    print_error("#{ip} - 'Connection Refused'")
+    print_error("'Connection Refused'")
   rescue SNMP::UnsupportedVersion
-    print_error("#{ip} - Unsupported SNMP version specified. Select from '1' or '2c'.")
+    print_error("Unsupported SNMP version specified. Select from '1' or '2c'.")
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue StandardError => e
-    print_error("#{ip} Error: #{e.class} #{e} #{e.backtrace}")
+    print_error("Error: #{e.class} #{e} #{e.backtrace}")
   ensure
     disconnect_snmp
   end

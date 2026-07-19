@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status('Performing downloading using HMAC_SHA1 style juHash creation - see show actions for more details')
     end
 
-    print_status("Establishing a connection to #{Rex::Socket.to_authority(rhost, rport)}")
+    print_status("Establishing a connection to #{rhost}:#{rport}")
     print_status("Trying to retrieve #{datastore['RFILE']}")
 
     if datastore['ENC_KEY'] != ''
@@ -199,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless success
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [Typo3] Failed to retrieve file #{datastore['RFILE']}")
+      print_error("Failed to retrieve file #{datastore['RFILE']}")
       print_error("Maybe try checking the ACTIONS - Currently using  #{action.name}")
     end
   end

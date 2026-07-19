@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     if not is_sws?
-      print_error("#{ip}:#{rport} - This isn't a Simple Web Server")
+      print_error("This isn't a Simple Web Server")
       return
     end
 
@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_raw({ 'uri' => uri })
 
     if not res
-      print_error("#{ip}:#{rport} - Request timed out.")
+      print_error("Request timed out.")
       return
     end
 
@@ -106,16 +106,16 @@ class MetasploitModule < Msf::Auxiliary
 
       if body.empty?
         # HD's likes vprint_* in case it's hitting a large network
-        vprint_status("#{ip}:#{rport} - File is empty.")
+        vprint_status("File is empty.")
         return
       end
 
       vprint_line(body)
       fname = ::File.basename(datastore['FILEPATH'])
       p = store_loot('simplewebserver.file', 'application/octet-stream', ip, body, fname)
-      print_good("#{ip}:#{rport} - #{fname} stored in: #{p}")
+      print_good("#{fname} stored in: #{p}")
     else
-      print_error("#{ip}:#{rport} - Unable to retrieve file: #{code.to_s} (#{message})")
+      print_error("Unable to retrieve file: #{code.to_s} (#{message})")
     end
   end
 end

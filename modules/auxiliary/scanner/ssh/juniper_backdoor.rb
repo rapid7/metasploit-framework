@@ -67,12 +67,12 @@ class MetasploitModule < Msf::Auxiliary
         )
       end
     rescue Net::SSH::Exception => e
-      vprint_error("#{ip}:#{rport} - #{e.class}: #{e.message}")
+      vprint_error("#{e.class}: #{e.message}")
       return
     end
 
     if ssh
-      print_good("#{ip}:#{rport} - Logged in with backdoor account admin:<<< %s(un='%s') = %u")
+      print_good("Logged in with backdoor account admin:<<< %s(un='%s') = %u")
       report_vuln(
         :host => ip,
         :name => self.name,

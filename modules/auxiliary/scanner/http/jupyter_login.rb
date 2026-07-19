@@ -63,10 +63,10 @@ class MetasploitModule < Msf::Auxiliary
     version = res&.get_json_document&.dig('version')
     fail_with(Failure::UnexpectedReply, 'Failed to fetch the Jupyter API version') if version.nil?
 
-    vprint_status "#{peer} - The server responded that it is running Jupyter version: #{version}"
+    vprint_status "The server responded that it is running Jupyter version: #{version}"
 
     unless requires_password?(ip)
-      print_good "#{peer} - No password is required."
+      print_good "No password is required."
       report_vuln(
         host: ip,
         port: rport,
@@ -108,10 +108,10 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{peer} - Login Successful: #{result.credential}"
+        print_good "Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
-        vprint_error "#{peer} - LOGIN FAILED: #{result.credential} (#{result.status})"
+        vprint_error "LOGIN FAILED: #{result.credential} (#{result.status})"
       end
     end
   end

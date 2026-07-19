@@ -40,21 +40,21 @@ class MetasploitModule < Msf::Auxiliary
     banner = sock.get_once(-1, 10)
 
     if !banner
-      print_error "#{Rex::Socket.to_authority(rhost, rport)} No banner received from vmauthd"
+      print_error "No banner received from vmauthd"
       return
     end
 
     banner = banner.strip
 
     unless banner =~ /VMware Authentication Daemon/
-      print_error "#{Rex::Socket.to_authority(rhost, rport)} This does not appear to be a vmauthd service"
+      print_error "This does not appear to be a vmauthd service"
       return
     end
 
     cert = nil
 
     if banner =~ /SSL/
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} Switching to SSL connection...")
+      print_status("Switching to SSL connection...")
       swap_sock_plain_to_ssl
       cert = sock.peer_cert
     end
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
       banner << " Certificate:#{cert.subject}"
     end
 
-    print_good "#{Rex::Socket.to_authority(rhost, rport)} Banner: #{banner}"
+    print_good "Banner: #{banner}"
 
     report_service(
       host: rhost,

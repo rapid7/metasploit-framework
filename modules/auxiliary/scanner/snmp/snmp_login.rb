@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - Login Successful: #{result.credential} (Access level: #{result.access_level}); Proof (sysDescr.0): #{result.proof}"
+        print_good "Login Successful: #{result.credential} (Access level: #{result.access_level}); Proof (sysDescr.0): #{result.proof}"
         report_service(
           host: ip,
           port: rport,
@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
         )
       else
         invalidate_login(credential_data)
-        print_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"
+        print_error "LOGIN FAILED: #{result.credential} (#{result.status})"
       end
     end
   end

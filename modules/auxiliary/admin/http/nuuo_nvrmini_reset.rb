@@ -79,9 +79,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res && res.code == 200 && res.body.to_s =~ /load default configuration ok/
-      print_good("#{peer} - Device has been reset to the default configuration.")
+      print_good("Device has been reset to the default configuration.")
     else
-      print_error("#{peer} - Failed to reset device.")
+      print_error("Failed to reset device.")
     end
   end
 end

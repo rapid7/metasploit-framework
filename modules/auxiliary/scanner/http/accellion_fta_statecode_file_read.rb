@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
     return if not res
 
     if res.code != 200
-      vprint_status("#{peer} Unexpected response code: #{res.code} #{res.message}")
+      vprint_status("Unexpected response code: #{res.code} #{res.message}")
       return
     end
 
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Check for patched versions of the FTA
     if contents =~ / Missing session ID.*Accellion, Inc/m
-      print_error("#{peer} Appears to be a patched Accellion FTA")
+      print_error("Appears to be a patched Accellion FTA")
       return
     end
 
@@ -84,10 +84,10 @@ class MetasploitModule < Msf::Auxiliary
         res.body,
         fname
       )
-      print_good("#{peer} Successfully downloaded #{datastore['FILEPATH']} as #{path}")
+      print_good("Successfully downloaded #{datastore['FILEPATH']} as #{path}")
     else
       vprint_status(
-        "#{peer} Unexpected response headers: (Server=#{res.headers['Server'].inspect} Expected=#{expected_server.inspect}) " +
+        "Unexpected response headers: (Server=#{res.headers['Server'].inspect} Expected=#{expected_server.inspect}) " +
         "(Expires=#{res.headers['Expires'].inspect} Expected=#{expected_expires.inspect})"
       )
     end

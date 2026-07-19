@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
     fragments << build_tls_fragment(1, 1234, 0, 0, 123, Rex::Text.rand_text_alpha(1234))
     message = build_tls_message(22, datastore['VERSION'], 0, 0, fragments)
     connect_udp
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending fragmented DTLS client hello packet")
+    print_status("Sending fragmented DTLS client hello packet")
     udp_sock.put(message)
     disconnect_udp
   end

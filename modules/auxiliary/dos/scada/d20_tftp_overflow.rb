@@ -66,10 +66,10 @@ class MetasploitModule < Msf::Auxiliary
     if recv && !recv.empty?
       udp_sock.sendto(payload, rhost, rport)
     else
-      print_error "#{Rex::Socket.to_authority(rhost, rport)} - TFTP - No response from the target, aborting."
+      print_error "TFTP - No response from the target, aborting."
       return
     end
-    print_good "#{Rex::Socket.to_authority(rhost, rport)} - TFTP - DoS complete, the D20 should fault after a timeout."
+    print_good "TFTP - DoS complete, the D20 should fault after a timeout."
   end
 
   def recv_timeout

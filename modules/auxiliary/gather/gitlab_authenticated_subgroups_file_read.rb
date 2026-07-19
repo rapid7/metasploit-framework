@@ -232,7 +232,7 @@ class MetasploitModule < Msf::Auxiliary
     if res.code == 500
       print_error("Unable to read file (permissions, or file doesn't exist)")
     elsif res.code != 200
-      print_error("#{peer} - Unexpected response code (#{res.code})") # don't fail_with so we can cleanup
+      print_error("Unexpected response code (#{res.code})") # don't fail_with so we can cleanup
     end
 
     if res.body.empty?

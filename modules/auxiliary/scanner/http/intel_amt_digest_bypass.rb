@@ -42,10 +42,10 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
 
-      vprint_status("#{ip}:#{rport} - Found an Intel AMT endpoint: #{res.headers['Server']}")
+      vprint_status("Found an Intel AMT endpoint: #{res.headers['Server']}")
 
       unless res.headers['WWW-Authenticate'] =~ /realm="([^"]+)".*nonce="([^"]+)"/
-        vprint_status("#{ip}:#{rport} - AMT service did not send a valid digest response")
+        vprint_status("AMT service did not send a valid digest response")
         disconnect
         return
       end
@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       unless res && res.body.to_s.index("Computer model")
-        vprint_error("#{ip}:#{rport} - AMT service does not appear to be vulnerable")
+        vprint_error("AMT service does not appear to be vulnerable")
         return
       end
 
@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      print_good("#{ip}:#{rport} - Vulnerable to CVE-2017-5689 #{proof_hash.inspect}")
+      print_good("Vulnerable to CVE-2017-5689 #{proof_hash.inspect}")
 
       report_note(
         :host => ip,

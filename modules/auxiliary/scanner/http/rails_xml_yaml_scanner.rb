@@ -53,33 +53,33 @@ class MetasploitModule < Msf::Auxiliary
     res1 = send_probe("string", "hello")
 
     unless res1
-      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} No reply to the initial XML request")
+      vprint_status("No reply to the initial XML request")
       return
     end
 
     if res1.code.to_s =~ /^[5]/
-      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} The server replied with #{res1.code} for our initial XML request, double check URIPATH")
+      vprint_status("The server replied with #{res1.code} for our initial XML request, double check URIPATH")
       return
     end
 
     res2 = send_probe("yaml", "--- !ruby/object:Time {}\n")
 
     unless res2
-      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} No reply to the initial YAML probe")
+      vprint_status("No reply to the initial YAML probe")
       return
     end
 
     res3 = send_probe("yaml", "--- !ruby/object:\x00")
 
     unless res3
-      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} No reply to the second YAML probe")
+      vprint_status("No reply to the second YAML probe")
       return
     end
 
     vprint_status("Probe response codes: #{res1.code} / #{res2.code} / #{res3.code}")
 
     if (res2.code == res1.code) and (res3.code != res2.code) and (res3.code != 200)
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} is likely vulnerable due to a #{res3.code} reply for invalid YAML")
+      print_good("is likely vulnerable due to a #{res3.code} reply for invalid YAML")
       report_vuln({
         :host	=> rhost,
         :port	=> rport,
@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
         :refs => self.references
       })
     else
-      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} is not likely to be vulnerable or URIPATH & HTTP_METHOD must be set")
+      vprint_status("is not likely to be vulnerable or URIPATH & HTTP_METHOD must be set")
     end
   end
 end

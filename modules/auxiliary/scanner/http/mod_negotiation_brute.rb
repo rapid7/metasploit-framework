@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
           chunks = res.headers.to_s.scan(/"(.*?)"/i).flatten
           chunks.each do |chunk|
             chunk = chunk.to_s
-            print_status("#{ip} #{tpath}#{chunk}")
+            print_status("#{tpath}#{chunk}")
           end
         end
       end

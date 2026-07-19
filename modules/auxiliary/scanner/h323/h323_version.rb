@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
           end
 
           # Diagnostics
-          # print_status("Host: #{Rex::Socket.to_authority(rhost, rport)} => #{info.inspect}")
+          # print_status("Host: #{rhost}:#{rport} => #{info.inspect}")
 
           # The remote side of the call was connected (kill it)
           break if info[:type] == @@H323_STATUS_CONNECT
@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
       raise $!
     rescue ::Rex::ConnectionError, ::IOError, ::Errno::ECONNRESET, ::Errno::ENOPROTOOPT
     rescue ::Exception
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} #{$!.class} #{$!} #{$!.backtrace}")
+      print_error("#{$!.class} #{$!} #{$!.backtrace}")
     ensure
       disconnect
     end
@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
         banner << "DisplayName: #{remote_display}"
       end
 
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} #{banner}")
+      print_good("#{banner}")
       report_service(:host => rhost, :port => rport, :name => "h323", :info => banner)
     end
   end

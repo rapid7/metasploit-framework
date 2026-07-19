@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
 
       report_service(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :info => info)
       report_note(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :update => :unique, :ntype => "pcanywhere.status", :data => data)
-      print_good("#{ip}:#{datastore['RPORT']} #{info}")
+      print_good("#{info}")
     end
   end
 
@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
 
       @results[shost][:stat] = stat
     else
-      print_error("#{shost} Unknown: #{data.inspect}")
+      print_error("Unknown: #{data.inspect}")
     end
   end
 end

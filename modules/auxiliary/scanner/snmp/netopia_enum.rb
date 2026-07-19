@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
 
     sys_desc = snmp.get_value('sysDescr.0')
     unless sys_desc =~ /Netopia 3347/
-      print_error("#{ip} system is not Netopia 3347: #{sys_desc}")
+      print_error("system is not Netopia 3347: #{sys_desc}")
       return
     end
 
@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue StandardError => e
-    print_error("#{ip} - Error: #{e.class} #{e}")
+    print_error("Error: #{e.class} #{e}")
     disconnect_snmp
   end
 end

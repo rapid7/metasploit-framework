@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # without res.body.length we get lots of false positives
     if (res and res.code == 200 and res.body.length > 0)
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Request may have succeeded on file #{file}")
+      print_good("Request may have succeeded on file #{file}")
       report_web_vuln({
         :host => rhost,
         :port => rport,
@@ -82,9 +82,9 @@ class MetasploitModule < Msf::Auxiliary
       })
 
       loot = store_loot("linksys.traversal.data", "text/plain", rhost, res.body, file)
-      vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - File #{file} downloaded to: #{loot}")
+      vprint_good("File #{file} downloaded to: #{loot}")
     elsif (res and res.code)
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Attempt returned HTTP error #{res.code} when trying to access #{file}")
+      vprint_error("Attempt returned HTTP error #{res.code} when trying to access #{file}")
     end
   end
 
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     user = datastore['HttpUsername']
     pass = datastore['HttpPassword']
 
-    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Trying to login with #{user} / #{pass}")
+    vprint_status("Trying to login with #{user} / #{pass}")
 
     # test login
     begin
@@ -107,13 +107,13 @@ class MetasploitModule < Msf::Auxiliary
       return if (res.code == 404)
 
       if [200, 301, 302].include?(res.code)
-        vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - Successful login #{user}/#{pass}")
+        vprint_good("Successful login #{user}/#{pass}")
       else
-        vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - No successful login possible with #{user}/#{pass}")
+        vprint_error("No successful login possible with #{user}/#{pass}")
         return
       end
     rescue ::Rex::ConnectionError
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to connect to the web server")
+      vprint_error("Failed to connect to the web server")
       return
     end
 

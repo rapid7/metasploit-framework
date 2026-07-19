@@ -143,13 +143,13 @@ class MetasploitModule < Msf::Auxiliary
       end
     elsif (res.code == 403)
       if (res.body =~ /secured with Secure Sockets Layer/ or res.body =~ /Secure Channel Required/ or res.body =~ /requires a secure connection/)
-        vprint_status("#{ip} ip access to #{ip} (SSL Required)")
+        vprint_status("ip access to #{ip} (SSL Required)")
       elsif (res.body =~ /has a list of IP addresses that are not allowed/)
-        vprint_status("#{ip} restricted access by IP")
+        vprint_status("restricted access by IP")
       elsif (res.body =~ /SSL client certificate is required/)
-        vprint_status("#{ip} requires a SSL client certificate")
+        vprint_status("requires a SSL client certificate")
       else
-        vprint_status("#{ip} denied access to #{ip}#{tpath}#{papp} - #{res.code} #{res.message}")
+        vprint_status("denied access to #{ip}#{tpath}#{papp} - #{res.code} #{res.message}")
       end
     end
     return

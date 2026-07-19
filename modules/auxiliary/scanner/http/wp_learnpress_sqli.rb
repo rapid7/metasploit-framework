@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless @sqli.test_vulnerable
-      print_bad("#{peer} - Testing of SQLi failed.  If this is time based, try increasing SqliDelay.")
+      print_bad("Testing of SQLi failed.  If this is time based, try increasing SqliDelay.")
       return
     end
     columns = ['user_login', 'user_pass']

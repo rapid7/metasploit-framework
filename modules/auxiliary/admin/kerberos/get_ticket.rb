@@ -198,7 +198,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_get_tgt
-    print_status("#{peer} - Getting TGT for #{@username}@#{@realm}")
+    print_status("Getting TGT for #{@username}@#{@realm}")
 
     # Never attempt to use the kerberos cache when requesting a kerberos TGT, to ensure a request is made
     authenticator = init_authenticator({ ticket_storage: kerberos_ticket_storage(read: false, write: true) })
@@ -214,7 +214,7 @@ class MetasploitModule < Msf::Auxiliary
     credential = authenticator.request_tgt_only(tgt_request_options)
 
     if datastore['IMPERSONATE_TYPE'] == 'dmsa'
-      print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{@realm} (SPN: #{datastore['SPN']})")
+      print_status("Getting TGS impersonating #{datastore['IMPERSONATE']}@#{@realm} (SPN: #{datastore['SPN']})")
 
       sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
         name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
@@ -242,7 +242,7 @@ class MetasploitModule < Msf::Auxiliary
           print_dmsa_key_package_info(dmsa_key_package)
         end
       rescue ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError => e
-        print_error("#{peer} - Failed to decode dMSA Key Package: #{e.message}")
+        print_error("Failed to decode dMSA Key Package: #{e.message}")
         next
       end
 
@@ -250,7 +250,7 @@ class MetasploitModule < Msf::Auxiliary
       auth_options[:credential] = tgs_credential
       auth_options
     elsif datastore['IMPERSONATE_TYPE'] == 'generic'
-      print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{@realm} (SPN: #{datastore['SPN']})")
+      print_status("Getting TGS impersonating #{datastore['IMPERSONATE']}@#{@realm} (SPN: #{datastore['SPN']})")
 
       sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
         name_type: Rex::Proto::Kerberos::Model::NameType::NT_UNKNOWN,
@@ -272,7 +272,7 @@ class MetasploitModule < Msf::Auxiliary
       auth_options[:tgs_ticket] = tgs_ticket
       authenticator.s4u2proxy(credential, auth_options)
     else
-      print_status("#{peer} - Getting TGS for #{@username}@#{@realm} (SPN: #{datastore['SPN']})")
+      print_status("Getting TGS for #{@username}@#{@realm} (SPN: #{datastore['SPN']})")
 
       sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
         name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
@@ -316,7 +316,7 @@ class MetasploitModule < Msf::Auxiliary
     auth_context = authenticator.authenticate_via_kdc(options)
     credential = auth_context[:credential]
 
-    print_status("#{peer} - Getting NTLM hash for #{@username}@#{@realm}")
+    print_status("Getting NTLM hash for #{@username}@#{@realm}")
 
     session_key = Rex::Proto::Kerberos::Model::EncryptionKey.new(
       type: credential.keyblock.enctype.value,

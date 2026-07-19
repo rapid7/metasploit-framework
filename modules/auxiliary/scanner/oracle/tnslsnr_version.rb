@@ -54,16 +54,16 @@ class MetasploitModule < Msf::Auxiliary
           :name => "oracle",
           :info => ora_version
         )
-        print_good("#{ip}:#{datastore['RPORT']} Oracle - Version: " + ora_version)
+        print_good("Oracle - Version: " + ora_version)
       elsif (data && data =~ /\(ERR=(\d+)\)/)
         case $1.to_i
         when 1189
-          print_error("#{ip}:#{datastore['RPORT']} Oracle - Version: Unknown - Error code #{$1} - The listener could not authenticate the user")
+          print_error("Oracle - Version: Unknown - Error code #{$1} - The listener could not authenticate the user")
         else
-          print_error("#{ip}:#{datastore['RPORT']} Oracle - Version: Unknown - Error code #{$1}")
+          print_error("Oracle - Version: Unknown - Error code #{$1}")
         end
       else
-        print_error("#{ip}:#{datastore['RPORT']} Oracle - Version: Unknown")
+        print_error("Oracle - Version: Unknown")
       end
       disconnect
     rescue ::Rex::ConnectionError

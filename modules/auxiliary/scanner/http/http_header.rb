@@ -45,20 +45,20 @@ class MetasploitModule < Msf::Auxiliary
 
     uri = normalize_uri(target_uri.path)
     method = datastore['HTTP_METHOD']
-    vprint_status("#{peer}: requesting #{uri} via #{method}")
+    vprint_status("requesting #{uri} via #{method}")
     res = send_request_raw({
       'method' => method,
       'uri' => uri
     })
 
     unless res
-      vprint_error("#{peer}: connection timed out")
+      vprint_error("connection timed out")
       return
     end
 
     headers = res.headers
     unless headers
-      vprint_status("#{peer}: no headers returned")
+      vprint_status("no headers returned")
       return
     end
 
@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
 
     ignored_headers.each do |h|
       if headers_uppercase.has_key?(h.upcase)
-        vprint_status("#{peer}: deleted header #{h}")
+        vprint_status("deleted header #{h}")
         headers_uppercase.delete(h.upcase)
       end
     end
@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
     counter = 0;
     headers_uppercase.each do |h|
       header_string = "#{h[0]}: #{h[1]}"
-      print_good "#{peer}: #{header_string}"
+      print_good "#{header_string}"
 
       report_note(
         :type => "http.header.#{rport}.#{counter}",
@@ -90,9 +90,9 @@ class MetasploitModule < Msf::Auxiliary
       counter = counter + 1
     end
     if counter == 0
-      print_warning "#{peer}: all detected headers are defined in IGN_HEADER and were ignored "
+      print_warning "all detected headers are defined in IGN_HEADER and were ignored "
     else
-      print_good "#{peer}: detected #{counter} headers"
+      print_good "detected #{counter} headers"
     end
   end
 end

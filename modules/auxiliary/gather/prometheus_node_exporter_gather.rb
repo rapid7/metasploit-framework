@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    vprint_status("#{peer} - Checking ")
+    vprint_status("Checking ")
     # since we will check res to see if auth was a success, make sure to capture the return
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path),
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
       res.body.include?('<title>Node Exporter</title>') || # version 0.15.2
       res.body.include?('<h2>Prometheus Exporter for Windows servers</h2>')
 
-    vprint_good("#{peer} - Prometheus Node Exporter version: #{Regexp.last_match(1)}") if res.body =~ /version=([\d.]+)/
+    vprint_good("Prometheus Node Exporter version: #{Regexp.last_match(1)}") if res.body =~ /version=([\d.]+)/
 
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'metrics'),
@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
     results = process_results_page(res.body)
 
     if results.nil? || results == []
-      print_bad("#{peer} - No metric data found")
+      print_bad("No metric data found")
       return
     end
 

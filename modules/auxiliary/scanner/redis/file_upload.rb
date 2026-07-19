@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
       if data.include?('+OK')
         reset_rdbcompression = true
       else
-        print_error("#{peer} -- Unable to disable rdbcompresssion")
+        print_error("- Unable to disable rdbcompresssion")
         reset_rdbcompression = false
       end
     end
@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['FLUSHALL']
       data = redis_command('FLUSHALL') || ''
       unless data.include?('+OK')
-        print_warning("#{peer} -- failed to flushall(); continuing")
+        print_warning("- failed to flushall(); continuing")
       end
     end
 
@@ -105,9 +105,9 @@ class MetasploitModule < Msf::Auxiliary
     data = redis_command('SAVE') || ''
 
     if data.include?('+OK')
-      print_good("#{peer} -- saved #{content.size} bytes inside of redis DB at #{path}")
+      print_good("- saved #{content.size} bytes inside of redis DB at #{path}")
     else
-      print_error("#{peer} -- failed to save #{content.size} bytes to #{path} (permissions?)")
+      print_error("- failed to save #{content.size} bytes to #{path} (permissions?)")
       return
     end
 

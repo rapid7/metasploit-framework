@@ -122,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
     sock.put(packet)
     response = sock.recv(1024)
     unless have_auth_error?(response)
-      print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}'")
+      print_good("SUCCESSFUL LOGIN '#{user}' : '#{password}'")
       report_cred(
         ip: rhost,
         port: rport,

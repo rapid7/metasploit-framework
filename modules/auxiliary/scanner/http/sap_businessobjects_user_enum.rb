@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def enum_user(user = 'administrator', pass = 'invalid-sap-password-0d03b389-b7a1-4ecc-8898-e62d1836b72a')
-    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Enumerating username:'#{user}'")
+    vprint_status("Enumerating username:'#{user}'")
     success = false
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
     xmlns = 'http://session.dsws.businessobjects.com/2007/06/01'

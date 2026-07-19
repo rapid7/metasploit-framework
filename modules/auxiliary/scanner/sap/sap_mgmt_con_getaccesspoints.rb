@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if !res
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
+      print_error("Unable to connect")
       return
     end
 
@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def getacesspoints(rhost)
-    print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{Rex::Socket.to_authority(rhost, rport)}")
+    print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
     success = false
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue ::Rex::ConnectionError
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to attempt authentication")
+      print_error("Unable to attempt authentication")
       return
     end
 
@@ -136,12 +136,12 @@ class MetasploitModule < Msf::Auxiliary
         '.xml'
       )
 
-      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Access Point List: #{env.length} entries extracted\n#{saptbl}")
+      print_good("Access Point List: #{env.length} entries extracted\n#{saptbl}")
 
     elsif fault
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Error code: #{faultcode}")
+      print_error("Error code: #{faultcode}")
     else
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] failed to request environment")
+      print_error("failed to request environment")
     end
   end
 end

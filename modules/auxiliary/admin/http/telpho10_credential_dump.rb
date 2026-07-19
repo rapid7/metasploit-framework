@@ -155,7 +155,7 @@ class MetasploitModule < Msf::Auxiliary
       return nil
     end
   rescue ::Rex::ConnectionError
-    print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to connect")
+    print_error("Failed to connect")
     return nil
   end
 end

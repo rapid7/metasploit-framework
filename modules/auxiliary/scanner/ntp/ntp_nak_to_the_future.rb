@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
     if response.length == expected_length
       ntp_symmetric = Rex::Proto::NTP::Header::NTPHeader.read(response)
       if ntp_symmetric.mode == SYMMETRIC_PASSIVE_MODE && ntp_symmetric.origin_timestamp == nil
-        vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - NTP - VULNERABLE: Accepted a NTP symmetric active association")
+        vprint_good("NTP - VULNERABLE: Accepted a NTP symmetric active association")
         report_vuln(
           host: rhost,
           port: rport.to_i,

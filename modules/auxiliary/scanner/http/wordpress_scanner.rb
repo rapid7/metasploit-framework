@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
     if wordpress_and_online?
       version = wordpress_version
       version_string = version || '(no version detected)'
-      print_good("#{target_host} - Detected Wordpress #{version_string}")
+      print_good("Detected Wordpress #{version_string}")
       report_note(
         {
           host: target_host,
@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
       if datastore['THEMES']
-        print_status("#{target_host} - Enumerating Themes")
+        print_status("Enumerating Themes")
 
         if datastore['EXPLOITABLE']
           f = File.open(datastore['EXPLOITABLE_THEMES'], 'rb')
@@ -77,11 +77,11 @@ class MetasploitModule < Msf::Auxiliary
         f.each_with_index do |theme, i|
           theme = theme.strip
           print_progress(target_host, i, total) if i % datastore['PROGRESS'] == 0
-          vprint_status("#{target_host} - Checking theme: #{theme}")
+          vprint_status("Checking theme: #{theme}")
           version = check_theme_version_from_readme(theme)
           next if version == Msf::Exploit::CheckCode::Unknown # aka not found
 
-          print_good("#{target_host} - Detected theme: #{theme} version #{version.details[:version]}")
+          print_good("Detected theme: #{theme} version #{version.details[:version]}")
           report_note(
             {
               host: target_host,
@@ -93,10 +93,10 @@ class MetasploitModule < Msf::Auxiliary
             }
           )
         end
-        print_status("#{target_host} - Finished scanning themes")
+        print_status("Finished scanning themes")
       end
       if datastore['PLUGINS']
-        print_status("#{target_host} - Enumerating plugins")
+        print_status("Enumerating plugins")
 
         if datastore['EXPLOITABLE']
           f = File.open(datastore['EXPLOITABLE_PLUGINS'], 'rb')
@@ -109,11 +109,11 @@ class MetasploitModule < Msf::Auxiliary
         f.each_with_index do |plugin, i|
           plugin = plugin.strip
           print_progress(target_host, i, total) if i % datastore['PROGRESS'] == 0
-          vprint_status("#{target_host} - Checking plugin: #{plugin}")
+          vprint_status("Checking plugin: #{plugin}")
           version = check_plugin_version_from_readme(plugin)
           next if version == Msf::Exploit::CheckCode::Unknown # aka not found
 
-          print_good("#{target_host} - Detected plugin: #{plugin} version #{version.details[:version]}")
+          print_good("Detected plugin: #{plugin} version #{version.details[:version]}")
           report_note(
             {
               host: target_host,
@@ -125,11 +125,11 @@ class MetasploitModule < Msf::Auxiliary
             }
           )
         end
-        print_status("#{target_host} - Finished scanning plugins")
+        print_status("Finished scanning plugins")
       end
 
       if datastore['USERS']
-        print_status("#{target_host} - Searching Users")
+        print_status("Searching Users")
         res = send_request_cgi({
           'method' => 'GET',
           'uri' => normalize_uri(wordpress_url_rest_api, 'users')
@@ -144,7 +144,7 @@ class MetasploitModule < Msf::Auxiliary
             parsed.map do |child|
               name = child['name']
               wp_username = child['slug']
-              print_good("#{target_host} - Detected user: #{name} with username: #{wp_username}")
+              print_good("Detected user: #{name} with username: #{wp_username}")
               service_data = {
                 address: rhost,
                 port: rport,
@@ -169,12 +169,12 @@ class MetasploitModule < Msf::Auxiliary
 
               create_credential_login(login_data)
             end
-            print_status("#{target_host} - Finished scanning users")
+            print_status("Finished scanning users")
           end
         else
-          print_status("#{target_host} - Was not able to identify users on site using #{wordpress_url_rest_api}/users")
+          print_status("Was not able to identify users on site using #{wordpress_url_rest_api}/users")
         end
-        print_status("#{target_host} - Finished all scans")
+        print_status("Finished all scans")
       end
     end
   end

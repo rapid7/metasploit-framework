@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
       set_mssql_session(session.client)
     else
       unless mssql_login_datastore
-        print_error("#{datastore['RHOST']}:#{datastore['RPORT']} - Invalid SQL Server credentials")
+        print_error("Invalid SQL Server credentials")
         return
       end
     end

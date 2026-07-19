@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
             'Password'
           ]
       )
-      print_status "#{peer} - Got securitydbData.xml, attempting to extract credentials..."
+      print_status "Got securitydbData.xml, attempting to extract credentials..."
       res.body.to_s.each_line do |line|
         # we need these checks because username and password might appear in any random position in the line
         if line.include? 'username='

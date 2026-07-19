@@ -50,11 +50,11 @@ class MetasploitModule < Msf::Auxiliary
     @wdbrpc_info[:agent_mtu]
     ctx = datastore['CONTEXT'].to_i
 
-    print_status("#{ip} - Killing task context #{ctx}...")
+    print_status("Killing task context #{ctx}...")
 
     wdbrpc_client_context_kill((ctx != 0) ? 3 : 0, ctx)
 
-    print_status("#{ip} - Done")
+    print_status("Done")
 
     wdbrpc_client_disconnect
   end

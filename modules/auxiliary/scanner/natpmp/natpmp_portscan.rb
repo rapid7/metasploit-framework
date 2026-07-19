@@ -32,13 +32,13 @@ class MetasploitModule < Msf::Auxiliary
       })
       add_socket(udp_sock)
       peer = "#{host}:#{datastore['RPORT']}"
-      vprint_status("#{peer} Scanning #{protocol} ports #{datastore['PORTS']} using NATPMP")
+      vprint_status("Scanning #{protocol} ports #{datastore['PORTS']} using NATPMP")
 
       external_address = get_external_address(udp_sock, host, datastore['RPORT'])
       if (external_address)
-        print_good("#{peer} responded with external address of #{external_address}")
+        print_good("responded with external address of #{external_address}")
       else
-        vprint_status("#{peer} didn't respond with an external address")
+        vprint_status("didn't respond with an external address")
         return
       end
 
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
       # is different, that means that someone else already has it open
       if (int != ext)
         state = Msf::ServiceState::Open
-        print_good("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with unmatched ports")
+        print_good("#{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with unmatched ports")
         if inside_workspace_boundary?(external_addr)
           report_service(
             :host => external_addr,
@@ -89,11 +89,11 @@ class MetasploitModule < Msf::Auxiliary
         end
       else
         state = Msf::ServiceState::Closed
-        vprint_error("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with matched ports")
+        vprint_error("#{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with matched ports")
       end
     else
       state = Msf::ServiceState::Closed
-      vprint_error("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response")
+      vprint_error("#{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response")
     end
 
     report_service(

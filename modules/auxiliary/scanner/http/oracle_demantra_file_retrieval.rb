@@ -66,12 +66,12 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.code == 404
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - File not found")
+      print_error("File not found")
       return
     end
 
     if res.code == 200
-      print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
+      print_status("returns: #{res.code.to_s}")
       fname = File.basename(datastore['FILEPATH'])
       path = store_loot(
         'oracle.demantra',
@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
         fname
       )
 
-      print_good("#{ip}:#{rport} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     end
   end
 end

@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_status("#{peer} - Starting XML-RPC login sweep...")
+    print_status("Starting XML-RPC login sweep...")
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: true,

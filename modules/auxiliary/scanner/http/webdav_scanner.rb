@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
             wdtype = 'SHAREPOINT DAV'
           end
 
-          print_good("#{target_host} (#{tserver}) has #{wdtype} ENABLED")
+          print_good("(#{tserver}) has #{wdtype} ENABLED")
 
           report_note(
             {
@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
           )
 
         else
-          print_status("#{target_host} (#{tserver}) WebDAV disabled.")
+          print_status("(#{tserver}) WebDAV disabled.")
         end
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

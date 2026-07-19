@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
     if keys.empty?
-      print_error "#{ip}:#{rport} SSH - No valid keys found"
+      print_error "SSH - No valid keys found"
     end
     return validate_keys(keys)
   end
@@ -149,7 +149,7 @@ class MetasploitModule < Msf::Auxiliary
       keepers << { :public => key, :private => "" }
     end
     if keepers.empty?
-      print_error "#{ip}:#{rport} SSH - No valid keys found"
+      print_error "SSH - No valid keys found"
     end
     return keepers.uniq
   end
@@ -166,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
       cleartext_keys << this_key
     end
     if cleartext_keys.empty?
-      print_error "#{ip}:#{rport} SSH - No valid cleartext keys found"
+      print_error "SSH - No valid cleartext keys found"
     end
     return cleartext_keys
   end
@@ -231,7 +231,7 @@ class MetasploitModule < Msf::Auxiliary
         if datastore['SSH_BYPASS'] and ssh_socket
           data = nil
 
-          print_status("#{ip}:#{rport} SSH - User #{user} is being tested for authentication bypass...")
+          print_status("SSH - User #{user} is being tested for authentication bypass...")
 
           begin
             ::Timeout.timeout(5) { data = ssh_socket.exec!("help\nid\nuname -a").to_s }
@@ -376,17 +376,17 @@ class MetasploitModule < Msf::Auxiliary
       ret, _ = do_login(ip, rport, user)
       case ret
       when :connection_error
-        vprint_error "#{ip}:#{rport} SSH - Could not connect"
+        vprint_error "SSH - Could not connect"
         :abort
       when :connection_disconnect
-        vprint_error "#{ip}:#{rport} SSH - Connection timed out"
+        vprint_error "SSH - Connection timed out"
         :abort
       when :fail
-        vprint_error "#{ip}:#{rport} SSH - Failed: '#{user}'"
+        vprint_error "SSH - Failed: '#{user}'"
       when :missing_keyfile
-        vprint_error "#{ip}:#{rport} SSH - Cannot read keyfile"
+        vprint_error "SSH - Cannot read keyfile"
       when :no_valid_keys
-        vprint_error "#{ip}:#{rport} SSH - No readable keys in keyfile"
+        vprint_error "SSH - No readable keys in keyfile"
       end
     end
   end

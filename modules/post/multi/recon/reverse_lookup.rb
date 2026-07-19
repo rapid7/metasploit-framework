@@ -148,7 +148,7 @@ class MetasploitModule < Msf::Post
       print_status("Resolving #{range} (#{rex_range.num_ips} hosts)")
       rex_range.each do |ip|
         host = resolve_ip(ip)
-        print_good("#{ip} resolves to #{host}") unless host.blank?
+        print_good("resolves to #{host}") unless host.blank?
       end
     end
   end

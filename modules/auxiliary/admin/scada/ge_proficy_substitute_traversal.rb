@@ -140,6 +140,6 @@ class MetasploitModule < Msf::Auxiliary
       contents,
       file_name
     )
-    print_good("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path}")
+    print_good("File saved in: #{path}")
   end
 end
