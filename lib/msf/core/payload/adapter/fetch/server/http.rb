@@ -65,30 +65,30 @@ module Msf
       arch_param = query_string.include?('arch') ? query_string['arch'] : nil
       endian_param = query_string.include?('endian') ? query_string['endian'] : nil
       vprint_status("Detected #{arch_param}") unless arch_param.nil?
-      vprint_status("Detected big endian") if endian_param == '2'
-      vprint_status("Detected little endian") if endian_param == '1'
-      vprint_status("No Endian data detected") if endian_param == nil
+      vprint_status('Detected big endian') if endian_param == '2'
+      vprint_status('Detected little endian') if endian_param == '1'
+      vprint_status('No Endian data detected') if endian_param.nil?
       if arch_param.nil? || arch_param.strip.empty?
         print_error('Fetch request missing required arch query parameter')
-        cli.send_response(fetch_error_response(400, 'Bad Request'))
         return nil
       end
       arch = Rex::Arch.from_uname(arch_param)
-      # Mips hosts lie.  We need to verify the Endian value
+      # Mips hosts are inconsistent with only uname, so we are just guessing, here.
       if arch_param == 'mips'
         if endian_param.nil?
           print_warning("Uname reports 'mips' and no endian data received.")
-          print_warning("We are guessing this means mipsel and are serving a mipsel payload.")
-          print_warning("If it fails, try using an explicit mipsbe payload.")
+          print_warning('We are guessing this means mipsel and are serving a mipsel payload.')
+          print_warning('If it fails, try using an explicit mipsbe payload.')
           arch = Rex::Arch.from_uname('mipsel')
-        elsif endian_param.to_i = 1
+        elsif endian_param.to_i == 1
           arch = Rex::Arch.from_uname('mipsel')
-        elsif endian_param.to_i = 2
+        elsif endian_param.to_i == 2
           arch = Rex::Arch.from_uname('mips')
         else
-          print_bad("Unknown endian value reported: #{endian_param}")
+          print_error("Unknown endian value reported: #{endian_param}")
           arch = nil
         end
+      end
       arch
     end
 
@@ -99,30 +99,33 @@ module Msf
       if (user_agent = request.headers['User-Agent'])
         client += " (#{user_agent})"
       end
-      vprint_status("Sending payload to #{client}")
       if opts[:dynamic_arch]
         vprint_status("Dynamic Payload Detected, expecting a Query String in the request...")
         query_string = request.uri_parts['QueryString'] || {}
-        vprint_status("query_string = #{query_string}")
+        arch = identify_arch(query_string)
         if arch.nil?
-          print_error("Failed to identify the architecture in Query String #{arch_param}")
-          cli.send_response(fetch_error_response(404, 'Not Found'))
-          return
-        end
-        vprint_status("Building payload for #{arch} arch")
-
-        opts[:arch] = arch
-        # Call generate with arch and dynamic_arch populated properly to build the right binary
-        payload_exe = generate(opts)
-        if payload_exe.nil?
-          print_error("No payload available for #{arch}")
-          cli.send_response(fetch_error_response(404, 'Not Found'))
+          if query_string['arch'].nil? || query_string['arch'].strip.empty?
+            cli.send_response(fetch_error_response(400, 'Bad Request'))
+          else
+            print_error('Failed to identify arch based on query string. Sending 404.')
+            cli.send_response(fetch_error_response(404, 'Not Found'))
+          end
         else
-          cli.send_response(payload_response(payload_exe))
+          vprint_status("Building payload for #{arch} arch")
+          opts[:arch] = arch
+          # Call generate with arch and dynamic_arch populated properly to build the right binary
+          payload_exe = generate(opts)
+          if payload_exe.nil?
+            print_error("No payload available for #{arch}")
+            cli.send_response(fetch_error_response(404, 'Not Found'))
+          else
+            cli.send_response(payload_response(payload_exe))
+          end
         end
       else
         cli.send_response(payload_response(srv_entry[:data]))
       end
+      vprint_status("Sent payload to #{client}")
     end
 
     def fetch_error_response(code, message)
