@@ -794,7 +794,22 @@ class ClientCore < Extension
       # otherwise the session may not receive the command before we
       # kill the handler. This could be improved by the server side
       # sending a reply to shutdown first.
-      self.client.send_packet_wait_response(request, 10)
+      #
+      # When async mode is enabled, the target only checks in every
+      # poll_interval seconds, so a fixed 10s wait would tear down the
+      # handler before the implant ever sees the shutdown packet -
+      # leaving an orphan payload that reconnects on next msf launch.
+      # Scale the wait to cover at least one worst-case poll window
+      # (interval + jitter) plus a small buffer for the C side to react.
+      wait = 10
+      if client.respond_to?(:async_mode_enabled?) && client.async_mode_enabled?
+        cfg = client.async_config
+        poll = cfg[:poll_interval].to_i
+        jitter_pct = cfg[:jitter].to_i
+        worst_case = poll + (poll * jitter_pct / 100)
+        wait = [worst_case + 10, wait].max
+      end
+      self.client.send_packet_wait_response(request, wait)
     else
       # If this is a standard TCP session, send and forget.
       self.client.send_packet(request)
