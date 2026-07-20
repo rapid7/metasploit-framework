@@ -517,6 +517,40 @@ class Client
     !!self.async_mode_enabled
   end
 
+  #
+  # A dedicated console used by the async worker thread to execute queued
+  # commands. It has its own output buffer and dispatcher stack so nothing
+  # it does can race with the operator's interactive shell. Rebuild it if
+  # the main shell's dispatcher stack (extensions) has changed since the
+  # last call.
+  #
+  # @param main_shell [Rex::Post::Meterpreter::Ui::Console] the interactive
+  #   shell whose dispatcher stack should be mirrored.
+  # @return [Rex::Post::Meterpreter::Ui::Console]
+  #
+  def async_shell(main_shell)
+    core_klass = Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Core
+    main_core = main_shell.dispatcher_stack.find { |d| d.is_a?(core_klass) }
+    main_extensions = main_core ? main_core.instance_variable_get(:@extensions).dup : []
+
+    if @async_shell.nil? || @async_shell_extensions != main_extensions
+      shell = Rex::Post::Meterpreter::Ui::Console.new(self)
+      shell.init_ui(nil, Rex::Ui::Text::Output::Buffer.new)
+      shell.instance_variable_set(:@async_bypass, true)
+
+      # Re-load each extension on the async shell using the same code path as
+      # the main shell. Each extension class's initialize enstacks any child
+      # dispatchers itself (e.g. Stdapi enstacks Fs, Net, Sys, ...), so we
+      # must NOT enstack children directly or we get duplicates.
+      async_core = shell.dispatcher_stack.find { |d| d.is_a?(core_klass) }
+      main_extensions.each { |mod| async_core.send(:add_extension_client, mod) }
+
+      @async_shell = shell
+      @async_shell_extensions = main_extensions
+    end
+    @async_shell
+  end
+
 protected
   attr_accessor :parser, :ext_aliases # :nodoc:
   attr_writer   :ext, :sock # :nodoc:
