@@ -328,8 +328,8 @@ module ReverseHttp
   # the candidate, leave the candidate alone -- this is not a payload
   # request, and `process_uri_resource` will return nil for it.
   def unwrap_profile_uuid(candidate, placement)
-    prefix = placement.prepend.map{|d| d.args[0]}.join('')
-    suffix = placement.append.map{|d| d.args[0]}.join('')
+    prefix = placement.get_directive('prepend').map{|d| d.args[0]}.join('')
+    suffix = placement.get_directive('append').map{|d| d.args[0]}.join('')
 
     return candidate unless prefix.empty? || candidate.start_with?(prefix)
     return candidate unless suffix.empty? || candidate.end_with?(suffix)
