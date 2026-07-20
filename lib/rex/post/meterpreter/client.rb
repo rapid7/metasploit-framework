@@ -510,7 +510,7 @@ class Client
 
   # Locally stored async config values (applied when async mode is enabled)
   def async_config
-    @async_config ||= { poll_interval: 60, jitter: 0, work_start: 0, work_end: 24, work_days: 0x7F }
+    @async_config ||= { poll_interval: 60, jitter: 0, work_start: 0, work_end: 24, work_days: 0x7F, smart_sync: 0 }
   end
 
   def async_mode_enabled?
