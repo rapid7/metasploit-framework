@@ -577,7 +577,27 @@ class ClientCore < Extension
       new_timeout = [worst_case * 3, client.response_timeout].max
       @pre_async_response_timeout ||= client.response_timeout
       client.response_timeout = new_timeout
+
+      # Install a floor on response_timeout so downstream framework helpers
+      # (e.g. Msf::Post::Common#cmd_exec) can't silently lower it below the
+      # async poll window. Without this, cmd_exec's `session.response_timeout
+      # = time_out` (default 15s) causes every send_request to raise
+      # Rex::TimeoutError before the target has a chance to check in.
+      floor = worst_case + 10
+      client.instance_variable_set(:@async_timeout_floor, floor)
+      unless client.singleton_class.instance_methods(false).include?(:response_timeout=)
+        client.define_singleton_method(:response_timeout=) do |val|
+          floor_val = instance_variable_get(:@async_timeout_floor).to_i
+          @response_timeout = [val.to_i, floor_val].max
+        end
+      end
     elsif defined?(@pre_async_response_timeout) && @pre_async_response_timeout
+      # Remove the singleton floor before restoring the original timeout,
+      # otherwise the floor would clamp us back up.
+      if client.singleton_class.instance_methods(false).include?(:response_timeout=)
+        client.singleton_class.send(:remove_method, :response_timeout=)
+      end
+      client.instance_variable_set(:@async_timeout_floor, nil)
       client.response_timeout = @pre_async_response_timeout
       @pre_async_response_timeout = nil
     end
