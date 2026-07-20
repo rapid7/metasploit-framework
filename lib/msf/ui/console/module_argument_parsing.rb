@@ -152,6 +152,25 @@ module ModuleArgumentParsing
           if name.upcase == 'ACTION'
             result[:action] = val
           else
+            if mod
+              valid_options = mod.options.keys
+              if (mod.exploit? || mod.evasion?)
+                valid_options << 'PAYLOAD'
+                if mod.datastore['PAYLOAD']
+                  p = framework.payloads.create(mod.datastore['PAYLOAD'])
+                  if p
+                    valid_options += p.options.keys
+                  end
+                end
+              end
+
+              unless valid_options.any? { |vo| vo.casecmp?(name) }
+                message = "Unknown datastore option: #{name}."
+                suggestion = DidYouMean::SpellChecker.new(dictionary: valid_options).correct(name).first
+                message << " Did you mean #{suggestion}?" if suggestion
+                print_warning(message)
+              end
+            end
             append_datastore_option(datastore_options, name, val)
           end
         elsif resembles_rhost_value?(val)
