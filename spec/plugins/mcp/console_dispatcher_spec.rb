@@ -87,6 +87,10 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
 
     # Capture output from the plugin's print methods
     capture_logging(mcp_plugin)
+
+    allow(mcp_plugin).to receive(:verify_port_available!)
+    allow(mcp_plugin).to receive(:verify_mcp_server_started!)
+    allow(mcp_plugin).to receive(:verify_msgrpc_started!)
   end
 
   describe '#name' do

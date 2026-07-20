@@ -107,6 +107,7 @@ RSpec.describe Msf::Plugin::MCP do
       before do
         allow(framework).to receive(:plugins).and_return(plugins_collection)
         allow(Rex::Text).to receive(:rand_text_alphanumeric).with(12).and_return('abcdefghijkl')
+        allow(plugin).to receive(:verify_msgrpc_started!)
       end
 
       it 'generates a password of at least 8 characters' do

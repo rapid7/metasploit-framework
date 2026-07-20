@@ -72,6 +72,10 @@ RSpec.describe Msf::Plugin::MCP do
 
     allow(Rex::Text).to receive(:rand_text_alphanumeric).with(12).and_return('abcdefghijkl')
     allow_any_instance_of(described_class).to receive(:sleep)
+    # Default: skip TCP verification since tests don't bind real ports
+    allow_any_instance_of(Msf::Plugin::MCP).to receive(:verify_msgrpc_started!)
+    allow_any_instance_of(Msf::Plugin::MCP).to receive(:verify_mcp_server_started!)
+    allow_any_instance_of(Msf::Plugin::MCP).to receive(:verify_port_available!)
 
     mock_dispatcher = instance_double(Msf::Plugin::MCP::McpCommandDispatcher)
     allow(mock_dispatcher).to receive(:plugin=)
@@ -507,6 +511,264 @@ RSpec.describe Msf::Plugin::MCP do
       it 'does nothing' do
         plugin.server_thread = nil
         expect { plugin.send(:terminate_server_thread) }.not_to raise_error
+      end
+    end
+  end
+
+  describe 'bind failure handling' do
+    subject(:plugin) { described_class.new(framework, base_opts) }
+
+    context 'when find_loaded_msgrpc finds a zombie plugin (server == nil)' do
+      let(:zombie_msgrpc_plugin) do
+        double('ZombieMsgrpc', name: 'msgrpc', server: nil, respond_to?: true)
+      end
+
+      before do
+        @error ||= []
+        @output ||= []
+
+        allow(plugins_collection).to receive(:find) do |&block|
+          [zombie_msgrpc_plugin].find(&block)
+        end
+      end
+
+      it 'skips the zombie and does not surface a NoMethodError to the user' do
+        plugin.start_server({})
+        # On unfixed code: introspect_msgrpc calls .users on nil server,
+        # causing NoMethodError that leaks into the error output.
+        # Expected: zombie should be skipped, no NoMethodError in output.
+        combined = (@error || []).join("\n")
+        expect(combined).not_to include('NoMethodError')
+        expect(combined).not_to include("undefined method")
+      end
+    end
+
+    context 'when unload_auto_started_rpc is called with nil server msgrpc' do
+      let(:zombie_msgrpc_plugin) do
+        double('ZombieMsgrpc', name: 'msgrpc', server: nil, respond_to?: true)
+      end
+
+      before do
+        allow(plugins_collection).to receive(:find) do |&block|
+          [zombie_msgrpc_plugin].find(&block)
+        end
+        allow(plugins_collection).to receive(:unload).with(zombie_msgrpc_plugin).and_return(true)
+      end
+
+      it 'does not raise during cleanup' do
+        plugin.auto_started_rpc = true
+        expect { plugin.cleanup }.not_to raise_error
+      end
+    end
+
+    context 'after a start failure' do
+      let(:failing_client_class) do
+        error_class = Msf::MCP::Metasploit::ConnectionError
+        Class.new do
+          define_method(:initialize) { |**_args| }
+          define_method(:authenticate) { |*_args| raise error_class, 'connection refused' }
+        end
+      end
+
+      before do
+        stub_const('Msf::MCP::Metasploit::Client', failing_client_class)
+      end
+
+      it 'resets @server_config to nil' do
+        plugin.start_server({})
+        expect(plugin.server_config).to be_nil
+      end
+    end
+
+    context 'when auto-started msgrpc has nil server (bind failed)' do
+      let(:zombie_msgrpc_plugin) do
+        double('ZombieMsgrpc', name: 'msgrpc', server: nil, respond_to?: true)
+      end
+
+      before do
+        @error ||= []
+        @output ||= []
+
+        # Let verify_msgrpc_started! run for real in this context
+        allow_any_instance_of(Msf::Plugin::MCP).to receive(:verify_msgrpc_started!).and_call_original
+
+        call_count = 0
+        allow(plugins_collection).to receive(:find) do |&block|
+          call_count += 1
+          # First call in resolve_rpc_config (find_loaded_msgrpc): no healthy msgrpc
+          # After load, verify calls find again and gets the zombie
+          if call_count <= 1
+            nil
+          else
+            [zombie_msgrpc_plugin].find(&block)
+          end
+        end
+
+        # Simulate successful plugin load that produces a zombie
+        allow(plugins_collection).to receive(:load).with('msgrpc', anything).and_return(true)
+      end
+
+      it 'does not print misleading Auto-started success when server is nil' do
+        plugin.start_server({})
+        # verify_msgrpc_started! sees nil server and raises before print_status
+        combined_output = (@output || []).join("\n")
+        expect(combined_output).not_to include('Auto-started msgrpc')
+      end
+    end
+
+    context 'when MCP port is already in use (pre-flight check)' do
+      before do
+        allow_any_instance_of(described_class).to receive(:verify_port_available!)
+          .and_raise(Msf::MCP::Error, 'Address already in use: 0.0.0.0:3000')
+      end
+
+      it 'raises before spawning the server thread and reports the address' do
+        plugin.start_server('ServerHost' => '0.0.0.0', 'ServerPort' => '3000')
+        expect(@error.join("\n")).to include('Address already in use')
+        expect(plugin.mcp_server).to be_nil
+        expect(plugin.server_thread).to be_nil
+      end
+    end
+  end
+
+  describe 'preservation - existing behavior' do
+    subject(:plugin) { described_class.new(framework, base_opts) }
+
+    context 'normal auto-start with no port conflict' do
+      it 'auto-starts msgrpc, authenticates, starts MCP server, and prints success messages' do
+        plugin.start_server({})
+
+        combined = @output.join("\n")
+        expect(combined).to include('Auto-started msgrpc')
+        expect(combined).to include('abcdefghijkl')
+        expect(combined).to include('MCP server listening on http://localhost:3000/')
+        expect(plugin.mcp_server).not_to be_nil
+        expect(plugin.msf_client).not_to be_nil
+        expect(plugin.server_config).to be_a(Hash)
+        expect(plugin.auto_started_rpc).to be true
+      end
+    end
+
+    context 'pre-existing msgrpc with healthy server' do
+      let(:mock_msgrpc_server) do
+        instance_double('Msf::RPC::Service').tap do |s|
+          allow(s).to receive(:users).and_return({ 'rpcuser' => 'rpcpass' })
+          allow(s).to receive(:srvhost).and_return('127.0.0.1')
+          allow(s).to receive(:srvport).and_return(55_552)
+          allow(s).to receive(:options).and_return({ ssl: false })
+        end
+      end
+
+      let(:mock_msgrpc_plugin) do
+        instance_double('Msf::Plugin::MSGRPC', name: 'msgrpc', server: mock_msgrpc_server)
+      end
+
+      before do
+        allow(plugins_collection).to receive(:find) do |&block|
+          [mock_msgrpc_plugin].find(&block)
+        end
+      end
+
+      it 'introspects without auto-starting a new instance' do
+        expect(plugins_collection).not_to receive(:load)
+        plugin.start_server({})
+
+        expect(plugin.server_config[:rpc][:user]).to eq('rpcuser')
+        expect(plugin.server_config[:rpc][:pass]).to eq('rpcpass')
+        expect(plugin.server_config[:rpc][:host]).to eq('127.0.0.1')
+        expect(plugin.server_config[:rpc][:port]).to eq(55_552)
+        expect(plugin.auto_started_rpc).to be false
+      end
+    end
+
+    context 'explicit RPC credentials bypass introspection and auto-start' do
+      let(:mock_msgrpc_server) do
+        instance_double('Msf::RPC::Service').tap do |s|
+          allow(s).to receive(:users).and_return({ 'other' => 'creds' })
+          allow(s).to receive(:srvhost).and_return('10.0.0.1')
+          allow(s).to receive(:srvport).and_return(55_553)
+          allow(s).to receive(:options).and_return({ ssl: false })
+        end
+      end
+
+      let(:mock_msgrpc_plugin) do
+        instance_double('Msf::Plugin::MSGRPC', name: 'msgrpc', server: mock_msgrpc_server)
+      end
+
+      before do
+        allow(plugins_collection).to receive(:find) do |&block|
+          [mock_msgrpc_plugin].find(&block)
+        end
+      end
+
+      it 'uses explicit creds even when msgrpc is loaded' do
+        expect(plugins_collection).not_to receive(:load)
+        plugin.start_server('RpcUser' => 'myuser', 'RpcPass' => 'mypass', 'RpcHost' => '192.0.2.1')
+
+        expect(plugin.server_config[:rpc][:user]).to eq('myuser')
+        expect(plugin.server_config[:rpc][:pass]).to eq('mypass')
+        expect(plugin.server_config[:rpc][:host]).to eq('192.0.2.1')
+        expect(plugin.auto_started_rpc).to be false
+      end
+    end
+
+    context 'mcp stop cleanly stops server and cleanup unloads auto-started msgrpc' do
+      before { plugin.start_server({}) }
+
+      it 'stop_server leaves MCP in clean stopped state' do
+        plugin.stop_server
+
+        expect(plugin.mcp_server).to be_nil
+        expect(plugin.msf_client).to be_nil
+        expect(plugin.server_thread).to be_nil
+        expect(@output.join("\n")).to include('MCP server stopped')
+      end
+
+      it 'cleanup unloads msgrpc that was auto-started' do
+        allow(plugin).to receive(:remove_console_dispatcher)
+        msgrpc_plugin = instance_double('Msf::Plugin::MSGRPC', name: 'msgrpc')
+        allow(plugins_collection).to receive(:find).and_return(msgrpc_plugin)
+
+        expect(plugins_collection).to receive(:unload).with(msgrpc_plugin)
+        plugin.cleanup
+
+        expect(plugin.mcp_server).to be_nil
+        expect(plugin.auto_started_rpc).to be false
+      end
+    end
+
+    context 'MCP port EADDRINUSE reports correct address and leaves clean state' do
+      let(:failing_server_class) do
+        Class.new do
+          def self.generate_auth_token
+            'a' * 64
+          end
+
+          def initialize(**_args); end
+
+          def start(**_args)
+            raise Errno::EADDRINUSE
+          end
+
+          def shutdown; end
+        end
+      end
+
+      before do
+        stub_const('Msf::MCP::Server', failing_server_class)
+        allow(threads_manager).to receive(:spawn) do |_name, _critical, &block|
+          block.call
+        end
+      end
+
+      it 'prints address-in-use error with host:port and resets plugin state' do
+        plugin.start_server('ServerHost' => '0.0.0.0', 'ServerPort' => '4444')
+
+        expect(@error.join("\n")).to include('Address already in use')
+        expect(@error.join("\n")).to include('0.0.0.0:4444')
+        expect(plugin.mcp_server).to be_nil
+        expect(plugin.msf_client).to be_nil
+        expect(plugin.server_thread).to be_nil
       end
     end
   end
