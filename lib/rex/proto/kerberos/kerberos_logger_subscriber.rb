@@ -132,12 +132,6 @@ module Rex
           format_message(message, redact_binary: trace_mode != TRACE_MODE_FULL)
         end
 
-        def format_credential_for_trace_mode(credential)
-          return format_credential_metadata(credential) if trace_mode == TRACE_MODE_METADATA
-
-          format_credential(credential)
-        end
-
         def format_message(message, redact_binary:)
           return 'null' if message.nil?
 
@@ -152,44 +146,10 @@ module Rex
           "Kerberos trace rendering error: #{e.class}: #{e.message}"
         end
 
-        def format_credential(credential)
-          rendered_credential = ticket_presenter.present_cred(credential)
-          [
-            'Creds: 1',
-            "  Credential[0]:\n#{rendered_credential.indent(4)}"
-          ].join("\n")
+        def format_credential_for_trace_mode(credential)
+          ticket_presenter.present_credentials([credential], trace_mode: trace_mode)
         rescue StandardError => e
           "Credential presenter error: #{e.class}: #{e.message}"
-        end
-
-        def format_credential_metadata(credential)
-          [
-            'Creds: 1',
-            "  Credential[0]:\n#{present_credential_metadata(credential).indent(4)}"
-          ].join("\n")
-        rescue StandardError => e
-          "Credential presenter error: #{e.class}: #{e.message}"
-        end
-
-        def present_credential_metadata(credential)
-          ticket_flags = credential.ticket_flags.to_i
-          output = []
-
-          output << "Server: #{credential.server}"
-          output << "Client: #{credential.client}"
-          output << "Ticket etype: #{credential.keyblock.enctype} (#{Rex::Proto::Kerberos::Crypto::Encryption.const_name(credential.keyblock.enctype)})"
-          output << "Subkey: #{credential.is_skey == 1}"
-          output << "Ticket Length: #{credential.ticket.length}"
-          output << "Ticket Flags: 0x#{ticket_flags.to_s(16).rjust(8, '0')} (#{Rex::Proto::Kerberos::Model::KdcOptionFlags.new(ticket_flags).enabled_flag_names.join(', ')})"
-          output << "Addresses: #{credential.address_count}"
-          output << "Authdatas: #{credential.authdata_count}"
-          output << 'Times:'
-          output << "Auth time: #{present_time(credential.authtime)}".indent(2)
-          output << "Start time: #{present_time(credential.starttime)}".indent(2)
-          output << "End time: #{present_time(credential.endtime)}".indent(2)
-          output << "Renew Till: #{present_time(credential.renew_till)}".indent(2)
-
-          output.join("\n")
         end
 
         def serialize_element(element, redact_binary:)
