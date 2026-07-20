@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Linux Manage Download and Execute',
         'Description' => %q{
-          This module downloads and runs a file with bash. It first tries to uses curl as
+          This module downloads and runs a file with bash. It first tries to use curl as
           its HTTP client and then wget if it's not found. Bash found in the PATH is used
           to execute the file.
         },
@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Post
           'Joshua D. Abraham <jabra[at]praetorian.com>',
         ],
         'Platform' => ['linux'],
-        'SessionTypes' => ['shell', 'meterpreter']
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [ARTIFACTS_ON_DISK]
+        }
       )
     )
 
@@ -39,18 +44,17 @@ class MetasploitModule < Msf::Post
     if !output.empty?
       vprint_status(output.to_s)
     end
-    return
   end
 
   def exists_exe?(exe)
     vprint_status "Searching for #{exe} in the current $PATH..."
     path = get_env('PATH')
     if path.nil? || path.empty?
+      vprint_error('No local $PATH set!')
       return false
-      vprint_error 'No local $PATH set!'
-    else
-      vprint_status "$PATH is #{path.strip!}"
     end
+
+    vprint_status("$PATH is #{path.strip!}")
 
     path.split(':').each do |p|
       full_path = p + '/' + exe

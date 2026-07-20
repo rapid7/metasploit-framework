@@ -20,8 +20,7 @@ class MetasploitModule < Msf::Encoder
     register_options(
       [
         OptBool.new('Compress', [ true, 'Compress the payload with zlib', false ]) # Disabled by default as it relies on having php compiled with zlib, which might not be available on come exotic setups.
-      ],
-      self.class
+      ]
     )
   end
 

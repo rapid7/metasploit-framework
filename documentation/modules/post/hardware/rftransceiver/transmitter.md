@@ -8,23 +8,23 @@ given radio frequency.
 
 ## Options
 
-  **FREQ**
+### FREQ
 
   Frequency to brute force.
 
-  **BAUD**
+### BAUD
 
   Baud rate.  Default: 4800
 
-  **POWER**
+### POWER
 
   Power level to specify.  Default: 100
 
-  **SECONDS**
+### SECONDS
 
   How many seconds to transmit the signal.  Default: 4
 
-  **INDEX**
+### INDEX
 
   USB Index number.  Default: 0
 

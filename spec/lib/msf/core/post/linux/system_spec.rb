@@ -2,9 +2,26 @@ require 'spec_helper'
 
 RSpec.describe Msf::Post::Linux::System do
   subject do
-    mod = Msf::Module.new
-    mod.extend(Msf::Post::Linux::System)
-    mod
+    clazz = Class.new(Msf::Module) do
+      include Msf::Post::Linux::System
+      def session
+        raise 'no session present'
+      end
+    end
+    clazz.new
+  end
+
+  let(:session) do
+    instance_double(
+      Msf::Sessions::Meterpreter,
+      type: 'shell',
+      session_host: '192.0.2.2',
+      platform: 'linux'
+    )
+  end
+
+  before(:each) do
+    allow(subject).to receive(:session).and_return(session)
   end
 
   describe '#get_sysinfo' do
@@ -307,6 +324,7 @@ RSpec.describe Msf::Post::Linux::System do
     end
 
     it 'raises an error if unable to retrieve hostname' do
+      allow(subject).to receive(:command_exists?).with('uname').and_return(true)
       allow(subject).to receive(:cmd_exec).with('uname -n').and_raise(StandardError)
       expect { subject.get_hostname }.to raise_error('Unable to retrieve hostname')
     end
@@ -326,6 +344,7 @@ RSpec.describe Msf::Post::Linux::System do
     end
 
     it 'raises an error if unable to gather shell name' do
+      allow(subject).to receive(:command_exists?).with('ps').and_return(true)
       allow(subject).to receive(:cmd_exec).with('ps -p $$').and_raise(StandardError)
       expect { subject.get_shell_name }.to raise_error('Unable to gather shell name')
     end

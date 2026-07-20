@@ -9,23 +9,27 @@ module Msf
 ###
 class DataStore
 
-  # The global framework datastore doesn't currently import options
-  # For now, store an ad-hoc list of keys that the shell handles
-  #
-  # This list could be removed if framework's bootup sequence registers
-  # these as datastore options
-  GLOBAL_KEYS = %w[
-    ConsoleLogging
-    LogLevel
-    MinimumRank
-    SessionLogging
-    TimestampOutput
-    Prompt
-    PromptChar
-    PromptTimeFormat
-    MeterpreterPrompt
-    SessionTlvLogging
-  ]
+  # Typed option definitions for globally-scoped datastore keys.
+  # These are registered on the framework datastore at startup so that
+  # normalization (e.g. OptBool converting "true" to true) applies even
+  # when no module is active.
+  GLOBAL_OPTION_DEFINITIONS = OptionContainer.new([
+    OptBool.new('ConsoleLogging',      [false, 'Log all console input and output', false]),
+    OptInt.new('LogLevel',             [false, 'Verbosity of logs (default 0, max 3)', 0]),
+    OptEnum.new('MinimumRank',         [false, 'The minimum rank of exploits that will run without explicit confirmation', 'manual', RankingName.values]),
+    OptBool.new('SessionLogging',      [false, 'Log all input and output for sessions', false]),
+    OptBool.new('TimestampOutput',     [false, 'Prefix all console output with a timestamp', false]),
+    OptBool.new('VERBOSE',             [false, 'Enable detailed status messages - the specific behavior can differ per module', false]),
+    OptString.new('Prompt',            [false, 'The prompt string', nil]),
+    OptString.new('PromptChar',        [false, 'The prompt character', nil]),
+    OptString.new('PromptTimeFormat',  [false, 'Format for timestamp escapes in prompts', nil]),
+    OptString.new('MeterpreterPrompt', [false, 'The meterpreter prompt string', nil]),
+    OptSessionTlvLogging.new('SessionTlvLogging', [false, 'Log all incoming and outgoing TLV packets', nil]),
+  ])
+
+  # Backward-compatible list of known global key names, derived from the
+  # typed option definitions above.
+  GLOBAL_KEYS = GLOBAL_OPTION_DEFINITIONS.keys.freeze
 
   #
   # Initializes the data store's internal state.
@@ -136,7 +140,7 @@ class DataStore
 
   #
   # This method is a helper method that imports the default value for
-  # all of the supplied options
+  # all of the supplied options.
   #
   def import_options(options, imported_by = nil, overwrite = true)
     options.each_option do |name, option|
@@ -350,7 +354,7 @@ class DataStore
       end
     else
       other.each do |k, v|
-        self.store(k, v)
+        self[k] = v
       end
     end
 

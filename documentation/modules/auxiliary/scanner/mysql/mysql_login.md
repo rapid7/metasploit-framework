@@ -76,7 +76,7 @@ run rhost=127.0.0.1 rport=4306 username=root password=password createsession=tru
 [*] MySQL session 1 opened (127.0.0.1:53241 -> 127.0.0.1:4306) at 2024-03-12 12:40:46 -0500
 [*] 127.0.0.1:4306        - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/mysql/mysql_login) > sessions -i -1
+msf auxiliary(scanner/mysql/mysql_login) > sessions -i -1
 [*] Starting interaction with 1...
 
 mysql @ 127.0.0.1:4306 >
@@ -86,7 +86,7 @@ You can interact with your new session using `sessions -i -1` or `sessions -i <s
 You can also use `help` to get more information about how to use your session.
 
 ```msf
-msf6 auxiliary(scanner/mysql/mysql_login) > sessions
+msf auxiliary(scanner/mysql/mysql_login) > sessions
 
 Active sessions
 ===============
@@ -96,7 +96,7 @@ Active sessions
   2         mssql  MSSQL test @ 192.168.2.242:1433  192.168.2.1:61428 -> 192.168.2.242:1433 (192.168.2.242)
   3         mysql  MySQL root @ 127.0.0.1:4306      127.0.0.1:61450 -> 127.0.0.1:4306 (127.0.0.1)
 
-msf6 auxiliary(scanner/mysql/mysql_login) > sessions -i 3
+msf auxiliary(scanner/mysql/mysql_login) > sessions -i 3
 [*] Starting interaction with 3...
 ```
 

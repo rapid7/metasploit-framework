@@ -12,8 +12,13 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
     File.directory?(path)
   end
 
-  def loadable_module?(parent_path, type, module_reference_name)
-    full_path = module_path(parent_path, type, module_reference_name)
+  # @param [String] parent_path Root directory to load modules from
+  # @param [String] type Such as auxiliary, exploit, etc
+  # @param [String] module_reference_name The module reference name, without the type prefix
+  # @param [nil,Msf::Modules::Metadata::Obj] cached_metadata
+  # @return [Boolean] True this loader can load the module, false otherwise
+  def loadable_module?(parent_path, type, module_reference_name, cached_metadata: nil)
+    full_path = cached_metadata&.path || module_path(parent_path, type, module_reference_name)
     module_path?(full_path)
   end
 
@@ -37,15 +42,13 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
 
       next unless ::File.directory?(full_entry_path) && module_manager.type_enabled?(type)
 
-      full_entry_pathname = Pathname.new(full_entry_path)
+      type_dir_prefix = "#{full_entry_path}#{::File::SEPARATOR}"
 
       # Try to load modules from all the files in the supplied path
       Rex::Find.find(full_entry_path) do |entry_descendant_path|
         if module_path?(entry_descendant_path)
-          entry_descendant_pathname = Pathname.new(entry_descendant_path)
-          relative_entry_descendant_pathname = entry_descendant_pathname.relative_path_from(full_entry_pathname)
-          relative_entry_descendant_path = relative_entry_descendant_pathname.to_s
-          next if File::basename(relative_entry_descendant_path).start_with?('example')
+          relative_entry_descendant_path = entry_descendant_path.delete_prefix(type_dir_prefix)
+          next if ::File.basename(relative_entry_descendant_path).start_with?('example')
           # The module_reference_name doesn't have a file extension
           module_reference_name = module_reference_name_from_path(relative_entry_descendant_path)
 

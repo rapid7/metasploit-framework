@@ -100,6 +100,15 @@ def start_rpc_service(opts, frameworkOpts, foreground)
   # Create an instance of the framework
   $framework = Msf::Simple::Framework.create(frameworkOpts)
 
+  if !$framework.db || !$framework.db.active
+    if $framework.db.error == "disabled"
+      $stderr.puts "Database support has been disabled"
+    else
+      error_msg = "#{$framework.db.error.class.is_a?(String) ? "#{$framework.db.error.class} " : nil}#{$framework.db.error}"
+      $stderr.puts "No database support: #{error_msg}"
+    end
+  end
+
   # Run the plugin instance in the foreground.
   begin
     $framework.plugins.load("#{RPC_TYPE.downcase}rpc", opts).run
@@ -194,13 +203,18 @@ if $PROGRAM_NAME == __FILE__
     end
   }
 
+  # Allow credentials via environment variables (used by msfmcpd auto-start
+  # to avoid passing secrets on the command line).
+  opts['User'] ||= ENV['MSF_RPC_USER'] if ENV['MSF_RPC_USER']
+  opts['Pass'] ||= ENV['MSF_RPC_PASS'] if ENV['MSF_RPC_PASS']
+
   $0 = "msfrpcd"
 
   begin
     if json_rpc
 
-      if !File.file?(ws_ssl_key_default) || !File.file?(ws_ssl_cert_default)
-        $stdout.puts "[-] It doesn't appear msfdb has been run; please run 'msfdb init' first."
+      if opts['SSL'] && (!File.file?(ws_ssl_key) || !File.file?(ws_ssl_cert))
+        $stdout.puts "[-] It doesn't appear msfdb has been run; please run 'msfdb init' first to generate SSL certificates."
         abort
       end
 

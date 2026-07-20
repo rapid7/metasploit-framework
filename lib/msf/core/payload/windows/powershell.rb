@@ -9,6 +9,8 @@ module Msf
 ###
 
 module Payload::Windows::Powershell
+  # Mark the payload as dynamic as powershell scripts are randomized
+  ForceDynamicCachedSize = true
 
   def initialize(info = {})
     ret = super(info)

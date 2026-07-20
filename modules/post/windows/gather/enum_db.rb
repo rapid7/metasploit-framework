@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Windows Gather Database Instance Enumeration',
-        'Description' => %q{ This module will enumerate a windows system for installed database instances },
+        'Description' => %q{This module will enumerate a Windows system for installed database instances.},
         'License' => MSF_LICENSE,
         'Author' => [
           'Barry Shteiman <barry[at]sectorix.com>', # Module author
@@ -21,6 +21,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -33,11 +38,11 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # method called when command run is issued
   def run
-    results = []
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Enumerating databases on #{hostname} (#{session.session_host})")
 
-    print_status("Enumerating Databases on #{sysinfo['Computer']}")
+    results = []
     if check_mssql
       results += enumerate_mssql
     end
@@ -55,11 +60,11 @@ class MetasploitModule < Msf::Post
     end
 
     if results.empty?
-      print_status('Done, No Databases were found')
+      print_status('Done, no databases were found')
       return
     end
 
-    print_status('Done, Databases Found.')
+    print_status("Done, #{results.length} databases found.")
 
     tbl = Rex::Text::Table.new(
       'Header' => 'Installed Databases',
@@ -85,52 +90,57 @@ class MetasploitModule < Msf::Post
 
   ##### initial identification methods #####
 
-  # method for Checking if database instances are installed on host - mssql
+  # Check if MSSQL database instances are installed on host
   def check_mssql
-    key = 'HKLM\\SOFTWARE\\Microsoft'
-    if registry_enumkeys(key).include?('Microsoft SQL Server')
+    if registry_enumkeys('HKLM\\SOFTWARE\\Microsoft').include?('Microsoft SQL Server')
       print_status("\tMicrosoft SQL Server found.")
       return true
     end
+
     return false
   rescue StandardError
     return false
   end
 
-  # method for Checking if database instances are installed on host - oracle
+  # Check if Oracle database instances are installed on host
   def check_oracle
-    key = 'HKLM\\SOFTWARE\\Oracle'
-    if registry_enumkeys(key).include?('ALL_HOMES')
-      print_status("\tOracle Server found.")
-      return true
-    elsif registry_enumkeys(key).include?('SYSMAN')
-      print_status("\tOracle Server found.")
-      return true
-    elsif registry_enumkeys(key).include?('KEY_XE')
+    keys = registry_enumkeys('HKLM\\SOFTWARE\\Oracle')
+
+    if keys.include?('ALL_HOMES')
       print_status("\tOracle Server found.")
       return true
     end
+
+    if keys.include?('SYSMAN')
+      print_status("\tOracle Server found.")
+      return true
+    end
+
+    if keys.include?('KEY_XE')
+      print_status("\tOracle Server found.")
+      return true
+    end
+
     return false
   rescue StandardError
     return false
   end
 
-  # method for Checking if database instances are installed on host - db2
+  # Check if DB2 database instances are installed on host
   def check_db2
-    key = 'HKLM\\SOFTWARE\\IBM\\DB2'
-    if registry_enumkeys(key).include?('GLOBAL_PROFILE')
+    if registry_enumkeys('HKLM\\SOFTWARE\\IBM\\DB2').include?('GLOBAL_PROFILE')
       print_status("\tDB2 Server found.")
       return true
     end
+
     return false
   rescue StandardError
     return false
   end
 
-  # method for Checking if database instances are installed on host - mysql
+  # Check if MySQL database instances are installed on host
   def check_mysql
-    key = 'HKLM\\SOFTWARE'
-    if registry_enumkeys(key).include?('MySQL AB')
+    if registry_enumkeys('HKLM\\SOFTWARE').include?('MySQL AB')
       print_status("\tMySQL Server found.")
       return true
     end
@@ -139,16 +149,20 @@ class MetasploitModule < Msf::Post
     return false
   end
 
-  # method for Checking if database instances are installed on host - sybase
+  # Check if Sybase database instances are installed on host
   def check_sybase
-    key = 'HKLM\\SOFTWARE\\Sybase'
-    if registry_enumkeys(key).include?('SQLServer')
-      print_status("\tSybase Server found.")
-      return true
-    elsif registry_enumkeys(key).include?('Server')
+    keys = registry_enumkeys('HKLM\\SOFTWARE\\Sybase')
+
+    if keys.include?('SQLServer')
       print_status("\tSybase Server found.")
       return true
     end
+
+    if keys.include?('Server')
+      print_status("\tSybase Server found.")
+      return true
+    end
+
     return false
   rescue StandardError
     return false
@@ -156,20 +170,22 @@ class MetasploitModule < Msf::Post
 
   ##### deep analysis methods #####
 
-  # method to identify mssql instances
+  # method to identify MSSQL instances
   def enumerate_mssql
     results = []
     key = 'HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\Instance Names\\SQL'
     instances = registry_enumvals(key)
-    if !instances.nil? && !instances.empty?
-      instances.each do |i|
-        tcpkey = "HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\#{registry_getvaldata(key, i)}\\MSSQLServer\\SuperSocketNetLib\\Tcp\\IPAll"
-        tcpport = registry_getvaldata(tcpkey, 'TcpPort')
-        print_good("\t\t+ #{registry_getvaldata(key, i)} (Port:#{tcpport})")
-        results << ['mssql', "instance:#{registry_getvaldata(key, i)} port:#{tcpport}", 'Microsoft SQL Server', tcpport]
-      end
+
+    return results if instances.blank?
+
+    instances.each do |i|
+      tcpkey = "HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\#{registry_getvaldata(key, i)}\\MSSQLServer\\SuperSocketNetLib\\Tcp\\IPAll"
+      tcpport = registry_getvaldata(tcpkey, 'TcpPort')
+      print_good("\t\t+ #{registry_getvaldata(key, i)} (Port:#{tcpport})")
+      results << ['mssql', "instance:#{registry_getvaldata(key, i)} port:#{tcpport}", 'Microsoft SQL Server', tcpport]
     end
-    return results
+
+    results
   rescue StandardError
     print_error("\t\t! could not identify information")
     return results || []
@@ -184,40 +200,42 @@ class MetasploitModule < Msf::Post
       next if found_key
 
       instances = registry_enumkeys(basekey)
-      if instances.nil? || instances.empty?
-        next
-      else
-        found_key = true
-      end
+
+      next if instances.blank?
+
+      found_key = true
 
       instances.each do |i|
         if basekey.include? 'KEY_XE'
-          val_ORACLE_SID = registry_getvaldata(basekey, 'ORACLE_SID')
-          val_ORACLE_HOME = registry_getvaldata(basekey, 'ORACLE_HOME')
+          oracle_sid = registry_getvaldata(basekey, 'ORACLE_SID')
+          oracle_home = registry_getvaldata(basekey, 'ORACLE_HOME')
         else
           key = "#{basekey}\\#{i}"
-          val_ORACLE_SID = registry_getvaldata(key, 'ORACLE_SID')
-          val_ORACLE_HOME = registry_getvaldata(key, 'ORACLE_HOME')
+          oracle_sid = registry_getvaldata(key, 'ORACLE_SID')
+          oracle_home = registry_getvaldata(key, 'ORACLE_HOME')
         end
-        if !exist?(val_ORACLE_HOME + '\\NETWORK\\ADMIN\\tnsnames.ora')
-          print_error("\t\t! #{val_ORACLE_SID} (No Listener Found)")
+
+        if !exist?(oracle_home + '\\NETWORK\\ADMIN\\tnsnames.ora')
+          print_error("\t\t! #{oracle_sid} (No Listener Found)")
           next
         end
 
-        data_TNSNAMES = read_file(val_ORACLE_HOME + '\\NETWORK\\ADMIN\\tnsnames.ora')
-        if data_TNSNAMES =~ /PORT\ =\ (\d+)/
+        data_tnsnames = read_file(oracle_home + '\\NETWORK\\ADMIN\\tnsnames.ora')
+        if data_tnsnames =~ /PORT\ =\ (\d+)/
           port = ::Regexp.last_match(1)
-          print_good("\t\t+ #{val_ORACLE_SID} (Port:#{port})")
-          results << [ 'oracle', "instance:#{val_ORACLE_SID} port:#{port}", 'Oracle Database Server', port ]
+          print_good("\t\t+ #{oracle_sid} (Port:#{port})")
+          results << [ 'oracle', "instance:#{oracle_sid} port:#{port}", 'Oracle Database Server', port ]
         else
-          print_error("\t\t! #{val_ORACLE_SID} (No Listener Found)")
+          print_error("\t\t! #{oracle_sid} (No Listener Found)")
         end
       end
     end
+
     if !found_key
       print_error("\t\t! Oracle instances not found")
     end
-    return results
+
+    results
   rescue StandardError
     print_error("\t\t! could not identify information")
     return results || []
@@ -228,15 +246,17 @@ class MetasploitModule < Msf::Post
     results = []
     basekey = 'HKLM\\SOFTWARE\\MySQL AB'
     instances = registry_enumkeys(basekey)
-    if instances.nil? || instances.empty?
-      return results
-    end
+
+    return results if instances.blank?
 
     instances.each do |i|
       key = "#{basekey}\\#{i}"
-      val_location = registry_getvaldata(key, 'Location')
+      location = registry_getvaldata(key, 'Location')
 
-      data = find_mysql_conf(val_location)
+      data = read_mysql_conf(location)
+      if data.nil?
+        data = find_and_read_mysql_conf
+      end
 
       if data && data =~ (/port=(\d+)/)
         port = ::Regexp.last_match(1)
@@ -246,7 +266,8 @@ class MetasploitModule < Msf::Post
         print_error("\t\t! could not identify information")
       end
     end
-    return results
+
+    results
   rescue StandardError
     print_error("\t\t! could not identify information")
     return results || []
@@ -268,14 +289,14 @@ class MetasploitModule < Msf::Post
     if data =~ /\[#{instance}\]([^\[]*)/
       segment = ::Regexp.last_match(1)
     else
-      print_error("\t\t! couldnt locate information.")
+      print_error("\t\t! could not locate information.")
       return results
     end
 
     if segment =~ /master=\w+,[^,]+,(\d+)/
       port = ::Regexp.last_match(1)
     else
-      print_error("\t\t! couldnt locate information.")
+      print_error("\t\t! could not locate information.")
       return results
     end
 
@@ -283,7 +304,7 @@ class MetasploitModule < Msf::Post
     results << [ 'sybase', "instance:#{instance} port:#{port}", 'Sybase SQL Server', port ]
     return results
   rescue StandardError
-    print_error("\t\t! couldnt locate information.")
+    print_error("\t\t! could not locate information.")
     return results || []
   end
 
@@ -300,7 +321,7 @@ class MetasploitModule < Msf::Post
     end
 
     windir = session.sys.config.getenv('windir')
-    getfile = session.fs.file.search(windir + '\\system32\\drivers\\etc\\', 'services.*', recurse = true, timeout = -1)
+    getfile = session.fs.file.search(windir + '\\system32\\drivers\\etc\\', 'services.*', true, -1)
 
     data = nil
     getfile.each do |file|
@@ -323,7 +344,7 @@ class MetasploitModule < Msf::Post
       results << [ 'db2', "instance:#{stripped} port:#{port_t}", 'DB2 Server', port_t ]
     end
 
-    return results
+    results
   rescue StandardError
     print_error("\t\t! could not identify instances information")
     return results || []
@@ -331,22 +352,30 @@ class MetasploitModule < Msf::Post
 
   ##### helper methods #####
 
-  def find_mysql_conf(val_location)
-    data = nil
-    if exist?(val_location + '\\my.ini')
-      data = read_file(val_location + '\\my.ini')
-    elsif exist?(val_location + '\\my.cnf')
-      data = read_file(val_location + '\\my.cnf')
-    else
-      sysdriv = session.sys.config.getenv('SYSTEMDRIVE')
-      getfile = session.fs.file.search(sysdriv + '\\', 'my.ini', recurse = true, timeout = -1)
-      getfile.each do |file|
-        if exist?("#{file['path']}\\#{file['name']}")
-          data = read_file("#{file['path']}\\#{file['name']}")
-          break
-        end
+  def read_mysql_conf(location)
+    return unless location
+
+    if exist?(location + '\\my.ini')
+      return read_file(location + '\\my.ini')
+    end
+
+    if exist?(location + '\\my.cnf')
+      return read_file(location + '\\my.cnf')
+    end
+
+    nil
+  end
+
+  def find_and_read_mysql_conf
+    sysdriv = session.sys.config.getenv('SYSTEMDRIVE')
+    getfile = session.fs.file.search(sysdriv + '\\', 'my.ini', true, -1)
+    getfile.each do |file|
+      path = "#{file['path']}\\#{file['name']}"
+      if exist?(path)
+        return read_file(path)
       end
     end
-    return data
+
+    nil
   end
 end

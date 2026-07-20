@@ -95,7 +95,10 @@ module Msf
               # deleting the associated Security Descriptor registry value.
               # Note that SYSTEM privileges are needed for this. It will try to
               # elevate privileges if the session is not already running under
-              # the SYSTEM user.',
+              # the SYSTEM user.'
+              #
+              # To list SECURITY_DESC items, the following ps command can be used
+              # Get-ChildItem "C:\Windows\System32\Tasks" -Recurse -File | Select-Object FullName
               OptEnum.new(
                 'ScheduleObfuscationTechnique', [
                   false,

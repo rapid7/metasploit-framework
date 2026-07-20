@@ -6,7 +6,7 @@ Open-source GGSN implementations can be used as a target for this module as well
 
 ## Options
 
-   **The RPORT option**
+### The RPORT option
 
    This option can be changed to target GTP-U (2152) or GTP-C (2123), which both use the same packet type for echo probing.
 

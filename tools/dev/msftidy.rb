@@ -246,9 +246,10 @@ class MsftidyRunner
         in_refs = false
       elsif in_super and line =~ /["']Notes["'][[:space:]]*=>/
         in_notes = true
-      elsif in_super and in_refs and line =~ /[^#]+\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*\]/
+      elsif in_super and in_refs and line =~ /[^#]+\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*(?:,[[:space:]]*['"](.+)['"])?[[:space:]]*\]/
         identifier = $1.strip.upcase
         value      = $2.strip
+        repo       = $3.strip if $3
 
         case identifier
         when 'CVE'
@@ -270,6 +271,17 @@ class MsftidyRunner
           warn("Invalid WPVDB reference") if value !~ /^\d+$/ and value !~ /^[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}?$/
         when 'PACKETSTORM'
           warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
+        when 'GHSA'
+          # Allow both formats: with or without GHSA- prefix
+          # Format: GHSA-xxxx-xxxx-xxxx or xxxx-xxxx-xxxx (where xxxx is 4 alphanumeric chars)
+          ghsa_pattern = /^(?:GHSA-)?[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/i
+          warn("Invalid GHSA reference") if value !~ ghsa_pattern
+          # No specific validation for repo format yet, as it's an optional string
+        when 'OSV'
+          # OSV format: ECOSYSTEM-YEAR-ID or ECOSYSTEM-xxxx-xxxx-xxxx (e.g., GO-2021-0113, GHSA-8c52-x9w7-vc95, MINI-xwm2-xhhw-2w6h)
+          # OSV accepts various formats depending on the ecosystem
+          osv_pattern = /^[A-Z]+-[A-Z0-9-]+$/i
+          warn("Invalid OSV reference") if value !~ osv_pattern
         when 'URL'
           if value =~ /^https?:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")
@@ -289,6 +301,10 @@ class MsftidyRunner
             warn("Please use 'WPVDB' for '#{value}'")
           elsif value =~ /^https?:\/\/(?:[^\.]+\.)?packetstormsecurity\.(?:com|net|org)\//
             warn("Please use 'PACKETSTORM' for '#{value}'")
+          elsif value =~ /^https?:\/\/github\.com\/(?:advisories|[\w\-]+\/[\w\-]+\/security\/advisories)\/GHSA-/
+            warn("Please use 'GHSA' for '#{value}'")
+          elsif value =~ /^https?:\/\/osv\.dev\/vulnerability\//
+            warn("Please use 'OSV' for '#{value}'")
           end
         when 'AKA'
           warn("Please include AKA values in the 'notes' section, rather than in 'references'.")
@@ -545,25 +561,15 @@ class MsftidyRunner
     # Check disclosure date format
     if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+?)['\"]/
       d = $1  #Captured date
-      # Flag if overall format is wrong
-      if d =~ /^... (?:\d{1,2},? )?\d{4}$/
-        # Flag if month format is wrong
-        m = d.split[0]
-        months = [
-          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-        ]
-
-        error('Incorrect disclosure month format') if months.index(m).nil?
       # XXX: yyyy-mm is interpreted as yyyy-01-mm by Date::iso8601
-      elsif d =~ /^\d{4}-\d{2}-\d{2}$/
+      if d =~ /^\d{4}-\d{2}-\d{2}$/
         begin
           Date.iso8601(d)
         rescue ArgumentError
           error('Incorrect ISO 8601 disclosure date format')
         end
       else
-        error('Incorrect disclosure date format')
+        error('Incorrect disclosure date format, expected YYYY-MM-DD')
       end
     else
       error('Exploit is missing a disclosure date') if is_exploit_module?
@@ -923,6 +929,8 @@ class Msftidy
 
           rubocop_result = rubocop_runner.run(full_filepath, options)
           @exit_status = MsftidyRunner::ERROR if rubocop_result != RuboCop::CLI::STATUS_SUCCESS
+
+          return @exit_status if options[:fail_fast] && @exit_status != 0
         end
       rescue Errno::ENOENT
         $stderr.puts "#{File.basename(__FILE__)}: #{dir}: No such file or directory"
@@ -954,6 +962,10 @@ if __FILE__ == $PROGRAM_NAME
 
     opts.on('-A', '--auto-correct-all', 'Auto-correct offenses (safe and unsafe).') do |auto_correct_all|
       options[:auto_correct_all] = auto_correct_all
+    end
+
+    opts.on('--fail-fast', 'Exit after the first detected failure instead of processing the rest of the files.') do |fail_fast|
+      options[:fail_fast] = fail_fast
     end
   end
   options_parser.parse!

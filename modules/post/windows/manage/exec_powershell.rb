@@ -10,9 +10,9 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Windows Powershell Execution Post Module',
+        'Name' => 'Windows PowerShell Execution Post Module',
         'Description' => %q{
-          This module will execute a powershell script in a meterpreter session.
+          This module will execute a PowerShell script in a meterpreter session.
           The user may also enter text substitutions to be made in memory before execution.
           Setting VERBOSE to true will output both the script prior to execution and the results.
         },
@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Post
         'Author' => [
           'Nicholas Nam (nick[at]executionflow.org)', # original meterpreter script
           'RageLtMan <rageltman[at]sempervictus>' # post module and libs
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
@@ -40,9 +45,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    # Make sure we meet the requirements before running the script, note no need to return
-    # unless error
-    raise 'Powershell not available' if !have_powershell?
+    fail_with(Failure::BadConfig, 'PowerShell is not available') unless have_powershell?
 
     # Preprocess the Powershell::Script object with substitions from Exploit::Powershell
     script = make_subs(read_script(datastore['SCRIPT']), process_subs(datastore['SUBSTITUTIONS']))

@@ -9,26 +9,33 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'URGENT/11 Scanner, Based on Detection Tool by Armis',
-      'Description'    => %q{
-        This module detects VxWorks and the IPnet IP stack, along with devices
-        vulnerable to CVE-2019-12258.
-      },
-      'Author'         => [
-        'Ben Seri',   # Upstream tool
-        'Brent Cook', # Metasploit module
-        'wvu'         # Metasploit module
-      ],
-      'References'     => [
-        ['CVE', '2019-12258'],
-        ['URL', 'https://armis.com/urgent11'],
-        ['URL', 'https://github.com/ArmisSecurity/urgent11-detector']
-      ],
-      'DisclosureDate' => '2019-08-09', # NVD entry publication
-      'License'        => MSF_LICENSE,
-      'Notes'          => {'Stability' => [CRASH_SAFE]}
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'URGENT/11 Scanner, Based on Detection Tool by Armis',
+        'Description' => %q{
+          This module detects VxWorks and the IPnet IP stack, along with devices
+          vulnerable to CVE-2019-12258.
+        },
+        'Author' => [
+          'Ben Seri',   # Upstream tool
+          'Brent Cook', # Metasploit module
+          'wvu'         # Metasploit module
+        ],
+        'References' => [
+          ['CVE', '2019-12258'],
+          ['URL', 'https://armis.com/urgent11'],
+          ['URL', 'https://github.com/ArmisSecurity/urgent11-detector']
+        ],
+        'DisclosureDate' => '2019-08-09', # NVD entry publication
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       OptString.new('RPORTS', required: true, default: "21 22 23 80 443", desc: 'Target ports for TCP detections')
@@ -46,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def rports
-    datastore['RPORTS'].split(/[\s,]/).collect{|i| (i.to_i.to_s == i) ? i.to_i : nil}.compact
+    datastore['RPORTS'].split(/[\s,]/).collect { |i| (i.to_i.to_s == i) ? i.to_i : nil }.compact
   end
 
   def filter(ip)
@@ -87,8 +94,8 @@ class MetasploitModule < Msf::Auxiliary
   def run_detections(ip, port)
     print_status("#{ip}:#{port} being checked")
 
-    final_ipnet_score        = 0
-    final_vxworks_score      = 0
+    final_ipnet_score = 0
+    final_vxworks_score = 0
     affected_vulnerabilities = []
 
     begin
@@ -102,8 +109,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     detections.each do |detection|
-      @ipnet_score     = 0
-      @vxworks_score   = 0
+      @ipnet_score = 0
+      @vxworks_score = 0
       @vulnerable_cves = []
 
       detection_name = detection.camelize
@@ -121,8 +128,8 @@ class MetasploitModule < Msf::Auxiliary
         "\tIPnet: #{@ipnet_score}"
       )
 
-      final_ipnet_score        += @ipnet_score
-      final_vxworks_score      += @vxworks_score
+      final_ipnet_score += @ipnet_score
+      final_vxworks_score += @vxworks_score
       affected_vulnerabilities += @vulnerable_cves
     end
 
@@ -164,12 +171,12 @@ class MetasploitModule < Msf::Auxiliary
     pkt.ip_daddr = ip
 
     # TCP SYN with malformed options
-    pkt.tcp_dst       = port
+    pkt.tcp_dst = port
     pkt.tcp_flags.syn = 1
-    pkt.tcp_opts      = [2, 4, 1460].pack('CCn') + # MSS
-                        [1].pack('C') +            # NOP
-                        [3, 2].pack('CC') +        # WSCALE with invalid length
-                        [3, 3, 0].pack('CCC')      # WSCALE with valid length
+    pkt.tcp_opts = [2, 4, 1460].pack('CCn') + # MSS
+                   [1].pack('C') +            # NOP
+                   [3, 2].pack('CC') +        # WSCALE with invalid length
+                   [3, 3, 0].pack('CCC')      # WSCALE with valid length
     pkt.recalc
 
     res = nil
@@ -183,18 +190,18 @@ class MetasploitModule < Msf::Auxiliary
 
     unless res
       return @vxworks_score = 0,
-             @ipnet_score   = 50
+             @ipnet_score = 50
     end
 
     if res.tcp_flags.rst == 1 &&
-      res.tcp_dst == pkt.tcp_src && res.tcp_dst == pkt.tcp_src
+       res.tcp_dst == pkt.tcp_src && res.tcp_dst == pkt.tcp_src
 
       return @vxworks_score = 100,
-             @ipnet_score   = 100
+             @ipnet_score = 100
     end
 
     return @vxworks_score = -100,
-           @ipnet_score   = -100
+           @ipnet_score = -100
   end
 
   def tcp_dos_detection(sock, ip, port)
@@ -204,13 +211,13 @@ class MetasploitModule < Msf::Auxiliary
     pkt.ip_daddr = ip
 
     # TCP SYN with malformed (truncated) WS option
-    pkt.tcp_src       = sock.getlocalname.last
-    pkt.tcp_dst       = sock.peerport
-    pkt.tcp_seq       = rand(0xffffffff + 1)
-    pkt.tcp_ack       = rand(0xffffffff + 1)
+    pkt.tcp_src = sock.getlocalname.last
+    pkt.tcp_dst = sock.peerport
+    pkt.tcp_seq = rand(0xffffffff + 1)
+    pkt.tcp_ack = rand(0xffffffff + 1)
     pkt.tcp_flags.syn = 1
-    pkt.tcp_opts      = [3, 2].pack('CC') +    # WSCALE with invalid length
-                        [1, 0].pack('CC')      # NOP + EOL
+    pkt.tcp_opts = [3, 2].pack('CC') + # WSCALE with invalid length
+                   [1, 0].pack('CC') # NOP + EOL
     pkt.recalc
 
     res = nil
@@ -224,19 +231,19 @@ class MetasploitModule < Msf::Auxiliary
 
     unless res
       return @vxworks_score = 0,
-             @ipnet_score   = 0
+             @ipnet_score = 0
     end
 
     if res.tcp_flags.rst == 1 &&
-      res.tcp_dst == pkt.tcp_src && res.tcp_dst == pkt.tcp_src
+       res.tcp_dst == pkt.tcp_src && res.tcp_dst == pkt.tcp_src
 
-      return @vxworks_score   = 100,
-             @ipnet_score     = 100,
+      return @vxworks_score = 100,
+             @ipnet_score = 100,
              @vulnerable_cves = ['CVE-2019-12258']
     end
 
     return @vxworks_score = 0,
-           @ipnet_score   = 0
+           @ipnet_score = 0
   end
 
   #
@@ -252,7 +259,7 @@ class MetasploitModule < Msf::Auxiliary
     # ICMP echo request with non-zero code
     pkt.icmp_type = 8
     pkt.icmp_code = rand(0x01..0xff)
-    pkt.payload   = capture_icmp_echo_pack
+    pkt.payload = capture_icmp_echo_pack
     pkt.recalc
 
     pkt.to_w
@@ -279,7 +286,7 @@ class MetasploitModule < Msf::Auxiliary
     # Truncated ICMP timestamp request
     pkt.icmp_type = 13
     pkt.icmp_code = 0
-    pkt.payload   = "\x00" * 4
+    pkt.payload = "\x00" * 4
     pkt.recalc
 
     pkt.to_w

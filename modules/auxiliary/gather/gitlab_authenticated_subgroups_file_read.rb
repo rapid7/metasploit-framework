@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
     version = Rex::Version.new(gitlab_version)
 
     if version != Rex::Version.new('16.0.0')
-      return CheckCode::Safe("Detected GitLab version #{version} which is not vulnerable")
+      return Exploit::CheckCode::Safe("Detected GitLab version #{version} which is not vulnerable")
     end
 
     report_vuln(

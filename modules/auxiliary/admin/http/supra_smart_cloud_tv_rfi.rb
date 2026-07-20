@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.inputzero.io/2019/06/hacking-smart-tv.html']
         ],
         'DisclosureDate' => '2019-06-03',
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [SERVICE_RESOURCE_LOSS],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 

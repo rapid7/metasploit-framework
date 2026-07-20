@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2025-02-13',
         'DefaultOptions' => {
           'RPORT' => 34022,
-          'SSL' => 'False'
+          'SSL' => false
         },
         'Platform' => 'win',
         'Arch' => [ ARCH_CMD ],
@@ -64,19 +64,19 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => normalize_uri(target_uri.path, 'assets/index-DBkpc6FO.js')
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      return CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Failed to connect to the target')
     end
 
     if res.to_s =~ /const S="([^"]+)"/
       version = ::Regexp.last_match(1)
       vprint_status('Version retrieved: ' + version)
       if Rex::Version.new(version) <= Rex::Version.new('1.3')
-        return CheckCode::Appears
+        return Exploit::CheckCode::Appears("myPRO Manager version #{version} is vulnerable")
       end
 
-      return CheckCode::Safe
+      return Exploit::CheckCode::Safe("myPRO Manager version #{version} is not vulnerable")
     end
-    return CheckCode::Unknown
+    return Exploit::CheckCode::Unknown('Could not determine myPRO Manager version')
   end
 
   def run

@@ -26,7 +26,7 @@ module Msf::WebServices::ServiceServlet
       begin
         sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
         data = get_db.services(sanitized_params)
-        includes = [:host]
+        includes = [:host, :parents]
         data = data.first if is_single_object?(data, sanitized_params)
         set_json_data_response(response: data, includes: includes)
       rescue => e
@@ -39,7 +39,7 @@ module Msf::WebServices::ServiceServlet
     lambda {
       warden.authenticate!
       job = lambda { |opts| get_db.report_service(opts) }
-      includes = [:host]
+      includes = [:host, :parents]
       exec_report_job(request, includes, &job)
     }
   end

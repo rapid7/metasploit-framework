@@ -24,6 +24,11 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'davehull <dph_msf[at]trustedsignal.com>'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -41,9 +46,10 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # Run Method for when run command is issued
   def run
-    print_status("Running module against #{sysinfo['Computer']}")
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
+
     enum_users.each do |user|
       if user['userpath']
         print_status "Extracting lnk files for user #{user['username']} at #{user['userpath']}..."
@@ -249,7 +255,7 @@ class MetasploitModule < Msf::Post
       10 => 'SHOWDEFAULT'
     }
     data_out = "\tShowWnd value(s):\n"
-    showwnd.each do |key, _value|
+    showwnd.each_key do |key|
       if (hdr['showwnd'] & key) > 0
         data_out += "\t\t#{showwnd[key]}.\n"
       end
@@ -282,7 +288,7 @@ class MetasploitModule < Msf::Post
       0x1000 => 'Target is offline'
     }
     data_out = "\tAttributes:\n"
-    fileattr.each do |key, _attr|
+    fileattr.each_key do |key|
       if (hdr['attr'] & key) > 0
         data_out += "\t\t#{fileattr[key]}.\n"
       end
@@ -312,7 +318,7 @@ class MetasploitModule < Msf::Post
       0x40 => 'The shortcut has a custom icon'
     }
     data_out = "\tFlags:\n"
-    flags.each do |key, _flag|
+    flags.each_key do |key|
       if (hdr['flags'] & key) > 0
         data_out += "\t\t#{flags[key]}.\n"
       end
@@ -356,7 +362,7 @@ class MetasploitModule < Msf::Post
   end
 
   def get_time(lo_byte, hi_byte)
-    if (lo_byte == 0 && hi_byte == 0)
+    if lo_byte == 0 && hi_byte == 0
       return 0
     else
       lo_byte -= 0xd53e8000

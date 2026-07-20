@@ -11,24 +11,25 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'NAT-PMP External Port Scanner',
+      'Name' => 'NAT-PMP External Port Scanner',
       'Description' => 'Scan NAT devices for their external listening ports using NAT-PMP',
-      'Author'      => 'Jon Hart <jhart[at]spoofed.org>',
-      'License'     => MSF_LICENSE
+      'Author' => 'Jon Hart <jhart[at]spoofed.org>',
+      'License' => MSF_LICENSE
       )
 
     register_options(
       [
         OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-1000"])
-      ])
+      ]
+    )
   end
 
   def run_host(host)
     begin
       udp_sock = Rex::Socket::Udp.create({
         'LocalHost' => datastore['CHOST'] || nil,
-        'Context'   => {'Msf' => framework, 'MsfExploit' => self} }
-      )
+        'Context' => { 'Msf' => framework, 'MsfExploit' => self }
+      })
       add_socket(udp_sock)
       peer = "#{host}:#{datastore['RPORT']}"
       vprint_status("#{peer} Scanning #{protocol} ports #{datastore['PORTS']} using NATPMP")
@@ -47,11 +48,10 @@ class MetasploitModule < Msf::Auxiliary
       Rex::Socket.portspec_crack(datastore['PORTS']).each do |port|
         map_req = map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 1)
         udp_sock.sendto(map_req, host, datastore['RPORT'], 0)
-        while (r = udp_sock.recvfrom(16, 1.0) and r[1])
-          break if handle_reply(host, external_address, r)
+        while (r = udp_sock.timed_recvfrom(16, 1.0))
+          break if handle_reply(host, external_address, [r[0], r[1][3], r[1][1]])
         end
       end
-
     rescue ::Interrupt
       raise $!
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
   def handle_reply(host, external_addr, pkt)
     return if not pkt[1]
 
-    if(pkt[1] =~ /^::ffff:/)
+    if (pkt[1] =~ /^::ffff:/)
       pkt[1] = pkt[1].sub(/^::ffff:/, '')
     end
     host = pkt[1]
@@ -81,9 +81,9 @@ class MetasploitModule < Msf::Auxiliary
         print_good("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with unmatched ports")
         if inside_workspace_boundary?(external_addr)
           report_service(
-            :host   => external_addr,
-            :port   => int,
-            :proto  => protocol,
+            :host => external_addr,
+            :port => int,
+            :proto => protocol,
             :state => state
           )
         end
@@ -97,10 +97,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     report_service(
-      :host 	=> host,
-      :port 	=> pkt[2],
-      :name 	=> 'natpmp',
-      :proto 	=> 'udp',
+      :host => host,
+      :port => pkt[2],
+      :name => 'natpmp',
+      :proto => 'udp',
       :state	=> Msf::ServiceState::Open
     )
     true

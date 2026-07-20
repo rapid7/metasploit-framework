@@ -19,19 +19,17 @@ class MetasploitModule < Msf::Auxiliary
           non-DoS packets which respond differently on patched and vulnerable hosts.
           It can optionally trigger the DoS vulnerability.
         },
-        'Author' =>
-          [
-            'National Cyber Security Centre', # Discovery
-            'JaGoTu', # Module
-            'zerosum0x0', # Module
-            'Tom Sellers' # TLS support, packet documenentation, DoS implementation
-          ],
-        'References' =>
-          [
-            [ 'CVE', '2019-0708' ],
-            [ 'URL', 'https://msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2019-0708' ],
-            [ 'URL', 'https://zerosum0x0.blogspot.com/2019/05/avoiding-dos-how-bluekeep-scanners-work.html' ]
-          ],
+        'Author' => [
+          'National Cyber Security Centre', # Discovery
+          'JaGoTu', # Module
+          'zerosum0x0', # Module
+          'Tom Sellers' # TLS support, packet documenentation, DoS implementation
+        ],
+        'References' => [
+          [ 'CVE', '2019-0708' ],
+          [ 'URL', 'https://msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2019-0708' ],
+          [ 'URL', 'https://zerosum0x0.blogspot.com/2019/05/avoiding-dos-how-bluekeep-scanners-work.html' ]
+        ],
         'DisclosureDate' => '2019-05-14',
         'License' => MSF_LICENSE,
         'Actions' => [
@@ -39,11 +37,12 @@ class MetasploitModule < Msf::Auxiliary
           ['Crash', 'Description' => 'Trigger denial of service vulnerability'],
         ],
         'DefaultAction' => 'Scan',
-        'Notes' =>
-          {
-            'Stability' => [ CRASH_SAFE ],
-            'AKA' => ['BlueKeep']
-          }
+        'Notes' => {
+          'Stability' => [ CRASH_SAFE ],
+          'AKA' => ['BlueKeep'],
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
   end
@@ -86,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_host(_ip)
     # The check command will call this method instead of run_host
-    status = Exploit::CheckCode::Unknown
+    status = Exploit::CheckCode::Unknown('Unable to determine BlueKeep vulnerability status')
 
     begin
       begin
@@ -103,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
       elog(e)
     rescue RdpCommunicationError
       vprint_error('Error communicating RDP protocol.')
-      status = Exploit::CheckCode::Unknown
+      status = Exploit::CheckCode::Unknown('Error communicating RDP protocol')
     rescue Errno::ECONNRESET
       vprint_error('Connection reset')
     rescue StandardError => e

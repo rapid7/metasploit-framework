@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['h0ng10'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -114,7 +119,7 @@ class MetasploitModule < Msf::Post
 
           # Merge in the service data and create our Login
           login_data.merge!(service_data)
-          login = create_credential_login(login_data)
+          create_credential_login(login_data)
 
           # if we have a MySQL via SSH connection, we need to store the SSH credentials as well
           next unless db_type == 2
@@ -151,7 +156,7 @@ class MetasploitModule < Msf::Post
 
           # Merge in the service data and create our Login
           login_data.merge!(service_data)
-          login = create_credential_login(login_data)
+          create_credential_login(login_data)
         end
       rescue ::Rex::Post::Meterpreter::RequestError => e
         elog(e)

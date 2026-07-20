@@ -8,15 +8,15 @@ This module creates a mock telnet server which accepts credentials.  Upon receiv
 
 ## Options
 
-  **BANNER**
+### BANNER
 
   The Banner which should be displayed.  Default is empty, which will display `Welcome`.
 
-  **SSL**
+### SSL
 
   Boolean if SSL should be used.  Default is `False`.
 
-  **SSLCert**
+### SSLCert
 
   File path to a combined Private Key and Certificate file.  If not provided, a certificate will be automatically
   generated.  Default is ``.
@@ -28,10 +28,10 @@ This module creates a mock telnet server which accepts credentials.  Upon receiv
 Server:
 
 ```
-msf5 > use auxiliary/server/capture/telnet 
-msf5 auxiliary(server/capture/telnet) > run
+msf > use auxiliary/server/capture/telnet 
+msf auxiliary(server/capture/telnet) > run
 [*] Auxiliary module running as background job 0.
-msf5 auxiliary(server/capture/telnet) > 
+msf auxiliary(server/capture/telnet) > 
 [*] Started service listener on 0.0.0.0:23 
 [*] Server started.
 [+] TELNET LOGIN 127.0.0.1:40016 root / <3@wvu_is_my_hero

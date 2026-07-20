@@ -25,12 +25,12 @@ Full path to artifacts file.
 ### Windows 7 (6.1 Build 7601, Service Pack 1)
 
 ```
-msf6 > use post/windows/gather/enum_artifacts 
-msf6 post(windows/gather/enum_artifacts) > set session 1
+msf > use post/windows/gather/enum_artifacts 
+msf post(windows/gather/enum_artifacts) > set session 1
 session => 1
-msf6 post(windows/gather/enum_artifacts) > set verbose true
+msf post(windows/gather/enum_artifacts) > set verbose true
 verbose => true
-msf6 post(windows/gather/enum_artifacts) > run
+msf post(windows/gather/enum_artifacts) > run
 
 [*] Searching for artifacts of test_evidence
 [*] Processing 2 file entries for test_evidence ...

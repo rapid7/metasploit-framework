@@ -114,6 +114,6 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Unknown('Unable to determine the service fingerprint')
     end
 
-    return Exploit::CheckCode::Appears
+    return Exploit::CheckCode::Appears('FreeSWITCH event socket is accepting authentication requests')
   end
 end

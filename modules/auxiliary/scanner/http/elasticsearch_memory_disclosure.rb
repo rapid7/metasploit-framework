@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_host(_ip)
     version = get_version
-    return CheckCode::Unknown("#{peer} - Could not connect to web service, or unexpected response") if version.nil?
+    return Exploit::CheckCode::Unknown("#{peer} - Could not connect to web service, or unexpected response") if version.nil?
 
     if Rex::Version.new(version) <= Rex::Version.new('7.13.3') && Rex::Version.new(version) >= Rex::Version.new('7.10.0')
       return Exploit::CheckCode::Appears("Exploitable Version Detected: #{version}")

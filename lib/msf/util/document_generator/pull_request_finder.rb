@@ -1,4 +1,3 @@
-require 'octokit'
 require 'nokogiri'
 require 'net/http'
 
@@ -38,6 +37,8 @@ module Msf
             msg = ''
             raise PullRequestFinder::Exception, 'GITHUB_OAUTH_TOKEN environment variable not set.'
           end
+
+          require 'octokit'
 
           self.owner            = 'rapid7'
           self.repository       = "#{owner}/metasploit-framework"

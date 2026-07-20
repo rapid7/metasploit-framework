@@ -37,7 +37,12 @@ class MetasploitModule < Msf::Post
           [ 'MOUNT', { 'Description' => 'Mount a network shared volume using stored credentials' } ],
           [ 'UMOUNT', { 'Description' => 'Unmount a mounted volume' } ]
         ],
-        'DefaultAction' => 'LIST'
+        'DefaultAction' => 'LIST',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 

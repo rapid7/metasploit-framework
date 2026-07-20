@@ -34,7 +34,12 @@ class MetasploitModule < Msf::Auxiliary
           ['Delete', { 'Description' => 'Delete arbitrary file' }]
         ],
         'DefaultAction' => 'Read',
-        'DisclosureDate' => '2013-05-15'
+        'DisclosureDate' => '2013-05-15',
+        'Notes' => {
+          'Stability' => [OS_RESOURCE_LOSS],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -84,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    if res && (res.code == 200) && res.body =~ (/\{"success":true\}/)
+    if res && (res.code == 200) && res.body =~ /\{"success":true\}/
       print_good("File #{file} copied to #{dst_path} successfully")
     else
       print_error("Failed to copy #{file} to #{dst_path}")
@@ -125,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    if res && (res.code == 200) && res.body =~ (/\{"success":true\}/)
+    if res && (res.code == 200) && res.body =~ /\{"success":true\}/
       print_good("File #{file} deleted")
     else
       print_error("Error deleting file #{file}")
@@ -140,7 +145,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    if res && (res.code == 200) && res.get_cookies =~ (/JSESSIONID=(.*);/)
+    if res && (res.code == 200) && res.get_cookies =~ /JSESSIONID=(.*);/
       first_session = ::Regexp.last_match(1)
     end
 
@@ -156,7 +161,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    if !res || (res.code != 302) || res.headers['Location'] !~ (%r{interface/index.do})
+    if !res || (res.code != 302) || res.headers['Location'] !~ %r{interface/index.do}
       return false
     end
 
@@ -168,7 +173,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    if res && (res.code == 200) && res.get_cookies =~ (/JSESSIONID=(.*);/)
+    if res && (res.code == 200) && res.get_cookies =~ /JSESSIONID=(.*);/
       @session = ::Regexp.last_match(1)
       return true
     end

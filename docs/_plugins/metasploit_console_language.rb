@@ -17,7 +17,7 @@ module Rouge
     SHORTNAME = 'z'
 
     token :Msf, SHORTNAME do
-      # prompt - msf / msf5 / msf6 / meterpreter
+      # prompt - msf / meterpreter
       token :Prompt, "#{SHORTNAME}p"
       # [-]
       token :Error, "#{SHORTNAME}e"
@@ -49,7 +49,7 @@ module Rouge
       state :root do
         mixin :whitespace
 
-        # Match msf, msf5, msf6, meterpreter
+        # Match msf, meterpreter
         rule %r{^(msf\d?|meterpreter)}, Tokens::Msf::Prompt, :msf_prompt
         rule %r{^\[-\]}, Tokens::Msf::Error
         rule %r{^\[\+\]}, Tokens::Msf::Good
@@ -59,7 +59,7 @@ module Rouge
       end
 
       # State for highlighting the prompt such as
-      # msf6 auxiliary(admin/dcerpc/cve_2022_26923_certifried) >
+      # msf auxiliary(admin/dcerpc/cve_2022_26923_certifried) >
       state :msf_prompt do
         mixin :whitespace
 

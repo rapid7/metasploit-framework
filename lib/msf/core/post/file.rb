@@ -118,7 +118,7 @@ module Msf::Post::File
   alias ls dir
 
   # create and mark directory for cleanup
-  def mkdir(path)
+  def mkdir(path, cleanup: true)
     result = nil
     vprint_status("Creating directory #{path}")
     if session.type == 'meterpreter'
@@ -132,7 +132,7 @@ module Msf::Post::File
       result = cmd_exec("mkdir -p '#{path}'")
     end
     vprint_status("#{path} created")
-    register_dir_for_cleanup(path)
+    register_dir_for_cleanup(path) if cleanup
     result
   end
 
@@ -375,7 +375,7 @@ module Msf::Post::File
       return unless data
 
       chksum = data.scan(/^([A-F0-9-]+)$/).flatten.first
-      return chksum&.gsub(/-/, '')&.downcase
+      return chksum&.gsub('-', '')&.downcase
     end
 
     case util
@@ -423,7 +423,7 @@ module Msf::Post::File
       data = cmd_exec("$sha1 = New-Object -TypeName System.Security.Cryptography.SHA1CryptoServiceProvider; [System.BitConverter]::ToString($sha1.ComputeHash([System.IO.File]::ReadAllBytes('#{file_name}')))")
       return unless data
       chksum = data.scan(/^([A-F0-9-]+)$/).flatten.first
-      return chksum&.gsub(/-/, '')&.downcase
+      return chksum&.gsub('-', '')&.downcase
     end
 
     case util
@@ -701,6 +701,52 @@ module Msf::Post::File
     end
   end
   alias cp_file copy_file
+
+  #
+  # Find writable directories under +path+ on a Unix system.
+  #
+  # Uses find's +-writable+ flag which checks effective access for the current user.
+  #
+  # @param path [String] Absolute base path to search from (default: '/')
+  # @param max_depth [Integer] Maximum directory depth to search (0 = base directory only)
+  # @param timeout [Integer] Maximum seconds for cmd_exec to wait (default: 15).
+  #   Note: if the command times out, the remote find process may continue
+  #   running and tie up the shell channel until it finishes.
+  # @return [Array<String>, nil] Array of writable directory paths, or nil on failure
+  #
+  def find_writable_directories(path: '/', max_depth: 2, timeout: 15)
+    raise "`find_writable_directories' method does not support Windows systems" if session.platform == 'windows'
+
+    path = path.to_s
+    raise ArgumentError, 'path must be an absolute path' unless path.start_with?('/')
+
+    max_depth = max_depth.to_i
+    raise ArgumentError, 'max_depth must not be negative' if max_depth < 0
+
+    timeout = timeout.to_i
+
+    if max_depth > 2
+      print_warning("Large max_depth (#{max_depth}) may cause the find command to run for a long time and hang the session")
+    end
+
+    escaped_path = session.escape_arg(path)
+    find_args = ["find #{escaped_path}"]
+    find_args << "-maxdepth #{max_depth}"
+    find_args << '-type d'
+    find_args << '-writable'
+
+    find_args << '2>/dev/null'
+    cmd = find_args.join(' ')
+    exec_timeout = timeout > 0 ? timeout : 15
+
+    begin
+      cmd_exec(cmd, nil, exec_timeout).to_s.lines.map(&:strip).select { |p| p.start_with?('/') }
+    rescue ::StandardError => e
+      elog("Failed to find writable directories in #{path}", error: e)
+      print_error("Failed to find writable directories in #{path}")
+      nil
+    end
+  end
 
   protected
 
@@ -1157,24 +1203,34 @@ protected
     attr_accessor :stathash
 
     def initialize(filename, session)
-      data = session.shell_command_token("stat --format='%d,%i,%h,%u,%g,%t,%s,%B,%o,%X,%Y,%Z,%f' '#{filename}'").to_s.chomp
-      raise 'format argument of stat command not behaving as expected' unless data =~ /(\d+,){12}\w+/
+      data = session.shell_command_token(
+        "stat --format='%d,%i,%h,%u,%g,%t,%s,%B,%o,%X,%Y,%Z,%f' '#{filename}'"
+      ).to_s.chomp
+
+      unless data =~ /(\d+,){12}\w+/
+        data = session.shell_command_token(
+          "stat -f '%d,%i,%l,%u,%g,%r,%z,%k,%b,%a,%m,%c,%p' '#{filename}'"
+        ).to_s.chomp
+      end
+
+      raise "stat command returned an unexpected result: #{data}" unless data =~ /(\d+,){12}\w+/
 
       data = data.split(',')
-      @stathash = Hash.new
-      @stathash['st_dev'] = data[0].to_i
-      @stathash['st_ino'] = data[1].to_i
-      @stathash['st_nlink'] = data[2].to_i
-      @stathash['st_uid'] = data[3].to_i
-      @stathash['st_gid'] = data[4].to_i
-      @stathash['st_rdev'] = data[5].to_i
-      @stathash['st_size'] = data[6].to_i
+
+      @stathash = {}
+      @stathash['st_dev']     = data[0].to_i
+      @stathash['st_ino']     = data[1].to_i
+      @stathash['st_nlink']   = data[2].to_i
+      @stathash['st_uid']     = data[3].to_i
+      @stathash['st_gid']     = data[4].to_i
+      @stathash['st_rdev']    = data[5].to_i
+      @stathash['st_size']    = data[6].to_i
       @stathash['st_blksize'] = data[7].to_i
-      @stathash['st_blocks'] = data[8].to_i
-      @stathash['st_atime'] = data[9].to_i
-      @stathash['st_mtime'] = data[10].to_i
-      @stathash['st_ctime'] = data[11].to_i
-      @stathash['st_mode'] = data[12].to_i(16) # stat command returns hex value of mode"
+      @stathash['st_blocks']  = data[8].to_i
+      @stathash['st_atime']   = data[9].to_i
+      @stathash['st_mtime']   = data[10].to_i
+      @stathash['st_ctime']   = data[11].to_i
+      @stathash['st_mode']    = data[12].to_i(16)
     end
   end
 end

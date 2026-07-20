@@ -22,13 +22,13 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     version = gitlab_version
     if version
-      print_good("Gitlab version range for #{ip}:#{datastore['RPORT']}: #{version}")
+      print_good("Gitlab version range for #{Rex::Socket.to_authority(ip, datastore['RPORT'])}: #{version.map { |v| v.to_s.gsub('.pre.ce', '-ce').gsub('.pre.ee', '-ee') }.join(' -> ')}")
       report_note(
         host: ip,
         port: datastore['RPORT'],
         proto: ssl ? 'https' : 'http',
         ntype: 'gitlab.version',
-        data: version
+        data: { version: version }
       )
     else
       print_error("Unable to find Gitlab version for #{ip}.")

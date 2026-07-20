@@ -171,7 +171,7 @@ module Msf::DBManager::Import::Libpcap
         # he thinks the server is HTTP and he just made an authentication attempt. At
         # this point, we'll just believe everything the packet says -- validation ought
         # to come later.
-        user,pass = b64_cred.unpack("m*").first.split(/:/,2)
+        user,pass = b64_cred.unpack("m*").first.split(':',2)
         msf_import_service(
             :workspace => wspace,
             :host      => pkt.ip_daddr,

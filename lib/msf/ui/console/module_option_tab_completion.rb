@@ -78,7 +78,7 @@ module Msf
             return res
           end
 
-          mod.options.sorted.each do |e|
+          mod.options.each do |e|
             name, _opt = e
             res << name
           end
@@ -101,7 +101,7 @@ module Msf
           if ((mod.exploit? || mod.evasion?) && mod.datastore['PAYLOAD'])
             p = framework.payloads.create(mod.datastore['PAYLOAD'])
             if p
-              p.options.sorted.each do |e|
+              p.options.each do |e|
                 name, _opt = e
                 res << name
               end
@@ -119,7 +119,8 @@ module Msf
               end
             end
           end
-          return res
+
+          return res.sort
         end
 
         #
@@ -246,9 +247,9 @@ module Msf
           return res
         end
 
-        # XXX: We repurpose OptAddressLocal#interfaces, so we can't put this in Rex
+        # XXX: We repurpose OptAddressRoutable#interfaces, so we can't put this in Rex
         def tab_complete_source_interface(o)
-          return [] unless o.is_a?(Msf::OptAddressLocal)
+          return [] unless o.is_a?(Msf::OptAddressRoutable)
 
           o.interfaces
         end

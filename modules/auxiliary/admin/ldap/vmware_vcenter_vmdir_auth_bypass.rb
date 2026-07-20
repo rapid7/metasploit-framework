@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
   def auth_bypass(ldap)
     # when datastore['BIND_DN'] has been provided in options,
     # ldap_connect has already made a bind for us.
-    return if datastore['USERNAME'] && ldap.bind
+    return if datastore['LDAPUsername'] && ldap.bind
 
     ldap.bind(
       method: :simple,

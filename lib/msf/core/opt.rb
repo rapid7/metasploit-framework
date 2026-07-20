@@ -35,8 +35,8 @@ module Msf
     end
 
     # @return [OptString]
-    def self.Proxies(default=nil, required=false, desc="A proxy chain of format type:host:port[,type:host:port][...]")
-      Msf::OptString.new(__method__.to_s, [ required, desc, default ])
+    def self.Proxies(default=nil, required=false, desc="A proxy chain of format type:host:port[,type:host:port][...]. Supported proxies: #{Rex::Socket::Proxies.supported_types.join(', ')}")
+      Msf::OptProxies.new(__method__.to_s, [ required, desc, default ])
     end
 
     # @return [OptRhosts]

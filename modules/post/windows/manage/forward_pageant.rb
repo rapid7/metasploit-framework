@@ -43,7 +43,10 @@ class MetasploitModule < Msf::Post
               extapi_pageant_send_query
             ]
           }
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1021_004_SSH ]
+        ]
       )
     )
     register_options([

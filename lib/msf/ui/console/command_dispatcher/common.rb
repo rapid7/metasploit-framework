@@ -82,9 +82,18 @@ module Common
     end
 
     if rhosts.length > 5
+      @rhosts_file_cleanup_proc ||= at_exit do
+        @temp_rhosts_files.each do |path|
+          File.delete(path)
+        rescue => e
+          elog(e)
+        end
+      end
       # Lots of hosts makes 'show options' wrap which is difficult to
       # read, store to a temp file
-      rhosts_file = Rex::Quickfile.new("msf-db-rhosts-")
+      rhosts_file = Rex::Quickfile.create("msf-db-rhosts-")
+      @temp_rhosts_files ||= []
+      @temp_rhosts_files << rhosts_file.path
       mydatastore['RHOSTS'] = 'file:'+rhosts_file.path
       # create the output file and assign it to the RHOSTS variable
       rhosts_file.write(rhosts.join("\n")+"\n")

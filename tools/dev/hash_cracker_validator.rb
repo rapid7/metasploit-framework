@@ -1,0 +1,684 @@
+#!/usr/bin/env ruby
+
+# This script is used to validate the hash cracking capabilities of metasploit
+# https://github.com/rapid7/metasploit-framework/pull/17667 shows the complexity
+# of trying to insert hashes, run the appropriate hash cracking module, and verify the hashes are cracked.
+# this automates everything and checks the output of the hash cracking modules to ensure they are working as expected
+# author: h00die
+
+require 'open3'
+require 'tempfile'
+require 'optparse'
+
+options = { test: 'all', verbose: false }
+
+OptionParser.new do |opts|
+  opts.banner = <<~BANNER
+    hash_cracker_validator.rb - A Script to verify hash cracking in Metasploit.
+
+    Based on passwords/hashes from https://docs.metasploit.com/docs/using-metasploit/intermediate/hashes-and-password-cracking.html#hashes
+
+    Usage: hash_cracker_validator.rb [options]
+  BANNER
+  opts.on('--verbose', 'Enable verbose output.') do
+    options[:verbose] = true
+  end
+  opts.on('-t', '--test LIST', "Which tests to conduct. Takes a list of numbers (comma-separated), defaults to 'all'",
+          'Test 1: Test database connection',
+          'Test 2: *nix     hashes in john wordlist mode',
+          'Test 3: windows  hashes in john wordlist mode',
+          'Test 4: sql      hashes in john wordlist mode',
+          'Test 5: osx      hashes in john wordlist mode',
+          'Test 6: webapp   hashes in john wordlist mode',
+          'Test 7: *nix     hashes in hashcat wordlist mode',
+          'Test 8: windows  hashes in hashcat wordlist mode',
+          'Test 9: sql      hashes in hashcat wordlist mode',
+          'Test 10: mobile  hashes in hashcat wordlist mode',
+          'Test 11: osx     hashes in hashcat wordlist mode',
+          'Test 12: webapp  hashes in hashcat wordlist mode',
+          'Test 13: *nix    hashes in john pot mode',
+          'Test 14: windows hashes in john pot mode',
+          'Test 15: sql     hashes in john pot mode',
+          'Test 16: osx     hashes in john pot mode',
+          'Test 17: webapp  hashes in john pot mode',
+          'Test 18: *nix    hashes in hashcat pot mode',
+          'Test 19: windows hashes in hashcat pot mode',
+          'Test 20: sql    hashes in hashcat pot mode',
+          'Test 21: mobile hashes in hashcat pot mode',
+          'Test 22: osx    hashes in hashcat pot mode',
+          'Test 23: webapp hashes in hashcat pot mode',
+          'Test 24: all    hashes in john apply_pot mode') do |list|
+    options[:test] = begin
+      list.split(',').map(&:strip).map(&:to_i)
+    rescue StandardError
+      'all'
+    end
+  end
+end.parse!
+
+# expose options to methods
+$options = options
+
+# colors and puts templates from msftidy.rb
+
+class String
+  def red
+    "\e[1;31;40m#{self}\e[0m"
+  end
+
+  def yellow
+    "\e[1;33;40m#{self}\e[0m"
+  end
+
+  def green
+    "\e[1;32;40m#{self}\e[0m"
+  end
+
+  def cyan
+    "\e[1;36;40m#{self}\e[0m"
+  end
+end
+
+def cleanup_text(txt)
+  txt
+end
+
+#
+# Display an error message, given some text
+#
+def good(txt)
+  puts "[#{'GOOD'.green}] #{cleanup_text(txt)}"
+end
+
+#
+# Display an error message, given some text
+#
+def error(txt)
+  puts "[#{'ERROR'.red}] #{cleanup_text(txt)}"
+end
+
+#
+# Display a warning message, given some text
+#
+def warning(txt)
+  puts "[#{'WARNING'.yellow}] #{cleanup_text(txt)}"
+end
+
+#
+# Display a info message, given some text
+#
+def info(txt)
+  puts "[#{'INFO'.cyan}] #{cleanup_text(txt)}"
+end
+
+def nix_hashes_and_regex
+  creds_command = ''
+  creds_expected_output_regex = []
+  creds_command << ' creds add user:des_password hash:rEK1ecacw.7.c jtr:des;'
+  creds_expected_output_regex << /des_password\s+rEK1ecacw\.7\.c\s+Nonreplayable hash\s+des\s+password$/
+  creds_command << ' creds add user:md5_password hash:\$1\$O3JMY.Tw\$AdLnLjQ/5jXF9.MTp3gHv/ jtr:md5;'
+  creds_expected_output_regex << %r{md5_password\s+\$1\$O3JMY\.Tw\$AdLnLjQ/5jXF9\.MTp3gHv/\s+Nonreplayable hash\s+md5\s+password$}
+  creds_command << ' creds add user:bsdi_password hash:_J9..K0AyUubDrfOgO4s jtr:bsdi;'
+  creds_expected_output_regex << /bsdi_password\s+_J9\.\.K0AyUubDrfOgO4s\s+Nonreplayable hash\s+bsdi\s+password$/
+  creds_command << ' creds add user:sha256_password hash:\$5\$MnfsQ4iN\$ZMTppKN16y/tIsUYs/obHlhdP.Os80yXhTurpBMUbA5 jtr:sha256,crypt;'
+  creds_command << ' set SHA256 true;'
+  creds_expected_output_regex << %r{sha256_password\s+\$5\$MnfsQ4iN\$ZMTppKN16y/tIsUYs/obHlhdP\.Os80yXhTurpBMUbA5\s+Nonreplayable hash\s+sha256,crypt\s+password$}
+  creds_command << ' creds add user:sha512_password hash:\$6\$zWwwXKNj\$gLAOoZCjcr8p/.VgV/FkGC3NX7BsXys3KHYePfuIGMNjY83dVxugPYlxVg/evpcVEJLT/rSwZcDMlVVf/bhf.1 jtr:sha512,crypt;'
+  creds_command << ' set SHA512 true;'
+  creds_expected_output_regex << %r{sha512_password\s+\$6\$zWwwXKNj\$gLAOoZCjcr8p/\.VgV/FkGC3NX7BsXys3KHYePfuIGMNjY83dVxugPYlxVg/evpcV \(TRUNCATED\)\s+Nonreplayable hash\s+sha512,crypt\s+password$}
+  creds_command << ' creds add user:blowfish_password hash:\$2a\$05\$bvIG6Nmid91Mu9RcmmWZfO5HJIMCT8riNW0hEp8f6/FuA2/mHZFpe jtr:bf;'
+  creds_command << ' set BLOWFISH true;'
+  creds_expected_output_regex << %r{blowfish_password\s+\$2a\$05\$bvIG6Nmid91Mu9RcmmWZfO5HJIMCT8riNW0hEp8f6/FuA2/mHZFpe\s+Nonreplayable hash\s+bf\s+password$}
+  return creds_command, creds_expected_output_regex
+end
+
+def osx_hashes_and_regex
+  creds_command = ''
+  creds_expected_output_regex = []
+  creds_command << ' creds add user:xsha_hashcat hash:1430823483d07626ef8be3fda2ff056d0dfd818dbfe47683 jtr:xsha;'
+  creds_expected_output_regex << /xsha_hashcat\s+1430823483d07626ef8be3fda2ff056d0dfd818dbfe47683\s+Nonreplayable hash\s+xsha\s+hashcat$/
+  creds_command << ' creds add user:pbkdf2_hashcat hash:\$ml\$35460\$93a94bd24b5de64d79a5e49fa372827e739f4d7b6975c752c9a0ff1e5cf72e05\$752351df64dd2ce9dc9c64a72ad91de6581a15c19176266b44d98919dfa81f0f96cbcb20a1ffb400718c20382030f637892f776627d34e021bad4f81b7de8222 jtr:PBKDF2-HMAC-SHA512;'
+  creds_expected_output_regex << /pbkdf2_hashcat\s+\$ml\$35460\$93a94bd24b5de64d79a5e49fa372827e739f4d7b6975c752c9a0ff1e5cf72e05\$7 \(TRUNCATED\)\s+Nonreplayable hash\s+PBKDF2-HMAC-SHA512\s+hashcat$/
+  creds_command << ' creds add user:xsha512_hashcat hash:648742485c9b0acd786a233b2330197223118111b481abfa0ab8b3e8ede5f014fc7c523991c007db6882680b09962d16fd9c45568260531bdb34804a5e31c22b4cfeb32d jtr:xsha512;'
+  creds_expected_output_regex << /xsha512_hashcat\s+648742485c9b0acd786a233b2330197223118111b481abfa0ab8b3e8ede5f014fc7c523991c0 \(TRUNCATED\)\s+Nonreplayable hash\s+xsha512\s+hashcat$/
+  return creds_command, creds_expected_output_regex
+end
+
+def webapp_hashes_and_regex
+  creds_command = ''
+  creds_expected_output_regex = []
+  creds_command << ' creds add user:mediawiki_hashcat hash:\$B\$56668501\$0ce106caa70af57fd525aeaf80ef2898 jtr:mediawiki;'
+  creds_expected_output_regex << /mediawiki_hashcat\s+\$B\$56668501\$0ce106caa70af57fd525aeaf80ef2898\s+Nonreplayable hash\s+mediawiki\s+hashcat$/
+  creds_command << ' creds add user:phpass_p_hashcat hash:\$P\$984478476IagS59wHZvyQMArzfx58u. jtr:phpass;'
+  creds_expected_output_regex << /phpass_p_hashcat\s+\$P\$984478476IagS59wHZvyQMArzfx58u\.\s+Nonreplayable hash\s+phpass\s+hashcat$/
+  creds_command << ' creds add user:phpass_h_hashcat hash:\$H\$984478476IagS59wHZvyQMArzfx58u. jtr:phpass;'
+  creds_expected_output_regex << /phpass_h_hashcat\s+\$H\$984478476IagS59wHZvyQMArzfx58u\.\s+Nonreplayable hash\s+phpass\s+hashcat$/
+  creds_command << ' creds add user:atlassian_hashcat hash:{PKCS5S2}NzIyNzM0NzY3NTIwNjI3MdDDis7wPxSbSzfFqDGf7u/L00kSEnupbz36XCL0m7wa jtr:PBKDF2-HMAC-SHA1;'
+  creds_expected_output_regex << %r{atlassian_hashcat\s+\{PKCS5S2\}NzIyNzM0NzY3NTIwNjI3MdDDis7wPxSbSzfFqDGf7u/L00kSEnupbz36XCL0m7wa\s+Nonreplayable\s+hash\s+PBKDF2-HMAC-SHA1\s+hashcat$}
+  creds_command << ' creds add user:pbkdf2_sha256_hashcat hash:\$pbkdf2-sha256\$1000\$c2FsdHNhbHQ\$5dqqb8uOkRAL7jFDoNsO5uunXvT78W/8jQb58DoqBe8 jtr:pbkdf2-sha256;'
+  creds_expected_output_regex << /pbkdf2_sha256_hashcat\s+\$pbkdf2-sha256\$1000\$c2FsdHNhbHQ\$5dqqb8uOkRAL7jFDoNsO5uunXvT78W\/8jQb58DoqBe8\s+Nonreplayable hash\s+pbkdf2-sha256\s+hashcat$/
+  return creds_command, creds_expected_output_regex
+end
+
+def mobile_hashes_and_regex
+  creds_command = ''
+  creds_expected_output_regex = []
+  creds_command << ' creds add user:samsungsha1 hash:D1B19A90B87FC10C304E657F37162445DAE27D16:a006983800cc3dd1 jtr:android-samsung-sha1;'
+  creds_expected_output_regex << /samsungsha1\s+D1B19A90B87FC10C304E657F37162445DAE27D16:a006983800cc3dd1\s+Nonreplayable hash\s+android-samsung-sha1\s+1234$/
+  creds_command << ' creds add user:androidsha1 hash:9860A48CA459D054F3FEF0F8518CF6872923DAE2:81fcb23bcadd6c5 jtr:android-sha1;'
+  creds_expected_output_regex << /androidsha1\s+9860A48CA459D054F3FEF0F8518CF6872923DAE2:81fcb23bcadd6c5\s+Nonreplayable hash\s+android-sha1\s+1234$/
+  creds_command << ' creds add user:androidmd5 hash:1C0A0FDB673FBA36BEAEB078322C7393:81fcb23bcadd6c5 jtr:android-md5;'
+  creds_expected_output_regex << /androidmd5\s+1C0A0FDB673FBA36BEAEB078322C7393:81fcb23bcadd6c5\s+Nonreplayable hash\s+android-md5\s+1234$/
+  return creds_command, creds_expected_output_regex
+end
+
+def windows_hashes_and_regex_john_compat
+  creds_command = ''
+  creds_expected_output_regex = []
+  creds_command << ' creds add user:lm_password ntlm:E52CAC67419A9A224A3B108F3FA6CB6D:8846F7EAEE8FB117AD06BDD830B7586C jtr:lm;'
+  creds_expected_output_regex << /lm_password\s+e52cac67419a9a224a3b108f3fa6cb6d:8846f7eaee8fb117ad06bdd830b7586c\s+NTLM hash\s+nt,lm\s+PASSWORD$/i # hashcat does PASSWORD, john does password
+  creds_command << ' creds add user:nt_password ntlm:AAD3B435B51404EEAAD3B435B51404EE:8846F7EAEE8FB117AD06BDD830B7586C jtr:nt;'
+  creds_expected_output_regex << /nt_password\s+aad3b435b51404eeaad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c\s+NTLM hash\s+nt,lm\s+password$/
+  creds_command << ' creds add user:u4-netntlm hash:u4-netntlm::kNS:338d08f8e26de93300000000000000000000000000000000:9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41:cb8086049ec4736c jtr:netntlm;'
+  creds_expected_output_regex << /u4-netntlm\s+u4-netntlm::kNS:338d08f8e26de93300000000000000000000000000000000:9526fb8c23a \(TRUNCATED\)\s+Nonreplayable hash\s+netntlm\s+hashcat$/
+  creds_command << ' creds add user:admin hash:admin::N46iSNekpT:08ca45b7d7ea58ee:88dcbe4446168966a153a0064958dac6:5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030 jtr:netntlmv2;'
+  creds_expected_output_regex << /admin\s+admin::N46iSNekpT:08ca45b7d7ea58ee:88dcbe4446168966a153a0064958dac6:5c783031 \(TRUNCATED\)\s+Nonreplayable hash\s+netntlmv2\s+hashcat$/
+  creds_command << ' creds add user:mscash-test1 hash:M\$test1#64cd29e36a8431a2b111378564a10631 jtr:mscash;'
+  creds_expected_output_regex << /mscash-test1\s+M\$test1\#64cd29e36a8431a2b111378564a10631\s+Nonreplayable hash\s+mscash\s+test1$/
+  creds_command << ' creds add user:mscash2-hashcat hash:\$DCC2\$10240#tom#e4e938d12fe5974dc42a90120bd9c90f jtr:mscash2;'
+  creds_expected_output_regex << /mscash2-hashcat\s+\$DCC2\$10240\#tom\#e4e938d12fe5974dc42a90120bd9c90f\s+Nonreplayable hash\s+mscash2\s+hashcat$/
+  creds_command << ' creds add user:krb5asrep hash:\$krb5asrep\$23\$user@domain.com:3e156ada591263b8aab0965f5aebd837\$007497cb51b6c8116d6407a782ea0e1c5402b17db7afa6b05a6d30ed164a9933c754d720e279c6c573679bd27128fe77e5fea1f72334c1193c8ff0b370fadc6368bf2d49bbfdba4c5dccab95e8c8ebfdc75f438a0797dbfb2f8a1a5f4c423f9bfc1fea483342a11bd56a216f4d5158ccc4b224b52894fadfba3957dfe4b6b8f5f9f9fe422811a314768673e0c924340b8ccb84775ce9defaa3baa0910b676ad0036d13032b0dd94e3b13903cc738a7b6d00b0b3c210d1f972a6c7cae9bd3c959acf7565be528fc179118f28c679f6deeee1456f0781eb8154e18e49cb27b64bf74cd7112a0ebae2102ac jtr:krb5asrep;'
+  creds_expected_output_regex << /krb5asrep\s+\$krb5asrep\$23\$user@domain.com:3e156ada591263b8aab0965f5aebd837\$007497cb51b6c \(TRUNCATED\)\s+Nonreplayable hash\s+krb5asrep\s+hashcat$/
+  creds_command << ' creds add user:krb5tgs hash:\$krb5tgs\$23\$*user\$realm\$test/spn*\$63386d22d359fe42230300d56852c9eb\$891ad31d09ab89c6b3b8c5e5de6c06a7f49fd559d7a9a3c32576c8fedf705376cea582ab5938f7fc8bc741acf05c5990741b36ef4311fe3562a41b70a4ec6ecba849905f2385bb3799d92499909658c7287c49160276bca0006c350b0db4fd387adc27c01e9e9ad0c20ed53a7e6356dee2452e35eca2a6a1d1432796fc5c19d068978df74d3d0baf35c77de12456bf1144b6a750d11f55805f5a16ece2975246e2d026dce997fba34ac8757312e9e4e6272de35e20d52fb668c5ed jtr:krb5tgs;'
+  creds_expected_output_regex << %r{krb5tgs\s+\$krb5tgs\$23\$\*user\$realm\$test/spn\*\$63386d22d359fe42230300d56852c9eb\$891ad31d0\s+\(TRUNCATED\)\s+Nonreplayable hash\s+krb5tgs\s+hashcat$}
+  return creds_command, creds_expected_output_regex
+end
+
+def windows_hashes_and_regex_hashcat_compat
+  creds_command = ''
+  creds_expected_output_regex = []
+  cred_temp, regex_temp = windows_hashes_and_regex_john_compat
+  creds_command << cred_temp
+  creds_expected_output_regex += regex_temp
+  creds_command << ' creds add user:krb5tgs-aes128 hash:\$krb5tgs\$17\$user\$realm\$ae8434177efd09be5bc2eff8\$90b4ce5b266821adc26c64f71958a475cf9348fce65096190be04f8430c4e0d554c86dd7ad29c275f9e8f15d2dab4565a3d6e21e449dc2f88e52ea0402c7170ba74f4af037c5d7f8db6d53018a564ab590fc23aa1134788bcc4a55f69ec13c0a083291a96b41bffb978f5a160b7edc828382d11aacd89b5a1bfa710b0e591b190bff9062eace4d26187777db358e70efd26df9c9312dbeef20b1ee0d823d4e71b8f1d00d91ea017459c27c32dc20e451ea6278be63cdd512ce656357c942b95438228e jtr:krb5tgs-aes128;'
+  creds_expected_output_regex << /krb5tgs-aes128\s+\$krb5tgs\$17\$user\$realm\$ae8434177efd09be5bc2eff8\$90b4ce5b266821adc26c64f71958 \(TRUNCATED\)\s+ Nonreplayable hash\s+krb5tgs-aes128\s+hashcat$/
+  creds_command << ' creds add user:krb5tgs-aes256 hash:\$krb5tgs\$18\$user\$realm\$8efd91bb01cc69dd07e46009\$7352410d6aafd72c64972a66058b02aa1c28ac580ba41137d5a170467f06f17faf5dfb3f95ecf4fad74821fdc7e63a3195573f45f962f86942cb24255e544ad8d05178d560f683a3f59ce94e82c8e724a3af0160be549b472dd83e6b80733ad349973885e9082617294c6cbbea92349671883eaf068d7f5dcfc0405d97fda27435082b82b24f3be27f06c19354bf32066933312c770424eb6143674756243c1bde78ee3294792dcc49008a1b54f32ec5d5695f899946d42a67ce2fb1c227cb1d2004c0 jtr:krb5tgs-aes256;'
+  creds_expected_output_regex << /krb5tgs-aes256\s+\$krb5tgs\$18\$user\$realm\$8efd91bb01cc69dd07e46009\$7352410d6aafd72c64972a66058b \(TRUNCATED\)\s+Nonreplayable hash\s+krb5tgs-aes256\s+hashcat$/
+  creds_command << ' creds add user:timeroast hash:\$sntp-ms\$cfc7023381cf6bb474cdcbeb0a67bdb3\$907733697536811342962140955567108526489624716566696971338784438986103976327367763739445744705380 jtr:timeroast;'
+  creds_expected_output_regex << /timeroast\s+\$sntp-ms\$cfc7023381cf6bb474cdcbeb0a67bdb3\$9077336975368113429621409555671085 \(TRUNCATED\)\s+Nonreplayable hash\s+timeroast\s+hashcat$/
+  return creds_command, creds_expected_output_regex
+end
+
+def sql_hashes_and_regex_hashcat_compat
+  creds_command = ''
+  creds_expected_output_regex = []
+  creds_command << ' creds add user:mssql05_toto hash:0x01004086CEB6BF932BC4151A1AF1F13CD17301D70816A8886908 jtr:mssql05;'
+  creds_expected_output_regex << /mssql05_toto\s+0x01004086CEB6BF932BC4151A1AF1F13CD17301D70816A8886908\s+Nonreplayable hash\s+mssql05\s+toto$/
+  creds_command << ' creds add user:mssql_foo hash:0x0100A607BA7C54A24D17B565C59F1743776A10250F581D482DA8B6D6261460D3F53B279CC6913CE747006A2E3254 jtr:mssql;'
+  creds_expected_output_regex << /mssql_foo\s+0x0100A607BA7C54A24D17B565C59F1743776A10250F581D482DA8B6D6261460D3F53B279CC6 \(TRUNCATED\)\s+Nonreplayable hash\s+mssql\s+FOO$/
+  creds_command << ' creds add user:mssql12_Password1! hash:0x0200F733058A07892C5CACE899768F89965F6BD1DED7955FE89E1C9A10E27849B0B213B5CE92CC9347ECCB34C3EFADAF2FD99BFFECD8D9150DD6AACB5D409A9D2652A4E0AF16 jtr:mssql12;'
+  creds_expected_output_regex << /mssql12_Password1!\s+0x0200F733058A07892C5CACE899768F89965F6BD1DED7955FE89E1C9A10E27849B0B213B5CE \(TRUNCATED\)\s+Nonreplayable hash\s+mssql12\s+Password1!$/
+  creds_command << ' creds add user:mysql_probe hash:445ff82636a7ba59 jtr:mysql;'
+  creds_expected_output_regex << /mysql_probe\s+445ff82636a7ba59\s+Nonreplayable hash\s+mysql\s+probe$/
+  creds_command << ' creds add user:mysql-sha1_tere hash:*5AD8F88516BD021DD43F171E2C785C69F8E54ADB jtr:mysql-sha1;'
+  creds_expected_output_regex << /mysql-sha1_tere\s+\*5AD8F88516BD021DD43F171E2C785C69F8E54ADB\s+Nonreplayable hash\s+mysql-sha1\s+tere$/
+  # hashcat des,oracle is a no go: https://github.com/rapid7/metasploit-framework/blob/7a7b009161d6b0839653f21296864da3365402a0/lib/metasploit/framework/password_crackers/cracker.rb#L152-L155
+  # creds_command << ' creds add user:simon hash:4F8BC1809CB2AF77 jtr:des,oracle;'
+  # creds_expected_output_regex << %r{simon\s+4F8BC1809CB2AF77\s+Nonreplayable hash\s+des,oracle\s+A$}
+  # creds_command << ' creds add user:SYSTEM hash:9EEDFA0AD26C6D52 jtr:des,oracle;'
+  # creds_expected_output_regex << %r{SYSTEM\s+9EEDFA0AD26C6D52\s+Nonreplayable hash\s+des,oracle\s+THALES$}
+
+  # can't escape ;?
+  # creds_command << ' creds add user:DEMO hash:\'S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C\' jtr:raw-sha1,oracle;'
+  # creds_expected_output_regex << %r{mscash2-hashcat\s+\$DCC2\$10240\#tom\#e4e938d12fe5974dc42a90120bd9c90f\s+Nonreplayable hash\s+mscash2\s+hashcat$}
+  # creds_command << ' creds add user:oracle11_epsilon hash:"S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A\\\\;H:DC9894A01797D91D92ECA1DA66242209\\\\;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C" jtr:raw-sha1,oracle;'
+  # creds_expected_output_regex << %r{mscash2-hashcat\s+\$DCC2\$10240\#tom\#e4e938d12fe5974dc42a90120bd9c90f\s+Nonreplayable hash\s+mscash2\s+hashcat$}
+  # creds_command << ' creds add user:oracle12c_epsilon hash:"H:DC9894A01797D91D92ECA1DA66242209\\\\;T:E3243B98974159CC24FD2C9A8B30BA62E0E83B6CA2FC7C55177C3A7F82602E3BDD17CEB9B9091CF9DAD672B8BE961A9EAC4D344BDBA878EDC5DCB5899F689EBD8DD1BE3F67BFF9813A464382381AB36B" jtr:pbkdf2,oracle12c;'
+  # creds_expected_output_regex << %r{mscash2-hashcat\s+\$DCC2\$10240\#tom\#e4e938d12fe5974dc42a90120bd9c90f\s+Nonreplayable hash\s+mscash2\s+hashcat$}
+  # creds_command << ' creds add user:example postgres:md5be86a79bf2043622d58d5453c47d4860;'
+  # creds_expected_output_regex << %r{example\s+md5be86a79bf2043622d58d5453c47d4860\s+Postgres md5\s+raw-md5,postgres\s+password$}
+  return creds_command, creds_expected_output_regex
+end
+
+def sql_hashes_and_regex_john_compat
+  creds_command = ''
+  creds_expected_output_regex = []
+  cred_temp, regex_temp = sql_hashes_and_regex_hashcat_compat
+  creds_command << cred_temp
+  creds_expected_output_regex += regex_temp
+  creds_command << ' creds add user:simon hash:4F8BC1809CB2AF77 jtr:des,oracle;'
+  creds_expected_output_regex << /simon\s+4F8BC1809CB2AF77\s+Nonreplayable hash\s+des,oracle\s+A$/
+  creds_command << ' creds add user:SYSTEM hash:9EEDFA0AD26C6D52 jtr:des,oracle;'
+  creds_expected_output_regex << /SYSTEM\s+9EEDFA0AD26C6D52\s+Nonreplayable hash\s+des,oracle\s+THALES$/
+  creds_command << cred_temp
+  creds_expected_output_regex += regex_temp
+  return creds_command, creds_expected_output_regex
+end
+
+warning 'WARNING: All credentials will be deleted as part of this script execution!'
+
+start_time = Time.now
+
+def run_msfconsole(command, expected_output_regexes)
+  section_start_time = Time.now
+  stdout, stderr = Open3.capture3("./msfconsole --defer-module-loads -qx \"#{command}\"")
+
+  failing_regex = expected_output_regexes.find { |regex| !stdout.match?(regex) }
+
+  if failing_regex.nil?
+    good '  SUCCESS: All expected outputs found.'
+    good "  Section Runtime: #{Time.now - section_start_time} seconds"
+    return true
+  else
+    error "  FAILURE: Expected output not found for regex: #{failing_regex.inspect}"
+    error "  STDOUT: #{stdout}"
+    error "  Section Runtime: #{Time.now - section_start_time} seconds"
+    error "  STDERR: #{stderr}"
+    return false
+  end
+end
+
+# return the common setg base settings string
+def base_settings(wordlist: true)
+  s = 'setg INCREMENTAL false;'
+  s << 'setg NORMAL false;'
+  s << 'setg USE_CREDS false;'
+  s << 'setg USE_DB_INFO false;'
+  s << 'setg USE_DEFAULT_WORDLIST false;'
+  s << 'setg USE_HOSTNAMES false;'
+  s << 'setg USE_ROOT_WORDS false;'
+  s << (wordlist ? 'setg WORDLIST true; ' : 'setg WORDLIST false; ')
+  s << 'setg verbose true;'
+  s
+end
+
+# Run a test section using the provided creds proc and analyzer.
+# creds_proc should return [creds_command, creds_expected_output_regex]
+def run_section(desc:, creds_proc:, analyzer:, use_wordlist: true, action: nil, pot_path: nil, skip_base_settings: false)
+  info desc
+  tempfile = nil
+  begin
+    tempfile = Tempfile.new('john_pot') unless pot_path
+    creds_expected_output_regex = []
+    creds_command = skip_base_settings ? '' : base_settings(wordlist: use_wordlist)
+
+    cred_temp, regex_temp = creds_proc.call
+    creds_command << cred_temp
+    creds_expected_output_regex += regex_temp
+
+    creds_command << " use #{analyzer};"
+    creds_command << " set CUSTOM_WORDLIST #{$wordlist.path};" if use_wordlist
+    creds_command << " set POT #{pot_path || tempfile.path};"
+    creds_command << " set action #{action};" if action
+    creds_command << ' run; creds -d; exit;'
+
+    info "Run Command: #{creds_command}" if $options[:verbose]
+    success = run_msfconsole(creds_command, creds_expected_output_regex)
+    unless success
+      error 'Credential verification failed. Exiting.'
+      exit 1
+    end
+  ensure
+    if tempfile
+      tempfile.close!
+      tempfile.unlink
+    end
+  end
+end
+
+if options[:test] == 'all' || options[:test].include?(1)
+  info '[1/24] Checking Metasploit database connection...'
+  db_status_command = 'db_status; exit'
+  db_expected_output_regex = [/Connected to .+\. Connection type: .+\./]
+  unless run_msfconsole(db_status_command, db_expected_output_regex)
+    puts '-------------------------------'
+    error 'Database connection check failed. Exiting.'
+    exit 1
+  end
+end
+
+wordlist = Tempfile.new('wordlist')
+File.open(wordlist, 'w') { |file| file.write("password\nhashcat\ntest1\ntoto\nfoo\nPassword1!\nprobe\ntere\na\nTHALES\nepsilon\n1234\nTestPass123#\npasswor\nd\n") }
+info "Wordlist file created at: #{wordlist.path}"
+
+# expose the wordlist to methods (methods don't capture local variables)
+$wordlist = wordlist
+
+# Create a john pot tempfile used by the pot-mode tests
+pot_file = Tempfile.new('john_pot')
+info "Pot file created at: #{pot_file.path}"
+File.open(pot_file, 'w') do |file|
+  file.puts [
+    # --- nix hashes (john format) ---
+    '$1$O3JMY.Tw$AdLnLjQ/5jXF9.MTp3gHv/:password', # md5crypt
+    'rEK1ecacw.7.c:password', # des
+    '_J9..K0AyUubDrfOgO4s:password', # bsdi
+    '$2a$05$bvIG6Nmid91Mu9RcmmWZfO5HJIMCT8riNW0hEp8f6/FuA2/mHZFpe:password', # blowfish
+    '$5$MnfsQ4iN$ZMTppKN16y/tIsUYs/obHlhdP.Os80yXhTurpBMUbA5:password',      # sha256crypt
+    '$6$zWwwXKNj$gLAOoZCjcr8p/.VgV/FkGC3NX7BsXys3KHYePfuIGMNjY83dVxugPYlxVg/evpcVEJLT/rSwZcDMlVVf/bhf.1:password', # sha512crypt
+
+    # --- windows hashes (john format) ---
+    '$LM$4a3b108f3fa6cb6d:D', # lm half 2
+    '$LM$e52cac67419a9a22:PASSWOR', # lm half 1
+    '$NT$8846f7eaee8fb117ad06bdd830b7586c:password', # nt
+    'M$test1#64cd29e36a8431a2b111378564a10631:test1', # mscash
+    '$DCC2$10240#tom#e4e938d12fe5974dc42a90120bd9c90f:hashcat', # mscash2
+    '$NETNTLM$cb8086049ec4736c338d08f8e26de933$9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41:hashcat', # netntlm
+    '$NETNTLMv2$ADMINN46iSNekpT$08ca45b7d7ea58ee$88dcbe4446168966a153a0064958dac6$5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030:hashcat', # netntlmv2
+
+    # --- sql hashes (john + hashcat format) ---
+    '0x0100A607BA7C54A24D17B565C59F1743776A10250F581D482DA8B6D6261460D3F53B279CC6913CE747006A2E3254:FOO', # mssql
+    '0x01004086CEB6BF932BC4151A1AF1F13CD17301D70816A8886908:toto', # mssql05
+    '0x0200F733058A07892C5CACE899768F89965F6BD1DED7955FE89E1C9A10E27849B0B213B5CE92CC9347ECCB34C3EFADAF2FD99BFFECD8D9150DD6AACB5D409A9D2652A4E0AF16:Password1!', # mssql12
+    '445ff82636a7ba59:probe', # mysql
+    '*5AD8F88516BD021DD43F171E2C785C69F8E54ADB:tere', # mysql-sha1 (john format)
+    'O$SIMON#4f8bc1809cb2af77:A', # des,oracle
+    'O$SYSTEM#9eedfa0ad26c6d52:THALES', # des,oracle
+
+    # --- mobile hashes (hashcat format) ---
+    '9860a48ca459d054f3fef0f8518cf6872923dae2:81fcb23bcadd6c5:1234', # android-sha1
+    'd1b19a90b87fc10c304e657f37162445dae27d16:a006983800cc3dd1:1234', # android-samsung-sha1
+    '1c0a0fdb673fba36beaeb078322c7393:81fcb23bcadd6c5:1234', # android-md5
+
+    # --- osx hashes (john + hashcat format) ---
+    '1430823483D07626EF8BE3FDA2FF056D0DFD818DBFE47683:hashcat', # xsha
+    '$LION$648742485c9b0acd786a233b2330197223118111b481abfa0ab8b3e8ede5f014fc7c523991c007db6882680b09962d16fd9c45568260531bdb34804a5e31c22b4cfeb32d:hashcat', # xsha512 (john format)
+    '$pbkdf2-hmac-sha512$35460.93a94bd24b5de64d79a5e49fa372827e739f4d7b6975c752c9a0ff1e5cf72e05.752351df64dd2ce9dc9c64a72ad91de6581a15c19176266b44d98919dfa81f0f96cbcb20a1ffb400718c20382030f637892f776627d34e021bad4f81b7de8222:hashcat', # PBKDF2-HMAC-SHA512 (john format)
+
+    # --- webapp hashes (john + hashcat format) ---
+    '$pbkdf2-hmac-sha1$10000$37323237333437363735323036323731$d0c38acef03f149b4b37c5a8319feeefcbd34912127ba96f3dfa5c22f49bbc1a:hashcat', # PBKDF2-HMAC-SHA1/atlassian (john format)
+    '$H$984478476IagS59wHZvyQMArzfx58u.:hashcat', # phpass H
+    '$P$984478476IagS59wHZvyQMArzfx58u.:hashcat', # phpass P
+    '$B$56668501$0ce106caa70af57fd525aeaf80ef2898:hashcat', # mediawiki
+
+    # --- windows hashes (hashcat format) ---
+    'e52cac67419a9a22:PASSWOR', # lm half 1
+    '4a3b108f3fa6cb6d:D', # lm half 2
+    '8846f7eaee8fb117ad06bdd830b7586c:password', # nt
+    '64cd29e36a8431a2b111378564a10631:test1:test1', # mscash
+    'u4-netntlm::kNS:338d08f8e26de93300000000000000000000000000000000:9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41:cb8086049ec4736c:hashcat', # netntlm
+    'ADMIN::N46iSNekpT:08ca45b7d7ea58ee:88dcbe4446168966a153a0064958dac6:5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030:hashcat', # netntlmv2
+
+    # --- sql hashes (hashcat format) ---
+    '5ad8f88516bd021dd43f171e2c785c69f8e54adb:tere', # mysql-sha1 (hashcat format)
+
+    # --- osx hashes (hashcat format) ---
+    '648742485c9b0acd786a233b2330197223118111b481abfa0ab8b3e8ede5f014fc7c523991c007db6882680b09962d16fd9c45568260531bdb34804a5e31c22b4cfeb32d:hashcat', # xsha512
+    '$ml$35460$93a94bd24b5de64d79a5e49fa372827e739f4d7b6975c752c9a0ff1e5cf72e05$752351df64dd2ce9dc9c64a72ad91de6581a15c19176266b44d98919dfa81f0f96cbcb20a1ffb400718c20382030f637892f776627d34e021bad4f81b7de8222:hashcat', # PBKDF2-HMAC-SHA512
+
+    # --- webapp hashes (hashcat format) ---
+    '{PKCS5S2}NzIyNzM0NzY3NTIwNjI3MdDDis7wPxSbSzfFqDGf7u/L00kSEnupbz36XCL0m7wa:hashcat', # atlassian/PBKDF2-HMAC-SHA1
+    # john stores the full $pbkdf2-sha256$ hash in pot (no username)
+    '$pbkdf2-sha256$1000$c2FsdHNhbHQ$5dqqb8uOkRAL7jFDoNsO5uunXvT78W/8jQb58DoqBe8:hashcat', # pbkdf2-sha256 (john format)
+    # hashcat converts to sha256:iter:b64salt=:b64hash= form
+    'sha256:1000:c2FsdHNhbHQ=:5dqqb8uOkRAL7jFDoNsO5uunXvT78W/8jQb58DoqBe8=:hashcat', # pbkdf2-sha256 (hashcat format)
+
+    # --- kerberos hashes ---
+    # john strips the username from krb5asrep pot entries: $krb5asrep$23$<hash_body>:password
+    '$krb5asrep$23$3e156ada591263b8aab0965f5aebd837$007497cb51b6c8116d6407a782ea0e1c5402b17db7afa6b05a6d30ed164a9933c754d720e279c6c573679bd27128fe77e5fea1f72334c1193c8ff0b370fadc6368bf2d49bbfdba4c5dccab95e8c8ebfdc75f438a0797dbfb2f8a1a5f4c423f9bfc1fea483342a11bd56a216f4d5158ccc4b224b52894fadfba3957dfe4b6b8f5f9f9fe422811a314768673e0c924340b8ccb84775ce9defaa3baa0910b676ad0036d13032b0dd94e3b13903cc738a7b6d00b0b3c210d1f972a6c7cae9bd3c959acf7565be528fc179118f28c679f6deeee1456f0781eb8154e18e49cb27b64bf74cd7112a0ebae2102ac:hashcat', # krb5asrep (john format)
+    # hashcat keeps the full $krb5asrep$23$user@domain.com:hash_body format
+    '$krb5asrep$23$user@domain.com:3e156ada591263b8aab0965f5aebd837$007497cb51b6c8116d6407a782ea0e1c5402b17db7afa6b05a6d30ed164a9933c754d720e279c6c573679bd27128fe77e5fea1f72334c1193c8ff0b370fadc6368bf2d49bbfdba4c5dccab95e8c8ebfdc75f438a0797dbfb2f8a1a5f4c423f9bfc1fea483342a11bd56a216f4d5158ccc4b224b52894fadfba3957dfe4b6b8f5f9f9fe422811a314768673e0c924340b8ccb84775ce9defaa3baa0910b676ad0036d13032b0dd94e3b13903cc738a7b6d00b0b3c210d1f972a6c7cae9bd3c959acf7565be528fc179118f28c679f6deeee1456f0781eb8154e18e49cb27b64bf74cd7112a0ebae2102ac:hashcat', # krb5asrep (hashcat format)
+    '$krb5tgs$23$*user$realm$test/spn*$63386d22d359fe42230300d56852c9eb$891ad31d09ab89c6b3b8c5e5de6c06a7f49fd559d7a9a3c32576c8fedf705376cea582ab5938f7fc8bc741acf05c5990741b36ef4311fe3562a41b70a4ec6ecba849905f2385bb3799d92499909658c7287c49160276bca0006c350b0db4fd387adc27c01e9e9ad0c20ed53a7e6356dee2452e35eca2a6a1d1432796fc5c19d068978df74d3d0baf35c77de12456bf1144b6a750d11f55805f5a16ece2975246e2d026dce997fba34ac8757312e9e4e6272de35e20d52fb668c5ed:hashcat', # krb5tgs (rc4)
+    '$krb5tgs$17$user$realm$ae8434177efd09be5bc2eff8$90b4ce5b266821adc26c64f71958a475cf9348fce65096190be04f8430c4e0d554c86dd7ad29c275f9e8f15d2dab4565a3d6e21e449dc2f88e52ea0402c7170ba74f4af037c5d7f8db6d53018a564ab590fc23aa1134788bcc4a55f69ec13c0a083291a96b41bffb978f5a160b7edc828382d11aacd89b5a1bfa710b0e591b190bff9062eace4d26187777db358e70efd26df9c9312dbeef20b1ee0d823d4e71b8f1d00d91ea017459c27c32dc20e451ea6278be63cdd512ce656357c942b95438228e:hashcat', # krb5tgs-aes128
+    '$krb5tgs$18$user$realm$8efd91bb01cc69dd07e46009$7352410d6aafd72c64972a66058b02aa1c28ac580ba41137d5a170467f06f17faf5dfb3f95ecf4fad74821fdc7e63a3195573f45f962f86942cb24255e544ad8d05178d560f683a3f59ce94e82c8e724a3af0160be549b472dd83e6b80733ad349973885e9082617294c6cbbea92349671883eaf068d7f5dcfc0405d97fda27435082b82b24f3be27f06c19354bf32066933312c770424eb6143674756243c1bde78ee3294792dcc49008a1b54f32ec5d5695f899946d42a67ce2fb1c227cb1d2004c0:hashcat', # krb5tgs-aes256
+    '$sntp-ms$cfc7023381cf6bb474cdcbeb0a67bdb3$907733697536811342962140955567108526489624716566696971338784438986103976327367763739445744705380:hashcat' # timeroast
+  ]
+end
+
+if options[:test] == 'all' || options[:test].include?(2)
+  run_section(
+    desc: '[2/24] Running *nix hashes in john wordlist mode...',
+    creds_proc: method(:nix_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_linux',
+    use_wordlist: true
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(3)
+  run_section(
+    desc: '[3/24] Running windows hashes in john wordlist mode...',
+    creds_proc: method(:windows_hashes_and_regex_john_compat),
+    analyzer: 'auxiliary/analyze/crack_windows',
+    use_wordlist: true
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(4)
+  run_section(
+    desc: '[4/24] Running sql hashes in john wordlist mode...',
+    creds_proc: method(:sql_hashes_and_regex_john_compat),
+    analyzer: 'auxiliary/analyze/crack_databases',
+    use_wordlist: true
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(5)
+  run_section(
+    desc: '[5/24] Running osx hashes in john wordlist mode...',
+    creds_proc: method(:osx_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_osx',
+    use_wordlist: true
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(6)
+  run_section(
+    desc: '[6/24] Running webapp hashes in john wordlist mode...',
+    creds_proc: method(:webapp_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_webapps',
+    use_wordlist: true
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(7)
+  run_section(
+    desc: '[7/24] Running *nix hashes in hashcat wordlist mode...',
+    creds_proc: method(:nix_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_linux',
+    use_wordlist: true,
+    action: 'hashcat'
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(8)
+  run_section(
+    desc: '[8/24] Running windows hashes in hashcat wordlist mode...',
+    creds_proc: method(:windows_hashes_and_regex_hashcat_compat),
+    analyzer: 'auxiliary/analyze/crack_windows',
+    use_wordlist: true,
+    action: 'hashcat'
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(9)
+  run_section(
+    desc: '[9/24] Running sql hashes in hashcat wordlist mode...',
+    creds_proc: method(:sql_hashes_and_regex_hashcat_compat),
+    analyzer: 'auxiliary/analyze/crack_databases',
+    use_wordlist: true,
+    action: 'hashcat'
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(10)
+  run_section(
+    desc: '[10/24] Running mobile hashes in hashcat wordlist mode...',
+    creds_proc: method(:mobile_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_mobile',
+    use_wordlist: true,
+    action: 'hashcat'
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(11)
+  run_section(
+    desc: '[11/24] Running osx hashes in hashcat wordlist mode...',
+    creds_proc: method(:osx_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_osx',
+    use_wordlist: true,
+    action: 'hashcat'
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(12)
+  run_section(
+    desc: '[12/24] Running webapp hashes in hashcat wordlist mode...',
+    creds_proc: method(:webapp_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_webapps',
+    use_wordlist: true,
+    action: 'hashcat'
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(14)
+  run_section(
+    desc: '[14/24] Running windows hashes in john pot mode...',
+    creds_proc: method(:windows_hashes_and_regex_john_compat),
+    analyzer: 'auxiliary/analyze/crack_windows',
+    use_wordlist: false,
+    pot_path: pot_file.path
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(13)
+  run_section(
+    desc: '[13/24] Running *nix hashes in john pot mode...',
+    creds_proc: method(:nix_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_linux',
+    use_wordlist: false,
+    pot_path: pot_file.path
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(15)
+  run_section(
+    desc: '[15/24] Running sql hashes in john pot mode...',
+    creds_proc: method(:sql_hashes_and_regex_john_compat),
+    analyzer: 'auxiliary/analyze/crack_databases',
+    use_wordlist: false,
+    pot_path: pot_file.path
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(16)
+  run_section(
+    desc: '[16/24] Running osx hashes in john pot mode...',
+    creds_proc: method(:osx_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_osx',
+    use_wordlist: false,
+    pot_path: pot_file.path
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(17)
+  run_section(
+    desc: '[17/24] Running webapp hashes in john pot mode...',
+    creds_proc: method(:webapp_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_webapps',
+    use_wordlist: false,
+    pot_path: pot_file.path
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(18)
+  run_section(
+    desc: '[18/24] Running *nix hashes in hashcat pot mode...',
+    creds_proc: method(:nix_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_linux',
+    use_wordlist: false,
+    action: 'hashcat',
+    pot_path: pot_file.path
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(19)
+  run_section(
+    desc: '[19/24] Running windows hashes in hashcat pot mode...',
+    creds_proc: method(:windows_hashes_and_regex_hashcat_compat),
+    analyzer: 'auxiliary/analyze/crack_windows',
+    use_wordlist: false,
+    action: 'hashcat',
+    pot_path: pot_file.path
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(20)
+  run_section(
+    desc: '[20/24] Running sql hashes in hashcat pot mode...',
+    creds_proc: method(:sql_hashes_and_regex_hashcat_compat),
+    analyzer: 'auxiliary/analyze/crack_databases',
+    use_wordlist: false,
+    action: 'hashcat',
+    pot_path: pot_file.path
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(21)
+  run_section(
+    desc: '[21/24] Running mobile hashes in hashcat pot mode...',
+    creds_proc: method(:mobile_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_mobile',
+    use_wordlist: false,
+    action: 'hashcat',
+    pot_path: pot_file.path
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(22)
+  run_section(
+    desc: '[22/24] Running osx hashes in hashcat pot mode...',
+    creds_proc: method(:osx_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_osx',
+    use_wordlist: false,
+    action: 'hashcat',
+    pot_path: pot_file.path
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(23)
+  run_section(
+    desc: '[23/24] Running webapp hashes in hashcat pot mode...',
+    creds_proc: method(:webapp_hashes_and_regex),
+    analyzer: 'auxiliary/analyze/crack_webapps',
+    use_wordlist: false,
+    action: 'hashcat',
+    pot_path: pot_file.path
+  )
+end
+
+if options[:test] == 'all' || options[:test].include?(24)
+  run_section(
+    desc: '[24/24] Running all hashes in john apply_pot mode...',
+    creds_proc: proc {
+      creds_command = 'setg verbose true;'
+      creds_expected_output_regex = []
+      cred_temp, regex_temp = nix_hashes_and_regex
+      creds_command << cred_temp
+      creds_expected_output_regex += regex_temp
+      cred_temp, regex_temp = windows_hashes_and_regex_john_compat
+      creds_command << cred_temp
+      creds_expected_output_regex += regex_temp
+      cred_temp, regex_temp = sql_hashes_and_regex_john_compat
+      creds_command << cred_temp
+      creds_expected_output_regex += regex_temp
+      cred_temp, regex_temp = osx_hashes_and_regex
+      creds_command << cred_temp
+      creds_expected_output_regex += regex_temp
+      cred_temp, regex_temp = webapp_hashes_and_regex
+      creds_command << cred_temp
+      creds_expected_output_regex += regex_temp
+      [creds_command, creds_expected_output_regex]
+    },
+    analyzer: 'auxiliary/analyze/apply_pot',
+    use_wordlist: false,
+    pot_path: pot_file.path,
+    skip_base_settings: true
+  )
+end
+
+pot_file.close!
+pot_file.unlink
+
+puts '-------------------------------'
+good 'All checks passed successfully!'
+info "Script runtime: #{Time.now - start_time} seconds"

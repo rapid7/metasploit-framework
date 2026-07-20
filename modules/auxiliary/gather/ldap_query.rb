@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
+  include Msf::Exploit::Remote::LDAP::ActiveDirectory
   include Msf::Exploit::Remote::LDAP::Queries
   include Msf::OptionalSession::LDAP
   require 'json'
@@ -42,6 +43,10 @@ class MetasploitModule < Msf::Auxiliary
           'Grant Willcox', # Original module author
         ],
         'References' => [
+          ['ATT&CK', Mitre::Attack::Technique::T1069_002_DOMAIN_GROUPS],
+          ['ATT&CK', Mitre::Attack::Technique::T1087_002_DOMAIN_ACCOUNT],
+          ['ATT&CK', Mitre::Attack::Technique::T1018_REMOTE_SYSTEM_DISCOVERY],
+          ['ATT&CK', Mitre::Attack::Technique::T1201_PASSWORD_POLICY_DISCOVERY]
         ],
         'DisclosureDate' => '2022-05-19',
         'License' => MSF_LICENSE,
@@ -65,6 +70,10 @@ class MetasploitModule < Msf::Auxiliary
       OptPath.new('QUERY_FILE_PATH', [false, 'Path to the JSON or YAML file to load and run queries from'], conditions: %w[ACTION == RUN_QUERY_FILE]),
       OptString.new('QUERY_FILTER', [false, 'Filter to send to the target LDAP server to perform the query'], conditions: %w[ACTION == RUN_SINGLE_QUERY]),
       OptString.new('QUERY_ATTRIBUTES', [false, 'Comma separated list of attributes to retrieve from the server'], conditions: %w[ACTION == RUN_SINGLE_QUERY])
+    ])
+
+    register_advanced_options([
+      OptBool.new('LDAP::QuerySacl', [true, 'Query the SACL field from security descriptors (requires privileges)', false])
     ])
   end
 
@@ -185,7 +194,13 @@ class MetasploitModule < Msf::Auxiliary
         fail_with(Failure::BadConfig, "Could not compile the filter #{filter_string}. Error was #{e}")
       end
 
-      result_count = perform_ldap_query_streaming(ldap, filter, attributes, query_base, schema_dn) do |result, attribute_properties|
+      controls = []
+      unless datastore['LDAP::QuerySacl']
+        # omit the control entirely if querying the SACL because that's the default behavior
+        controls = [adds_build_ldap_sd_control(sacl: false)]
+      end
+
+      result_count = perform_ldap_query_streaming(ldap, filter, attributes, query_base, schema_dn, controls: controls) do |result, attribute_properties|
         show_output(normalize_entry(result, attribute_properties), datastore['OUTPUT_FORMAT'])
       end
 

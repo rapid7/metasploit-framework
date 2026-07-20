@@ -28,17 +28,8 @@ module Rex
             super
             print_line
             print_line
-            print_line('meterpreter                  ')
-            print_line('   ▄▄▄▄    ▒█████    █████▒  ')
-            print_line('  ▓█████▄ ▒██▒  ██▒▓██   ▒   ')
-            print_line('  ▒██▒ ▄██▒██░  ██▒▒████ ░   ')
-            print_line('  ▒██░█▀  ▒██   ██░░▓█▒  ░   ')
-            print_line('  ░▓█  ▀█▓░ ████▓▒░░▒█░      ')
-            print_line('  ░▒▓███▀▒░ ▒░▒░▒░  ▒ ░      ')
-            print_line('  ▒░▒   ░   ░ ▒ ▒░  ░     ~ by @kev169, @GuhnooPluxLinux, @R0wdyJoe, @skylerknecht ~')
-            print_line('   ░    ░ ░ ░ ░ ▒   ░ ░      ')
-            print_line('   ░          ░ ░  loader    ')
-            print_line('        ░                    ')
+            logo_path = ::File.join(Msf::Config.data_directory, 'bofloader', 'logo.txt')
+            ::File.binread(logo_path).each_line { |line| print_line(line.chomp) }
             print_line
           end
 

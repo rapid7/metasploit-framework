@@ -24,7 +24,7 @@ This module attempts to identify the web management interfaces of the following 
 ### BigIP 15.1.0.2 Virtual-Edition
 
   ```
-  msf5 auxiliary(scanner/http/f5_mgmt_scanner) > run
+  msf auxiliary(scanner/http/f5_mgmt_scanner) > run
   
   [+] F5 BigIP web management interface found
   [*] Scanned 1 of 1 hosts (100% complete)

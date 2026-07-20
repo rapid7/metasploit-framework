@@ -8,18 +8,14 @@ module Metasploit
       # - Admin Login
       class SonicWall < HTTP
 
-        DEFAULT_SSL_PORT = [443, 4433]
-        LIKELY_PORTS = [443, 4433]
-        LIKELY_SERVICE_NAMES = [
+        LIKELY_PORTS = self.superclass::LIKELY_PORTS + [4433]
+        LIKELY_SERVICE_NAMES = self.superclass::LIKELY_SERVICE_NAMES + [
           'SonicWall Network Security'
         ]
         PRIVATE_TYPES = [:password]
         REALM_KEY = nil
 
-        def initialize(scanner_config, domain)
-          @domain = domain
-          super(scanner_config)
-        end
+        attr_accessor :domain
 
         def req_params_base
           {
@@ -38,7 +34,7 @@ module Metasploit
           # Admin and SSLVPN user login procedure differs only in usage of domain field in JSON data
           #
           params.merge!({
-            'data' => JSON.pretty_generate(@domain.empty? ? {
+            'data' => JSON.pretty_generate(@domain.blank? ? {
               'override' => false,
               'snwl' => true
             } : { 'domain' => @domain, 'override' => false, 'snwl' => true })
@@ -85,6 +81,7 @@ module Metasploit
           }
           res = send_request(request_params)
           if res&.code == 200 && res.body&.include?('SonicWall')
+            report_service(service_opts)
             return false
           end
 
@@ -98,7 +95,11 @@ module Metasploit
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Waiting too long in lockout' } if depth >= 2
 
           #-- get authentication details from first request
-          res = get_auth_details(username, password)
+          begin
+            res = get_auth_details(username, password)
+          rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error, ::EOFError => e
+            return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e }
+          end
 
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Invalid response' } unless res
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Failed to receive a authentication details' } unless res&.headers && res.headers.key?('X-SNWL-Authenticate')
@@ -139,13 +140,14 @@ module Metasploit
         def attempt_login(credential)
           result_options = {
             credential: credential,
-            host: @host,
-            port: @port,
-            protocol: 'tcp',
-            service_name: 'sonicwall'
+            **service_as_result(service_opts)
           }
           result_options.merge!(do_login(credential.public, credential.private, 1))
           Result.new(result_options)
+        end
+
+        def service_opts
+          build_service_opts('sonicwall')
         end
       end
     end

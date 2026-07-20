@@ -75,7 +75,7 @@ $ sudo /etc/init.d/clamav-daemon start
 
 clamav_control comes with two actions:
 
-**VERSION**
+### VERSION
 
 This is the default action, and shows you the ClamAV version. Output example:
 
@@ -85,7 +85,7 @@ msf auxiliary(clamav_control) > run
 [+] 192.168.1.203:3310    - ClamAV 0.98.7/21772/Wed Jun 22 12:54:15 2016
 ```
 
-**SHUTDOWN**
+### SHUTDOWN
 
 This action allows you to shutdown ClamAV. You can also use the VERSION action again to verify
 whether is service is down or not.

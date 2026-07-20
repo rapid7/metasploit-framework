@@ -33,6 +33,8 @@ on:
       - 'metsploit-framework.gemspec'
       - 'Gemfile.lock'
       - '**/**ldap**'
+      - 'lib/metasploit/framework/tcp/**'
+      - 'lib/metasploit/framework/login_scanner/**'
       - 'spec/acceptance/**'
       - 'spec/support/acceptance/**'
       - 'spec/acceptance_spec_helper.rb'

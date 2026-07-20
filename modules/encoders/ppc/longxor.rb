@@ -7,27 +7,26 @@ class MetasploitModule < Msf::Encoder::Xor
 
   def initialize
     super(
-      'Name'             => 'PPC LongXOR Encoder',
-      'Description'      => %q{
+      'Name' => 'PPC LongXOR Encoder',
+      'Description' => %q{
         This encoder is ghandi's PPC dword xor encoder with some size tweaks
         by HDM.
       },
-      'Author'           => [ 'ddz', 'hdm' ],
-      'Arch'             => ARCH_PPC,
-      'License'          => MSF_LICENSE,
-      'Decoder'          =>
-        {
-          'KeySize'    => 4,
-          'BlockSize'  => 4,
-          'KeyPack'    => 'N',
-        })
+      'Author' => [ 'ddz', 'hdm' ],
+      'Arch' => ARCH_PPC,
+      'License' => MSF_LICENSE,
+      'Decoder' => {
+        'KeySize' => 4,
+        'BlockSize' => 4,
+        'KeyPack' => 'N'
+      })
   end
 
   #
   # Returns the decoder stub that is adjusted for the size of
   # the buffer being encoded
   #
-  def decoder_stub(state)
+  def decoder_stub(_state)
     [
       0x7ca52a79,     # 0x1da8 <main>:          xor.    r5,r5,r5
       0x4082fffd,     # 0x1dac <main+4>:        bnel+   0x1da8 <main>
@@ -48,7 +47,7 @@ class MetasploitModule < Msf::Encoder::Xor
       0x7ffff215,     # 0x1de8 <main+64>:       add.    r31,r31,r30
       0x4220ffe0,     # 0x1dec <main+68>:       bdnz-   0x1dcc <main+36>
       0x4cff012c,     # 0x1df0 <main+72>:       isync
-    ].pack("N*")
+    ].pack('N*')
   end
 
   #
@@ -57,7 +56,7 @@ class MetasploitModule < Msf::Encoder::Xor
   def encode_finalize_stub(state, stub)
     icount = state.buf.length / 4
 
-    stub[30, 2] = [ 1974 + icount  ].pack('n')
+    stub[30, 2] = [ 1974 + icount ].pack('n')
     stub[22, 2] = [ state.key.to_i ].pack('N')[0, 2]
     stub[26, 2] = [ state.key.to_i ].pack('N')[2, 2]
 

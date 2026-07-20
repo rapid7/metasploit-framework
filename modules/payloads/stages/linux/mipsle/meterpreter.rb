@@ -6,22 +6,22 @@
 require 'rex/elfparsey'
 
 module MetasploitModule
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Linux
   include Msf::Sessions::MettleConfig
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name'          => 'Linux Meterpreter',
-        'Description'   => 'Inject the mettle server payload (staged)',
-        'Author'        => [
+        'Name' => 'Linux Meterpreter',
+        'Description' => 'Inject the mettle server payload (staged)',
+        'Author' => [
           'Adam Cammack <adam_cammack[at]rapid7.com>'
         ],
-        'Platform'      => 'linux',
-        'Arch'          => ARCH_MIPSLE,
-        'License'       => MSF_LICENSE,
-        'Session'       => Msf::Sessions::Meterpreter_mipsle_Linux
+        'Platform' => 'linux',
+        'Arch' => ARCH_MIPSLE,
+        'License' => MSF_LICENSE,
+        'Session' => Msf::Sessions::Meterpreter_mipsle_Linux
       )
     )
   end
@@ -89,8 +89,10 @@ module MetasploitModule
   end
 
   def generate_stage(opts = {})
-    config_opts = {scheme: 'tcp'}.merge(mettle_logging_config(opts))
-    MetasploitPayloads::Mettle.new('mipsel-linux-muslsf',
-      generate_config(opts.merge(config_opts))).to_binary :process_image
+    config_opts = { scheme: 'tcp' }.merge(mettle_logging_config(opts))
+    MetasploitPayloads::Mettle.new(
+      'mipsel-linux-muslsf',
+      generate_config(opts.merge(config_opts))
+    ).to_binary :process_image
   end
 end

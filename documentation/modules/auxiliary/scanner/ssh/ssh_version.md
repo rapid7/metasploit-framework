@@ -44,10 +44,10 @@ Check for cryptographic issues. Defaults to `true`
 ### SSH-2.0 on GitHub
 
 ```
-msf5 > use auxiliary/scanner/ssh/ssh_version
-msf5 auxiliary(scanner/ssh/ssh_version) > set RHOSTS github.com
+msf > use auxiliary/scanner/ssh/ssh_version
+msf auxiliary(scanner/ssh/ssh_version) > set RHOSTS github.com
 RHOSTS => github.com
-msf5 auxiliary(scanner/ssh/ssh_version) > run
+msf auxiliary(scanner/ssh/ssh_version) > run
 
 [*] 140.82.113.4 - Key Fingerprint: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
 [*] 140.82.113.4 - SSH server version: SSH-2.0-babeld-8405f9f3
@@ -89,12 +89,12 @@ msf5 auxiliary(scanner/ssh/ssh_version) > run
 ### Docker image
 
 ```
-msf5 > use auxiliary/scanner/ssh/ssh_version
-msf6 auxiliary(scanner/ssh/ssh_version) > set rhosts 172.17.0.2
+msf > use auxiliary/scanner/ssh/ssh_version
+msf auxiliary(scanner/ssh/ssh_version) > set rhosts 172.17.0.2
 rhosts => 172.17.0.2
-msf6 auxiliary(scanner/ssh/ssh_version) > set verbose true
+msf auxiliary(scanner/ssh/ssh_version) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/ssh/ssh_version) > run
+msf auxiliary(scanner/ssh/ssh_version) > run
 
 [*] 172.17.0.2 - Key Fingerprint: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG52hWkobwr57akGxiK6eeMN9/M5MH+sQsNPv8Mci049
 [*] 172.17.0.2 - SSH server version: SSH-2.0-OpenSSH_6.6p1 Ubuntu-2ubuntu1

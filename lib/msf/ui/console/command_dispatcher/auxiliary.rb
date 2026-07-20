@@ -62,14 +62,16 @@ class Auxiliary
 
     begin
       # Check if this is a scanner module or doesn't target remote hosts
-      if rhosts.blank? || mod.class.included_modules.include?(Msf::Auxiliary::MultipleTargetHosts)
-        mod_with_opts.run_simple(
+      if rhosts.blank? ||
+         mod.class.included_modules.include?(Msf::Auxiliary::MultipleTargetHosts) ||
+         !mod.datastore.options.key?('RHOSTS')
+        mod_with_opts.run_simple({
           'Action'         => args[:action],
           'LocalInput'     => driver.input,
           'LocalOutput'    => driver.output,
           'RunAsJob'       => jobify,
           'Quiet'          => args[:quiet]
-        )
+        })
       # For multi target attempts with non-scanner modules.
       else
         # When RHOSTS is split, the validation changes slightly, so perform it reports the host the validation failed for
@@ -78,13 +80,13 @@ class Auxiliary
           mod_with_opts = mod.replicant
           mod_with_opts.datastore.merge!(datastore)
           print_status("Running module against #{datastore['RHOSTS']}")
-          mod_with_opts.run_simple(
+          mod_with_opts.run_simple({
             'Action'         => args[:action],
             'LocalInput'     => driver.input,
             'LocalOutput'    => driver.output,
             'RunAsJob'       => false,
             'Quiet'          => args[:quiet]
-          )
+          })
         end
       end
     rescue ::Timeout::Error

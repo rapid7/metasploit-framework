@@ -130,16 +130,16 @@ HTTP server virtual host header to send on requests.
 The following is a brief demo of a port scan against two hosts (`192.168.0.1` and `192.168.0.2`) through a Squid proxy responding at `10.10.10.100:3128`. You could assume that the Squid host has a public or otherwise reachable IP address, where the `192.168.0.0` network range is not normally reachable to you.
 
 ```
-msf6 > use auxiliary/scanner/http/squid_pivot_scanning
-msf6 auxiliary(scanner/http/squid_pivot_scanning) > set RHOSTS 10.10.10.100
+msf > use auxiliary/scanner/http/squid_pivot_scanning
+msf auxiliary(scanner/http/squid_pivot_scanning) > set RHOSTS 10.10.10.100
 RHOSTS => 10.10.10.100
-msf6 auxiliary(scanner/http/squid_pivot_scanning) > set RPORT 3128
+msf auxiliary(scanner/http/squid_pivot_scanning) > set RPORT 3128
 RPORT => 3128
-msf6 auxiliary(scanner/http/squid_pivot_scanning) > set PORTS 21-25,79-81,139,443,445,1433,1521,1723,3389,8080,9100
+msf auxiliary(scanner/http/squid_pivot_scanning) > set PORTS 21-25,79-81,139,443,445,1433,1521,1723,3389,8080,9100
 PORTS => 21-25,79-81,139,443,445,1433,1521,1723,3389,8080,9100
-msf6 auxiliary(scanner/http/squid_pivot_scanning) > set RANGE 192.168.0.1-192.168.0.2
+msf auxiliary(scanner/http/squid_pivot_scanning) > set RANGE 192.168.0.1-192.168.0.2
 RANGE => 192.168.0.1-192.168.0.2
-msf6 auxiliary(scanner/http/squid_pivot_scanning) > run
+msf auxiliary(scanner/http/squid_pivot_scanning) > run
 
 [+] [10.10.10.100] 192.168.0.1 is alive.
 [+] [10.10.10.100] 192.168.0.1:80 seems open (HTTP 200, server header: 'nginx/1.14.0 (Ubuntu)').
@@ -152,9 +152,9 @@ msf6 auxiliary(scanner/http/squid_pivot_scanning) > run
 Setting the `VERBOSE` option will show each port tested and explain the reason for unreachable ports, if known. This can be helpful, as a port might very well be open and responding on a host, however if it is denied by the Squid ACL you will be unable to reach it regardless.
 
 ```
-msf6 auxiliary(scanner/http/squid_pivot_scanning) > set VERBOSE true
+msf auxiliary(scanner/http/squid_pivot_scanning) > set VERBOSE true
 VERBOSE => true
-msf6 auxiliary(scanner/http/squid_pivot_scanning) > run
+msf auxiliary(scanner/http/squid_pivot_scanning) > run
 
 [*] [10.10.10.100] Verifying manual testing is not required...
 [*] [10.10.10.100] Requesting 192.168.0.1:21
@@ -246,13 +246,13 @@ http_access deny all
 ```
 
 ```
-msf6 auxiliary(scanner/http/squid_pivot_scanning) > set TARGETS 127.0.0.1
+msf auxiliary(scanner/http/squid_pivot_scanning) > set TARGETS 127.0.0.1
 TARGETS => 127.0.0.1
-msf6 auxiliary(scanner/http/squid_pivot_scanning) > set RANGE 127.0.0.1
+msf auxiliary(scanner/http/squid_pivot_scanning) > set RANGE 127.0.0.1
 RANGE => 127.0.0.1
-msf6 auxiliary(scanner/http/squid_pivot_scanning) > set PORTS 21-23
+msf auxiliary(scanner/http/squid_pivot_scanning) > set PORTS 21-23
 PORTS => 21-23
-msf6 auxiliary(scanner/http/squid_pivot_scanning) > run
+msf auxiliary(scanner/http/squid_pivot_scanning) > run
 
 [*] [10.10.10.100] Verifying manual testing is not required...
 [*] [10.10.10.100] Requesting 127.0.0.1:21
@@ -270,7 +270,7 @@ msf6 auxiliary(scanner/http/squid_pivot_scanning) > run
 Finally, it is worth knowing that all open discovered ports are saved as services for later viewing:
 
 ```
-msf6 auxiliary(scanner/http/squid_pivot_scanning) > services
+msf auxiliary(scanner/http/squid_pivot_scanning) > services
 Services
 ========
 

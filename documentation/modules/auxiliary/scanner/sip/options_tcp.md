@@ -18,10 +18,10 @@
 
 
 ```
-msf5 > use auxiliary/scanner/sip/options_tcp 
-msf5 auxiliary(scanner/sip/options_tcp) > set rhosts 2.2.2.2
+msf > use auxiliary/scanner/sip/options_tcp 
+msf auxiliary(scanner/sip/options_tcp) > set rhosts 2.2.2.2
 rhosts => 2.2.2.2
-msf5 auxiliary(scanner/sip/options_tcp) > run
+msf auxiliary(scanner/sip/options_tcp) > run
 
 [*] 2.2.2.2:5060    - 2.2.2.2:5060 tcp SIP/2.0 200 OK: {"Server"=>"Cisco-SIPGateway/IOS-12.x", "Allow"=>"INVITE, OPTIONS, BYE, CANCEL, ACK, PRACK, UPDATE, REFER, SUBSCRIBE, NOTIFY, INFO, REGISTER"}
 [*] 2.2.2.2:5060    - Scanned 1 of 1 hosts (100% complete)

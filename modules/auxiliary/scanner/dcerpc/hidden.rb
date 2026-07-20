@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Auxiliary
       and analyzed to see whether anonymous access is permitted.
       },
       'Author' => 'hdm',
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     deregister_options('RPORT')
@@ -76,17 +81,17 @@ class MetasploitModule < Msf::Auxiliary
           dcerpc.call(0, NDR.long(0) * 128)
           call = true
 
-          if (!dcerpc.last_response.nil? && !dcerpc.last_response.stub_data.nil?)
+          if !dcerpc.last_response.nil? && !dcerpc.last_response.stub_data.nil?
             data = dcerpc.last_response.stub_data
           end
         rescue ::Interrupt
           raise $ERROR_INFO
-        rescue ::Exception => e
+        rescue StandardError => e
           error = e.to_s
         end
 
         if error
-          if error =~ (/DCERPC FAULT/) && error !~ (/nca_s_fault_access_denied/)
+          if error =~ /DCERPC FAULT/ && error !~ /nca_s_fault_access_denied/
             call = true
           else
             elog(e)
@@ -103,20 +108,18 @@ class MetasploitModule < Msf::Auxiliary
         print_status(status)
         print_status('')
 
-        ## Add Report
         report_note(
           host: ip,
           proto: 'tcp',
           port: datastore['RPORT'],
           type: "DCERPC HIDDEN: UUID #{id[0]} v#{id[1]}",
-          data: status
+          data: { status: status }
         )
       end
     end
   rescue ::Interrupt
     raise $ERROR_INFO
-  rescue ::Exception => e
+  rescue StandardError => e
     print_status("Error: #{e}")
   end
-
 end

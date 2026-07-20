@@ -28,13 +28,13 @@
 
 ## Options
 
- **XML_FILE_PATH**
+### XML_FILE_PATH
 
 Specify an XML configuration file (eg.
 `C:\Users\FireEye\.dbeaver4\General\.dbeaver-data-sources.xml` or
 `C:\Users\FireEye\AppData\Roaming\DBeaverData\workspace6\General\.dbeaver-data-sources.xml`).
 
- **JSON_DIR_PATH**
+### JSON_DIR_PATH
 
 Specifies the config dir path for Dbeaver. Ensure that there are two files
 `credentials-config.json` and `data-sources.json` under the directory (eg.

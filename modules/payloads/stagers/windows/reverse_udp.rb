@@ -3,10 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
-  CachedSize = 312
+  CachedSize = 313
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::ReverseUdp
@@ -16,17 +14,20 @@ module MetasploitModule
   end
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'        => 'Reverse UDP Stager with UUID Support',
-      'Description' => 'Connect back to the attacker with UUID Support',
-      'Author'      => 'RageLtMan <rageltman[at]sempervictus>',
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'win',
-      'Arch'        => ARCH_X86,
-      'Handler'     => Msf::Handler::ReverseUdp,
-      'Convention'  => 'udpsockedi',
-      'Stager'      => { 'RequiresMidstager' => false }
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Reverse UDP Stager with UUID Support',
+        'Description' => 'Connect back to the attacker with UUID Support',
+        'Author' => 'RageLtMan <rageltman[at]sempervictus>',
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => ARCH_X86,
+        'Handler' => Msf::Handler::ReverseUdp,
+        'Convention' => 'udpsockedi',
+        'Stager' => { 'RequiresMidstager' => false }
+      )
+    )
   end
 
   #
@@ -36,5 +37,4 @@ module MetasploitModule
   def include_send_uuid
     false
   end
-
 end

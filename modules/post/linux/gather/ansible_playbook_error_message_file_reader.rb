@@ -41,13 +41,13 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('FILE', [true, 'File to read the first line of', '/etc/shadow']),
-      ], self.class
+      ]
     )
 
     register_advanced_options(
       [
         OptString.new('FULLOUTPUT', [false, 'Show the full output without cleanup', false]),
-      ], self.class
+      ]
     )
   end
 

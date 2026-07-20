@@ -6,4 +6,4 @@
 * [Facts and myths about antivirus evasion with Metasploit](http://schierlm.users.sourceforge.net/avevasion.html)
 * [Using metasm to avoid antivirus detection ghost writing asm](https://web.archive.org/web/20200330111926/https://www.pentestgeek.com/penetration-testing/using-metasm-to-avoid-antivirus-detection-ghost-writing-asm)
 
-There are approximately 14 million other resources out there on the why's and wherefores of evading antivirus, but the about articles should get you started.
+There are approximately 14 million other resources out there on the why's and wherefores of evading antivirus, but the above articles should get you started.

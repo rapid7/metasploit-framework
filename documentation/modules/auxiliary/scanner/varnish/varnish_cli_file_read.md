@@ -22,11 +22,11 @@
 
 ## Options
 
-  **PASSWORD**
+### PASSWORD
 
   String to use as the password.  May be bruteforced via `modules/auxiliary/scanner/varnish/varnish_cli_login`
 
-  **FILE**
+### FILE
 
   File to attempt to read the first line of
 

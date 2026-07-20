@@ -151,7 +151,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Appears("Successfully read file #{datastore['FILENAME']}")
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Target did not return a valid Ghostcat response')
   rescue StandardError => e
     Exploit::CheckCode::Unknown(e.message)
   end

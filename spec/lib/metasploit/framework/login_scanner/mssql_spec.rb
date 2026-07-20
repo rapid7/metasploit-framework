@@ -36,8 +36,6 @@ RSpec.describe Metasploit::Framework::LoginScanner::MSSQL do
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
   it_behaves_like 'Metasploit::Framework::LoginScanner::NTLM'
 
-  it { is_expected.to respond_to :windows_authentication }
-
   before(:each) do
     creds = double('Metasploit::Framework::CredentialCollection')
     allow(creds).to receive(:pass_file)
@@ -50,32 +48,6 @@ RSpec.describe Metasploit::Framework::LoginScanner::MSSQL do
     allow(creds).to receive(:additional_publics).and_return([])
     allow(creds).to receive(:empty?).and_return(true)
     login_scanner.cred_details = creds
-  end
-
-  context 'validations' do
-    context '#windows_authentication' do
-      it 'is not valid for the string true' do
-        login_scanner.windows_authentication = 'true'
-        expect(login_scanner).to_not be_valid
-        expect(login_scanner.errors[:windows_authentication]).to include 'is not included in the list'
-      end
-
-      it 'is not valid for the string false' do
-        login_scanner.windows_authentication = 'false'
-        expect(login_scanner).to_not be_valid
-        expect(login_scanner.errors[:windows_authentication]).to include 'is not included in the list'
-      end
-
-      it 'is  valid for true class' do
-        login_scanner.windows_authentication = true
-        expect(login_scanner.errors[:windows_authentication]).to be_empty
-      end
-
-      it 'is  valid for false class' do
-        login_scanner.windows_authentication = false
-        expect(login_scanner.errors[:windows_authentication]).to be_empty
-      end
-    end
   end
 
   context '#attempt_login' do

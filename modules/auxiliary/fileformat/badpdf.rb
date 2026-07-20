@@ -7,27 +7,33 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::FILEFORMAT
 
   def initialize(info = {})
-    super(update_info(info,
-        'Name'          => 'BADPDF Malicious PDF Creator',
-        'Description'   => '
+    super(
+      update_info(
+        info,
+        'Name' => 'BADPDF Malicious PDF Creator',
+        'Description' => %q{
           This module can either creates a blank PDF file which contains a UNC link which can be used
           to capture NetNTLM credentials, or if the PDFINJECT option is used it will inject the necessary
           code into an existing PDF document if possible.
-        ',
-        'License'       => MSF_LICENSE,
-        'Author'        =>
-            [
-              'Assaf Baharav',    # Code provided as POC by CheckPoint
-              'Yaron Fruchtmann', # Code provided as POC by CheckPoint
-              'Ido Solomon',      # Code provided as POC by CheckPoint
-              'Richard Davy - secureyourit.co.uk', # Metasploit
-            ],
-        'Platform'      => ['win'],
-        'References'    =>
-        [
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Assaf Baharav', # Code provided as POC by CheckPoint
+          'Yaron Fruchtmann', # Code provided as POC by CheckPoint
+          'Ido Solomon',      # Code provided as POC by CheckPoint
+          'Richard Davy - secureyourit.co.uk', # Metasploit
+        ],
+        'Platform' => ['win'],
+        'References' => [
           ['CVE', '2018-4993'],
           ['URL', 'https://research.checkpoint.com/ntlm-credentials-theft-via-pdf-files/']
-        ])
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
       )
     register_options(
       [

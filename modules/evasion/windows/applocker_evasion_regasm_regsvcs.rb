@@ -6,24 +6,26 @@
 class MetasploitModule < Msf::Evasion
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Applocker Evasion - Microsoft .NET Assembly Registration Utility',
-      'Description' => %(
-         This module will assist you in evading Microsoft
-         Windows Applocker and Software Restriction Policies.
-         This technique utilises the Microsoft signed binaries
-         RegAsm.exe or RegSvcs.exe to execute user supplied code.
-                        ),
-      'Author'      =>
-      [
-        'Nick Tyrer <@NickTyrer>', # module development
-        'Casey Smith' # regasm_regsvcs bypass research
-      ],
-      'License'     => 'MSF_LICENSE',
-      'Platform'    => 'win',
-      'Arch'        => [ARCH_X86, ARCH_X64],
-      'Targets'     => [['Microsoft Windows', {}]],
-      'References'  => [['URL', 'https://attack.mitre.org/techniques/T1121/']])
+    super(
+      update_info(
+        info,
+        'Name' => 'Applocker Evasion - Microsoft .NET Assembly Registration Utility',
+        'Description' => %q{
+          This module will assist you in evading Microsoft
+          Windows Applocker and Software Restriction Policies.
+          This technique utilises the Microsoft signed binaries
+          RegAsm.exe or RegSvcs.exe to execute user supplied code.
+        },
+        'Author' => [
+          'Nick Tyrer <@NickTyrer>', # module development
+          'Casey Smith' # regasm_regsvcs bypass research
+        ],
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => [ARCH_X86, ARCH_X64],
+        'Targets' => [['Microsoft Windows', {}]],
+        'References' => [['URL', 'https://attack.mitre.org/techniques/T1121/']]
+      )
     )
 
     register_options(

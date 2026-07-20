@@ -71,7 +71,7 @@ Related open tickets (slightly broader than Meterpreter):
  * Change desktop/phone background
  * Remote mouse control
  * Play sound on the remote system
- * Read words outloud via text to speech on the remote system
+ * Read words out loud via text to speech on the remote system
  * Volume control
  * RSS feed from reverse_http(s) mult-handler that I can connect a RSS reader to (or something like IFTTT) and get notices when new sessions are created
  * MessageBox popups

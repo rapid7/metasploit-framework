@@ -14,7 +14,7 @@ Metasploit currently provides multiple options for configuring target details:
 
 Configuring this amount of options is cumbersome and time consuming on a per module basis. 
 
-Although it is is possible to globally setting common values with the `setg` command - and to individually override the ports on a per module basis, it is still an arduous task:
+Although it is possible to globally setting common values with the `setg` command - and to individually override the ports on a per module basis, it is still an arduous task:
 
 ```
 setg RHOSTS x.x.x.x
@@ -61,7 +61,7 @@ When the user views the options for a given module, it will be consolidated. The
 Multiple options are available for configuring the module options:
 
 ```msf
-msf5 exploit(multi/http/tomcat_mgr_upload) > options
+msf exploit(multi/http/tomcat_mgr_upload) > options
 
 Module options (exploit/multi/http/tomcat_mgr_upload):
 
@@ -88,7 +88,7 @@ Exploit target:
  Multiple options are consolidated into a single TARGETS field:
 
 ```msf
-msf5 exploit(multi/http/tomcat_mgr_upload) > options
+msf exploit(multi/http/tomcat_mgr_upload) > options
 
 Module options (exploit/multi/http/tomcat_mgr_upload):
 

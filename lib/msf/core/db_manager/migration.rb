@@ -69,11 +69,6 @@ module Msf::DBManager::Migration
     yield ActiveRecord::MigrationContext.new(gather_engine_migration_paths)
   end
 
-  # @return [ActiveRecord::MigrationContext]
-  def default_migration_context
-    ActiveRecord::MigrationContext.new(gather_engine_migration_paths, ActiveRecord::SchemaMigration)
-  end
-
   # Loads gathers migration paths from all loaded Rails engines.
   #
   # @return Array[String]

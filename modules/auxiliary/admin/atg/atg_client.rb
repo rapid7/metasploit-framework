@@ -10,143 +10,162 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Veeder-Root Automatic Tank Gauge (ATG) Administrative Client',
-      'Description'    => %q{
+      'Name' => 'Veeder-Root Automatic Tank Gauge (ATG) Administrative Client',
+      'Description' => %q{
         This module acts as a simplistic administrative client for interfacing
         with Veeder-Root Automatic Tank Gauges (ATGs) or other devices speaking
         the TLS-250 and TLS-350 protocols.  This has been tested against
         GasPot and Conpot, both honeypots meant to simulate ATGs; it has not
         been tested against anything else, so use at your own risk.
       },
-      'Author'         =>
+      'Author' => [
+        'Jon Hart <jon_hart[at]rapid7.com>' # original metasploit module
+      ],
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['URL', 'https://www.rapid7.com/blog/post/2015/01/22/the-internet-of-gas-station-tank-gauges/'],
+        ['URL', 'https://www.trendmicro.com/vinfo/us/security/news/cybercrime-and-digital-threats/the-gaspot-experiment'],
+        ['URL', 'https://github.com/sjhilt/GasPot'],
+        ['URL', 'https://github.com/mushorg/conpot'],
+        ['URL', 'https://www.veeder.com/us/automatic-tank-gauge-atg-consoles'],
+        ['URL', 'https://cdn.chipkin.com/files/liz/576013-635.pdf'],
+        ['URL', 'https://docs.veeder.com/gold/download.cfm?doc_id=6227']
+      ],
+      'DefaultAction' => 'INVENTORY',
+      'Actions' => [
         [
-          'Jon Hart <jon_hart[at]rapid7.com>' # original metasploit module
+          'ALARM',
+          {
+            'Description' => 'I30200 Sensor alarm history (untested)',
+            'TLS-350_CMD' => "\x01I30200"
+          }
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
         [
-          ['URL', 'https://www.rapid7.com/blog/post/2015/01/22/the-internet-of-gas-station-tank-gauges/'],
-          ['URL', 'https://www.trendmicro.com/vinfo/us/security/news/cybercrime-and-digital-threats/the-gaspot-experiment'],
-          ['URL', 'https://github.com/sjhilt/GasPot'],
-          ['URL', 'https://github.com/mushorg/conpot'],
-          ['URL', 'https://www.veeder.com/us/automatic-tank-gauge-atg-consoles'],
-          ['URL', 'https://cdn.chipkin.com/files/liz/576013-635.pdf'],
-          ['URL', 'https://docs.veeder.com/gold/download.cfm?doc_id=6227']
+          'ALARM_RESET',
+          {
+            'Description' => 'IS00300 Remote alarm reset (untested)',
+            'TLS-350_CMD' => "\x01IS00300"
+          }
         ],
-      'DefaultAction'  => 'INVENTORY',
-      'Actions'        =>
         [
-          [ 'ALARM',
-            {
-              'Description' => 'I30200 Sensor alarm history (untested)',
-              'TLS-350_CMD' => "\x01I30200"
-            }
-          ],
-          [ 'ALARM_RESET',
-            {
-              'Description' => 'IS00300 Remote alarm reset (untested)',
-              'TLS-350_CMD' => "\x01IS00300"
-            }
-          ],
-          [ 'DELIVERY',
-            {
-              'Description' => 'I20200 Delivery report',
-              'TLS-350_CMD' => "\x01I20200"
-            }
-          ],
-          [ 'INVENTORY',
-            {
-              'Description' => '200/I20100 In-tank inventory report',
-              'TLS-250_CMD' => "\x01200",
-              'TLS-350_CMD' => "\x01I20100"
-            }
-          ],
-          [ 'LEAK',
-            {
-              'Description' => 'I20300 Leak report',
-              'TLS-350_CMD' => "\x01I20300"
-            }
-          ],
-          [ 'RELAY',
-            {
-              'Description' => 'I40600 Relay status (untested)',
-              'TLS-350_CMD' => "\x01I40600"
-            }
-          ],
-          [ 'RESET',
-            {
-              'Description' => 'IS00100 Reset (untested)',
-              'TLS-350_CMD' => "\x01IS00100"
-            }
-          ],
-          [ 'CLEAR_RESET',
-            {
-              'Description' => 'IS00200 Clear Reset Flag (untested)',
-              'TLS-350_CMD' => "\x01IS00200"
-            }
-          ],
-          [ 'SENSOR',
-            {
-              'Description' => 'I30100 Sensor status (untested)',
-              'TLS-350_CMD' => "\x01I30100"
-            }
-          ],
-          [ 'SENSOR_DIAG',
-            {
-              'Description' => 'IB0100 Sensor diagnostics (untested)',
-              'TLS-350_CMD' => "\x01IB0100"
-            }
-          ],
-          [ 'SHIFT',
-            {
-              'Description' => 'I20400 Shift report',
-              'TLS-350_CMD' => "\x01I20400"
-            }
-          ],
-          [ 'SET_TANK_NAME',
-            {
-              'Description' => 'S602 set tank name (use TANK_NUMBER and TANK_NAME options)',
-              'TLS-350_CMD' => "\x01S602"
-            }
-          ],
-          # [ 'SET_TIME',
-          #   {
-          #     'Description' => 'S50100 Set time of day (use TIME option) (untested)',
-          #     'TLS-350_CMD' => "\x01S50100"
-          #   }
-          # ],
-          [ 'STATUS',
-            {
-              'Description' => 'I20500 In-tank status report',
-              'TLS-350_CMD' => "\x01I20500"
-            }
-          ],
-          [ 'SYSTEM_STATUS',
-            {
-              'Description' => 'I10100 System status report (untested)',
-              'TLS-350_CMD' => "\x01I10100"
-            }
-          ],
-          [ 'TANK_ALARM',
-            {
-              'Description' => 'I20600 Tank alarm history (untested)',
-              'TLS-350_CMD' => "\x01I20600"
-            }
-          ],
-          [ 'TANK_DIAG',
-            {
-              'Description' => 'IA0100 Tank diagnostics (untested)',
-              'TLS-350_CMD' => "\x01IA0100"
-            }
-          ],
-          [ 'VERSION',
-            {
-              'Description' => 'Version information',
-              'TLS-250_CMD' => "\x01980",
-              'TLS-350_CMD' => "\x01I90200"
-            }
-          ]
+          'DELIVERY',
+          {
+            'Description' => 'I20200 Delivery report',
+            'TLS-350_CMD' => "\x01I20200"
+          }
+        ],
+        [
+          'INVENTORY',
+          {
+            'Description' => '200/I20100 In-tank inventory report',
+            'TLS-250_CMD' => "\x01200",
+            'TLS-350_CMD' => "\x01I20100"
+          }
+        ],
+        [
+          'LEAK',
+          {
+            'Description' => 'I20300 Leak report',
+            'TLS-350_CMD' => "\x01I20300"
+          }
+        ],
+        [
+          'RELAY',
+          {
+            'Description' => 'I40600 Relay status (untested)',
+            'TLS-350_CMD' => "\x01I40600"
+          }
+        ],
+        [
+          'RESET',
+          {
+            'Description' => 'IS00100 Reset (untested)',
+            'TLS-350_CMD' => "\x01IS00100"
+          }
+        ],
+        [
+          'CLEAR_RESET',
+          {
+            'Description' => 'IS00200 Clear Reset Flag (untested)',
+            'TLS-350_CMD' => "\x01IS00200"
+          }
+        ],
+        [
+          'SENSOR',
+          {
+            'Description' => 'I30100 Sensor status (untested)',
+            'TLS-350_CMD' => "\x01I30100"
+          }
+        ],
+        [
+          'SENSOR_DIAG',
+          {
+            'Description' => 'IB0100 Sensor diagnostics (untested)',
+            'TLS-350_CMD' => "\x01IB0100"
+          }
+        ],
+        [
+          'SHIFT',
+          {
+            'Description' => 'I20400 Shift report',
+            'TLS-350_CMD' => "\x01I20400"
+          }
+        ],
+        [
+          'SET_TANK_NAME',
+          {
+            'Description' => 'S602 set tank name (use TANK_NUMBER and TANK_NAME options)',
+            'TLS-350_CMD' => "\x01S602"
+          }
+        ],
+        # [ 'SET_TIME',
+        #   {
+        #     'Description' => 'S50100 Set time of day (use TIME option) (untested)',
+        #     'TLS-350_CMD' => "\x01S50100"
+        #   }
+        # ],
+        [
+          'STATUS',
+          {
+            'Description' => 'I20500 In-tank status report',
+            'TLS-350_CMD' => "\x01I20500"
+          }
+        ],
+        [
+          'SYSTEM_STATUS',
+          {
+            'Description' => 'I10100 System status report (untested)',
+            'TLS-350_CMD' => "\x01I10100"
+          }
+        ],
+        [
+          'TANK_ALARM',
+          {
+            'Description' => 'I20600 Tank alarm history (untested)',
+            'TLS-350_CMD' => "\x01I20600"
+          }
+        ],
+        [
+          'TANK_DIAG',
+          {
+            'Description' => 'IA0100 Tank diagnostics (untested)',
+            'TLS-350_CMD' => "\x01IA0100"
+          }
+        ],
+        [
+          'VERSION',
+          {
+            'Description' => 'Version information',
+            'TLS-250_CMD' => "\x01980",
+            'TLS-350_CMD' => "\x01I90200"
+          }
         ]
+      ],
+      'Notes' => {
+        'Stability' => [],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -160,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptEnum.new('PROTOCOL', [true, 'The Veeder-Root TLS protocol to speak', 'TLS-350', %w(TLS-350 TLS-250)]),
+        OptEnum.new('PROTOCOL', [true, 'The Veeder-Root TLS protocol to speak', 'TLS-350', %w[TLS-350 TLS-250]]),
         OptInt.new('TIMEOUT', [true, 'Time in seconds to wait for responses to our probes', 5])
       ]
     )
@@ -186,7 +205,7 @@ class MetasploitModule < Msf::Auxiliary
     sock.put(request)
     response = sock.get_once(-1, timeout)
     response.strip!
-    response += " (command not understood)" if response == "9999FF1B"
+    response += ' (command not understood)' if response == '9999FF1B'
     response
   end
 
@@ -199,7 +218,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def tank_name
-    @tank_name ||= (datastore['TANK_NAME'] ? datastore['TANK_NAME'] : Rex::Text.rand_text_alpha(16))
+    @tank_name ||= datastore['TANK_NAME'] || Rex::Text.rand_text_alpha(16)
   end
 
   def tank_number
@@ -219,37 +238,35 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_host)
-    begin
-      connect
-      case action.name
-      when 'SET_TANK_NAME'
-        # send the set tank name command to change the tank name(s)
-        if tank_number == 0
-          vprint_status("Setting all tank names to #{tank_name}")
-        else
-          vprint_status("Setting tank ##{tank_number}'s name to #{tank_name}")
-        end
-        request = "#{action.opts[protocol_opt_name]}#{format('%02d', tank_number)}#{tank_name}\n"
-        sock.put(request)
-        # reconnect
-        disconnect
-        connect
-        # send an inventory probe to show that it succeeded
-        inventory_probe = "#{actions.find { |a| a.name == 'INVENTORY' }.opts[protocol_opt_name]}\n"
-        inventory_response = get_response(inventory_probe)
-        message = "#{protocol} #{action.opts['Description']}:\n#{inventory_response}"
-        if inventory_response.include?(tank_name)
-          print_good message
-        else
-          print_warning message
-        end
+    connect
+    case action.name
+    when 'SET_TANK_NAME'
+      # send the set tank name command to change the tank name(s)
+      if tank_number == 0
+        vprint_status("Setting all tank names to #{tank_name}")
       else
-        response = get_response("#{action.opts[protocol_opt_name]}\n")
-        print_good("#{protocol} #{action.opts['Description']}:")
-        print_line(response)
+        vprint_status("Setting tank ##{tank_number}'s name to #{tank_name}")
       end
-    ensure
+      request = "#{action.opts[protocol_opt_name]}#{format('%02d', tank_number)}#{tank_name}\n"
+      sock.put(request)
+      # reconnect
       disconnect
+      connect
+      # send an inventory probe to show that it succeeded
+      inventory_probe = "#{actions.find { |a| a.name == 'INVENTORY' }.opts[protocol_opt_name]}\n"
+      inventory_response = get_response(inventory_probe)
+      message = "#{protocol} #{action.opts['Description']}:\n#{inventory_response}"
+      if inventory_response.include?(tank_name)
+        print_good message
+      else
+        print_warning message
+      end
+    else
+      response = get_response("#{action.opts[protocol_opt_name]}\n")
+      print_good("#{protocol} #{action.opts['Description']}:")
+      print_line(response)
     end
+  ensure
+    disconnect
   end
 end

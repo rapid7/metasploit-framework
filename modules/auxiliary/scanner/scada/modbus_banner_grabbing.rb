@@ -165,7 +165,7 @@ class MetasploitModule < Msf::Auxiliary
           port: rport,
           sname: 'modbus',
           type: "modbus.#{object['name'].downcase}",
-          data: object['str_value']
+          data: { modbus_object: object['str_value'] }
         )
       end
     rescue ::Interrupt

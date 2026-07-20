@@ -28,6 +28,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => 'win',
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -112,7 +117,7 @@ class MetasploitModule < Msf::Post
     begin
       # Connect to host and enumerate logged in users
       winsessions = client.railgun.netapi32.NetWkstaUserEnum("\\\\#{host}", 1, 4, -1, 4, 4, nil)
-    rescue ::Exception
+    rescue StandardError
       print_error("Issue enumerating users on #{host}")
       return userlist
     end
@@ -126,7 +131,7 @@ class MetasploitModule < Msf::Post
     userlist = Array.new
     begin
       mem = client.railgun.memread(startmem, 8 * count)
-    rescue ::Exception => e
+    rescue StandardError => e
       print_error("Issue reading memory for #{host}")
       vprint_error(e.to_s)
       return userlist
@@ -145,21 +150,25 @@ class MetasploitModule < Msf::Post
 
           # Check if enumerated user's domain matches supplied domain, if there was
           # an error, or if option disabled
-          data = ''
+          data = {
+            :domain => temp[:domain],
+            :user => temp[:user]
+          }
+
           if (datastore['DOMAIN'].upcase == temp[:domain].upcase) && !@dc_error && datastore['ENUM_GROUPS']
-            data << " - Groups: #{enum_groups(temp[:user]).chomp(', ')}"
+            data.merge!({ :enum_groups => enum_groups(temp[:user]).chomp(', ') })
           end
           line = "\tLogged in user:\t#{temp[:domain]}\\#{temp[:user]}#{data}\n"
 
           # Write user and groups to notes database
-          db_note(host, "#{temp[:domain]}\\#{temp[:user]}#{data}", 'localadmin.user.loggedin')
+          db_note(host, data, 'localadmin.user.loggedin')
           userlist << line unless userlist.include? line
 
         end
 
         base += 8
       end
-    rescue ::Exception => e
+    rescue StandardError => e
       print_error("Issue enumerating users on #{host}")
       vprint_error(e.backtrace)
     end
@@ -175,7 +184,7 @@ class MetasploitModule < Msf::Post
     begin
       # Connect to DC and enumerate groups of user
       usergroups = client.railgun.netapi32.NetUserGetGroups(dc, user, 0, 4, -1, 4, 4)
-    rescue ::Exception => e
+    rescue StandardError => e
       print_error('Issue connecting to DC, try manually setting domain and DC')
       vprint_error(e.to_s)
       return grouplist
@@ -187,7 +196,7 @@ class MetasploitModule < Msf::Post
 
     begin
       mem = client.railgun.memread(startmem, 8 * count)
-    rescue ::Exception => e
+    rescue StandardError => e
       print_error("Issue reading memory for groups for user #{user}")
       vprint_error(e.to_s)
       return grouplist
@@ -207,7 +216,7 @@ class MetasploitModule < Msf::Post
         end
         base += 4
       end
-    rescue ::Exception => e
+    rescue StandardError => e
       print_error("Issue enumerating groups for user #{user}, check domain")
       vprint_error(e.backtrace)
       return grouplist

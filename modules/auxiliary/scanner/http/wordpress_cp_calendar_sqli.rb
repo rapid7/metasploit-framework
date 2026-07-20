@@ -11,25 +11,32 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'WordPress CP Multi-View Calendar Unauthenticated SQL Injection Scanner',
-      'Description' => %q{
-        This module will scan given instances for an unauthenticated SQL injection
-        within the CP Multi-View Calendar plugin v1.1.4 for Wordpress.
-      },
-      'Author'       =>
-        [
-          'Joaquin Ramirez Martinez', #discovery
-          'bperry' #metasploit module
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress CP Multi-View Calendar Unauthenticated SQL Injection Scanner',
+        'Description' => %q{
+          This module will scan given instances for an unauthenticated SQL injection
+          within the CP Multi-View Calendar plugin v1.1.4 for Wordpress.
+        },
+        'Author' => [
+          'Joaquin Ramirez Martinez', # discovery
+          'bperry' # metasploit module
         ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'CVE' , '2014-8586' ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          [ 'CVE', '2014-8586' ],
           [ 'EDB', '36243' ],
           [ 'WPVDB', '7910' ]
         ],
-      'DisclosureDate' => '2015-03-03'))
+        'DisclosureDate' => '2015-03-03',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       OptString.new('TARGETURI', [true, 'Target URI of the Wordpress instance', '/'])
@@ -63,11 +70,11 @@ class MetasploitModule < Msf::Auxiliary
     if result
       print_good("Vulnerable to unauthenticated SQL injection within CP Multi-View Calendar 1.1.4 for Wordpress")
       report_vuln({
-        :host  => rhost,
-        :port  => rport,
+        :host => rhost,
+        :port => rport,
         :proto => 'tcp',
-        :name  => "Unauthenticated UNION-based SQL injection in CP Multi-View Calendar 1.1.4 for Wordpress",
-        :refs  => self.references.select { |ref| ref.ctx_val == "36243" }
+        :name => "Unauthenticated UNION-based SQL injection in CP Multi-View Calendar 1.1.4 for Wordpress",
+        :refs => self.references.select { |ref| ref.ctx_val == "36243" }
       })
     end
   end

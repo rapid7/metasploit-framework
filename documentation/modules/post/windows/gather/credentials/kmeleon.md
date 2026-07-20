@@ -35,7 +35,7 @@ This option is turned on by default and will perform the data extraction using t
 ## Example Run
 ### Default Output
   ```
-msf6 post(windows/gather/credentials/kmeleon) > run 
+msf post(windows/gather/credentials/kmeleon) > run 
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All

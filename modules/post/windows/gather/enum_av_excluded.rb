@@ -24,10 +24,14 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ],
         # XXX: this will work with 'shell' when the sysinfo parts are removed
-        # and https://github.com/rapid7/metasploit-framework/issues/6328 and
-        # perhaps https://github.com/rapid7/metasploit-framework/issues/6316
-        # are fixed
-        'SessionTypes' => [ 'meterpreter' ]
+        # and https://github.com/rapid7/metasploit-framework/issues/6328
+        # is fixed
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

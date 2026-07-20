@@ -9,17 +9,14 @@ module Metasploit
       class Ivanti < HTTP
 
         DEFAULT_SSL_PORT = 443
-        LIKELY_PORTS = [443]
-        LIKELY_SERVICE_NAMES = [
+        LIKELY_PORTS =  self.superclass::LIKELY_PORTS + [443]
+        LIKELY_SERVICE_NAMES = self.superclass::LIKELY_SERVICE_NAMES + [
           'Ivanti Connect Secure'
         ]
         PRIVATE_TYPES = [:password]
         REALM_KEY = nil
 
-        def initialize(scanner_config, admin)
-          @admin = admin
-          super(scanner_config)
-        end
+        attr_accessor :use_admin_endpoint
 
         def check_setup
           request_params = {
@@ -30,6 +27,7 @@ module Metasploit
           res = send_request(request_params)
 
           if res && res.code == 200 && res.body&.include?('Ivanti Connect Secure')
+            report_service(service_opts)
             return false
           end
 
@@ -138,7 +136,7 @@ module Metasploit
 
         def do_login(username, password)
           protocol = ssl ? 'https' : 'http'
-          peer = "#{host}:#{port}"
+          peer = Rex::Socket.to_authority(host, port)
           user_req = create_user_request(username, password, protocol, peer)
           begin
             res = send_request(user_req)
@@ -172,13 +170,10 @@ module Metasploit
           # focus on creating Result object, pass it to #login routine and return Result object
           result_options = {
             credential: credential,
-            host: @host,
-            port: @port,
-            protocol: 'tcp',
-            service_name: 'ivanti'
+            **service_as_result(service_opts)
           }
 
-          if @admin
+          if @use_admin_endpoint
             login_result = do_admin_login(credential.public, credential.private)
           else
             login_result = do_login(credential.public, credential.private)
@@ -186,6 +181,10 @@ module Metasploit
 
           result_options.merge!(login_result)
           Result.new(result_options)
+        end
+
+        def service_opts
+          build_service_opts('ivanti')
         end
 
       end

@@ -11,13 +11,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'NeXpose API Interface Login Utility',
-      'Description'    => %q{
+      'Name' => 'NeXpose API Interface Login Utility',
+      'Description' => %q{
         This module simply attempts to login to a NeXpose API interface using a
         specific user/pass.
       },
-      'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'        => MSF_LICENSE,
+      'Author' => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+      'License' => MSF_LICENSE,
       'DefaultOptions' => { 'SSL' => true }
     )
 
@@ -26,15 +26,16 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(3780),
         OptString.new('URI', [true, "URI for NeXpose API. Default is /api/1.1/xml", "/api/1.1/xml"]),
         OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
     begin
       res = send_request_cgi({
-        'uri'     => datastore['URI'],
-        'method'  => 'GET'
-        }, 25)
+        'uri' => datastore['URI'],
+        'method' => 'GET'
+      }, 25)
       http_fingerprint({ :response => res })
     rescue ::Rex::ConnectionError => e
       vprint_error("#{datastore['URI']} - #{e.to_s}")
@@ -82,21 +83,20 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def do_login(user='nxadmin', pass='nxadmin')
+  def do_login(user = 'nxadmin', pass = 'nxadmin')
     vprint_status("Trying username:'#{user}' with password:'#{pass}'")
     headers = {
       'Content-Type' => 'text/xml'
     }
-    data = '<?xml version="1.0" encoding="UTF-8"?><LoginRequest sync-id="1" user-id="' << user << '" password="' << pass  << '"></LoginRequest>'
+    data = '<?xml version="1.0" encoding="UTF-8"?><LoginRequest sync-id="1" user-id="' << user << '" password="' << pass << '"></LoginRequest>'
     begin
       res = send_request_cgi({
-        'encode'   => true,
-        'uri'      => datastore['URI'],
-        'method'   => 'POST',
-        'headers'  => headers,
-        'data'     => data
+        'encode' => true,
+        'uri' => datastore['URI'],
+        'method' => 'POST',
+        'headers' => headers,
+        'data' => data
       }, 25)
-
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("HTTP Connection Failed, Aborting")
       return :abort

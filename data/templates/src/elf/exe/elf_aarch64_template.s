@@ -1,7 +1,6 @@
 ; build with:
 ;   nasm elf_aarch64_template.s -f bin -o template_aarch64_linux.bin
 
-
 BITS 64
 org     0x400000
 ehdr:                            ; Elf32_Ehdr

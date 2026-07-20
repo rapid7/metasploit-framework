@@ -21,25 +21,25 @@ and backend servers' IP addresses and ports) through cookies inserted by the BIG
 ### F5 BIP-IP load balancing cookie not found
 
 ```
-msf5 > use auxiliary/gather/f5_bigip_cookie_disclosure
-msf5 auxiliary(gather/f5_bigip_cookie_disclosure) > set RHOSTS www.example.com
+msf > use auxiliary/gather/f5_bigip_cookie_disclosure
+msf auxiliary(gather/f5_bigip_cookie_disclosure) > set RHOSTS www.example.com
 RHOSTS => www.example.com
-msf5 auxiliary(gather/f5_bigip_cookie_disclosure) > run
+msf auxiliary(gather/f5_bigip_cookie_disclosure) > run
 [*] Running module against 93.184.216.34
 
 [*] Starting request /
 [-] F5 BIG-IP load balancing cookie not found
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/f5_bigip_cookie_disclosure) >
+msf auxiliary(gather/f5_bigip_cookie_disclosure) >
 ```
 
 ### F5 BIP-IP load balancing cookie found
 
 ```
-msf5 > use auxiliary/gather/f5_bigip_cookie_disclosure
-msf5 auxiliary(gather/f5_bigip_cookie_disclosure) > set RHOSTS vulnerable-target.com
+msf > use auxiliary/gather/f5_bigip_cookie_disclosure
+msf auxiliary(gather/f5_bigip_cookie_disclosure) > set RHOSTS vulnerable-target.com
 RHOSTS => vulnerable-target.com
-msf5 auxiliary(gather/f5_bigip_cookie_disclosure) > run
+msf auxiliary(gather/f5_bigip_cookie_disclosure) > run
 [*] Running module against 1.1.1.1
 
 [*] Starting request /
@@ -47,7 +47,7 @@ msf5 auxiliary(gather/f5_bigip_cookie_disclosure) > run
 [+] Load balancing pool name "~DMZ~EXAMPLE~vulnarable-target-443_pool" found
 [+] Backend 10.1.105.72:443 found
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/f5_bigip_cookie_disclosure) > notes
+msf auxiliary(gather/f5_bigip_cookie_disclosure) > notes
 
 Notes
 =====
@@ -57,5 +57,5 @@ Notes
  2019-08-20 21:21:02 UTC  1.1.1.1                                   f5_load_balancer_cookie_name   "BIGipServer~DMZ~EXAMPLE~vulnarable-target-443_pool"
  2019-08-20 21:21:02 UTC  1.1.1.1                                   f5_load_balancer_pool_name     "~DMZ~EXAMPLE~vulnarable-target-443_pool"
  2019-08-20 21:21:02 UTC  1.1.1.1                                   f5_load_balancer_backends      [{:host=>"10.1.105.72", :port=>443}]
-msf5 auxiliary(gather/f5_bigip_cookie_disclosure) >
+msf auxiliary(gather/f5_bigip_cookie_disclosure) >
 ```

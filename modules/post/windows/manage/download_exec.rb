@@ -29,6 +29,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_getenv
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK],
+          'Reliability' => []
         }
       )
     )
@@ -122,7 +127,7 @@ class MetasploitModule < Msf::Post
         print_status("Executing file: #{cmd}")
         res = cmd_exec(cmd, nil, datastore['EXEC_TIMEOUT'])
         print_good(res) if output && !res.empty?
-      rescue ::Exception => e
+      rescue StandardError => e
         print_error("Unable to execute: #{e.message}")
       end
     end
@@ -132,7 +137,7 @@ class MetasploitModule < Msf::Post
       begin
         print_status("Deleting #{outpath}")
         session.fs.file.rm(outpath)
-      rescue ::Exception => e
+      rescue StandardError => e
         print_error("Unable to remove file: #{e.message}")
       end
     end

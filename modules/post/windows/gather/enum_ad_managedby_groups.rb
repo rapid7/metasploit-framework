@@ -32,7 +32,12 @@ class MetasploitModule < Msf::Post
           'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

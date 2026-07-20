@@ -23,25 +23,25 @@ This module authenticates to AWS IAM (Identify Access Module) to identify user a
 
 ## Options
 
-  **ACCESS_KEY_ID**
+### ACCESS_KEY_ID
 
   This AWS credential is like a username.  It uniquely identifies the user, and is paired with a 'secret access key'.  The access key ID is retrievable through the AWS console.
   
   An example `ACCESS_KEY_ID` would be `AKIA5C76TR3KXHXA5CRC`
 
-  **SECRET_ACCESS_KEY**
+### SECRET_ACCESS_KEY
 
   This AWS credential is like a password, and should be treated as such.  It is paired with a 'access key ID'.  The access key ID cannot be retrieved from AWS after it has been generated, but it may be discoverable through environment variables, configuration files, source code, or backups.
   
   An example `SECRET_ACCESS_KEY` would be `EKfx3wOWWiGk1WgBTAZfF\2dq3SbDsQj4jdyOMOv`.
 
-  **REGION**
+### REGION
 
   AWS resources are located in regions.  Optionally, this module's output can be filtered based on region to minimize the query to AWS.  Alternatively, `REGION` can be left blank, such that all regions will be checked.
   
   An example region would be `us-west-2`.
 
-  **LIMIT**
+### LIMIT
 
   Some AWS API calls support limiting output, such that the module will only return the number of instances, without detailing the configuration of each instance.  Optionally, this module's output can be filtered to minimize the query to AWS and the user output.  Alternatively, `LIMIT` can be left blank, such that all EC2 instances will be detailed.
   
@@ -54,7 +54,7 @@ This module authenticates to AWS IAM (Identify Access Module) to identify user a
 ### Provided a valid 'access key ID' and 'secret access key' with sufficient privileges 
 
 ```
-msf5 auxiliary(cloud/aws/enum_ec2) > run
+msf auxiliary(cloud/aws/enum_ec2) > run
 
 [*] Found 0 instances in eu-north-1
 [*] Found 0 instances in ap-south-1
@@ -78,25 +78,25 @@ msf5 auxiliary(cloud/aws/enum_ec2) > run
 [+]     Private IP:     18.236.87.255 (ip-172-31-30-21.us-west-2.compute.internal)
 [+]     Security Group: sg-0d52cc35aaf82aff5
 [*] Auxiliary module execution completed
-msf5 auxiliary(cloud/aws/enum_ec2) > 
+msf auxiliary(cloud/aws/enum_ec2) > 
 ```
   
 ### Provided an invalid or inactive 'access key ID', or an invalid 'secret access key'
 
 ```
-msf5 auxiliary(cloud\aws\enum_ec2) > run
+msf auxiliary(cloud\aws\enum_ec2) > run
 
 [-] Auxiliary aborted due to failure: unexpected-reply: AWS was not able to validate the provided access credentials
 [*] Auxiliary module execution completed
-msf5 auxiliary(cloud\aws\enum_ec2) > 
+msf auxiliary(cloud\aws\enum_ec2) > 
 ```
 
 ### Provided an 'access key ID' or 'secret access key' with insufficient privileges
 
 ```
-msf5 auxiliary(cloud\aws\enum_ec2) > run
+msf auxiliary(cloud\aws\enum_ec2) > run
 
 [-] Auxiliary aborted due to failure: unexpected-reply: You are not authorized to perform this operation.
 [*] Auxiliary module execution completed
-msf5 auxiliary(cloud\aws\enum_ec2) > 
+msf auxiliary(cloud\aws\enum_ec2) > 
 ```

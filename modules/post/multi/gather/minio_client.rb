@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Gather MinIO Client Key',
         'Description' => %q{
-          This is a module that searches for MinIO Client credentials on a windows remote host.
+          This module searches for MinIO Client credentials on a Windows host.
         },
         'License' => MSF_LICENSE,
         'References' => [
@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
         'Platform' => [ 'win', 'linux', 'osx', 'unix' ],
         'SessionTypes' => %w[meterpreter powershell shell],
         'Notes' => {
-          'Stability' => [],
+          'Stability' => [CRASH_SAFE],
           'Reliability' => [],
           'SideEffects' => []
         }

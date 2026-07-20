@@ -10,14 +10,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SMTP Banner Grabber',
+      'Name' => 'SMTP Banner Grabber',
       'Description' => 'SMTP Banner Grabber',
-      'References'  =>
-        [
-          ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
-        ],
-      'Author'      => 'CG',
-      'License'     => MSF_LICENSE
+      'References' => [
+        ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
+      ],
+      'Author' => 'CG',
+      'License' => MSF_LICENSE
     )
     deregister_options('MAILFROM', 'MAILTO')
   end

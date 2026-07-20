@@ -14,11 +14,11 @@ http://www.efssoft.com/efsfs.exe
 
 Since the FTP server allows anonymous access, by default, you only need to configure:
 
-**RHOSTS**
+### RHOSTS
 
 The FTP server IP address.
 
-**PATH**
+### PATH
 
 The file you wish to download. Assume this path starts from C:\
 

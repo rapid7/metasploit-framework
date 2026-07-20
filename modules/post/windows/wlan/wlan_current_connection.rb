@@ -27,6 +27,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_getpid
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -184,7 +189,7 @@ class MetasploitModule < Msf::Post
     signal = @host_process.memory.read(pointer, 4)
     connection['signal'] = signal.unpack('V')[0]
 
-    # Grabs the recieve rate value
+    # Grabs the receive rate value
     pointer = (pointer + 4)
     rxrate = @host_process.memory.read(pointer, 4)
     connection['rxrate'] = rxrate.unpack('V')[0]

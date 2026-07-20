@@ -24,11 +24,11 @@
 
 ## Options
 
-  **The ATTACKER_URL option**
+### The ATTACKER_URL option
 
   This option should contain a URL under the attacker's control. This is where the Exchange will try to authenticate.
 
-  **The PASSWORD option**
+### The PASSWORD option
   This can be either the password or the NTLM hash of any domain user with a mailbox configured on Exchange.
 
 ## Scenarios

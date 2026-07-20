@@ -53,14 +53,16 @@ RSpec.describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral d
           res.body = 'ManageEngine Desktop Central'
           res
         end
-        it 'returns true' do
-          expect(subject.check_setup).to be_truthy
+        it 'returns false' do
+          allow(subject).to receive(:report_service)
+          expect(subject.check_setup).to be(false)
+          expect(subject).to have_received(:report_service).with(hash_including(name: 'manageengine_desktop_central', proto: 'tcp'))
         end
       end
 
       context 'when target is not ManageEngine Desktop Central' do
-        it 'returns false' do
-          expect(subject.check_setup).to be_falsey
+        it 'returns failure details' do
+          expect(subject.check_setup).to eq("Unable to locate \"ManageEngine Desktop Central\" in body. (Is this really ManageEngine Desktop Central?)")
         end
       end
     end

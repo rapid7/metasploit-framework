@@ -17,7 +17,7 @@ module Msf
       super
     end
 
-    def valid?(value = self.value, check_empty: true)
+    def valid?(value = self.value, check_empty: true, datastore: nil)
       return false if check_empty && empty_required_value?(value)
       return true if value.nil? && !required?
       return false if value.nil?

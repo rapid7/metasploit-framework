@@ -1,9 +1,12 @@
+require 'rex/proto/ms_tds'
+
 module Rex
 module Proto
 module MSSQL
 # A base mixin of useful mssql methods for parsing structures etc
 module ClientMixin
   include Msf::Module::UI::Message
+  include Rex::Proto::MsTds
   extend Forwardable
   def_delegators :@framework_module, :print_prefix, :print_status, :print_error, :print_good, :print_warning, :print_line
   # Encryption
@@ -26,11 +29,11 @@ module ClientMixin
   TYPE_PRE_LOGIN_MESSAGE           = 18 # (Client) pre-login with version > 7
 
   # Status
-  STATUS_NORMAL                  = 0x00
-  STATUS_END_OF_MESSAGE          = 0x01
-  STATUS_IGNORE_EVENT            = 0x02
-  STATUS_RESETCONNECTION         = 0x08 # TDS 7.1+
-  STATUS_RESETCONNECTIONSKIPTRAN = 0x10 # TDS 7.3+
+  STATUS_NORMAL                  = MsTdsStatus::NORMAL
+  STATUS_END_OF_MESSAGE          = MsTdsStatus::END_OF_MESSAGE
+  STATUS_IGNORE_EVENT            = MsTdsStatus::IGNORE_EVENT
+  STATUS_RESETCONNECTION         = MsTdsStatus::RESETCONNECTION
+  STATUS_RESETCONNECTIONSKIPTRAN = MsTdsStatus::RESECCONNECTIONTRAN
 
   # Mappings for ENVCHANGE types
   # See the TDS Specification here: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/2b3eb7e5-d43d-4d1b-bf4d-76b9e3afc791
@@ -87,20 +90,12 @@ module ClientMixin
   end
 
   def mssql_prelogin_packet
-    pkt = ""
-    pkt_hdr = ""
     pkt_data_token = ""
     pkt_data = ""
 
-
-    pkt_hdr = [
-        TYPE_PRE_LOGIN_MESSAGE, #type
-        STATUS_END_OF_MESSAGE, #status
-        0x0000, #length
-        0x0000, # SPID
-        0x00, # PacketID
-        0x00 #Window
-    ]
+    pkt_hdr = MsTdsHeader.new(
+      packet_type: MsTdsType::PRE_LOGIN_MESSAGE
+    )
 
     version = [0x55010008, 0x0000].pack("Vv")
 
@@ -142,9 +137,9 @@ module ClientMixin
     pkt_data << instoptdata
     pkt_data << threadid
 
-    pkt_hdr[2] = pkt_data.length + 8
+    pkt_hdr.packet_length += pkt_data.length
 
-    pkt = pkt_hdr.pack('CCnnCC') + pkt_data
+    pkt = pkt_hdr.to_binary_s + pkt_data
     pkt
   end
 
@@ -201,14 +196,6 @@ module ClientMixin
     end
 
     resp
-  end
-
-  #
-  # Encrypt a password according to the TDS protocol (encode)
-  #
-  def mssql_tds_encrypt(pass)
-    # Convert to unicode, swap 4 bits both ways, xor with 0xa5
-    Rex::Text.to_unicode(pass).unpack('C*').map {|c| (((c & 0x0f) << 4) + ((c & 0xf0) >> 4)) ^ 0xa5 }.pack("C*")
   end
 
   def mssql_xpcmdshell(cmd, doprint=false, opts={})
@@ -382,7 +369,8 @@ module ClientMixin
   #
   # Parse individual tokens from a TDS reply
   #
-  def mssql_parse_reply(data, info)
+  def mssql_parse_reply(data, info=nil)
+    info ||= {}
     info[:errors] = []
     return if not data
     states = []
@@ -410,6 +398,12 @@ module ClientMixin
       when 0xab
         states << :mssql_parse_info
         mssql_parse_info(data, info)
+      when 0xa9
+        states << :mssql_parse_order
+        mssql_parse_order(data, info)
+      when 0xd2
+        states << :mssql_parse_nbcrow
+        mssql_parse_nbcrow(data, info)
       when 0xaa
         states << :mssql_parse_error
         mssql_parse_error(data, info)
@@ -439,12 +433,14 @@ module ClientMixin
 
       case col[:id]
       when :hex
-        str = ""
         len = data.slice!(0, 2).unpack('v')[0]
-        if len > 0 && len < 65535
-          str << data.slice!(0, len)
+        if len == 65535
+          row << nil
+        elsif len > 0
+          row << data.slice!(0, len).unpack("H*")[0]
+        else
+          row << ''
         end
-        row << str.unpack("H*")[0]
 
       when :guid
         read_length = data.slice!(0, 1).unpack1('C')
@@ -455,9 +451,358 @@ module ClientMixin
         end
 
       when :string
+        len = data.slice!(0, 2).unpack('v')[0]
+        if len == 65535
+          row << nil
+        elsif len > 0
+          row << data.slice!(0, len).gsub("\x00", '')
+        else
+          row << ''
+        end
+
+      when :ntext
+        str = nil
+        ptrlen = data.slice!(0, 1).unpack("C")[0]
+        ptr = data.slice!(0, ptrlen)
+        unless ptrlen == 0
+          timestamp = data.slice!(0, 8)
+          datalen = data.slice!(0, 4).unpack("V")[0]
+          if datalen > 0 && datalen < 65535
+            str = data.slice!(0, datalen).gsub("\x00", '')
+          else
+            str = ''
+          end
+        end
+        row << str
+
+      when :float
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        case datalen
+        when 8
+          row << data.slice!(0, datalen).unpack('E')[0]
+        when 4
+          row << data.slice!(0, datalen).unpack('e')[0]
+        else
+          row << nil
+        end
+
+      when :numeric
+        varlen = data.slice!(0, 1).unpack('C')[0]
+        if varlen == 0
+          row << nil
+        else
+          sign = data.slice!(0, 1).unpack('C')[0]
+          raw = data.slice!(0, varlen - 1)
+          value = ''
+
+          case varlen
+          when 5
+            value = raw.unpack('L')[0]/(10**col[:scale]).to_f
+          when 9
+            value = raw.unpack('Q')[0]/(10**col[:scale]).to_f
+          when 13
+            chunks = raw.unpack('L3')
+            value = chunks[2] << 64 | chunks[1] << 32 | chunks[0]
+            value /= (10**col[:scale]).to_f
+          when 17
+            chunks = raw.unpack('L4')
+            value = chunks[3] << 96 | chunks[2] << 64 | chunks[1] << 32 | chunks[0]
+            value /= (10**col[:scale]).to_f
+          end
+          case sign
+          when 1
+            row << value
+          when 0
+            row << value * -1
+          end
+        end
+
+      when :money
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        if datalen == 0
+          row << nil
+        else
+          raw = data.slice!(0, datalen)
+          rev = raw.slice(4, 4) << raw.slice(0, 4)
+          row << rev.unpack('q')[0]/10000.0
+        end
+
+      when :smallmoney
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        if datalen == 0
+          row << nil
+        else
+          row << data.slice!(0, datalen).unpack('l')[0] / 10000.0
+        end
+
+      when :smalldatetime
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        if datalen == 0
+          row << nil
+        else
+          days = data.slice!(0, 2).unpack('S')[0]
+          minutes = data.slice!(0, 2).unpack('S')[0] / 1440.0
+          row << DateTime.new(1900, 1, 1) + days + minutes
+        end
+
+      when :datetime
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        if datalen == 0
+          row << nil
+        else
+          days = data.slice!(0, 4).unpack('l')[0]
+          minutes = data.slice!(0, 4).unpack('l')[0] / 1440.0
+          row << DateTime.new(1900, 1, 1) + days + minutes
+        end
+
+      when :rawint
+        row << data.slice!(0, 4).unpack('V')[0]
+
+      when :bigint
+        row << data.slice!(0, 8).unpack("H*")[0]
+
+      when :smallint
+        row << data.slice!(0, 2).unpack("v")[0]
+
+      when :smallint3
+        row << [data.slice!(0, 3)].pack("Z4").unpack("V")[0]
+
+      when :tinyint
+        row << data.slice!(0, 1).unpack("C")[0]
+
+      when :bitn
+        has_value = data.slice!(0, 1).unpack("C")[0]
+        if has_value == 0
+          row << nil
+        else
+          row << data.slice!(0, 1).unpack("C")[0]
+        end
+
+      when :bit
+        row << data.slice!(0, 1).unpack("C")[0]
+
+      when :image
+        str = ''
+        len = data.slice!(0, 1).unpack('C')[0]
+        str = data.slice!(0, len) if len && len > 0
+        row << str.unpack("H*")[0]
+
+      when :int
+        len = data.slice!(0, 1).unpack("C")[0]
+
+        case len
+        when 0, 255
+          row << nil
+        when 1
+          row << data.slice!(0, 1).unpack("C")[0]
+        when 2
+          row << data.slice!(0, 2).unpack('v')[0]
+        when 4
+          row << data.slice!(0, 4).unpack('V')[0]
+        when 5
+          row << data.slice!(0, 5).unpack('V')[0] # XXX: missing high byte
+        when 8
+          row << data.slice!(0, 8).unpack('VV')[0] # XXX: missing high dword
+        else
+          info[:errors] << "invalid integer size: #{len} #{data[0, 16].unpack("H*")[0]}"
+          data.slice!(0, len)
+        end
+      else
+        info[:errors] << "unknown column type: #{col.inspect}"
+      end
+    end
+
+    info[:rows] << row
+    info
+  end
+
+  #
+  # Parse a "ret" TDS token
+  #
+  def mssql_parse_ret(data, info)
+    ret = data.slice!(0, 4).unpack('N')[0]
+    info[:ret] = ret
+    info
+  end
+
+  #
+  # Parse a "done" TDS token
+  #
+  def mssql_parse_done(data, info)
+    status, cmd, rows = data.slice!(0, 8).unpack('vvV')
+    info[:done] = { :status => status, :cmd => cmd, :rows => rows }
+    info
+  end
+
+  #
+  # Parse an "error" TDS token
+  #
+  def mssql_parse_error(data, info)
+    len  = data.slice!(0, 2).unpack('v')[0]
+    buff = data.slice!(0, len)
+
+    errno, state, sev, elen = buff.slice!(0, 8).unpack('VCCv')
+    emsg = buff.slice!(0, elen * 2)
+    emsg.gsub!("\x00", '')
+
+    info[:errors] << "SQL Server Error ##{errno} (State:#{state} Severity:#{sev}): #{emsg}"
+    info
+  end
+
+  #
+  # Parse an "environment change" TDS token
+  #
+  def mssql_parse_env(data, info)
+    len  = data.slice!(0, 2).unpack('v')[0]
+    buff = data.slice!(0, len)
+    type = buff.slice!(0, 1).unpack('C')[0]
+
+    nval = ''
+    nlen = buff.slice!(0, 1).unpack('C')[0] || 0
+    nval = buff.slice!(0, nlen * 2).gsub("\x00", '') if nlen > 0
+
+    oval = ''
+    olen = buff.slice!(0, 1).unpack('C')[0] || 0
+    oval = buff.slice!(0, olen * 2).gsub("\x00", '') if olen > 0
+
+    info[:envs] ||= []
+    info[:envs] << { :type => type, :old => oval, :new => nval }
+
+    self.current_database = nval if type == ENVCHANGE::DATABASE
+
+    info
+  end
+
+  #
+  # Parse an "information" TDS token
+  #
+  def mssql_parse_info(data, info)
+    len  = data.slice!(0, 2).unpack('v')[0]
+    buff = data.slice!(0, len)
+
+    errno, state, sev, elen = buff.slice!(0, 8).unpack('VCCv')
+    emsg = buff.slice!(0, elen * 2)
+    emsg.gsub!("\x00", '')
+
+    info[:infos] ||= []
+    info[:infos] << "SQL Server Info ##{errno} (State:#{state} Severity:#{sev}): #{emsg}"
+    info
+  end
+
+  #
+  # Parse a "login ack" TDS token
+  #
+  def mssql_parse_login_ack(data, info)
+    len = data.slice!(0, 2).unpack('v')[0]
+    _buff = data.slice!(0, len)
+    info[:login_ack] = true
+  end
+
+  #
+  # Parse an ORDER token (0xA9)
+  # Sent when an ORDER BY clause is executed. Contains column ordinals.
+  # See: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/252759be-9d74-4435-809d-d55dd860ea78
+  #
+  def mssql_parse_order(data, info)
+    # Length is a USHORT indicating the byte length of the ColNum list
+    len = data.slice!(0, 2).unpack('v')[0]
+    # Skip the column ordinal data (each is a USHORT)
+    data.slice!(0, len) if len && len > 0
+    info
+  end
+
+  #
+  # Parse a "NBCROW" (Null Bitmap Compressed Row) TDS token
+  # This token is used in SQL Server 2019+ for compressed row data
+  # See: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/7e12206c-0e1b-4c8c-b2e5-2ad8b0e3b9b0
+  #
+  def mssql_parse_nbcrow(data, info)
+    # Attempt to parse NBCROW token with fallback to TDS row parsing
+    # This fixes the "unsupported token: 169" error with SQL Server 2022
+    begin
+      return mssql_parse_nbcrow_internal(data, info)
+    rescue StandardError => e
+      info[:errors] ||= []
+      info[:errors] << "NBCROW parsing failed, using TDS fallback: #{e.message}"
+      return mssql_parse_tds_row(data, info)
+    end
+  end
+
+  #
+  # Internal NBCROW parsing implementation
+  # Separated to allow fallback mechanism in main method
+  #
+  def mssql_parse_nbcrow_internal(data, info)
+    info[:rows] ||= []
+
+    return info if info[:colinfos].nil? || info[:colinfos].empty?
+    return info if data.length == 0
+
+    # Read the null bitmap length
+    null_bitmap_len = (info[:colinfos].length + 7) / 8
+
+    # Check if we have enough data for the null bitmap
+    if data.length < null_bitmap_len
+      # Fallback to regular TDS row parsing
+      return mssql_parse_tds_row(data, info)
+    end
+
+    null_bitmap = data.slice!(0, null_bitmap_len).unpack('C*')
+
+    row = []
+    info[:colinfos].each_with_index do |col, col_idx|
+      # Check if this column is null using the null bitmap
+      byte_idx = col_idx / 8
+      bit_idx = col_idx % 8
+
+      # Ensure we don't access beyond the bitmap array
+      if byte_idx >= null_bitmap.length
+        info[:errors] ||= []
+        info[:errors] << "NBCROW null bitmap index out of bounds: #{byte_idx} >= #{null_bitmap.length}"
+        return info
+      end
+
+      is_null = (null_bitmap[byte_idx] & (1 << bit_idx)) != 0
+
+      if is_null
+        row << nil
+        next
+      end
+
+      # Check if we have enough data remaining for column parsing
+      if data.length == 0
+        info[:errors] ||= []
+        info[:errors] << "Insufficient data remaining for NBCROW column #{col_idx} (#{col[:id]})"
+        return info
+      end
+
+      # Parse the column data based on type (similar to mssql_parse_tds_row)
+      case col[:id]
+      when :hex
+        return info if data.length < 2
         str = ""
         len = data.slice!(0, 2).unpack('v')[0]
-        if len > 0 && len < 65535
+        if len > 0 && len < 65535 && data.length >= len
+          str << data.slice!(0, len)
+        end
+        row << str.unpack("H*")[0]
+
+      when :guid
+        return info if data.length < 1
+        read_length = data.slice!(0, 1).unpack1('C')
+        if read_length == 0
+          row << nil
+        elsif data.length >= read_length
+          row << Rex::Text.to_guid(data.slice!(0, read_length))
+        else
+          return info
+        end
+
+      when :string
+        return info if data.length < 2
+        str = ""
+        len = data.slice!(0, 2).unpack('v')[0]
+        if len > 0 && len < 65535 && data.length >= len
           str << data.slice!(0, len)
         end
         row << str.gsub("\x00", '')
@@ -591,23 +936,23 @@ module ClientMixin
 
       when :int
         len = data.slice!(0, 1).unpack("C")[0]
-        raw = data.slice!(0, len) if len && len > 0
 
         case len
         when 0, 255
-          row << ''
+          row << nil
         when 1
-          row << raw.unpack("C")[0]
+          row << data.slice!(0, 1).unpack("C")[0]
         when 2
-          row << raw.unpack('v')[0]
+          row << data.slice!(0, 2).unpack('v')[0]
         when 4
-          row << raw.unpack('V')[0]
+          row << data.slice!(0, 4).unpack('V')[0]
         when 5
-          row << raw.unpack('V')[0] # XXX: missing high byte
+          row << data.slice!(0, 5).unpack('V')[0] # XXX: missing high byte
         when 8
-          row << raw.unpack('VV')[0] # XXX: missing high dword
+          row << data.slice!(0, 8).unpack('VV')[0] # XXX: missing high dword
         else
           info[:errors] << "invalid integer size: #{len} #{data[0, 16].unpack("H*")[0]}"
+          data.slice!(0, len)
         end
       else
         info[:errors] << "unknown column type: #{col.inspect}"
@@ -616,88 +961,6 @@ module ClientMixin
 
     info[:rows] << row
     info
-  end
-
-  #
-  # Parse a "ret" TDS token
-  #
-  def mssql_parse_ret(data, info)
-    ret = data.slice!(0, 4).unpack('N')[0]
-    info[:ret] = ret
-    info
-  end
-
-  #
-  # Parse a "done" TDS token
-  #
-  def mssql_parse_done(data, info)
-    status, cmd, rows = data.slice!(0, 8).unpack('vvV')
-    info[:done] = { :status => status, :cmd => cmd, :rows => rows }
-    info
-  end
-
-  #
-  # Parse an "error" TDS token
-  #
-  def mssql_parse_error(data, info)
-    len  = data.slice!(0, 2).unpack('v')[0]
-    buff = data.slice!(0, len)
-
-    errno, state, sev, elen = buff.slice!(0, 8).unpack('VCCv')
-    emsg = buff.slice!(0, elen * 2)
-    emsg.gsub!("\x00", '')
-
-    info[:errors] << "SQL Server Error ##{errno} (State:#{state} Severity:#{sev}): #{emsg}"
-    info
-  end
-
-  #
-  # Parse an "environment change" TDS token
-  #
-  def mssql_parse_env(data, info)
-    len  = data.slice!(0, 2).unpack('v')[0]
-    buff = data.slice!(0, len)
-    type = buff.slice!(0, 1).unpack('C')[0]
-
-    nval = ''
-    nlen = buff.slice!(0, 1).unpack('C')[0] || 0
-    nval = buff.slice!(0, nlen * 2).gsub("\x00", '') if nlen > 0
-
-    oval = ''
-    olen = buff.slice!(0, 1).unpack('C')[0] || 0
-    oval = buff.slice!(0, olen * 2).gsub("\x00", '') if olen > 0
-
-    info[:envs] ||= []
-    info[:envs] << { :type => type, :old => oval, :new => nval }
-
-    self.current_database = nval if type == ENVCHANGE::DATABASE
-
-    info
-  end
-
-  #
-  # Parse an "information" TDS token
-  #
-  def mssql_parse_info(data, info)
-    len  = data.slice!(0, 2).unpack('v')[0]
-    buff = data.slice!(0, len)
-
-    errno, state, sev, elen = buff.slice!(0, 8).unpack('VCCv')
-    emsg = buff.slice!(0, elen * 2)
-    emsg.gsub!("\x00", '')
-
-    info[:infos] ||= []
-    info[:infos] << "SQL Server Info ##{errno} (State:#{state} Severity:#{sev}): #{emsg}"
-    info
-  end
-
-  #
-  # Parse a "login ack" TDS token
-  #
-  def mssql_parse_login_ack(data, info)
-    len = data.slice!(0, 2).unpack('v')[0]
-    _buff = data.slice!(0, len)
-    info[:login_ack] = true
   end
 
 end

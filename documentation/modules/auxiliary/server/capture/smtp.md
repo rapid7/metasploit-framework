@@ -155,7 +155,7 @@ Testing: RSET during middle of DATA
 RSET
 [*] SMTP: 127.0.0.1:46222 EMAIL: testing a message which gets cancelled
   Response: 250 OK
-msf5 auxiliary(server/capture/smtp) > creds
+msf auxiliary(server/capture/smtp) > creds
 Credentials
 ===========
 
@@ -165,7 +165,7 @@ host       origin     service        public          private                    
 127.0.0.1  127.0.0.1  25/tcp (smtp)  username_login  password_login                                             Password            
 127.0.0.1  127.0.0.1  25/tcp (smtp)  username_plain  password_plain                                             Password            
 
-msf5 auxiliary(server/capture/smtp) > notes
+msf auxiliary(server/capture/smtp) > notes
 
 Notes
 =====

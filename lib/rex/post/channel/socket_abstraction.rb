@@ -47,12 +47,6 @@ module Rex
             end
           end
 
-          def close
-            super
-            channel.cleanup_abstraction
-            channel.close
-          end
-
           attr_accessor :channel
         end
       end

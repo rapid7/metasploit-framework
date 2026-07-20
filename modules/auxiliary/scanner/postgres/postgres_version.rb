@@ -11,18 +11,25 @@ class MetasploitModule < Msf::Auxiliary
 
   # Creates an instance of this module.
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'PostgreSQL Version Probe',
-      'Description'    => %q{
-        Enumerates the version of PostgreSQL servers.
-      },
-      'Author'         => [ 'todb' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'PostgreSQL Version Probe',
+        'Description' => %q{
+          Enumerates the version of PostgreSQL servers.
+        },
+        'Author' => [ 'todb' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'https://www.postgresql.org/' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([ ]) # None needed.
 
@@ -35,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
     self.postgres_conn = session.client if session
     user = datastore['USERNAME']
     pass = postgres_password
-    do_fingerprint(user,pass,datastore['DATABASE'])
+    do_fingerprint(user, pass, datastore['DATABASE'])
   end
 
   # Alias for RHOST
@@ -74,24 +81,24 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def do_fingerprint(user=nil,pass=nil,database=nil)
+  def do_fingerprint(user = nil, pass = nil, database = nil)
     begin
       msg = "#{rhost}:#{rport} Postgres -"
       password = pass || postgres_password
-      vprint_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{rhost}:#{rport} on database '#{database}'") unless postgres_conn
+      vprint_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{Rex::Socket.to_authority(rhost, rport)} on database '#{database}'") unless postgres_conn
       result = postgres_fingerprint(
         :db => database,
         :username => user,
         :password => password
       )
       if result[:auth]
-        vprint_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'" unless session
-        print_status "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
+        vprint_good "#{Rex::Socket.to_authority(rhost, rport)} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'" unless session
+        print_status "#{Rex::Socket.to_authority(rhost, rport)} Postgres - Version #{result[:auth]} (Post-Auth)"
       elsif result[:preauth]
-        print_good "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
+        print_good "#{Rex::Socket.to_authority(rhost, rport)} Postgres - Version #{result[:preauth]} (Pre-Auth)"
       else # It's something we don't know yet
-        vprint_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
-        print_status "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"
+        vprint_status "#{Rex::Socket.to_authority(rhost, rport)} Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
+        print_status "#{Rex::Socket.to_authority(rhost, rport)} Postgres - Version Unknown (Pre-Auth)"
       end
 
       # Reporting
@@ -120,17 +127,15 @@ class MetasploitModule < Msf::Auxiliary
           :sname => 'postgres',
           :port => rport,
           :ntype => 'postgresql.fingerprint',
-          :data => "Unknown Pre-Auth fingerprint: #{result[:unknown]}"
+          :data => { :unknown_pre_auth_fingerprint => result[:unknown] }
         )
       end
 
       # Logout
       postgres_logout if self.postgres_conn && session.blank?
-
     rescue Rex::ConnectionError
-      vprint_error "#{rhost}:#{rport} Connection Error: #{$!}"
+      vprint_error "#{Rex::Socket.to_authority(rhost, rport)} Connection Error: #{$!}"
       return :done
     end
-
   end
 end

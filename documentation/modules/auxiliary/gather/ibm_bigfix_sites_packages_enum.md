@@ -8,23 +8,23 @@ BigFix Platform 9.2 - 9.2.16 and 9.5 - 9.5.11
 
 ## Options
 
-**SHOW_MASTHEAD**
+### SHOW_MASTHEAD
 
 Default: true. Read Organization name from `/masthead/masthead.axfm`
 
-**SHOW_PACKAGES**
+### SHOW_PACKAGES
 
 Default true. Read Action values and packages names from `/cgi-bin/bfenterprise/BESMirrorRequest.exe`
 
-**SHOW_SITES**
+### SHOW_SITES
 
 Default true. Read Site URLs from `/cgi-bin/bfenterprise/clientregister.exe?RequestType=FetchCommands`
 
-**DOWNLOAD**
+### DOWNLOAD
 
 Default true. Attempt to download identified packages.
 
-**ShowURL**
+### ShowURL
 
 Default false. Show full URL for the packages instead of the filename.
 
@@ -40,10 +40,10 @@ Default false. Show full URL for the packages instead of the filename.
 ### Relay Version 9.5.10.79
 
 ```
-msf5 > use auxiliary/gather/ibm_bigfix_sites_packages_enum
-msf5 auxiliary(gather/ibm_bigfix_sites_packages_enum) > set rhosts <rhost>
+msf > use auxiliary/gather/ibm_bigfix_sites_packages_enum
+msf auxiliary(gather/ibm_bigfix_sites_packages_enum) > set rhosts <rhost>
 rhosts => <rhost>
-msf5 auxiliary(gather/ibm_bigfix_sites_packages_enum) > exploit
+msf auxiliary(gather/ibm_bigfix_sites_packages_enum) > exploit
 [*] Running module against [IP]
 
 [+] [Organization]
@@ -62,5 +62,5 @@ msf5 auxiliary(gather/ibm_bigfix_sites_packages_enum) > exploit
 [+] File: [package name]
 <snip>
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/ibm_bigfix_sites_packages_enum) >
+msf auxiliary(gather/ibm_bigfix_sites_packages_enum) >
 ```

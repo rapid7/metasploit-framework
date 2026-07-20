@@ -10,27 +10,27 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'VMWare Power On Virtual Machine',
-      'Description'    => %Q{
+      'Name' => 'VMWare Power On Virtual Machine',
+      'Description' => %(
         This module will log into the Web API of VMWare and try to power on
         a specified Virtual Machine.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE,
+      ),
+      'Author' => ['theLightCosine'],
+      'License' => MSF_LICENSE,
       'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
-        OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ]),
-        OptString.new('VM', [true, "The VM to try to Power On"])
-      ])
+        OptString.new('USERNAME', [ true, 'The username to Authenticate with.', 'root' ]),
+        OptString.new('PASSWORD', [ true, 'The password to Authenticate with.', 'password' ]),
+        OptString.new('VM', [true, 'The VM to try to Power On'])
+      ]
+    )
   end
 
   def run
-
     if vim_do_login(datastore['USERNAME'], datastore['PASSWORD']) == :success
       vm_ref = vim_find_vm_by_name(datastore['VM'])
       case vm_ref
@@ -38,14 +38,14 @@ class MetasploitModule < Msf::Auxiliary
         return_state = vim_powerON_vm(vm_ref)
         case return_state
         when 'success'
-          print_good "VM Powered On Successfully"
+          print_good 'VM Powered On Successfully'
         when 'alreadyON'
           print_status "The Server says that VM #{datastore['VM']} is already on."
         else
           print_error "The server returned an unexpected status #{return_state}"
         end
       when :noresponse
-        print_error "The request timed out"
+        print_error 'The request timed out'
       when :error
         print_error @vim_soap_error
       when nil

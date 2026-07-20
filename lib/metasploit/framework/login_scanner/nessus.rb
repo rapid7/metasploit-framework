@@ -9,21 +9,24 @@ module Metasploit
 
         DEFAULT_PORT  = 8834
         PRIVATE_TYPES = [ :password ]
-        LIKELY_SERVICE_NAMES = [ 'nessus' ]
+        LIKELY_SERVICE_NAMES = self.superclass::LIKELY_SERVICE_NAMES + [ 'nessus' ]
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
 
-        # Checks if the target is a Tenable Nessus server.
+        # Checks if the target is correct
         #
-        # @return [Boolean] TrueClass if target is Nessus server, otherwise FalseClass
+        # @return [false] Indicates there were no errors
+        # @return [String] a human-readable error message describing why
+        #   this scanner can't run
         def check_setup
           login_uri = "/server/properties"
           res = send_request({'uri'=> login_uri})
           if res && res.body.include?('Nessus')
-            return true
+            report_service(service_opts)
+            return false
           end
 
-          false
+          'Unable to locate "Nessus" in body. (Is this really Nessus?)'
         end
 
         # Actually doing the login. Called by #attempt_login
@@ -65,9 +68,7 @@ module Metasploit
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
 
           begin
@@ -85,6 +86,10 @@ module Metasploit
           # nessus_rest_login has the same default in TARGETURI, but rspec doesn't check nessus_rest_login
           # so we have to set the default here, too.
           self.uri = '/session'
+        end
+
+        def service_opts
+          build_service_opts('nessus')
         end
 
       end

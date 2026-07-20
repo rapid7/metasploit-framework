@@ -11,10 +11,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'OpenVAS OTP Login Utility',
+      'Name' => 'OpenVAS OTP Login Utility',
       'Description' => 'This module attempts to authenticate to an OpenVAS OTP service.',
-      'Author'      => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'     => MSF_LICENSE
+      'Author' => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+      'License' => MSF_LICENSE
     )
     register_options(
       [
@@ -36,18 +36,18 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def otp_send(data=nil, con=true)
+  def otp_send(data = nil, con = true)
     begin
-      @result=''
-      @coderesult=''
+      @result = ''
+      @coderesult = ''
       if (con)
-        @connected=false
+        @connected = false
         connect
-        select(nil,nil,nil,0.4)
+        select(nil, nil, nil, 0.4)
       end
-      @connected=true
+      @connected = true
       sock.put(data)
-      @result=sock.get_once
+      @result = sock.get_once
     rescue ::Exception => err
       print_error("#{msg} Error: #{err.to_s}")
     end
@@ -80,24 +80,24 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def do_login(user=nil,pass=nil)
+  def do_login(user = nil, pass = nil)
     begin
-      otp_send("< OTP/1.0 >\n",true) # send hello
+      otp_send("< OTP/1.0 >\n", true) # send hello
       if @result !~ /\<\ OTP\/1\.0 \>/
         print_error("#{msg} OpenVAS OTP does not appear to be running: did not get response to OTP hello: #{@result}")
         return :abort
       end
 
       vprint_status("#{msg} Trying user:'#{user}' with password:'#{pass}'")
-      otp_send(nil,!@connected)
+      otp_send(nil, !@connected)
       if @result !~ /User\ \:/
         print_error("#{msg} OpenVAS OTP did not send User request: #{@result}")
       end
-      otp_send("#{user}\n",!@connected)
+      otp_send("#{user}\n", !@connected)
       if @result !~ /Password\ \:/
         print_error("#{msg} OpenVAS OTP did not send Password request: #{@result}")
       end
-      otp_send("#{pass}\n",!@connected)
+      otp_send("#{pass}\n", !@connected)
       if @result =~ /SERVER <|>.*<|> SERVER/is
         print_good("#{msg} SUCCESSFUL login for '#{user}' : '#{pass}'")
         report_cred(
@@ -119,8 +119,8 @@ class MetasploitModule < Msf::Auxiliary
         vprint_error("#{msg} Rejected user: '#{user}' with password: '#{pass}': #{@result}")
         return :fail
       end
-      rescue ::Rex::ConnectionError
-      rescue ::Timeout::Error, ::Errno::EPIPE
+    rescue ::Rex::ConnectionError
+    rescue ::Timeout::Error, ::Errno::EPIPE
     end
   end
 

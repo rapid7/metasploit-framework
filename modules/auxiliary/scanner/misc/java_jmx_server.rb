@@ -12,24 +12,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Java JMX Server Insecure Endpoint Code Execution Scanner',
+      'Name' => 'Java JMX Server Insecure Endpoint Code Execution Scanner',
       'Description' => 'Detect Java JMX endpoints',
-      'Author'     => ['rocktheboat'],
-      'License'     => MSF_LICENSE,
-      'References'     =>
-        [
-          ['URL', 'https://docs.oracle.com/javase/8/docs/technotes/guides/jmx/JMX_1_4_specification.pdf'],
-          ['URL', 'https://www.optiv.com/blog/exploiting-jmx-rmi'],
-          ['CVE', '2015-2342']
-        ],
-      'Platform'       => 'java',
-      'DisclosureDate' => 'May 22 2013'
+      'Author' => ['rocktheboat'],
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['URL', 'https://docs.oracle.com/javase/8/docs/technotes/guides/jmx/JMX_1_4_specification.pdf'],
+        ['URL', 'https://www.optiv.com/blog/exploiting-jmx-rmi'],
+        ['CVE', '2015-2342']
+      ],
+      'Platform' => 'java',
+      'DisclosureDate' => '2013-05-22'
     )
 
     register_options(
       [
         Opt::RPORT(1099)
-      ])
+      ]
+    )
   end
 
   def run_host(target_host)
@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     connect
     print_status("Sending RMI header...")
     unless is_rmi?
-      print_status("#{rhost}:#{rport} Java JMX RMI not detected")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Java JMX RMI not detected")
       disconnect
       return
     end
@@ -47,14 +47,14 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
 
     if mbean_server.nil?
-      print_status("#{rhost}:#{rport} Java JMX MBean not detected")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Java JMX MBean not detected")
       return
     end
 
     connect(true, { 'RHOST' => mbean_server[:address], 'RPORT' => mbean_server[:port] })
 
     unless is_rmi?
-      print_status("#{rhost}:#{rport} Java JMX RMI not detected")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Java JMX RMI not detected")
       disconnect
       return
     end
@@ -73,11 +73,11 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Handshake with JMX MBean server on #{jmx_endpoint[:address]}:#{jmx_endpoint[:port]}")
     svc = report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "JMX MBean server accessible")
     report_vuln(
-      :host         => rhost,
-      :service      => svc,
-      :name         => self.name,
-      :info         => "Module #{self.fullname} confirmed RCE via JMX RMI service",
-      :refs         => self.references
+      :host => rhost,
+      :service => svc,
+      :name => self.name,
+      :info => "Module #{self.fullname} confirmed RCE via JMX RMI service",
+      :refs => self.references
     )
   end
 
@@ -129,6 +129,7 @@ class MetasploitModule < Msf::Auxiliary
     if e.message == 'java.lang.SecurityException'
       return false
     end
+
     return nil
   end
 end

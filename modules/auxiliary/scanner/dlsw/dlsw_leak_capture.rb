@@ -12,33 +12,33 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Cisco DLSw Information Disclosure Scanner',
-      'Description'    => %q(
+      'Name' => 'Cisco DLSw Information Disclosure Scanner',
+      'Description' => %q(
         This module implements the DLSw information disclosure retrieval. There
         is a bug in Cisco's DLSw implementation affecting 12.x and 15.x trains
         that allows an unauthenticated remote attacker to retrieve the partial
         contents of packets traversing a Cisco router with DLSw configured
         and active.
       ),
-      'Author'         => [
+      'Author' => [
         'Tate Hansen', # Vulnerability discovery
         'John McLeod', # Vulnerability discovery
         'Kyle Rainey' # Built lab to recreate vulnerability and help test
       ],
-      'References'     =>
-        [
-          ['CVE', '2014-7992'],
-          ['URL', 'https://github.com/tt5555/dlsw_exploit']
-        ],
-      'DisclosureDate' => 'Nov 17 2014',
-      'License'        => MSF_LICENSE
+      'References' => [
+        ['CVE', '2014-7992'],
+        ['URL', 'https://github.com/tt5555/dlsw_exploit']
+      ],
+      'DisclosureDate' => '2014-11-17',
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(2067),
         OptInt.new('LEAK_AMOUNT', [true, 'The number of bytes to store before shutting down.', 1024])
-      ])
+      ]
+    )
   end
 
   def get_response(size = 72)
@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if response.blank?
       vprint_status("No response")
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe('No response received from DLSw service')
     elsif response[0..1] == "\x31\x48" || response[0..1] == "\x32\x48"
       vprint_good("Detected DLSw protocol")
       report_service(
@@ -75,11 +75,11 @@ class MetasploitModule < Msf::Auxiliary
           refs: references,
           info: "Module #{fullname} collected #{response.length} bytes"
         )
-        Exploit::CheckCode::Vulnerable
+        Exploit::CheckCode::Vulnerable('DLSw information disclosure detected; leaked data found in response')
       end
     else
       vprint_status("#{response.size}-byte response didn't contain any leaked data")
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe('Response did not contain any leaked data')
     end
   end
 

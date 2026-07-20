@@ -11,11 +11,16 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Windows Gather TCP Netstat',
-        'Description' => %q{ This Module lists current TCP sessions},
+        'Description' => %q{This module lists current TCP sessions.},
         'License' => MSF_LICENSE,
         'Author' => [ 'mubix' ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -24,10 +29,6 @@ class MetasploitModule < Msf::Post
           }
         }
       )
-    )
-    register_options(
-      [
-      ]
     )
   end
 

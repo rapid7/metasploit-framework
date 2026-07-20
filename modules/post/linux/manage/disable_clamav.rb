@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Post
-  Rank = ExcellentRanking
   include Msf::Post::File
   include Msf::Post::Unix
 
@@ -33,7 +32,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('CLAMAV_UNIX_SOCKET', [true, 'ClamAV unix socket', '/run/clamav/clamd.ctl' ]),
         OptString.new('COMMAND', [true, 'ClamAV command to execute', 'SHUTDOWN' ])
-      ], self.class
+      ]
     )
   end
 

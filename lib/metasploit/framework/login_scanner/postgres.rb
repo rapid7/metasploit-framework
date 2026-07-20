@@ -11,6 +11,25 @@ module Metasploit
       class Postgres
         include Metasploit::Framework::LoginScanner::Base
 
+        # @!attribute ssl
+        #   @return [Boolean] Whether the connection should use SSL
+        attr_accessor :ssl
+        # @!attribute ssl_version
+        #   @return [String] The version of SSL to implement
+        attr_accessor :ssl_version
+        # @!attribute ssl_verify_mode
+        #   @return [String] the SSL certification verification mechanism
+        attr_accessor :ssl_verify_mode
+        # @!attribute ssl_cipher
+        #   @return [String] The SSL cipher to use for the context
+        attr_accessor :ssl_cipher
+        # @!attribute max_send_size
+        #   @return [Integer] The max size of the data to encapsulate in a single packet
+        attr_accessor :max_send_size
+        # @!attribute send_delay
+        #   @return [Integer] The delay between sending packets
+        attr_accessor :send_delay
+
         # @returns [Boolean] If a login is successful and this attribute is true - a Msf::Db::PostgresPR::Connection instance is used as proof,
         #   and the socket is not immediately closed
         attr_accessor :use_client_as_proof
@@ -45,7 +64,20 @@ module Metasploit
           pg_conn = nil
 
           begin
-            pg_conn = Msf::Db::PostgresPR::Connection.new(db_name,credential.public,credential.private,uri,proxies)
+            ssl_opts = {}
+            ssl_opts[:ssl_version] = ssl_version if ssl_version
+            ssl_opts[:ssl_verify_mode] = ssl_verify_mode if ssl_verify_mode
+            ssl_opts[:ssl_cipher] = ssl_cipher if ssl_cipher
+
+            pg_conn = Msf::Db::PostgresPR::Connection.new(
+              db_name,
+              credential.public,
+              credential.private,
+              uri,
+              proxies,
+              ssl,
+              ssl_opts
+            )
           rescue ::RuntimeError => e
             case e.to_s.split("\t")[1]
               when "C3D000"
@@ -90,13 +122,15 @@ module Metasploit
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
         end
-      end
 
-      def set_sane_defaults
-        self.connection_timeout ||= 30
-        self.port               ||= DEFAULT_PORT
-      end
+        def set_sane_defaults
+          self.connection_timeout ||= 30
+          self.port               ||= DEFAULT_PORT
+          self.max_send_size      ||= 0
+          self.send_delay         ||= 0
+        end
 
+      end
     end
   end
 end

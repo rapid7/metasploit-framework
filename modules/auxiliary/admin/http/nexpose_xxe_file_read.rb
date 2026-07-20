@@ -31,6 +31,11 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DefaultOptions' => {
           'SSL' => true
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
         }
       )
     )

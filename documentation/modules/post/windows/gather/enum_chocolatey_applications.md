@@ -24,12 +24,12 @@ the path.
 ### Windows 10 Pro (21H2 Build 19044.1586).
 
 ```
-msf6 exploit(multi/handler) > [*] Meterpreter session 12 opened (192.168.56.1:4444 -> 192.168.56.112:49906 ) at 2022-03-27 15:57:39 -0400
+msf exploit(multi/handler) > [*] Meterpreter session 12 opened (192.168.56.1:4444 -> 192.168.56.112:49906 ) at 2022-03-27 15:57:39 -0400
 
-msf6 exploit(multi/handler) > use post/windows/gather/enum_chocolatey_applications 
-msf6 post(windows/gather/enum_chocolatey_applications) > set SESSION 12
+msf exploit(multi/handler) > use post/windows/gather/enum_chocolatey_applications 
+msf post(windows/gather/enum_chocolatey_applications) > set SESSION 12
 SESSION => 12
-msf6 post(windows/gather/enum_chocolatey_applications) > run
+msf post(windows/gather/enum_chocolatey_applications) > run
 
 [*] Enumerating applications installed on DESKTOP-LB04G7R
 [*] Targets Chocolatey version: 1.0.0

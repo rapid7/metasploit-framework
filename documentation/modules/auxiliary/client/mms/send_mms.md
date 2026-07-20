@@ -8,7 +8,7 @@ mail services such as Gmail, Yahoo, Live should work fine.
 
 ## Options
 
-**CELLNUMBERS**
+### CELLNUMBERS
 
 The 10-digit phone number (or numbers) you want to send the MMS text to. If you wish to target
 against multiple phone numbers, ideally you want to create the list in a text file (one number per
@@ -20,12 +20,12 @@ set CELLNUMBERS file:///tmp/att_phone_numbers.txt
 
 Remember that these phone numbers must be the same carrier.
 
-**MMSCARRIER**
+### MMSCARRIER
 
 The carrier that the targeted numbers use. See **Supported Carrier Gateways** to learn more about
 supported carriers.
 
-**TEXTMESSAGE**
+### TEXTMESSAGE
 
 The text message you want to send. For example, this will send a text with a link to google:
 
@@ -35,11 +35,11 @@ set TEXTMESSAGE "Hi, please go: google.com"
 
 The link should automatically be parsed on the phone and clickable.
 
-**MMSFILE**
+### MMSFILE
 
 The attachment to send in the message.
 
-**MMSFILECTYPE**
+### MMSFILECTYPE
 
 The content type to use for the attachment. Commonly supported ones include:
 
@@ -51,28 +51,28 @@ The content type to use for the attachment. Commonly supported ones include:
 
 To find more, please try this [list](http://www.freeformatter.com/mime-types-list.html)
 
-**SMTPADDRESS**
+### SMTPADDRESS
 
 The mail server address you wish to use to send the MMS messages.
 
-**SMTPPORT**
+### SMTPPORT
 
 The mail server port. By default, this is ```25```.
 
-**SMTPUSERNAME**
+### SMTPUSERNAME
 
 The username you use to log into the SMTP server.
 
-**SMTPPASSWORD**
+### SMTPPASSWORD
 
 The password you use to log into the SMTP server.
 
-**SMTPFROM**
+### SMTPFROM
 
 The FROM field of SMTP. In some cases, it may be used as ```SMTPUSER```. Some carriers require this
 in order to receive the text, such as AT&T.
 
-**MMSSUBJECT**
+### MMSSUBJECT
 
 The MMS subject. Some carriers require this in order to receive the text, such as AT&T.
 

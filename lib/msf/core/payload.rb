@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'metasm'
 
 module Msf
 
@@ -159,7 +158,12 @@ class Payload < Msf::Module
   # This method returns an optional cached size value
   #
   def self.cached_size
-    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize = const_defined?('CachedSize') ? const_get('CachedSize') : nil
+    if ancestors.include?(Msf::Payload::Stager)
+      csize_overrides = const_defined?('CachedSizeOverrides') ? const_get('CachedSizeOverrides') : {}
+      csize = csize_overrides.fetch(self.refname, csize)
+    end
+
     csize == :dynamic ? nil : csize
   end
 
@@ -167,7 +171,12 @@ class Payload < Msf::Module
   # This method returns whether the payload generates variable-sized output
   #
   def self.dynamic_size?
-    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize = const_defined?('CachedSize') ? const_get('CachedSize') : nil
+    if ancestors.include?(Msf::Payload::Stager)
+      csize_overrides = const_defined?('CachedSizeOverrides') ? const_get('CachedSizeOverrides') : {}
+      csize = csize_overrides.fetch(self.refname, csize)
+    end
+
     csize == :dynamic
   end
 
@@ -502,6 +511,9 @@ class Payload < Msf::Module
     # XXX: This approach is subpar, and payloads should really be ranked!
     preferred_payloads = [
       # These payloads are generally reliable and common enough in practice
+      'windows/meterpreter/reverse_tcp',  # all 64-bit versions of Windows will also support x86 but the same isn't true
+      'x64/meterpreter/reverse_tcp',      # for Linux so if a 32-bit Windows Meterpreter isn't an option, select any x64
+      'x86/meterpreter/reverse_tcp',      # Meterpreter
       '/meterpreter/reverse_tcp',
       '/shell/reverse_tcp',
       'cmd/unix/reverse_bash',

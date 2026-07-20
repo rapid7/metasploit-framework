@@ -3,7 +3,7 @@ IF "%VCINSTALLDIR%" == "" GOTO NEED_VS
 
 IF "%1"=="X64" GOTO BUILD_X64
 
-ECHO "Building HostingCLR x64 (Release)"
+ECHO "Building HostingCLR All Platforms (Release)"
 SET PLAT=all
 GOTO RUN
 

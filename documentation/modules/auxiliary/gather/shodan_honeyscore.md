@@ -16,11 +16,11 @@ In order for this module to function properly, a Shodan API key is needed. You c
 
 ## Options
 
-  **TARGET**
+### TARGET
 
   The remote host to request the API to scan.
 
-  **SHODAN_APIKEY**
+### SHODAN_APIKEY
 
   This is the API key you receive when signing up for a Shodan account. It should be a 32 character string of random letters and numbers.
 

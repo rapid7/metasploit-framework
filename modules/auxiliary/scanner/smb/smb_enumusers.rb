@@ -12,10 +12,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SMB User Enumeration (SAM EnumUsers)',
+      'Name' => 'SMB User Enumeration (SAM EnumUsers)',
       'Description' => 'Determine what users exist via the SAM RPC service',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE,
+      'References' => [
+        [ 'ATT&CK', Mitre::Attack::Technique::T1087_ACCOUNT_DISCOVERY ]
+      ],
       'DefaultOptions' => {
         'DCERPC::fake_bind_multi' => false
       },
@@ -24,7 +27,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptBool.new('DB_ALL_USERS', [ false, "Add all enumerated usernames to the database", false ]),
-      ])
+      ]
+    )
   end
 
   def rport
@@ -104,7 +108,12 @@ class MetasploitModule < Msf::Auxiliary
   def run_service_domain(tree, smb_domain: nil)
     @smb_domain = smb_domain
 
-    samr_con = connect_samr(tree)
+    begin
+      samr_con = connect_samr(tree)
+    rescue ::Exception => e
+      print_error("SAMR connection failed: #{e.class} #{e}")
+      return nil
+    end
 
     lockout_info = samr_con.samr.samr_query_information_domain(
       domain_handle: samr_con.domain_handle,
@@ -121,15 +130,17 @@ class MetasploitModule < Msf::Auxiliary
       user_account_control: RubySMB::Dcerpc::Samr::USER_NORMAL_ACCOUNT
     )
 
-    print_good("#{samr_con.domain_name} [ #{users.values.map { |name| name.encode('UTF-8') }.join(', ') } ] ( LockoutTries=#{lockout_info.lockout_threshold} PasswordMin=#{password_info.min_password_length} )")
+    print_good("#{samr_con.domain_name} [ #{users.values.map { |name| name.encode('UTF-8') }.join(', ')} ] ( LockoutTries=#{lockout_info.lockout_threshold} PasswordMin=#{password_info.min_password_length} )")
     if datastore['DB_ALL_USERS']
       users.values.each do |username|
         report_username(samr_con.domain_name, username.encode('UTF-8'))
       end
     end
   ensure
-    samr_con.samr.close_handle(samr_con.domain_handle) if samr_con.domain_handle
-    samr_con.samr.close_handle(samr_con.server_handle) if samr_con.server_handle
+    if samr_con
+      samr_con.samr.close_handle(samr_con.domain_handle) if samr_con.domain_handle
+      samr_con.samr.close_handle(samr_con.server_handle) if samr_con.server_handle
+    end
   end
 
   def report_username(domain, username)

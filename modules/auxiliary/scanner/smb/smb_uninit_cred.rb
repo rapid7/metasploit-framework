@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
@@ -17,41 +16,46 @@ class MetasploitModule < Msf::Auxiliary
 
   # Aliases for common classes
   SIMPLE = Rex::Proto::SMB::SimpleClient
-  XCEPT  = Rex::Proto::SMB::Exceptions
-  CONST  = Rex::Proto::SMB::Constants
+  XCEPT = Rex::Proto::SMB::Exceptions
+  CONST = Rex::Proto::SMB::Constants
 
   RPC_NETLOGON_UUID = '12345678-1234-abcd-ef00-01234567cffb'
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Samba _netr_ServerPasswordSet Uninitialized Credential State',
-      'Description'    => %q{
-        This module checks if a Samba target is vulnerable to an uninitialized variable creds vulnerability.
-      },
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Samba _netr_ServerPasswordSet Uninitialized Credential State',
+        'Description' => %q{
+          This module checks if a Samba target is vulnerable to an uninitialized variable creds vulnerability.
+        },
+        'Author' => [
           'Richard van Eeden', # Original discovery
-          'sleepya',           # Public PoC for the explicit check
+          'sleepya', # Public PoC for the explicit check
           'sinn3r'
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           ['CVE', '2015-0240'],
           ['OSVDB', '118637'],
           ['URL', 'https://www.redhat.com/en/blog/samba-vulnerability-cve-2015-0240'],
           ['URL', 'https://gist.github.com/worawit/33cc5534cb555a0b710b'],
           ['URL', 'https://www.nccgroup.com/en/blog/2015/03/samba-_netr_serverpasswordset-expoitability-analysis/']
         ],
-      'DefaultOptions' =>
-        {
-          'SMBDirect'               => true,
-          'SMBPass'                 => '',
-          'SMBUser'                 => '',
-          'SMBDomain'               => '',
+        'DefaultOptions' => {
+          'SMBDirect' => true,
+          'SMBPass' => '',
+          'SMBUser' => '',
+          'SMBDomain' => '',
           'DCERPC::fake_bind_multi' => false
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
-    ))
+      )
+    )
 
     # This is a good example of passive vs explicit check
     register_options([
@@ -66,7 +70,6 @@ class MetasploitModule < Msf::Auxiliary
     @smb_port || datastore['RPORT']
   end
 
-
   # This method is more explicit, but a major downside is it's very slow.
   # So we leave the passive one as an option.
   # Please also see #maybe_vulnerable?
@@ -74,18 +77,18 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       smb_login
-      handle = dcerpc_handle(RPC_NETLOGON_UUID, '1.0','ncacn_np', ["\\netlogon"])
+      handle = dcerpc_handle(RPC_NETLOGON_UUID, '1.0', 'ncacn_np', ["\\netlogon"])
       dcerpc_bind(handle)
     rescue ::Rex::Proto::SMB::Exceptions::LoginError,
-      ::Rex::Proto::SMB::Exceptions::ErrorCode => e
+           ::Rex::Proto::SMB::Exceptions::ErrorCode => e
       elog(e)
       return false
     rescue Errno::ECONNRESET,
-        ::Rex::Proto::SMB::Exceptions::InvalidType,
-        ::Rex::Proto::SMB::Exceptions::ReadPacket,
-        ::Rex::Proto::SMB::Exceptions::InvalidCommand,
-        ::Rex::Proto::SMB::Exceptions::InvalidWordCount,
-        ::Rex::Proto::SMB::Exceptions::NoReply => e
+           ::Rex::Proto::SMB::Exceptions::InvalidType,
+           ::Rex::Proto::SMB::Exceptions::ReadPacket,
+           ::Rex::Proto::SMB::Exceptions::InvalidCommand,
+           ::Rex::Proto::SMB::Exceptions::InvalidWordCount,
+           ::Rex::Proto::SMB::Exceptions::NoReply => e
       elog(e)
       return false
     rescue ::Exception => e
@@ -118,12 +121,15 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
       elog(e)
     rescue Errno::ECONNRESET,
-        ::Rex::Proto::SMB::Exceptions::InvalidType,
-        ::Rex::Proto::SMB::Exceptions::ReadPacket,
-        ::Rex::Proto::SMB::Exceptions::InvalidCommand,
-        ::Rex::Proto::SMB::Exceptions::InvalidWordCount,
-        ::Rex::Proto::SMB::Exceptions::NoReply => e
+           ::Rex::Proto::SMB::Exceptions::InvalidType,
+           ::Rex::Proto::SMB::Exceptions::ReadPacket,
+           ::Rex::Proto::SMB::Exceptions::InvalidCommand,
+           ::Rex::Proto::SMB::Exceptions::InvalidWordCount,
+           ::Rex::Proto::SMB::Exceptions::NoReply => e
       elog(e)
+    rescue ::Rex::Proto::DCERPC::Exceptions::Fault => e
+      elog(e)
+      return false
     rescue ::Exception => e
       if e.to_s =~ /execution expired/i
         # So what happens here is that when you trigger the buggy code path, you hit this:
@@ -146,21 +152,20 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
   end
 
-
   # Returns the Samba version
   def get_samba_info
     res = ''
     begin
       res = smb_fingerprint
     rescue ::Rex::Proto::SMB::Exceptions::LoginError,
-      ::Rex::Proto::SMB::Exceptions::ErrorCode
+           ::Rex::Proto::SMB::Exceptions::ErrorCode
       return res
     rescue Errno::ECONNRESET,
-        ::Rex::Proto::SMB::Exceptions::InvalidType,
-        ::Rex::Proto::SMB::Exceptions::ReadPacket,
-        ::Rex::Proto::SMB::Exceptions::InvalidCommand,
-        ::Rex::Proto::SMB::Exceptions::InvalidWordCount,
-        ::Rex::Proto::SMB::Exceptions::NoReply
+           ::Rex::Proto::SMB::Exceptions::InvalidType,
+           ::Rex::Proto::SMB::Exceptions::ReadPacket,
+           ::Rex::Proto::SMB::Exceptions::InvalidCommand,
+           ::Rex::Proto::SMB::Exceptions::InvalidWordCount,
+           ::Rex::Proto::SMB::Exceptions::NoReply
       return res
     rescue ::Exception => e
       if e.to_s =~ /execution expired/
@@ -175,17 +180,16 @@ class MetasploitModule < Msf::Auxiliary
     res['native_lm'].to_s
   end
 
-
   # Converts a version string into an object so we can eval it
   def version(v)
     Rex::Version.new(v)
   end
 
-
   # Passive check for the uninitialized bug. The information is based on http://cve.mitre.org/
   def maybe_vulnerable?(samba_version)
     v = samba_version.scan(/Samba (\d+\.\d+\.\d+)/).flatten[0] || ''
     return false if v.empty?
+
     found_version = version(v)
 
     if found_version >= version('3.5.0') && found_version <= version('3.5.9')
@@ -201,57 +205,56 @@ class MetasploitModule < Msf::Auxiliary
     false
   end
 
-
   # Check command
   def check_host(ip)
-    samba_info = ''
+    @samba_info = ''
     smb_ports = [445, 139]
     smb_ports.each do |port|
+      # Update line prefix, as port changes
+      remove_instance_variable(:@print_prefix) if instance_variable_defined?(:@print_prefix)
       @smb_port = port
-      samba_info = get_samba_info
-      vprint_status("Samba version: #{samba_info}")
+      @samba_info = get_samba_info
+      vprint_status("Samba version: #{@samba_info}")
 
-      if samba_info !~ /^samba/i
+      if @samba_info !~ /^samba/i
         vprint_status("Target isn't Samba, no check will run.")
-        return Exploit::CheckCode::Safe
+        return Exploit::CheckCode::Safe('Target is not running Samba')
       end
 
       if datastore['PASSIVE']
-        if maybe_vulnerable?(samba_info)
-          flag_vuln_host(ip, samba_info)
-          return Exploit::CheckCode::Appears
+        if maybe_vulnerable?(@samba_info)
+          flag_vuln_host(ip, @samba_info)
+          return Exploit::CheckCode::Appears('Samba version appears to be vulnerable based on version check')
         end
       else
         # Explicit: Actually triggers the bug
         if is_vulnerable?(ip)
-          flag_vuln_host(ip, samba_info)
-          return Exploit::CheckCode::Vulnerable
+          flag_vuln_host(ip, @samba_info)
         end
       end
     end
 
-    return Exploit::CheckCode::Detected if samba_info =~ /^samba/i
+    return Exploit::CheckCode::Detected('Samba detected but vulnerability could not be confirmed') if @samba_info =~ /^samba/i
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Target does not appear to be running Samba')
   end
-
 
   # Reports to the database about a possible vulnerable host
   def flag_vuln_host(ip, samba_version)
     report_vuln(
-      :host  => ip,
-      :port  => rport,
+      :host => ip,
+      :port => rport,
       :proto => 'tcp',
-      :name  => self.name,
-      :info  => samba_version,
-      :refs  => self.references
+      :name => self.name,
+      :info => samba_version,
+      :refs => self.references
     )
   end
 
-
   def run_host(ip)
     peer = "#{ip}:#{rport}"
-    case check_host(ip)
+    result = check_host(ip)
+    case result
     when Exploit::CheckCode::Vulnerable
       print_good("The target is vulnerable to CVE-2015-0240.")
     when Exploit::CheckCode::Appears
@@ -261,6 +264,14 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_status("The target appears to be safe")
     end
+
+    report_service(
+      :host  => ip,
+      :port  => rport,
+      :proto => 'tcp',
+      :name  => 'smb',
+      :info  => @samba_info.to_s
+    ) if [Exploit::CheckCode::Vulnerable, Exploit::CheckCode::Appears, Exploit::CheckCode::Detected].include?(result)
   end
 end
 

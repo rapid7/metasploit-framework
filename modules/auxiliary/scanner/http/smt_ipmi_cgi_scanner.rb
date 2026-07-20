@@ -11,36 +11,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Supermicro Onboard IPMI CGI Vulnerability Scanner',
-      'Description' => %q{
-        This module checks for known vulnerabilities in the CGI applications of
-        Supermicro Onboard IPMI controllers. These issues currently include
-        several unauthenticated buffer overflows in the login.cgi and close_window.cgi
-        components.
-      },
-      'Author'       =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Supermicro Onboard IPMI CGI Vulnerability Scanner',
+        'Description' => %q{
+          This module checks for known vulnerabilities in the CGI applications of
+          Supermicro Onboard IPMI controllers. These issues currently include
+          several unauthenticated buffer overflows in the login.cgi and close_window.cgi
+          components.
+        },
+        'Author' => [
           'hdm', # Discovery and analysis
           'juan vazquez' # Metasploit module
         ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2013-3621' ],
           [ 'CVE', '2013-3623' ],
           [ 'URL', 'https://www.rapid7.com/blog/post/2013/11/06/supermicro-ipmi-firmware-vulnerabilities/']
         ],
-      'DisclosureDate' => '2013-11-06'))
-
+        'DisclosureDate' => '2013-11-06',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
   end
 
   def is_supermicro?
     res = send_request_cgi(
       {
-        "uri"       => "/",
-        "method"    => "GET"
-      })
+        "uri" => "/",
+        "method" => "GET"
+      }
+    )
 
     if res and res.code == 200 and res.body.to_s =~ /ATEN International Co Ltd\./
       return true
@@ -87,14 +94,13 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => "/cgi/login.cgi",
       'encode_params' => false,
       'vars_post' => {
-       'name' => name,
-       'pwd' => Rex::Text.rand_text_alpha(4)
+        'name' => name,
+        'pwd' => Rex::Text.rand_text_alpha(4)
       }
     })
 
     return res
   end
-
 
   def check_login
     safe_check = Rex::Text.rand_text_alpha(20)
@@ -115,7 +121,6 @@ class MetasploitModule < Msf::Auxiliary
     return true
   end
 
-
   def run_host(ip)
     vprint_status("Checking if it's a Supermicro IPMI web interface...")
     if is_supermicro?
@@ -130,11 +135,11 @@ class MetasploitModule < Msf::Auxiliary
     if result
       print_good("Vulnerable to CVE-2013-3621 (login.cgi Buffer Overflow)")
       report_vuln({
-        :host  => rhost,
-        :port  => rport,
+        :host => rhost,
+        :port => rport,
         :proto => 'tcp',
-        :name  => "Supermicro Onboard IPMI login.cgi Buffer Overflow",
-        :refs  => self.references.select do |ref| ref.ctx_val == "2013-3621" end
+        :name => "Supermicro Onboard IPMI login.cgi Buffer Overflow",
+        :refs => self.references.select do |ref| ref.ctx_val == "2013-3621" end
       })
     end
 
@@ -143,13 +148,12 @@ class MetasploitModule < Msf::Auxiliary
     if result
       print_good("Vulnerable to CVE-2013-3623 (close_window.cgi Buffer Overflow)")
       report_vuln({
-        :host  => rhost,
-        :port  => rport,
+        :host => rhost,
+        :port => rport,
         :proto => 'tcp',
-        :name  => "Supermicro Onboard IPMI close_window.cgi Buffer Overflow",
-        :refs  => self.references.select { |ref| ref.ctx_val == "2013-3623" }
+        :name => "Supermicro Onboard IPMI close_window.cgi Buffer Overflow",
+        :refs => self.references.select { |ref| ref.ctx_val == "2013-3623" }
       })
     end
-
   end
 end

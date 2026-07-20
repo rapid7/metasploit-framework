@@ -3,6 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'English'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -11,10 +12,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'NAT-PMP Port Mapper',
+      'Name' => 'NAT-PMP Port Mapper',
       'Description' => 'Map (forward) TCP and UDP ports on NAT devices using NAT-PMP',
-      'Author'      => 'Jon Hart <jhart[at]spoofed.org>',
-      'License'     => MSF_LICENSE
+      'Author' => 'Jon Hart <jhart[at]spoofed.org>',
+      'License' => MSF_LICENSE
     )
 
     register_options(
@@ -29,13 +30,13 @@ class MetasploitModule < Msf::Auxiliary
   def build_ports(ports_string)
     # We don't use Rex::Socket.portspec_crack because we need to allow 0 and preserve order
     ports = []
-    ports_string.split(/[ ,]/).map { |s| s.strip }.compact.each do |port_part|
+    ports_string.split(/[ ,]/).map(&:strip).compact.each do |port_part|
       if /^(?<port>\d+)$/ =~ port_part
         ports << port.to_i
       elsif /^(?<low>\d+)\s*-\s*(?<high>\d+)$/ =~ port_part
         ports |= (low..high).to_a.map(&:to_i)
       else
-        fail ArgumentError, "Invalid port specification #{port_part}"
+        raise ArgumentError, "Invalid port specification #{port_part}"
       end
     end
     ports
@@ -47,14 +48,14 @@ class MetasploitModule < Msf::Auxiliary
     @internal_ports = build_ports(datastore['INTERNAL_PORTS'])
 
     if @external_ports.size > @internal_ports.size
-      fail ArgumentError, "Too many external ports specified (#{@external_ports.size}); " +
-        "must be one port (0) or #{@internal_ports.size} ports"
+      raise ArgumentError, "Too many external ports specified (#{@external_ports.size}); " \
+                           "must be one port (0) or #{@internal_ports.size} ports"
     end
 
     if @external_ports.size < @internal_ports.size
       if @external_ports != [0]
-        fail ArgumentError, "Incorrect number of external ports specified (#{@external_ports.size}); " +
-          "must be one port (0) or #{@internal_ports.size} ports"
+        raise ArgumentError, "Incorrect number of external ports specified (#{@external_ports.size}); " \
+                             "must be one port (0) or #{@internal_ports.size} ports"
       else
         @external_ports = [0] * @internal_ports.size
       end
@@ -62,57 +63,52 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(host)
-    begin
+    udp_sock = Rex::Socket::Udp.create({
+      'LocalHost' => datastore['CHOST'] || nil,
+      'Context' => { 'Msf' => framework, 'MsfExploit' => self }
+    })
+    add_socket(udp_sock)
 
-      udp_sock = Rex::Socket::Udp.create({
-        'LocalHost' => datastore['CHOST'] || nil,
-        'Context'   => {'Msf' => framework, 'MsfExploit' => self}
-      })
-      add_socket(udp_sock)
+    external_address = get_external_address(udp_sock, host, datastore['RPORT']) || host
 
-      external_address = get_external_address(udp_sock, host, datastore['RPORT']) || host
+    @external_ports.each_index do |i|
+      external_port = @external_ports[i]
+      internal_port = @internal_ports[i]
 
-      @external_ports.each_index do |i|
-        external_port = @external_ports[i]
-        internal_port = @internal_ports[i]
-
-        actual_ext_port = map_port(udp_sock, host, datastore['RPORT'], internal_port, external_port, Rex::Proto::NATPMP.const_get(protocol), lifetime)
-        map_target = Rex::Socket.source_address(host)
-        requested_forwarding = "#{external_address}:#{external_port}/#{protocol}" +
-                              " -> " +
-                              "#{map_target}:#{internal_port}/#{protocol}"
-        if actual_ext_port
-          map_target = datastore['CHOST'] ? datastore['CHOST'] : Rex::Socket.source_address(host)
-          actual_forwarding = "#{external_address}:#{actual_ext_port}/#{protocol}" +
-                                " -> " +
-                                "#{map_target}:#{internal_port}/#{protocol}"
-          if external_port == 0
-            print_good("#{actual_forwarding} forwarded")
-          else
-            if (external_port != 0 && external_port != actual_ext_port)
-              print_good("#{requested_forwarding} could not be forwarded, but #{actual_forwarding} could")
-            else
-              print_good("#{requested_forwarding} forwarded")
-            end
-          end
+      actual_ext_port = map_port(udp_sock, host, datastore['RPORT'], internal_port, external_port, Rex::Proto::NATPMP.const_get(protocol), lifetime)
+      map_target = Rex::Socket.source_address(host)
+      requested_forwarding = "#{external_address}:#{external_port}/#{protocol}" \
+                             ' -> ' \
+                             "#{map_target}:#{internal_port}/#{protocol}"
+      if actual_ext_port
+        map_target = datastore['CHOST'] || Rex::Socket.source_address(host)
+        actual_forwarding = "#{external_address}:#{actual_ext_port}/#{protocol}" \
+                            ' -> ' \
+                            "#{map_target}:#{internal_port}/#{protocol}"
+        if external_port == 0
+          print_good("#{actual_forwarding} forwarded")
+        elsif external_port != 0 && external_port != actual_ext_port
+          print_good("#{requested_forwarding} could not be forwarded, but #{actual_forwarding} could")
         else
-          print_error("#{requested_forwarding} could not be forwarded")
+          print_good("#{requested_forwarding} forwarded")
         end
-
-        report_service(
-          :host   => host,
-          :port   => datastore['RPORT'],
-          :proto  => 'udp',
-          :name  => 'natpmp',
-          :state => Msf::ServiceState::Open
-        )
+      else
+        print_error("#{requested_forwarding} could not be forwarded")
       end
-    rescue ::Interrupt
-      raise $!
-    rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
-      nil
-    rescue ::Exception => e
-      print_error("Unknown error: #{e.class} #{e.backtrace}")
+
+      report_service(
+        host: host,
+        port: datastore['RPORT'],
+        proto: 'udp',
+        name: 'natpmp',
+        state: Msf::ServiceState::Open
+      )
     end
+  rescue ::Interrupt
+    raise $ERROR_INFO
+  rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
+    nil
+  rescue StandardError => e
+    print_error("Unknown error: #{e.class} #{e.backtrace}")
   end
 end

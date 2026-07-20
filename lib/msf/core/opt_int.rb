@@ -19,7 +19,7 @@ module Msf
       end
     end
 
-    def valid?(value, check_empty: true)
+    def valid?(value, check_empty: true, datastore: nil)
       return false if check_empty && empty_required_value?(value)
       return false if value.present? && !value.to_s.match(/^0x[0-9a-fA-F]+$|^-?\d+$/)
       super

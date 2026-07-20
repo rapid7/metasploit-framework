@@ -12,7 +12,7 @@ NagiosXI may store credentials of the hosts it monitors. This module extracts th
 
 ## Options
 
-  **SESSION**
+### SESSION
 
   Which session to use, which can be viewed with `sessions -l`
 

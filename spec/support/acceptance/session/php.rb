@@ -1,4 +1,6 @@
-module Acceptance::Session
+require_relative './shared'
+
+module Acceptance::Session::Php
   PHP_METERPRETER = {
     payloads: [
       {
@@ -39,9 +41,9 @@ module Acceptance::Session
             :windows,
             {
               skip: [
-                :meterpreter_runtime_version,
+                :session_runtime_version,
                 :==,
-                "php5.3"
+                "meterpreter/php5.3"
               ],
               reason: "Skip PHP 5.3 as the tests timeout - due to cmd_exec taking 15 seconds for each call. Caused by failure to detect feof correctly - https://github.com/rapid7/metasploit-payloads/blame/c7f7bc2fc0b86e17c3bc078149c71745c5e478b3/php/meterpreter/meterpreter.php#L1127-L1145"
             }
@@ -204,9 +206,9 @@ module Acceptance::Session
             :windows,
             {
               skip: [
-                :meterpreter_runtime_version,
+                :session_runtime_version,
                 :==,
-                "php5.3"
+                "meterpreter/php5.3"
               ],
               reason: "Skip PHP 5.3 as the tests timeout - due to cmd_exec taking 15 seconds for each call. Caused by failure to detect feof correctly - https://github.com/rapid7/metasploit-payloads/blame/c7f7bc2fc0b86e17c3bc078149c71745c5e478b3/php/meterpreter/meterpreter.php#L1127-L1145"
             }
@@ -238,6 +240,34 @@ module Acceptance::Session
           },
           windows: {
             known_failures: []
+          }
+        }
+      },
+      {
+        name: "post/test/socket_channels",
+        platforms: [:linux, :osx, :windows],
+        skipped: false,
+        lines: {
+          linux: {
+            known_failures: [
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
+            ]
+          },
+          osx: {
+              known_failures: [
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
+            ]
+          },
+          windows: {
+            known_failures: [
+              # PHP 5.3 Meterpreter on a Windows host raises Errno::ENOTSOCK
+              # (WSAENOTSOCK) from the UDP channel recvfrom; PHP 7.4/8.3 are fine.
+              ["[-] [[UDP] Has the correct peer information] FAILED: [UDP] Has the correct peer information", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
+              ["[-] [[UDP] Has the correct peer information] Exception: Errno::ENOTSOCK", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
+              ["[-] [[UDP] Receives data from the peer] FAILED: [UDP] Receives data from the peer", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
+              ["[-] [[UDP] Receives data from the peer] Exception: Errno::ENOTSOCK", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
+            ]
           }
         }
       },

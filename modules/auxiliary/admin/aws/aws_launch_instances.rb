@@ -12,18 +12,23 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => "Launches Hosts in AWS",
-        'Description'    => %q{
+        'Name' => 'Launches Hosts in AWS',
+        'Description' => %q{
           This module will attempt to launch an AWS instances (hosts) in EC2.
         },
-        'License'        => MSF_LICENSE,
-        'Author'         => [
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Javier Godinez <godinezj[at]gmail.com>',
         ],
-        'References'     => [
-          [ 'URL', 'https://drive.google.com/open?id=0B2Ka7F_6TetSNFdfbkI1cnJHUTQ'],
-          [ 'URL', 'https://published-prd.lanyonevents.com/published/rsaus17/sessionsFiles/4721/IDY-W10-DevSecOps-on-the-Offense-Automating-Amazon-Web-Services-Account-Takeover.pdf' ]
-        ]
+        'References' => [
+          ['URL', 'https://drive.google.com/open?id=0B2Ka7F_6TetSNFdfbkI1cnJHUTQ'],
+          ['URL', 'https://published-prd.lanyonevents.com/published/rsaus17/sessionsFiles/4721/IDY-W10-DevSecOps-on-the-Offense-Automating-Amazon-Web-Services-Account-Takeover.pdf']
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options(
@@ -33,10 +38,10 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('Token', [false, 'AWS session token', '']),
         OptString.new('RHOST', [true, 'AWS region specific EC2 endpoint', 'ec2.us-west-2.amazonaws.com']),
         OptString.new('Region', [true, 'The default region', 'us-west-2' ]),
-        OptString.new("AMI_ID", [true, 'The Amazon Machine Image (AMI) ID', 'ami-1e299d7e']),
-        OptString.new("KEY_NAME", [true, 'The SSH key to be used for ec2-user', 'admin']),
-        OptString.new("SSH_PUB_KEY", [false, 'The public SSH key to be used for ec2-user, e.g., "ssh-rsa ABCDE..."', '']),
-        OptString.new("USERDATA_FILE", [false, 'The script that will be executed on start', 'tools/modules/aws-aggregator-userdata.sh'])
+        OptString.new('AMI_ID', [true, 'The Amazon Machine Image (AMI) ID', 'ami-1e299d7e']),
+        OptString.new('KEY_NAME', [true, 'The SSH key to be used for ec2-user', 'admin']),
+        OptString.new('SSH_PUB_KEY', [false, 'The public SSH key to be used for ec2-user, e.g., "ssh-rsa ABCDE..."', '']),
+        OptString.new('USERDATA_FILE', [false, 'The script that will be executed on start', 'tools/modules/aws-aggregator-userdata.sh'])
       ]
     )
     register_advanced_options(
@@ -60,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     if datastore['AccessKeyId'].blank? || datastore['SecretAccessKey'].blank?
-      print_error("Both AccessKeyId and SecretAccessKey are required")
+      print_error('Both AccessKeyId and SecretAccessKey are required')
       return
     end
     # setup creds for making IAM API calls
@@ -75,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
     sg = datastore['SEC_GROUP_ID'].blank? ? create_sg(creds, vpc) : datastore['SEC_GROUP_ID']
     subnet = datastore['SUBNET_ID'].blank? ? pub_subnet(creds, vpc) : datastore['SUBNET_ID']
     unless subnet
-      print_error("Could not find a public subnet, please provide one")
+      print_error('Could not find a public subnet, please provide one')
       return
     end
     instance_id = launch_instance(creds, subnet, sg)
@@ -87,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
       ip = doc['reservationSet']['item']['instancesSet']['item']['networkInterfaceSet']['item']['privateIpAddressesSet']['item']['association']['publicIp']
       print_status("Instance #{instance_id} has IP address #{ip}")
     rescue NoMethodError
-      print_error("Could not retrieve instance IP address")
+      print_error('Could not retrieve instance IP address')
     end
   end
 
@@ -105,11 +110,13 @@ class MetasploitModule < Msf::Auxiliary
       'NetworkInterface.1.DeviceIndex' => '0'
     }
     opts['IamInstanceProfile.Name'] = datastore['ROLE_NAME'] unless datastore['ROLE_NAME'].blank?
-    unless datastore['USERDATA_FILE'].blank?
-      if File.exist?(datastore['USERDATA_FILE'])
-        opts['UserData'] = URI::DEFAULT_PARSER.escape(Base64.encode64(open(datastore['USERDATA_FILE'], 'r').read).strip)
+
+    fname = datastore['USERDATA_FILE']
+    unless fname.blank?
+      if File.exist?(fname)
+        opts['UserData'] = URI::DEFAULT_PARSER.escape(Base64.encode64(::File.read(fname, mode: 'r').strip))
       else
-        print_error("Could not open userdata file: #{datastore['USERDATA_FILE']}")
+        print_error("Could not open userdata file: #{fname}")
       end
     end
     opts
@@ -121,6 +128,7 @@ class MetasploitModule < Msf::Auxiliary
     doc = call_ec2(creds, opts(action, subnet, sg))
     doc = print_results(doc, action)
     return if doc.nil?
+
     # TODO: account for multiple instances
     if doc['instancesSet']['item'].instance_of?(Array)
       instance_id = doc['instancesSet']['item'].first['instanceId']
@@ -134,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
       doc = call_ec2(creds, 'Action' => action, 'InstanceId' => instance_id)
       doc = print_results(doc, action)
       if doc['instanceStatusSet'].nil?
-        print_error("Error, could not get instance status, instance possibly terminated")
+        print_error('Error, could not get instance status, instance possibly terminated')
         break
       end
       status = doc['instanceStatusSet']['item']['systemStatus']['status']
@@ -150,16 +158,14 @@ class MetasploitModule < Msf::Auxiliary
     if doc['Response'].nil?
       doc = print_results(doc, action)
       if doc['keyName'].nil? || doc['keyFingerprint'].nil?
-        print_error("Error creating key using provided key material (SSH_PUB_KEY)")
+        print_error('Error creating key using provided key material (SSH_PUB_KEY)')
       else
         print_status("Created #{doc['keyName']} (#{doc['keyFingerprint']})")
       end
+    elsif doc['Response']['Errors'] && doc['Response']['Errors']['Error']
+      print_error(doc['Response']['Errors']['Error']['Message'])
     else
-      if doc['Response']['Errors'] && doc['Response']['Errors']['Error']
-        print_error(doc['Response']['Errors']['Error']['Message'])
-      else
-        print_error("Error creating key using provided key material (SSH_PUB_KEY)")
-      end
+      print_error('Error creating key using provided key material (SSH_PUB_KEY)')
     end
   end
 
@@ -180,6 +186,7 @@ class MetasploitModule < Msf::Auxiliary
     vpc_route_table = doc['routeTableSet']['item'].select { |x| x['vpcId'] == vpc_id }
     vpc_route_table.each do |route_table|
       next if route_table['associationSet'].nil? || route_table['routeSet'].nil?
+
       entries = route_table['routeSet']['item']
       if entries.instance_of?(Hash)
         if entries['gatewayId'].start_with?('igw-')
@@ -201,7 +208,8 @@ class MetasploitModule < Msf::Auxiliary
     action = 'CreateSecurityGroup'
     doc = call_ec2(creds, 'Action' => action, 'GroupName' => name, 'VpcId' => vpc_id, 'GroupDescription' => name)
     doc = print_results(doc, action)
-    print_error("Could not create SG") && return if doc['groupId'].nil?
+    print_error('Could not create SG') && return if doc['groupId'].nil?
+
     sg = doc['groupId']
     proto, port = datastore['SEC_GROUP_PORT'].split(':')
     cidr = URI::DEFAULT_PARSER.escape(datastore['SEC_GROUP_CIDR'])
@@ -216,7 +224,7 @@ class MetasploitModule < Msf::Auxiliary
     if doc['return'] && doc['return'] == 'true'
       print_status("Created security group: #{sg}")
     else
-      print_error("Failed creating security group")
+      print_error('Failed creating security group')
     end
     sg
   end
@@ -232,6 +240,7 @@ class MetasploitModule < Msf::Auxiliary
     item = doc['vpcSet']['item']
     return item['vpcId'] if item.instance_of?(Hash)
     return item.first['vpcId'] if item.instance_of?(Array) && !item.first['vpcId'].nil?
+
     print_error("Could not determine VPC ID for #{datastore['AccessKeyId']} in #{datastore['RHOST']}")
     nil
   end

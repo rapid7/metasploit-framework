@@ -10,7 +10,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/aix/ppc/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'aix/ppc/shell_bind_tcp'
   end
@@ -20,7 +19,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/aix/ppc/shell_find_port'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'aix/ppc/shell_find_port'
   end
@@ -30,7 +28,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/aix/ppc/shell_interact'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'aix/ppc/shell_interact'
   end
@@ -40,7 +37,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/aix/ppc/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'aix/ppc/shell_reverse_tcp'
   end
@@ -50,7 +46,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/apple_ios/aarch64/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'apple_ios/aarch64/meterpreter_reverse_http'
   end
@@ -60,7 +55,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/apple_ios/aarch64/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'apple_ios/aarch64/meterpreter_reverse_https'
   end
@@ -70,7 +64,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/apple_ios/aarch64/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'apple_ios/aarch64/meterpreter_reverse_tcp'
   end
@@ -80,7 +73,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/apple_ios/aarch64/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'apple_ios/aarch64/shell_reverse_tcp'
   end
@@ -90,7 +82,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/apple_ios/armle/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'apple_ios/armle/meterpreter_reverse_http'
   end
@@ -100,7 +91,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/apple_ios/armle/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'apple_ios/armle/meterpreter_reverse_https'
   end
@@ -110,7 +100,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/apple_ios/armle/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'apple_ios/armle/meterpreter_reverse_tcp'
   end
@@ -120,7 +109,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/android/meterpreter_reverse_https'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'android/meterpreter_reverse_https'
   end
@@ -130,7 +118,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/android/meterpreter_reverse_http'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'android/meterpreter_reverse_http'
   end
@@ -140,7 +127,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/android/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'android/meterpreter_reverse_tcp'
   end
@@ -151,7 +137,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/android/reverse_http',
                               'stages/android/meterpreter'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'android/meterpreter/reverse_http'
   end
@@ -162,7 +147,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/android/reverse_https',
                               'stages/android/meterpreter'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'android/meterpreter/reverse_https'
   end
@@ -173,7 +157,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/android/reverse_tcp',
                               'stages/android/meterpreter'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'android/meterpreter/reverse_tcp'
   end
@@ -184,7 +167,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/android/reverse_http',
                               'stages/android/shell'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'android/shell/reverse_http'
   end
@@ -195,7 +177,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/android/reverse_https',
                               'stages/android/shell'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'android/shell/reverse_https'
   end
@@ -206,7 +187,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/android/reverse_tcp',
                               'stages/android/shell'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'android/shell/reverse_tcp'
   end
@@ -216,7 +196,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/sparc/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/sparc/shell_bind_tcp'
   end
@@ -226,7 +205,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/sparc/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/sparc/shell_reverse_tcp'
   end
@@ -236,7 +214,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/vax/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/vax/shell_reverse_tcp'
   end
@@ -246,7 +223,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x64/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x64/exec'
   end
@@ -256,7 +232,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x64/shell_bind_ipv6_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x64/shell_bind_ipv6_tcp'
   end
@@ -266,7 +241,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x64/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x64/shell_bind_tcp'
   end
@@ -276,7 +250,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x64/shell_bind_tcp_small'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x64/shell_bind_tcp_small'
   end
@@ -286,7 +259,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x64/shell_reverse_ipv6_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x64/shell_reverse_ipv6_tcp'
   end
@@ -296,7 +268,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x64/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x64/shell_reverse_tcp'
   end
@@ -306,7 +277,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x64/shell_reverse_tcp_small'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x64/shell_reverse_tcp_small'
   end
@@ -316,7 +286,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x86/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/exec'
   end
@@ -326,7 +295,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x86/metsvc_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/metsvc_bind_tcp'
   end
@@ -336,7 +304,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x86/metsvc_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/metsvc_reverse_tcp'
   end
@@ -347,7 +314,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/bsd/x86/bind_ipv6_tcp',
                               'stages/bsd/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/shell/bind_ipv6_tcp'
   end
@@ -358,7 +324,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/bsd/x86/bind_tcp',
                               'stages/bsd/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/shell/bind_tcp'
   end
@@ -369,7 +334,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/bsd/x86/find_tag',
                               'stages/bsd/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/shell/find_tag'
   end
@@ -380,7 +344,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/bsd/x86/reverse_ipv6_tcp',
                               'stages/bsd/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/shell/reverse_ipv6_tcp'
   end
@@ -391,7 +354,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/bsd/x86/reverse_tcp',
                               'stages/bsd/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/shell/reverse_tcp'
   end
@@ -401,7 +363,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x86/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/shell_bind_tcp'
   end
@@ -411,7 +372,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x86/shell_bind_tcp_ipv6'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/shell_bind_tcp_ipv6'
   end
@@ -421,7 +381,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x86/shell_find_port'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/shell_find_port'
   end
@@ -431,7 +390,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x86/shell_find_tag'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/shell_find_tag'
   end
@@ -441,7 +399,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x86/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/shell_reverse_tcp'
   end
@@ -451,7 +408,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsd/x86/shell_reverse_tcp_ipv6'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x86/shell_reverse_tcp_ipv6'
   end
@@ -462,7 +418,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/bsdi/x86/bind_tcp',
                               'stages/bsdi/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsdi/x86/shell/bind_tcp'
   end
@@ -473,7 +428,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/bsdi/x86/reverse_tcp',
                               'stages/bsdi/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsdi/x86/shell/reverse_tcp'
   end
@@ -483,7 +437,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsdi/x86/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsdi/x86/shell_bind_tcp'
   end
@@ -493,7 +446,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsdi/x86/shell_find_port'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsdi/x86/shell_find_port'
   end
@@ -503,7 +455,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/bsdi/x86/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsdi/x86/shell_reverse_tcp'
   end
@@ -514,6 +465,22 @@ RSpec.describe 'modules/payloads', :content do
                             'adapters/cmd/linux/http/mips64'
                           ],
                           reference_name: 'cmd/linux/http/mips64'
+  end
+
+  context 'cmd/linux/http/riscv32le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/riscv32le'
+                          ],
+                          reference_name: 'cmd/linux/http/riscv32le'
+  end
+
+  context 'cmd/linux/http/riscv64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/riscv64le'
+                          ],
+                          reference_name: 'cmd/linux/http/riscv64le'
   end
 
   context 'cmd/linux/https/mips64' do
@@ -532,12 +499,28 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/linux/tftp/mips64'
   end
 
+  context 'cmd/linux/http/multi' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/multi'
+                          ],
+                          reference_name: 'cmd/linux/http/multi'
+  end
+
   context 'cmd/linux/http/x64' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
                             'adapters/cmd/linux/http/x64'
                           ],
                           reference_name: 'cmd/linux/http/x64'
+  end
+
+  context 'cmd/linux/https/multi' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/multi'
+                          ],
+                          reference_name: 'cmd/linux/https/multi'
   end
 
   context 'cmd/linux/https/x64' do
@@ -677,6 +660,22 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/linux/tftp/mipsle'
   end
 
+  context 'cmd/linux/https/riscv32le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/riscv32le'
+                          ],
+                          reference_name: 'cmd/linux/https/riscv32le'
+  end
+
+  context 'cmd/linux/https/riscv64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/riscv64le'
+                          ],
+                          reference_name: 'cmd/linux/https/riscv64le'
+  end
+
   context 'cmd/linux/http/ppc' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -724,7 +723,7 @@ RSpec.describe 'modules/payloads', :content do
                           ],
                           reference_name: 'cmd/linux/tftp/ppc64'
   end
-  
+
   context 'cmd/linux/http/ppc64le' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -747,6 +746,22 @@ RSpec.describe 'modules/payloads', :content do
                             'adapters/cmd/linux/tftp/ppc64le'
                           ],
                           reference_name: 'cmd/linux/tftp/ppc64le'
+  end
+
+  context 'cmd/linux/tftp/riscv32le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/riscv32le'
+                          ],
+                          reference_name: 'cmd/linux/tftp/riscv32le'
+  end
+
+  context 'cmd/linux/tftp/riscv64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/riscv64le'
+                          ],
+                          reference_name: 'cmd/linux/tftp/riscv64le'
   end
 
   context 'cmd/linux/http/x86' do
@@ -773,12 +788,107 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/linux/tftp/x86'
   end
 
+  context 'cmd/linux/ftp/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/ftp/x64'
+                          ],
+                          reference_name: 'cmd/linux/ftp/x64'
+  end
+
+  context 'cmd/linux/ftp/x86' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/ftp/x86'
+                          ],
+                          reference_name: 'cmd/linux/ftp/x86'
+  end
+
+  context 'cmd/linux/ftp/aarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/ftp/aarch64'
+                          ],
+                          reference_name: 'cmd/linux/ftp/aarch64'
+  end
+
+  context 'cmd/linux/ftp/armbe' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/ftp/armbe'
+                          ],
+                          reference_name: 'cmd/linux/ftp/armbe'
+  end
+
+  context 'cmd/linux/ftp/armle' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/ftp/armle'
+                          ],
+                          reference_name: 'cmd/linux/ftp/armle'
+  end
+
+  context 'cmd/linux/ftp/mips64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/ftp/mips64'
+                          ],
+                          reference_name: 'cmd/linux/ftp/mips64'
+  end
+
+  context 'cmd/linux/ftp/mipsbe' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/ftp/mipsbe'
+                          ],
+                          reference_name: 'cmd/linux/ftp/mipsbe'
+  end
+
+  context 'cmd/linux/ftp/mipsle' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/ftp/mipsle'
+                          ],
+                          reference_name: 'cmd/linux/ftp/mipsle'
+  end
+
+  context 'cmd/linux/ftp/ppc' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/ftp/ppc'
+                          ],
+                          reference_name: 'cmd/linux/ftp/ppc'
+  end
+
+  context 'cmd/linux/ftp/ppc64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/ftp/ppc64'
+                          ],
+                          reference_name: 'cmd/linux/ftp/ppc64'
+  end
+
+  context 'cmd/linux/ftp/riscv32le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/ftp/riscv32le'
+                          ],
+                          reference_name: 'cmd/linux/ftp/riscv32le'
+  end
+
+  context 'cmd/linux/ftp/riscv64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/ftp/riscv64le'
+                          ],
+                          reference_name: 'cmd/linux/ftp/riscv64le'
+  end
+
   context 'cmd/mainframe/generic_jcl' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                               'singles/cmd/mainframe/generic_jcl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/mainframe/generic_jcl'
   end
@@ -788,7 +898,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/mainframe/bind_shell_jcl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/mainframe/bind_shell_jcl'
   end
@@ -798,7 +907,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/mainframe/reverse_shell_jcl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/mainframe/reverse_shell_jcl'
   end
@@ -808,7 +916,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/mainframe/apf_privesc_jcl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/mainframe/apf_privesc_jcl'
   end
@@ -818,7 +925,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_awk'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_awk'
   end
@@ -828,7 +934,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/cmd/unix/bind_aws_instance_connect'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_aws_instance_connect'
   end
@@ -838,7 +943,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/cmd/unix/adduser'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/adduser'
   end
@@ -848,7 +952,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_busybox_telnetd'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_busybox_telnetd'
   end
@@ -858,7 +961,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_inetd'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_inetd'
   end
@@ -868,7 +970,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_lua'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_lua'
   end
@@ -878,7 +979,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_jjs'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_jjs'
   end
@@ -888,7 +988,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_netcat'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_netcat'
   end
@@ -898,7 +997,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_netcat_gaping'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_netcat_gaping'
   end
@@ -908,7 +1006,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_netcat_gaping_ipv6'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_netcat_gaping_ipv6'
   end
@@ -918,7 +1015,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_nodejs'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_nodejs'
   end
@@ -928,9 +1024,17 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/cmd/unix/bind_socat_sctp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_socat_sctp'
+  end
+
+  context 'cmd/unix/bind_socat_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/cmd/unix/bind_socat_tcp'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/bind_socat_tcp'
   end
 
   context 'cmd/unix/bind_socat_udp' do
@@ -938,7 +1042,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_socat_udp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_socat_udp'
   end
@@ -948,7 +1051,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/cmd/unix/reverse_socat_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_socat_tcp'
   end
@@ -958,7 +1060,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_perl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_perl'
   end
@@ -968,7 +1069,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_perl_ipv6'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_perl_ipv6'
   end
@@ -978,7 +1078,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/cmd/unix/bind_r'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_r'
   end
@@ -988,7 +1087,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_ruby'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_ruby'
   end
@@ -998,7 +1096,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_ruby_ipv6'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_ruby_ipv6'
   end
@@ -1008,7 +1105,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_stub'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_stub'
   end
@@ -1018,7 +1114,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_zsh'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_zsh'
   end
@@ -1028,7 +1123,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/generic'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/generic'
   end
@@ -1038,9 +1132,16 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/interact'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/interact'
+  end
+
+  context 'cmd/unix/php' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/unix/php'
+                          ],
+                          reference_name: 'cmd/unix/php'
   end
 
   context 'cmd/unix/pingback_bind' do
@@ -1048,7 +1149,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/pingback_bind'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/pingback_bind'
   end
@@ -1058,7 +1158,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/pingback_reverse'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/pingback_reverse'
   end
@@ -1071,12 +1170,20 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/python'
   end
 
+
+  context 'cmd/unix/php' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/unix/php'
+                          ],
+                          reference_name: 'cmd/unix/php'
+  end
+
   context 'cmd/unix/reverse' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse'
   end
@@ -1086,7 +1193,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_awk'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_awk'
   end
@@ -1096,7 +1202,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_bash'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_bash'
   end
@@ -1106,7 +1211,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/cmd/unix/reverse_bash_udp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_bash_udp'
   end
@@ -1116,7 +1220,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_bash_telnet_ssl'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_bash_telnet_ssl'
   end
@@ -1126,7 +1229,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_ksh'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_ksh'
   end
@@ -1136,7 +1238,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_jjs'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_jjs'
   end
@@ -1146,7 +1247,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_lua'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_lua'
   end
@@ -1156,7 +1256,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/cmd/unix/reverse_ncat_ssl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_ncat_ssl'
   end
@@ -1166,7 +1265,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_netcat'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_netcat'
   end
@@ -1176,7 +1274,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_netcat_gaping'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_netcat_gaping'
   end
@@ -1186,7 +1283,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_nodejs'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_nodejs'
   end
@@ -1196,7 +1292,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_openssl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_openssl'
   end
@@ -1206,7 +1301,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/cmd/unix/reverse_socat_sctp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_socat_sctp'
   end
@@ -1216,7 +1310,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_socat_udp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_socat_udp'
   end
@@ -1226,7 +1319,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_ssh'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_ssh'
   end
@@ -1236,7 +1328,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_perl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_perl'
   end
@@ -1246,7 +1337,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_perl_ssl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_perl_ssl'
   end
@@ -1256,7 +1346,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_php_ssl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_php_ssl'
   end
@@ -1266,7 +1355,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_python'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_python'
   end
@@ -1276,7 +1364,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_python_ssl'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_python_ssl'
   end
@@ -1286,7 +1373,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/cmd/unix/reverse_r'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_r'
   end
@@ -1296,7 +1382,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_ruby'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_ruby'
   end
@@ -1306,7 +1391,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_ruby_ssl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_ruby_ssl'
   end
@@ -1316,7 +1400,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_ssl_double_telnet'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_ssl_double_telnet'
   end
@@ -1326,7 +1409,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_stub'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_stub'
   end
@@ -1336,7 +1418,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_tclsh'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_tclsh'
   end
@@ -1346,7 +1427,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_zsh'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_zsh'
   end
@@ -1356,7 +1436,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/adduser'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/adduser'
   end
@@ -1366,7 +1445,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/bind_lua'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/bind_lua'
   end
@@ -1376,7 +1454,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/bind_perl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/bind_perl'
   end
@@ -1386,7 +1463,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/bind_perl_ipv6'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/bind_perl_ipv6'
   end
@@ -1396,7 +1472,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/bind_ruby'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/bind_ruby'
   end
@@ -1406,7 +1481,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/download_eval_vbs'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/download_eval_vbs'
   end
@@ -1416,7 +1490,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/download_exec_vbs'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/download_exec_vbs'
   end
@@ -1426,7 +1499,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/generic'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/generic'
   end
@@ -1439,12 +1511,44 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/http/x64'
   end
 
+  context 'cmd/windows/http/x86' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/http/x86'
+                          ],
+                          reference_name: 'cmd/windows/http/x86'
+  end
+
   context 'cmd/windows/https/x64' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
                             'adapters/cmd/windows/https/x64'
                           ],
                           reference_name: 'cmd/windows/https/x64'
+  end
+
+  context 'cmd/windows/https/x86' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/https/x86'
+                          ],
+                          reference_name: 'cmd/windows/https/x86'
+  end
+
+  context 'cmd/windows/ftp/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/ftp/x64'
+                          ],
+                          reference_name: 'cmd/windows/ftp/x64'
+  end
+
+  context 'cmd/windows/ftp/x86' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/ftp/x86'
+                          ],
+                          reference_name: 'cmd/windows/ftp/x86'
   end
 
   context 'cmd/windows/powershell' do
@@ -1468,7 +1572,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/powershell_bind_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/powershell_bind_tcp'
   end
@@ -1478,7 +1581,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/powershell_reverse_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/powershell_reverse_tcp'
   end
@@ -1488,7 +1590,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/cmd/windows/powershell_reverse_tcp_ssl'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/powershell_reverse_tcp_ssl'
   end
@@ -1506,7 +1607,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/reverse_lua'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/reverse_lua'
   end
@@ -1516,7 +1616,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/reverse_perl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/reverse_perl'
   end
@@ -1526,7 +1625,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/reverse_powershell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/reverse_powershell'
   end
@@ -1536,7 +1634,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/reverse_ruby'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/reverse_ruby'
   end
@@ -1546,7 +1643,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/cmd/windows/jjs_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/jjs_reverse_tcp'
   end
@@ -1572,7 +1668,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/firefox/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'firefox/exec'
   end
@@ -1582,7 +1677,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/firefox/shell_bind_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'firefox/shell_bind_tcp'
   end
@@ -1592,7 +1686,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/firefox/shell_reverse_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'firefox/shell_reverse_tcp'
   end
@@ -1602,7 +1695,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/generic/custom'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'generic/custom'
   end
@@ -1612,7 +1704,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/generic/debug_trap'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'generic/debug_trap'
   end
@@ -1622,7 +1713,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/generic/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'generic/shell_bind_tcp'
   end
@@ -1632,7 +1722,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/generic/shell_bind_aws_ssm'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'generic/shell_bind_aws_ssm'
   end
@@ -1642,7 +1731,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/generic/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'generic/shell_reverse_tcp'
   end
@@ -1661,7 +1749,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/generic/tight_loop'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'generic/tight_loop'
   end
@@ -1671,7 +1758,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/java/jsp_shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'java/jsp_shell_bind_tcp'
   end
@@ -1681,7 +1767,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/java/jsp_shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'java/jsp_shell_reverse_tcp'
   end
@@ -1692,7 +1777,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/java/bind_tcp',
                               'stages/java/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'java/meterpreter/bind_tcp'
   end
@@ -1703,7 +1787,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/java/reverse_http',
                               'stages/java/meterpreter'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'java/meterpreter/reverse_http'
   end
@@ -1714,7 +1797,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/java/reverse_https',
                               'stages/java/meterpreter'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'java/meterpreter/reverse_https'
   end
@@ -1725,7 +1807,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/java/reverse_tcp',
                               'stages/java/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'java/meterpreter/reverse_tcp'
   end
@@ -1736,7 +1817,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/java/bind_tcp',
                               'stages/java/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'java/shell/bind_tcp'
   end
@@ -1747,7 +1827,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/java/reverse_tcp',
                               'stages/java/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'java/shell/reverse_tcp'
   end
@@ -1757,9 +1836,26 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/java/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'java/shell_reverse_tcp'
+  end
+
+  context 'linux/aarch64/chmod' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/aarch64/chmod'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/aarch64/chmod'
+  end
+
+  context 'linux/aarch64/exec' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/aarch64/exec'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/aarch64/exec'
   end
 
   context 'linux/aarch64/shell_reverse_tcp' do
@@ -1767,7 +1863,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/aarch64/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/aarch64/shell_reverse_tcp'
   end
@@ -1777,7 +1872,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/aarch64/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/aarch64/meterpreter_reverse_http'
   end
@@ -1787,7 +1881,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/aarch64/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/aarch64/meterpreter_reverse_https'
   end
@@ -1798,18 +1891,15 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/aarch64/reverse_tcp',
                             'stages/linux/aarch64/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/aarch64/shell/reverse_tcp'
   end
-
 
   context 'linux/armbe/shell_bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                               'singles/linux/armbe/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armbe/shell_bind_tcp'
   end
@@ -1819,9 +1909,17 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/armle/adduser'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armle/adduser'
+  end
+
+  context 'linux/armle/chmod' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/armle/chmod'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armle/chmod'
   end
 
   context 'linux/armle/exec' do
@@ -1829,7 +1927,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/armle/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armle/exec'
   end
@@ -1840,7 +1937,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/linux/armle/bind_tcp',
                               'stages/linux/armle/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armle/shell/bind_tcp'
   end
@@ -1851,7 +1947,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/linux/armle/reverse_tcp',
                               'stages/linux/armle/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armle/shell/reverse_tcp'
   end
@@ -1861,7 +1956,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/armle/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armle/shell_bind_tcp'
   end
@@ -1871,7 +1965,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/armle/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armle/shell_reverse_tcp'
   end
@@ -1881,7 +1974,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/mipsbe/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsbe/exec'
   end
@@ -1891,7 +1983,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/mipsbe/reboot'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsbe/reboot'
   end
@@ -1902,7 +1993,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/linux/mipsbe/reverse_tcp',
                               'stages/linux/mipsbe/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsbe/shell/reverse_tcp'
   end
@@ -1912,7 +2002,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/mipsbe/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsbe/shell_bind_tcp'
   end
@@ -1922,7 +2011,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/mipsbe/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsbe/shell_reverse_tcp'
   end
@@ -1932,7 +2020,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/mipsle/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsle/exec'
   end
@@ -1942,7 +2029,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/mipsle/reboot'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsle/reboot'
   end
@@ -1953,7 +2039,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/linux/mipsle/reverse_tcp',
                               'stages/linux/mipsle/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsle/shell/reverse_tcp'
   end
@@ -1963,7 +2048,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/mipsle/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsle/shell_bind_tcp'
   end
@@ -1973,7 +2057,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/mipsle/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsle/shell_reverse_tcp'
   end
@@ -1983,7 +2066,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/ppc/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/ppc/shell_bind_tcp'
   end
@@ -1993,7 +2075,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/ppc/shell_find_port'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/ppc/shell_find_port'
   end
@@ -2003,7 +2084,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/ppc/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/ppc/shell_reverse_tcp'
   end
@@ -2013,7 +2093,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/ppc64/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/ppc64/shell_bind_tcp'
   end
@@ -2023,7 +2102,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/ppc64/shell_find_port'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/ppc64/shell_find_port'
   end
@@ -2033,9 +2111,17 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/ppc64/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/ppc64/shell_reverse_tcp'
+  end
+
+  context 'linux/riscv32le/chmod' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv32le/chmod'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv32le/chmod'
   end
 
   context 'linux/riscv32le/exec' do
@@ -2043,7 +2129,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/riscv32le/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/riscv32le/exec'
   end
@@ -2053,9 +2138,55 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/riscv32le/reboot'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/riscv32le/reboot'
+  end
+
+  context 'linux/riscv32le/shell/bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/linux/riscv32le/bind_tcp',
+                              'stages/linux/riscv32le/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv32le/shell/bind_tcp'
+  end
+
+  context 'linux/riscv32le/shell/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/linux/riscv32le/reverse_tcp',
+                              'stages/linux/riscv32le/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv32le/shell/reverse_tcp'
+  end
+
+  context 'linux/riscv32le/shell_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv32le/shell_bind_tcp'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv32le/shell_bind_tcp'
+  end
+
+  context 'linux/riscv32le/shell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv32le/shell_reverse_tcp'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv32le/shell_reverse_tcp'
+  end
+
+  context 'linux/riscv64le/chmod' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv64le/chmod'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv64le/chmod'
   end
 
   context 'linux/riscv64le/exec' do
@@ -2063,7 +2194,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/riscv64le/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/riscv64le/exec'
   end
@@ -2073,9 +2203,73 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/riscv64le/reboot'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/riscv64le/reboot'
+  end
+
+  context 'linux/riscv64le/shell/bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/linux/riscv64le/bind_tcp',
+                              'stages/linux/riscv64le/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv64le/shell/bind_tcp'
+  end
+
+  context 'linux/riscv64le/shell/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/linux/riscv64le/reverse_tcp',
+                              'stages/linux/riscv64le/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv64le/shell/reverse_tcp'
+  end
+
+  context 'linux/riscv64le/shell_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv64le/shell_bind_tcp'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv64le/shell_bind_tcp'
+  end
+
+  context 'linux/riscv64le/shell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/riscv64le/shell_reverse_tcp'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/riscv64le/shell_reverse_tcp'
+  end
+
+  context 'linux/loongarch64/chmod' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/loongarch64/chmod'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/loongarch64/chmod'
+  end
+
+  context 'linux/loongarch64/reboot' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/loongarch64/reboot'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/loongarch64/reboot'
+  end
+
+  context 'linux/loongarch64/exec' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/loongarch64/exec'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/loongarch64/exec'
   end
 
   context 'linux/x64/exec' do
@@ -2083,9 +2277,17 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x64/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/exec'
+  end
+
+  context 'linux/x64/set_hostname' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/x64/set_hostname'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x64/set_hostname'
   end
 
   context 'linux/x64/pingback_bind_tcp' do
@@ -2093,7 +2295,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x64/pingback_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/pingback_bind_tcp'
   end
@@ -2103,7 +2304,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x64/pingback_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/pingback_reverse_tcp'
   end
@@ -2114,7 +2314,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/linux/x64/bind_tcp',
                               'stages/linux/x64/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/shell/bind_tcp'
   end
@@ -2125,7 +2324,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/x64/reverse_sctp',
                             'stages/linux/x64/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/shell/reverse_sctp'
   end
@@ -2136,7 +2334,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/linux/x64/reverse_tcp',
                               'stages/linux/x64/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/shell/reverse_tcp'
   end
@@ -2146,7 +2343,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x64/shell_bind_ipv6_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/shell_bind_ipv6_tcp'
   end
@@ -2156,7 +2352,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x64/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/shell_bind_tcp'
   end
@@ -2166,7 +2361,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x64/shell_bind_tcp_random_port'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/shell_bind_tcp_random_port'
   end
@@ -2176,7 +2370,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x64/shell_find_port'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/shell_find_port'
   end
@@ -2186,7 +2379,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x64/shell_reverse_ipv6_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/shell_reverse_ipv6_tcp'
   end
@@ -2196,7 +2388,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x64/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/shell_reverse_tcp'
   end
@@ -2206,7 +2397,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x86/adduser'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/adduser'
   end
@@ -2216,7 +2406,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x86/chmod'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/chmod'
   end
@@ -2226,7 +2415,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x86/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/exec'
   end
@@ -2236,7 +2424,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x86/read_file'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/read_file'
   end
@@ -2247,7 +2434,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/linux/x86/bind_ipv6_tcp',
                               'stages/linux/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell/bind_ipv6_tcp'
   end
@@ -2258,7 +2444,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/linux/x86/bind_nonx_tcp',
                               'stages/linux/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell/bind_nonx_tcp'
   end
@@ -2269,7 +2454,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/linux/x86/bind_tcp',
                               'stages/linux/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell/bind_tcp'
   end
@@ -2280,7 +2464,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/linux/x86/find_tag',
                               'stages/linux/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell/find_tag'
   end
@@ -2291,7 +2474,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/linux/x86/reverse_ipv6_tcp',
                               'stages/linux/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell/reverse_ipv6_tcp'
   end
@@ -2302,7 +2484,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/linux/x86/reverse_nonx_tcp',
                               'stages/linux/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell/reverse_nonx_tcp'
   end
@@ -2313,7 +2494,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/linux/x86/reverse_tcp',
                               'stages/linux/x86/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell/reverse_tcp'
   end
@@ -2323,7 +2503,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_bind_ipv6_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell_bind_ipv6_tcp'
   end
@@ -2333,7 +2512,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell_bind_tcp'
   end
@@ -2343,7 +2521,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_bind_tcp_random_port'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell_bind_tcp_random_port'
   end
@@ -2353,7 +2530,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_find_port'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell_find_port'
   end
@@ -2363,7 +2539,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_find_tag'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell_find_tag'
   end
@@ -2373,7 +2548,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell_reverse_tcp'
   end
@@ -2383,7 +2557,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_reverse_tcp_ipv6'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell_reverse_tcp_ipv6'
   end
@@ -2393,7 +2566,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/mainframe/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'mainframe/shell_reverse_tcp'
   end
@@ -2404,7 +2576,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/multi/reverse_http',
                             'stages/multi/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'multi/meterpreter/reverse_http'
   end
@@ -2415,7 +2586,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/multi/reverse_https',
                             'stages/multi/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'multi/meterpreter/reverse_https'
   end
@@ -2426,7 +2596,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/netware/reverse_tcp',
                               'stages/netware/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'netware/shell/reverse_tcp'
   end
@@ -2436,7 +2605,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/nodejs/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'nodejs/shell_bind_tcp'
   end
@@ -2446,7 +2614,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/nodejs/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'nodejs/shell_reverse_tcp'
   end
@@ -2456,7 +2623,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/nodejs/shell_reverse_tcp_ssl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'nodejs/shell_reverse_tcp_ssl'
   end
@@ -2466,7 +2632,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/osx/aarch64/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/aarch64/exec'
   end
@@ -2476,7 +2641,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/aarch64/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/aarch64/shell_reverse_tcp'
   end
@@ -2487,7 +2651,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/osx/aarch64/reverse_tcp',
                             'stages/osx/aarch64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/aarch64/meterpreter/reverse_tcp'
   end
@@ -2497,7 +2660,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/osx/aarch64/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/aarch64/meterpreter_reverse_http'
   end
@@ -2507,7 +2669,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/osx/aarch64/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/aarch64/meterpreter_reverse_https'
   end
@@ -2517,7 +2678,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/aarch64/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/aarch64/shell_bind_tcp'
   end
@@ -2527,7 +2687,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/osx/aarch64/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/aarch64/meterpreter_reverse_tcp'
   end
@@ -2538,7 +2697,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/armle/bind_tcp',
                               'stages/osx/armle/execute'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/armle/execute/bind_tcp'
   end
@@ -2549,7 +2707,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/armle/reverse_tcp',
                               'stages/osx/armle/execute'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/armle/execute/reverse_tcp'
   end
@@ -2560,7 +2717,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/armle/bind_tcp',
                               'stages/osx/armle/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/armle/shell/bind_tcp'
   end
@@ -2571,7 +2727,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/armle/reverse_tcp',
                               'stages/osx/armle/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/armle/shell/reverse_tcp'
   end
@@ -2581,7 +2736,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/armle/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/armle/shell_bind_tcp'
   end
@@ -2591,7 +2745,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/armle/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/armle/shell_reverse_tcp'
   end
@@ -2601,7 +2754,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/armle/vibrate'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/armle/vibrate'
   end
@@ -2612,7 +2764,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/ppc/bind_tcp',
                               'stages/osx/ppc/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/ppc/shell/bind_tcp'
   end
@@ -2623,7 +2774,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/ppc/find_tag',
                               'stages/osx/ppc/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/ppc/shell/find_tag'
   end
@@ -2634,7 +2784,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/ppc/reverse_tcp',
                               'stages/osx/ppc/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/ppc/shell/reverse_tcp'
   end
@@ -2644,7 +2793,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/ppc/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/ppc/shell_bind_tcp'
   end
@@ -2654,7 +2802,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/ppc/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/ppc/shell_reverse_tcp'
   end
@@ -2665,7 +2812,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/x64/bind_tcp',
                               'stages/osx/x64/dupandexecve'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x64/dupandexecve/bind_tcp'
   end
@@ -2676,7 +2822,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/x64/reverse_tcp',
                               'stages/osx/x64/dupandexecve'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x64/dupandexecve/reverse_tcp'
   end
@@ -2686,7 +2831,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/x64/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x64/exec'
   end
@@ -2697,7 +2841,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/x64/bind_tcp',
                               'stages/osx/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x64/meterpreter/bind_tcp'
   end
@@ -2708,7 +2851,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/x64/reverse_tcp',
                               'stages/osx/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x64/meterpreter/reverse_tcp'
   end
@@ -2719,7 +2861,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/x64/reverse_tcp_uuid',
                               'stages/osx/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x64/meterpreter/reverse_tcp_uuid'
   end
@@ -2729,7 +2870,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/osx/x64/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x64/meterpreter_reverse_http'
   end
@@ -2739,7 +2879,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/osx/x64/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x64/meterpreter_reverse_https'
   end
@@ -2749,7 +2888,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/osx/x64/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x64/meterpreter_reverse_tcp'
   end
@@ -2759,7 +2897,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/x64/say'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x64/say'
   end
@@ -2769,7 +2906,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/x64/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x64/shell_bind_tcp'
   end
@@ -2779,7 +2915,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/x64/shell_find_tag'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x64/shell_find_tag'
   end
@@ -2789,7 +2924,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/x64/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x64/shell_reverse_tcp'
   end
@@ -2800,7 +2934,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/x86/bind_tcp',
                               'stages/osx/x86/bundleinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/bundleinject/bind_tcp'
   end
@@ -2811,7 +2944,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/x86/reverse_tcp',
                               'stages/osx/x86/bundleinject',
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/bundleinject/reverse_tcp'
   end
@@ -2821,7 +2953,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/x86/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/exec'
   end
@@ -2832,7 +2963,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/x86/bind_tcp',
                               'stages/osx/x86/isight'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/isight/bind_tcp'
   end
@@ -2843,7 +2973,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/x86/reverse_tcp',
                               'stages/osx/x86/isight'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/isight/reverse_tcp'
   end
@@ -2853,7 +2982,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/x86/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/shell_bind_tcp'
   end
@@ -2863,7 +2991,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/x86/shell_find_port'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/shell_find_port'
   end
@@ -2873,7 +3000,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/x86/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/shell_reverse_tcp'
   end
@@ -2884,7 +3010,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/x86/bind_tcp',
                               'stages/osx/x86/vforkshell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/vforkshell/bind_tcp'
   end
@@ -2895,7 +3020,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/osx/x86/reverse_tcp',
                               'stages/osx/x86/vforkshell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/vforkshell/reverse_tcp'
   end
@@ -2905,7 +3029,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/x86/vforkshell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/vforkshell_bind_tcp'
   end
@@ -2915,29 +3038,8 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/osx/x86/vforkshell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/vforkshell_reverse_tcp'
-  end
-
-  context 'php/bind_perl' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/php/bind_perl'
-                          ],
-                          dynamic_size: true,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'php/bind_perl'
-  end
-
-  context 'php/bind_perl_ipv6' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/php/bind_perl_ipv6'
-                          ],
-                          dynamic_size: true,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'php/bind_perl_ipv6'
   end
 
   context 'php/bind_php' do
@@ -2945,7 +3047,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/php/bind_php'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/bind_php'
   end
@@ -2955,9 +3056,16 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/php/bind_php_ipv6'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/bind_php_ipv6'
+  end
+
+  context 'php/unix/cmd' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/php/unix/cmd'
+                          ],
+                          reference_name: 'php/unix/cmd '
   end
 
   context 'php/download_exec' do
@@ -2965,7 +3073,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/php/download_exec'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/download_exec'
   end
@@ -2975,7 +3082,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/php/exec'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/exec'
   end
@@ -2986,7 +3092,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/php/bind_tcp',
                               'stages/php/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/meterpreter/bind_tcp'
   end
@@ -2997,7 +3102,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/php/bind_tcp_uuid',
                               'stages/php/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/meterpreter/bind_tcp_uuid'
   end
@@ -3008,7 +3112,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/php/bind_tcp_ipv6',
                               'stages/php/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/meterpreter/bind_tcp_ipv6'
   end
@@ -3019,7 +3122,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/php/bind_tcp_ipv6_uuid',
                               'stages/php/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/meterpreter/bind_tcp_ipv6_uuid'
   end
@@ -3030,7 +3132,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/php/reverse_tcp',
                               'stages/php/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/meterpreter/reverse_tcp'
   end
@@ -3041,7 +3142,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/php/reverse_tcp_uuid',
                               'stages/php/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/meterpreter/reverse_tcp_uuid'
   end
@@ -3051,19 +3151,8 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/php/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/meterpreter_reverse_tcp'
-  end
-
-  context 'php/reverse_perl' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/php/reverse_perl'
-                          ],
-                          dynamic_size: true,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'php/reverse_perl'
   end
 
   context 'php/reverse_php' do
@@ -3071,7 +3160,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/php/reverse_php'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/reverse_php'
   end
@@ -3081,7 +3169,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/php/shell_findsock'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/shell_findsock'
   end
@@ -3091,7 +3178,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/exec'
   end
@@ -3102,7 +3188,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/python/bind_tcp',
                               'stages/python/meterpreter'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/bind_tcp'
   end
@@ -3113,7 +3198,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/python/bind_tcp_uuid',
                               'stages/python/meterpreter'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/bind_tcp_uuid'
   end
@@ -3124,7 +3208,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/python/reverse_http',
                             'stages/python/meterpreter'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/reverse_http'
   end
@@ -3135,7 +3218,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/python/reverse_https',
                             'stages/python/meterpreter'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/reverse_https'
   end
@@ -3146,7 +3228,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/python/reverse_tcp',
                               'stages/python/meterpreter'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/reverse_tcp'
   end
@@ -3157,7 +3238,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/python/reverse_tcp_ssl',
                             'stages/python/meterpreter'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/reverse_tcp_ssl'
   end
@@ -3168,7 +3248,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/python/reverse_tcp_uuid',
                               'stages/python/meterpreter'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/reverse_tcp_uuid'
   end
@@ -3178,7 +3257,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/meterpreter_bind_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter_bind_tcp'
   end
@@ -3188,7 +3266,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/meterpreter_reverse_http'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter_reverse_http'
   end
@@ -3198,7 +3275,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/meterpreter_reverse_https'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter_reverse_https'
   end
@@ -3208,7 +3284,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter_reverse_tcp'
   end
@@ -3218,7 +3293,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/pingback_bind_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/pingback_bind_tcp'
   end
@@ -3228,7 +3302,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/pingback_reverse_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/pingback_reverse_tcp'
   end
@@ -3238,7 +3311,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/shell_bind_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/shell_bind_tcp'
   end
@@ -3248,7 +3320,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/shell_reverse_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/shell_reverse_tcp'
   end
@@ -3258,7 +3329,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/python/shell_reverse_sctp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/shell_reverse_sctp'
   end
@@ -3268,7 +3338,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/shell_reverse_tcp_ssl'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/shell_reverse_tcp_ssl'
   end
@@ -3278,7 +3347,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/shell_reverse_udp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/shell_reverse_udp'
   end
@@ -3288,7 +3356,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/ruby/pingback_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'ruby/pingback_bind_tcp'
   end
@@ -3298,7 +3365,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/ruby/pingback_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'ruby/pingback_reverse_tcp'
   end
@@ -3308,7 +3374,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/ruby/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'ruby/shell_bind_tcp'
   end
@@ -3318,7 +3383,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/ruby/shell_bind_tcp_ipv6'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'ruby/shell_bind_tcp_ipv6'
   end
@@ -3328,7 +3392,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/ruby/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'ruby/shell_reverse_tcp'
   end
@@ -3338,7 +3401,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/ruby/shell_reverse_tcp_ssl'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'ruby/shell_reverse_tcp_ssl'
   end
@@ -3348,7 +3410,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/solaris/sparc/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'solaris/sparc/shell_bind_tcp'
   end
@@ -3358,7 +3419,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/solaris/sparc/shell_find_port'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'solaris/sparc/shell_find_port'
   end
@@ -3368,7 +3428,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/solaris/sparc/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'solaris/sparc/shell_reverse_tcp'
   end
@@ -3378,7 +3437,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/solaris/x86/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'solaris/x86/shell_bind_tcp'
   end
@@ -3388,7 +3446,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/solaris/x86/shell_find_port'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'solaris/x86/shell_find_port'
   end
@@ -3398,7 +3455,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/solaris/x86/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'solaris/x86/shell_reverse_tcp'
   end
@@ -3408,7 +3464,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/tty/unix/interact'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'tty/unix/interact'
   end
@@ -3418,7 +3473,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/adduser'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/adduser'
   end
@@ -3555,7 +3609,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/bind_ipv6_tcp'
   end
@@ -3566,7 +3619,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_named_pipe',
                             'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/bind_named_pipe'
   end
@@ -3577,7 +3629,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/bind_nonx_tcp'
   end
@@ -3588,7 +3639,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/bind_tcp'
   end
@@ -3599,7 +3649,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/bind_tcp_rc4'
   end
@@ -3610,7 +3659,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/findtag_ord',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/find_tag'
   end
@@ -3622,7 +3670,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_http',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_http'
   end
@@ -3633,7 +3680,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/reverse_http_proxy_pstore',
                             'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_http_proxy_pstore'
   end
@@ -3644,7 +3690,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_ipv6_tcp'
   end
@@ -3655,7 +3700,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_nonx_tcp'
   end
@@ -3666,7 +3710,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_ord_tcp'
   end
@@ -3677,7 +3720,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_tcp'
   end
@@ -3688,7 +3730,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_tcp_allports'
   end
@@ -3699,7 +3740,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_tcp_dns'
   end
@@ -3710,7 +3750,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_tcp_rc4'
   end
@@ -3721,7 +3760,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_tcp_rc4_dns'
   end
@@ -3731,7 +3769,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/dns_txt_query_exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dns_txt_query_exec'
   end
@@ -3741,26 +3778,8 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/download_exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/download_exec'
-  end
-
-  context 'windows/encrypted_shell/reverse_tcp' do
-    it_should_behave_like 'payload is not cached',
-                          ancestor_reference_names: [
-                              'stagers/windows/encrypted_reverse_tcp',
-                              'stages/windows/encrypted_shell'
-                          ],
-                          reference_name: 'windows/encrypted_shell/reverse_tcp'
-  end
-
-  context 'windows/encrypted_shell_reverse_tcp' do
-    it_should_behave_like 'payload is not cached',
-                          ancestor_reference_names: [
-                              'singles/windows/encrypted_shell_reverse_tcp'
-                          ],
-                          reference_name: 'windows/encrypted_shell_reverse_tcp'
   end
 
   context 'windows/exec' do
@@ -3768,7 +3787,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/exec'
   end
@@ -3778,7 +3796,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/format_all_drives'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/format_all_drives'
   end
@@ -3788,7 +3805,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/loadlibrary'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/loadlibrary'
   end
@@ -3798,7 +3814,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/messagebox'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/messagebox'
   end
@@ -3808,7 +3823,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/meterpreter_bind_named_pipe'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_bind_named_pipe'
   end
@@ -3818,7 +3832,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_bind_tcp'
   end
@@ -3828,7 +3841,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_reverse_http'
   end
@@ -3838,7 +3850,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_reverse_https'
   end
@@ -3848,7 +3859,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_reverse_ipv6_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_reverse_ipv6_tcp'
   end
@@ -3858,7 +3868,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_reverse_tcp'
   end
@@ -3869,7 +3878,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/bind_ipv6_tcp'
   end
@@ -3880,7 +3888,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_ipv6_tcp_uuid',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/bind_ipv6_tcp_uuid'
   end
@@ -3891,7 +3898,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_named_pipe',
                             'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/bind_named_pipe'
   end
@@ -3902,7 +3908,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/bind_nonx_tcp'
   end
@@ -3913,7 +3918,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/bind_tcp'
   end
@@ -3924,7 +3928,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/bind_tcp_rc4'
   end
@@ -3935,7 +3938,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp_uuid',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/bind_tcp_uuid'
   end
@@ -3946,7 +3948,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/findtag_ord',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/find_tag'
   end
@@ -3957,7 +3958,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_http',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_http'
   end
@@ -3968,7 +3968,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/reverse_http_proxy_pstore',
                             'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_http_proxy_pstore'
   end
@@ -3979,7 +3978,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_https',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_https'
   end
@@ -3990,7 +3988,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_ipv6_tcp'
   end
@@ -4001,7 +3998,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_named_pipe',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_named_pipe'
   end
@@ -4012,7 +4008,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_nonx_tcp'
   end
@@ -4023,7 +4018,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_ord_tcp'
   end
@@ -4034,7 +4028,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_tcp'
   end
@@ -4045,7 +4038,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_tcp_allports'
   end
@@ -4056,7 +4048,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_tcp_dns'
   end
@@ -4067,7 +4058,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_tcp_rc4'
   end
@@ -4078,7 +4068,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_tcp_rc4_dns'
   end
@@ -4089,7 +4078,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_uuid',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_tcp_uuid'
   end
@@ -4099,7 +4087,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/metsvc_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/metsvc_bind_tcp'
   end
@@ -4109,7 +4096,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/metsvc_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/metsvc_reverse_tcp'
   end
@@ -4120,7 +4106,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/bind_ipv6_tcp'
   end
@@ -4131,7 +4116,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_named_pipe',
                             'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/bind_named_pipe'
   end
@@ -4142,7 +4126,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/bind_nonx_tcp'
   end
@@ -4153,7 +4136,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/bind_tcp'
   end
@@ -4164,7 +4146,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/bind_tcp_rc4'
   end
@@ -4175,7 +4156,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/findtag_ord',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/find_tag'
   end
@@ -4186,7 +4166,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_ipv6_tcp'
   end
@@ -4197,7 +4176,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_nonx_tcp'
   end
@@ -4208,7 +4186,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_ord_tcp'
   end
@@ -4219,7 +4196,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_tcp'
   end
@@ -4230,7 +4206,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_tcp_allports'
   end
@@ -4241,7 +4216,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_tcp_dns'
   end
@@ -4252,7 +4226,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_tcp_rc4'
   end
@@ -4263,7 +4236,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_tcp_rc4_dns'
   end
@@ -4274,7 +4246,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/bind_ipv6_tcp'
   end
@@ -4285,7 +4256,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_named_pipe',
                             'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/bind_named_pipe'
   end
@@ -4296,7 +4266,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/bind_nonx_tcp'
   end
@@ -4307,7 +4276,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/bind_tcp'
   end
@@ -4318,7 +4286,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/bind_tcp_rc4'
   end
@@ -4329,7 +4296,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/findtag_ord',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/find_tag'
   end
@@ -4340,7 +4306,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/reverse_ipv6_tcp'
   end
@@ -4351,7 +4316,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/reverse_nonx_tcp'
   end
@@ -4362,7 +4326,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/reverse_ord_tcp'
   end
@@ -4373,7 +4336,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/reverse_tcp'
   end
@@ -4384,7 +4346,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/reverse_tcp_allports'
   end
@@ -4395,7 +4356,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/reverse_tcp_dns'
   end
@@ -4406,7 +4366,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/reverse_tcp_rc4'
   end
@@ -4417,7 +4376,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/reverse_tcp_rc4_dns'
   end
@@ -4428,7 +4386,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_hidden_ipknock_tcp',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/bind_hidden_ipknock_tcp'
   end
@@ -4439,7 +4396,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_hidden_tcp',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/bind_hidden_tcp'
   end
@@ -4450,7 +4406,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/bind_ipv6_tcp'
   end
@@ -4461,7 +4416,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_ipv6_tcp_uuid',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/bind_ipv6_tcp_uuid'
   end
@@ -4472,7 +4426,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_named_pipe',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/bind_named_pipe'
   end
@@ -4483,7 +4436,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/bind_nonx_tcp'
   end
@@ -4494,7 +4446,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/bind_tcp'
   end
@@ -4505,7 +4456,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/bind_tcp_rc4'
   end
@@ -4516,7 +4466,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp_uuid',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/bind_tcp_uuid'
   end
@@ -4527,7 +4476,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/findtag_ord',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/find_tag'
   end
@@ -4538,7 +4486,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/reverse_ipv6_tcp'
   end
@@ -4549,7 +4496,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/reverse_nonx_tcp'
   end
@@ -4560,7 +4506,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/reverse_ord_tcp'
   end
@@ -4571,7 +4516,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/reverse_tcp'
   end
@@ -4582,7 +4526,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/reverse_tcp_allports'
   end
@@ -4593,7 +4536,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/reverse_tcp_dns'
   end
@@ -4604,7 +4546,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/reverse_tcp_rc4'
   end
@@ -4615,7 +4556,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/reverse_tcp_rc4_dns'
   end
@@ -4626,7 +4566,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_uuid',
                               'stages/windows/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/peinject/reverse_tcp_uuid'
   end
@@ -4636,7 +4575,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/pingback_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/pingback_bind_tcp'
   end
@@ -4646,7 +4584,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/pingback_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/pingback_reverse_tcp'
   end
@@ -4657,7 +4594,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/bind_ipv6_tcp'
   end
@@ -4668,7 +4604,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_named_pipe',
                             'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/bind_named_pipe'
   end
@@ -4679,7 +4614,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/bind_nonx_tcp'
   end
@@ -4690,7 +4624,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/bind_tcp'
   end
@@ -4701,7 +4634,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/bind_tcp_rc4'
   end
@@ -4712,7 +4644,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/findtag_ord',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/find_tag'
   end
@@ -4723,7 +4654,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/reverse_ipv6_tcp'
   end
@@ -4734,7 +4664,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/reverse_nonx_tcp'
   end
@@ -4745,7 +4674,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/reverse_ord_tcp'
   end
@@ -4756,7 +4684,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/reverse_tcp'
   end
@@ -4767,7 +4694,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/reverse_tcp_allports'
   end
@@ -4778,7 +4704,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/reverse_tcp_dns'
   end
@@ -4789,7 +4714,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/reverse_tcp_rc4'
   end
@@ -4800,7 +4724,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/reverse_tcp_rc4_dns'
   end
@@ -4811,7 +4734,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_udp',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/reverse_udp'
   end
@@ -4821,7 +4743,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell_bind_tcp'
   end
@@ -4831,7 +4752,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/shell_bind_tcp_xpfw'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell_bind_tcp_xpfw'
   end
@@ -4841,7 +4761,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/shell_hidden_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell_hidden_bind_tcp'
   end
@@ -4851,7 +4770,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell_reverse_tcp'
   end
@@ -4861,7 +4779,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/speak_pwned'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/speak_pwned'
   end
@@ -4872,7 +4789,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/bind_ipv6_tcp'
   end
@@ -4883,7 +4799,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_named_pipe',
                             'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/bind_named_pipe'
   end
@@ -4894,7 +4809,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/bind_nonx_tcp'
   end
@@ -4905,7 +4819,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/bind_tcp'
   end
@@ -4916,7 +4829,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/bind_tcp_rc4'
   end
@@ -4927,7 +4839,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/findtag_ord',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/find_tag'
   end
@@ -4938,7 +4849,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/reverse_ipv6_tcp'
   end
@@ -4949,7 +4859,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/reverse_nonx_tcp'
   end
@@ -4960,7 +4869,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/reverse_ord_tcp'
   end
@@ -4971,7 +4879,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/reverse_tcp'
   end
@@ -4982,7 +4889,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/reverse_tcp_allports'
   end
@@ -4993,7 +4899,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/reverse_tcp_dns'
   end
@@ -5004,7 +4909,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/reverse_tcp_rc4'
   end
@@ -5015,7 +4919,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/reverse_tcp_rc4_dns'
   end
@@ -5026,7 +4929,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_udp',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/reverse_udp'
   end
@@ -5037,7 +4939,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/bind_ipv6_tcp'
   end
@@ -5048,7 +4949,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_named_pipe',
                             'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/bind_named_pipe'
   end
@@ -5059,7 +4959,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/bind_nonx_tcp'
   end
@@ -5070,7 +4969,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/bind_tcp'
   end
@@ -5081,7 +4979,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/bind_tcp_rc4'
   end
@@ -5092,7 +4989,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/findtag_ord',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/find_tag'
   end
@@ -5103,7 +4999,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/reverse_ipv6_tcp'
   end
@@ -5114,7 +5009,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/reverse_nonx_tcp'
   end
@@ -5125,7 +5019,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/reverse_ord_tcp'
   end
@@ -5136,7 +5029,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/reverse_tcp'
   end
@@ -5147,7 +5039,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/reverse_tcp_allports'
   end
@@ -5158,7 +5049,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/reverse_tcp_dns'
   end
@@ -5169,7 +5059,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/reverse_tcp_rc4'
   end
@@ -5180,9 +5069,26 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/reverse_tcp_rc4_dns'
+  end
+
+  context 'windows/aarch64/exec' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/aarch64/exec'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/aarch64/exec'
+  end
+
+  context 'windows/x64/download_exec' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/windows/x64/download_exec'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/download_exec'
   end
 
   context 'windows/x64/custom/bind_ipv6_tcp' do
@@ -5311,29 +5217,11 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/x64/custom/reverse_winhttps'
   end
 
-  context 'windows/x64/encrypted_shell/reverse_tcp' do
-    it_should_behave_like 'payload is not cached',
-                          ancestor_reference_names: [
-                              'stagers/windows/x64/encrypted_reverse_tcp',
-                              'stages/windows/x64/encrypted_shell'
-                          ],
-                          reference_name: 'windows/x64/encrypted_shell/reverse_tcp'
-  end
-
-  context 'windows/x64/encrypted_shell_reverse_tcp' do
-    it_should_behave_like 'payload is not cached',
-                          ancestor_reference_names: [
-                              'singles/windows/x64/encrypted_shell_reverse_tcp'
-                          ],
-                          reference_name: 'windows/x64/encrypted_shell_reverse_tcp'
-  end
-
   context 'windows/x64/exec' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                               'singles/windows/x64/exec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/exec'
   end
@@ -5343,7 +5231,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/loadlibrary'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/loadlibrary'
   end
@@ -5353,7 +5240,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/messagebox'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/messagebox'
   end
@@ -5364,7 +5250,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_ipv6_tcp',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/bind_ipv6_tcp'
   end
@@ -5375,7 +5260,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_ipv6_tcp_uuid',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/bind_ipv6_tcp_uuid'
   end
@@ -5386,7 +5270,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_named_pipe',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/bind_named_pipe'
   end
@@ -5397,7 +5280,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_tcp',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/bind_tcp'
   end
@@ -5408,7 +5290,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_tcp_rc4',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/bind_tcp_rc4'
   end
@@ -5419,7 +5300,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_tcp_uuid',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/bind_tcp_uuid'
   end
@@ -5430,7 +5310,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_http',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/reverse_http'
   end
@@ -5441,7 +5320,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_https',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/reverse_https'
   end
@@ -5452,7 +5330,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_named_pipe',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/reverse_named_pipe'
   end
@@ -5463,7 +5340,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_tcp',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/reverse_tcp'
   end
@@ -5474,7 +5350,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_tcp_rc4',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/reverse_tcp_rc4'
   end
@@ -5485,7 +5360,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_tcp_uuid',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/reverse_tcp_uuid'
   end
@@ -5496,7 +5370,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_winhttp',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/reverse_winhttp'
   end
@@ -5507,7 +5380,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_winhttps',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/reverse_winhttps'
   end
@@ -5517,7 +5389,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/meterpreter_bind_named_pipe'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter_bind_named_pipe'
   end
@@ -5527,7 +5398,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/meterpreter_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter_bind_tcp'
   end
@@ -5537,7 +5407,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter_reverse_http'
   end
@@ -5547,7 +5416,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter_reverse_https'
   end
@@ -5557,7 +5425,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/meterpreter_reverse_ipv6_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter_reverse_ipv6_tcp'
   end
@@ -5567,7 +5434,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter_reverse_tcp'
   end
@@ -5578,7 +5444,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_ipv6_tcp',
                               'stages/windows/x64/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/peinject/bind_ipv6_tcp'
   end
@@ -5589,7 +5454,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_ipv6_tcp_uuid',
                               'stages/windows/x64/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/peinject/bind_ipv6_tcp_uuid'
   end
@@ -5600,7 +5464,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_named_pipe',
                               'stages/windows/x64/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/peinject/bind_named_pipe'
   end
@@ -5611,7 +5474,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_tcp',
                               'stages/windows/x64/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/peinject/bind_tcp'
   end
@@ -5622,7 +5484,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_tcp_rc4',
                               'stages/windows/x64/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/peinject/bind_tcp_rc4'
   end
@@ -5633,7 +5494,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_tcp_uuid',
                               'stages/windows/x64/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/peinject/bind_tcp_uuid'
   end
@@ -5644,7 +5504,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_named_pipe',
                               'stages/windows/x64/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/peinject/reverse_named_pipe'
   end
@@ -5655,7 +5514,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_tcp',
                               'stages/windows/x64/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/peinject/reverse_tcp'
   end
@@ -5666,7 +5524,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_tcp_rc4',
                               'stages/windows/x64/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/peinject/reverse_tcp_rc4'
   end
@@ -5677,7 +5534,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_tcp_uuid',
                               'stages/windows/x64/peinject'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/peinject/reverse_tcp_uuid'
   end
@@ -5687,7 +5543,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/x64/powershell_bind_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/powershell_bind_tcp'
   end
@@ -5697,7 +5552,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/x64/powershell_reverse_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/powershell_reverse_tcp'
   end
@@ -5707,7 +5561,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/x64/powershell_reverse_tcp_ssl'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/powershell_reverse_tcp_ssl'
   end
@@ -5717,7 +5570,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/pingback_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/pingback_reverse_tcp'
   end
@@ -5728,7 +5580,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_named_pipe',
                               'stages/windows/x64/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/shell/bind_named_pipe'
   end
@@ -5739,7 +5590,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_tcp',
                               'stages/windows/x64/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/shell/bind_tcp'
   end
@@ -5750,7 +5600,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_tcp_rc4',
                               'stages/windows/x64/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/shell/bind_tcp_rc4'
   end
@@ -5761,7 +5610,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_tcp',
                               'stages/windows/x64/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/shell/reverse_tcp'
   end
@@ -5772,7 +5620,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_tcp_rc4',
                               'stages/windows/x64/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/shell/reverse_tcp_rc4'
   end
@@ -5782,7 +5629,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/shell_bind_tcp'
   end
@@ -5792,7 +5638,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/shell_reverse_tcp'
   end
@@ -5803,7 +5648,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_named_pipe',
                               'stages/windows/x64/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/vncinject/bind_named_pipe'
   end
@@ -5814,7 +5658,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_tcp',
                               'stages/windows/x64/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/vncinject/bind_tcp'
   end
@@ -5825,7 +5668,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_tcp_rc4',
                               'stages/windows/x64/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/vncinject/bind_tcp_rc4'
   end
@@ -5836,7 +5678,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_tcp',
                               'stages/windows/x64/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/vncinject/reverse_tcp'
   end
@@ -5847,7 +5688,6 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_tcp_rc4',
                               'stages/windows/x64/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/vncinject/reverse_tcp_rc4'
   end
@@ -5858,7 +5698,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/bind_hidden_tcp'
   end
@@ -5869,7 +5708,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/bind_hidden_tcp'
   end
@@ -5880,7 +5718,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/bind_hidden_tcp'
   end
@@ -5891,7 +5728,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/bind_hidden_tcp'
   end
@@ -5902,7 +5738,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/bind_hidden_tcp'
   end
@@ -5913,7 +5748,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/bind_hidden_tcp'
   end
@@ -5924,7 +5758,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/bind_hidden_tcp'
   end
@@ -5935,7 +5768,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/bind_hidden_ipknock_tcp'
   end
@@ -5946,7 +5778,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/bind_hidden_ipknock_tcp'
   end
@@ -5957,7 +5788,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/bind_hidden_ipknock_tcp'
   end
@@ -5968,7 +5798,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/bind_hidden_ipknock_tcp'
   end
@@ -5978,7 +5807,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/powershell_bind_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/powershell_bind_tcp'
   end
@@ -5988,7 +5816,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/powershell_reverse_tcp'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/powershell_reverse_tcp'
   end
@@ -5998,7 +5825,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/powershell_reverse_tcp_ssl'
                           ],
-                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/powershell_reverse_tcp_ssl'
   end
@@ -6009,7 +5835,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/shell'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/bind_hidden_ipknock_tcp'
   end
@@ -6020,7 +5845,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/bind_hidden_ipknock_tcp'
   end
@@ -6031,7 +5855,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/bind_hidden_ipknock_tcp'
   end
@@ -6042,7 +5865,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/reverse_winhttp',
                             'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_winhttp'
   end
@@ -6053,7 +5875,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/windows/reverse_winhttps',
                             'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_winhttps'
   end
@@ -6063,7 +5884,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/mips64/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mips64/meterpreter_reverse_http'
   end
@@ -6073,7 +5893,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/mips64/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mips64/meterpreter_reverse_https'
   end
@@ -6083,7 +5902,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/mipsbe/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsbe/meterpreter_reverse_http'
   end
@@ -6093,7 +5911,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/mipsbe/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsbe/meterpreter_reverse_https'
   end
@@ -6103,7 +5920,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/mipsle/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsle/meterpreter_reverse_http'
   end
@@ -6113,79 +5929,8 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/mipsle/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsle/meterpreter_reverse_https'
-  end
-
-  context 'linux/ppc/meterpreter_reverse_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/ppc/meterpreter_reverse_http'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc/meterpreter_reverse_http'
-  end
-
-  context 'linux/ppc/meterpreter_reverse_https' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/ppc/meterpreter_reverse_https'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc/meterpreter_reverse_https'
-  end
-
-  context 'linux/ppce500v2/meterpreter_reverse_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/linux/ppce500v2/meterpreter_reverse_http'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppce500v2/meterpreter_reverse_http'
-  end
-
-  context 'linux/ppce500v2/meterpreter_reverse_https' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/linux/ppce500v2/meterpreter_reverse_https'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppce500v2/meterpreter_reverse_https'
-  end
-
-  context 'linux/ppce500v2/meterpreter_reverse_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/linux/ppce500v2/meterpreter_reverse_tcp'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppce500v2/meterpreter_reverse_tcp'
-  end
-
-  context 'linux/ppc64le/meterpreter_reverse_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/ppc64le/meterpreter_reverse_http'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc64le/meterpreter_reverse_http'
-  end
-
-  context 'linux/ppc64le/meterpreter_reverse_https' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/ppc64le/meterpreter_reverse_https'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc64le/meterpreter_reverse_https'
   end
 
   context 'linux/x64/meterpreter_reverse_http' do
@@ -6193,7 +5938,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/x64/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/meterpreter_reverse_http'
   end
@@ -6203,7 +5947,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/x64/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/meterpreter_reverse_https'
   end
@@ -6213,7 +5956,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/x86/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter_reverse_http'
   end
@@ -6223,7 +5965,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/x86/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter_reverse_https'
   end
@@ -6233,7 +5974,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/x86/metsvc_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/metsvc_bind_tcp'
   end
@@ -6243,7 +5983,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/x86/metsvc_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/metsvc_reverse_tcp'
   end
@@ -6253,7 +5992,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/zarch/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/zarch/meterpreter_reverse_http'
   end
@@ -6263,7 +6001,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/zarch/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/zarch/meterpreter_reverse_https'
   end
@@ -6274,7 +6011,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/aarch64/reverse_tcp',
                             'stages/linux/aarch64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/aarch64/meterpreter/reverse_tcp'
   end
@@ -6284,7 +6020,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/aarch64/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/aarch64/meterpreter_reverse_tcp'
   end
@@ -6294,7 +6029,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/armbe/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armbe/meterpreter_reverse_tcp'
   end
@@ -6304,7 +6038,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/armbe/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armbe/meterpreter_reverse_http'
   end
@@ -6314,7 +6047,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/armbe/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armbe/meterpreter_reverse_https'
   end
@@ -6324,7 +6056,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/armle/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armle/meterpreter_reverse_http'
   end
@@ -6334,7 +6065,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/armle/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armle/meterpreter_reverse_https'
   end
@@ -6345,7 +6075,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/armle/bind_tcp',
                             'stages/linux/armle/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armle/meterpreter/bind_tcp'
   end
@@ -6356,7 +6085,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/armle/reverse_tcp',
                             'stages/linux/armle/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armle/meterpreter/reverse_tcp'
   end
@@ -6366,7 +6094,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/armle/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armle/meterpreter_reverse_tcp'
   end
@@ -6376,7 +6103,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/mips64/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mips64/meterpreter_reverse_tcp'
   end
@@ -6387,7 +6113,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/mipsbe/reverse_tcp',
                             'stages/linux/mipsbe/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsbe/meterpreter/reverse_tcp'
   end
@@ -6397,7 +6122,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/mipsbe/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsbe/meterpreter_reverse_tcp'
   end
@@ -6408,7 +6132,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/mipsle/reverse_tcp',
                             'stages/linux/mipsle/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsle/meterpreter/reverse_tcp'
   end
@@ -6418,29 +6141,16 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/mipsle/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsle/meterpreter_reverse_tcp'
   end
 
-  context 'linux/ppc/meterpreter_reverse_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
+  context 'linux/multi/meterpreter_reverse_tcp' do
+    it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
-                            'singles/linux/ppc/meterpreter_reverse_tcp'
+                            'singles/linux/multi/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc/meterpreter_reverse_tcp'
-  end
-
-  context 'linux/ppc64le/meterpreter_reverse_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/ppc64le/meterpreter_reverse_tcp'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc64le/meterpreter_reverse_tcp'
+                          reference_name: 'linux/multi/meterpreter_reverse_tcp'
   end
 
   context 'linux/x64/meterpreter/bind_tcp' do
@@ -6449,7 +6159,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/x64/bind_tcp',
                             'stages/linux/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/meterpreter/bind_tcp'
   end
@@ -6460,7 +6169,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/x64/reverse_tcp',
                             'stages/linux/x64/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/meterpreter/reverse_tcp'
   end
@@ -6470,7 +6178,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/x64/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/meterpreter_reverse_tcp'
   end
@@ -6481,7 +6188,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/x86/bind_ipv6_tcp',
                             'stages/linux/x86/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter/bind_ipv6_tcp'
   end
@@ -6492,7 +6198,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/x86/bind_ipv6_tcp_uuid',
                             'stages/linux/x86/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter/bind_ipv6_tcp_uuid'
   end
@@ -6503,7 +6208,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/x86/bind_nonx_tcp',
                             'stages/linux/x86/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter/bind_nonx_tcp'
   end
@@ -6514,7 +6218,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/x86/bind_tcp',
                             'stages/linux/x86/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter/bind_tcp'
   end
@@ -6525,7 +6228,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/x86/bind_tcp_uuid',
                             'stages/linux/x86/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter/bind_tcp_uuid'
   end
@@ -6536,7 +6238,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/x86/find_tag',
                             'stages/linux/x86/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter/find_tag'
   end
@@ -6547,7 +6248,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/x86/reverse_ipv6_tcp',
                             'stages/linux/x86/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter/reverse_ipv6_tcp'
   end
@@ -6558,7 +6258,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/x86/reverse_nonx_tcp',
                             'stages/linux/x86/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter/reverse_nonx_tcp'
   end
@@ -6569,7 +6268,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/x86/reverse_tcp',
                             'stages/linux/x86/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter/reverse_tcp'
   end
@@ -6580,7 +6278,6 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/linux/x86/reverse_tcp_uuid',
                             'stages/linux/x86/meterpreter'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter/reverse_tcp_uuid'
   end
@@ -6590,7 +6287,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/x86/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter_reverse_tcp'
   end
@@ -6600,7 +6296,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/linux/zarch/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/zarch/meterpreter_reverse_tcp'
   end
@@ -6610,7 +6305,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/r/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'r/shell_bind_tcp'
   end
@@ -6620,7 +6314,6 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/r/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'r/shell_reverse_tcp'
   end

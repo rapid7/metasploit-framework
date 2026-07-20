@@ -51,7 +51,7 @@ Running the module against FileCatalyst Workflow v5.1.6 (Build 135) on either Wi
 similar to the following:
 
 ```
-msf6 auxiliary(admin/http/fortra_filecatalyst_workflow_sqli) > run
+msf auxiliary(admin/http/fortra_filecatalyst_workflow_sqli) > run
 [*] Running module against 192.168.137.195
 
 [*] Starting SQL injection workflow...

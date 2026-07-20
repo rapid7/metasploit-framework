@@ -19,7 +19,7 @@ module Msf
       true
     end
 
-    def valid?(value, check_empty: true)
+    def valid?(value, check_empty: true, datastore: nil)
       return false if !super(value, check_empty: check_empty)
 
       begin

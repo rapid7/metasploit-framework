@@ -138,7 +138,7 @@ class Library
     when ARCH_X86
       native = 'V'
     else
-      raise NotImplementedError, 'Unsupported architecture (must be ARCH_X86 or ARCH_X64)'
+      raise NotImplementedError, 'Unsupported architecture for railgun (must be ARCH_X86 or ARCH_X64)'
     end
 
     # We transmit the immediate stack and three heap-buffers:
@@ -285,7 +285,7 @@ class Library
     when ARCH_X86
       native = 'V'
     else
-      raise NotImplementedError, 'Unsupported architecture (must be ARCH_X86 or ARCH_X64)'
+      raise NotImplementedError, 'Unsupported architecture for railgun (must be ARCH_X86 or ARCH_X64)'
     end
 
     rec_inout_buffers = packet.get_tlv_value(TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT)

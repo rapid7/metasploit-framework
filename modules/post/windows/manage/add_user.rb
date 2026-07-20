@@ -354,7 +354,9 @@ class MetasploitModule < Msf::Post
 
   # Run Method for when run command is issued
   def run
-    print_status("Running module on '#{sysinfo['Computer']}'")
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module on #{hostname} (#{session.session_host})")
+
     if datastore['ADDTODOMAIN']
       print_status('Domain Mode')
       domain_mode

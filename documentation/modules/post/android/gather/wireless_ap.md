@@ -13,7 +13,9 @@
 
 ## Options
 
-  **SESSION** - The session to run the module on.
+### SESSION
+
+The session to run the module on.
 
 ## Extracted data
 
@@ -23,10 +25,10 @@
 
 
 ```
-msf5 exploit(multi/handler) > use post/android/gather/wireless_ap
-msf5 post(android/gather/wireless_ap) > set session 1
+msf exploit(multi/handler) > use post/android/gather/wireless_ap
+msf post(android/gather/wireless_ap) > set session 1
 session => 1
-msf5 post(android/gather/wireless_ap) > run
+msf post(android/gather/wireless_ap) > run
 
 Wireless APs
 ============
@@ -41,5 +43,5 @@ Wireless APs
 
 [+] Secrets stored in: ~/.msf4/loot/...wireless.ap.cred_...txt
 [*] Post module execution completed
-msf5 post(android/gather/wireless_ap) >
+msf post(android/gather/wireless_ap) >
 ```

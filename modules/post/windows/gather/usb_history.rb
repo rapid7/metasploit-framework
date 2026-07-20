@@ -11,11 +11,16 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Windows Gather USB Drive History',
-        'Description' => %q{ This module will enumerate USB Drive history on a target host.},
+        'Description' => %q{This module will enumerate USB Drive history on a target host.},
         'License' => MSF_LICENSE,
         'Author' => [ 'nebulus'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -28,9 +33,10 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # Run Method for when run command is issued
   def run
-    print_status("Running module against #{sysinfo['Computer']}")
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
+
     # Cache it so as to make it just a bit faster
     isadmin = is_admin?
 
@@ -39,53 +45,58 @@ class MetasploitModule < Msf::Post
     out = "\n"
 
     @drives.each do |u, v|
-      out << sprintf("%5s\t%75s\n", v, u.gsub("\x00", ''))
+      out << format("%<label>5s\t%<value>75s\n", label: v, value: u.gsub("\x00", ''))
     end
 
     print_status(out)
 
     usb_drive_classes = enum_subkeys('HKLM\\SYSTEM\\CurrentControlSet\\Enum\\USBSTOR')
     usb_uids_to_info = {}
-    if !usb_drive_classes.nil?
-      usb_drive_classes.each do |x|
-        enum_subkeys(x).each do |y|
-          vals = enum_values(y)
-          # enumerate each USB device used on the system
-          usb_uids_to_info.store(x.match(/HKLM\\SYSTEM\\CurrentControlSet\\Enum\\USBSTOR\\(.*)$/)[1], vals)
-        rescue StandardError
+    if usb_drive_classes.nil?
+      print_error('No USB devices appear to have been connected to this host.')
+      return
+    end
+
+    usb_drive_classes.each do |x|
+      enum_subkeys(x).each do |y|
+        vals = enum_values(y)
+        # enumerate each USB device used on the system
+        usb_uids_to_info.store(x.match(/HKLM\\SYSTEM\\CurrentControlSet\\Enum\\USBSTOR\\(.*)$/)[1], vals)
+      rescue StandardError
+        # @todo handle failure
+      end
+    end
+
+    usb_uids_to_info.each do |u, v|
+      guid = '##?#USBSTOR#' << u << '#' << '{53f56307-b6bf-11d0-94f2-00a0c91efb8b}'
+      out = "#{v['FriendlyName']}\n" << '=' * 85 << "\n"
+      if isadmin
+        mace = registry_getkeylastwritetime('HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceClasses\\{53f56307-b6bf-11d0-94f2-00a0c91efb8b}\\' << guid)
+        if mace
+          keytime = ::Time.at(mace)
+        else
+          keytime = 'Unknown'
         end
+        out << format("%<label>25s\t%<value>50s\n", label: 'Disk lpftLastWriteTime', value: keytime)
       end
 
-      usb_uids_to_info.each do |u, v|
-        guid = '##?#USBSTOR#' << u << '#' << '{53f56307-b6bf-11d0-94f2-00a0c91efb8b}'
-        out = "#{v['FriendlyName']}\n" << '=' * 85 << "\n"
-        if isadmin
-          mace = registry_getkeylastwritetime('HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceClasses\\{53f56307-b6bf-11d0-94f2-00a0c91efb8b}\\' << guid)
-          if mace
-            keytime = ::Time.at(mace)
-          else
-            keytime = 'Unknown'
-          end
-          out << sprintf("%25s\t%50s\n", 'Disk lpftLastWriteTime', keytime)
-        end
-        if !v.key?('ParentIdPrefix')
-          print_status(info_hash_to_str(out, v))
-          next
-        end
-        guid =	'##?#STORAGE#RemoveableMedia#' << v['ParentIdPrefix'] << '&RM#' << '{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}'
-        if isadmin
-          mace = registry_getkeylastwritetime('HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceClasses\\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\\' << guid)
-          if mace
-            keytime = ::Time.at(mace)
-          else
-            keytime = 'Unknown'
-          end
-          out << sprintf("%25s\t%50s\n", 'Volume lpftLastWriteTime', keytime)
-        end
+      if !v.key?('ParentIdPrefix')
         print_status(info_hash_to_str(out, v))
+        next
       end
-    else
-      print_error('No USB devices appear to have been connected to this host.')
+
+      guid =	'##?#STORAGE#RemoveableMedia#' << v['ParentIdPrefix'] << '&RM#' << '{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}'
+      if isadmin
+        mace = registry_getkeylastwritetime('HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceClasses\\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\\' << guid)
+        if mace
+          keytime = ::Time.at(mace)
+        else
+          keytime = 'Unknown'
+        end
+        out << format("%<label>25s\t%<value>50s\n", label: 'Volume lpftLastWriteTime', value: keytime)
+      end
+
+      print_status(info_hash_to_str(out, v))
     end
   end
 
@@ -101,16 +112,14 @@ class MetasploitModule < Msf::Post
 
     # PFILETIME - http://msdn.microsoft.com/en-us/library/ms724284%28v=vs.85%29.aspx, two DWORDS   DWORD dwLowDateTime; DWORD dwHighDateTime;
     #   can use Rex::Proto::SMB::Utils.time_smb_to_unix to convert to unix epoch
-    begin
-      r, b = session.sys.registry.splitkey(key_str)
-      key = session.sys.registry.open_key(r, b.to_s, KEY_READ)
-      mytime = session.railgun.advapi32.RegQueryInfoKeyA(key.hkey, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 8)['lpftLastWriteTime']
-      key.close
-      lo, hi = mytime.unpack('V2')
-      return Rex::Proto::SMB::Utils.time_smb_to_unix(hi, lo)
-    rescue StandardError
-      return nil
-    end
+    r, b = session.sys.registry.splitkey(key_str)
+    key = session.sys.registry.open_key(r, b.to_s, KEY_READ)
+    mytime = session.railgun.advapi32.RegQueryInfoKeyA(key.hkey, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 8)['lpftLastWriteTime']
+    key.close
+    lo, hi = mytime.unpack('V2')
+    return Rex::Proto::SMB::Utils.time_smb_to_unix(hi, lo)
+  rescue StandardError
+    return nil
   end
 
   #-------------------------------------------------------------------------------
@@ -118,22 +127,20 @@ class MetasploitModule < Msf::Post
   #	key_str		Full string representation of the key for which subkeys should be enumerated
   #	returns		Array of string representations of subkeys
   def enum_subkeys(key_str = nil)
-    return nil if !key_str
+    return unless key_str
 
     r, b = session.sys.registry.splitkey(key_str)
-    begin
-      key = session.sys.registry.open_key(r, b.to_s, KEY_READ)
+    key = session.sys.registry.open_key(r, b.to_s, KEY_READ)
 
-      full_keys = []
-      key.enum_key.each do |x|
-        full_keys.push(key_str.to_s << '\\' << x.to_s)
-      end
-
-      key.close
-    rescue StandardError
-      return nil
+    full_keys = []
+    key.enum_key.each do |x|
+      full_keys.push(key_str.to_s << '\\' << x.to_s)
     end
+
+    key.close
     return full_keys
+  rescue StandardError
+    return nil
   end
 
   #-------------------------------------------------------------------------------
@@ -189,7 +196,7 @@ class MetasploitModule < Msf::Post
 
   def info_hash_to_str(str, hash)
     out = str
-    out << sprintf("%25s\t%50s\n", 'Manufacturer', hash['Mfg'])
+    out << format("%<label>25s\t%<value>50s\n", label: 'Manufacturer', value: hash['Mfg'])
 
     if hash.key?('ParentIdPrefix')
       mounted_as = nil
@@ -199,19 +206,19 @@ class MetasploitModule < Msf::Post
         next if x !~ /\#/	# truncated disk volume that doesnt apply to removable media
 
         tmp = x.split(/\#/)[2].gsub!(/\x00/, '')	# ParentIdPrefix will be 3rd item, trip internal \x00
-        tmp.gsub!(/&RM$/i, '')		# get rid of RM on end if its there
+        tmp.gsub!(/&RM$/i, '')	# get rid of RM on end if its there
         mounted_as = y if (tmp.downcase == hash['ParentIdPrefix'].downcase)
       end
 
       if mounted_as
-        out << sprintf("%25s\t%50s (%5s)\n", 'ParentIdPrefix', hash['ParentIdPrefix'], mounted_as)
+        out << format("%<label>25s\t%<value>50s (%<mounted>5s)\n", label: 'ParentIdPrefix', value: hash['ParentIdPrefix'], mounted: mounted_as)
       else
-        out << sprintf("%25s\t%50s\n", 'ParentIdPrefix', hash['ParentIdPrefix'])
+        out << format("%<label>25s\t%<value>50s\n", label: 'ParentIdPrefix', value: hash['ParentIdPrefix'])
       end
     end
 
-    out << sprintf("%25s\t%50s\n", 'Class', hash['Class'])
-    out << sprintf("%25s\t%50s\n", 'Driver', hash['Driver'])
+    out << format("%<label>25s\t%<value>50s\n", label: 'Class', value: hash['Class'])
+    out << format("%<label>25s\t%<value>50s\n", label: 'Driver', value: hash['Driver'])
     return out
   end
 end

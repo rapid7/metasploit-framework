@@ -36,7 +36,8 @@ class MetasploitModule < Msf::Auxiliary
           ['EDB', '48531'],
           ['URL', 'https://infosecwriteups.com/qnap-pre-auth-root-rce-affecting-450k-devices-on-the-internet-d55488d28a05'],
           ['URL', 'https://www.qnap.com/en-us/security-advisory/nas-201911-25'],
-          ['URL', 'https://github.com/Imanfeng/QNAP-NAS-RCE']
+          ['URL', 'https://github.com/Imanfeng/QNAP-NAS-RCE'],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_008_ETC_PASSWD_AND_ETC_SHADOW]
         ],
         'DisclosureDate' => '2019-11-25', # Vendor advisory
         'Actions' => [
@@ -67,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     unless res && res.code == 200 && (xml = res.get_xml_document)
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Target does not appear to be a QNAP device')
     end
 
     info = %w[modelName version build patch].map do |node|
@@ -76,9 +77,9 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status("QNAP #{info[0]} #{info[1..].join('-')} detected")
 
-    return Exploit::CheckCode::Appears if info[2].to_i < 20191206
+    return Exploit::CheckCode::Appears("QNAP #{info[0]} build #{info[2]} is older than the patched build 20191206") if info[2].to_i < 20191206
 
-    Exploit::CheckCode::Detected
+    Exploit::CheckCode::Detected("QNAP #{info[0]} #{info[1..].join('-')} detected, but build is not confirmed vulnerable")
   end
 
   def run

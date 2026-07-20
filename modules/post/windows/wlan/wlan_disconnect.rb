@@ -27,6 +27,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_getpid
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -42,7 +47,6 @@ class MetasploitModule < Msf::Post
     @host_process = client.sys.process.open(mypid, PROCESS_ALL_ACCESS)
     @wlanapi = client.railgun.wlanapi
 
-    wlan_connections = "Wireless LAN Active Connections: \n"
     wlan_handle = open_handle
     unless wlan_handle
       print_error("Couldn't open WlanAPI Handle. WLAN API may not be installed on target")
@@ -54,7 +58,8 @@ class MetasploitModule < Msf::Post
       connect_info = query_current_connection(wlan_handle, wlan_iflist[datastore['Interface']]['guid'])
       if connect_info
         guid = guid_to_string(wlan_iflist[datastore['Interface']]['guid'])
-        wlan_connection = "GUID: #{guid} \nDescription: #{wlan_iflist[datastore['Interface']]['description']} \nState: #{wlan_iflist[datastore['Interface']]['state']}\n"
+        wlan_connection = "Wireless LAN Active Connection:\n"
+        wlan_connection << "GUID: #{guid} \nDescription: #{wlan_iflist[datastore['Interface']]['description']} \nState: #{wlan_iflist[datastore['Interface']]['state']}\n"
         wlan_connection << "Currently Connected to: \n"
         wlan_connection << "\tMode: #{connect_info['mode']} \n\tProfile: #{connect_info['profile']} \n"
         wlan_connection << "\tSSID: #{connect_info['ssid']} \n\tAP MAC: #{connect_info['bssid']} \n"
@@ -220,7 +225,7 @@ class MetasploitModule < Msf::Post
     signal = @host_process.memory.read(pointer, 4)
     connection['signal'] = signal.unpack('V')[0]
 
-    # Grabs the recieve rate value
+    # Grabs the receive rate value
     pointer = (pointer + 4)
     rxrate = @host_process.memory.read(pointer, 4)
     connection['rxrate'] = rxrate.unpack('V')[0]

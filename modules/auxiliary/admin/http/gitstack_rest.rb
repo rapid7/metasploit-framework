@@ -83,7 +83,12 @@ class MetasploitModule < Msf::Auxiliary
             }
           ]
         ],
-        'DefaultAction' => 'LIST'
+        'DefaultAction' => 'LIST',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -163,7 +168,7 @@ class MetasploitModule < Msf::Auxiliary
           })
         rescue Rex::ConnectionError, Errno::ECONNRESET => e
           print_error("Failed: #{e.class} - #{e.message}")
-          return
+          break
         end
 
         if res && res.code == 200
@@ -252,7 +257,7 @@ class MetasploitModule < Msf::Auxiliary
       mylist = get_repos
       if mylist
         mylist.each do |item|
-          print_good((item['name']).to_s)
+          print_good(item['name'].to_s)
         end
       else
         print_error('Failed to retrieve repository list')

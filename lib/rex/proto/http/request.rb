@@ -118,7 +118,7 @@ class Request < Packet
 
     # /././././
     if self.junk_self_referring_directories
-      str.gsub!(/\//) {
+      str.gsub!('/') {
         '/.' * (rand(3) + 1) + '/'
       }
     end
@@ -126,12 +126,12 @@ class Request < Packet
     # /%3faaa=bbbbb
     # which could possibly decode to "/?aaa=bbbbb", which if the IDS normalizes first, then splits the URI on ?, then it can be bypassed
     if self.junk_param_start
-      str.sub!(/\//, '/%3f' + Rex::Text.rand_text_alpha(rand(5) + 1) + '=' + Rex::Text.rand_text_alpha(rand(10) + 1) + '/../')
+      str.sub!('/', '/%3f' + Rex::Text.rand_text_alpha(rand(5) + 1) + '=' + Rex::Text.rand_text_alpha(rand(10) + 1) + '/../')
     end
 
     # /RAND/../RAND../
     if self.junk_directories
-      str.gsub!(/\//) {
+      str.gsub!('/') {
         dirs = ''
         (rand(5)+5).times {
           dirs << '/' + Rex::Text.rand_text_alpha(rand(5) + 1) + '/..'
@@ -144,7 +144,7 @@ class Request < Packet
     #
     # NOTE: this must be done after all other odd directory junk, since they would cancel this out, except junk_end_of_uri, since that a specific slash in a specific place
     if self.junk_slashes
-      str.gsub!(/\//) {
+      str.gsub!('/') {
         '/' * (rand(3) + 2)
       }
       str.sub!(/^[\/]+/, '/') # only one beginning slash!

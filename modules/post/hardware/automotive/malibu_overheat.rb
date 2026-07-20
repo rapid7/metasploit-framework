@@ -10,11 +10,16 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Sample Module to Flood Temp Gauge on 2006 Malibu',
-        'Description' => %q{ Simple sample temp flood for the 2006 Malibu},
+        'Description' => %q{Simple sample temp flood for the 2006 Malibu.},
         'License' => MSF_LICENSE,
         'Author' => ['Craig Smith'],
         'Platform' => ['hardware'],
-        'SessionTypes' => ['hwbridge']
+        'SessionTypes' => ['hwbridge'],
+        'Notes' => {
+          'Stability' => [SERVICE_RESOURCE_LOSS],
+          'SideEffects' => [SCREEN_EFFECTS],
+          'Reliability' => []
+        }
       )
     )
     register_options([

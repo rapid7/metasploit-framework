@@ -24,8 +24,14 @@ class MetasploitModule < Msf::Auxiliary
       'Actions' => [
         ['john', { 'Description' => 'Use John the Ripper' }],
         ['hashcat', { 'Description' => 'Use Hashcat' }],
+        ['auto', { 'Description' => 'Auto-selection of cracker' }]
       ],
-      'DefaultAction' => 'john',
+      'DefaultAction' => 'auto',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -42,50 +48,57 @@ class MetasploitModule < Msf::Auxiliary
   def show_command(cracker_instance)
     return unless datastore['ShowCommand']
 
-    if action.name == 'john'
+    if @cracker_type == 'john'
       cmd = cracker_instance.john_crack_command
-    elsif action.name == 'hashcat'
+    elsif @cracker_type == 'hashcat'
       cmd = cracker_instance.hashcat_crack_command
     end
     print_status("   Cracking Command: #{cmd.join(' ')}")
   end
 
-  def run
-    def check_results(passwords, results, hash_type, method)
-      passwords.each do |password_line|
-        password_line.chomp!
-        next if password_line.blank?
+  def check_results(passwords, results, hash_type, method)
+    passwords.each do |password_line|
+      password_line.chomp!
+      next if password_line.blank?
 
-        fields = password_line.split(':')
-        cred = { 'hash_type' => hash_type, 'method' => method }
-        # If we don't have an expected minimum number of fields, this is probably not a hash line
-        if action.name == 'john'
-          next unless fields.count >= 3
+      fields = password_line.split(':')
+      cred = { 'hash_type' => hash_type, 'method' => method }
+      # If we don't have an expected minimum number of fields, this is probably not a hash line
+      if @cracker_type == 'john'
+        next unless fields.count >= 3
 
-          cred['username'] = fields.shift
-          cred['core_id'] = fields.pop
-          unless hash_type == 'PBKDF2-HMAC-SHA512'
-            4.times { fields.pop } # Get rid of extra :
-          end
-          cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
-        elsif action.name == 'hashcat'
-          next unless fields.count >= 3
-
-          cred['core_id'] = fields.shift
-          cred['hash'] = fields.shift
-          cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
-          next if cred['core_id'].include?("Hashfile '") && cred['core_id'].include?("' on line ") # skip error lines
-
-          # we don't have the username since we overloaded it with the core_id (since its a better fit for us)
-          # so we can now just go grab the username from the DB
-          cred['username'] = framework.db.creds(workspace: myworkspace, id: cred['core_id'])[0].public.username
+        cred['username'] = fields.shift
+        cred['core_id'] = fields.pop
+        unless hash_type == 'PBKDF2-HMAC-SHA512'
+          4.times { fields.pop } # Get rid of extra :
         end
-        results = process_cracker_results(results, cred)
+        cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
+      elsif @cracker_type == 'hashcat'
+        next unless fields.count >= 3
+
+        cred['core_id'] = fields.shift
+        cred['hash'] = fields.shift
+        cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
+        next if cred['core_id'].include?("Hashfile '") && cred['core_id'].include?("' on line ") # skip error lines
+
+        # we don't have the username since we overloaded it with the core_id (since its a better fit for us)
+        # so we can now just go grab the username from the DB
+        cred['username'] = framework.db.creds(workspace: myworkspace, id: cred['core_id'])[0].public.username
       end
-      results
+      results = process_cracker_results(results, cred)
     end
 
-    tbl = tbl = cracker_results_table
+    results
+  end
+
+  def run
+    tbl = cracker_results_table
+    cracker = new_password_cracker(action.name)
+    if action.name == 'auto'
+      @cracker_type = cracker.get_type
+    else
+      @cracker_type = action.name
+    end
 
     # array of hashes in jtr_format in the db, converted to an OR combined regex
     hash_types_to_crack = []
@@ -96,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # build our job list
     hash_types_to_crack.each do |hash_type|
-      job = hash_job(hash_type, action.name)
+      job = hash_job(hash_type, @cracker_type)
       if job.nil?
         print_status("No #{hash_type} found to crack")
       else
@@ -113,8 +126,6 @@ class MetasploitModule < Msf::Auxiliary
     # array of arrays for cracked passwords.
     # Inner array format: db_id, hash_type, username, password, method_of_crack
     results = []
-
-    cracker = new_password_cracker(action.name)
 
     # generate our wordlist and close the file handle.
     wordlist = wordlist_file
@@ -138,7 +149,7 @@ class MetasploitModule < Msf::Auxiliary
       # dupe our original cracker so we can safely change options between each run
       cracker_instance = cracker.dup
       cracker_instance.format = format
-      if action.name == 'john'
+      if @cracker_type == 'john'
         cracker_instance.fork = datastore['FORK']
       end
 
@@ -147,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
       results = check_results(cracker_instance.each_cracked_password, results, format, 'Already Cracked/POT')
       vprint_good(append_results(tbl, results)) unless results.empty?
 
-      if action.name == 'john'
+      if @cracker_type == 'john'
         print_status "Cracking #{format} hashes in single mode..."
         cracker_instance.mode_single(wordlist.path)
         show_command cracker_instance
@@ -188,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status "Cracking #{format} hashes in wordlist mode..."
         cracker_instance.mode_wordlist(wordlist.path)
         # Turn on KoreLogic rules if the user asked for it
-        if action.name == 'john' && datastore['KORELOGIC']
+        if @cracker_type == 'john' && datastore['KORELOGIC']
           cracker_instance.rules = 'KoreLogicRules'
           print_status 'Applying KoreLogic ruleset...'
         end

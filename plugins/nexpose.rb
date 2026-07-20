@@ -1,5 +1,6 @@
 require 'English'
 require 'nexpose'
+require 'rest-client'
 
 module Msf
   Nexpose_yaml = "#{Msf::Config.config_directory}/nexpose.yaml".freeze # location of the nexpose.yml containing saved nexpose creds
@@ -391,9 +392,15 @@ module Msf
               user = Regexp.last_match(2)
               pass = Regexp.last_match(3)
               msfid = Time.now.to_i
-              newcreds = Nexpose::SiteCredentials.for_service("Metasploit Site Credential #{msfid}", nil, nil, nil, nil, type)
-              newcreds.user_name = user
-              newcreds.password = pass
+              newcreds = {
+                "name": "Metasploit Site Credential #{msfid}",
+                "enabled": true,
+                "account": {
+                  "service": type,
+                  "username": user,
+                  "password": pass,
+                },
+              }
               opt_credentials << newcreds
             else
               print_error("Unrecognized Nexpose scan credentials: #{val}")
@@ -486,19 +493,35 @@ module Msf
           msfid = Time.now.to_i
 
           # Create a temporary site
-          site = Nexpose::Site.new(nil, opt_template)
-          site.name = "Metasploit-#{msfid}"
-          site.description = 'Autocreated by the Metasploit Framework'
-          site.included_addresses = queue
-          site.site_credentials = opt_credentials
-          site.save(@nsc)
+          create_site_payload = {
+            description:    "Autocreated by the Metasploit Framework'",
+            scanTemplateId: opt_template,
+            name:           "Metasploit-#{msfid}",
+            scan: {
+              assets: {
+                includedTargets: {
+                  addresses: queue,
+                },
+              },
+            },
+          }
 
-          print_status(" >> Created temporary site ##{site.id}") if opt_verbose
+          response = post_v3(resource: "sites", payload: create_site_payload)
+          @site_id = response["id"]
+
+          print_status(" >> Created temporary site ##{@site_id}") if opt_verbose
+
+          opt_credentials.each do |credential|
+            response = post_v3(resource: "sites/#{@site_id}/site_credentials", payload: credential)
+            credential_id = response["id"]
+
+            print_status(" >> Created site credential ##{credential_id}: #{credential['name']}")
+          end
 
           report_formats = ['raw-xml-v2', 'ns-xml']
           report_format = report_formats.shift
 
-          report = Nexpose::ReportConfig.build(@nsc, site.id, site.name, opt_template, report_format, true)
+          report = Nexpose::ReportConfig.build(@nsc, @site_id, create_site_payload[:name], opt_template, report_format, true)
           report.delivery = Nexpose::Delivery.new(true)
 
           begin
@@ -514,17 +537,8 @@ module Msf
 
           print_status(" >> Created temporary report configuration ##{report.id}") if opt_verbose
 
-          # Run the scan
-          begin
-            res = site.scan(@nsc)
-          rescue Nexpose::APIError => e
-            nexpose_error_message = e.message
-            nexpose_error_message.gsub!(/NexposeAPI: Action failed: /, '')
-            print_error nexpose_error_message.to_s
-            return
-          end
-
-          sid = res.id
+          response = post_v3(resource: "sites/#{@site_id}/scans", payload: { name: opt_template })
+          sid = response["id"]
 
           print_status(" >> Scan has been launched with ID ##{sid}") if opt_verbose
 
@@ -584,7 +598,7 @@ module Msf
           end
           print_status(' >> Deleting the temporary site and report...') if opt_verbose
           begin
-            @nsc.delete_site(site.id)
+            @nsc.delete_site(@site_id)
           rescue ::Nexpose::APIError => e
             print_status(" >> Deletion of temporary site and report failed: #{e.inspect}")
           end
@@ -648,6 +662,34 @@ module Msf
         end
       end
 
+      def post_v3(resource: "", payload: {})
+        response = RestClient::Request.execute(
+          verify_ssl: false,
+          method:     :post,
+          url:        nexpose_v3_url(resource: resource),
+          payload:    payload.to_json,
+          headers:    nexpose_shared_headers
+        )
+
+        dlog "Response body: #{response.body}"
+        JSON.parse(response.body)
+      end
+
+      def nexpose_v3_url(resource: "")
+        "https://#{@host}:#{@port}/api/3/#{resource}"
+      end
+
+      def nexpose_basic_auth_credentials
+        "Basic #{Base64::encode64([@user, @pass].join(':'))}"
+      end
+
+      def nexpose_shared_headers
+        {
+          content_type:  :json,
+          accept:        :json,
+          Authorization: nexpose_basic_auth_credentials,
+        }
+      end
     end
 
     #

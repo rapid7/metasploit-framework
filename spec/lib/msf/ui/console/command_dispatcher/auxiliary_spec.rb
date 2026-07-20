@@ -145,7 +145,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
     mod
   end
 
-  let(:aux_mod_with_option_validation) do
+  let(:aux_mod_with_rhost_option_validation) do
     mod_klass = Class.new(Msf::Auxiliary) do
       def initialize(info = {})
         super(
@@ -157,6 +157,53 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
 
         register_options(
           [
+            Msf::Opt::RHOST,
+            Msf::OptString.new('USERNAME', [ true, 'Set me to be greeted']),
+            Msf::OptString.new('PASSWORD', [ false, 'Secret value' ])
+          ]
+      )
+      end
+
+      def validate
+        super
+
+        if datastore['PASSWORD'] != 'PleaseThrowTheBall'
+          raise Msf::OptionValidateError.new({'PASSWORD' => 'Nuh uh uh, you didn\'t say the magic word.'})
+        end
+      end
+
+      def check
+        print_status('Check completed!')
+      end
+
+      def run
+        print("Hello #{datastore['USERNAME']}")
+        print_status('Run completed!')
+      end
+    end
+
+    mod = mod_klass.new
+    datastore = Msf::ModuleDataStore.new(mod)
+    allow(mod).to receive(:framework).and_return(framework)
+    mod.send(:datastore=, datastore)
+    datastore.import_options(mod.options)
+    Msf::Simple::Framework.simplify_module(mod)
+    mod
+  end
+
+  let(:aux_mod_with_file_format_option_validation) do
+    mod_klass = Class.new(Msf::Auxiliary) do
+      def initialize(info = {})
+        super(
+          'Name' => 'mock file format module',
+          'Description' => 'mock file format module',
+          'Author' => ['Unknown'],
+          'License' => MSF_LICENSE
+        )
+
+        register_options(
+          [
+            Msf::OptString.new('FILENAME', [ false, 'The file name', 'foo.zip']),
             Msf::OptString.new('USERNAME', [ true, 'Set me to be greeted']),
             Msf::OptString.new('PASSWORD', [ false, 'Secret value' ])
           ]
@@ -431,8 +478,46 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
       end
     end
 
-    context 'when running an auxiliary module with option validation' do
-      let(:current_mod) { aux_mod_with_option_validation }
+    context 'when running an auxiliary module with rhost option validation' do
+      let(:current_mod) { aux_mod_with_rhost_option_validation }
+
+      it 'reports options that fail validation' do
+        allow(current_mod).to receive(:check).and_call_original
+        allow(current_mod).to receive(:validate).and_call_original
+        current_mod.datastore['RHOSTS'] = '192.0.2.1'
+        current_mod.datastore['USERNAME'] = 'Jackson'
+        current_mod.datastore['PASSWORD'] = 'ThrowTheBall'
+        subject.cmd_check
+        expected_output = [
+          'Msf::OptionValidateError The following options failed to validate:',
+          'Invalid option PASSWORD: Nuh uh uh, you didn\'t say the magic word.'
+        ]
+
+        expect(@combined_output).to match_array(expected_output)
+        expect(subject.mod).not_to have_received(:check)
+        expect(subject.mod).to have_received(:validate).at_least(:once)
+      end
+
+      it 'runs when validation passes' do
+        allow(current_mod).to receive(:check).and_call_original
+        allow(current_mod).to receive(:validate).and_call_original
+        current_mod.datastore['RHOSTS'] = '192.0.2.1'
+        current_mod.datastore['USERNAME'] = 'Jackson'
+        current_mod.datastore['PASSWORD'] = 'PleaseThrowTheBall'
+        subject.cmd_check
+        expected_output = [
+          'Check completed!',
+          '192.0.2.1 - Check failed: The state could not be determined.'
+        ]
+
+        expect(@combined_output).to match_array(expected_output)
+        expect(subject.mod).to have_received(:check)
+        expect(subject.mod).to have_received(:validate).at_least(:once)
+      end
+    end
+
+    context 'when running an auxiliary module with file format option validation' do
+      let(:current_mod) { aux_mod_with_file_format_option_validation }
 
       it 'reports options that fail validation' do
         allow(current_mod).to receive(:check).and_call_original
@@ -804,8 +889,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
       end
     end
 
-    context 'when running an auxiliary module with option validation' do
-      let(:current_mod) { aux_mod_with_option_validation }
+    context 'when running an auxiliary rhost module with option validation' do
+      let(:current_mod) { aux_mod_with_rhost_option_validation }
 
       it 'reports options that fail validation' do
         allow(current_mod).to receive(:run).and_call_original
@@ -836,6 +921,45 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
           'Hello Jackson',
           'Run completed!',
           'Running module against 192.0.2.1'
+        ]
+
+        expect(@combined_output).to match_array(expected_output)
+        expect(subject.mod).to have_received(:run)
+        expect(subject.mod).to have_received(:validate).at_least(:once)
+      end
+    end
+
+    context 'when running an auxiliary file format module with option validation' do
+      let(:current_mod) { aux_mod_with_file_format_option_validation }
+
+      it 'reports options that fail validation' do
+        allow(current_mod).to receive(:run).and_call_original
+        allow(current_mod).to receive(:validate).and_call_original
+        current_mod.datastore['RHOSTS'] = '192.0.2.1'
+        current_mod.datastore['USERNAME'] = 'Jackson'
+        current_mod.datastore['PASSWORD'] = 'ThrowTheBall'
+        subject.cmd_run
+        expected_output = [
+          'Msf::OptionValidateError The following options failed to validate:',
+          'Invalid option PASSWORD: Nuh uh uh, you didn\'t say the magic word.'
+        ]
+
+        expect(@combined_output).to match_array(expected_output)
+        expect(subject.mod).not_to have_received(:run)
+        expect(subject.mod).to have_received(:validate).at_least(:once)
+      end
+
+      it 'runs when validation passes' do
+        allow(current_mod).to receive(:run).and_call_original
+        allow(current_mod).to receive(:validate).and_call_original
+        current_mod.datastore['RHOSTS'] = '192.0.2.1'
+        current_mod.datastore['USERNAME'] = 'Jackson'
+        current_mod.datastore['PASSWORD'] = 'PleaseThrowTheBall'
+        subject.cmd_run
+        expected_output = [
+          'Auxiliary module execution completed',
+          'Hello Jackson',
+          'Run completed!',
         ]
 
         expect(@combined_output).to match_array(expected_output)

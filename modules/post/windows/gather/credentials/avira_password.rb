@@ -19,6 +19,11 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'Robert Kugler / robertchrk'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -35,8 +40,9 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    print_status('Checking default location...')
-    check_programdata('C:\\ProgramData\\Avira\\Antivirus\\CONFIG\\AVWIN.INI')
+    path = 'C:\\ProgramData\\Avira\\Antivirus\\CONFIG\\AVWIN.INI'
+    print_status("Checking default location (#{path}) ...")
+    check_programdata(path)
   end
 
   def check_programdata(path)

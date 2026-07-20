@@ -10,22 +10,21 @@ class MetasploitModule < Msf::Encoder::Alphanum
 
   def initialize
     super(
-      'Name'             => "Alpha2 Alphanumeric Uppercase Encoder",
-      'Description'      => %q{
+      'Name' => 'Alpha2 Alphanumeric Uppercase Encoder',
+      'Description' => %q{
         Encodes payloads as alphanumeric uppercase text.  This encoder uses
         SkyLined's Alpha2 encoding suite.
         A pure alpha encoder is impossible without having a register that points at or near the shellcode.
         In a default configuration the first few bytes at the beginning are an fnstenv getpc stub (the same as used in shikata_ga_nai) and thus are not alphanumeric.
         You can set BufferRegister for full alpha (see Encoder options for details).
       },
-      'Author'           => [ 'pusscat', 'skylined' ],
-      'Arch'             => ARCH_X86,
-      'License'          => BSD_LICENSE,
-      'EncoderType'      => Msf::Encoder::Type::AlphanumUpper,
-      'Decoder'          =>
-        {
-          'BlockSize' => 1,
-        })
+      'Author' => [ 'pusscat', 'skylined' ],
+      'Arch' => ARCH_X86,
+      'License' => BSD_LICENSE,
+      'EncoderType' => Msf::Encoder::Type::AlphanumUpper,
+      'Decoder' => {
+        'BlockSize' => 1
+      })
   end
 
   #
@@ -39,34 +38,36 @@ class MetasploitModule < Msf::Encoder::Alphanum
     buf = ''
 
     # We need to create a GetEIP stub for the exploit
-    if (not reg)
-      if(datastore['AllowWin32SEH'] and datastore['AllowWin32SEH'].to_s =~ /^(t|y|1)/i)
+    if !reg
+      if datastore['AllowWin32SEH'] && datastore['AllowWin32SEH'].to_s =~ (/^(t|y|1)/i)
         buf = 'VTX630WTX638VXH49HHHPVX5AAQQPVX5YYYYP5YYYD5KKYAPTTX638TDDNVDDX4Z4A63861816'
         reg = 'ECX'
         off = 0
-        modified_registers.concat (
+        modified_registers.concat(
           [
             Rex::Arch::X86::ESP,
             Rex::Arch::X86::EDI,
             Rex::Arch::X86::ESI,
             Rex::Arch::X86::EAX
-          ])
+          ]
+        )
       else
         res = Rex::Arch::X86.geteip_fpu(state.badchars, modified_registers)
-        if (not res)
-          raise EncodingError, "Unable to generate geteip code"
+        if !res
+          raise EncodingError, 'Unable to generate geteip code'
         end
-      buf, reg, off = res
+
+        buf, reg, off = res
       end
     else
       reg.upcase!
     end
 
-    stub = buf + Rex::Encoder::Alpha2::AlphaUpper::gen_decoder(reg, off, modified_registers)
+    stub = buf + Rex::Encoder::Alpha2::AlphaUpper.gen_decoder(reg, off, modified_registers)
 
     # Sanity check that saved_registers doesn't overlap with modified_registers
     modified_registers.uniq!
-    if (modified_registers & saved_registers).length > 0
+    if !(modified_registers & saved_registers).empty?
       raise BadGenerateError
     end
 
@@ -78,14 +79,14 @@ class MetasploitModule < Msf::Encoder::Alphanum
   # payload.
   #
   def encode_block(state, block)
-    return Rex::Encoder::Alpha2::AlphaUpper::encode_byte(block.unpack('C')[0], state.badchars)
+    return Rex::Encoder::Alpha2::AlphaUpper.encode_byte(block.unpack('C')[0], state.badchars)
   end
 
   #
   # Tack on our terminator
   #
   def encode_end(state)
-    state.encoded += Rex::Encoder::Alpha2::AlphaUpper::add_terminator()
+    state.encoded += Rex::Encoder::Alpha2::AlphaUpper.add_terminator
   end
 
   # Indicate that this module can preserve some registers

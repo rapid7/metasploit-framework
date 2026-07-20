@@ -2,21 +2,18 @@
 
 Before submitting to the GSoC website, it is also helpful to solicit proposal feedback. This can be done by reaching out to us on our Slack at <https://metasploit.com/slack> via the `#gsoc` channel, or via sending an email to `msfdev [@] metasploit [dot]  com`. If you don't hear back right away on a proposal, don't give up! Contributors may be busy, or you may need to try again to get someone's attention (but don't spam).
 
-# 2022 Timeline
+# 2026 Timeline
 An updated list of the application timeline can be found at https://developers.google.com/open-source/gsoc/timeline. Please refer to this link for any updates that Google may make, as they have been known to change the timeline for certain dates in the past.
 
 ## Important Dates
 
-- GSoC Applications Open: April 4th at 1800 UTC
-- GSoC Applications Close: April 19th at 1800 UTC for 2022 GSoC applications. **No late submissions will be accepted, period.**
-- Accepted applications announced: May 20th at 1800 UTC
-- Programming Starts: June 13th.
+- GSoC Applications Open: March 16th at 18:00 UTC
+- GSoC Applications Close: March 31th at 1800 UTC for 2026 GSoC applications
+- Accepted GSoC contributor projects announced: April 30th at 1800 UTC
+- Programming Starts: May 25th.
 
-## Important Changes for 2022
-- All submissions (including both draft submissions and final submissions) must be in PDF format when being submitted to GSoC's website. If you would like us to review your submission prior to the final deadline, please submit a Google Drive link to your DOC formatted proposal to msfdev [AT] metasploit [DOT] com and make sure that you have enabled commenting so that potential mentors can provide feedback.
-
-# 2022 Idea List
-You can find the current list of GSoC ideas at [[GSoC-2022-Project-Ideas]]. Please see the note at the bottom of this page if you are interested in submitting your own idea, as this will require approval.
+# 2026 Idea List
+You can find the current list of GSoC ideas at [[GSoC-2026-Project-Ideas]]. Please see the note at the bottom of this page if you are interested in submitting your own idea, as this will require approval.
 
 # Getting started
 Students interesting in GSoC, can start by reading Google's official guides.

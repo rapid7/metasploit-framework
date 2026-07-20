@@ -19,7 +19,7 @@ and domain controller.
 ### Windows 2016 with Windows 2008 SP1 DC
 
 ```
-msf6 post(windows/gather/enum_domain) > sessions -i 1
+msf post(windows/gather/enum_domain) > sessions -i 1
 [*] Starting interaction with 1...
 
 meterpreter > sysinfo
@@ -33,10 +33,10 @@ Meterpreter     : x64/windows
 meterpreter > background
 [*] Backgrounding session 1...
 
-msf6 post(windows/gather/enum_domain) > use post/windows/gather/enum_domain
-msf6 post(windows/gather/enum_domain) > set session 1
+msf post(windows/gather/enum_domain) > use post/windows/gather/enum_domain
+msf post(windows/gather/enum_domain) > set session 1
 session => 1
-msf6 post(windows/gather/enum_domain) > run
+msf post(windows/gather/enum_domain) > run
 
 [+] Domain FQDN: corp.local
 [+] Domain NetBIOS Name: CORP

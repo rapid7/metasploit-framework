@@ -26,6 +26,10 @@ module Msf::WebServices
       # Disables Sinatra HTML Error Responses
       set :show_exceptions, false
 
+      # Sinatra 4 / rack-protection 4.x enables host authorization by default;
+      # the JSON-RPC service binds to user-specified addresses so all hosts are permitted.
+      set :host_authorization, { permitted_hosts: [] }
+
       set :sessions, {key: 'msf-ws.session', expire_after: 300}
       set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET', SecureRandom.hex(32))
       set :api_token, ENV.fetch('MSF_WS_JSON_RPC_API_TOKEN', nil)

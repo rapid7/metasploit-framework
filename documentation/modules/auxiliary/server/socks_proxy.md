@@ -8,12 +8,12 @@
 
 ## Options
 
-**SRVHOST**
+### SRVHOST
 
 The local IP address to bind the proxy server to. The default value of `0.0.0.0` will expose the proxy to everything on
 the attacker's network.
 
-**SRVPORT**
+### SRVPORT
 
 The local port to bind the proxy to. The default value is `1080`, the standard port for a SOCKS proxy.
 
@@ -28,7 +28,7 @@ This module is great when pivoting across a network. Suppose we have two machine
 We'll begin by starting the SOCKS proxy:
 
 ```
-msf6 auxiliary(server/socks_proxy) > show options
+msf auxiliary(server/socks_proxy) > show options
 
 Module options (auxiliary/server/socks_proxy):
 
@@ -48,10 +48,10 @@ Auxiliary action:
    Proxy  Run a SOCKS proxy server
 
 
-msf6 auxiliary(server/socks_proxy) > run
+msf auxiliary(server/socks_proxy) > run
 [*] Auxiliary module execution completed
 [*] Starting the SOCKS proxy server
-msf6 auxiliary(socks_proxy) >
+msf auxiliary(socks_proxy) >
 ```
 
 Preparing to pivot across a network requires us to first establish a Meterpreter session on the victim machine. From

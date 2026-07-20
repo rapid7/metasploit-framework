@@ -45,7 +45,10 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_getpid
             ]
           }
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_001_LSASS_MEMORY ]
+        ]
       )
     )
     register_options([
@@ -148,7 +151,8 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::BadConfig, 'PROCESS_NAME or PID must be set.')
     end
 
-    print_status("Running module against #{sysinfo['Computer']} (#{session.session_host})")
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
 
     if datastore['PROCESS_NAME']
       pids = pidof(datastore['PROCESS_NAME'])

@@ -34,6 +34,8 @@ def types
     'ZDI' => 'http://www.zerodayinitiative.com/advisories/ZDI-#{in_ctx_val}',
     'WPVDB' => 'https://wpscan.com/vulnerability/#{in_ctx_val}',
     'PACKETSTORM' => 'https://packetstormsecurity.com/files/#{in_ctx_val}',
+    'GHSA' => 'https://github.com/advisories/#{in_ctx_val}',
+    'OSV' => 'https://osv.dev/vulnerability/#{in_ctx_val}',
     'URL' => '#{in_ctx_val}'
   }
 end

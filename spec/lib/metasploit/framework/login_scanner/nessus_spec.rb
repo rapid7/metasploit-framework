@@ -51,14 +51,16 @@ RSpec.describe Metasploit::Framework::LoginScanner::Nessus do
 
       context 'when target is Nessus' do
         let(:response) { msp_html_response }
-        it 'returns true' do
-          expect(http_scanner.check_setup).to be_truthy
+        it 'returns false' do
+          allow(http_scanner).to receive(:report_service)
+          expect(http_scanner.check_setup).to be(false)
+          expect(http_scanner).to have_received(:report_service).with(hash_including(name: 'nessus', proto: 'tcp'))
         end
       end
 
       context 'when target is not Nessus' do
-        it 'returns false' do
-          expect(http_scanner.check_setup).to be_falsey
+        it 'returns failure details' do
+          expect(http_scanner.check_setup).to eq("Unable to locate \"Nessus\" in body. (Is this really Nessus?)")
         end
       end
     end

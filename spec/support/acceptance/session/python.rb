@@ -1,4 +1,6 @@
-module Acceptance::Session
+require_relative './shared'
+
+module Acceptance::Session::Python
   PYTHON_METERPRETER = {
     payloads: [
       {
@@ -53,12 +55,21 @@ module Acceptance::Session
               "[-] [should stop W32Time] FAILED: should stop W32Time",
               "[-] [should stop W32Time] Exception: RuntimeError: Could not open service. OpenServiceA error: FormatMessage failed to retrieve the error for value 0x6.",
               "[-] [should list services] FAILED: should list services",
-              "[-] [should list services] Exception: NoMethodError: undefined method `service' for nil:NilClass",
+              # Ruby 3.2
+              ["[-] [should list services] Exception: NoMethodError: undefined method `service' for nil:NilClass", { flaky: true }],
+              # Ruby 3.4 - https://www.ruby-lang.org/en/news/2024/12/25/ruby-3-4-0-released/#Compatibility%20issues
+              ["[-] [should list services] Exception: NoMethodError: undefined method 'service' for nil", { flaky: true }],
               "[-] [should return info on a given service winmgmt] FAILED: should return info on a given service winmgmt",
-              "[-] [should return info on a given service winmgmt] Exception: NoMethodError: undefined method `service' for nil:NilClass",
+              # Ruby 3.2
+              ["[-] [should return info on a given service winmgmt] Exception: NoMethodError: undefined method `service' for nil:NilClass", { flaky: true }],
+              # Ruby 3.4 - https://www.ruby-lang.org/en/news/2024/12/25/ruby-3-4-0-released/#Compatibility%20issues
+              ["[-] [should return info on a given service winmgmt] Exception: NoMethodError: undefined method 'service' for nil", { flaky: true }],
               "[-] FAILED: should create a service testes",
               "[-] [should return info on the newly-created service testes] FAILED: should return info on the newly-created service testes",
-              "[-] [should return info on the newly-created service testes] Exception: NoMethodError: undefined method `service' for nil:NilClass",
+              # Ruby 3.2
+              ["[-] [should return info on the newly-created service testes] Exception: NoMethodError: undefined method `service' for nil:NilClass", { flaky: true }],
+              # Ruby 3.4 - https://www.ruby-lang.org/en/news/2024/12/25/ruby-3-4-0-released/#Compatibility%20issues
+              ["[-] [should return info on the newly-created service testes] Exception: NoMethodError: undefined method 'service' for nil", { flaky: true }],
               "[-] [should delete the new service testes] FAILED: should delete the new service testes",
               "[-] [should delete the new service testes] Exception: RuntimeError: Could not open service. OpenServiceA error: FormatMessage failed to retrieve the error for value 0x6.",
               "[-] [should return status on a given service winmgmt] FAILED: should return status on a given service winmgmt",
@@ -101,10 +112,16 @@ module Acceptance::Session
           },
           windows: {
             known_failures: [
-              "[-] [should return clipboard jpg dimensions] FAILED: should return clipboard jpg dimensions",
-              "[-] [should return clipboard jpg dimensions] Exception: NoMethodError: undefined method `clipboard' for nil:NilClass",
-              "[-] [should download clipboard jpg data] FAILED: should download clipboard jpg data",
-              "[-] [should download clipboard jpg data] Exception: NoMethodError: undefined method `clipboard' for nil:NilClass"
+              # Ruby 3.2
+              ["[-] [should return clipboard jpg dimensions] FAILED: should return clipboard jpg dimensions", { flaky: true }],
+              ["[-] [should return clipboard jpg dimensions] Exception: NoMethodError: undefined method `clipboard' for nil:NilClass", { flaky: true }],
+              ["[-] [should download clipboard jpg data] FAILED: should download clipboard jpg data", { flaky: true }],
+              ["[-] [should download clipboard jpg data] Exception: NoMethodError: undefined method `clipboard' for nil:NilClass", { flaky: true }],
+              # Ruby 3.4 - https://www.ruby-lang.org/en/news/2024/12/25/ruby-3-4-0-released/#Compatibility%20issues
+              ["[-] [should return clipboard jpg dimensions] FAILED: should return clipboard jpg dimensions", { flaky: true }],
+              ["[-] [should return clipboard jpg dimensions] Exception: NoMethodError: undefined method 'clipboard' for nil", { flaky: true }],
+              ["[-] [should download clipboard jpg data] FAILED: should download clipboard jpg data", { flaky: true }],
+              ["[-] [should download clipboard jpg data] Exception: NoMethodError: undefined method 'clipboard' for nil", { flaky: true }],
             ]
           }
         }
@@ -235,6 +252,28 @@ module Acceptance::Session
           },
           windows: {
             known_failures: []
+          }
+        }
+      },
+      {
+        name: "post/test/socket_channels",
+        platforms: [:linux, :osx, :windows],
+        skipped: false,
+        lines: {
+          linux: {
+            known_failures: [
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
+            ]
+          },
+          osx: {
+            known_failures: [
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
+            ]
+          },
+          windows: {
+            known_failures: [
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
+            ]
           }
         }
       },

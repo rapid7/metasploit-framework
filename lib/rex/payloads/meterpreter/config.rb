@@ -58,7 +58,7 @@ private
     if opts[:stageless] == true || opts[:null_session_guid] == true
       session_guid = "\x00" * 16
     else
-      session_guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
+      session_guid = [SecureRandom.uuid.gsub('-', '')].pack('H*')
     end
     session_data = [
       0,                  # comms socket, patched in by the stager
@@ -172,6 +172,18 @@ private
     # into play.
     file_extension = 'x86.dll'
     file_extension = 'x64.dll' unless is_x86?
+
+    @opts[:extensions] = [] if @opts[:extensions].blank?
+    prev_length = @opts[:extensions].length
+    @opts[:extensions] = @opts[:extensions].select {|ext_name| ext_name.index('stdapi_') != 0}
+    if prev_length != @opts[:extensions].length
+      raise Msf::OptionValidateError.new(
+        {
+          'EXTENSIONS' => 'The extensions starting with stdapi_* are currently not supported.'
+        },
+        message: "The extensions starting with stdapi_* are currently not supported."
+      )
+    end
 
     (@opts[:extensions] || []).each do |e|
       config << extension_block(e, file_extension, debug_build: @opts[:debug_build])

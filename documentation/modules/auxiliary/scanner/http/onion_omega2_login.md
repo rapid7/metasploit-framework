@@ -41,12 +41,12 @@ root master
 
 ## Scenario 
 ```
-msf5 > use auxiliary/scanner/http/onion_omega2_login
-msf5 auxiliary(scanner/http/onion_omega2_login) > set RHOSTS 192.168.3.1
+msf > use auxiliary/scanner/http/onion_omega2_login
+msf auxiliary(scanner/http/onion_omega2_login) > set RHOSTS 192.168.3.1
 RHOSTS => 192.168.3.1
-msf5 auxiliary(scanner/http/onion_omega2_login) > set USERPASS_FILE something.txt
+msf auxiliary(scanner/http/onion_omega2_login) > set USERPASS_FILE something.txt
 USERPASS_FILE => something.txt
-msf5 auxiliary(scanner/http/onion_omega2_login) > run
+msf auxiliary(scanner/http/onion_omega2_login) > run
 
 [*] Running for 192.168.3.1...
 [*] 192.168.3.1:80 - [ 1/16] - root:123456 - Failure

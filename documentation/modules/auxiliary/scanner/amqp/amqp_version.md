@@ -21,10 +21,10 @@ specification, the "server-properties":
 **Running the scanner**
 
 ```
-msf6 > use auxiliary/scanner/amqp/amqp_version
-msf6 auxiliary(scanner/amqp/amqp_version) > set RHOSTS 192.168.159.0/24
+msf > use auxiliary/scanner/amqp/amqp_version
+msf auxiliary(scanner/amqp/amqp_version) > set RHOSTS 192.168.159.0/24
 RHOSTS => 192.168.159.0/24
-msf6 auxiliary(scanner/amqp/amqp_version) > run
+msf auxiliary(scanner/amqp/amqp_version) > run
 
 [*] 192.168.159.17:5671 - AMQP Detected (version:RabbitMQ 3.8.16) (cluster:rabbit@WIN-KHPRSGSRF30) (platform:Erlang/OTP 23.3) (authentication:AMQPLAIN, PLAIN)
 [*] 192.168.159.0/24:5671 - Scanned  51 of 256 hosts (19% complete)
@@ -39,7 +39,7 @@ msf6 auxiliary(scanner/amqp/amqp_version) > run
 [*] 192.168.159.0/24:5671 - Scanned 233 of 256 hosts (91% complete)
 [*] 192.168.159.0/24:5671 - Scanned 256 of 256 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/amqp/amqp_version) > services 
+msf auxiliary(scanner/amqp/amqp_version) > services 
 Services
 ========
 
@@ -49,7 +49,7 @@ host             port  proto  name   state  info
                                             AIN)
 192.168.159.128  5671  tcp    amqps  open   AMQP Detected (version:RabbitMQ 3.11.10) (cluster:rabbit@my-rabbit) (platform:Erlang/OTP 25.3) (authentication:PLAIN, AMQPLAIN)
 
-msf6 auxiliary(scanner/amqp/amqp_version) 
+msf auxiliary(scanner/amqp/amqp_version) 
 ```
 
 [1]: https://www.rabbitmq.com/amqp-0-9-1-reference.html#connection.start.server-properties

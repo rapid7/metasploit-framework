@@ -90,7 +90,7 @@ enum cli_status_e {
 
 ## Options
 
-  **PASS_FILE**
+### PASS_FILE
 
   File which contains the password list to use.
 

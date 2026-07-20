@@ -7,20 +7,20 @@ class MetasploitModule < Msf::Encoder
 
   def initialize
     super(
-      'Name'             => 'The "none" Encoder',
-      'Description'      => %q{
+      'Name' => 'The "none" Encoder',
+      'Description' => %q{
         This "encoder" does not transform the payload in any way.
       },
-      'Author'           => 'spoonm',
-      'License'          => MSF_LICENSE,
-      'Arch'             => ARCH_ALL,
-      'EncoderType'      => Msf::Encoder::Type::Raw)
+      'Author' => 'spoonm',
+      'License' => MSF_LICENSE,
+      'Arch' => ARCH_ALL,
+      'EncoderType' => Msf::Encoder::Type::Raw)
   end
 
   #
   # Simply return the buf straight back.
   #
-  def encode_block(state, buf)
+  def encode_block(_state, buf)
     buf
   end
 end

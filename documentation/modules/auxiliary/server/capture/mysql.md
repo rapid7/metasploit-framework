@@ -8,27 +8,23 @@ This module creates a mock MySQL server which accepts credentials.  Upon receivi
 
 ## Options
 
-  **CHALLENGE**
+### CHALLENGE
 
   The MySQL 16 byte challenge used in the authentication.  Default is `112233445566778899AABBCCDDEEFF1122334455`.
 
-  **JOHNPWFILE**
+### JOHNPWFILE
 
   Write a file containing a John the Ripper format for cracking the credentials.  Default is ``.
 
-  **CAINPWFILE**
-
-  Write a file containing a Cain & Abel format for cracking the credentials.  Default is ``.
-
-  **SRVVERSION**
+### SRVVERSION
 
   The MySQL version to print in the login banner.  Default is `5.5.16`.
 
-  **SSL**
+### SSL
 
   Boolean if SSL should be used.  Default is `False`.
 
-  **SSLCert**
+### SSLCert
 
   File path to a combined Private Key and Certificate file.  If not provided, a certificate will be automatically
   generated.  Default is ``.
@@ -40,12 +36,12 @@ This module creates a mock MySQL server which accepts credentials.  Upon receivi
 Server:
 
 ```
-msf5 > use auxiliary/server/capture/mysql 
-msf5 auxiliary(server/capture/mysql) > set johnpwfile /tmp/mysql.logins
+msf > use auxiliary/server/capture/mysql 
+msf auxiliary(server/capture/mysql) > set johnpwfile /tmp/mysql.logins
 johnpwfile => /tmp/mysql.logins
-msf5 auxiliary(server/capture/mysql) > run
+msf auxiliary(server/capture/mysql) > run
 [*] Auxiliary module running as background job 0.
-msf5 auxiliary(server/capture/mysql) > 
+msf auxiliary(server/capture/mysql) > 
 [*] Started service listener on 0.0.0.0:3306 
 [*] Server started.
 [+] 127.0.0.1:59604 - User: admin; Challenge: 112233445566778899aabbccddeeff1122334455; Response: 46677c2d9cac93da328c4321060c125db759925e

@@ -32,7 +32,7 @@
 
 ## Options
 
- **WINDOW_TITLE**
+### WINDOW_TITLE
 
 Specify a title for getting the window handle, e.g.:TeamViewer',Default is `TeamViewer`
 

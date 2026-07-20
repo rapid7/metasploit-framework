@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://seclists.org/fulldisclosure/2015/Jan/2'],
           ['URL', 'https://github.com/pedrib/PoC/blob/master/advisories/ManageEngine/me_dc9_admin.txt'],
         ],
-        'DisclosureDate' => '2014-12-31'
+        'DisclosureDate' => '2014-12-31',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 

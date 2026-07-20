@@ -20,14 +20,14 @@ In this scenario, we look for `/backup` instead.  On the web server, we've creat
 `backup.orig`, and `backup~`.
 
 ```
-msf5 > use auxiliary/scanner/http/backup_file 
-msf5 auxiliary(scanner/http/backup_file) > set verbose true
+msf > use auxiliary/scanner/http/backup_file 
+msf auxiliary(scanner/http/backup_file) > set verbose true
 verbose => true
-msf5 auxiliary(scanner/http/backup_file) > set path /backup
+msf auxiliary(scanner/http/backup_file) > set path /backup
 path => /backup
-msf5 auxiliary(scanner/http/backup_file) > set rhosts 192.168.2.39
+msf auxiliary(scanner/http/backup_file) > set rhosts 192.168.2.39
 rhosts => 192.168.2.39
-msf5 auxiliary(scanner/http/backup_file) > run
+msf auxiliary(scanner/http/backup_file) > run
 
 [*] NOT Found http://192.168.2.39:80/backup.backup
 [*] NOT Found http://192.168.2.39:80/backup.bak

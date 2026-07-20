@@ -121,7 +121,7 @@ resource (xspy.rb)> set verbose true
 verbose => true
 resource (xspy.rb)> set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(gather/x11_keyboard_spy) > run
+msf auxiliary(gather/x11_keyboard_spy) > run
 [*] Running module against 127.0.0.1
 
 [*] 127.0.0.1:6000 - Establishing TCP Connection

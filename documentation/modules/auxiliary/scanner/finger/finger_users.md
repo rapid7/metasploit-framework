@@ -18,7 +18,7 @@ The following was done on Kali linux:
 
 ## Options
 
-**USERS_FILE**
+### USERS_FILE
 
 The USERS_FILE is a newline delimited list of users and defaults to `unix_users.txt` included with metasploit.
 

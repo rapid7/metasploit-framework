@@ -14,20 +14,18 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Chef Web UI Brute Force Utility',
-      'Description'    => %q{
+      'Name' => 'Chef Web UI Brute Force Utility',
+      'Description' => %q{
         This module attempts to login to Chef Web UI server instance using username and password
         combinations indicated by the USER_FILE, PASS_FILE, and USERPASS_FILE options. It
         will also test for the default login (admin:p@ssw0rd1).
       },
-      'Author'         =>
-        [
-          'hdm'
-        ],
-      'License'        => MSF_LICENSE,
-      'DefaultOptions' =>
-      {
-        'SSL'         => true,
+      'Author' => [
+        'hdm'
+      ],
+      'License' => MSF_LICENSE,
+      'DefaultOptions' => {
+        'SSL' => true,
       }
     )
 
@@ -36,8 +34,9 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(443),
         OptString.new('USERNAME', [false, 'The username to specify for authentication', '']),
         OptString.new('PASSWORD', [false, 'The password to specify for authentication', '']),
-        OptString.new('TARGETURI', [ true,  'The path to the Chef Web UI application', '/']),
-      ])
+        OptString.new('TARGETURI', [ true, 'The path to the Chef Web UI application', '/']),
+      ]
+    )
   end
 
   #
@@ -51,50 +50,50 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_brute :level=>:status, :ip=>rhost, :msg=>("Found Chef Web UI application at #{datastore['TARGETURI']}")
+    print_brute :level => :status, :ip => rhost, :msg => ("Found Chef Web UI application at #{datastore['TARGETURI']}")
     bruteforce(ip)
   end
 
   def bruteforce(ip)
     @scanner.scan! do |result|
       case result.status
-        when Metasploit::Model::Login::Status::SUCCESSFUL
-          print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
-          do_report(ip, rport, result)
-          :next_user
-        when Metasploit::Model::Login::Status::DENIED_ACCESS
-          print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}'"
-          do_report(ip, rport, result)
-          :next_user
-        when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-          if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
-          end
-          invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
-          )
-          :abort
-        when Metasploit::Model::Login::Status::INCORRECT
-          if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
-          end
-          invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
-          )
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        do_report(ip, rport, result)
+        :next_user
+      when Metasploit::Model::Login::Status::DENIED_ACCESS
+        print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}'"
+        do_report(ip, rport, result)
+        :next_user
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        end
+        invalidate_login(
+          address: ip,
+          port: rport,
+          protocol: 'tcp',
+          public: result.credential.public,
+          private: result.credential.private,
+          realm_key: result.credential.realm_key,
+          realm_value: result.credential.realm,
+          status: result.status
+        )
+        :abort
+      when Metasploit::Model::Login::Status::INCORRECT
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        end
+        invalidate_login(
+          address: ip,
+          port: rport,
+          protocol: 'tcp',
+          public: result.credential.public,
+          private: result.credential.private,
+          realm_key: result.credential.realm_key,
+          realm_value: result.credential.realm,
+          status: result.status
+        )
       end
     end
   end
@@ -140,9 +139,9 @@ class MetasploitModule < Msf::Auxiliary
 
     @scanner = Metasploit::Framework::LoginScanner::ChefWebUI.new(
       configure_http_login_scanner(
-        uri:                datastore['TARGETURI'],
-        cred_details:       @cred_collection,
-        stop_on_success:    datastore['STOP_ON_SUCCESS'],
+        uri: datastore['TARGETURI'],
+        cred_details: @cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
         connection_timeout: 5,
         http_username: datastore['HttpUsername'],

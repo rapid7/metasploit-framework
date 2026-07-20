@@ -32,8 +32,10 @@ class MetasploitModule < Msf::Auxiliary
           'Spencer McIntyre'
         ],
         'References' => [
+          [ 'URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
           [ 'URL', 'https://github.com/GhostPack/Certify' ],
-          [ 'URL', 'https://github.com/ly4k/Certipy' ]
+          [ 'URL', 'https://github.com/ly4k/Certipy' ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1649_STEAL_OR_FORGE_AUTHENTICATION_CERTIFICATES ]
         ],
         'Notes' => {
           'Reliability' => [],
@@ -51,9 +53,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     send("action_#{action.name.downcase}")
-  rescue MsIcprConnectionError => e
+  rescue MsIcprConnectionError, SmbIpcConnectionError => e
     fail_with(Failure::Unreachable, e.message)
-  rescue MsIcprAuthenticationError => e
+  rescue MsIcprAuthenticationError, MsIcprAuthorizationError, SmbIpcAuthenticationError => e
     fail_with(Failure::NoAccess, e.message)
   rescue MsIcprNotFoundError => e
     fail_with(Failure::NotFound, e.message)
@@ -65,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_request_cert
     with_ipc_tree do |opts|
-      request_certificate(opts)
+      icpr_request_certificate(opts)
     end
   end
 

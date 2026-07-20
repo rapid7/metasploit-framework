@@ -12,7 +12,7 @@ Only the deprecated DIAL protocol is supported by this module. Casting via the n
 
 ## Options
 
-  **VID**
+### VID
 
   The YouTube video to be played.  Defaults to [kxopViU98Xo](https://www.youtube.com/watch?v=kxopViU98Xo)
 

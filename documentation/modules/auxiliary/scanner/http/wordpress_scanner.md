@@ -120,28 +120,28 @@ How often to print a prorgress bar while scanning for themes/plugins.  Defaults 
 Follow the Instructions above to setup the Docksal Containers.
 
 ```
-msf5 > use auxiliary/scanner/http/wordpress_scanner
-msf5 auxiliary(scanner/http/wordpress_scanner) > set RHOSTS msf-wp.docksal
+msf > use auxiliary/scanner/http/wordpress_scanner
+msf auxiliary(scanner/http/wordpress_scanner) > set RHOSTS msf-wp.docksal
 RHOSTS => msf-wp.docksal
-msf5 auxiliary(scanner/http/wordpress_scanner) > set VHOST msf-wp.docksal
+msf auxiliary(scanner/http/wordpress_scanner) > set VHOST msf-wp.docksal
 VHOST => msf-wp.docksal
-msf5 auxiliary(scanner/http/wordpress_scanner) > run
+msf auxiliary(scanner/http/wordpress_scanner) > run
 
 [*] Trying 192.168.64.100
 [+] 192.168.64.100 running Wordpress 5.2
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/http/wordpress_scanner) > 
+msf auxiliary(scanner/http/wordpress_scanner) > 
 
 ```
 
 ### Wordpress 5.4.2 with Plugin and Theme Enumeration, Exploitable True
 
 ```
-msf6 > use auxiliary/scanner/http/wordpress_scanner
-msf6 auxiliary(scanner/http/wordpress_scanner) > set rhosts 192.168.2.144
+msf > use auxiliary/scanner/http/wordpress_scanner
+msf auxiliary(scanner/http/wordpress_scanner) > set rhosts 192.168.2.144
 rhosts => 192.168.2.144
-msf6 auxiliary(scanner/http/wordpress_scanner) > run
+msf auxiliary(scanner/http/wordpress_scanner) > run
 
 [*] Trying 192.168.2.144
 [+] 192.168.2.144 - Detected Wordpress 5.4.4
@@ -169,12 +169,12 @@ msf6 auxiliary(scanner/http/wordpress_scanner) > run
 ### Wordpress 5.4.2 with Plugin and Theme Enumeration, Exploitable False
 
 ```
-msf6 > use auxiliary/scanner/http/wordpress_scanner
-msf6 auxiliary(scanner/http/wordpress_scanner) > set rhosts 192.168.2.144
+msf > use auxiliary/scanner/http/wordpress_scanner
+msf auxiliary(scanner/http/wordpress_scanner) > set rhosts 192.168.2.144
 rhosts => 192.168.2.144
-msf6 auxiliary(scanner/http/wordpress_scanner) > set exploitable false
+msf auxiliary(scanner/http/wordpress_scanner) > set exploitable false
 exploitable => false
-msf6 auxiliary(scanner/http/wordpress_scanner) > run
+msf auxiliary(scanner/http/wordpress_scanner) > run
 
 [*] Trying 192.168.2.144
 [+] 192.168.2.144 - Detected Wordpress 5.4.4
@@ -316,7 +316,7 @@ msf6 auxiliary(scanner/http/wordpress_scanner) > run
 [*] 192.168.2.144 - Progress  90000/91829 (98.0%)
 [*] 192.168.2.144 - Finished scanning plugins
 [*] 192.168.2.144 - Finished all scans
-msf6 auxiliary(scanner/http/wordpress_scanner) > notes
+msf auxiliary(scanner/http/wordpress_scanner) > notes
 
 Notes
 =====

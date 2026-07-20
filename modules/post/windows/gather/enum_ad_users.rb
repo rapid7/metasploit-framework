@@ -40,6 +40,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -160,6 +165,7 @@ class MetasploitModule < Msf::Post
     inner_filter << "(#{datastore['FILTER']})" unless datastore['FILTER'].blank?
     case datastore['UAC']
     when 'ANY'
+      # no filter
     when 'NO_PASSWORD'
       inner_filter << '(userAccountControl:1.2.840.113556.1.4.803:=32)'
     when 'CHANGE_PASSWORD'

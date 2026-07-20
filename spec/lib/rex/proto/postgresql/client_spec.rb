@@ -11,15 +11,79 @@ RSpec.describe Msf::Db::PostgresPR::Connection do
   let(:socket) { double(Rex::Socket, peerhost: host, peerport: port) }
   let(:message) { Msf::Db::PostgresPR::ReadyForQuery.new('') }
 
-  subject do
+  before do
     allow(socket).to receive(:<<)
+    allow(socket).to receive(:write)
+    allow(socket).to receive(:read).and_return('S')
+    allow(socket).to receive(:extend)
+    allow(socket).to receive(:initsock_with_ssl_version)
     allow(Msf::Db::PostgresPR::Message).to receive(:read).and_return(message)
-    allow(Rex::Socket).to receive(:create).and_return(socket)
-    client = described_class.new(db_name, 'username', 'password', "tcp://#{host}:#{port}")
-    client
+    allow(Rex::Socket).to receive(:create_param).and_return(socket)
+  end
+
+  subject do
+    described_class.new(db_name, 'username', 'password', "tcp://#{host}:#{port}")
   end
 
   it_behaves_like 'session compatible SQL client'
+
+  describe 'SSL connection' do
+    let(:ssl_request_message) { instance_double(Msf::Db::PostgresPR::SSLRequest) }
+    let(:ssl_opts) { { ssl_version: 'TLS1.2', ssl_verify_mode: 'peer', ssl_cipher: 'AES256' } }
+
+    before do
+      allow(Msf::Db::PostgresPR::SSLRequest).to receive(:new).with(80877103).and_return(ssl_request_message)
+      allow(ssl_request_message).to receive(:dump).and_return('ssl_request_data')
+    end
+
+    context 'when SSL is enabled and server supports SSL' do
+      it 'successfully establishes SSL connection' do
+        allow(socket).to receive(:read).with(1).and_return('S')
+
+        expect(socket).to receive(:write).with('ssl_request_data')
+        expect(socket).to receive(:starttls).with(Rex::Socket::Parameters)
+
+        client = described_class.new(db_name, 'username', 'password', "tcp://#{host}:#{port}", nil, true, ssl_opts)
+        expect(client).to be_a(Msf::Db::PostgresPR::Connection)
+      end
+    end
+
+    context 'when SSL is enabled but server does not support SSL' do
+      it 'raises an error when server responds with N' do
+        allow(socket).to receive(:read).with(1).and_return('N')
+
+        expect(socket).to receive(:write).with('ssl_request_data')
+        expect(socket).not_to receive(:extend)
+
+        expect {
+          described_class.new(db_name, 'username', 'password', "tcp://#{host}:#{port}", nil, true, ssl_opts)
+        }.to raise_error("SSL connection requested but server at #{host}:#{port} does not support SSL")
+      end
+    end
+
+    context 'when SSL is enabled but server responds unexpectedly' do
+      it 'raises an error for unexpected SSL response' do
+        allow(socket).to receive(:read).with(1).and_return('X')
+
+        expect(socket).to receive(:write).with('ssl_request_data')
+        expect(socket).not_to receive(:extend)
+
+        expect {
+          described_class.new(db_name, 'username', 'password', "tcp://#{host}:#{port}", nil, true, ssl_opts)
+        }.to raise_error('Unexpected response to SSLRequest: "X"')
+      end
+    end
+
+    context 'when SSL is disabled' do
+      it 'does not attempt SSL handshake' do
+        expect(socket).not_to receive(:write).with('ssl_request_data')
+        expect(socket).not_to receive(:extend).with(Rex::Socket::SslTcp)
+
+        client = described_class.new(db_name, 'username', 'password', "tcp://#{host}:#{port}", nil, false, ssl_opts)
+        expect(client).to be_a(Msf::Db::PostgresPR::Connection)
+      end
+    end
+  end
 
   describe '#map_compile_os_to_platform' do
     [

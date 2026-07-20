@@ -254,8 +254,18 @@ module Anemone
       !@pages.has_page?(link) &&
       !skip_link?(link) &&
       !skip_query_string?(link) &&
+      # Metasploit bug fix to ensure we don't continually traverse 404 pages
+      referred_from_valid_page?(from_page) &&
       allowed(link) &&
       !too_deep?(from_page)
+    end
+
+    def referred_from_valid_page?(page)
+      return true unless page && page.referer
+
+      # XXX This might need to handle differences between http and https schemes like '@pages.has_page?' implements
+      referer_http_status = @pages[page.referer.to_s].code
+      referer_http_status >= 100 && referer_http_status < 400
     end
 
     #
@@ -305,3 +315,4 @@ module Anemone
 
   end
 end
+

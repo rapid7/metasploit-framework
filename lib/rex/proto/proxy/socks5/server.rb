@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'thread'
+require 'rex/io/relay_manager'
 require 'rex/socket'
 
 module Rex
@@ -22,6 +23,7 @@ module Socks5
       @clients       = ::Array.new
       @running       = false
       @server_thread = nil
+      @relay_manager = Rex::IO::RelayManager.new
     end
 
     #
@@ -100,6 +102,7 @@ module Socks5
     end
 
     attr_reader :opts
+    attr_reader :relay_manager
   end
 end
 end

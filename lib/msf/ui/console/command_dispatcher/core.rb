@@ -272,20 +272,28 @@ class Core
   def cmd_banner(*args)
     banner  = "%cya" + Banner.to_s + "%clr\n\n"
 
-    stats       = framework.stats
-    version     = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
-    exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
-    pay_enc_nop = "#{stats.num_payloads} payloads - #{stats.num_encoders} encoders - #{stats.num_nops} nops",
-    eva         = "#{stats.num_evasion} evasion",
-    padding     = 48
+    stats = framework.stats
+    version = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
+    stats_line_1 = [
+      "#{stats.num_exploits.to_fs(:delimited)} exploits",
+      "#{stats.num_auxiliary.to_fs(:delimited)} auxiliary",
+      "#{stats.num_payloads.to_fs(:delimited)} payloads"
+    ].join(' - ')
+    stats_line_2 = [
+      "#{stats.num_post.to_fs(:delimited)} post",
+      "#{stats.num_encoders.to_fs(:delimited)} encoders",
+      "#{stats.num_nops.to_fs(:delimited)} nops",
+      "#{stats.num_evasion.to_fs(:delimited)} evasion"
+    ].join(' - ')
+    padding = 54
 
     banner << ("       =[ %-#{padding+8}s]\n" % version)
-    banner << ("+ -- --=[ %-#{padding}s]\n" % exp_aux_pos)
-    banner << ("+ -- --=[ %-#{padding}s]\n" % pay_enc_nop)
-    banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % stats_line_1)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % stats_line_2)
 
     banner << "\n"
     banner << Rex::Text.wordwrap('Metasploit Documentation: https://docs.metasploit.com/', indent = 0, cols = 60)
+    banner << Rex::Text.wordwrap('The Metasploit Framework is a Rapid7 Open Source Project', indent = 0, cols = 60)
 
     # Display the banner
     print_line(banner)
@@ -1009,7 +1017,7 @@ class Core
 
     # Parse any extra options that should be passed to the plugin
     args.each { |opt|
-      k, v = opt.split(/\=/)
+      k, v = opt.split('=')
 
       opts[k] = v if (k and v)
     }
@@ -1082,7 +1090,7 @@ class Core
       tabs += tab_complete_filenames(str,words)
     end
 
-    return tabs.map{|e| e.sub(/\.rb/, '')} - framework.plugins.map(&:name)
+    return tabs.map{|e| e.sub('.rb', '')} - framework.plugins.map(&:name)
   end
 
   def cmd_route_help
@@ -1235,7 +1243,7 @@ class Core
           if (route.comm.kind_of?(Msf::Session))
             gw = "Session #{route.comm.sid}"
           else
-            gw = route.comm.name.split(/::/)[-1]
+            gw = route.comm.name.split('::')[-1]
           end
 
           tbl_ipv4 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv4?(route.netmask)
@@ -1632,6 +1640,12 @@ class Core
               print_line(output) if output
             when 'mssql', 'postgresql', 'mysql'
               session.run_cmd(cmd, driver.output)
+            when 'hwbridge'
+              if session.respond_to?(:console) && session.console
+                session.console.run_single(cmd)
+              else
+                print_error("Session #{s} has no hwbridge console; skipping...")
+              end
             end
           ensure
             # Restore timeout for each session
@@ -1801,11 +1815,33 @@ class Core
         end
       end
     when 'upexec'
-      print_status("Executing 'post/multi/manage/shell_to_meterpreter' on " +
-                    "session(s): #{session_list}")
       session_list.each do |sess_id|
         session = verify_session(sess_id)
-        if session
+        next unless session
+
+        if session.type == 'smb'
+          # Route SMB sessions to the dedicated upgrade module
+          mod = framework.modules.create('post/windows/manage/smb_to_meterpreter')
+          unless mod
+            print_error('Failed to create post/windows/manage/smb_to_meterpreter module.')
+            next
+          end
+
+          print_status("Executing 'post/windows/manage/smb_to_meterpreter' on session: [#{sess_id}]")
+          opts = { 'SESSION' => sess_id.to_s }
+          if session.exploit_datastore
+            %w[LHOST LPORT TARGET_ARCH].each do |key|
+              opts[key] = session.exploit_datastore[key] if session.exploit_datastore[key]
+            end
+          end
+          mod.run_simple({
+            'LocalInput' => driver.input,
+            'LocalOutput' => driver.output,
+            'Options' => opts
+          })
+        else
+          print_status("Executing 'post/multi/manage/shell_to_meterpreter' on " \
+                        "session: [#{sess_id}]")
           if session.respond_to?(:response_timeout)
             last_known_timeout = session.response_timeout
             session.response_timeout = response_timeout

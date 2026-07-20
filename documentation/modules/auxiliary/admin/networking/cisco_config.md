@@ -37,12 +37,12 @@ root@metasploit-dev:~/metasploit-framework# wget https://raw.githubusercontent.c
 root@metasploit-dev:~/metasploit-framework# ./msfconsole 
 
 [*] Starting persistent handler(s)...
-msf5 > use auxiliary/admin/networking/cisco_config 
-msf5 auxiliary(admin/networking/cisco_config) > set config /tmp/LA_EDGE_D.txt
+msf > use auxiliary/admin/networking/cisco_config 
+msf auxiliary(admin/networking/cisco_config) > set config /tmp/LA_EDGE_D.txt
 config => /tmp/LA_EDGE_D.txt
-msf5 auxiliary(admin/networking/cisco_config) > set rhost 127.0.0.1
+msf auxiliary(admin/networking/cisco_config) > set rhost 127.0.0.1
 rhost => 127.0.0.1
-msf5 auxiliary(admin/networking/cisco_config) > run
+msf auxiliary(admin/networking/cisco_config) > run
 [*] Running module against 127.0.0.1
 
 [*] Importing config

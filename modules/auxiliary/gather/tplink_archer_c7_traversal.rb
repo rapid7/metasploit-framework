@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'uri' => '/'
     })
-    return Exploit::CheckCode::Unknown unless res
+    return Exploit::CheckCode::Unknown('No response received from target') unless res
 
     device_title = res.get_html_document&.at('//title')&.text
     if device_title =~ /Archer C\d/

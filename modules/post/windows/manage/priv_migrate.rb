@@ -42,6 +42,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_kill
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )

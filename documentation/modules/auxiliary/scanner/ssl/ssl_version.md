@@ -35,10 +35,10 @@ List is dynamically generated. Defaults to `all`
 An example run against `google.com`, no real issues as expected.
 
 ```
-msf6 > use auxiliary/scanner/ssl/ssl_version
-msf6 auxiliary(scanner/ssl/ssl_version) > set RHOSTS 172.217.12.238
+msf > use auxiliary/scanner/ssl/ssl_version
+msf auxiliary(scanner/ssl/ssl_version) > set RHOSTS 172.217.12.238
 RHOSTS => 172.217.12.238
-msf6 auxiliary(scanner/ssl/ssl_version) > run
+msf auxiliary(scanner/ssl/ssl_version) > run
 
 [+] 172.217.12.238:443    - Connected with SSL Version: TLSv1.2, Cipher: ECDHE-RSA-AES256-GCM-SHA384
 [+] 172.217.12.238:443    - Certificate saved to loot: /home/gwillcox/.msf4/loot/20221107150747_default_172.217.12.238_ssl.certificate_342145.txt
@@ -57,7 +57,7 @@ msf6 auxiliary(scanner/ssl/ssl_version) > run
 [+] 172.217.12.238:443    - Connected with SSL Version: TLSv1.2, Cipher: AES128-GCM-SHA256
 [*] 172.217.12.238:443    - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/ssl/ssl_version) > show options
+msf auxiliary(scanner/ssl/ssl_version) > show options
 
 Module options (auxiliary/scanner/ssl/ssl_version):
 
@@ -78,16 +78,16 @@ Module options (auxiliary/scanner/ssl/ssl_version):
    SSLVersion  All              yes       SSL version to test (Accepted: All, SSLv3, TLSv1.0, TLSv1.2, TLSv1.3)
    THREADS     1                yes       The number of concurrent threads (max one per host)
 
-msf6 auxiliary(scanner/ssl/ssl_version) >
+msf auxiliary(scanner/ssl/ssl_version) >
 ```
 
 ### Expired certificate
 
 ```
-msf6 > use auxiliary/scanner/ssl/ssl_version
-msf6 auxiliary(scanner/ssl/ssl_version) > set RHOSTS expired.badssl.com
+msf > use auxiliary/scanner/ssl/ssl_version
+msf auxiliary(scanner/ssl/ssl_version) > set RHOSTS expired.badssl.com
 RHOSTS => expired.badssl.com
-msf6 auxiliary(scanner/ssl/ssl_version) > run
+msf auxiliary(scanner/ssl/ssl_version) > run
 
 [+] 104.154.89.105:443    - Connected with SSL Version: TLSv1.2, Cipher: ECDHE-RSA-AES256-GCM-SHA384
 [+] 104.154.89.105:443    - Certificate saved to loot: /home/gwillcox/.msf4/loot/20221107150939_default_104.154.89.105_ssl.certificate_786557.txt
@@ -114,7 +114,7 @@ msf6 auxiliary(scanner/ssl/ssl_version) > run
 [+] 104.154.89.105:443    - Connected with SSL Version: TLSv1.2, Cipher: AES128-SHA256
 [*] expired.badssl.com:443 - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/ssl/ssl_version) > show options
+msf auxiliary(scanner/ssl/ssl_version) > show options
 
 Module options (auxiliary/scanner/ssl/ssl_version):
 
@@ -135,5 +135,5 @@ Module options (auxiliary/scanner/ssl/ssl_version):
    SSLVersion  All                 yes       SSL version to test (Accepted: All, SSLv3, TLSv1.0, TLSv1.2, TLSv1.3)
    THREADS     1                   yes       The number of concurrent threads (max one per host)
 
-msf6 auxiliary(scanner/ssl/ssl_version) >
+msf auxiliary(scanner/ssl/ssl_version) >
 ```

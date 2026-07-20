@@ -51,11 +51,11 @@ rsync3:VU&A1We5DEa8M6^8" > /etc/rsyncd.secrets```
 
 ## Options
 
-  **TEST_AUTHENTICATION**
+### TEST_AUTHENTICATION
 
   Connect to each share and test if authentication is required.
 
-  **VERBOSE**
+### VERBOSE
 
   When set to `false`, each module will be listed.  When set to `true` each module will be listed, then a summary
   table will also be printed including if authentication is required, and any module comments.  `false` is the default value.
@@ -67,10 +67,10 @@ rsync3:VU&A1We5DEa8M6^8" > /etc/rsyncd.secrets```
 With verbose set to `false`:
 
   ```
-  msf5 > use auxiliary/scanner/rsync/modules_list
-  msf5 auxiliary(scanner/rsync/modules_list) > set rhosts 10.168.202.216
+  msf > use auxiliary/scanner/rsync/modules_list
+  msf auxiliary(scanner/rsync/modules_list) > set rhosts 10.168.202.216
   rhosts => 10.168.202.216
-  msf5 auxiliary(scanner/rsync/modules_list) > run
+  msf auxiliary(scanner/rsync/modules_list) > run
   
   [+] 10.168.202.216:873    - 3 rsync modules found: read only files, writable, authenticated
   ```
@@ -78,12 +78,12 @@ With verbose set to `false`:
 With verbose set to `true`:
 
   ```
-  msf5 > use auxiliary/scanner/rsync/modules_list
-  msf5 auxiliary(scanner/rsync/modules_list) > set rhosts 10.168.202.216
+  msf > use auxiliary/scanner/rsync/modules_list
+  msf auxiliary(scanner/rsync/modules_list) > set rhosts 10.168.202.216
   rhosts => 10.168.202.216
-  msf5 auxiliary(scanner/rsync/modules_list) > set verbose true
+  msf auxiliary(scanner/rsync/modules_list) > set verbose true
   verbose => true
-  msf5 auxiliary(scanner/rsync/modules_list) > run
+  msf auxiliary(scanner/rsync/modules_list) > run
   
   [+] 10.168.202.216:873    - 3 rsync modules found: read only files, writable, authenticated
   

@@ -18,10 +18,11 @@ module Metasploit
           })
 
           if res && res.code == 200 && res.body.include?('/img/favicon.png?v=6.0.1-1213')
-            return true
+            report_service(service_opts)
+            return false
           end
 
-          false
+          'Unable to locate favicon in body. (Is this really CiscoFirepower?)'
         end
 
         def do_login(cred)
@@ -58,9 +59,7 @@ module Metasploit
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
 
           begin
@@ -71,6 +70,10 @@ module Metasploit
           end
 
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('cisco_firepower')
         end
 
       end

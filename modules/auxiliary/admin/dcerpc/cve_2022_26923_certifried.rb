@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     ])
 
-    deregister_options('CERT_TEMPLATE', 'ALT_DNS', 'ALT_UPN', 'PFX', 'ON_BEHALF_OF', 'SMBUser', 'SMBPass', 'SMBDomain')
+    deregister_options('CERT_TEMPLATE', 'ALT_DNS', 'ALT_UPN', 'PFX', 'ON_BEHALF_OF', 'SMBUser', 'SMBPass', 'SMBDomain', 'LDAPUsername', 'LDAPPassword', 'LDAPDomain')
   end
 
   def run
@@ -114,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
     }
     opts[:tree] = connect_smb(opts)
     opts[:cert_template] = 'Machine'
-    cert = request_certificate(opts)
+    cert = icpr_request_certificate(opts)
     fail_with(Failure::UnexpectedReply, 'Unable to request the certificate.') unless cert
 
     if ['AUTHENTICATE', 'PRIVESC'].include?(action.name)
@@ -139,9 +139,9 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     end
-  rescue MsSamrConnectionError, MsIcprConnectionError => e
+  rescue MsSamrConnectionError, MsIcprConnectionError, SmbIpcConnectionError => e
     fail_with(Failure::Unreachable, e.message)
-  rescue MsSamrAuthenticationError, MsIcprAuthenticationError => e
+  rescue MsSamrAuthenticationError, MsIcprAuthenticationError, MsIcprAuthorizationError, SmbIpcAuthenticationError => e
     fail_with(Failure::NoAccess, e.message)
   rescue MsSamrNotFoundError, MsIcprNotFoundError => e
     fail_with(Failure::NotFound, e.message)
@@ -170,10 +170,10 @@ class MetasploitModule < Msf::Auxiliary
       end
       opts = {
         tree: tree,
-        computer_name: computer_info&.name
+        account_name: computer_info&.name
       }
       begin
-        delete_account(opts) if opts[:tree] && opts[:computer_name]
+        delete_account(opts) if opts[:tree] && opts[:account_name]
       rescue MsSamrUnknownError => e
         print_warning("Unable to delete the computer account, this will have to be done manually with an Administrator account (#{e.message})")
       end

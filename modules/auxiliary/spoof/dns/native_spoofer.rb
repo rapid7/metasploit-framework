@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Capture
@@ -46,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('FILTER', [false, 'The filter string for capturing traffic', 'dst port 53']),
-        OptAddress.new('SRVHOST', [true, 'The local host to listen on for DNS services.', '127.0.2.2'])
+        OptAddressLocal.new('SRVHOST', [true, 'The local host to listen on for DNS services.', '127.0.2.2'])
       ]
     )
 

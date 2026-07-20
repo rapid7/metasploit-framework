@@ -10,20 +10,22 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Telnet Service Banner Detection',
+      'Name' => 'Telnet Service Banner Detection',
       'Description' => 'Detect telnet services',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE
     )
     register_options(
-    [
-      Opt::RPORT(23),
-      OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
-    ])
+      [
+        Opt::RPORT(23),
+        OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
+      ]
+    )
   end
 
   def to
     return 30 if datastore['TIMEOUT'].to_i.zero?
+
     datastore['TIMEOUT'].to_i
   end
 

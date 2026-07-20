@@ -103,7 +103,7 @@ specifically by calling `EfsRpcEncryptFileSrv`. Once the connection is received,
 ### Windows 10 x64 21H2 Running As NT AUTHORITY\NETWORK SERVICE
 
 ```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > sessions -i -1
+msf payload(windows/x64/meterpreter/reverse_tcp) > sessions -i -1
 [*] Starting interaction with 1...
 
 meterpreter > sysinfo

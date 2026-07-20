@@ -15,6 +15,11 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[

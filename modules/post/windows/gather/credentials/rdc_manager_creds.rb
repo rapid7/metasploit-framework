@@ -32,6 +32,11 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'Tom Sellers <tom[at]fadedcode.net>'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[

@@ -448,6 +448,9 @@ NAVIGATION_CONFIG = [
           {
             path: 'How-to-use-Metasploit-with-ngrok.md'
           },
+          {
+            path: 'How-to-use-Metasploit-MCP-Server.md'
+          },
         ]
       },
     ]
@@ -596,6 +599,10 @@ NAVIGATION_CONFIG = [
                     title: 'RC4 Support'
                   },
                 ]
+              },
+              {
+                path: 'Post-Mixins.md',
+                title: 'PostMixins'
               },
               {
                 path: 'How-to-log-in-Metasploit.md',
@@ -905,6 +912,10 @@ NAVIGATION_CONFIG = [
           },
           {
             path: 'GSoC-2023-Project-Ideas.md',
+            title: without_prefix('GSoC')
+          },
+          {
+            path: 'GSoC-2026-Project-Ideas.md',
             title: without_prefix('GSoC')
           },
         ]

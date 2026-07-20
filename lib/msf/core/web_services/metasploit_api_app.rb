@@ -35,6 +35,9 @@ class Msf::WebServices::MetasploitApiApp < Sinatra::Base
   configure do
     set :sessions, {key: 'msf-ws.session', expire_after: 300}
     set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET') { SecureRandom.hex(32) }
+    # Sinatra 4 / rack-protection 4.x enables host authorization by default;
+    # the web service binds to user-specified addresses so all hosts are permitted.
+    set :host_authorization, { permitted_hosts: [] }
   end
 
   before do

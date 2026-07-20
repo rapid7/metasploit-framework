@@ -27,6 +27,7 @@ module Metasploit
           }
 
           begin
+            self.kerberos_clock_skew = clock_skew if clock_skew
             res = send_request_tgt(
               server_name: server_name,
               client_name: credential.public,
@@ -66,6 +67,7 @@ module Metasploit
         end
 
         attr_accessor :server_name
+        attr_accessor :clock_skew
 
         # Override the kerberos client's methods with the login scanner implementations
         alias rhost host
@@ -78,7 +80,30 @@ module Metasploit
           case error_code
           when Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_KEY_EXPIRED, Rex::Proto::Kerberos::Model::Error::ErrorCodes::KRB_AP_ERR_SKEW
             # Correct password, but either password needs resetting or clock is skewed
-            Metasploit::Model::Login::Status::SUCCESSFUL
+            begin
+              pa_data_entry = krb_err.res.e_data_as_pa_data.find do |pa_data|
+                pa_data.type == Rex::Proto::Kerberos::Model::PreAuthType::PA_PW_SALT
+              end
+
+              if pa_data_entry
+                pw_salt = pa_data_entry.decoded_value
+                if pw_salt.nt_status
+                  case pw_salt.nt_status.value
+                  when ::WindowsError::NTStatus::STATUS_PASSWORD_EXPIRED
+                    # Windows Server 2019 Build 17763 (possibly others) replies with STATUS_PASSWORD_EXPIRED even when the password is incorrect
+                    Metasploit::Model::Login::Status::INCORRECT
+                  else
+                    Metasploit::Model::Login::Status::SUCCESSFUL
+                  end
+                else
+                  Metasploit::Model::Login::Status::SUCCESSFUL
+                end
+              else
+                Metasploit::Model::Login::Status::SUCCESSFUL
+              end
+            rescue Rex::Proto::Kerberos::Model::Error::KerberosDecodingError
+              Metasploit::Model::Login::Status::SUCCESSFUL
+            end
           when Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_C_PRINCIPAL_UNKNOWN
             # The username doesn't exist
             Metasploit::Model::Login::Status::INVALID_PUBLIC_PART
@@ -87,8 +112,11 @@ module Metasploit
             # It doesn't appear to be documented anywhere, but Microsoft gives us a bit
             # of extra information in the e-data section
             begin
-              pa_data_entry = krb_err.res.e_data_as_pa_data_entry
-              if pa_data_entry && pa_data_entry.type == Rex::Proto::Kerberos::Model::PreAuthType::PA_PW_SALT
+              pa_data_entry = krb_err.res.e_data_as_pa_data.find do |pa_data|
+                pa_data.type == Rex::Proto::Kerberos::Model::PreAuthType::PA_PW_SALT
+              end
+
+              if pa_data_entry
                 pw_salt = pa_data_entry.decoded_value
                 if pw_salt.nt_status
                   case pw_salt.nt_status.value
@@ -107,7 +135,7 @@ module Metasploit
                   Metasploit::Model::Login::Status::DISABLED
                 end
               else
-                  Metasploit::Model::Login::Status::DISABLED
+                Metasploit::Model::Login::Status::DISABLED
               end
             rescue Rex::Proto::Kerberos::Model::Error::KerberosDecodingError
               # Could be a non-MS implementation?

@@ -249,7 +249,7 @@ queries:
       - https://troopers.de/downloads/troopers19/TROOPERS19_AD_Fun_With_LDAP.pdf
       - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1
   - action: ENUM_LAPS_PASSWORDS
-    description: 'Dump info about computers that have LAPS enabled, and passwords for them if available.'
+    description: 'Dump info about computers that have LAPS v1 enabled, and passwords for them if available.'
     filter: '(ms-MCS-AdmPwd=*)'
     attributes:
       - cn

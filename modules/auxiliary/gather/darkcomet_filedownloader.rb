@@ -8,26 +8,32 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'DarkComet Server Remote File Download Exploit',
-      'Description'    => %q{
-        This module exploits an arbitrary file download vulnerability in the DarkComet C&C server versions 3.2 and up.
-        The exploit does not need to know the password chosen for the bot/server communication.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'DarkComet Server Remote File Download Exploit',
+        'Description' => %q{
+          This module exploits an arbitrary file download vulnerability in the DarkComet C&C server versions 3.2 and up.
+          The exploit does not need to know the password chosen for the bot/server communication.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Shawn Denbow & Jesse Hertz', # Vulnerability Discovery
           'Jos Wetzels' # Metasploit module, added support for versions < 5.1, removed need to know password via cryptographic attack
         ],
-      'References'     =>
-        [
+        'References' => [
           [ 'URL', 'https://www.nccgroup.com/globalassets/our-research/us/whitepapers/PEST-CONTROL.pdf' ],
           [ 'URL', 'http://samvartaka.github.io/exploitation/2016/06/03/dead-rats-exploiting-malware' ]
         ],
-      'DisclosureDate' => '2012-10-08',
-      'Platform'       => 'win'
-    ))
+        'DisclosureDate' => '2012-10-08',
+        'Platform' => 'win',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -41,7 +47,8 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('STORE_LOOT', [false, 'Store file in loot (will simply output file to console if set to false).', true]),
         OptInt.new('BRUTETIMEOUT', [false, 'Timeout (in seconds) for bruteforce attempts', 1])
 
-      ])
+      ]
+    )
   end
 
   # Functions for XORing two strings, deriving keystream using known plaintext and applying keystream to produce ciphertext

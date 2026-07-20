@@ -59,14 +59,55 @@ class MetasploitModule < Msf::Post
       {query: "select cast(null as numeric(16, 6));", expected: [[nil]]},
       {query: "select cast('foo' as ntext);", expected: [['foo']]},
       {query: "select cast(null as ntext);", expected: [[nil]]},
+      {query: "select cast('bar' as varchar(10));", expected: [['bar']]},
+      {query: "select cast(null as varchar(10));", expected: [[nil]]},
+      {query: "select cast('baz' as nvarchar(10));", expected: [['baz']]},
+      {query: "select cast(null as nvarchar(10));", expected: [[nil]]},
+      {query: "select cast(42 as int);", expected: [[42]]},
+      {query: "select cast(null as int);", expected: [[nil]]},
+      {query: "select cast(1 as tinyint);", expected: [[1]]},
+      {query: "select cast(256 as smallint);", expected: [[256]]},
+      {query: "select cast(null as smallint);", expected: [[nil]]},
+      {query: "select cast(1 as bit);", expected: [[1]]},
+      {query: "select cast(0 as bit);", expected: [[0]]},
+      {query: "select cast(null as bit);", expected: [[nil]]},
+      {query: "select cast(1 as bigint);", expected: [[1]]},
+      {query: "select cast(null as bigint);", expected: [[nil]]},
+      {query: "select cast(0x4142 as varbinary(10));", expected: [["4142"]]},
+      {query: "select cast(null as varbinary(10));", expected: [[nil]]},
+      {query: "select cast('A1B2C3D4-E5F6-A7B8-C9D0-E1F2A3B4C5D6' as uniqueidentifier);", expected: [["{a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6}"]]},
+      {query: "select cast(null as uniqueidentifier);", expected: [[nil]]},
+      {query: "select cast(1 as int) as col union select cast(2 as int) order by col;", expected: [[1], [2]]},
     ].each do |test|
       it "should execute the query #{test[:query]} and return #{test[:expected].inspect}" do
         console = session.console
         result = console.client.query(test[:query])
         ret = result[:rows] == test[:expected]
         ret &&= result[:errors].empty?
+        unless ret
+          print_error("Expected: #{test[:expected].inspect}")
+          print_error("Got rows: #{result[:rows].inspect}")
+          print_error("Errors: #{result[:errors].inspect}") unless result[:errors].empty?
+        end
         ret
       end
+    end
+  end
+
+  def test_stored_procedures
+    it "should handle EXEC sp_databases (NBCROW token 0xD2)" do
+      result = session.console.client.query("EXEC sp_databases;")
+      ret = result[:errors].empty?
+      ret &&= result[:rows].any? { |row| row.include?('master') }
+      ret
+    end
+
+    it "should handle EXEC sp_tables with NULLs" do
+      result = session.console.client.query("EXEC sp_tables @table_type = '''TABLE''';")
+      ret = result[:errors].empty?
+      ret &&= result[:rows].length > 0
+      ret &&= result[:rows].any? { |row| row.include?('master') && row.include?(nil) }
+      ret
     end
   end
 

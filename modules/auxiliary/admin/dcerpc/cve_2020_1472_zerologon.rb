@@ -50,7 +50,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2020-1472' ],
           [ 'URL', 'https://www.secura.com/blog/zero-logon' ],
           [ 'URL', 'https://github.com/SecuraBV/CVE-2020-1472/blob/master/zerologon_tester.py' ],
-          [ 'URL', 'https://github.com/dirkjanm/CVE-2020-1472/blob/master/restorepassword.py' ]
+          [ 'URL', 'https://github.com/dirkjanm/CVE-2020-1472/blob/master/restorepassword.py' ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1068_EXPLOITATION_FOR_PRIVILEGE_ESCALATION ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1078_VALID_ACCOUNTS ]
         ]
       )
     )
@@ -99,9 +101,9 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, windows_error)
     end
 
-    return CheckCode::Detected unless status == 0
+    return Exploit::CheckCode::Detected('Target responded but Zerologon exploit did not succeed') unless status == 0
 
-    CheckCode::Vulnerable
+    Exploit::CheckCode::Vulnerable('Zerologon authentication bypass succeeded')
   end
 
   def run
@@ -114,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_remove_password
-    fail_with(Failure::Unknown, 'Failed to authenticate to the server by leveraging the vulnerability') unless check == CheckCode::Vulnerable
+    fail_with(Failure::Unknown, 'Failed to authenticate to the server by leveraging the vulnerability') unless check == Exploit::CheckCode::Vulnerable
 
     print_good('Successfully authenticated')
 

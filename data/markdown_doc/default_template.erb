@@ -67,6 +67,8 @@
 <% description = "Module may cause a noise (Examples: audio output from the speakers or hardware beeps)." %>
 <% elsif side_effect == "physical-effects" %>
 <% description = "Module may produce physical effects (Examples: the device makes movement or flashes LEDs)." %>
+<% elsif side_effect == "unknown-side-effects" %>
+<% description = "Module side effects are unknown." %>
 <% end %>
 
 * **<%= side_effect %>:** <%= description %>
@@ -85,6 +87,8 @@
 <% description = "The module isn't expected to get a shell reliably (such as only once)." %>
 <% elsif reliability == "event-dependent" %>
 <% description = "The module may not execute the payload until an external event occurs. For instance, a cron job, machine restart, user interaction within a GUI element, etc." %>
+<% elsif reliability == "unknown-reliability" %>
+<% description = "Module reliability is unknown." %>
 <% end %>
 
 * **<%= reliability %>:** <%= description %>
@@ -109,6 +113,8 @@
 <% description = "Module may cause a resource (such as a file or data in a database) to be unavailable for the service." %>
 <% elsif stability == "os-resource-loss" %>
 <% description = "Modules may cause a resource (such as a file) to be unavailable for the OS." %>
+<% elsif stability == "unknown-stability" %>
+<% description = "Module stability is unknown." %>
 <% end %>
 
 * **<%= stability %>:** <%= description %>

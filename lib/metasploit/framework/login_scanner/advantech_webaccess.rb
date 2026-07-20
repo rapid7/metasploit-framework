@@ -10,6 +10,11 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
+        # Checks if the target is Advantech WebAccess
+        #
+        # @return [false] Indicates there were no errors
+        # @return [String] a human-readable error message describing why
+        #   this scanner can't run
         def check_setup
           uri = normalize_uri("#{uri}broadWeb/bwRoot.asp")
 
@@ -19,10 +24,11 @@ module Metasploit
           })
 
           if res && res.body =~ /Welcome to Advantech WebAccess/i
-            return true
+            report_service(service_opts)
+            return false
           end
 
-          false
+          'Unable to locate "Welcome to Advantech WebAccess" in body. (Is this really Advantech WebAccess?)'
         end
 
         def do_login(user, pass)
@@ -62,9 +68,7 @@ module Metasploit
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
 
           begin
@@ -75,6 +79,10 @@ module Metasploit
           end
 
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('advantech_webaccess')
         end
 
       end

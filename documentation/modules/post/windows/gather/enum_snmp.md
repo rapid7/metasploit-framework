@@ -17,10 +17,10 @@ This module will enumerate the SNMP service configuration.
 ### Windows Server 2008 (x64)
 
 ```
-msf6 > use post/windows/gather/enum_snmp
-msf6 post(windows/gather/enum_snmp) > set session 1
+msf > use post/windows/gather/enum_snmp
+msf post(windows/gather/enum_snmp) > set session 1
 session => 1
-msf6 post(windows/gather/enum_snmp) > run
+msf post(windows/gather/enum_snmp) > run
 
 [*] Running module against WIN-17B09RRRJTG (192.168.200.218)
 [*] Checking if SNMP service is installed

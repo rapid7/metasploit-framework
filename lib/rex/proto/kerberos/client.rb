@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/stopwatch'
+require 'rex/proto/kerberos/kerberos_subscriber'
 
 module Rex
   module Proto
@@ -29,6 +30,9 @@ module Rex
         # @!attribute context
         #   @return [Hash] The Msf context where the connection belongs to
         attr_accessor :context
+        # @!attribute subscriber
+        #   @return [Rex::Proto::Kerberos::KerberosSubscriber] Subscriber used for tracing Kerberos
+        attr_accessor :subscriber
 
         def initialize(opts = {})
           self.host = opts[:host]
@@ -37,6 +41,7 @@ module Rex
           self.timeout  = (opts[:timeout] || 10).to_i
           self.protocol = opts[:protocol] || 'tcp'
           self.context  = opts[:context] || {}
+          self.subscriber = opts[:subscriber] || KerberosSubscriber.new
         end
 
         # Creates a connection through a Rex socket
@@ -76,6 +81,7 @@ module Rex
         # @raise [NotImplementedError] if the transport protocol isn't supported
         def send_request(req)
           connect
+          subscriber.on_request(req)
 
           sent = 0
           case protocol
@@ -112,6 +118,7 @@ module Rex
             raise ::RuntimeError, 'Kerberos Client: unknown transport protocol'
           end
 
+          subscriber.on_response(res)
           res
         end
 

@@ -12,18 +12,25 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'ManageEngine Desktop Central Login Utility',
-      'Description'    => %q{
-        This module will attempt to authenticate to a ManageEngine Desktop Central.
-      },
-      'Author'         => [ 'sinn3r' ],
-      'License'        => MSF_LICENSE,
-      'DefaultOptions' => { 'RPORT' => 8020}
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'ManageEngine Desktop Central Login Utility',
+        'Description' => %q{
+          This module will attempt to authenticate to a ManageEngine Desktop Central.
+        },
+        'Author' => [ 'sinn3r' ],
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => { 'RPORT' => 8020 },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
   end
-
 
   # Initializes CredentialCollection and ManageEngineDesktopCentral
   def init(ip)
@@ -36,16 +43,15 @@ class MetasploitModule < Msf::Auxiliary
       configure_http_login_scanner(
         host: ip,
         port: datastore['RPORT'],
-        cred_details:       @cred_collection,
-        stop_on_success:    datastore['STOP_ON_SUCCESS'],
-        bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
+        cred_details: @cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
         connection_timeout: 5,
-        http_username:      datastore['HttpUsername'],
-        http_password:      datastore['HttpPassword']
+        http_username: datastore['HttpUsername'],
+        http_password: datastore['HttpPassword']
       )
     )
   end
-
 
   # Reports a good login credential
   def do_report(ip, port, result)
@@ -58,11 +64,11 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     credential_data = {
-      module_fullname: self.fullname,
+      module_fullname: fullname,
       origin_type: :service,
       private_data: result.credential.private,
       private_type: :password,
-      username: result.credential.public,
+      username: result.credential.public
     }.merge(service_data)
 
     login_data = {
@@ -75,16 +81,15 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-
   # Attempts to login
   def bruteforce(ip)
     @scanner.scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute(:level => :good, :ip => ip, :msg => "Success: '#{result.credential}'")
+        print_brute(level: :good, ip: ip, msg: "Success: '#{result.credential}'")
         do_report(ip, rport, result)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute(:level => :verror, :ip => ip, :msg => result.proof)
+        vprint_brute(level: :verror, ip: ip, msg: result.proof)
         invalidate_login(
           address: ip,
           port: rport,
@@ -97,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
           proof: result.proof
         )
       when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute(:level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'")
+        vprint_brute(level: :verror, ip: ip, msg: "Failed: '#{result.credential}'")
         invalidate_login(
           address: ip,
           port: rport,
@@ -113,12 +118,12 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
   # Start here
   def run_host(ip)
     init(ip)
-    unless @scanner.check_setup
-      print_brute(:level => :error, :ip => ip, :msg => 'Target is not ManageEngine Desktop Central')
+    msg = @scanner.check_setup
+    if msg
+      print_brute(level: :error, ip: ip, msg: "Target is not ManageEngine Desktop Central - #{msg}")
       return
     end
 

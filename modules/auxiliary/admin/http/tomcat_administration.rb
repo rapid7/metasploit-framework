@@ -18,7 +18,12 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'http://tomcat.apache.org/'],
       ],
       'Author' => 'Matteo Cantoni <goony[at]nothink.org>',
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -44,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
 
     http_fingerprint({ response: res })
 
-    if (res && (res.code == 200))
+    if res && (res.code == 200)
 
       ver = ''
 
@@ -88,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
             'data' => post_data
           }, 25)
 
-          next unless (res && (res.code == 302))
+          next unless res && (res.code == 302)
 
           res = send_request_cgi({
             'uri' => '/admin/',
@@ -96,7 +101,7 @@ class MetasploitModule < Msf::Auxiliary
             'cookie' => "JSESSIONID=#{jsessionid}"
           }, 25)
 
-          next unless (res && (res.code == 302))
+          next unless res && (res.code == 302)
 
           res = send_request_cgi({
             'uri' => '/admin/frameset.jsp',
@@ -104,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
             'cookie' => "JSESSIONID=#{jsessionid}"
           }, 25)
 
-          if (res && (res.code == 200))
+          if res && (res.code == 200)
             print_status("http://#{target_host}:#{rport}/admin [#{res.headers['Server']}] [#{ver}] [Tomcat Server Administration] [#{username}/#{password}]")
           end
 
@@ -117,7 +122,9 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     end
-  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-  rescue ::Timeout::Error, ::Errno::EPIPE
+  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
+    vprint_error(e.message)
+  rescue ::Timeout::Error, ::Errno::EPIPE => e
+    vprint_error(e.message)
   end
 end

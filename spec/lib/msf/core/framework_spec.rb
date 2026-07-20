@@ -13,6 +13,18 @@ RSpec.describe Msf::Framework do
         framework
       }.not_to change { Thread.list.count }
     end
+
+    it 'registers global option definitions on the datastore' do
+      Msf::DataStore::GLOBAL_KEYS.each do |key|
+        expect(framework.datastore.options).to have_key(key)
+      end
+
+      framework.datastore['VERBOSE'] = 'true'
+      expect(framework.datastore['VERBOSE']).to eq true
+
+      framework.datastore['VERBOSE'] = 'false'
+      expect(framework.datastore['VERBOSE']).to eq false
+    end
   end
 
   describe "#version" do

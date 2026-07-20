@@ -57,7 +57,8 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://github.com/shmilylty/vhost_password_decrypt' ],
           [ 'CVE', '2022-22948' ],
           [ 'URL', 'https://pentera.io/blog/information-disclosure-in-vmware-vcenter/' ],
-          [ 'URL', 'https://github.com/ErikWynter/metasploit-framework/blob/vcenter_gather_postgresql/modules/post/multi/gather/vmware_vcenter_gather_postgresql.rb' ]
+          [ 'URL', 'https://github.com/ErikWynter/metasploit-framework/blob/vcenter_gather_postgresql/modules/post/multi/gather/vmware_vcenter_gather_postgresql.rb' ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING ]
         ],
         'Notes' => {
           'Stability' => [ CRASH_SAFE ],

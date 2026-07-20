@@ -20,11 +20,11 @@ The following platforms are supported:
 
 ## Options
 
-**LFILE**
+### LFILE
 
 The file on your machine that you want to upload to the target machine.
 
-**RFILE**
+### RFILE
 
 The file path on the target machine. This defaults to LFILE.
 

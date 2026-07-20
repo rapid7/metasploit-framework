@@ -23,7 +23,7 @@
 
 ## Options
 
-  **rport**
+### rport
 
   The default is set to `8180`, which is only default on FreeBSD.  All other operating systems, and the software itself, default to `8080`.
 

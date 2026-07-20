@@ -10,18 +10,21 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
 
 
-        # Checks if the target is Direct Admin Web Control Panel. The login module should call this.
+        # Checks if the target is correct
         #
-        # @return [Boolean] TrueClass if target is DAWCP, otherwise FalseClass
+        # @return [false] Indicates there were no errors
+        # @return [String] a human-readable error message describing why
+        #   this scanner can't run
         def check_setup
           login_uri = normalize_uri("#{uri}/CMD_LOGIN")
           res = send_request({'uri'=> login_uri})
 
           if res && res.body.include?('DirectAdmin Login')
-            return true
+            report_service(service_opts)
+            return false
           end
 
-          false
+          'Unable to locate "DirectAdmin Login" in body. (Is this really DirectAdmin?)'
         end
 
 
@@ -97,10 +100,7 @@ module Metasploit
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp',
-            service_name: ssl ? 'https' : 'http'
+            **service_as_result(service_opts)
           }
 
           begin
@@ -111,6 +111,10 @@ module Metasploit
           end
 
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('directadmin')
         end
 
       end

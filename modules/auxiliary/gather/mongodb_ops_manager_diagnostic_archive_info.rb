@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           'h00die', # msf module
         ],
         'References' => [
-          [ 'URL', 'https://github.com/advisories/GHSA-xqvf-v5jg-pxc2'],
+          [ 'GHSA', 'xqvf-v5jg-pxc2' ],
           [ 'URL', 'https://www.mongodb.com/docs/ops-manager/current/reference/configuration/#mongodb-setting-mms.https.PEMKeyFilePassword'],
           [ 'CVE', '2023-0342']
         ],

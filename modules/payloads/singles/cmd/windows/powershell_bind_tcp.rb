@@ -5,7 +5,6 @@
 require 'rex/powershell'
 
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Single
@@ -13,27 +12,30 @@ module MetasploitModule
   include Msf::Payload::Windows::Powershell
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Windows Interactive Powershell Session, Bind TCP',
-      'Description'   => 'Interacts with a powershell session on an established socket connection',
-      'Author'        => [
+    super(
+      merge_info(
+        info,
+        'Name' => 'Windows Interactive Powershell Session, Bind TCP',
+        'Description' => 'Interacts with a powershell session on an established socket connection',
+        'Author' => [
           'Ben Turner', # benpturner
           'Dave Hardy' # davehardy20
         ],
-      'References'    => [
+        'References' => [
           ['URL', 'https://blog.nettitude.com/uk/interactive-powershell-session-via-metasploit']
         ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'windows',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::PowerShell,
-      'RequiredCmd'   => 'generic',
-      'Payload'       => { 'Payload' => '' }
-      ))
+        'License' => MSF_LICENSE,
+        'Platform' => 'windows',
+        'Arch' => ARCH_CMD,
+        'Handler' => Msf::Handler::BindTcp,
+        'Session' => Msf::Sessions::PowerShell,
+        'RequiredCmd' => 'generic',
+        'Payload' => { 'Payload' => '' }
+      )
+    )
   end
 
   def generate(_opts = {})
-    generate_powershell_code("Bind")
+    generate_powershell_code('Bind')
   end
 end

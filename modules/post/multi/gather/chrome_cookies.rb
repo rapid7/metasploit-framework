@@ -15,7 +15,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['mangopdf <mangodotpdf[at]gmail.com>'],
         'Platform' => %w[linux unix bsd osx windows],
-        'SessionTypes' => %w[meterpreter shell]
+        'SessionTypes' => %w[meterpreter shell],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
@@ -186,7 +191,7 @@ class MetasploitModule < Msf::Post
       # Kills spawned chrome process in windows meterpreter sessions.
       # In OSX and Linux the meterpreter sessions would stop as well.
       if session.platform == 'windows'
-        kill_output = cmd_exec "#{kill_cmd} #{chrome_pid}"
+        cmd_exec "#{kill_cmd} #{chrome_pid}"
       end
     else
       # Using shell_command for backgrounding process (&)

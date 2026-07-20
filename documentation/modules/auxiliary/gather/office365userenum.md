@@ -28,17 +28,39 @@ Office365's implementation of ActiveSync is vulnerable.
 
 ## Options
 
-  LOGFILE  =   Output file to use for verbose logging.
-  OUTPUT   =   Output file for results.
-  PASSWORD =   Password to use during enumeration. Note this must exist
-               but does not necessarily need to be valid. If it is
-               found to be valid for an account it will be reported.
-  THREADS  =   Number of concurrent requests to use during enumeration.
-  TIMEOUT  =   HTTP request timeout to use during enumeration.
-  URL      =   URL of Office365 ActiveSync service.
-  USERS    =   Input fie containing candidate usernames, one per line.
-  VERBOSE  =   Enable/Disable DEBUG logging
+### LOGFILE
 
+Output file to use for verbose logging.
+
+### OUTPUT
+
+Output file for results.
+
+### PASSWORD
+
+Password to use during enumeration. Note this must exist
+but does not necessarily need to be valid. If it is
+found to be valid for an account it will be reported.
+
+### THREADS
+
+Number of concurrent requests to use during enumeration.
+
+### TIMEOUT
+
+HTTP request timeout to use during enumeration.
+
+### URL
+
+URL of Office365 ActiveSync service.
+
+### USERS
+
+Input fie containing candidate usernames, one per line.
+
+### VERBOSE
+
+Enable/Disable DEBUG logging
 
 ## Scenarios
 
@@ -46,9 +68,9 @@ The following demonstrates basic usage, using the supplied users wordlist
 and default options.
 
 ```
-msf5 auxiliary(gather/office365userenum) > set users /home/msfdev/users
+msf auxiliary(gather/office365userenum) > set users /home/msfdev/users
 users => /home/msfdev/users
-msf5 auxiliary(gather/office365userenum) > run
+msf auxiliary(gather/office365userenum) > run
 
 [*] 
 

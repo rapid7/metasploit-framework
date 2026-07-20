@@ -87,7 +87,7 @@ resource (total_upkeep.rb)> run
 [*] 1.1.1.1 - finished processing backup zip
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/wp_total_upkeep_downloader) > creds
+msf auxiliary(scanner/http/wp_total_upkeep_downloader) > creds
 Credentials
 ===========
 

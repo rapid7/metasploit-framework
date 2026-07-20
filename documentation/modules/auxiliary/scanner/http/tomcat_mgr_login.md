@@ -31,6 +31,15 @@ loaded.
 
 ## Vulnerable Application
 
+A Docker target is available. Build and run it with:
+
+```
+docker build -t tomcat-msf-test test/tomcat/
+docker run --rm -p 8080:8080 tomcat-msf-test
+```
+
+The test credentials are `tomcat` / `tomcat`.
+
 To download the vulnerable application, you can find it here: https://tomcat.apache.org/whichversion.html.
 
 ## Verification Steps

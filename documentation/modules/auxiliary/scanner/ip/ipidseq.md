@@ -52,9 +52,9 @@ A 32-bit cookie for probe requests. Defaults to `1297303073`.
 ### Example Incremental
 
 ```
-msf6 auxiliary(scanner/ip/ipidseq) > set RHOSTS 10.0.20.254
+msf auxiliary(scanner/ip/ipidseq) > set RHOSTS 10.0.20.254
 RHOSTS => 10.0.20.254
-msf6 auxiliary(scanner/ip/ipidseq) > exploit
+msf auxiliary(scanner/ip/ipidseq) > exploit
 
 [*] 10.0.20.254's IPID sequence class: Incremental!
 [*] Scanned 1 of 1 hosts (100% complete)

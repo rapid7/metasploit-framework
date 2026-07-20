@@ -48,10 +48,10 @@
 ## Scenarios
 
   ```
-  msf5 > use auxiliary/gather/xymon_info 
-  msf5 auxiliary(gather/xymon_info) > set rhosts 172.16.191.250
+  msf > use auxiliary/gather/xymon_info 
+  msf auxiliary(gather/xymon_info) > set rhosts 172.16.191.250
   rhosts => 172.16.191.250
-  msf5 auxiliary(gather/xymon_info) > run
+  msf auxiliary(gather/xymon_info) > run
   [*] Running module against 172.16.191.250
 
   [*] 172.16.191.250:1984 - Xymon daemon version 4.3.28
@@ -68,7 +68,7 @@
   [*] 172.16.191.250:1984 - test-host client log is empty
   [*] 172.16.191.250:1984 - another-test-host client log is empty
   [*] Auxiliary module execution completed
-  msf5 auxiliary(gather/xymon_info) > creds
+  msf auxiliary(gather/xymon_info) > creds
   Credentials
   ===========
 

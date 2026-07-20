@@ -6,26 +6,31 @@
 class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Shodan Honeyscore Client',
-      'Description' => %q{
-        This module uses the shodan API to check
-        if a server is a honeypot or not. The api
-        returns a score from 0.0 to 1.0. 1.0 being a honeypot.
-        A shodan API key is needed for this module to work properly.
+    super(
+      update_info(
+        info,
+        'Name' => 'Shodan Honeyscore Client',
+        'Description' => %q{
+          This module uses the shodan API to check
+          if a server is a honeypot or not. The api
+          returns a score from 0.0 to 1.0. 1.0 being a honeypot.
+          A shodan API key is needed for this module to work properly.
 
-        If you don't have an account, go here to register:
-        https://account.shodan.io/register
-        For more info on how their honeyscore system works, go here:
-        https://honeyscore.shodan.io/
-      },
-      'Author' =>
-        [ 'thecarterb' ],  # Thanks to @rwhitcroft, @h00die and @wvu-r7 for the improvements and review!
-      'License' => MSF_LICENSE,
-      'References' =>
-        [
+          If you don't have an account, go here to register:
+          https://account.shodan.io/register
+          For more info on how their honeyscore system works, go here:
+          https://honeyscore.shodan.io/
+        },
+        'Author' => [ 'thecarterb' ], # Thanks to @rwhitcroft, @h00die and @wvu-r7 for the improvements and review!
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'https://honeyscore.shodan.io/']
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 
@@ -33,7 +38,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGET', [true, 'The target to get the score of']),
         OptString.new('SHODAN_APIKEY', [true, 'The SHODAN API key'])
-      ])
+      ]
+    )
   end
 
   def print_score(score)
@@ -60,9 +66,9 @@ class MetasploitModule < Msf::Auxiliary
     cli = Rex::Proto::Http::Client.new('api.shodan.io', 443, {}, true)
     cli.connect
     req = cli.request_cgi({
-      'uri'    => "/labs/honeyscore/#{tgt}?key=#{key}",
+      'uri' => "/labs/honeyscore/#{tgt}?key=#{key}",
       'method' => 'GET'
-      })
+    })
     res = cli.send_recv(req)
     cli.close
     if res.nil?
@@ -74,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    score = res.body.to_f  # Change the score to a float to be able to determine value in the checks
+    score = res.body.to_f # Change the score to a float to be able to determine value in the checks
 
     if score == 0
       print_error("#{tgt} is not a honeypot")
@@ -86,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{tgt} is probably a honeypot")
     elsif score == 1.0
       print_good("#{tgt} is definitely a honeypot")
-    else  # We shouldn't ever get here as the previous checks should catch an unexpected response
+    else # We shouldn't ever get here as the previous checks should catch an unexpected response
       print_error('An unexpected error occurred.')
       return
     end

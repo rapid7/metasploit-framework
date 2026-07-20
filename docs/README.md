@@ -4,6 +4,8 @@ This folder maintains the docs for https://docs.metasploit.com/ and https://gith
 
 ## Architecture
 
+This section explains how the documentation site is generated and deployed.
+
 How it works:
 
 - `build.rb` - The main entry point for generating the docs site from the old Github Wiki format files within `metasploit-framework.wiki/`
@@ -11,7 +13,7 @@ How it works:
 - `metasploit-framework.wiki/` - The raw markdown documentation files. Modify these files when updating the site. These files originally came from https://github.com/rapid7/metasploit-framework/wiki 
 - `metasploit-framework.wiki.old/` - A separate clone of https://github.com/rapid7/metasploit-framework/wiki
 
-Behind the scenes these docs are built and deployed to https://docs.metasploit.com/
+Behind the scenes, these docs are built and deployed to https://docs.metasploit.com/
 
 ### Adding pages
 

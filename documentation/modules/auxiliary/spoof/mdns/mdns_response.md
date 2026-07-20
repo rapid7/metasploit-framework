@@ -13,7 +13,7 @@ To use mdns_response, be on a network with devices/applications that can make mD
 
 ## Options
   
-**The SPOOFIP4 option**
+### The SPOOFIP4 option
 
 IPv4 address with which to spoof A-record queries
 	
@@ -21,7 +21,7 @@ IPv4 address with which to spoof A-record queries
 set SPOOFIP4 [IPv4 address]
 ```
 
-**The SPOOFIP6 option**
+### The SPOOFIP6 option
 
 IPv6 address with which to spoof AAAA-record queries
 	
@@ -29,7 +29,7 @@ IPv6 address with which to spoof AAAA-record queries
 set SPOOFIP6 [IPv6 address]
 ```
 
-**The REGEX option**
+### The REGEX option
 
 Regex applied to the mDNS to determine if spoofed reply is sent
 	
@@ -37,7 +37,7 @@ Regex applied to the mDNS to determine if spoofed reply is sent
 set REGEX [regex]
 ```
 
-**The TTL option**
+### The TTL option
 
 Time To Live for the spoofed response (in seconds)
 	

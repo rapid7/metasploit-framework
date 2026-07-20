@@ -13,36 +13,34 @@
 ###
 class MetasploitModule < Msf::Nop
 
-
   def initialize
     super(
-      'Name'        => 'Simple',
-      'Alias'       => 'ppc_simple',
+      'Name' => 'Simple',
+      'Alias' => 'ppc_simple',
       'Description' => 'Simple NOP generator',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'Arch'        => ARCH_PPC)
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE,
+      'Arch' => ARCH_PPC)
 
     register_advanced_options(
       [
-        OptBool.new('RandomNops', [ false, "Generate a random NOP sled", true ])
-      ])
+        OptBool.new('RandomNops', [ false, 'Generate a random NOP sled', true ])
+      ]
+    )
   end
 
-
   def generate_sled(length, opts)
-
     badchars = opts['BadChars'] || ''
-    random   = opts['Random']   || datastore['RandomNops']
+    random = opts['Random'] || datastore['RandomNops']
 
     if random
-      1.upto(1024) do |i|
+      1.upto(1024) do |_i|
         regs_d = (rand(0x8000 - 0x0800) + 0x0800).to_i
         regs_b = [regs_d].pack('n').unpack('B*')[0][1, 15]
         flag_o = rand(2).to_i
         flag_r = rand(2).to_i
 
-        pcword = ["011111#{regs_b}#{flag_o}100001010#{flag_r}"].pack("B*")
+        pcword = ["011111#{regs_b}#{flag_o}100001010#{flag_r}"].pack('B*')
         failed = false
 
         pcword.each_byte do |c|

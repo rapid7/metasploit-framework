@@ -14,12 +14,17 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Windows Gather Terminal Server Client Connection Information Dumper',
         'Description' => %q{
-          This module dumps MRU and connection data for RDP sessions
+          This module dumps MRU and connection data for RDP sessions.
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'mubix' ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -61,6 +66,7 @@ class MetasploitModule < Msf::Post
           end
         end
       rescue Rex::Post::Meterpreter::RequestError => e
+        vprint_error(e.message)
       end
     end
     unload_our_hives(userhives)

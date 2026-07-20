@@ -9,27 +9,36 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TNS
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Oracle TNS Listener Checker',
-      'Description'    => %q{
-        This module checks the server for vulnerabilities like TNS Poison.
-        Module sends a server a packet with command to register new TNS Listener and checks
-        for a response indicating an error. If the registration is errored, the target is not
-        vulnerable. Otherwise, the target is vulnerable to malicious registrations.
-      },
-      'Author'         => ['ir0njaw (Nikita Kelesis) <nikita.elkey[at]gmail.com>'], # of Digital Security [http://dsec.ru]
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Oracle TNS Listener Checker',
+        'Description' => %q{
+          This module checks the server for vulnerabilities like TNS Poison.
+          Module sends a server a packet with command to register new TNS Listener and checks
+          for a response indicating an error. If the registration is errored, the target is not
+          vulnerable. Otherwise, the target is vulnerable to malicious registrations.
+        },
+        'Author' => ['ir0njaw (Nikita Kelesis) <nikita.elkey[at]gmail.com>'], # of Digital Security [http://dsec.ru]
+        'References' => [
           [ 'CVE', '2012-1675'],
           [ 'URL', 'https://seclists.org/fulldisclosure/2012/Apr/204' ],
         ],
-      'DisclosureDate' => '2012-04-18',
-      'License'        => MSF_LICENSE))
+        'DisclosureDate' => '2012-04-18',
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(1521)
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -42,20 +51,20 @@ class MetasploitModule < Msf::Auxiliary
         hex_packet = Rex::Text.to_hex(packet, ':')
         split_hex = hex_packet.split(':')
         find_packet = /\(ERROR_STACK=\(ERROR=/ === packet
-        if find_packet == true #TNS Packet returned ERROR
+        if find_packet == true # TNS Packet returned ERROR
           print_error("#{ip}:#{rport} is not vulnerable")
-        elsif split_hex[5] == '02' #TNS Packet Type: ACCEPT
+        elsif split_hex[5] == '02' # TNS Packet Type: ACCEPT
           print_good("#{ip}:#{rport} is vulnerable")
-        elsif split_hex[5] == '04' #TNS Packet Type: REFUSE
+        elsif split_hex[5] == '04' # TNS Packet Type: REFUSE
           print_error("#{ip}:#{rport} is not vulnerable")
-        else #All other TNS packet types or non-TNS packet type response cannot guarantee vulnerability
+        else # All other TNS packet types or non-TNS packet type response cannot guarantee vulnerability
           print_error("#{ip}:#{rport} might not be vulnerable")
         end
       else
         print_error("#{ip}:#{rport} is not vulnerable")
       end
       # TODO: Module should report_vuln if this finding is solid.
-      rescue ::Rex::ConnectionError, ::Errno::EPIPE
+    rescue ::Rex::ConnectionError, ::Errno::EPIPE
       print_error("#{ip}:#{rport} unable to connect to the server")
     end
   end

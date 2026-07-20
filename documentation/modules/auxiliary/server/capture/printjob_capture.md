@@ -9,23 +9,23 @@ This module creates a mock print server which accepts print jobs.
 
 ## Options
 
-  **FORWARD**
+### FORWARD
 
   After the print job is captured, should it be forwarded to another printer.  Default is `false`.
 
-  **RPORT**
+### RPORT
 
   If `forward` is set, this is the port of the remote printer to forward the print job to.  Default is `9100`.
 
-  **RHOST**
+### RHOST
 
   If `forward` is set, this is the IP of the remote printer to forward the print job to.
 
-  **METADATA**
+### METADATA
 
   If set to `true` the print job metadata will be printed to screen.  Default is `true`.
 
-  **MODE**
+### MODE
 
   Set the printer mode.  RAW format, which typically runs on port `9100`, is a raw TCP data stream that would send to a printer.
   `LPR`, Line Printer remote, which typically runs on port 515, is the newer more widely accepted standard.  Default is `RAW`.
@@ -37,20 +37,20 @@ This module creates a mock print server which accepts print jobs.
 Server:
 
 ```
-msf5 > use auxiliary/server/capture/printjob_capture 
-msf5 auxiliary(server/capture/printjob_capture) > run
+msf > use auxiliary/server/capture/printjob_capture 
+msf auxiliary(server/capture/printjob_capture) > run
 [*] Auxiliary module running as background job 0.
 
 [*] Starting Print Server on 0.0.0.0:9100 - RAW mode
 [*] Started service listener on 0.0.0.0:9100 
 [*] Server started.
-msf5 auxiliary(server/capture/printjob_capture) > [*] Printjob Capture Service: Client connection from 127.0.0.1:44678
+msf auxiliary(server/capture/printjob_capture) > [*] Printjob Capture Service: Client connection from 127.0.0.1:44678
 [*] Printjob Capture Service: Client 127.0.0.1:44678 closed connection after 249 bytes of data
 [-] Unable to detect printjob type, dumping complete output
 [+] Incoming printjob - Unnamed saved to loot
 [+] Loot filename: /root/.msf4/loot/20181117205902_default_127.0.0.1_prn_snarf.unknow_003464.bin
 
-msf5 auxiliary(server/capture/printjob_capture) > cat /root/.msf4/loot/20181117205902_default_127.0.0.1_prn_snarf.unknow_003464.bin
+msf auxiliary(server/capture/printjob_capture) > cat /root/.msf4/loot/20181117205902_default_127.0.0.1_prn_snarf.unknow_003464.bin
 [*] exec: cat /root/.msf4/loot/20181117205902_default_127.0.0.1_prn_snarf.unknow_003464.bin
 
 PRETTY_NAME="Kali GNU/Linux Rolling"

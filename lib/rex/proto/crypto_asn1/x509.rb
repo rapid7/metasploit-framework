@@ -101,6 +101,14 @@ module Rex::Proto::CryptoAsn1::X509
     ]
   end
 
+  class SubjectPublicKeyInfo < RASN1::Model
+    sequence :subject_public_key_info,
+            explicit: 1, constructed: true, optional: true,
+             content: [model(:algorithm, Rex::Proto::CryptoAsn1::Cms::AlgorithmIdentifier),
+                       bit_string(:subject_public_key)
+    ]
+  end
+
   class BuiltinDomainDefinedAttribute < RASN1::Model
     sequence :BuiltinDomainDefinedAttribute, content: [
       printable_string(:type),

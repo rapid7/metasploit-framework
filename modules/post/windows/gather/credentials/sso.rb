@@ -23,20 +23,28 @@ class MetasploitModule < Msf::Post
         'Author' => ['Ben Campbell'],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
               kiwi_exec_cmd
             ]
           }
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_001_LSASS_MEMORY ]
+        ]
       )
     )
   end
 
   def run
     if sysinfo.nil?
-      print_error('This module is only available in a windows meterpreter session.')
+      print_error('This module is only available in a Windows meterpreter session.')
       return
     end
 
@@ -52,7 +60,7 @@ class MetasploitModule < Msf::Post
       begin
         client.core.use('kiwi')
       rescue Errno::ENOENT
-        print_error('This module is only available in a windows meterpreter session.')
+        print_error('This module is only available in a Windows meterpreter session.')
         return
       end
     end
@@ -101,7 +109,7 @@ class MetasploitModule < Msf::Post
   end
 
   def report_creds(domain, user, pass)
-    return if (user.empty? || pass.empty?)
+    return if user.empty? || pass.empty?
     return if pass.include?('n.a.')
 
     # Assemble data about the credential objects we will be creating

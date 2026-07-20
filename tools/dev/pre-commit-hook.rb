@@ -74,15 +74,15 @@ if files_to_check.empty?
   puts "--- No Metasploit modules to check ---"
 else
   puts "--- Checking new and changed module syntax with tools/dev/msftidy.rb ---"
-  files_to_check.each do |fname|
-    command = "bundle exec ruby ./tools/dev/msftidy.rb #{fname}"
-    msftidy_output, status = ::Open3.capture2(command)
-    valid = false unless status.success?
-    puts "#{fname} - msftidy check passed" if msftidy_output.empty?
-    msftidy_output.each_line do |line|
-      puts line
-    end
+
+  command = %w[bundle exec ruby ./tools/dev/msftidy.rb] + files_to_check
+  msftidy_output, status = ::Open3.capture2(*command)
+  valid = false unless status.success?
+  puts "#{fname} - msftidy check passed" if msftidy_output.empty?
+  msftidy_output.each_line do |line|
+    puts line
   end
+
   puts "-" * 72
 end
 

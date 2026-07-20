@@ -8,28 +8,37 @@ require 'net/http'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Archive.org Stored Domain URLs',
-      'Description' => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Archive.org Stored Domain URLs',
+        'Description' => %q{
           This module pulls and parses the URLs stored by Archive.org for the purpose of
-        replaying during a web assessment. Finding unlinked and old pages.
-      },
-      'Author' => [ 'mubix' ],
-      'License' => MSF_LICENSE
-    ))
+          replaying during a web assessment. Finding unlinked and old pages.
+        },
+        'Author' => [ 'mubix' ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
     register_options(
       [
         OptString.new('DOMAIN', [ true, "Domain to request URLS for"]),
         OptString.new('OUTFILE', [ false, "Where to output the list for use"])
-      ])
+      ]
+    )
 
     register_advanced_options(
       [
-        OptString.new('PROXY', [ false, "Proxy server to route connection. <host>:<port>",nil]),
-        OptString.new('PROXY_USER', [ false, "Proxy Server User",nil]),
-        OptString.new('PROXY_PASS', [ false, "Proxy Server Password",nil])
-      ])
-
+        OptString.new('PROXY', [ false, "Proxy server to route connection. <host>:<port>", nil]),
+        OptString.new('PROXY_USER', [ false, "Proxy Server User", nil]),
+        OptString.new('PROXY_PASS', [ false, "Proxy Server Password", nil])
+      ]
+    )
   end
 
   def pull_urls(targetdom)
@@ -37,18 +46,18 @@ class MetasploitModule < Msf::Auxiliary
     pages = []
     header = { 'User-Agent' => Rex::UserAgent.session_agent }
     # https://github.com/internetarchive/wayback/tree/master/wayback-cdx-server
-    clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("web.archive.org")
-    resp = clnt.get2("/cdx/search/cdx?url="+Rex::Text.uri_encode("#{targetdom}/*")+"&fl=original",header)
+    clnt = Net::HTTP::Proxy(@proxysrv, @proxyport, @proxyuser, @proxypass).new("web.archive.org")
+    resp = clnt.get2("/cdx/search/cdx?url=" + Rex::Text.uri_encode("#{targetdom}/*") + "&fl=original", header)
     response << resp.body
     response.each_line do |line|
       pages << line.strip
     end
 
-    pages.delete_if{|x| x==nil}
+    pages.delete_if { |x| x == nil }
     pages.uniq!
     pages.sort!
 
-    for i in (0..(pages.count-1))
+    for i in (0..(pages.count - 1))
       fix = pages[i].to_s.sub(':80', '')
       pages[i] = fix
     end
@@ -67,17 +76,15 @@ class MetasploitModule < Msf::Auxiliary
     File.open(file_name, 'ab') do |fd|
       fd.write(data)
     end
-
-
   end
 
   def run
     if datastore['PROXY']
-      @proxysrv,@proxyport = datastore['PROXY'].split(":")
+      @proxysrv, @proxyport = datastore['PROXY'].split(":")
       @proxyuser = datastore['PROXY_USER']
       @proxypass = datastore['PROXY_PASS']
     else
-      @proxysrv,@proxyport = nil, nil
+      @proxysrv, @proxyport = nil, nil
     end
 
     target = datastore['DOMAIN']

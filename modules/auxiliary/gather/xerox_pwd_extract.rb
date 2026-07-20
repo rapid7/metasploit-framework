@@ -7,27 +7,35 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Xerox Administrator Console Password Extractor',
-      'Description'    => %q{
-        This module will extract the management console's admin password from the
-        Xerox file system using firmware bootstrap injection.
-      },
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Xerox Administrator Console Password Extractor',
+        'Description' => %q{
+          This module will extract the management console's admin password from the
+          Xerox file system using firmware bootstrap injection.
+        },
+        'Author' => [
           'Deral "Percentx" Heiland',
           'Pete "Bokojan" Arzamendi'
         ],
-      'License'        => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptPort.new('RPORT', [true, 'Web management console port for the printer', 80]),
         OptPort.new('JPORT', [true, 'Jetdirect port', 9100]),
-         OptInt.new('TIMEOUT', [true, 'Timeout to wait for printer job to run', 45])
-      ])
+        OptInt.new('TIMEOUT', [true, 'Timeout to wait for printer job to run', 45])
+      ]
+    )
   end
 
   def jport
@@ -47,10 +55,10 @@ class MetasploitModule < Msf::Auxiliary
     if passwd
       print_good("#{rhost}:#{jport} - Password found: #{passwd}")
 
-      loot_name     = 'xerox.password'
-      loot_type     = 'text/plain'
+      loot_name = 'xerox.password'
+      loot_type = 'text/plain'
       loot_filename = 'xerox_password.text'
-      loot_desc     = 'Xerox password harvester'
+      loot_desc = 'Xerox password harvester'
       p = store_loot(loot_name, loot_type, datastore['RHOST'], passwd, loot_filename, loot_desc)
       print_good("#{rhost}:#{jport} - Credentials saved in: #{p}")
 

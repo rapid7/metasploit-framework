@@ -26,11 +26,17 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
+          ['CVE', '2025-34120'],
           ['URL', 'https://sec-consult.com/vulnerability-lab/advisory/multiple-critical-vulnerabilities-in-lime-survey/'],
           ['URL', 'https://www.limesurvey.org/blog/22-security/136-limesurvey-security-advisory-10-2015'],
           ['URL', 'https://github.com/LimeSurvey/LimeSurvey/compare/2.06_plus_151014...2.06_plus_151016?w=1']
         ],
-        'DisclosureDate' => '2015-10-12'
+        'DisclosureDate' => '2015-10-12',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 

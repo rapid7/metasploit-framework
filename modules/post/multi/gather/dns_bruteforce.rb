@@ -16,18 +16,21 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => %w[bsd linux osx solaris win],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
     register_options(
       [
-
         OptString.new('DOMAIN', [true, 'Domain to do a forward lookup bruteforce against.']),
         OptPath.new('NAMELIST', [
           true, 'List of hostnames or subdomains to use.',
           ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')
         ])
-
       ]
     )
   end
@@ -92,12 +95,12 @@ class MetasploitModule < Msf::Post
   end
 
   # Process the data returned by the host command
-  def process_nix(r, ns_opt)
-    r.each_line do |l|
-      data = l.scan(/(\S*) has address (\S*)$/)
-      next if data.empty?
+  def process_nix(data, ns_opt)
+    data.each_line do |line|
+      dns_data = line.scan(/(\S*) has address (\S*)$/)
+      next if dns_data.empty?
 
-      data.each do |e|
+      dns_data.each do |e|
         print_good("#{ns_opt} #{e[1]}")
         report_host(host: e[1], name: ns_opt.strip)
       end

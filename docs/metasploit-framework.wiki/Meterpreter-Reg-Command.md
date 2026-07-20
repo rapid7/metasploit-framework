@@ -62,7 +62,7 @@ The result of your registry queries can be impacted if you are interacting with 
 You can see the type of session you currently have open with the `sessions` command:
 
 ```msf
-msf6 exploit(windows/smb/psexec) > sessions
+msf exploit(windows/smb/psexec) > sessions
 
 Active sessions
 ===============

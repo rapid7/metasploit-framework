@@ -14,26 +14,30 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Apple Airport ACPP Authentication Scanner',
-      'Description' => %q(
+      'Name' => 'Apple Airport ACPP Authentication Scanner',
+      'Description' => %q{
         This module attempts to authenticate to an Apple Airport using its
         proprietary and largely undocumented protocol known only as ACPP.
-      ),
-      'Author'      =>
-        [
-          'Jon Hart <jon_hart[at]rapid7.com>'
-        ],
-      'References'     =>
-        [
-          %w(CVE 2003-0270) # Fixed XOR key used to encrypt password
-        ],
-      'License'     => MSF_LICENSE
+      },
+      'Author' => [
+        'Jon Hart <jon_hart[at]rapid7.com>'
+      ],
+      'References' => [
+        %w[CVE 2003-0270] # Fixed XOR key used to encrypt password
+      ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
 
     register_options(
       [
         Opt::RPORT(Rex::Proto::ACPP::DEFAULT_PORT)
-      ])
+      ]
+    )
 
     deregister_options(
       # there is no username, so remove all of these options

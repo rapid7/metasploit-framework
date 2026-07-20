@@ -17,7 +17,10 @@ class MetasploitModule < Msf::Auxiliary
         This module runs arbitrary Windows commands using the WinRM Service
         },
       'Author' => [ 'thelightcosine' ],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'References' => [
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_006_WINDOWS_REMOTE_MANAGEMENT ]
+      ]
     )
 
     register_options(
@@ -70,7 +73,8 @@ class MetasploitModule < Msf::Auxiliary
         mutual_auth: true,
         use_gss_checksum: true,
         ticket_storage: kerberos_ticket_storage,
-        offered_etypes: Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['Winrm::KrbOfferedEncryptionTypes'])
+        offered_etypes: Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['Winrm::KrbOfferedEncryptionTypes']),
+        clock_skew: kerberos_clock_skew_seconds
       )
       opts = opts.merge({
         user: '', # Need to provide it, otherwise the WinRM module complains

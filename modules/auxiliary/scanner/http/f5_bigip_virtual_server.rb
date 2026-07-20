@@ -8,32 +8,39 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'F5 BigIP HTTP Virtual Server Scanner',
-      'Description' => %q{
-        This module scans for BigIP HTTP virtual servers using banner grabbing. BigIP system uses
-        different HTTP profiles for managing HTTP traffic and these profiles allow to customize
-        the string used as Server HTTP header. The default values are "BigIP" or "BIG-IP" depending
-        on the BigIP system version.
-      },
-      'Author'      =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'F5 BigIP HTTP Virtual Server Scanner',
+        'Description' => %q{
+          This module scans for BigIP HTTP virtual servers using banner grabbing. BigIP system uses
+          different HTTP profiles for managing HTTP traffic and these profiles allow to customize
+          the string used as Server HTTP header. The default values are "BigIP" or "BIG-IP" depending
+          on the BigIP system version.
+        },
+        'Author' => [
           'Denis Kolegov <dnkolegov[at]gmail.com>',
           'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
           'Nikita Oleksov <neoleksov[at]gmail.com>'
         ],
-      'License'     => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'https://web.archive.org/web/20180906182059/https://www.owasp.org/index.php/SCG_D_BIGIP'],
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
-    [
-      OptString.new('PORTS', [true, 'Ports to scan (e.g. 80-81,443,8080-8090)', '80,443']),
-      OptInt.new('TIMEOUT', [true, 'The socket connect/read timeout in seconds', 1]),
-    ])
+      [
+        OptString.new('PORTS', [true, 'Ports to scan (e.g. 80-81,443,8080-8090)', '80,443']),
+        OptInt.new('TIMEOUT', [true, 'The socket connect/read timeout in seconds', 1]),
+      ]
+    )
 
     deregister_options('RPORT')
   end
@@ -47,8 +54,10 @@ class MetasploitModule < Msf::Auxiliary
           'rport' => port,
           'SSL' => ssl,
         },
-        datastore['TIMEOUT'])
+        datastore['TIMEOUT']
+      )
       return false unless res
+
       server = res.headers['Server']
       return true if server =~ /BIG\-IP/ || server =~ /BigIP/
     rescue ::Rex::ConnectionRefused
@@ -71,7 +80,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     ports.each do |port|
-
       unless port == 443 # Skip http check for 443
         if bigip_http?(ip, port, false)
           print_good("#{ip}:#{port} - BigIP HTTP virtual server found")

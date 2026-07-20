@@ -53,6 +53,78 @@ class Msf::Module::Platform
     # remove any whitespace and downcase
     str = str.gsub(' ', '').downcase
 
+    # Match known platforms first, then fall back to string matching
+    case str
+    when 'windows', 'win'
+      return Msf::Module::Platform::Windows
+    when 'linux'
+      return Msf::Module::Platform::Linux
+    when 'unix'
+      return Msf::Module::Platform::Unix
+    when 'osx'
+      return Msf::Module::Platform::OSX
+    when 'solaris'
+      return Msf::Module::Platform::Solaris
+    when 'freebsd'
+      return Msf::Module::Platform::FreeBSD
+    when 'netware'
+      return Msf::Module::Platform::Netware
+    when 'bsd'
+      return Msf::Module::Platform::BSD
+    when 'openbsd'
+      return Msf::Module::Platform::OpenBSD
+    when 'android'
+      return Msf::Module::Platform::Android
+    when 'java'
+      return Msf::Module::Platform::Java
+    when 'r'
+      return Msf::Module::Platform::R
+    when 'ruby'
+      return Msf::Module::Platform::Ruby
+    when 'cisco'
+      return Msf::Module::Platform::Cisco
+    when 'juniper'
+      return Msf::Module::Platform::Juniper
+    when 'unifi'
+      return Msf::Module::Platform::Unifi
+    when 'brocade'
+      return Msf::Module::Platform::Brocade
+    when 'mikrotik'
+      return Msf::Module::Platform::Mikrotik
+    when 'arista'
+      return Msf::Module::Platform::Arista
+    when 'bsdi'
+      return Msf::Module::Platform::BSDi
+    when 'netbsd'
+      return Msf::Module::Platform::NetBSD
+    when 'aix'
+      return Msf::Module::Platform::AIX
+    when 'hpux'
+      return Msf::Module::Platform::HPUX
+    when 'irix'
+      return Msf::Module::Platform::Irix
+    when 'php'
+      return Msf::Module::Platform::PHP
+    when 'javascript'
+      return Msf::Module::Platform::JavaScript
+    when 'python'
+      return Msf::Module::Platform::Python
+    when 'nodejs'
+      return Msf::Module::Platform::NodeJS
+    when 'firefox'
+      return Msf::Module::Platform::Firefox
+    when 'mainframe'
+      return Msf::Module::Platform::Mainframe
+    when 'multi'
+      return Msf::Module::Platform::Multi
+    when 'hardware'
+      return Msf::Module::Platform::Hardware
+    when 'apple_ios'
+      return Msf::Module::Platform::Apple_iOS
+    when 'unknown'
+      return Msf::Module::Platform::Unknown
+    end
+
     # Start at the base platform module
     mod = ::Msf::Module::Platform
 

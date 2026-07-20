@@ -37,7 +37,7 @@ regular expression. The 'Store loot' options must be turned on in order for this
 ## Scenarios
 ### Quassel Client v0.14.0 on Microsoft Windows 10 Home 10.0.19045 N/A Build 19045 - Default Output
 ```
-msf6 post(windows/gather/credentials/quassel_irc) > run
+msf post(windows/gather/credentials/quassel_irc) > run
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All
@@ -73,7 +73,7 @@ msf6 post(windows/gather/credentials/quassel_irc) > run
 
 ### Quassel Client v0.14.0 on Microsoft Windows 10 Home 10.0.19045 N/A Build 19045 - Verbose Output
 ```
-msf6 post(windows/gather/credentials/quassel_irc) > run
+msf post(windows/gather/credentials/quassel_irc) > run
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All

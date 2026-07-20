@@ -89,6 +89,12 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
     rsock.synchronize_access { rsock.initsock(@params) }
   end
 
+  def monitor_rsock(name = 'MonitorRemote')
+    # call #close on exit instead of #close_write because this is triggered in response to lsock.close
+    # lsock.close -> rsock EOF -> #close -> Meterpreter close
+    monitor_sock(rsock, sink: self, name: name, on_exit: method(:close))
+  end
+
   #
   # Closes the write half of the connection.
   #

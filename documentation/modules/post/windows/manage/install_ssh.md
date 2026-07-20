@@ -35,10 +35,10 @@ Versions prior to Windows 10 are not supported.
 ### Install OpenSSH on Windows
 
 ```
-  msf5 > use post/windows/manage/install_ssh 
-  msf5 post(windows/manage/install_ssh) > set SESSION 1 
+  msf > use post/windows/manage/install_ssh 
+  msf post(windows/manage/install_ssh) > set SESSION 1 
   SESSION => 1
-  msf5 post(windows/manage/install_ssh) > exploit 
+  msf post(windows/manage/install_ssh) > exploit 
 
   [*] Installing OpenSSH.Server
   [*] Installing OpenSSH.Client
@@ -51,18 +51,18 @@ When combined with capabilities such as SSH forwarding, SSH on Windows can provi
 ### Uninstall OpenSSH on Windows
 
 ```
-  msf5 > use post/windows/manage/install_ssh 
-  msf5 post(windows/manage/install_ssh) > set SESSION 1 
+  msf > use post/windows/manage/install_ssh 
+  msf post(windows/manage/install_ssh) > set SESSION 1 
   SESSION => 1
-  msf5 post(windows/manage/install_ssh) > set INSTALL_CLIENT false 
+  msf post(windows/manage/install_ssh) > set INSTALL_CLIENT false 
   INSTALL_CLIENT => false
-  msf5 post(windows/manage/install_ssh) > set INSTALL_SERVER false 
+  msf post(windows/manage/install_ssh) > set INSTALL_SERVER false 
   INSTALL_SERVER => false
-  msf5 post(windows/manage/install_ssh) > set UNINSTALL_CLIENT true 
+  msf post(windows/manage/install_ssh) > set UNINSTALL_CLIENT true 
   UNINSTALL_CLIENT => true
-  msf5 post(windows/manage/install_ssh) > set UNINSTALL_SERVER true 
+  msf post(windows/manage/install_ssh) > set UNINSTALL_SERVER true 
   UNINSTALL_SERVER => true
-  msf5 post(windows/manage/install_ssh) > exploit 
+  msf post(windows/manage/install_ssh) > exploit 
 
   [*] Uninstalling OpenSSH.Server
   [*] Uninstalling OpenSSH.Client

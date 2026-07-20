@@ -9,20 +9,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'PcAnywhere UDP Service Discovery',
+      'Name' => 'PcAnywhere UDP Service Discovery',
       'Description' => 'Discover active pcAnywhere services through UDP',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://www.unixwiz.net/tools/pcascan.txt']
-        ]
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['URL', 'http://www.unixwiz.net/tools/pcascan.txt']
+      ]
     )
 
     register_options(
-    [
-      Opt::RPORT(5632)
-    ])
+      [
+        Opt::RPORT(5632)
+      ]
+    )
   end
 
   def scanner_prescan(batch)
@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       report_service(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :info => info)
-      report_note(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :update => :unique, :ntype => "pcanywhere.status", :data => data )
+      report_note(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :update => :unique, :ntype => "pcanywhere.status", :data => data)
       print_good("#{ip}:#{datastore['RPORT']} #{info}")
     end
   end
@@ -77,11 +77,11 @@ class MetasploitModule < Msf::Auxiliary
       buff = $1.dup
       stat = 'Unknown'
 
-      if buff[2,1].unpack("C")[0] == 67
+      if buff[2, 1].unpack("C")[0] == 67
         stat = "Available"
       end
 
-      if buff[2,1].unpack("C")[0] == 11
+      if buff[2, 1].unpack("C")[0] == 11
         stat = "Busy"
       end
 
@@ -89,6 +89,5 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_error("#{shost} Unknown: #{data.inspect}")
     end
-
   end
 end

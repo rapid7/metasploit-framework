@@ -232,7 +232,10 @@ class MetasploitModule < Msf::Post
                       proto: 'TCP',
                       port: port,
                       type: 'SSH Key Password',
-                      data: "#{priv} => #{priv_pass}")
+                      data: {
+                        ssh_key: priv,
+                        password: priv_pass
+                      })
         end
 
         host_info = {

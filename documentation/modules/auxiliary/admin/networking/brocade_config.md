@@ -150,13 +150,13 @@ File path to the configuration file.
 ## Scenarios
 
 ```
-msf5 > wget https://raw.githubusercontent.com/h00die/MSF-Testing-Scripts/master/brocade_08.0.30hT311_ic_icx6430.conf -o /dev/null -O /tmp/brocade.conf
-msf5 > use auxiliary/admin/networking/brocade_config
-msf5 auxiliary(admin/networking/brocade_config) > set rhosts 127.0.0.1
+msf > wget https://raw.githubusercontent.com/h00die/MSF-Testing-Scripts/master/brocade_08.0.30hT311_ic_icx6430.conf -o /dev/null -O /tmp/brocade.conf
+msf > use auxiliary/admin/networking/brocade_config
+msf auxiliary(admin/networking/brocade_config) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf5 auxiliary(admin/networking/brocade_config) > set config /tmp/brocade.conf
+msf auxiliary(admin/networking/brocade_config) > set config /tmp/brocade.conf
 config => /tmp/brocade.conf
-msf5 auxiliary(admin/networking/brocade_config) > run
+msf auxiliary(admin/networking/brocade_config) > run
 [*] Running module against 127.0.0.1
 
 [*] Importing config

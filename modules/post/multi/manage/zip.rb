@@ -28,6 +28,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_steal_token
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )

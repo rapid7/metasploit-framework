@@ -11,27 +11,27 @@ PIDs to ASCII.
 
 ## Options
 
-  **SRCID**
+### SRCID
 
   This is the SRC CAN ID for the ISO-TP connection.  Default is 0x7E0.
 
-  **DSTID**
+### DSTID
 
   This is the CAN ID of the expected response.  Default is 0x7E8.
 
-  **CANBUS**
+### CANBUS
 
   Determines which CAN bus to communicate on.  Type 'supported_buses' for valid options.
 
-  **CLEAR_DTCS**
+### CLEAR_DTCS
 
   If any Diagnostic Trouble Codes (DTCs) are present it will clear those and reset the MIL (Engine Light).
 
-  **PADDING**
+### PADDING
 
   Optional byte-value to use for padding all CAN bus packets to an 8-byte length.  Padding is disabled by default.
 
-  **FC**
+### FC
 
   Optional.  If true forces sending flow control packets on all multibyte ISO-TP requests
 

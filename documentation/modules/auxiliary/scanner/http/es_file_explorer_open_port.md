@@ -39,11 +39,11 @@
 
 ## Options
 
-  **ACTION**
+### ACTION
 
   The action to perform.  See description in Vulnerable Application section for additional details.  Default is `GETDEVICEINFO`.
 
-  **ACTIONITEM**
+### ACTIONITEM
 
   If running `APPLAUNCH` or `GETFILE`, this is the app to launch or file to download.
 

@@ -12,15 +12,15 @@ This module enumerates ways to decrypt a Bitlocker volume and if a recovery key 
 
 ## Options
 
-  **DRIVE_LETTER**
+### DRIVE_LETTER
 
   Dump information from the DRIVE_LETTER encrypted with Bitlocker.
 
-  **RECOVERY_KEY**
+### RECOVERY_KEY
 
   Use the recovery key provided to decrypt the Bitlocker master key (FVEK).
 
-  **SESSION**
+### SESSION
 
   The session to run this module on.
 

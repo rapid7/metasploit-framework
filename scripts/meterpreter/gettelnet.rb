@@ -33,7 +33,7 @@ def checkifinst()
   # This won't work on windows 2000 since there is no sc.exe
   print_status("Checking if Telnet is installed...")
   begin
-    registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\services\\TlntSvr\\","Start")
+    registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\services\\TlntSvr","Start")
     return true
   rescue
     return false

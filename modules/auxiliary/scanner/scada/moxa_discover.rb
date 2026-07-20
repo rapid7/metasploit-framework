@@ -11,8 +11,8 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => 'Moxa UDP Device Discovery',
-        'Description'    => %q(
+        'Name' => 'Moxa UDP Device Discovery',
+        'Description' => %q{
           The Moxa protocol listens on 4800/UDP and will respond to broadcast
           or direct traffic.  The service is known to be used on Moxa devices
           in the NPort, OnCell, and MGate product lines.
@@ -29,23 +29,28 @@ class MetasploitModule < Msf::Auxiliary
           The module is the work of Patrick DeSantis of Cisco Talos and is
           derived from original work by K. Reid Wightman. Tested and validated
           on a Moxa NPort 6250 with firmware versions 1.13 and 1.15.
-        ),
-        'Author'         => 'Patrick DeSantis <p[at]t-r10t.com>',
-        'License'        => MSF_LICENSE,
-        'References'     =>
-        [
+        },
+        'Author' => 'Patrick DeSantis <p[at]t-r10t.com>',
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2016-9361'],
           [ 'URL', 'https://www.digitalbond.com/blog/2016/10/25/serial-killers/'],
           [ 'URL', 'http://www.moxa.com/support/faq/faq_detail.aspx?id=646' ],
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 
     register_options(
-    [
-      # Moxa protocol listens on 4800/UDP by default
-      Opt::RPORT(4800)
-    ])
+      [
+        # Moxa protocol listens on 4800/UDP by default
+        Opt::RPORT(4800)
+      ]
+    )
   end
 
   # The data to be sent via UDP
@@ -63,6 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     # A valid response is 24 bytes, starts with 0x81, and contains the values
     # 0x00, 0x90, 0xe8 (the Moxa OIU) in bytes 14, 15, and 16.
     return unless response[0] == "\x81" && response[14..16] == "\x00\x90\xe8" && response.length == 24
+
     @results[src_host] ||= []
     @results[src_host] << response
   end
@@ -75,15 +81,15 @@ class MetasploitModule < Msf::Auxiliary
       # Report the host
       report_host(
         :host => host,
-        :info => "Moxa Device",
-        )
+        :info => "Moxa Device"
+      )
 
       # Report the service
       report_service(
         host: host,
         proto: 'udp',
         port: rport,
-        name: 'Moxa Protocol',
+        name: 'Moxa Protocol'
       )
 
       if response.empty?

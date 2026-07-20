@@ -12,7 +12,7 @@ Download links are provided for reference only and are not maintained by the pro
 
 ## Options
 
-**RPATH**
+### RPATH
 
 You may manually set the `RPATH` datastore option to allow the post module to find the installed
 directory of PureVPN.
@@ -20,7 +20,7 @@ directory of PureVPN.
 # Demo
 
 ```
-msf5 post(windows/gather/credentials/purevpn_cred_collector) > rerun
+msf post(windows/gather/credentials/purevpn_cred_collector) > rerun
 [*] Reloading module...
 
 [*] Searching PureVPN Client installation at C:\ProgramData

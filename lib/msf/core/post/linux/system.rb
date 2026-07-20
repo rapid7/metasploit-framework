@@ -9,6 +9,21 @@ module Msf
         include ::Msf::Post::Unix
         include Msf::Auxiliary::Report
 
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                    stdapi_sys_config_sysinfo
+                  ]
+                }
+              }
+            )
+          )
+        end
+
         #
         # Returns a Hash containing Distribution Name, Version and Kernel Information
         #
@@ -213,12 +228,22 @@ module Msf
         # @return [String]
         #
         def get_hostname
-          hostname =
-            if command_exists?('uname')
-              cmd_exec('uname -n').to_s
-            else
-              read_file('/proc/sys/kernel/hostname').to_s.chomp
-            end
+          hostname = nil
+
+          if session.type == 'meterpreter'
+            hostname = session.sys.config.sysinfo['Computer'].to_s
+          end
+
+          if hostname.blank? && command_exists?('uname')
+            hostname = cmd_exec('uname -n').to_s.chomp
+          end
+
+          if hostname.blank?
+            hostname = read_file("/proc/sys/kernel/hostname").to_s.chomp
+          end
+
+          raise if hostname.blank?
+
           report_host({ host: rhost, name: hostname })
           hostname
         rescue StandardError

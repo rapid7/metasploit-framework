@@ -27,8 +27,10 @@ module Rex
           SHA256 = '2.16.840.1.101.3.4.2.1'
           ContentType = '1.2.840.113549.1.9.3'
           MessageDigest = '1.2.840.113549.1.9.4'
+          SHA512 = '2.16.840.1.101.3.4.2.3'
           RSAWithSHA1 = '1.2.840.113549.1.1.5'
           RSAWithSHA256 = '1.2.840.113549.1.1.11'
+          RSAWithSHA512 = '1.2.840.113549.1.1.13'
           PkinitAuthData = '1.3.6.1.5.2.3.1'
           SignedData = '1.2.840.113549.1.7.2'
         end
@@ -49,9 +51,20 @@ module Rex
           NT_SRV_XHST = 4
           # Unique ID
           NT_UID = 5
+
+          NT_ENTERPRISE = 10
         end
 
-        # From padata - https://www.iana.org/assignments/kerberos-parameters/kerberos-parameters.xhtml
+        module PaS4uX509UserOptions
+          CHECK_LOGON_RESTRICTIONS = 0x40000000
+          SIGN_REPLY = 0x20000000
+          NT_AUTH_POLICY_NOT_REQUIRED = 0x10000000
+          UNCONDITIONAL_DELEGATION = 0x08000000
+        end
+
+        # See:
+        # * https://www.iana.org/assignments/kerberos-parameters/kerberos-parameters.xhtml#pre-authentication
+        # * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/ae60c948-fda8-45c2-b1d1-a71b484dd1f7
 
         module PreAuthType
           PA_TGS_REQ = 1
@@ -63,8 +76,12 @@ module Rex
           PA_ETYPE_INFO2 = 19
           PA_PAC_REQUEST = 128
           PA_FOR_USER = 129
+          PA_S4U_X509_USER = 130
+          KEY_LIST_REP = 162
           PA_SUPPORTED_ETYPES = 165
           PA_PAC_OPTIONS = 167
+          KERB_SUPERSEDED_BY_USER = 170
+          DMSA_KEY_PACKAGE = 171
         end
 
         module AuthorizationDataType

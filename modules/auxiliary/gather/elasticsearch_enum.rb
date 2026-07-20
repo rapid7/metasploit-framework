@@ -155,7 +155,7 @@ class MetasploitModule < Msf::Auxiliary
         port: rport,
         proto: 'tcp',
         type: 'elasticsearch.index',
-        data: index[0],
+        data: { index: index[0] },
         update: :unique_data
       )
     end

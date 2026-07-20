@@ -8,6 +8,7 @@ module Msf
 
   autoload :OptAddress, 'msf/core/opt_address'
   autoload :OptAddressLocal, 'msf/core/opt_address_local'
+  autoload :OptAddressOrHostname, 'msf/core/opt_address_or_hostname'
   autoload :OptAddressRange, 'msf/core/opt_address_range'
   autoload :OptAddressRoot, 'msf/core/opt_address_routable'
   autoload :OptBool, 'msf/core/opt_bool'
@@ -19,6 +20,7 @@ module Msf
   autoload :OptPort, 'msf/core/opt_port'
   autoload :OptRaw, 'msf/core/opt_raw'
   autoload :OptRegexp, 'msf/core/opt_regexp'
+  autoload :OptSessionTlvLogging, 'msf/core/opt_session_tlv_logging'
   autoload :OptString, 'msf/core/opt_string'
 
   #
@@ -50,10 +52,16 @@ module Msf
     # as necessary.
     #
     def initialize(opts = {})
-      self.sorted = []
       self.groups = {}
 
       add_options(opts)
+    end
+
+    #
+    # Return the sorted array of options.
+    #
+    def sorted
+      self.sort
     end
 
     #
@@ -116,10 +124,6 @@ module Msf
     # @param [String] name the option name
     def remove_option(name)
       delete(name)
-      sorted.each_with_index { |e, idx|
-        sorted[idx] = nil if (e[0] == name)
-      }
-      sorted.delete(nil)
     end
 
     #
@@ -159,7 +163,9 @@ module Msf
     def add_option(option, name = nil, owner = nil, advanced = false, evasion = false)
       if option.kind_of?(Array)
         option = option.shift.new(name, option)
-      elsif !option.kind_of?(OptBase)
+      elsif option.kind_of?(OptBase)
+        option = option.dup
+      else
         raise ArgumentError,
           "The option named #{name} did not come in a compatible format.",
           caller
@@ -170,9 +176,6 @@ module Msf
       option.owner    = owner
 
       self.store(option.name, option)
-
-      # Re-calculate the sorted list
-      self.sorted = self.sort
     end
 
     #
@@ -199,7 +202,7 @@ module Msf
     def validate(datastore)
       # First mutate the datastore and normalize all valid values before validating permutations of RHOST/etc.
       each_pair do |name, option|
-        if option.valid?(datastore[name]) && (val = option.normalize(datastore[name])) != nil
+        if option.valid?(datastore[name], datastore: datastore) && (val = option.normalize(datastore[name])) != nil
           # This *will* result in a module that previously used the
           # global datastore to have its local datastore set, which
           # means that changing the global datastore and re-running
@@ -234,7 +237,7 @@ module Msf
 
         rhosts_walker.each do |datastore|
           each_pair do |name, option|
-            unless option.valid?(datastore[name])
+            unless option.valid?(datastore[name], datastore: datastore)
               error_options << name
               if rhosts_count > 1
                 error_reasons[name] << "for rhosts value #{datastore['UNPARSED_RHOSTS']}"
@@ -250,7 +253,7 @@ module Msf
       else
         error_options = []
         each_pair do |name, option|
-          unless option.valid?(datastore[name])
+          unless option.valid?(datastore[name], datastore: datastore)
             error_options << name
           end
         end
@@ -330,17 +333,10 @@ module Msf
       groups.delete(group_name)
     end
 
-    #
-    # The sorted array of options.
-    #
-    attr_reader :sorted
-
     # @return [Hash<String, Msf::OptionGroup>]
     attr_reader :groups
 
     protected
-
-    attr_writer :sorted # :nodoc:
 
     attr_writer :groups
   end

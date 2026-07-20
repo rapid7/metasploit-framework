@@ -27,7 +27,9 @@ class MetasploitModule < Msf::Auxiliary
           'smashery' # Enhancements
         ],
         'References' => [
-          %w[URL https://www.slideshare.net/gentilkiwi/abusing-microsoft-kerberos-sorry-you-guys-dont-get-it]
+          ['URL', 'https://www.slideshare.net/gentilkiwi/abusing-microsoft-kerberos-sorry-you-guys-dont-get-it'],
+          ['ATT&CK', Mitre::Attack::Technique::T1558_001_GOLDEN_TICKET],
+          ['ATT&CK', Mitre::Attack::Technique::T1558_002_SILVER_TICKET]
         ],
         'License' => MSF_LICENSE,
         'Notes' => {
@@ -313,7 +315,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Msf::Exploit::Failure::BadConfig, "NTHASH length was #{datastore['NTHASH'].size} should be 32")
     end
 
-    if datastore['AES_KEY'].present? && (datastore['AES_KEY'].size != 32 && datastore['AES_KEY'].size != 64)
+    if datastore['AES_KEY'].present? && datastore['AES_KEY'].size != 32 && datastore['AES_KEY'].size != 64
       fail_with(Msf::Exploit::Failure::BadConfig, "AES key length was #{datastore['AES_KEY'].size} should be 32 or 64")
     end
 

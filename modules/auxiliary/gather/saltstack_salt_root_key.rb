@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error('Could not find root key in serialized auth info')
 
       # Return CheckCode for exploit/linux/misc/saltstack_salt_unauth_rce
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Target does not appear to be a vulnerable SaltStack master')
     end
 
     print_good("Root key: #{root_key}")
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     Exploit::CheckCode::Vulnerable(root_key) # And the root key as the reason!
   rescue EOFError, Rex::ConnectionError => e
     print_error("#{e.class}: #{e.message}")
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('Connection error occurred')
   ensure
     # This is from Msf::Exploit::Remote::ZeroMQ
     zmq_disconnect

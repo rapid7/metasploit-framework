@@ -30,7 +30,15 @@ class MetasploitModule < Msf::Post
           'joev'
         ],
         'Platform' => [ 'osx' ],
-        'SessionTypes' => %w[shell meterpreter]
+        'SessionTypes' => %w[shell meterpreter],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING ]
+        ]
       )
     )
     register_options([
@@ -41,7 +49,6 @@ class MetasploitModule < Msf::Post
     ])
   end
 
-  # Run Method for when run command is issued
   def run
     unless is_root?
       fail_with(Failure::BadConfig, 'Insufficient Privileges: must be running as root to dump the hashes')
@@ -227,6 +234,6 @@ class MetasploitModule < Msf::Post
 
   # @return [String] version string (e.g. 10.8.5)
   def ver_num
-    @product_version ||= get_sysinfo['ProductVersion']
+    @ver_num ||= get_sysinfo['ProductVersion']
   end
 end

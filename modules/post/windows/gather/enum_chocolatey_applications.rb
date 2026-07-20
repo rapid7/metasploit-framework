@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Post
     report_note(
       host: session.session_host,
       type: 'chocolatey.software.enum',
-      data: items,
+      data: { software: items },
       update: :unique_data
     )
   end

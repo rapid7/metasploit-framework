@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => 'bcoles',
         'License' => MSF_LICENSE,
         'References' => ['URL', 'http://www.scadabr.com.br/?q=node/1375'],
-        'DisclosureDate' => '2017-05-28'
+        'DisclosureDate' => '2017-05-28',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options([

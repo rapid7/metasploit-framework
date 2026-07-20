@@ -19,15 +19,15 @@ FoxIT after version 9.1 is no longer vulnerable.
 
 ## Options
 
-**FILENAME**
+### FILENAME
 This option allows you to customise the generated filename.
 This can be changed using set FILENAME test.pdf
 
-**LHOST**
+### LHOST
 This option allows you to set the IP address of the SMB Listener that the document points to
 This can be changed using set LHOST 192.168.1.25
 
-**PDFINJECT**
+### PDFINJECT
 This option allows you to inject the UNC code into an existing PDF document
 This can be changed using set PDFINJECT /path/to/file/pdf.pdf
 

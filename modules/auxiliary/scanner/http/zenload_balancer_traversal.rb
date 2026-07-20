@@ -24,6 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           'Dhiraj Mishra'     # Metasploit module
         ],
         'References' => [
+          ['CVE', '2020-11491'],
           ['EDB', '48308']
         ],
         'DisclosureDate' => '2020-04-10',

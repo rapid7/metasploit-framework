@@ -42,7 +42,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => 'Borja Merino <bmerinofe[at]gmail.com>',
         'Platform' => 'win',
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_OS_DOWN],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -63,7 +68,7 @@ class MetasploitModule < Msf::Post
     error = ERROR_TYPE[datastore['ERROR_TYPE']]
     service = SERVICE_TYPE[datastore['SERVICE_TYPE']]
 
-    name = datastore['DRIVER_NAME'].blank? ? Rex::Text.rand_text_alpha((rand(6..13))) : datastore['DRIVER_NAME']
+    name = datastore['DRIVER_NAME'].blank? ? Rex::Text.rand_text_alpha(6..13) : datastore['DRIVER_NAME']
 
     unless is_admin?
       print_error("Administrator or better privileges needed. Try 'getsystem' first.")
@@ -103,7 +108,9 @@ class MetasploitModule < Msf::Post
     if rc == Windows::Error::SUCCESS
       print_status("Service object \"#{name}\" added to the Service Control Manager database.")
       return true
-    elsif rc == Windows::Error::SERVICE_EXISTS
+    end
+
+    if rc == Windows::Error::SERVICE_EXISTS
       print_error('The specified service already exists.')
       # Show ImagePath just to know if the service corresponds to the desired driver.
       service = service_info(name)
@@ -111,6 +118,7 @@ class MetasploitModule < Msf::Post
     else
       print_error("There was an error opening the driver handler. GetLastError=#{rc}.")
     end
+
     return false
   end
 end

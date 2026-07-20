@@ -14,14 +14,17 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => %w[bsd linux osx solaris win],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
     register_options(
       [
-
         OptAddressRange.new('RHOSTS', [true, 'IP Range to perform ping sweep against.']),
-
       ]
     )
   end
@@ -56,7 +59,7 @@ class MetasploitModule < Msf::Post
 
       ip_found = []
 
-      while (!iplst.nil? && !iplst.empty?)
+      while !iplst.nil? && !iplst.empty?
         a = []
         1.upto session.max_threads do
           a << framework.threads.spawn("Module(#{refname})", false, iplst.shift) do |ip_add|
@@ -78,8 +81,9 @@ class MetasploitModule < Msf::Post
         a.map(&:join)
       end
     rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
-    rescue ::Exception => e
-      print_status("The following Error was encountered: #{e.class} #{e}")
+      vprint_error(e.message)
+    rescue StandardError => e
+      print_status("The following error was encountered: #{e.class} #{e}")
     end
 
     ip_found.each do |ip|

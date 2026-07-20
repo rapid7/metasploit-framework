@@ -7,9 +7,13 @@ RSpec.describe 'CommandShell' do
   # Tests to ensure that CMD/Powershell/Linux is consistent across all implementations/operation systems
   COMMAND_SHELL_PAYLOADS = Acceptance::Session.with_session_name_merged(
     {
-      powershell: Acceptance::Session::POWERSHELL,
-      cmd: Acceptance::Session::CMD,
-      linux: Acceptance::Session::LINUX
+      powershell:      Acceptance::Session::POWERSHELL,
+      cmd:             Acceptance::Session::CMD,
+      linux:           Acceptance::Session::LINUX,
+      python_ssl_2_6:  Acceptance::Session::PYTHON_SSL_2_6,
+      python_ssl_2_7:  Acceptance::Session::PYTHON_SSL_2_7,
+      python_ssl_3_4:  Acceptance::Session::PYTHON_SSL_3_4,
+      python_ssl_3_13: Acceptance::Session::PYTHON_SSL_3_13,
     }
   )
 
@@ -133,7 +137,7 @@ RSpec.describe 'CommandShell' do
             end
 
             console.sendline payload.handler_command(default_module_datastore: default_module_datastore)
-            console.recvuntil(/Started reverse TCP handler[^\n]*\n/)
+            console.recvuntil(/Started reverse (?:TCP|SSL) handler[^\n]*\n/)
             payload_process = executed_payload
             session_id = nil
 

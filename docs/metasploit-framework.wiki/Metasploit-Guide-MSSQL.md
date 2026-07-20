@@ -11,13 +11,13 @@ MSSQL is frequently found on port on the following ports:
 For a full list of MSSQL modules run the `search` command within msfconsole:
 
 ```msf
-msf6 > search mssql
+msf > search mssql
 ```
 
 Or to search for modules that work with a specific session type:
 
 ```msf
-msf6 > search session_type:mssql
+msf > search session_type:mssql
 ```
 
 ### Lab Environment
@@ -61,7 +61,7 @@ on a successful login:
 Which you can interact with using `sessions -i <session id>` or `sessions -i -1` to interact with the most recently opened session.
 
 ```msf
-msf6 auxiliary(scanner/mssql/mssql_login) > sessions
+msf auxiliary(scanner/mssql/mssql_login) > sessions
 
 Active sessions
 ===============
@@ -70,7 +70,7 @@ Active sessions
   --  ----  ----   -----------                      ----------
   1         mssql  MSSQL test @ 192.168.2.242:1433  192.168.2.1:60963 -> 192.168.23.242:1433 (192.168.2.242)
 
-msf6 auxiliary(scanner/mssql/mssql_login) > sessions -i 1
+msf auxiliary(scanner/mssql/mssql_login) > sessions -i 1
 [*] Starting interaction with 1...
 
 mssql @ 192.168.2.242:1433 (master) > query 'select @@version;'
@@ -146,7 +146,7 @@ This session also works with the following modules:
 To interact directly with the session as if in a SQL prompt, you can use the `query` command.
 
 ```msf
-msf6 auxiliary(scanner/mssql/mssql_login) > sessions -i -1
+msf auxiliary(scanner/mssql/mssql_login) > sessions -i -1
 [*] Starting interaction with 2...
 
 mssql @ 192.168.2.242:1433 (master) > query -h
@@ -224,8 +224,8 @@ Details on the Kerberos specific option names are documented in [[Kerberos Servi
 Connect to a Microsoft SQL Server instance and run a query:
 
 ```msf
-msf6 > use auxiliary/admin/mssql/mssql_sql
-msf6 auxiliary(admin/mssql/mssql_sql) > run 192.168.123.13 domaincontrollerrhost=192.168.123.13 username=administrator password=p4$$w0rd mssql::auth=kerberos mssql::rhostname=dc3.demo.local mssqldomain=demo.local sql='select auth_scheme from sys.dm_exec_connections where session_id=@@spid'
+msf > use auxiliary/admin/mssql/mssql_sql
+msf auxiliary(admin/mssql/mssql_sql) > run 192.168.123.13 domaincontrollerrhost=192.168.123.13 username=administrator password=p4$$w0rd mssql::auth=kerberos mssql::rhostname=dc3.demo.local mssqldomain=demo.local sql='select auth_scheme from sys.dm_exec_connections where session_id=@@spid'
 [*] Reloading module...
 [*] Running module against 192.168.123.13
 

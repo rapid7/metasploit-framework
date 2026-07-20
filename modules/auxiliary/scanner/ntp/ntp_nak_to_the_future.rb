@@ -15,8 +15,8 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => 'NTP "NAK to the Future"',
-        'Description'    => %q(
+        'Name' => 'NTP "NAK to the Future"',
+        'Description' => %q{
           Crypto-NAK packets can be used to cause ntpd to accept time from
           unauthenticated ephemeral symmetric peers by bypassing the
           authentication required to mobilize peer associations.  This module
@@ -25,20 +25,23 @@ class MetasploitModule < Msf::Auxiliary
           is to cause ntpd to declare the legitimate peers "false tickers" and
           choose the attacking clients as the preferred peers, allowing
           these peers to control time.
-         ),
-        'Author'         =>
-          [
-            'Matthew Van Gundy of Cisco ASIG', # vulnerability discovery
-            'Jon Hart <jon_hart[at]rapid7.com>' # original metasploit module
-          ],
-        'License'        => MSF_LICENSE,
-        'References'     =>
-          [
-            [ 'URL', 'http://talosintel.com/reports/TALOS-2015-0069/' ],
-            [ 'URL', 'https://www.cisco.com/c/en/us/support/docs/availability/high-availability/19643-ntpm.html' ],
-            [ 'URL', 'https://support.ntp.org/bin/view/Main/NtpBug2941' ],
-            [ 'CVE', '2015-7871' ]
-          ]
+        },
+        'Author' => [
+          'Matthew Van Gundy of Cisco ASIG', # vulnerability discovery
+          'Jon Hart <jon_hart[at]rapid7.com>' # original metasploit module
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          [ 'URL', 'http://talosintel.com/reports/TALOS-2015-0069/' ],
+          [ 'URL', 'https://www.cisco.com/c/en/us/support/docs/availability/high-availability/19643-ntpm.html' ],
+          [ 'URL', 'https://support.ntp.org/bin/view/Main/NtpBug2941' ],
+          [ 'CVE', '2015-7871' ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
   end
@@ -77,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
     if response.length == expected_length
       ntp_symmetric = Rex::Proto::NTP::Header::NTPHeader.read(response)
       if ntp_symmetric.mode == SYMMETRIC_PASSIVE_MODE && ntp_symmetric.origin_timestamp == nil
-        vprint_good("#{rhost}:#{rport} - NTP - VULNERABLE: Accepted a NTP symmetric active association")
+        vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - NTP - VULNERABLE: Accepted a NTP symmetric active association")
         report_vuln(
           host: rhost,
           port: rport.to_i,
@@ -87,11 +90,11 @@ class MetasploitModule < Msf::Auxiliary
           info: 'Accepted an NTP symmetric active association by replying with a symmetric passive request',
           refs: references
         )
-        return Exploit::CheckCode::Appears
+        return Exploit::CheckCode::Appears('NTP service accepted a symmetric active association')
       end
     end
 
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('NTP service did not respond to symmetric active request')
   end
 
   def run_host(_ip)

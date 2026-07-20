@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
+          ['CVE', '2023-5350'],
           ['URL', 'https://blog.exodusintel.com/2022/06/09/salesagility-suitecrm-export-request-sql-injection-vulnerability/'],
           ['URL', 'https://docs.suitecrm.com/admin/releases/7.12.x/#_7_12_6']
         ],
@@ -73,9 +74,9 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status "Version detected: #{version}"
 
-    return Exploit::CheckCode::Vulnerable if version <= Rex::Version.new('7.12.5')
+    return Exploit::CheckCode::Vulnerable("SuiteCRM version #{version} is vulnerable") if version <= Rex::Version.new('7.12.5')
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe("SuiteCRM version #{version} is not vulnerable")
   end
 
   def authenticate

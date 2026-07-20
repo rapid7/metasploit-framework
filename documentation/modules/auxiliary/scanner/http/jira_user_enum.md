@@ -47,18 +47,18 @@
 ## Scenarios
 
 ```
-  msf6 > use auxiliary/scanner/http/jira_enum_users 
-  msf6 auxiliary(scanner/http/jira_enum_users) > set rhosts 192.168.0.101
+  msf > use auxiliary/scanner/http/jira_enum_users 
+  msf auxiliary(scanner/http/jira_enum_users) > set rhosts 192.168.0.101
   rhosts => 192.168.0.101
-  msf6 auxiliary(scanner/http/jira_enum_users) > set USERNAME admin
-  msf6 auxiliary(scanner/http/jira_enum_users) > run
+  msf auxiliary(scanner/http/jira_enum_users) > set USERNAME admin
+  msf auxiliary(scanner/http/jira_enum_users) > run
 
   [*] Begin enumerating users at 192.168.0.101/secure/ViewUserHover.jspa?username=
   [*] checking user admin
   [+] 'User exists: admin'
   [*] Scanned 1 of 1 hosts (100% complete)
   [*] Auxiliary module execution completed
-  msf6 auxiliary(scanner/http/jira_enum_users) > creds
+  msf auxiliary(scanner/http/jira_enum_users) > creds
   Credentials
   ===========
 

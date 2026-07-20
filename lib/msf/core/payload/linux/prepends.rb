@@ -17,7 +17,7 @@ module Msf::Payload::Linux::Prepends
       'PrependSetregid' => [false, 'Prepend a stub that executes the setregid(0, 0) system call', 'false'],
       'PrependSetgid' => [false, 'Prepend a stub that executes the setgid(0) system call', 'false'],
       'PrependChrootBreak' => [false, 'Prepend a stub that will break out of a chroot (includes setreuid to root)', 'false'],
-      'AppendExit' => [false, 'Prepend a stub that will break out of a chroot (includes setreuid to root)', 'false']
+      'AppendExit' => [false, 'Append a stub that executes the exit(0) system call', 'false']
     }
     avaiable_options = []
     for prepend in prepends_order
@@ -30,6 +30,7 @@ module Msf::Payload::Linux::Prepends
   end
 
   def apply_prepends(buf)
+    ds = datastore
     pre = ''
     app = ''
     for name in prepends_order.each
@@ -37,6 +38,9 @@ module Msf::Payload::Linux::Prepends
     end
     for name in appends_order.each
       app << appends_map.fetch(name) if datastore[name]
+    end
+    if ds['PayloadLinuxMinKernel'] == '2.6' && (!pre.empty? || !app.empty?) && !staged?
+      fail_with(Msf::Module::Failure::BadConfig, 'Prepend options only work with PayloadLinuxMinKernel = 3.17.')
     end
     pre.force_encoding('ASCII-8BIT') +
       buf.force_encoding('ASCII-8BIT') +

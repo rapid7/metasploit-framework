@@ -144,7 +144,7 @@ module WindowsRegistry
 
     def get_value(key, value_name = nil)
       sd_backup = change_dacl(key, Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_ADMINS) if @inline
-      root_key, sub_key = key.gsub(/\//, '\\').split('\\', 2)
+      root_key, sub_key = key.gsub('/', '\\').split('\\', 2)
       root_key_handle = @winreg.open_root_key(root_key)
       subkey_handle = @winreg.open_key(root_key_handle, sub_key)
       begin

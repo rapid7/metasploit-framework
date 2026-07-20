@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           'RicterZ' # original PoC, analysis
         ],
         'References' => [
-          [ 'URL', 'https://github.com/minio/minio/security/advisories/GHSA-6xvq-wj2x-3h3q'],
+          ['GHSA', '6xvq-wj2x-3h3q', 'minio/minio'],
           [ 'CVE', '2023-28432']
         ],
         'Targets' => [

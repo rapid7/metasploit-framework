@@ -1,4 +1,6 @@
-module Acceptance::Session
+require_relative './shared'
+
+module Acceptance::Session::Java
   JAVA_METERPRETER = {
     payloads: [
       {
@@ -233,6 +235,28 @@ module Acceptance::Session
           },
           windows: {
             known_failures: []
+          }
+        }
+      },
+      {
+        name: "post/test/socket_channels",
+        platforms: [:linux, :osx, :windows],
+        skipped: false,
+        lines: {
+          linux: {
+            known_failures: [
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
+            ]
+          },
+          osx: {
+            known_failures: [
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
+            ]
+          },
+          windows: {
+            known_failures: [
+              *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
+            ]
           }
         }
       },

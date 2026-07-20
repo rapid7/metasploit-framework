@@ -309,7 +309,10 @@ class MetasploitModule < Msf::Auxiliary
           sname: 'smb',
           port: rport,
           type: "UUID #{uuid[0]} #{uuid[1]}",
-          data: "UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['SMBPIPE']}"
+          data: {
+            :uuid => "#{uuid[0]} #{uuid[1]}",
+            :smb_pipe => datastore['SMBPIPE']
+          }
         )
       rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
         print_line("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)

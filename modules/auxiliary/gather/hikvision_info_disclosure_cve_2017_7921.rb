@@ -312,11 +312,11 @@ class MetasploitModule < Msf::Auxiliary
     res = get_info(uri)
 
     if res.nil?
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('No response received from the target')
     elsif res.code == 200
-      return Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Vulnerable('Unauthenticated access to system time endpoint succeeded')
     else
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe("System time endpoint returned HTTP #{res.code}")
     end
   end
 

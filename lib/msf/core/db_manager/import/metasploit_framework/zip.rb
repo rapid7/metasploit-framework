@@ -184,14 +184,19 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     # mkdir all of the base directories we just pulled out, if they don't
     # already exist
     @import_filedata[:zip_tmp_subdirs].each {|sub|
-      tmp_subdirs = ::File.join(@import_filedata[:zip_tmp],sub)
+      tmp_subdirs = File.expand_path(::File.join(@import_filedata[:zip_tmp], sub))
+
+      # Skip if the resolved directory would be outside the zip tmp dir
+      # to mitigate directory traversal attacks
+      next unless is_child_of?(@import_filedata[:zip_tmp], tmp_subdirs)
+
       if File.exist? tmp_subdirs
         unless (::File.directory?(tmp_subdirs) && File.writable?(tmp_subdirs))
           # if it exists but we can't write to it, give up
           raise Msf::DBImportError.new("Could not extract zip file to #{tmp_subdirs}")
         end
       else
-        ::FileUtils.mkdir(tmp_subdirs)
+        ::FileUtils.mkdir_p(tmp_subdirs)
       end
     }
 
@@ -203,7 +208,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
       # tmp dir to mitigate any directory traversal attacks
       next unless is_child_of?(@import_filedata[:zip_tmp], target)
 
-      e.extract(target)
+      e.extract(e.name, destination_directory: @import_filedata[:zip_tmp])
 
       if target =~ /\.xml\z/
         target_data = ::File.open(target, "rb") {|f| f.read 1024}

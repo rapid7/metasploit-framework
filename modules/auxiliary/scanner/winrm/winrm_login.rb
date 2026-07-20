@@ -30,7 +30,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => [ 'thelightcosine', 'smashery' ],
       'References' => [
-        [ 'CVE', '1999-0502'] # Weak password
+        [ 'CVE', '1999-0502'], # Weak password
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_006_WINDOWS_REMOTE_MANAGEMENT ]
       ],
       'License' => MSF_LICENSE
     )
@@ -50,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
 
     kerberos_authenticator_factory = nil
     if datastore['Winrm::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
-      kerberos_authenticator_factory = -> (username, password, realm) do
+      kerberos_authenticator_factory = ->(username, password, realm) do
         Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP.new(
           host: datastore['DomainControllerRhost'],
           hostname: datastore['Winrm::Rhostname'],
@@ -65,7 +66,8 @@ class MetasploitModule < Msf::Auxiliary
           mutual_auth: true,
           use_gss_checksum: true,
           ticket_storage: kerberos_ticket_storage,
-          offered_etypes: Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['Winrm::KrbOfferedEncryptionTypes'])
+          offered_etypes: Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['Winrm::KrbOfferedEncryptionTypes']),
+          clock_skew: kerberos_clock_skew_seconds
         )
       end
     end
@@ -137,10 +139,23 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def session_setup(shell, _rhost, _rport, _endpoint)
+  def session_setup(shell, rhost, _rport, _endpoint)
     # We use cmd rather than powershell because powershell v3 on 2012 (and maybe earlier)
     # do not seem to pass us stdout/stderr.
-    interactive_process_id = shell.send_command('cmd.exe')
+    begin
+      interactive_process_id = shell.send_command('cmd.exe')
+    rescue WinRM::WinRMWSManFault => e
+      case e.fault_code
+      when ::WindowsError::Win32::ERROR_ACCESS_DENIED.value.to_s
+        print_brute(level: :warn, rhost: rhost, msg: "Credentials were correct but access is denied for user: #{shell.connection_opts[:user]}")
+        wlog(e.fault_description)
+      else
+        print_brute(level: :error, rhost: rhost, msg: e.fault_description)
+        elog(e.full_message, error: e)
+      end
+      return
+    end
+
     sess = Msf::Sessions::WinrmCommandShell.new(shell, interactive_process_id)
     sess.platform = 'windows'
     username = datastore['USERNAME']

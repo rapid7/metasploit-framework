@@ -17,10 +17,10 @@ This module prints out the operating system environment variables.
 ### Windows 11 Pro (10.0.22000 N/A Build 22000)
 
 ```
-msf6 > use post/multi/gather/env
-msf6 post(multi/gather/env) > set session 1 
+msf > use post/multi/gather/env
+msf post(multi/gather/env) > set session 1 
 session => 1
-msf6 post(multi/gather/env) > run
+msf post(multi/gather/env) > run
 
 [*] Running module against WinDev2110Eval (192.168.200.140)
 ALLUSERSPROFILE=C:\ProgramData

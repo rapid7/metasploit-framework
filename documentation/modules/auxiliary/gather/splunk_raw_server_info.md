@@ -35,8 +35,8 @@ the service (via website) for the instance to be exploitable. Splunk can be star
 ### Splunk 6.5.5
 
 ```
-msf6 > use auxiliary/gather/splunk_raw_server_info 
-msf6 auxiliary(gather/splunk_raw_server_info) > exploit
+msf > use auxiliary/gather/splunk_raw_server_info 
+msf auxiliary(gather/splunk_raw_server_info) > exploit
 [*] Running module against 127.0.0.1
 
 [+] Output saved to ~/.msf4/loot/20231220130955_default_127.0.0.1_splunk.system.st_442957.bin

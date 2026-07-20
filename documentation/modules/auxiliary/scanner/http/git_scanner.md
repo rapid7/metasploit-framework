@@ -31,19 +31,19 @@ root@kali:/var/www/html# service apache2 start
 
 ## Options
 
-  **GIT_CONFIG**
+### GIT_CONFIG
 
   Attempts to locate the `config` file, which may contain useful information.  Default is `true`.
 
-  **GIT_INDEX**
+### GIT_INDEX
 
   Attempts to locate the `index` file, which identifies the git version and number of files.  Default is `true`.
 
-  **TARGETURI**
+### TARGETURI
 
   Where the `.git` folder is located.  Default is `/.git/`
 
-  **UserAgent**
+### UserAgent
 
   The user agent to emulate.  Default is `git/1.7.9.5`.
 
@@ -52,12 +52,12 @@ root@kali:/var/www/html# service apache2 start
 ### Metasploit git on Kali
 
 ```
-msf5 > use auxiliary/scanner/http/git_scanner 
-msf5 auxiliary(scanner/http/git_scanner) > set rhosts 127.0.0.1
+msf > use auxiliary/scanner/http/git_scanner 
+msf auxiliary(scanner/http/git_scanner) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf5 auxiliary(scanner/http/git_scanner) > set TARGETURI /metasploit-framework/.git/
+msf auxiliary(scanner/http/git_scanner) > set TARGETURI /metasploit-framework/.git/
 TARGETURI => /metasploit-framework/.git/
-msf5 auxiliary(scanner/http/git_scanner) > run
+msf auxiliary(scanner/http/git_scanner) > run
 
 [+] http://127.0.0.1/metasploit-framework/.git/ - git repo (version 2) found with 10064 files
 [+] http://127.0.0.1/metasploit-framework/.git/config - git config file found

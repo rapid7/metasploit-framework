@@ -10,17 +10,16 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Gopher gophermap Scanner',
+      'Name' => 'Gopher gophermap Scanner',
       'Description' => %q(
         This module identifies Gopher servers, and processes the gophermap
         file which lists all the files on the server.
       ),
-      'References'  =>
-        [
-          ['URL', 'https://sdfeu.org/w/tutorials:gopher']
-        ],
-      'Author'      => 'h00die',
-      'License'     => MSF_LICENSE
+      'References' => [
+        ['URL', 'https://sdfeu.org/w/tutorials:gopher']
+      ],
+      'Author' => 'h00die',
+      'License' => MSF_LICENSE
     )
 
     register_options(
@@ -66,6 +65,7 @@ class MetasploitModule < Msf::Auxiliary
         gophermap.split("\r\n").each do |line|
           line_parts = line.split("\t")
           next unless line_parts.length >= 2
+
           # syntax: [type_character]description[tab]path[tab, after this is optional]server[tab]port
           line_parts = line.split("\t")
           desc = line_parts[0]

@@ -13,13 +13,18 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Firefox Gather Passwords from Privileged Javascript Shell',
+        'Name' => 'Firefox Gather Passwords from Privileged JavaScript Shell',
         'Description' => %q{
-          This module allows collection of passwords from a Firefox Privileged Javascript Shell.
+          This module allows collection of passwords from a Firefox Privileged JavaScript Shell.
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'joev' ],
-        'DisclosureDate' => '2014-04-11'
+        'DisclosureDate' => '2014-04-11',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
@@ -43,7 +48,7 @@ class MetasploitModule < Msf::Post
         else
           print_warning('No passwords were found in Firefox.')
         end
-      rescue JSON::ParserError => e
+      rescue JSON::ParserError
         print_warning(results)
       end
     end

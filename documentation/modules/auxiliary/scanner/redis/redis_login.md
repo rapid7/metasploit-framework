@@ -62,12 +62,12 @@ The file containing a list of passwords to try logging in with.
 
 ### Redis Version 6.0.10
 ```
-msf6 > use scanner/redis/redis_login
-msf6 auxiliary(scanner/redis/redis_login) > set RHOSTS 192.168.1.7
+msf > use scanner/redis/redis_login
+msf auxiliary(scanner/redis/redis_login) > set RHOSTS 192.168.1.7
 RHOSTS => 192.168.1.7
-msf6 auxiliary(scanner/redis/redis_login) > set PASS_FILE /home/kali/Downloads/passwords.txt
+msf auxiliary(scanner/redis/redis_login) > set PASS_FILE /home/kali/Downloads/passwords.txt
 PASS_FILE => /home/kali/Downloads/pass.txt
-msf6 auxiliary(scanner/redis/redis_login) > run
+msf auxiliary(scanner/redis/redis_login) > run
 
 [!] 192.168.1.7:6379      - No active DB -- Credential data will not be saved!
 [-] 192.168.1.7:6379      - 192.168.1.7:6379      - LOGIN FAILED: redis:foobared (Incorrect: -WRONGPASS invalid username-password pair)

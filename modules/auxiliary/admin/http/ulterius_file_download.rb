@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           [ 'EDB', '43141' ],
           [ 'CVE', '2017-16806' ]
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 

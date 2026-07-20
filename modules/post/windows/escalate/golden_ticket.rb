@@ -36,6 +36,11 @@ class MetasploitModule < Msf::Post
               stdapi_railgun_api
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -75,13 +80,11 @@ class MetasploitModule < Msf::Post
     end
 
     unless krbtgt_hash
-      if framework.db.active
-        print_status('Searching for krbtgt hash in database...')
-        krbtgt_hash = lookup_krbtgt_hash(domain)
-        fail_with(Failure::Unknown, 'Unable to find krbtgt hash in database') unless krbtgt_hash
-      else
-        fail_with(Failure::BadConfig, 'No database, please supply the krbtgt hash')
-      end
+      fail_with(Failure::BadConfig, 'No database, please supply the krbtgt hash') unless framework.db.active
+
+      print_status('Searching for krbtgt hash in database...')
+      krbtgt_hash = lookup_krbtgt_hash(domain)
+      fail_with(Failure::Unknown, 'Unable to find krbtgt hash in database') unless krbtgt_hash
     end
 
     unless domain_sid

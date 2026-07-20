@@ -54,10 +54,10 @@ docker run -ti --rm -p 11211:11211/udp memcached:1.5.5
 Configure memcached as described above.
 
 ```
-msf5 > use auxiliary/scanner/memcached/memcached_amp
-msf5 auxiliary(scanner/memcached/memcached_amp) > set RHOSTS a.b.c.d
+msf > use auxiliary/scanner/memcached/memcached_amp
+msf auxiliary(scanner/memcached/memcached_amp) > set RHOSTS a.b.c.d
 RHOSTS => a.b.c.d
-msf5 auxiliary(scanner/memcached/memcached_amp) > run
+msf auxiliary(scanner/memcached/memcached_amp) > run
 
 [+] a.b.c.d:11211 - Vulnerable to MEMCACHED amplification: No packet amplification and a 78x, 1163-byte bandwidth amplification
 [*] Scanned 1 of 1 hosts (100% complete)
@@ -69,10 +69,10 @@ msf5 auxiliary(scanner/memcached/memcached_amp) > run
 Configure memcached as described above.
 
 ```
-msf5 > use auxiliary/scanner/memcached/memcached_amp
-msf5 auxiliary(scanner/memcached/memcached_amp) > set RHOSTS a.b.c.d
+msf > use auxiliary/scanner/memcached/memcached_amp
+msf auxiliary(scanner/memcached/memcached_amp) > set RHOSTS a.b.c.d
 RHOSTS => a.b.c.d
-msf5 auxiliary(scanner/memcached/memcached_amp) > run
+msf auxiliary(scanner/memcached/memcached_amp) > run
 
 [+] a.b.c.d:11211 - Vulnerable to MEMCACHED amplification: No packet amplification and a 68x, 1015-byte bandwidth amplification
 [*] Scanned 1 of 1 hosts (100% complete)
@@ -84,10 +84,10 @@ msf5 auxiliary(scanner/memcached/memcached_amp) > run
 Configure memcached in docker as described above.
 
 ```
-msf5 > use auxiliary/scanner/memcached/memcached_amp
-msf5 auxiliary(scanner/memcached/memcached_amp) > set RHOSTS a.b.c.d
+msf > use auxiliary/scanner/memcached/memcached_amp
+msf auxiliary(scanner/memcached/memcached_amp) > set RHOSTS a.b.c.d
 RHOSTS => a.b.c.d
-msf5 auxiliary(scanner/memcached/memcached_amp) > run
+msf auxiliary(scanner/memcached/memcached_amp) > run
 
 [+] a.b.c.d:11211 - Vulnerable to MEMCACHED amplification: 2x packet amplification and a 126x, 1880-byte bandwidth amplification
 [*] Scanned 1 of 1 hosts (100% complete)

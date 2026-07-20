@@ -19,10 +19,10 @@
 
 ## Options
 
-  **SQL**
+### SQL
 
   The SQL that will execute with the privileges of the user who created the index. Default is to escalate privileges.
 
-  **TABLE**
+### TABLE
 
   Table to create the index on.

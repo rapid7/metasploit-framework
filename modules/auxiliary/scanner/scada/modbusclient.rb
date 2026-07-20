@@ -35,7 +35,12 @@ class MetasploitModule < Msf::Auxiliary
           ['WRITE_REGISTERS', { 'Description' => 'Write words to several registers' } ],
           ['READ_ID', { 'Description' => 'Read device id' } ]
         ],
-        'DefaultAction' => 'READ_HOLDING_REGISTERS'
+        'DefaultAction' => 'READ_HOLDING_REGISTERS',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

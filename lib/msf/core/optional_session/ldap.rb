@@ -5,7 +5,7 @@ module Msf
     module LDAP
       include Msf::OptionalSession
 
-      RHOST_GROUP_OPTIONS = %w[RHOSTS RPORT DOMAIN USERNAME PASSWORD THREADS]
+      RHOST_GROUP_OPTIONS = %w[RHOSTS RPORT LDAPDomain LDAPUsername LDAPPassword THREADS]
       REQUIRED_OPTIONS = %w[RHOSTS RPORT THREADS]
 
       def initialize(info = {})

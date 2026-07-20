@@ -23,12 +23,19 @@ require:
   - ./lib/rubocop/cop/lint/deprecated_gem_version.rb
   - ./lib/rubocop/cop/lint/module_enforce_notes.rb
   - ./lib/rubocop/cop/lint/detect_invalid_pack_directives.rb
+  - ./lib/rubocop/cop/lint/detect_metadata_trailing_leading_whitespace.rb
+  - ./lib/rubocop/cop/lint/detect_outdated_cmd_exec_api.rb
+  - ./lib/rubocop/cop/lint/datastore_srvhost_usage.rb
+  - ./lib/rubocop/cop/lint/bare_check_code_in_non_exploit.rb
+  - ./lib/rubocop/cop/lint/check_code_missing_reason.rb
+  - ./lib/rubocop/cop/lint/module_redundant_arch_platform.rb
+
+Lint/CheckCodeMissingReason:
+  Enabled: true
+  Severity: info
 
 Layout/SpaceBeforeBrackets:
-  Description: >-
-    Disabled as it generates invalid code:
-      https://github.com/rubocop-hq/rubocop/issues/9499
-  Enabled: false
+  Enabled: true
 
 Lint/AmbiguousAssignment:
   Enabled: true
@@ -116,6 +123,12 @@ Style/DocumentDynamicEvalDefinition:
 Style/EndlessMethod:
   Enabled: true
 
+Style/FormatStringToken:
+  Enabled: true
+  Exclude:
+  # We aren't ready to enable this for modules yet
+    - 'modules/**/*'
+
 Style/HashExcept:
   Enabled: true
 
@@ -155,7 +168,24 @@ Style/RedundantAssignment:
     and return expression
   Enabled: false
 
+Style/RedundantParentheses:
+  Description: >-
+    Disabled as it sometimes improves the readability of code
+  Enabled: false
+
+Style/RedundantRegexpArgument:
+  Enabled: true
+  Exclude:
+  # We aren't ready to enable this for modules yet
+    - 'modules/**/*'
+
 Style/SwapValues:
+  Enabled: false
+
+Layout/LineContinuationLeadingSpace:
+  Description: >-
+    Disabled as it sometimes improves the readability of code having leading spaces
+    for indented code strings.
   Enabled: false
 
 Layout/ModuleHashOnNewLine:
@@ -184,6 +214,11 @@ Lint/ModuleEnforceNotes:
     - 'modules/exploits/**/*'
     - 'modules/auxiliary/**/*'
     - 'modules/post/**/*'
+
+Lint/ModuleRedundantArchPlatform:
+  Enabled: true
+  Include:
+    - 'modules/**/*'
 
 Lint/DeprecatedGemVersion:
   Enabled: true
@@ -652,3 +687,23 @@ Style/UnpackFirst:
     Disabling to make it easier to copy/paste `unpack('h*')` expressions from code
     into a debugging REPL.
   Enabled: false
+
+Lint/DetectMetadataTrailingLeadingWhitespace:
+  Enabled: true
+
+Lint/DetectOutdatedCmdExecApi:
+  Description: >-
+    Detects outdated usage of cmd_exec with separate arguments.
+    Use `create_process(executable, args: [], time_out: 15, opts: {})` API with an args array instead.
+  Enabled: true
+
+Lint/BareCheckCodeInNonExploit:
+  Description: >-
+    Use Exploit::CheckCode instead of bare CheckCode in non-exploit modules.
+    Bare CheckCode will raise a NameError at runtime in auxiliary, post, and evasion modules
+    because CheckCode is defined inside Msf::Exploit which is not in their ancestor chain.
+  Enabled: true
+  Include:
+    - 'modules/auxiliary/**/*'
+    - 'modules/post/**/*'
+    - 'modules/evasion/**/*'

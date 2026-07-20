@@ -24,7 +24,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => ['URL', 'https://github.com/whoot/TelpOWN'],
         'Platform' => 'linux',
         'Privileged' => false,
-        'DisclosureDate' => '2016-09-02'
+        'DisclosureDate' => '2016-09-02',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -150,7 +155,7 @@ class MetasploitModule < Msf::Auxiliary
       return nil
     end
   rescue ::Rex::ConnectionError
-    print_error("#{rhost}:#{rport} - Failed to connect")
+    print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to connect")
     return nil
   end
 end

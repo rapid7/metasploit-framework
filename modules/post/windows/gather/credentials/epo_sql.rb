@@ -23,6 +23,11 @@ class MetasploitModule < Msf::Post
         'Author' => ['Nathan Einwechter <neinwechter[at]gmail.com>'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[

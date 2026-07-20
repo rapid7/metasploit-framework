@@ -34,7 +34,7 @@ framework.payloads.each_module { |reference_name, payload_class|
   }
   ancestor_reference_names = module_ancestors.map { |module_ancestor|
     unpacked_module_ancestor_full_name = module_ancestor.name.sub(/^Msf::Modules::Mod/, '')
-                                                             .sub(/::MetasploitModule/, '')
+                                                             .sub('::MetasploitModule', '')
     module_ancestor_full_name = [unpacked_module_ancestor_full_name].pack("H*")
     module_ancestor_full_name.sub(%r{^payload/}, '')
   }

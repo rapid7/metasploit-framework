@@ -64,7 +64,7 @@ Consider the following example as your HTML response:
 		<div id="french">Bonjour</div>
 	</div>
 </body>
-<html>
+</html>
 ```
 
 **Basic usage of #at**

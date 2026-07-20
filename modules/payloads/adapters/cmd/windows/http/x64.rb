@@ -13,7 +13,6 @@ module MetasploitModule
         info,
         'Name' => 'HTTP Fetch',
         'Description' => 'Fetch and execute an x64 payload from an HTTP server.',
-        'DefaultOptions' => { 'FETCH_COMMAND' => 'CERTUTIL' },
         'Author' => 'Brendan Watters',
         'Platform' => 'win',
         'Arch' => ARCH_CMD,
@@ -25,7 +24,7 @@ module MetasploitModule
     deregister_options('FETCH_COMMAND')
     register_options(
       [
-        Msf::OptEnum.new('FETCH_COMMAND', [true, 'Command to fetch payload', 'CERTUTIL', %w[CURL TFTP CERTUTIL]])
+        Msf::OptEnum.new('FETCH_COMMAND', [true, 'Command to fetch payload', 'CERTUTIL', %w[CURL CERTUTIL]])
       ]
     )
   end

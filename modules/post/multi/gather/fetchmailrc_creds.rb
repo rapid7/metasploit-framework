@@ -19,7 +19,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Jon Hart <jhart[at]spoofed.org>' ],
         'Platform' => %w[bsd linux osx unix],
-        'SessionTypes' => [ 'shell' ]
+        'SessionTypes' => [ 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -86,7 +91,7 @@ class MetasploitModule < Msf::Post
         # been found, then save if there is enough to save
         parse_fetchmailrc_line(line).each do |cred|
           cred = defaults.merge(cred)
-          if (cred[:host] && cred[:protocol])
+          if cred[:host] && cred[:protocol]
             if (cred[:users].size == cred[:passwords].size)
               cred[:users].each_index do |i|
                 cred_table << [ cred[:users][i], cred[:passwords][i], cred[:host], cred[:protocol], cred[:port] ]
@@ -157,7 +162,7 @@ class MetasploitModule < Msf::Post
     cred[:host] = (line =~ /\s+smtphost\s+(\S+)/ ? ::Regexp.last_match(1) : 'localhost')
     cred[:protocol] = 'esmtp'
     # save the ESMTP credentials if we've found enough
-    creds << cred if (cred[:users] && cred[:passwords] && cred[:host])
+    creds << cred if cred[:users] && cred[:passwords] && cred[:host]
     # return all found credentials
     creds
   end

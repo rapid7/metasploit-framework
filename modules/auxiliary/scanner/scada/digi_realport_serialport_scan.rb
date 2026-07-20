@@ -10,18 +10,16 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Digi RealPort Serial Server Port Scanner',
+      'Name' => 'Digi RealPort Serial Server Port Scanner',
       'Description' => 'Identify active ports on RealPort-enabled serial servers.',
-      'References'  =>
-        [
-          ['URL', 'https://www.digi.com/resources/library/technical-briefs/fs_realport'],
-          ['URL', 'https://web.archive.org/web/20151012224641/http://www.digi.com/support/productdetail?pid=2229&type=drivers']
-        ],
-      'Author'      =>
-        [
-          'hdm'
-        ],
-      'License'     => MSF_LICENSE
+      'References' => [
+        ['URL', 'https://www.digi.com/resources/library/technical-briefs/fs_realport'],
+        ['URL', 'https://web.archive.org/web/20151012224641/http://www.digi.com/support/productdetail?pid=2229&type=drivers']
+      ],
+      'Author' => [
+        'hdm'
+      ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
@@ -29,7 +27,8 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new("BANNER_TIMEOUT", [true, "How long to capture data from the serial port", 5]),
         OptString.new('BAUD_RATES', [true, "A space delimited list of baud rates to try for each port", "9600 115200"]),
         OptString.new('PORTS', [true, "A space delimited list of 1-indexed serial port numbers to try, default is all supported", "ALL"])
-      ])
+      ]
+    )
   end
 
   def setup
@@ -43,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(target_host)
-    test_ports  = datastore['PORTS'].upcase.split(/\s+/)
+    test_ports = datastore['PORTS'].upcase.split(/\s+/)
     test_speeds = datastore['BAUD_RATES'].split(/\s+/)
 
     return unless realport_connect
@@ -61,15 +60,16 @@ class MetasploitModule < Msf::Auxiliary
       test_speeds.each do |baud|
         ret = realport_open(pnum - 1, baud)
         break unless ret == :open
+
         res = realport_recv_banner(pnum - 1, datastore['BANNER_TIMEOUT'])
         if res and res.length > 0
           print_status("#{target_host}:#{rport} [port #{pnum} @ #{baud}bps] #{res.inspect}")
           report_note(
-            :host   => target_host,
-            :proto  => 'tcp',
-            :port   => rport,
-            :type   => "realport.port#{pnum}.banner",
-            :data   => {:baud => baud, :banner => res},
+            :host => target_host,
+            :proto => 'tcp',
+            :port => rport,
+            :type => "realport.port#{pnum}.banner",
+            :data => { :baud => baud, :banner => res },
             :update => :unique_data
           )
 

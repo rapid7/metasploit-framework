@@ -3,19 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-#
-# Standard Library
-#
 require 'tmpdir'
-
-#
-# Gems
-#
 require 'zip'
-
-#
-# Project
-#
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -68,6 +57,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_kill
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -124,7 +118,7 @@ class MetasploitModule < Msf::Post
 
     omnija = nil             # non meterpreter download
     org_file = 'omni.ja'     # key file
-    new_file = Rex::Text.rand_text_alpha(rand(5..7)) + '.ja'
+    new_file = Rex::Text.rand_text_alpha(5..7) + '.ja'
     temp_file = 'orgomni.ja' # backup of key file
 
     # Sets @paths
@@ -455,7 +449,7 @@ class MetasploitModule < Msf::Post
       rescue StandardError
         print_error("Was not able to find '#{omnija_file}' in the compressed .JA file")
         print_error('This could be due to a corrupt download or a unsupported Firefox/Iceweasel version')
-        return false
+        break
       end
       fdata
     end

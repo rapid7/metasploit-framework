@@ -33,16 +33,16 @@ resolvable.
 
 ## Options
 
-**PROTOCOL**
+### PROTOCOL
 
 Set this to either TCP or UDP. UDP is the default due to `bootparamd`.
 
-**CLIENT**
+### CLIENT
 
 Set this to the address of a client in the target's `bootparams` file.
 Usually this is a host within the same network range as the target.
 
-**XDRTimeout**
+### XDRTimeout
 
 Set this to the timeout in seconds for XDR decoding of the response.
 

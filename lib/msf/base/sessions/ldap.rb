@@ -42,7 +42,17 @@ class Msf::Sessions::LDAP
     session = self
     session.init_ui(user_input, user_output)
 
-    @info = "LDAP #{datastore['USERNAME']} @ #{@peer_info}"
+    username = datastore['USERNAME']
+    if username.blank?
+      begin
+        whoami = client.ldapwhoami
+      rescue Net::LDAP::Error => e
+        ilog('ldap session opened with no username and the target does not support the LDAP whoami extension')
+      else
+        username = whoami.delete_prefix('u:').split('\\').last
+      end
+    end
+    @info = "LDAP #{username} @ #{@peer_info}"
   end
 
   def execute_file(full_path, args)

@@ -6,17 +6,17 @@ The attacker now knows the state of port without a full tcp connection. Major be
 
 ## Options
 
-  **PORTS**
+### PORTS
   
   This is the list of TCP ports to test on each host.
   Formats like  `1-3`, `1,2,3`, `1,2-3`, etc. are all supported. Default
   options is to scan `1-10000` ports.
 
-  **TIMEOUT**
+### TIMEOUT
   
    Maximum time to wait for a response. The default value is 500 milliseconds.
   
-  **VERBOSE**
+### VERBOSE
   
   Gives detailed message about the scan of all the ports. It also shows the
   ports that were closed.

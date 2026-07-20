@@ -94,5 +94,6 @@ strtab:
  db 0
 strtabsz equ $ - strtab
 
+align 4
 global _start
 _start:

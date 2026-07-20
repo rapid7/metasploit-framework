@@ -7,19 +7,18 @@ class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   def initialize
     super(
-      'Name'             => 'SPARC DWORD XOR Encoder',
-      'Description'      => %q{
+      'Name' => 'SPARC DWORD XOR Encoder',
+      'Description' => %q{
         This encoder is optyx's 48-byte SPARC encoder with some tweaks.
       },
-      'Author'           => [ 'optyx', 'hdm' ],
-      'Arch'             => ARCH_SPARC,
-      'License'          => MSF_LICENSE,
-      'Decoder'          =>
-        {
-          'KeySize'    => 4,
-          'BlockSize'  => 4,
-          'KeyPack'    => 'N',
-        })
+      'Author' => [ 'optyx', 'hdm' ],
+      'Arch' => ARCH_SPARC,
+      'License' => MSF_LICENSE,
+      'Decoder' => {
+        'KeySize' => 4,
+        'BlockSize' => 4,
+        'KeyPack' => 'N'
+      })
   end
 
   #
@@ -27,16 +26,16 @@ class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
   #
   def decoder_stub(state)
     Rex::Arch::Sparc.set_dword(state.key, 'l1') +
-    "\x20\xbf\xff\xff" +   # bn,a  _start - 4
-    "\x20\xbf\xff\xff" +   # bn,a  _start
-    "\x7f\xff\xff\xff" +   # call  _start + 4
-    "\xea\x03\xe0\x20" +   # ld    [%o7 + 0x20],%l7
-    "\xaa\x9d\x40\x11" +   # xorcc %l5,%l1,%l5
-    "\xea\x23\xe0\x20" +   # st    %l5,[%o7 + 0x20]
-    "\xa2\x04\x40\x15" +   # add   %l1,%l5,%l1
-    "\x81\xdb\xe0\x20" +   # flush %o7 + 0x20
-    "\x12\xbf\xff\xfb" +   # bnz   dec_loop
-    "\x9e\x03\xe0\x04"     # add   %o7,4,%o7
+      "\x20\xbf\xff\xff" +   # bn,a  _start - 4
+      "\x20\xbf\xff\xff" +   # bn,a  _start
+      "\x7f\xff\xff\xff" +   # call  _start + 4
+      "\xea\x03\xe0\x20" +   # ld    [%o7 + 0x20],%l7
+      "\xaa\x9d\x40\x11" +   # xorcc %l5,%l1,%l5
+      "\xea\x23\xe0\x20" +   # st    %l5,[%o7 + 0x20]
+      "\xa2\x04\x40\x15" +   # add   %l1,%l5,%l1
+      "\x81\xdb\xe0\x20" +   # flush %o7 + 0x20
+      "\x12\xbf\xff\xfb" +   # bnz   dec_loop
+      "\x9e\x03\xe0\x04"     # add   %o7,4,%o7
   end
 
   #
@@ -50,10 +49,14 @@ class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
   # Verify that the chosen key doesn't become an invalid byte due to
   # the set_dword() result (22/10 bit split)
   #
-  def find_key_verify(buf, key_bytes, badchars)
-    return ( has_badchars?(
+  def find_key_verify(_buf, key_bytes, badchars)
+    return (if has_badchars?(
       Rex::Arch::Sparc.set_dword(key_bytes_to_integer(key_bytes), 'l1'),
       badchars
-    ) ? false : true)
+    )
+              false
+            else
+              true
+            end)
   end
 end

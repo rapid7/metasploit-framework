@@ -144,7 +144,7 @@ class MetasploitModule < Msf::Auxiliary
     # all inject strings taken from sqlmap runs, using error page method
     database = sqli.current_database
     print_good("Current Database: #{database}")
-    report_note(host: rhost, port: rport, type: 'database', data: database)
+    report_note(host: rhost, port: rport, type: 'database', data: { database: database })
 
     banner = sqli.version.gsub('\n', "\n").gsub('\t', "\t")
     print_good("Banner: #{banner}")

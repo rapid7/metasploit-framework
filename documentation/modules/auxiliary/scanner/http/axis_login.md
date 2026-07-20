@@ -4,6 +4,15 @@ This module attempts to login to an Apache Axis2 instance using username and pas
 combinations indicated by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
 It has been verified to work on at least versions 1.4.1 and 1.6.2.
 
+A Docker target is available for testing. Build and run it with:
+
+```
+docker build -t axis2-msf-test test/axis2/
+docker run --rm -p 8080:8080 axis2-msf-test
+```
+
+The default Axis2 admin credentials are `admin` / `axis2`.
+
 ## Verification Steps
 1. Start msfconsole
 2. Do: `use auxiliary/scanner/http/axis_login`
@@ -84,13 +93,13 @@ Specific demo of using the module that might be useful in a real world scenario.
 
 ```
 msf > use auxiliary/scanner/http/axis_login
-msf6 auxiliary(scanner/http/axis_login) > set rhosts 127.0.0.1
+msf auxiliary(scanner/http/axis_login) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(scanner/http/axis_login) > set password N0tpassword!
+msf auxiliary(scanner/http/axis_login) > set password N0tpassword!
 password => N0tpassword!
-msf6 auxiliary(scanner/http/axis_login) > set userfile ./USERNAMES
+msf auxiliary(scanner/http/axis_login) > set userfile ./USERNAMES
 userfile => ./USERNAMES
-msf6 auxiliary(scanner/http/axis_login) > show options
+msf auxiliary(scanner/http/axis_login) > show options
 
 Module options (auxiliary/scanner/http/axis_login):
 
@@ -120,12 +129,12 @@ Module options (auxiliary/scanner/http/axis_login):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(scanner/http/axis_login) > run
+msf auxiliary(scanner/http/axis_login) > run
 
 [*] Attempting to login to /stop using password list
 [!] 127.0.0.1:8080        - No active DB -- Credential data will not be saved!
 [-] 127.0.0.1:8080        - Failed: 'AxisRoot:password'
 [+] 127.0.0.1:8080         - 127.0.0.1:8080 - Login Successful: WORKSTATION\AxisRoot:N0tpassword!
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/axis_login) >
+msf auxiliary(scanner/http/axis_login) >
 ```

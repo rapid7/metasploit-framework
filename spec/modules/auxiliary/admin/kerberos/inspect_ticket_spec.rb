@@ -64,7 +64,7 @@ RSpec.describe 'kerberos inspect ticket' do
   let(:invalid_key) { 'invalid_key' }
 
   let(:ccache_aes) do
-    # msf6 auxiliary(admin/kerberos/forge_ticket) > options
+    # msf auxiliary(admin/kerberos/forge_ticket) > options
     #
     # Module options (auxiliary/admin/kerberos/forge_ticket):
     #
@@ -82,11 +82,11 @@ RSpec.describe 'kerberos inspect ticket' do
     #
     # View the full module info with the info, or info -d command.
     #
-    # msf6 auxiliary(admin/kerberos/forge_ticket) > forge_silver
+    # msf auxiliary(admin/kerberos/forge_ticket) > forge_silver
     #
     # [*] [2023.01.13-14:31:25] TGS MIT Credential Cache ticket saved to /Users/dwelch/.msf4/loot/20230113143125_default_unknown_mit.kerberos.cca_398641.bin
     # [*] Auxiliary module execution completed
-    # msf6 auxiliary(admin/kerberos/forge_ticket) >
+    # msf auxiliary(admin/kerberos/forge_ticket) >
 
     "\x05\x04\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x0f" \
     "\x57\x49\x4e\x44\x4f\x4d\x41\x49\x4e\x2e\x4c\x4f\x43\x41\x4c\x00" \
@@ -167,7 +167,7 @@ RSpec.describe 'kerberos inspect ticket' do
   end
 
   let(:ccache_nthash) do
-    # msf6 auxiliary(admin/kerberos/forge_ticket) > options
+    # msf auxiliary(admin/kerberos/forge_ticket) > options
     #
     # Module options (auxiliary/admin/kerberos/forge_ticket):
     #
@@ -185,7 +185,7 @@ RSpec.describe 'kerberos inspect ticket' do
     #
     # View the full module info with the info, or info -d command.
     #
-    # msf6 auxiliary(admin/kerberos/forge_ticket) > forge_silver
+    # msf auxiliary(admin/kerberos/forge_ticket) > forge_silver
     #
     # [*] [2023.01.13-14:36:39] TGS MIT Credential Cache ticket saved to /Users/dwelch/.msf4/loot/20230113143639_default_unknown_mit.kerberos.cca_476516.bin
     # [*] Auxiliary module execution completed
@@ -475,10 +475,10 @@ RSpec.describe 'kerberos inspect ticket' do
           Addresses: 0
           Authdatas: 0
           Times:
-            Auth time: #{Time.parse('2023-01-13 14:31:25 UTC').to_time}
-            Start time: #{Time.parse('2023-01-13 14:31:25 UTC').to_time}
-            End time: #{Time.parse('2033-01-10 14:31:25 UTC').to_time}
-            Renew Till: #{Time.parse('2033-01-10 14:31:25 UTC').to_time}
+            Auth time: #{Time.parse('2023-01-13 14:31:25 UTC').localtime}
+            Start time: #{Time.parse('2023-01-13 14:31:25 UTC').localtime}
+            End time: #{Time.parse('2033-01-10 14:31:25 UTC').localtime}
+            Renew Till: #{Time.parse('2033-01-10 14:31:25 UTC').localtime}
           Ticket:
             Ticket Version Number: 5
             Realm: WINDOMAIN.LOCAL
@@ -488,10 +488,10 @@ RSpec.describe 'kerberos inspect ticket' do
               Key Version Number: 2
               Decrypted (with key: 4b912be0366a6f37f4a7d571bee18b1173d93195ef76f8d1e3e81ef6172ab326):
                 Times:
-                  Auth time: #{Time.parse('2023-01-13 14:31:25 UTC').to_time}
-                  Start time: #{Time.parse('2023-01-13 14:31:25 UTC').to_time}
-                  End time: #{Time.parse('2033-01-10 14:31:25 UTC').to_time}
-                  Renew Till: #{Time.parse('2033-01-10 14:31:25 UTC').to_time}
+                  Auth time: #{Time.parse('2023-01-13 14:31:25 UTC').localtime}
+                  Start time: #{Time.parse('2023-01-13 14:31:25 UTC').localtime}
+                  End time: #{Time.parse('2033-01-10 14:31:25 UTC').localtime}
+                  Renew Till: #{Time.parse('2033-01-10 14:31:25 UTC').localtime}
                 Client Addresses: 0
                 Transited: tr_type: 0, Contents: ""
                 Client Name: 'Administrator'
@@ -501,7 +501,7 @@ RSpec.describe 'kerberos inspect ticket' do
                 Flags: 0x50a00000 (FORWARDABLE, PROXIABLE, RENEWABLE, PRE_AUTHENT)
                 PAC:
                   Validation Info:
-                    Logon Time: #{Time.parse('2023-01-13 14:31:25 UTC').to_time}
+                    Logon Time: #{Time.parse('2023-01-13 14:31:25 UTC').localtime}
                     Logoff Time: Never Expires (inf)
                     Kick Off Time: Never Expires (inf)
                     Password Last Set: No Time Set (0)
@@ -602,7 +602,7 @@ RSpec.describe 'kerberos inspect ticket' do
                     Logon Domain Name: 'WINDOMAIN.LOCAL'
                   Client Info:
                     Name: 'Administrator'
-                    Client ID: #{Time.parse('2023-01-13 14:31:25 UTC').to_time}
+                    Client ID: #{Time.parse('2023-01-13 14:31:25 UTC').localtime}
                   Pac Server Checksum:
                     Signature: 81a20da731b3b9bdd2e756dc
                   Pac Privilege Server Checksum:
@@ -630,10 +630,10 @@ RSpec.describe 'kerberos inspect ticket' do
           Addresses: 0
           Authdatas: 0
           Times:
-            Auth time: #{Time.parse('2023-01-13 14:31:25 UTC').to_time}
-            Start time: #{Time.parse('2023-01-13 14:31:25 UTC').to_time}
-            End time: #{Time.parse('2033-01-10 14:31:25 UTC').to_time}
-            Renew Till: #{Time.parse('2033-01-10 14:31:25 UTC').to_time}
+            Auth time: #{Time.parse('2023-01-13 14:31:25 UTC').localtime}
+            Start time: #{Time.parse('2023-01-13 14:31:25 UTC').localtime}
+            End time: #{Time.parse('2033-01-10 14:31:25 UTC').localtime}
+            Renew Till: #{Time.parse('2033-01-10 14:31:25 UTC').localtime}
           Ticket:
             Ticket Version Number: 5
             Realm: WINDOMAIN.LOCAL
@@ -665,10 +665,10 @@ RSpec.describe 'kerberos inspect ticket' do
           Addresses: 0
           Authdatas: 0
           Times:
-            Auth time: #{Time.parse('2023-01-13 14:36:39 UTC').to_time}
-            Start time: #{Time.parse('2023-01-13 14:36:39 UTC').to_time}
-            End time: #{Time.parse('2033-01-10 14:36:39 UTC').to_time}
-            Renew Till: #{Time.parse('2033-01-10 14:36:39 UTC').to_time}
+            Auth time: #{Time.parse('2023-01-13 14:36:39 UTC').localtime}
+            Start time: #{Time.parse('2023-01-13 14:36:39 UTC').localtime}
+            End time: #{Time.parse('2033-01-10 14:36:39 UTC').localtime}
+            Renew Till: #{Time.parse('2033-01-10 14:36:39 UTC').localtime}
           Ticket:
             Ticket Version Number: 5
             Realm: WINDOMAIN.LOCAL
@@ -678,10 +678,10 @@ RSpec.describe 'kerberos inspect ticket' do
               Key Version Number: 2
               Decrypted (with key: 88e4d9fabaecf3dec18dd80905521b29):
                 Times:
-                  Auth time: #{Time.parse('2023-01-13 14:36:39 UTC').to_time}
-                  Start time: #{Time.parse('2023-01-13 14:36:39 UTC').to_time}
-                  End time: #{Time.parse('2033-01-10 14:36:39 UTC').to_time}
-                  Renew Till: #{Time.parse('2033-01-10 14:36:39 UTC').to_time}
+                  Auth time: #{Time.parse('2023-01-13 14:36:39 UTC').localtime}
+                  Start time: #{Time.parse('2023-01-13 14:36:39 UTC').localtime}
+                  End time: #{Time.parse('2033-01-10 14:36:39 UTC').localtime}
+                  Renew Till: #{Time.parse('2033-01-10 14:36:39 UTC').localtime}
                 Client Addresses: 0
                 Transited: tr_type: 0, Contents: ""
                 Client Name: 'Administrator'
@@ -691,7 +691,7 @@ RSpec.describe 'kerberos inspect ticket' do
                 Flags: 0x50a00000 (FORWARDABLE, PROXIABLE, RENEWABLE, PRE_AUTHENT)
                 PAC:
                   Validation Info:
-                    Logon Time: #{Time.parse('2023-01-13 14:36:39 UTC').to_time}
+                    Logon Time: #{Time.parse('2023-01-13 14:36:39 UTC').localtime}
                     Logoff Time: Never Expires (inf)
                     Kick Off Time: Never Expires (inf)
                     Password Last Set: No Time Set (0)
@@ -792,7 +792,7 @@ RSpec.describe 'kerberos inspect ticket' do
                     Logon Domain Name: 'WINDOMAIN.LOCAL'
                   Client Info:
                     Name: 'Administrator'
-                    Client ID: #{Time.parse('2023-01-13 14:36:39 UTC').to_time}
+                    Client ID: #{Time.parse('2023-01-13 14:36:39 UTC').localtime}
                   Pac Server Checksum:
                     Signature: 1a038d8dd257a7d9b875280259ab0e4a
                   Pac Privilege Server Checksum:
@@ -820,10 +820,10 @@ RSpec.describe 'kerberos inspect ticket' do
           Addresses: 0
           Authdatas: 0
           Times:
-            Auth time: #{Time.parse('2023-01-13 14:36:39 UTC').to_time}
-            Start time: #{Time.parse('2023-01-13 14:36:39 UTC').to_time}
-            End time: #{Time.parse('2033-01-10 14:36:39 UTC').to_time}
-            Renew Till: #{Time.parse('2033-01-10 14:36:39 UTC').to_time}
+            Auth time: #{Time.parse('2023-01-13 14:36:39 UTC').localtime}
+            Start time: #{Time.parse('2023-01-13 14:36:39 UTC').localtime}
+            End time: #{Time.parse('2033-01-10 14:36:39 UTC').localtime}
+            Renew Till: #{Time.parse('2033-01-10 14:36:39 UTC').localtime}
           Ticket:
             Ticket Version Number: 5
             Realm: WINDOMAIN.LOCAL

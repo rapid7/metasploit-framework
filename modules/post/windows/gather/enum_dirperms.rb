@@ -25,6 +25,11 @@ class MetasploitModule < Msf::Post
           'Ben Campbell',
           'sinn3r'
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -45,9 +50,6 @@ class MetasploitModule < Msf::Post
   end
 
   def enum_subdirs(perm_filter, dpath, maxdepth, token)
-    filter = datastore['FILTER']
-    filter = nil if datastore['FILTER'] == 'NA'
-
     begin
       dirs = session.fs.dir.foreach(dpath)
     rescue Rex::Post::Meterpreter::RequestError
@@ -93,7 +95,7 @@ class MetasploitModule < Msf::Post
     print_status('Getting impersonation token...')
     begin
       t = get_imperstoken
-    rescue ::Exception => e
+    rescue StandardError => e
       # Failure due to timeout, access denied, etc.
       t = nil
       vprint_error("Error #{e.message} while using get_imperstoken()")
@@ -124,8 +126,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    perm_filter = datastore['FILTER']
-    perm_filter = nil if datastore['FILTER'] == 'NA'
+    perm_filter = datastore['FILTER'] == 'NA' ? nil : datastore['FILTER']
 
     paths = get_paths
     if paths.empty?

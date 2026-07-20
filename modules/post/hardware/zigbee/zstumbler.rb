@@ -12,13 +12,17 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Sends Beacons to Scan for Active ZigBee Networks',
         'Description' => %q{
-          Post Module to send beacon signals to the broadcast address while
-          channel hopping
+          Send beacon signals to the broadcast address while channel hopping.
         },
         'License' => MSF_LICENSE,
         'Author' => ['Craig Smith'],
         'Platform' => ['hardware'],
-        'SessionTypes' => ['hwbridge']
+        'SessionTypes' => ['hwbridge'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
     register_options([
@@ -44,7 +48,7 @@ class MetasploitModule < Msf::Post
       1 => 'ZigBee 2004',
       2 => 'ZigBee 2006/2007'
     }
-    spanid, source, extpanid, stackprofilever, channel = routerdata
+    spanid, source, extpanid, stackprofilever, _channel = routerdata
     stackprofilever = stackprofilever.unpack('H*')[0].hex
     stackprofile = stackprofilever & 0x0f
     stackver = (stackprofilever & 0xf0) >> 4

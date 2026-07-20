@@ -11,7 +11,7 @@ class RbMysql
         errname = errname.to_s
         next unless errname =~ prefix_re
         errno = self.const_get errname
-        excname = errname.sub(prefix_re,'').gsub(/(\A.|_.)([A-Z]+)/){$1+$2.downcase}.gsub(/_/,'')
+        excname = errname.sub(prefix_re,'').gsub(/(\A.|_.)([A-Z]+)/){$1+$2.downcase}.gsub('_','')
         klass = Class.new self
         klass.const_set 'ERRNO', errno
         self.const_set excname, klass
@@ -908,7 +908,7 @@ class RbMysql
   end
 
   ServerError.define_error_class(/\AER_/)
-  ServerError::ERROR_MAP.values.each{|v| RbMysql.const_set v.name.split(/::/).last, v} # for compatibility
+  ServerError::ERROR_MAP.values.each{|v| RbMysql.const_set v.name.split('::').last, v} # for compatibility
 
   # client side error
   class ClientError < Error

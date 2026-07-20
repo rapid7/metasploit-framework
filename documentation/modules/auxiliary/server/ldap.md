@@ -24,10 +24,10 @@ Directory LDIF file path.
 ### Metasploit Server Demonstration
 
 ```
-msf6 > use auxiliary/server/ldap
-msf6 auxiliary(server/ldap) > set LDIF_FILE data/exploits/ldap/msf.ldif
+msf > use auxiliary/server/ldap
+msf auxiliary(server/ldap) > set LDIF_FILE data/exploits/ldap/msf.ldif
 LDIF_FILE => data/exploits/ldap/msf.ldif
-msf6 auxiliary(server/ldap) > show options 
+msf auxiliary(server/ldap) > show options 
 
 Module options (auxiliary/server/ldap):
 
@@ -45,9 +45,9 @@ Auxiliary action:
    Service  Run LDAP server
 
 
-msf6 auxiliary(server/ldap) > run
+msf auxiliary(server/ldap) > run
 [*] Auxiliary module running as background job 0.
-msf6 auxiliary(server/ldap) > 
+msf auxiliary(server/ldap) > 
 
 
 ```

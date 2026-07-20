@@ -20,7 +20,7 @@ You require a valid licence, but there's a demo for 30 days.
 
 ## Options
 
-  **RPATH**
+### RPATH
   The remote path of the MDaemon installation.
   If the machine runs on 64bits and the meterpreter is 32 bits, it won't be able to find the installation path in the registry, but it will search some default paths. If it is installed on a non-default path you can give the RPATH and it will work.
 

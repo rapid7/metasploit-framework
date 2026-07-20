@@ -34,7 +34,7 @@ The maximum amount of results to retrieve.  Default is `500`, `0` for all.
 ### Windows 2012 DC (hoodiecola domain)
 
 ```
-msf6 post(windows/gather/enum_ad_groups) > sessions -i 6
+msf post(windows/gather/enum_ad_groups) > sessions -i 6
 [*] Starting interaction with 6...
 
 meterpreter > sysinfo
@@ -47,10 +47,10 @@ Logged On Users : 4
 Meterpreter     : x86/windows
 meterpreter > background
 [*] Backgrounding session 6...
-msf6 post(windows/gather/enum_ad_groups) > use post/windows/gather/enum_ad_groups 
-msf6 post(windows/gather/enum_ad_groups) > set session 6
+msf post(windows/gather/enum_ad_groups) > use post/windows/gather/enum_ad_groups 
+msf post(windows/gather/enum_ad_groups) > set session 6
 session => 6
-msf6 post(windows/gather/enum_ad_groups) > run
+msf post(windows/gather/enum_ad_groups) > run
 
 Domain Groups
 =============

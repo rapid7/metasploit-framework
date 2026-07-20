@@ -33,11 +33,11 @@ as it may not start w/o being able to contact the contacted services.
 ### Prometheus 2.39.1
 
 ```
-msf6 auxiliary(gather/prometheus_api_gather) > set rhosts 11.111.11.111
+msf auxiliary(gather/prometheus_api_gather) > set rhosts 11.111.11.111
 rhosts => 11.111.11.111
-msf6 auxiliary(gather/prometheus_api_gather) > set rport 80
+msf auxiliary(gather/prometheus_api_gather) > set rport 80
 rport => 80
-msf6 auxiliary(gather/prometheus_api_gather) > run
+msf auxiliary(gather/prometheus_api_gather) > run
 [*] Running module against 11.111.11.111
 
 [*] 11.111.11.111:80 - Checking build info

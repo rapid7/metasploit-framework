@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Post
           'Henry Hoggard' # Add GPG 2.1 keys, stop writing empty files
         ],
         'Platform' => %w[bsd linux osx unix],
-        'SessionTypes' => ['shell', 'meterpreter']
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

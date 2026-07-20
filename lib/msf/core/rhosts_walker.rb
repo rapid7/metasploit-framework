@@ -15,6 +15,8 @@ module Msf
       file
       http
       https
+      ldap
+      ldaps
       mysql
       postgres
       smb
@@ -50,6 +52,8 @@ module Msf
       MESSAGE = 'Host resolution failed'
     end
 
+    # @param [String] value
+    # @param [Msf::DataStore] datastore
     def initialize(value = '', datastore = Msf::ModuleDataStore.new(nil))
       @value = value
       @datastore = datastore
@@ -141,30 +145,42 @@ module Msf
             schema = Regexp.last_match(:schema)
             raise InvalidSchemaError unless SUPPORTED_SCHEMAS.include?(schema)
 
-            found = false
             parse_method = "parse_#{schema}_uri"
             parsed_options = send(parse_method, value, datastore)
-            Rex::Socket::RangeWalker.new(parsed_options['RHOSTS']).each_ip do |ip|
-              results << datastore.merge(
-                parsed_options.merge('RHOSTS' => ip, 'UNPARSED_RHOSTS' => value)
-              )
-              found = true
-            end
-            unless found
-              raise RhostResolveError.new(value)
+            if perform_dns_resolution?(datastore)
+              found = false
+              Rex::Socket::RangeWalker.new(parsed_options['RHOSTS']).each_ip do |ip|
+                results << datastore.merge(
+                  parsed_options.merge('RHOSTS' => ip, 'UNPARSED_RHOSTS' => value)
+                )
+                found = true
+              end
+              unless found
+                raise RhostResolveError.new(value)
+              end
+            else
+              results << datastore.merge(parsed_options.merge('UNPARSED_RHOSTS' => value))
             end
           else
-            found = false
-            Rex::Socket::RangeWalker.new(value).each_host do |rhost|
+            if perform_dns_resolution?(datastore)
+              found = false
+              Rex::Socket::RangeWalker.new(value).each_host do |rhost|
+                overrides = {}
+                overrides['UNPARSED_RHOSTS'] = value
+                overrides['RHOSTS'] = rhost[:address]
+                set_hostname(datastore, overrides, rhost[:hostname])
+                results << datastore.merge(overrides)
+                found = true
+              end
+              unless found
+                raise RhostResolveError.new(value)
+              end
+            else
               overrides = {}
               overrides['UNPARSED_RHOSTS'] = value
-              overrides['RHOSTS'] = rhost[:address]
-              set_hostname(datastore, overrides, rhost[:hostname])
+              overrides['RHOSTS'] = value
+              set_hostname(datastore, overrides, value)
               results << datastore.merge(overrides)
-              found = true
-            end
-            unless found
-              raise RhostResolveError.new(value)
             end
           end
         rescue ::Interrupt
@@ -250,6 +266,45 @@ module Msf
       result
     end
     alias parse_https_uri parse_http_uri
+
+    # Parses a uri string such as ldap://user:password@example.com into a hash which can safely be
+    # merged with a [Msf::DataStore] datastore for setting ldap options.
+    #
+    # @see https://datatracker.ietf.org/doc/html/rfc4516
+    #
+    # @param value [String] the ldap string
+    # @return [Hash] A hash where keys match the required datastore options associated with
+    #   the uri value
+    def parse_ldap_uri(value, datastore)
+      uri = ::Addressable::URI.parse(value)
+      result = {}
+
+      result['RHOSTS'] = uri.hostname
+      is_ssl = %w[ssl ldaps].include?(uri.scheme)
+      result['RPORT'] = uri.port || (is_ssl ? 636 : 389)
+      result['SSL'] = is_ssl
+
+      if uri.path.present?
+        base_dn = uri.path.delete_prefix('/').split('?', 2).first
+        result['BASE_DN'] = base_dn if base_dn.present?
+      end
+
+      set_hostname(datastore, result, uri.hostname)
+
+      if uri.user && uri.user.include?(';')
+        domain, user = uri.user.split(';')
+        result['LDAPDomain'] = domain
+        set_username(datastore, result, user)
+      elsif uri.user
+        result['LDAPDomain'] = ''
+        set_username(datastore, result, uri.user)
+      end
+
+      set_password(datastore, result, uri.password) if uri.password
+
+      result
+    end
+    alias parse_ldaps_uri parse_ldap_uri
 
     # Parses a uri string such as mysql://user:password@example.com into a hash
     # which can safely be merged with a [Msf::DataStore] datastore for setting mysql options.
@@ -344,6 +399,19 @@ module Msf
 
     protected
 
+    # @param [Msf::DataStore] datastore
+    # @return [Boolean] True if DNS resolution should be performed the RHOST values, false otherwise
+    def perform_dns_resolution?(datastore)
+      # If a socks proxy has been configured, don't perform DNS resolution - so that it instead happens via the proxy
+      return true unless datastore['PROXIES'].present?
+
+      last_proxy = Rex::Socket::Proxies.parse(datastore['PROXIES']).last
+      [
+        Rex::Socket::Proxies::ProxyType::HTTP,
+        Rex::Socket::Proxies::ProxyType::SOCKS5H
+      ].exclude?(last_proxy.scheme)
+    end
+
     def set_hostname(datastore, result, hostname)
       hostname = Rex::Socket.is_ip_addr?(hostname) ? nil : hostname
       result['RHOSTNAME'] = hostname if datastore['RHOSTNAME'].blank?
@@ -353,7 +421,7 @@ module Msf
     def set_username(datastore, result, username)
       # Preference setting application specific values first
       username_set = false
-      option_names = %w[SMBUser FtpUser Username user USER USERNAME username]
+      option_names = %w[SMBUser FtpUser LDAPUsername Username user USER USERNAME username]
       option_names.each do |option_name|
         if datastore.options.include?(option_name)
           result[option_name] = username
@@ -372,7 +440,7 @@ module Msf
     def set_password(datastore, result, password)
       # Preference setting application specific values first
       password_set = false
-      password_option_names = %w[SMBPass FtpPass Password pass PASSWORD password]
+      password_option_names = %w[SMBPass FtpPass LDAPPassword Password pass PASSWORD password]
       password_option_names.each do |option_name|
         if datastore.options.include?(option_name)
           result[option_name] = password

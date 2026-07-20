@@ -9,17 +9,18 @@ module Metasploit
         LOGIN_STATUS = Metasploit::Model::Login::Status
 
         def check_setup
-          version = "Not Detected"
           res = send_request({ 'uri' => uri })
 
-          if res && res.body.include?('phpMyAdmin')
-            if res.body =~ /PMA_VERSION:"(\d+\.\d+\.\d+)"/
-              version = Rex::Version.new($1)
+          if res && res.body.include?('phpMyAdmin') && res.body =~ /PMA_VERSION:"(\d+\.\d+\.\d+)"/
+            version = Rex::Version.new($1).to_s
+            if version.present?
+              framework_module.print_status("PhpMyAdmin Version: #{version}") if framework_module
+              report_service(service_opts)
+              return false
             end
-            return version.to_s
           end
 
-          false
+          'Unable to locate "phpMyAdmin" and "PMA_VERSION" in body. (Is this really PhpMyAdmin?)'
         end
 
         def get_session_info
@@ -72,14 +73,16 @@ module Metasploit
             credential: credential,
             status: LOGIN_STATUS::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
 
           result_opts.merge!(do_login(credential.public, credential.private))
 
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('phpmyadmin')
         end
       end
     end

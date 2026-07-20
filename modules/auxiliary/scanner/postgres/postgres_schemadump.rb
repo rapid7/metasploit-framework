@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         host: rhost,
         type: 'postgres.db.schema',
-        data: db,
+        data: { :database => db },
         port: rport,
         proto: 'tcp',
         update: :unique_data
@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     pg_schema = []
     database_names = session ? [session.client.params['database']] : smart_query('SELECT datname FROM pg_database').to_a.flatten
     if database_names.empty?
-      print_status("#{rhost}:#{rport} - No databases found")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - No databases found")
       return pg_schema
     end
     status_message = "#{rhost}:#{rport} - Found databases: #{database_names.join(', ')}."
@@ -78,6 +78,7 @@ class MetasploitModule < Msf::Auxiliary
     extractable_database_names = database_names - ignored_databases
     extractable_database_names.each do |database_name|
       next if ignored_databases.include? database_name
+
       tmp_db = {}
       tmp_db['DBName'] = database_name
       tmp_db['Tables'] = []
@@ -117,9 +118,9 @@ class MetasploitModule < Msf::Auxiliary
     when :sql_error
       case res[:sql_error]
       when /^C42501/
-        print_error "#{rhost}:#{rport} Postgres - Insufficient permissions."
+        print_error "#{Rex::Socket.to_authority(rhost, rport)} Postgres - Insufficient permissions."
       else
-        print_error "#{rhost}:#{rport} Postgres - #{res[:sql_error]}"
+        print_error "#{Rex::Socket.to_authority(rhost, rport)} Postgres - #{res[:sql_error]}"
       end
       return nil
     when :complete

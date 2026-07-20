@@ -1,0 +1,68 @@
+name: Extended Tests
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: none
+  pages: none
+  # This action can update/close pull requests
+  pull-requests: write
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+on:
+  pull_request_target:
+    branches:
+      - '*'
+    paths:
+      - '**/**ldap**'
+      - '**/**kerberos**'
+      - '**/**gss**'
+
+jobs:
+  add-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            // NOTE: The following section is JavaScript. Note that backticks will need to be escaped within
+            // the multiline comment strings in the following config. When editing this file, using JavaScript
+            // syntax highlighting might be easier.
+            //
+            // This script has intentionally been inlined instead of using third-party Github actions for both
+            // security and performance reasons.
+            const currentLabelNames = context.payload.pull_request.labels.map(label => label.name);
+            const newLabelName = "additional-testing-required";
+            const comment = `
+              Thanks for your pull request! As part of our landing process, we manually verify that all modules work as expected.
+
+              We've added the \`${newLabelName}\` label to indicate that additional testing is required before this pull request can be merged.
+              For maintainers, this means visiting [here](https://jenkins-metasploit.build.r7ops.com/job/pro_manual_test_trigger/).
+            `;
+
+            if (!currentLabelNames.includes(newLabelName)) {
+              await github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: [newLabelName]
+              });
+
+              const precedingWhitespaceLength = comment.split("\n")[1].search(/\S/);
+              const commentWithoutPrecedingWhitespace = comment.split("\n").map(line => line.substring(precedingWhitespaceLength)).join("\n").trim();
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: commentWithoutPrecedingWhitespace
+              });
+            }

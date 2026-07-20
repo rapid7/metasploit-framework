@@ -114,7 +114,7 @@ Metasploit will automatically detect the file type so there's no need to tell ms
 
 Example:
 ```msf
-msf6 auxiliary(admin/kerberos/ticket_converter) > run inputpath=metasploit_ticket.ccache outputpath=metasploit_ticket.kirbi
+msf auxiliary(admin/kerberos/ticket_converter) > run inputpath=metasploit_ticket.ccache outputpath=metasploit_ticket.kirbi
 
 [*] [2023.01.05-17:01:02] Converting from ccache to kirbi
 [*] [2023.01.05-17:01:02] File written to /Users/dwelch/dev/metasploit-framework/metasploit_ticket.kirbi
@@ -133,7 +133,7 @@ Metasploit will automatically detect the file type so there's no need to tell ms
 
 Example:
 ```msf
-msf6 auxiliary(admin/kerberos/ticket_converter) > run inputpath=metasploit_ticket.kirbi outputpath=metasploit_ticket.ccache
+msf auxiliary(admin/kerberos/ticket_converter) > run inputpath=metasploit_ticket.kirbi outputpath=metasploit_ticket.ccache
 
 [*] [2023.01.05-17:01:39] Converting from kirbi to ccache
 [*] [2023.01.05-17:01:39] File written to /Users/dwelch/dev/metasploit-framework/metasploit_ticket.ccache

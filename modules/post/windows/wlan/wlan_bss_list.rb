@@ -27,6 +27,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_getpid
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -37,8 +42,6 @@ class MetasploitModule < Msf::Post
     mypid = client.sys.process.getpid
     @host_process = client.sys.process.open(mypid, PROCESS_ALL_ACCESS)
     @wlanapi = client.railgun.wlanapi
-
-    wlan_connections = "Wireless LAN Active Connections: \n"
 
     wlan_handle = open_handle
     unless wlan_handle
@@ -54,7 +57,7 @@ class MetasploitModule < Msf::Post
     wlan_iflist.each do |interface|
       # Scan with the interface, then wait 10 seconds to give it time to finish
       # If we don't wait we can get unpredicatble results. May be a race condition
-      scan_results = @wlanapi.WlanScan(wlan_handle, interface['guid'], nil, nil, nil)
+      @wlanapi.WlanScan(wlan_handle, interface['guid'], nil, nil, nil)
       sleep(10)
 
       # Grab the list of available Basic Service Sets
@@ -100,8 +103,7 @@ class MetasploitModule < Msf::Post
 
     bss_list = @wlanapi.WlanGetNetworkBssList(wlan_handle, guid, nil, 3, true, nil, 4)
     pointer = bss_list['ppWlanBssList']
-    totalsize = @host_process.memory.read(pointer, 4)
-    totalsize = totalsize.unpack('V')[0]
+    _totalsize = @host_process.memory.read(pointer, 4).unpack('V')[0]
 
     pointer = (pointer + 4)
     numitems = @host_process.memory.read(pointer, 4)

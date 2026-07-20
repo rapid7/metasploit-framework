@@ -10,11 +10,13 @@ module Msf
 ###
 
 module Payload::Python::MeterpreterLoader
+  # Mark the payload as dynamic, as random uuid values lead to differing zlib compressed payloads
+  ForceDynamicCachedSize = true
 
   include Msf::Payload::Python
   include Msf::Payload::UUID::Options
   include Msf::Payload::TransportConfig
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Python
 
   def initialize(info = {})
     super(update_info(info,
@@ -96,7 +98,7 @@ module Payload::Python::MeterpreterLoader
     if opts[:stageless] == true
       session_guid = '00' * 16
     else
-      session_guid = SecureRandom.uuid.gsub(/-/, '')
+      session_guid = SecureRandom.uuid.gsub('-', '')
     end
     met.sub!("SESSION_GUID = \'\'", "SESSION_GUID = \'#{session_guid}\'")
 

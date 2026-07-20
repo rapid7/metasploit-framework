@@ -62,3 +62,7 @@ jobs:
           ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
           ls -la ./.git/hooks
           ./.git/hooks/post-merge
+
+      - name: Verify encoding
+        run: |
+          bundle exec ruby tools/dev/verify_encoding.rb

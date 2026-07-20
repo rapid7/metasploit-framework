@@ -15,26 +15,23 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'MQTT Authentication Scanner',
+      'Name' => 'MQTT Authentication Scanner',
       'Description' => %q(
         This module attempts to authenticate to MQTT.
       ),
-      'Author'      =>
-        [
-          'Jon Hart <jon_hart[at]rapid7.com>'
-        ],
-      'References'     =>
-        [
-          ['URL', 'http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Table_3.1_-']
-        ],
-      'License'     => MSF_LICENSE,
-      'DefaultOptions' =>
-        {
-          'BLANK_PASSWORDS' => false,
-          'USER_AS_PASS' => true,
-          'USER_FILE' => 'data/wordlists/unix_users.txt',
-          'PASS_FILE' => 'data/wordlists/unix_passwords.txt'
-        }
+      'Author' => [
+        'Jon Hart <jon_hart[at]rapid7.com>'
+      ],
+      'References' => [
+        ['URL', 'http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Table_3.1_-']
+      ],
+      'License' => MSF_LICENSE,
+      'DefaultOptions' => {
+        'BLANK_PASSWORDS' => false,
+        'USER_AS_PASS' => true,
+        'USER_FILE' => 'data/wordlists/unix_users.txt',
+        'PASS_FILE' => 'data/wordlists/unix_passwords.txt'
+      }
     )
   end
 
@@ -57,7 +54,6 @@ class MetasploitModule < Msf::Auxiliary
     if test_login('', '')
       print_good("Does not require authentication")
     end
-
   end
 
   def run_host(_ip)

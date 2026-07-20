@@ -26,10 +26,10 @@ In this case, we don't need to configure all the users and set up the server ful
 ### Postfix 3.3.0-1+b1 (Ubuntu package number) on Kali (using above config)
 
   ```
-  msf5 > use auxiliary/scanner/smtp/smtp_version 
-  msf5 auxiliary(scanner/smtp/smtp_version) > set rhosts 10.168.202.216
+  msf > use auxiliary/scanner/smtp/smtp_version 
+  msf auxiliary(scanner/smtp/smtp_version) > set rhosts 10.168.202.216
   rhosts => 10.168.202.216
-  msf5 auxiliary(scanner/smtp/smtp_version) > run
+  msf auxiliary(scanner/smtp/smtp_version) > run
   
   [+] 10.168.202.216:25     - 10.168.202.216:25 SMTP 220 rageKali.ragegroup ESMTP Postfix (Debian/GNU)\x0d\x0a
   ```

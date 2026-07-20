@@ -41,7 +41,7 @@
 
 ## Options
 
-  **RHOSTS**
+### RHOSTS
 
   Target(s) to scan; can be single target, a range, or broadcast.
 

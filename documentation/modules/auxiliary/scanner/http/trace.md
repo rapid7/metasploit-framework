@@ -26,15 +26,15 @@ these instructions (e.g. set `TraceEnable` to `on` for Apache).
 You can use this module on a single target or several targets. See below for single target usage:
 
 ```
-msf6 > use auxiliary/scanner/http/trace
-msf6 auxiliary(scanner/http/trace) > set RHOSTS YYY.YY.YYY.YYY
+msf > use auxiliary/scanner/http/trace
+msf auxiliary(scanner/http/trace) > set RHOSTS YYY.YY.YYY.YYY
 RHOSTS => YYY.YY.YYY.YYY
-msf6 auxiliary(scanner/http/trace) > set RPORT 443
+msf auxiliary(scanner/http/trace) > set RPORT 443
 RPORT => 443
-msf6 auxiliary(scanner/http/trace) > set SSL true
+msf auxiliary(scanner/http/trace) > set SSL true
 [!] Changing the SSL option's value may require changing RPORT!
 SSL => true
-msf6 auxiliary(scanner/http/trace) > run
+msf auxiliary(scanner/http/trace) > run
 
 [+] YYY.YY.YYY.YYY:443 is vulnerable to Cross-Site Tracing
 ```

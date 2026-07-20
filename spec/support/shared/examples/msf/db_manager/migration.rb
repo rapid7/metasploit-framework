@@ -55,7 +55,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
       end
 
       before(:example) do
-        mockContext = ActiveRecord::MigrationContext.new(nil, ActiveRecord::SchemaMigration)
+        mockContext = ActiveRecord::MigrationContext.new(nil)
         expect(ActiveRecord::MigrationContext).to receive(:new).and_return(mockContext)
         expect(mockContext).to receive(:needs_migration?).and_return(true)
         expect(mockContext).to receive(:migrate).and_raise(standard_error)

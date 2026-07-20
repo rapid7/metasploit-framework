@@ -17,7 +17,7 @@ module Payload::Php::SendUUID
     sock_var = opts[:sock_var] || '$s'
     sock_type = opts[:sock_type] || '$s_type'
 
-    uuid = opts[:uuid] || generate_payload_uuid
+    uuid = opts[:uuid] || generate_payload_uuid(arch: ARCH_PHP, platform: 'php')
     uuid_raw = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
 
     php = %Q^$u="#{uuid_raw}";

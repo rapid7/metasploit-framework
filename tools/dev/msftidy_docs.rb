@@ -218,7 +218,7 @@ class MsftidyDoc
     @lines.each do |ln|
       idx += 1
 
-      tback = ln.scan(/```/)
+      tback = ln.scan('```')
       if tback.length > 0
         if tback.length.even?
           warn("Should use single backquotes (`) for single line literals instead of triple backquotes (```)", idx)
@@ -257,7 +257,7 @@ class MsftidyDoc
         warn("Instructional text not removed", idx)
       end
 
-      if ln =~ /^# /
+      if !in_codeblock && ln =~ /^# /
         warn("No H1 (#) headers.  If this is code, indent.", idx)
       end
 

@@ -33,10 +33,10 @@ class MetasploitModule < Msf::Auxiliary
       cli = Rex::Proto::Http::Client.new(api_host, api_port, {}, true, 'TLS')
       cli.connect
       req = cli.request_cgi({
-          'uri' => uri,
-          'agent' => user_agent,
-          'method' => 'GET',
-          'vars_get' => params
+        'uri' => uri,
+        'agent' => user_agent,
+        'method' => 'GET',
+        'vars_get' => params
       })
       res = cli.send_recv(req)
       cli.close
@@ -46,6 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         @current_assessments = res.headers['X-Current-Assessments']
         r = JSON.load(res.body)
         fail InvocationError, "API returned: #{r['errors']}" if r.key?('errors')
+
         return r
       end
 
@@ -66,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     def report_unused_attrs(type, unused_attrs)
-      unused_attrs.each do | attr |
+      unused_attrs.each do |attr|
         # $stderr.puts "#{type} request returned unknown parameter #{attr}"
       end
     end
@@ -462,24 +463,30 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def initialize(info = {})
-    super(update_info(info,
-        'Name'          => 'SSL Labs API Client',
-        'Description'   => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'SSL Labs API Client',
+        'Description' => %q{
           This module is a simple client for the SSL Labs APIs, designed for
           SSL/TLS assessment during a penetration test.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        =>
-          [
-            'Denis Kolegov <dnkolegov[at]gmail.com>',
-            'Francois Chagnon' # ssllab.rb author (https://github.com/Shopify/ssllabs.rb)
-           ],
-        'DefaultOptions' =>
-          {
-            'RPORT'      => 443,
-            'SSL'        => true,
-          }
-    ))
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Denis Kolegov <dnkolegov[at]gmail.com>',
+          'Francois Chagnon' # ssllab.rb author (https://github.com/Shopify/ssllabs.rb)
+        ],
+        'DefaultOptions' => {
+          'RPORT' => 443,
+          'SSL' => true,
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
     register_options(
       [
         OptString.new('HOSTNAME', [true, 'The target hostname']),
@@ -487,7 +494,8 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('USECACHE', [true, 'Use cached results (if available), else force live scan', true]),
         OptBool.new('GRADE', [true, 'Output only the hostname: grade', false]),
         OptBool.new('IGNOREMISMATCH', [true, 'Proceed with assessments even when the server certificate doesn\'t match the assessment hostname', true])
-      ])
+      ]
+    )
   end
 
   def report_good(line)
@@ -734,6 +742,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def output_common_info(r)
     return unless r
+
     print_status "Host: #{r.host}"
 
     r.endpoints.each do |e|
@@ -743,6 +752,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def output_result(r, grade)
     return unless r
+
     output_common_info(r)
     if grade
       output_grades_only(r)
@@ -847,16 +857,15 @@ class MetasploitModule < Msf::Auxiliary
       sleep delay
       r = api.analyse(host: hostname, all: 'done')
     end
-
-    rescue RequestRateTooHigh
-      print_error "Request rate is too high, please slow down"
-    rescue InternalError
-      print_error "Service encountered an error, sleep 5 minutes"
-    rescue ServiceNotAvailable
-      print_error "Service is not available, sleep 15 minutes"
-    rescue ServiceOverloaded
-      print_error "Service is overloaded, sleep 30 minutes"
-    rescue
-      print_error "Invalid parameters"
+  rescue RequestRateTooHigh
+    print_error "Request rate is too high, please slow down"
+  rescue InternalError
+    print_error "Service encountered an error, sleep 5 minutes"
+  rescue ServiceNotAvailable
+    print_error "Service is not available, sleep 15 minutes"
+  rescue ServiceOverloaded
+    print_error "Service is overloaded, sleep 30 minutes"
+  rescue
+    print_error "Invalid parameters"
   end
 end

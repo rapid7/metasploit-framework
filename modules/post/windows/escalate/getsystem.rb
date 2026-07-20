@@ -19,6 +19,10 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => 'hdm',
+        'References' => [
+          ['ATT&CK', Mitre::Attack::Technique::T1068_EXPLOITATION_FOR_PRIVILEGE_ESCALATION],
+          ['ATT&CK', Mitre::Attack::Technique::T1548_002_BYPASS_USER_ACCOUNT_CONTROL]
+        ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
         'Compat' => {
@@ -36,7 +40,10 @@ class MetasploitModule < Msf::Post
             'PrintSpooler',
             'EFSRPC',
             'EfsPotato'
-          ]
+          ],
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -64,7 +71,7 @@ class MetasploitModule < Msf::Post
     begin
       result = client.priv.getsystem(technique)
       print_good("Obtained SYSTEM via technique #{result[1]}")
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::Meterpreter::RequestError
       print_error('Failed to obtain SYSTEM access')
     end
   end

@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Diagnostic State',
-        'Description' => ' This module will keep the vehicle in a diagnostic state on rounds by sending tester present packet',
+        'Description' => 'This module will keep the vehicle in a diagnostic state on rounds by sending tester present packet.',
         'License' => MSF_LICENSE,
         'Author' => ['Jay Turla'],
         'Platform' => ['hardware'],

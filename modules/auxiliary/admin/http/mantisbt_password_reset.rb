@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://hyp3rlinx.altervista.org/advisories/MANTIS-BUG-TRACKER-PRE-AUTH-REMOTE-PASSWORD-RESET.txt']
         ],
         'Platform' => ['win', 'linux'],
-        'DisclosureDate' => '2017-04-16'
+        'DisclosureDate' => '2017-04-16',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -47,14 +52,14 @@ class MetasploitModule < Msf::Auxiliary
 
     if res && res.body && res.body.include?('Powered by <a href="http://www.mantisbt.org" title="bug tracking software">MantisBT')
       vprint_status('MantisBT detected')
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Detected('MantisBT detected')
     else
       vprint_status('Not a MantisBT Instance!')
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Target does not appear to be MantisBT')
     end
   rescue Rex::ConnectionRefused
     print_error('Connection refused by server.')
-    return Exploit::CheckCode::Safe
+    return Exploit::CheckCode::Safe('Connection refused by server')
   end
 
   def run
@@ -84,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.body =~ /<input type="hidden" name="account_update_token" value="([a-zA-Z0-9_-]+)"/
-      token = ::Regexp.last_match(1)
+      ::Regexp.last_match(1)
     else
       fail_with(Failure::UnexpectedReply, 'Could not retrieve account_update_token')
     end

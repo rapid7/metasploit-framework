@@ -29,7 +29,7 @@ Kerberos service on a Domain Controller.
 To create a single Kerberos ticket (TGT), set the username and password options:
 
 ```msf
-msf6 auxiliary(scanner/kerberos/kerberos_login) > run rhost=192.168.123.133 domain=DEMO.local username=basic_user password=password verbose=true
+msf auxiliary(scanner/kerberos/kerberos_login) > run rhost=192.168.123.133 domain=DEMO.local username=basic_user password=password verbose=true
 [*] Using domain: DEMO.LOCAL - 192.168.123.133:88   ...
 [+] 192.168.123.133 - User found: "basic_user" with password password
 [*] Auxiliary module execution completed
@@ -44,7 +44,7 @@ accounts and additionally bruteforcing passwords:
 Create a new `./users.txt` file and `./wordlist.txt`, then run the module:
 
 ```msf
-msf6 auxiliary(gather/kerberos_enumusers) > run rhost=192.168.123.133 domain=DEMO.local user_file=./users.txt pass_file=./wordlist.txt verbose=true
+msf auxiliary(gather/kerberos_enumusers) > run rhost=192.168.123.133 domain=DEMO.local user_file=./users.txt pass_file=./wordlist.txt verbose=true
 [*] Using domain: DEMO.LOCAL - 192.168.123.133:88   ...
 [+] 192.168.123.133 - User: "basic_user" is present
 [*] 192.168.123.133 - User: "basic_user" wrong password invalid2
@@ -95,7 +95,7 @@ creds -v
 The `kerberos_login` module only requires the `RHOST`, `DOMAIN` and
 `USER_FILE` options to run.
 
-**The DOMAIN option**
+### DOMAIN
 
 This option is used to specify the target domain. If the domain name is
 incorrect an error is returned and domain user account enumeration will fail.
@@ -106,7 +106,7 @@ An example of setting DOMAIN:
 set DOMAIN [domain name]
 ```
 
-**The USER_FILE option**
+### USER_FILE
 
 This option is used to specify the file containing a list of user names
 to query the Domain Controller to identify if they exist in the target domain
@@ -118,7 +118,7 @@ An example of setting USER_FILE:
 set USER_FILE [path to file]
 ```
 
-**The PASS_FILE option**
+### PASS_FILE
 
 If you happen to manage all the found passwords in a separate file, then this option would be
 suitable for that. One per line.
@@ -127,7 +127,7 @@ suitable for that. One per line.
 set PASS_FILE [path to file]
 ```
 
-**The USERPASS_FILE option**
+### USERPASS_FILE
 
 If each user should be using a specific password in your file, then you can use this option. One
 username/password per line:
@@ -136,7 +136,7 @@ username/password per line:
 set USERPASS_FILE [path to file]
 ```
 
-**The DB_ALL_CREDS option**
+### DB_ALL_CREDS
 
 This option allows you to reuse all the user names and passwords collected by the database:
 
@@ -144,7 +144,7 @@ This option allows you to reuse all the user names and passwords collected by th
 set DB_ALL_CREDS true
 ```
 
-**The DB_ALL_PASS option**
+### DB_ALL_PASS
 
 This option allows you to reuse all the passwords collected by the database.
 
@@ -152,7 +152,7 @@ This option allows you to reuse all the passwords collected by the database.
 set DB_ALL_PASS true
 ```
 
-**The DB_ALL_USERS option**
+### DB_ALL_USERS
 
 This option allows you to reuse all the user names collected by the database.
 
@@ -160,7 +160,7 @@ This option allows you to reuse all the user names collected by the database.
 set DB_ALL_USERS true
 ```
 
-**The Timeout option**
+### Timeout
 
 This option is used to specify the TCP timeout i.e. the time to wait
 before a connection to the Domain Controller is established and data read.

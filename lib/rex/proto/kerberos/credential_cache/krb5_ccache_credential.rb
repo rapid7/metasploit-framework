@@ -28,5 +28,15 @@ module Rex::Proto::Kerberos::CredentialCache
     array               :authdatas, initial_length: :authdata_count, type: :credential_authdata
     data                :ticket
     data                :second_ticket
+
+    # Return a Rex::Proto::Kerberos::CredentialCache::Krb5Ccache instance that wraps this credential object.
+    # @rtype [Rex::Proto::Kerberos::CredentialCache::Krb5Ccache]
+    # @see Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.from_responses
+    def to_ccache
+      Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.new(
+        default_principal: client,
+        credentials: [ self ]
+      )
+    end
   end
 end

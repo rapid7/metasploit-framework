@@ -19,7 +19,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'vysec <vincent.yiu[at]mwrinfosecurity.com>' ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -37,9 +42,10 @@ class MetasploitModule < Msf::Post
     [REGISTRY_VIEW_64_BIT, REGISTRY_VIEW_32_BIT].each do |registry_arch|
       arch = registry_arch == REGISTRY_VIEW_64_BIT ? ARCH_X64 : ARCH_X86
       reg_keys = registry_enumkeys(OFFICE_REGISTRY_PATH, registry_arch)
-      if reg_keys.nil?
+
+      if reg_keys.blank?
         print_error("Failed to enumerate Office in #{arch} registry hive.")
-        return
+        next
       end
 
       reg_keys.each do |version|

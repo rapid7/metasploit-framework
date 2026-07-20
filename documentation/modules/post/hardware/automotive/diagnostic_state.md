@@ -36,7 +36,7 @@ Module options (post/hardware/automotive/diagnostic_state):
 You can test this module doing a candump and you should receive a response for each can frame in a loop at 0x7E8 when running UDS Simulator.
 
 ```
-msf5 auxiliary(client/hwbridge/connect) > run
+msf auxiliary(client/hwbridge/connect) > run
 [*] Running module against 127.0.0.1
 
 [*] Attempting to connect to 127.0.0.1...
@@ -47,7 +47,7 @@ msf5 auxiliary(client/hwbridge/connect) > run
 [!]          could have real world consequences.  Use this module in a controlled testing
 [!]          environment and with equipment you are authorized to perform testing on.
 [*] Auxiliary module execution completed
-msf5 auxiliary(client/hwbridge/connect) > sessions
+msf auxiliary(client/hwbridge/connect) > sessions
 
 Active sessions
 ===============
@@ -56,7 +56,7 @@ Active sessions
   --  ----  ----                   -----------  ----------
   1         hwbridge cmd/hardware  automotive   127.0.0.1 -> 127.0.0.1 (127.0.0.1)
 
-msf5 auxiliary(client/hwbridge/connect) > sessions -i 1
+msf auxiliary(client/hwbridge/connect) > sessions -i 1
 [*] Starting interaction with 1...
 
 hwbridge > run post/hardware/automotive/diagnostic_state canbus=vcan0

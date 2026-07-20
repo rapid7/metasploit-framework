@@ -10,26 +10,33 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'		   => 'Http:BL Lookup',
-      'Description'	=> %q{
+    super(
+      update_info(
+        info,
+        'Name'	=> 'Http:BL Lookup',
+        'Description'	=> %q{
           This module can be used to enumerate information
-        about an IP addresses from Project HoneyPot's HTTP Block List.
-      },
-      'Author' 		=> [ 'mubix' ],
-      'License'		=> MSF_LICENSE,
-      'References' 	=>
-        [
+          about an IP addresses from Project HoneyPot's HTTP Block List.
+        },
+        'Author' => [ 'mubix' ],
+        'License'	=> MSF_LICENSE,
+        'References' => [
           ['URL', 'https://www.projecthoneypot.org/httpbl_api.php'],
-        ]
-      ))
-
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         # OptAddressRange.new('RHOSTS', [false, "The target address, range, or CIDR identifier"]),
         OptString.new('HTTPBL_APIKEY', [ true, "Your HTTP:BL api key"])
-      ])
+      ]
+    )
   end
 
   # Not compatible today
@@ -74,17 +81,17 @@ class MetasploitModule < Msf::Auxiliary
 
       typenum = breakup[3]
       typestring = case typenum
-        when '0' then 'Search Engine'
-        when '1' then 'Suspicious'
-        when '2' then 'Harvester'
-        when '3' then 'Suspicious & Harvester'
-        when '4' then 'Comment Spammer'
-        when '5' then 'Suspicious & Comment Spammer'
-        when '6' then 'Harvester & Comment Spammer'
-        when '7' then 'Suspicious & Harvester & Comment Spammer'
-        else
-          "Unknown"
-      end
+                   when '0' then 'Search Engine'
+                   when '1' then 'Suspicious'
+                   when '2' then 'Harvester'
+                   when '3' then 'Suspicious & Harvester'
+                   when '4' then 'Comment Spammer'
+                   when '5' then 'Suspicious & Comment Spammer'
+                   when '6' then 'Harvester & Comment Spammer'
+                   when '7' then 'Suspicious & Harvester & Comment Spammer'
+                   else
+                     "Unknown"
+                   end
 
       print_status ""
       print_status "#{ip} resolves to #{result} which means: #{typestring}"

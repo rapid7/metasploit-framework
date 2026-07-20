@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rexml/document'
+require 'rexml/streamlistener'
 
 module Rex
 module Parser
@@ -37,6 +38,7 @@ module Parser
 # a big deal.
 #
 class NmapXMLStreamParser
+  include REXML::StreamListener
 
   #
   # Callback for processing each found host
@@ -144,20 +146,6 @@ class NmapXMLStreamParser
       on_found_host.call(@host) if on_found_host
       reset_state
     end
-  end
-
-  # We don't need these methods, but they're necessary to keep REXML happy
-  def text(str) # :nodoc:
-  end
-  def xmldecl(version, encoding, standalone) # :nodoc:
-  end
-  def cdata # :nodoc:
-  end
-  def comment(str) # :nodoc:
-  end
-  def instruction(name, instruction) # :nodoc:
-  end
-  def attlist # :nodoc:
   end
 end
 

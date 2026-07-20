@@ -72,30 +72,24 @@ module Rex
             raise ::NotImplementedError, 'KrbError encoding not supported'
           end
 
-          # Decodes the e_data field as an Array<PreAuthDataEntry>
+          # Decodes the e_data field as an Array<PreAuthDataEntry>.
           #
           # @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>]
           def e_data_as_pa_data
+            return [] unless self.e_data
+
             pre_auth = []
             decoded = OpenSSL::ASN1.decode(self.e_data)
-            decoded.each do |pre_auth_data|
-              pre_auth << Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(pre_auth_data)
+
+            if decoded.first.tag_class == :UNIVERSAL && decoded.first.tag == 16
+              decoded.each do |pre_auth_data|
+                pre_auth << Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(pre_auth_data)
+              end
+            else
+              pre_auth << Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(decoded)
             end
 
             pre_auth
-          end
-
-          # Decodes the e_data field as a PreAuthData
-          #
-          # @return [Rex::Proto::Kerberos::Model::PreAuthData]
-          def e_data_as_pa_data_entry
-            if self.e_data
-              decoded = OpenSSL::ASN1.decode(self.e_data)
-              Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(decoded)
-            else
-              # This is implementation-defined, so may be different in some cases
-              nil
-            end
           end
 
           private

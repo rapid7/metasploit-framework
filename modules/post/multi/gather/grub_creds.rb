@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => ['linux', 'osx', 'unix', 'solaris', 'bsd'],
         'SessionTypes' => ['meterpreter', 'shell'],
-        'References' => [ ['URL', 'https://help.ubuntu.com/community/Grub2/Passwords#Password_Encryption'] ]
+        'References' => [ ['URL', 'https://help.ubuntu.com/community/Grub2/Passwords#Password_Encryption'] ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
@@ -133,7 +138,7 @@ class MetasploitModule < Msf::Post
         create_credential(credential_data)
       end
 
-      @pass_hash.each do |_index, pass|
+      @pass_hash.each_value do |pass|
         credential_data = {
           origin_type: :session,
           post_reference_name: refname,

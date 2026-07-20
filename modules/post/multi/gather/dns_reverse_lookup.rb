@@ -16,19 +16,21 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => %w[bsd linux osx solaris win],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
     register_options(
       [
-
         OptAddressRange.new('RHOSTS', [true, 'IP Range to perform reverse lookup against.'])
-
       ]
     )
   end
 
-  # Run Method for when run command is issued
   def run
     iprange = datastore['RHOSTS']
     print_status("Performing DNS Reverse Lookup for IP range #{iprange}")

@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'NTP Monitor List Scanner',
+      'Name' => 'NTP Monitor List Scanner',
       'Description' => %q{
         This module identifies NTP servers which permit "monlist" queries and
         obtains the recent clients list. The monlist feature allows remote
@@ -20,27 +20,28 @@ class MetasploitModule < Msf::Auxiliary
         via spoofed requests. The more clients there are in the list, the
         greater the amplification.
       },
-      'References'  =>
-        [
-          ['CVE', '2013-5211'],
-          ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-013A'],
-          ['URL', 'https://support.ntp.org/bin/view/Main/SecurityNotice'],
-          ['URL', 'https://nmap.org/nsedoc/scripts/ntp-monlist.html'],
-        ],
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+      'References' => [
+        ['CVE', '2013-5211'],
+        ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-013A'],
+        ['URL', 'https://support.ntp.org/bin/view/Main/SecurityNotice'],
+        ['URL', 'https://nmap.org/nsedoc/scripts/ntp-monlist.html'],
+      ],
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE
     )
 
     register_options(
-    [
-      OptInt.new('RETRY', [false, "Number of tries to query the NTP server", 3]),
-      OptBool.new('SHOW_LIST', [false, 'Show the recent clients list', false])
-    ])
+      [
+        OptInt.new('RETRY', [false, "Number of tries to query the NTP server", 3]),
+        OptBool.new('SHOW_LIST', [false, 'Show the recent clients list', false])
+      ]
+    )
 
     register_advanced_options(
-    [
-      OptBool.new('StoreNTPClients', [true, 'Store NTP clients as host records in the database', false])
-    ])
+      [
+        OptBool.new('StoreNTPClients', [true, 'Store NTP clients as host records in the database', false])
+      ]
+    )
   end
 
   # Called for each response packet
@@ -65,10 +66,10 @@ class MetasploitModule < Msf::Auxiliary
 
       # TODO: check to see if any of the responses are actually NTP before reporting
       report_service(
-        :host  => k,
+        :host => k,
         :proto => 'udp',
-        :port  => rport,
-        :name  => 'ntp'
+        :port => rport,
+        :name => 'ntp'
       )
 
       peers = @results[k][:peers].flatten(1)
@@ -76,11 +77,11 @@ class MetasploitModule < Msf::Auxiliary
         print_good("#{peer} NTP monlist request permitted (#{peers.length} entries)")
         # store the peers found from the monlist
         report_note(
-          :host  => k,
+          :host => k,
           :proto => 'udp',
-          :port  => rport,
-          :type  => 'ntp.monlist',
-          :data  => {:monlist => peers}
+          :port => rport,
+          :type => 'ntp.monlist',
+          :data => { :monlist => peers }
         )
         # print out peers if desired
         if datastore['SHOW_LIST']
@@ -90,25 +91,26 @@ class MetasploitModule < Msf::Auxiliary
         end
         # store any aliases for our target
         report_note(
-          :host  => k,
+          :host => k,
           :proto => 'udp',
-          :port  => rport,
-          :type  => 'ntp.addresses',
-          :data  => {:addresses => peers.map { |p| p.last }.sort.uniq }
+          :port => rport,
+          :type => 'ntp.addresses',
+          :data => { :addresses => peers.map { |p| p.last }.sort.uniq }
         )
 
         if (datastore['StoreNTPClients'])
           print_status("#{peer} Storing #{peers.length} NTP client hosts in the database...")
           peers.each do |r|
-            maddr,mport,mserv = r
+            maddr, mport, mserv = r
             next if maddr == '127.0.0.1' # some NTP servers peer with themselves..., but we can't store loopback
+
             report_note(
               :host => maddr,
               :type => 'ntp.client.history',
               :data => {
                 :address => maddr,
-                :port    => mport,
-                :server  => mserv
+                :port => mport,
+                :server => mserv
               }
             )
           end
@@ -120,17 +122,16 @@ class MetasploitModule < Msf::Auxiliary
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")
         report_vuln({
-          :host  => k,
-          :port  => rport,
+          :host => k,
+          :port => rport,
           :proto => 'udp',
-          :name  => what,
-          :refs  => self.references
+          :name => what,
+          :refs => self.references
         })
       else
         vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
       end
     end
-
   end
 
   # Examine the monlist response +data+ and extract all peer tuples (saddd, dport, daddr)
@@ -138,8 +139,8 @@ class MetasploitModule < Msf::Auxiliary
     return [] if data.length < 76
 
     # NTP headers 8 bytes
-    ntp_flags, ntp_auth, ntp_vers, ntp_code = data.slice!(0,4).unpack('C*')
-    pcnt, plen = data.slice!(0,4).unpack('nn')
+    ntp_flags, ntp_auth, ntp_vers, ntp_code = data.slice!(0, 4).unpack('C*')
+    pcnt, plen = data.slice!(0, 4).unpack('nn')
     return [] if plen != 72
 
     idx = 0
@@ -154,7 +155,7 @@ class MetasploitModule < Msf::Auxiliary
       # u_int32 flags;     /* flags about destination */
       # u_short port;      /* port number of last reception */
 
-      _,_,_,_,saddr,daddr,_,dport = data[idx, 30].unpack("NNNNNNNn")
+      _, _, _, _, saddr, daddr, _, dport = data[idx, 30].unpack("NNNNNNNn")
 
       peer_tuples << [ Rex::Socket.addr_itoa(saddr), dport, Rex::Socket.addr_itoa(daddr) ]
       idx += plen

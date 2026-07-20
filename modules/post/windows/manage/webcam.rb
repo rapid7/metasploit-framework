@@ -30,6 +30,11 @@ class MetasploitModule < Msf::Post
               stdapi_webcam_*
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [PHYSICAL_EFFECTS],
+          'Reliability' => []
         }
       )
     )
@@ -55,7 +60,7 @@ class MetasploitModule < Msf::Post
 
     case action.name
     when /^list$/i
-      list_webcams(true)
+      list_webcams(show: true)
     when /^snapshot$/i
       snapshot
     end
@@ -108,7 +113,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def list_webcams(show = false)
+  def list_webcams(show: false)
     begin
       webcams = client.webcam.webcam_list
     rescue Rex::Post::Meterpreter::RequestError

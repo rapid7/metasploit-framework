@@ -82,7 +82,7 @@ module Msf
         optimize: datastore['OptimizeKernel'],
         wordlist: datastore['CUSTOM_WORDLIST']
       )
-      cracker.cracker = cracking_application
+      cracker.cracker = resolve_cracking_application(cracking_application, cracker)
       begin
         cracker.binary_path
       rescue Metasploit::Framework::PasswordCracker::PasswordCrackerNotFoundError => e
@@ -95,6 +95,36 @@ module Msf
       end
       print_good("#{cracker.cracker} Version Detected: #{cracker_version}")
       cracker
+    end
+
+    def resolve_cracking_application(cracking_application, cracker)
+      return cracking_application unless cracking_application == 'auto'
+
+      if cracker.cracker_path.present?
+        basename = ::File.basename(cracker.cracker_path).downcase
+        return 'john' if basename.start_with?('john')
+        return 'hashcat' if basename.start_with?('hashcat')
+
+        fail_with(
+          Msf::Module::Failure::BadConfig,
+          "CRACKER_PATH '#{cracker.cracker_path}' does not look like john or hashcat; set ACTION to 'john' or 'hashcat'."
+        )
+      end
+
+      %w[john hashcat].each do |candidate|
+        cracker.cracker = candidate
+        begin
+          cracker.binary_path
+          return candidate
+        rescue Metasploit::Framework::PasswordCracker::PasswordCrackerNotFoundError
+          next
+        end
+      end
+
+      fail_with(
+        Msf::Module::Failure::BadConfig,
+        'No suitable john/hashcat binary was found on the system. Set CRACKER_PATH or ACTION.'
+      )
     end
 
     # This method instantiates a {Metasploit::Framework::JtR::Wordlist}, writes the data

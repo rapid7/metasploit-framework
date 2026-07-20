@@ -4,8 +4,7 @@
 ##
 
 module MetasploitModule
-
-  CachedSize = 329
+  CachedSize = 330
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::ReverseTcp
@@ -15,17 +14,20 @@ module MetasploitModule
   end
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'        => 'Reverse TCP Stager with UUID Support',
-      'Description' => 'Connect back to the attacker with UUID Support',
-      'Author'      => [ 'hdm', 'OJ Reeves' ],
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'win',
-      'Arch'        => ARCH_X86,
-      'Handler'     => Msf::Handler::ReverseTcp,
-      'Convention'  => 'sockedi',
-      'Stager'      => { 'RequiresMidstager' => false }
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Reverse TCP Stager with UUID Support',
+        'Description' => 'Connect back to the attacker with UUID Support',
+        'Author' => [ 'hdm', 'OJ Reeves' ],
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => ARCH_X86,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Convention' => 'sockedi',
+        'Stager' => { 'RequiresMidstager' => false }
+      )
+    )
   end
 
   #

@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Tom Sellers <tom [at] fadedcode.net>'],
         'Platform' => [ 'linux', 'osx', 'unix', 'solaris', 'bsd', 'windows' ],
-        'SessionTypes' => [ 'shell', 'meterpreter' ]
+        'SessionTypes' => [ 'shell', 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK, IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options(
@@ -376,13 +381,13 @@ class MetasploitModule < Msf::Post
   #
   def progress(total, sent)
     done = (sent.to_f / total.to_f) * 100
-    print_status(format('Command stager progress: %3.2f%% (%d/%d bytes)', done.to_f, sent, total))
+    print_status(format('Command stager progress: %<done>3.2f%% (%<sent>d/%<total>d bytes)', done: done.to_f, sent: sent, total: total))
   end
 
   # Method for checking if a listener for a given IP and port is present
   # will return true if a conflict exists and false if none is found
   def check_for_listener(lhost, lport)
-    client.framework.jobs.each do |_k, j|
+    client.framework.jobs.each_value do |j|
       next unless j.name =~ %r{ multi/handler}
 
       current_id = j.jid

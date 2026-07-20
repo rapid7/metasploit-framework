@@ -19,13 +19,18 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [
           'Ben Campbell', # Metasploit Module
-          'Scott Sutherland' # Original Powershell Code
+          'Scott Sutherland' # Original PowerShell Code
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
         'References' => [
           ['URL', 'https://www.netspi.com/blog/entryid/214/faster-domain-escalation-using-ldap'],
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
     )
 
@@ -37,6 +42,9 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
+
     domain ||= datastore['DOMAIN']
     domain ||= get_domain
 
@@ -48,9 +56,7 @@ class MetasploitModule < Msf::Post
     # This needs checking against LDAP improvements PR.
     dn = get_default_naming_context(domain)
 
-    if dn.blank?
-      fail_with(Failure::Unknown, 'Unable to retrieve the Default Naming Context')
-    end
+    fail_with(Failure::Unknown, 'Unable to retrieve the Default Naming Context') if dn.blank?
 
     search_filter.gsub!('DOM_REPL', dn)
 
@@ -62,9 +68,7 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    if q.nil? || q[:results].empty?
-      return
-    end
+    return if q.nil? || q[:results].empty?
 
     fields << 'Service'
     fields << 'Host'

@@ -1,4 +1,6 @@
-## # This module requires Metasploit: https://metasploit.com/download # Current source: https://github.com/rapid7/metasploit-framework
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'ruby_smb/dcerpc/client'
@@ -24,11 +26,12 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['URL', 'https://github.com/fortra/impacket/blob/master/examples/changepasswd.py'],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1021_002_SMB_WINDOWS_ADMIN_SHARES ]
         ],
         'Notes' => {
-          'Reliability' => [],
-          'Stability' => [],
-          'SideEffects' => [ IOC_IN_LOGS ]
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
         },
         'Actions' => [
           [ 'RESET', { 'Description' => "Reset the target's password without knowing the existing one (requires appropriate permissions). New AES kerberos keys will be generated." } ],

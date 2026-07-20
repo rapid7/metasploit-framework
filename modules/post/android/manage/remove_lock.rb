@@ -13,35 +13,38 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        {
-          'Name' => 'Android Settings Remove Device Locks (4.0-4.3)',
-          'Description' => %q{
-            This module exploits a bug in the Android 4.0 to 4.3 com.android.settings.ChooseLockGeneric class.
-            Any unprivileged app can exploit this vulnerability to remove the lockscreen.
-            A logic flaw / design error exists in the settings application that allows an Intent from any
-            application to clear the screen lock. The user may see that the Settings application has crashed,
-            and the phone can then be unlocked by a swipe.
-            This vulnerability was patched in Android 4.4.
-          },
-          'License' => MSF_LICENSE,
-          'Author' => [
-            'CureSec', # discovery
-            'timwr' # metasploit module
-          ],
-          'References' => [
-            [ 'CVE', '2013-6271' ],
-            [ 'URL', 'http://blog.curesec.com/article/blog/26.html' ],
-            [ 'URL', 'http://www.curesec.com/data/advisories/Curesec-2013-1011.pdf' ]
-          ],
-          'SessionTypes' => [ 'meterpreter', 'shell' ],
-          'Platform' => 'android',
-          'DisclosureDate' => '2013-10-11',
-          'Compat' => {
-            'Meterpreter' => {
-              'Commands' => %w[
-                android_*
-              ]
-            }
+        'Name' => 'Android Settings Remove Device Locks (4.0-4.3)',
+        'Description' => %q{
+          This module exploits a bug in the Android 4.0 to 4.3 com.android.settings.ChooseLockGeneric class.
+          Any unprivileged app can exploit this vulnerability to remove the lockscreen.
+          A logic flaw / design error exists in the settings application that allows an Intent from any
+          application to clear the screen lock. The user may see that the Settings application has crashed,
+          and the phone can then be unlocked by a swipe.
+          This vulnerability was patched in Android 4.4.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'CureSec', # discovery
+          'timwr' # metasploit module
+        ],
+        'References' => [
+          [ 'CVE', '2013-6271' ],
+          [ 'URL', 'http://blog.curesec.com/article/blog/26.html' ],
+          [ 'URL', 'http://www.curesec.com/data/advisories/Curesec-2013-1011.pdf' ]
+        ],
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Platform' => 'android',
+        'DisclosureDate' => '2013-10-11',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [CONFIG_CHANGES, SCREEN_EFFECTS],
+          'Reliability' => []
+        },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              android_*
+            ]
           }
         }
       )

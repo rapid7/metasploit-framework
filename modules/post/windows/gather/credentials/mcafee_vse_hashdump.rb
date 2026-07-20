@@ -34,13 +34,19 @@ class MetasploitModule < Msf::Post
           ['URL', 'https://www.dionach.com/blog/disabling-mcafee-on-access-scanning']
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
 
   def run
-    print_status("Looking for McAfee VSE password hashes on #{sysinfo['Computer']} ...")
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Looking for McAfee VSE password hashes on #{hostname} (#{session.session_host}) ...")
 
     vse_keys = enum_vse_keys
     if vse_keys.empty?

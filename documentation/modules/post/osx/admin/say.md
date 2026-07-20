@@ -12,11 +12,11 @@ This module will speak whatever is in the 'TEXT' option on the victim machine.
 
 ## Options
 
-  **TEXT**
+### TEXT
 
   The text that should be read.  Default is `meta-sploit!`.
 
-  **VOICE**
+### VOICE
 
   The voice to use.  Default is `alex`.
   This can be obtained on the system by specifying `-v ?` (example from 10.14.4):
@@ -77,9 +77,9 @@ Zuzana              cs_CZ    # Dobrý den, jmenuji se Zuzana. Jsem český hlas.
 ### User level shell on OSX 10.14.4
 
 ```
-msf5 auxiliary(scanner/ssh/ssh_login) > use post/osx/admin/say 
-msf5 post(osx/admin/say) > set session 1
+msf auxiliary(scanner/ssh/ssh_login) > use post/osx/admin/say 
+msf post(osx/admin/say) > set session 1
 session => 1
-msf5 post(osx/admin/say) > run
+msf post(osx/admin/say) > run
 [*] Post module execution completed
 ```

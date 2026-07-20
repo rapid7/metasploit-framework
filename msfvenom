@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
 
+ENV['BUNDLE_GEMFILE'] ||= File.expand_path('Gemfile', __dir__)
+require 'bundler/setup'
+
 class MsfVenomError < StandardError; end
 class HelpError < StandardError; end
 class UsageError < MsfVenomError; end
@@ -32,6 +35,10 @@ def require_deps
   require 'msf/core/payload_generator'
   require 'msf/core/constants'
 
+  unless $stdout.tty?
+    Rex::Text::Table.unwrap_tables!
+  end
+
   @framework_loaded = true
 end
 
@@ -52,10 +59,6 @@ def init_framework(create_opts={})
   end
 
   @framework = ::Msf::Simple::Framework.create(create_opts)
-
-  unless $stdout.tty?
-    Rex::Text::Table.unwrap_tables!
-  end
 end
 
 # Cached framework object
@@ -193,6 +196,10 @@ def parse_args(args)
     opts[:timeout] = x
   end
 
+  opt.on('--refresh-cache', 'Rebuild the module metadata cache from disk before listing') do
+    opts[:refresh_cache] = true
+  end
+
   opt.on_tail('-h', '--help', 'Show this message') do
     raise HelpError, "#{opt}"
   end
@@ -224,7 +231,7 @@ def parse_args(args)
     opts[:payload] = "stdin"
   end
 
-  if opts[:payload].downcase == 'stdin' && !opts[:list]
+  if opts[:payload].downcase == 'stdin' && !opts[:list] && !opts[:refresh_cache]
     $stderr.puts "Attempting to read payload from STDIN..."
     begin
       opts[:timeout] ||= 30
@@ -252,7 +259,7 @@ def payload_stdin
 end
 
 def dump_platforms
-  init_framework(:module_types => [])
+  require_deps unless @framework_loaded
   supported_platforms = []
   Msf::Module::Platform.subclasses.each {|c| supported_platforms << c.realname.downcase}
 
@@ -272,7 +279,7 @@ def dump_platforms
 end
 
 def dump_archs
-  init_framework(:module_types => [])
+  require_deps unless @framework_loaded
   supported_archs = ARCH_ALL.dup
 
   tbl = Rex::Text::Table.new(
@@ -291,7 +298,7 @@ def dump_archs
 end
 
 def dump_encrypt
-  init_framework(:module_types => [])
+  require_deps unless @framework_loaded
   tbl = Rex::Text::Table.new(
     'Indent'  => 4,
     'Header'  => "Framework Encryption Formats [--encrypt <value>]",
@@ -308,7 +315,7 @@ def dump_encrypt
 end
 
 def dump_formats
-  init_framework(:module_types => [])
+  require_deps unless @framework_loaded
   tbl1 = Rex::Text::Table.new(
     'Indent'  => 4,
     'Header'  => "Framework Executable Formats [--format <value>]",
@@ -337,33 +344,50 @@ def dump_formats
 end
 
 def dump_payloads(platform = nil, arch = nil)
-  init_framework(:module_types => [ :payload ])
+  require_deps unless @framework_loaded
+  metadata_cache = Msf::Modules::Metadata::Cache.instance
+  all_payloads = metadata_cache.get_metadata.select { |m| m.type == 'payload' }
+
+  platform_filter = platform ? Msf::Module::PlatformList.transform(platform.split(',').map(&:strip).reject(&:empty?)) : nil
+  arch_filter = arch ? arch.split(',').map(&:strip).reject(&:empty?) : nil
+
+  filtered = all_payloads.select do |m|
+    next false if arch_filter && (Array(m.arch.to_s.split(',').map(&:strip)) & arch_filter).empty?
+
+    next false if platform_filter && m.platform_list && (m.platform_list & platform_filter).empty?
+
+    true
+  end
+
   tbl = Rex::Text::Table.new(
     'Indent'  => 4,
-    'Header'  => "Framework Payloads (#{framework.stats.num_payloads} total) [--payload <value>]",
+    'Header'  => "Framework Payloads (#{all_payloads.size} total) [--payload <value>]",
     'Columns' =>
     [
       "Name",
       "Description"
     ])
 
-  framework.payloads.each_module(
-    'Platform' => platform ? Msf::Module::PlatformList.transform(platform.split(',')) : nil,
-    'Arch'     => arch ? arch.split(',') : nil) do |name, mod|
-      begin
-        mod_info = mod.new.description.split.join(' ')
-      rescue ::Exception, ::LoadError => e
-        wlog("Module #{name} failed to initialize: #{e}", 'core', LEV_0)
-        next
-      end
-      tbl << [ name, mod_info ]
+  filtered.sort_by(&:ref_name).each do |m|
+    tbl << [ m.ref_name, m.description.to_s.split.join(' ') ]
   end
 
   "\n" + tbl.to_s + "\n"
 end
 
 def dump_encoders(arch = nil)
-  init_framework(:module_types => [ :encoder ])
+  require_deps unless @framework_loaded
+  metadata_cache = Msf::Modules::Metadata::Cache.instance
+  all_encoders = metadata_cache.get_metadata.select { |m| m.type == 'encoder' }
+
+  arch_filter = arch ? arch.split(',').map(&:strip).reject(&:empty?) : nil
+
+  filtered = all_encoders.select do |m|
+    next false if arch_filter && (Array(m.arch.to_s.split(',').map(&:strip)) & arch_filter).empty?
+
+    true
+  end
+
   tbl = Rex::Text::Table.new(
     'Indent'  => 4,
     'Header'  => "Framework Encoders" + ((arch) ? " (architectures: #{arch})" : "") + " [--encoder <value>]",
@@ -375,29 +399,30 @@ def dump_encoders(arch = nil)
     ])
   cnt = 0
 
-  framework.encoders.each_module(
-    'Arch' => arch ? arch.split(',') : nil) do |name, mod|
-      tbl << [ name, mod.rank_to_s, mod.new.name ]
-
-      cnt += 1
+  filtered.sort_by(&:ref_name).each do |m|
+    tbl << [ m.ref_name, Msf::RankingName[m.rank] || 'normal', m.name ]
+    cnt += 1
   end
 
     (cnt > 0) ? "\n" + tbl.to_s + "\n" : "\nNo compatible encoders found.\n\n"
 end
 
 def dump_nops
-  init_framework(:module_types => [ :nop ])
+  require_deps unless @framework_loaded
+  metadata_cache = Msf::Modules::Metadata::Cache.instance
+  all_nops = metadata_cache.get_metadata.select { |m| m.type == 'nop' }
+
   tbl = Rex::Text::Table.new(
     'Indent'  => 4,
-    'Header'  => "Framework NOPs (#{framework.stats.num_nops} total)",
+    'Header'  => "Framework NOPs (#{all_nops.size} total)",
     'Columns' =>
     [
       "Name",
       "Description"
     ])
 
-  framework.nops.each_module do |name, mod|
-    tbl << [ name, mod.new.description.split.join(' ') ]
+  all_nops.sort_by(&:ref_name).each do |m|
+    tbl << [ m.ref_name, m.description.to_s.split.join(' ') ]
   end
 
   "\n" + tbl.to_s + "\n"
@@ -412,6 +437,21 @@ rescue HelpError => e
 rescue MsfVenomError => e
   $stderr.puts "Error: #{e.message}"
   exit(1)
+end
+
+if generator_opts[:refresh_cache]
+  warn 'Refreshing module metadata cache...'
+  require_deps unless @framework_loaded
+  @framework = ::Msf::Simple::Framework.create({})
+  # Ensure the background cache load thread has finished before refreshing,
+  # otherwise it can race and overwrite the refreshed in-memory cache.
+  Msf::Modules::Metadata::Cache.instance.get_metadata
+  framework.modules.refresh_cache_from_module_files
+  warn 'Module cache successfully refreshed.'
+  # If no other action was requested, exit after refreshing
+  unless generator_opts[:list] || generator_opts[:list_options] || generator_opts[:payload] != 'stdin'
+    exit(0)
+  end
 end
 
 if generator_opts[:list]
@@ -432,9 +472,6 @@ if generator_opts[:list]
     when "formats", "format", "f"
       $stdout.puts dump_formats
     when "all", "a"
-      # Init here so #dump_payloads doesn't create a framework with
-      # only payloads, etc.
-      init_framework
       $stdout.puts dump_payloads
       $stdout.puts dump_encoders
       $stdout.puts dump_nops

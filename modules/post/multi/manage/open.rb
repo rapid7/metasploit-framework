@@ -16,7 +16,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Eliott Teissonniere'],
         'Platform' => [ 'osx', 'linux', 'win' ],
-        'SessionTypes' => [ 'shell', 'meterpreter' ]
+        'SessionTypes' => [ 'shell', 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [SCREEN_EFFECTS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -28,42 +33,36 @@ class MetasploitModule < Msf::Post
   end
 
   #
-  # The OSX version simply uses 'open'
+  # Open a file on OSX using 'open'
   #
   def osx_open(uri)
-    begin
-      cmd_exec("open #{uri}")
-    rescue EOFError
-      return false
-    end
-
-    true
+    cmd_exec("open #{uri}")
+    return true
+  rescue EOFError
+    return false
   end
 
   #
-  # The Linux version relies on 'xdg-open'
+  # Open a file on Linux using 'xdg-open'
   #
   def linux_open(uri)
-    begin
-      cmd_exec("xdg-open #{uri}")
-    rescue EOFError
-      return false
-    end
-
-    true
+    cmd_exec("xdg-open #{uri}")
+    return true
+  rescue EOFError
+    return false
   end
 
+  #
+  # Open a file on Windows using 'start'
+  #
   def win_open(uri)
-    begin
-      cmd_exec("cmd.exe /c start #{uri}")
-    rescue EOFError
-      return false
-    end
-
-    true
+    cmd_exec("cmd.exe /c start #{uri}")
+    return true
+  rescue EOFError
+    return false
   end
 
-  def open(uri)
+  def open_uri(uri)
     case session.platform
     when 'osx'
       return osx_open(uri)
@@ -78,7 +77,7 @@ class MetasploitModule < Msf::Post
     uri = datastore['URI']
 
     print_status("Opening #{uri}")
-    if open(uri)
+    if open_uri(uri)
       print_good('Success')
     else
       print_error('Command failed')

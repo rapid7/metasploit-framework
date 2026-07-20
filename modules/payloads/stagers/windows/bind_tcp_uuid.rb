@@ -4,8 +4,7 @@
 ##
 
 module MetasploitModule
-
-  CachedSize = 331
+  CachedSize = 332
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::BindTcp
@@ -15,17 +14,20 @@ module MetasploitModule
   end
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'        => 'Bind TCP Stager with UUID Support (Windows x86)',
-      'Description' => 'Listen for a connection with UUID Support (Windows x86)',
-      'Author'      => [ 'hdm', 'OJ Reeves' ],
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'win',
-      'Arch'        => ARCH_X86,
-      'Handler'     => Msf::Handler::BindTcp,
-      'Convention'  => 'sockedi',
-      'Stager'      => { 'RequiresMidstager' => false }
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Bind TCP Stager with UUID Support (Windows x86)',
+        'Description' => 'Listen for a connection with UUID Support (Windows x86)',
+        'Author' => [ 'hdm', 'OJ Reeves' ],
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => ARCH_X86,
+        'Handler' => Msf::Handler::BindTcp,
+        'Convention' => 'sockedi',
+        'Stager' => { 'RequiresMidstager' => false }
+      )
+    )
   end
 
   #

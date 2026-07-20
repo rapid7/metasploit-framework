@@ -9,29 +9,36 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name' => "Allegro Software RomPager 'Misfortune Cookie' (CVE-2014-9222) Scanner",
-      'Description' => %q(
-        This module scans for HTTP servers that appear to be vulnerable to the
-        'Misfortune Cookie' vulnerability which affects Allegro Software
-        Rompager versions before 4.34 and can allow attackers to authenticate
-        to the HTTP service as an administrator without providing valid
-        credentials.
-      ),
-      'Author' => [
-        'Jon Hart <jon_hart[at]rapid7.com>', # metasploit module
-        'Lior Oppenheim' # CVE-2014-9222
-      ],
-      'References' => [
-        ['CVE', '2014-9222'],
-        ['URL', 'http://mis.fortunecook.ie'],
-        ['URL', 'http://mis.fortunecook.ie/misfortune-cookie-suspected-vulnerable.pdf'], # list of likely vulnerable devices
-        ['URL', 'http://mis.fortunecook.ie/too-many-cooks-exploiting-tr069_tal-oppenheim_31c3.pdf'] # 31C3 presentation with POC
-      ],
-      'DisclosureDate' => '2014-12-17',
-      'License' => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => "Allegro Software RomPager 'Misfortune Cookie' (CVE-2014-9222) Scanner",
+        'Description' => %q{
+          This module scans for HTTP servers that appear to be vulnerable to the
+          'Misfortune Cookie' vulnerability which affects Allegro Software
+          Rompager versions before 4.34 and can allow attackers to authenticate
+          to the HTTP service as an administrator without providing valid
+          credentials.
+        },
+        'Author' => [
+          'Jon Hart <jon_hart[at]rapid7.com>', # metasploit module
+          'Lior Oppenheim' # CVE-2014-9222
+        ],
+        'References' => [
+          ['CVE', '2014-9222'],
+          ['URL', 'http://mis.fortunecook.ie'],
+          ['URL', 'http://mis.fortunecook.ie/misfortune-cookie-suspected-vulnerable.pdf'], # list of likely vulnerable devices
+          ['URL', 'http://mis.fortunecook.ie/too-many-cooks-exploiting-tr069_tal-oppenheim_31c3.pdf'] # 31C3 presentation with POC
+        ],
+        'DisclosureDate' => '2014-12-17',
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
