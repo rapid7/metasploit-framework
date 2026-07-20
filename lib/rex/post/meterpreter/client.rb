@@ -535,8 +535,27 @@ class Client
 
     if @async_shell.nil? || @async_shell_extensions != main_extensions
       shell = Rex::Post::Meterpreter::Ui::Console.new(self)
-      shell.init_ui(nil, Rex::Ui::Text::Output::Buffer.new)
+
+      # Wire the async shell to a BidirectionalPipe for both input and output.
+      # A single Pipe object serves both roles (borrowed from Msf::Ui::Web),
+      # which means:
+      #   - modules that expect a non-nil user_input (e.g. reading via gets)
+      #     get a valid IO instead of nil
+      #   - the same pipe collects everything the module or command prints
+      #     via a named subscriber ("async"), which we drain per run
+      # This is safer than a bare Output::Buffer + nil input, especially when
+      # Msf::SessionCompatibility#setup calls session.init_ui(input, output)
+      # during post-module execution.
+      pipe = Rex::Ui::Text::BidirectionalPipe.new
+      # Msf module runners (e.g. cmd_run's run_simple path) check
+      # `LocalOutput.prompting?` before writing status. BidirectionalPipe
+      # doesn't define it - WebConsole subclasses to add it. Add it here
+      # as a singleton method to avoid defining a whole subclass.
+      pipe.define_singleton_method(:prompting?) { false }
+      pipe.create_subscriber('async')
+      shell.init_ui(pipe, pipe)
       shell.instance_variable_set(:@async_bypass, true)
+      shell.instance_variable_set(:@async_pipe, pipe)
 
       # Re-load each extension on the async shell using the same code path as
       # the main shell. Each extension class's initialize enstacks any child
