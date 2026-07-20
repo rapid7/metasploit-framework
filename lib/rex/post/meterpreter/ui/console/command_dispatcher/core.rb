@@ -948,7 +948,19 @@ class Console::CommandDispatcher::Core
       return
     end
 
-    cmd_line = args.join(' ')
+    # The dispatcher shell strips quotes when parsing the command line before
+    # passing us *args. Rejoin so the async shell can re-parse it correctly.
+    # Wrap in double quotes only when strictly necessary (whitespace or embedded
+    # quotes); avoid Shellwords.shelljoin which aggressively backslash-escapes
+    # characters like '=' and '/' that MSF option parsing needs to see raw
+    # (e.g. CMD=whoami must stay CMD=whoami, not CMD\=whoami).
+    cmd_line = args.map do |arg|
+      if arg =~ /[\s"']/
+        %("#{arg.gsub('"', '\\"')}")
+      else
+        arg
+      end
+    end.join(' ')
     rid = SecureRandom.hex(16)
 
     # Capture the output handle now so completion notifications go to the
@@ -958,12 +970,43 @@ class Console::CommandDispatcher::Core
 
     client.async_store.enqueue_work(rid, cmd_line) do |work_rid|
       async_shell = client.async_shell(main_shell)
-      async_shell.output.reset
+      # Drain any leftover output from previous runs on this shell so the
+      # captured output for this rid is fresh.
+      async_pipe = async_shell.instance_variable_get(:@async_pipe)
+      async_pipe.read_subscriber('async') if async_pipe
+
+      # Post modules invoke Msf::SessionCompatibility#setup which calls
+      # @session.init_ui(user_input, user_output). session.init_ui cascades
+      # to session.console.init_ui(...) which would clobber the operator's
+      # main console readline input on the interactive thread (crashing
+      # get_input_line with "undefined method 'pgets' for nil"). Redirect
+      # session.console to our async_shell for the duration of the run, so
+      # the compat setup lands on our private shell and never touches
+      # main_shell. Also snapshot user_input/user_output so we can restore
+      # them cleanly afterwards.
+      swap_console      = client.respond_to?(:console=) && client.console.equal?(main_shell)
+      saved_console     = swap_console ? client.console : nil
+      saved_user_input  = client.respond_to?(:user_input)  ? client.user_input  : nil
+      saved_user_output = client.respond_to?(:user_output) ? client.user_output : nil
+      client.console    = async_shell if swap_console
+
+      # Signal to Msf::SessionCompatibility that post modules dispatched from
+      # this worker thread are allowed to run against the async session.
+      ::Thread.current[:msf_async_bypass_post] = true
       begin
         async_shell.run_single(cmd_line)
-        captured = async_shell.output.dump_buffer
+        captured = async_pipe ? async_pipe.read_subscriber('async') : ''
         client.async_store.complete(work_rid, nil, captured.empty? ? '(no output)' : captured)
       ensure
+        ::Thread.current[:msf_async_bypass_post] = nil
+        begin
+          client.console = saved_console if swap_console && saved_console
+          if client.respond_to?(:init_ui) && (saved_user_input || saved_user_output)
+            client.init_ui(saved_user_input, saved_user_output)
+          end
+        rescue ::Exception
+          # Best-effort restoration; don't mask the original error
+        end
         begin
           notify_output.print_good("Async result ready: #{cmd_line} (rid: #{work_rid[0..7]}). Use 'async queue #{work_rid[0..7]}' to view.")
           # rb-readline captures $stdout while blocked in readline(). Force a
