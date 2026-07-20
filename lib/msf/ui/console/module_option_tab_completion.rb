@@ -18,7 +18,7 @@ module Msf
         def tab_complete_datastore_names(datastore, _str, _words)
           keys = (
             Msf::DataStore::GLOBAL_KEYS +
-              datastore.keys
+              datastore.options.keys
           )
           keys.concat(datastore.options.values.flat_map(&:fallbacks)) if datastore.is_a?(Msf::DataStore)
           keys.uniq! { |key| key.downcase }
