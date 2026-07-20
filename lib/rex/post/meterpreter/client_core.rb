@@ -549,6 +549,9 @@ class ClientCore < Extension
   # @option opts [Integer] :work_start business hours start (0-23)
   # @option opts [Integer] :work_end business hours end (0-23)
   # @option opts [Integer] :work_days bitmask of active days (bit0=Sun..bit6=Sat)
+  # @option opts [Integer] :smart_sync seconds to keep polling rapidly after any
+  #   request/response activity, allowing multi-request commands and post modules
+  #   to complete in a single burst window (0 disables)
   # @return [Rex::Post::Meterpreter::Packet] response packet
   #
   def async_mode(opts = {})
@@ -559,6 +562,7 @@ class ClientCore < Extension
     request.add_tlv(TLV_TYPE_ASYNC_WORK_START, opts[:work_start]) if opts[:work_start]
     request.add_tlv(TLV_TYPE_ASYNC_WORK_END, opts[:work_end]) if opts[:work_end]
     request.add_tlv(TLV_TYPE_ASYNC_WORK_DAYS, opts[:work_days]) if opts[:work_days]
+    request.add_tlv(TLV_TYPE_ASYNC_SMART_SYNC, opts[:smart_sync]) if opts[:smart_sync]
     response = client.send_request(request)
     client.async_mode_enabled = response.get_tlv_value(TLV_TYPE_ASYNC_ENABLED)
 
