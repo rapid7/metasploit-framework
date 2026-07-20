@@ -250,6 +250,7 @@ RSpec.describe Msf::Ui::Console::ModuleArgumentParsing do
     described_class = self.described_class
     dummy_class = Class.new do
       include Msf::Ui::Console::ModuleCommandDispatcher
+      include Msf::Ui::Console::ModuleOptionTabCompletion
       include described_class
 
       # Method not provided by the mixin, needs to be implemented by class that mixes in described_class
@@ -273,7 +274,7 @@ RSpec.describe Msf::Ui::Console::ModuleArgumentParsing do
   end
 
   describe '#parse_check_opts' do
-    let(:current_mod) { instance_double Msf::Auxiliary, datastore: {} }
+    let(:current_mod) { ::Msf::Auxiliary.new }
 
     before do
       allow(subject).to receive(:mod).and_return(current_mod)
@@ -289,7 +290,7 @@ RSpec.describe Msf::Ui::Console::ModuleArgumentParsing do
   end
 
   describe '#parse_run_opts' do
-    let(:current_mod) { instance_double Msf::Auxiliary, datastore: {} }
+    let(:current_mod) { ::Msf::Auxiliary.new }
 
     before do
       allow(subject).to receive(:mod).and_return(current_mod)
@@ -339,7 +340,7 @@ RSpec.describe Msf::Ui::Console::ModuleArgumentParsing do
   end
 
   describe '#parse_exploit_opts' do
-    let(:current_mod) { instance_double Msf::Exploit, datastore: {} }
+    let(:current_mod) { ::Msf::Exploit.new }
 
     before do
       allow(subject).to receive(:mod).and_return(current_mod)

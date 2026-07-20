@@ -71,7 +71,7 @@ module Msf
         #
         # Provide tab completion for name values
         #
-        def tab_complete_option_names(mod, str, words)
+        def tab_complete_option_names(mod, str, words, include_aliases: false)
           res = tab_complete_module_datastore_names(mod, str, words) || [ ]
 
           if !mod
@@ -79,8 +79,10 @@ module Msf
           end
 
           mod.options.each do |e|
-            name, _opt = e
+            name, opt = e
             res << name
+            # aliases that are defined for backwards compatibility are not tab completed but are still valid option names
+            res += opt.aliases if include_aliases
           end
           # Exploits provide these three default options
           if mod.exploit?
@@ -121,6 +123,22 @@ module Msf
           end
 
           return res.sort
+        end
+
+        #
+        # Returns an "Unknown datastore option" message (including a "Did you
+        # mean" suggestion when applicable) if +name+ is not a valid option
+        # name for +mod+, or nil if it is valid. Pass +valid_options+ if the
+        # caller has already computed it, to avoid recomputing it here.
+        #
+        def unknown_datastore_option_message(mod, name, valid_options: nil)
+          valid_options ||= tab_complete_option_names(mod, '', [], include_aliases: true)
+          return nil if valid_options.any? { |vo| vo.casecmp?(name) }
+
+          message = "Unknown datastore option: #{name}."
+          suggestion = DidYouMean::SpellChecker.new(dictionary: valid_options).correct(name).first
+          message << " Did you mean #{suggestion}?" if suggestion
+          message
         end
 
         #
