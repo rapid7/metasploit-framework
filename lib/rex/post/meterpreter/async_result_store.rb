@@ -17,6 +17,7 @@ class AsyncResultStore
 
   # Entry states
   STATUS_PENDING   = :pending
+  STATUS_RUNNING   = :running
   STATUS_COMPLETE  = :complete
   STATUS_ERROR     = :error
 
@@ -60,10 +61,18 @@ class AsyncResultStore
           item = @work_queue.pop
           break if item == :stop
 
-          rid, _label, executor = item
+          rid, label, executor = item
+          short = rid[0..7]
+          started = ::Time.now
           begin
+            dlog("async worker: picked up #{short} (#{label.inspect})", 'meterpreter/async')
+            mark_running(rid)
             executor.call(rid)
+            elapsed = (::Time.now - started).round(1)
+            dlog("async worker: completed #{short} in #{elapsed}s", 'meterpreter/async')
           rescue ::Exception => e
+            elapsed = (::Time.now - started).round(1)
+            elog("async worker: #{short} raised #{e.class} after #{elapsed}s: #{e.message}", 'meterpreter/async', error: e)
             error(rid, "#{e.class}: #{e.message}")
           end
         end
@@ -100,10 +109,26 @@ class AsyncResultStore
         label: label,
         status: STATUS_PENDING,
         queued_at: ::Time.now,
+        started_at: nil,
         completed_at: nil,
         response: nil,
         output: nil
       }
+    end
+  end
+
+  #
+  # Mark a queued command as currently running (worker picked it up).
+  #
+  # @param rid [String] the request ID
+  # @return [void]
+  #
+  def mark_running(rid)
+    @mutex.synchronize do
+      return unless @results.key?(rid)
+
+      @results[rid][:status] = STATUS_RUNNING
+      @results[rid][:started_at] = ::Time.now
     end
   end
 

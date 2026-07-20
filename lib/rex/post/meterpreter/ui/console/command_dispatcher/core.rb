@@ -1088,7 +1088,11 @@ class Console::CommandDispatcher::Core
     )
 
     results.each do |rid, entry|
-      age = ::Time.now - entry[:queued_at]
+      # For running entries show elapsed-since-start (how long this item has
+      # been executing) so operators can distinguish a slow-but-progressing
+      # command from a hung one. For everything else show elapsed-since-queued.
+      reference = entry[:status] == Rex::Post::Meterpreter::AsyncResultStore::STATUS_RUNNING && entry[:started_at] ? entry[:started_at] : entry[:queued_at]
+      age = ::Time.now - reference
       age_str = if age < 60
                   "#{age.round(0)}s"
                 elsif age < 3600
