@@ -94,34 +94,6 @@ module PacketDispatcher
     @async_store ||= AsyncResultStore.new
   end
 
-  #
-  # Sends a request asynchronously without blocking. The response will be
-  # captured via a completion_routine callback and stored in the async_store.
-  #
-  # @param packet [Packet] the request packet to send
-  # @param label [String] human-readable label for the command
-  # @return [String] the request ID (rid) for later retrieval
-  #
-  def send_request_async(packet, label: nil)
-    rid = packet.rid
-    async_store.queue(rid, label)
-
-    send_packet(packet,
-      completion_routine: Proc.new { |response, param|
-        if response && response.result == 0
-          async_store.complete(param[:rid], response)
-        elsif response
-          einfo = lookup_error(response.result)
-          async_store.error(param[:rid], einfo)
-        else
-          async_store.error(param[:rid], 'No response received')
-        end
-      },
-      completion_param: { rid: rid }
-    )
-    rid
-  end
-
   def shutdown_passive_dispatcher
     self.alive      = false
     self.send_queue = []
