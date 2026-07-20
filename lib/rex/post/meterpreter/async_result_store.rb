@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'rex/thread_factory'
+
 module Rex
 module Post
 module Meterpreter
@@ -21,6 +23,68 @@ class AsyncResultStore
   def initialize
     @results = {}
     @mutex = ::Mutex.new
+    @work_queue = ::Queue.new
+    @worker = nil
+    @worker_mutex = ::Mutex.new
+  end
+
+  #
+  # Enqueue a unit of work to be executed serially by the worker thread.
+  # The worker is started lazily on first enqueue. The provided block is
+  # invoked in the worker with (rid, label) and is responsible for calling
+  # {#complete} or {#error} when done.
+  #
+  # @param rid [String] the request ID
+  # @param label [String] human-readable command label
+  # @yieldparam rid [String]
+  # @yieldparam label [String]
+  # @return [void]
+  #
+  def enqueue_work(rid, label, &executor)
+    queue(rid, label)
+    ensure_worker_started
+    @work_queue.push([rid, label, executor])
+  end
+
+  #
+  # Ensure the worker thread is running.
+  #
+  # @return [void]
+  #
+  def ensure_worker_started
+    @worker_mutex.synchronize do
+      return if @worker && @worker.alive?
+
+      @worker = Rex::ThreadFactory.spawn('AsyncCommandWorker', false) do
+        loop do
+          item = @work_queue.pop
+          break if item == :stop
+
+          rid, _label, executor = item
+          begin
+            executor.call(rid)
+          rescue ::Exception => e
+            error(rid, "#{e.class}: #{e.message}")
+          end
+        end
+      end
+    end
+  end
+
+  #
+  # Signal the worker to stop after draining its current item.
+  # Safe to call even if the worker was never started.
+  #
+  # @return [void]
+  #
+  def stop_worker
+    @worker_mutex.synchronize do
+      return unless @worker && @worker.alive?
+
+      @work_queue.push(:stop)
+      @worker.join(5)
+      @worker = nil
+    end
   end
 
   #
