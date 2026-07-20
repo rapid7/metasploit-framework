@@ -395,7 +395,13 @@ module Msf::Payload::MalleableC2
 
     def method_missing(name, *args)
       name = name.to_s.gsub('_', '-')
-      get_section(name) || get_directive(name) || get_set(name)
+      section = get_section(name)
+      return section if section
+
+      directive = get_directive(name)
+      return directive if directive.any?
+
+      get_set(name)
     end
 
     def get_set(key)
