@@ -869,6 +869,7 @@ class Console::CommandDispatcher::Core
     when 'off'
       print_status('Disabling async mode...')
       client.core.async_mode(enabled: false)
+      client.async_store.stop_worker
       print_good('Async mode disabled. Session is now interactive.')
     else
       print_error("Unknown mode: #{subcmd}. Use 'on' or 'off'.")
@@ -940,23 +941,31 @@ class Console::CommandDispatcher::Core
 
     cmd_line = args.join(' ')
     rid = SecureRandom.hex(16)
-    client.async_store.queue(rid, cmd_line)
 
-    Rex::ThreadFactory.spawn("AsyncCmd-#{rid[0..7]}", false) do
-      output_buf = +''
-      original_print_proc = shell.on_print_proc
-      shell.on_print_proc = proc { |msg| output_buf << msg.to_s }
+    # Capture the output handle now so completion notifications go to the
+    # operator's console (not the async shell's buffer).
+    notify_output = shell.output
+    main_shell = shell
+
+    client.async_store.enqueue_work(rid, cmd_line) do |work_rid|
+      async_shell = client.async_shell(main_shell)
+      async_shell.output.reset
       begin
-        shell.instance_variable_set(:@async_bypass, true)
-        shell.run_single(cmd_line)
-        client.async_store.complete(rid, nil, output_buf.empty? ? '(no output)' : output_buf)
-        print_status("Async command completed: #{cmd_line} (rid: #{rid[0..7]})")
-      rescue ::Exception => e
-        client.async_store.error(rid, "#{e.class}: #{e.message}")
-        print_error("Async command failed: #{cmd_line} - #{e.message}")
+        async_shell.run_single(cmd_line)
+        captured = async_shell.output.dump_buffer
+        client.async_store.complete(work_rid, nil, captured.empty? ? '(no output)' : captured)
       ensure
-        shell.instance_variable_set(:@async_bypass, false)
-        shell.on_print_proc = original_print_proc
+        begin
+          notify_output.print_good("Async result ready: #{cmd_line} (rid: #{work_rid[0..7]}). Use 'async queue #{work_rid[0..7]}' to view.")
+          # rb-readline captures $stdout while blocked in readline(). Force a
+          # display refresh so the notification appears immediately instead of
+          # waiting for the next user input.
+          if defined?(::RbReadline) && ::RbReadline.respond_to?(:rl_forced_update_display)
+            ::RbReadline.rl_forced_update_display
+          end
+        rescue ::Exception
+          # Notification delivery may fail if the session is closing
+        end
       end
     end
 
@@ -1005,6 +1014,8 @@ class Console::CommandDispatcher::Core
       print_line
       if entry[:output]
         print_line(entry[:output])
+      elsif entry[:response]
+        print_line(entry[:response].inspect)
       else
         print_status('No output captured.')
       end
