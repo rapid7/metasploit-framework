@@ -758,10 +758,14 @@ class Console::CommandDispatcher::Core
         -s <hour>      Work hours start 0-23 (default: 0)
         -e <hour>      Work hours end 0-23 (default: 24)
         -d <days>      Work days: sun,mon,tue,wed,thu,fri,sat or mon-fri (default: all)
+        -y <seconds>   Smart-sync burst window: seconds to keep polling rapidly
+                       after any request/response activity, then fall back to the
+                       normal interval. 0 disables (default: 0)
 
       Examples:
         async mode on
         async config -i 300 -j 20 -s 8 -e 17 -d mon-fri
+        async config -i 600 -y 30
         async run ls
         async run execute -f cmd.exe -a "/c whoami" -H
         async queue
@@ -891,6 +895,7 @@ class Console::CommandDispatcher::Core
           Jitter        : #{cfg[:jitter]}%
           Work hours    : #{cfg[:work_start]}:00 - #{cfg[:work_end]}:00
           Work days     : #{format_work_days(cfg[:work_days])}
+          Smart-sync    : #{cfg[:smart_sync].to_i > 0 ? "#{cfg[:smart_sync]}s burst window" : 'disabled'}
           Mode          : #{client.async_mode_enabled? ? 'enabled' : 'disabled'}
 
       CONFIG
@@ -903,7 +908,8 @@ class Console::CommandDispatcher::Core
       '-j' => [true, 'Jitter percent (0-99)'],
       '-s' => [true, 'Work start hour (0-23)'],
       '-e' => [true, 'Work end hour (0-23)'],
-      '-d' => [true, 'Work days']
+      '-d' => [true, 'Work days'],
+      '-y' => [true, 'Smart-sync burst window (seconds, 0 disables)']
     )
     opts.parse(args) do |opt, _idx, val|
       case opt
@@ -917,10 +923,13 @@ class Console::CommandDispatcher::Core
         cfg[:work_end] = val.to_i
       when '-d'
         cfg[:work_days] = parse_work_days(val)
+      when '-y'
+        cfg[:smart_sync] = val.to_i
       end
     end
 
-    print_good("Async configuration updated (poll #{cfg[:poll_interval]}s, jitter #{cfg[:jitter]}%, hours #{cfg[:work_start]}:00-#{cfg[:work_end]}:00).")
+    smart_sync_note = cfg[:smart_sync].to_i > 0 ? ", smart-sync #{cfg[:smart_sync]}s" : ''
+    print_good("Async configuration updated (poll #{cfg[:poll_interval]}s, jitter #{cfg[:jitter]}%, hours #{cfg[:work_start]}:00-#{cfg[:work_end]}:00#{smart_sync_note}).")
     if client.async_mode_enabled?
       print_status('Async mode is active. Sending updated config to target...')
       client.core.async_mode(enabled: true, **cfg)
