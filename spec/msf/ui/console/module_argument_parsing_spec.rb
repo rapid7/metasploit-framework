@@ -37,6 +37,12 @@ RSpec.shared_examples_for 'a command which parses datastore values' do |opts|
       expect(subject.send(opts[:method_name], ['-o', 'RHOSTS=192.168.172.1'])).to include(expected_result)
     end
 
+    it 'warns when setting an unknown option' do
+      expect(subject).to receive(:print_warning).with('Unknown datastore option: INVALID.')
+
+      subject.send(opts[:method_name], ['-o', 'INVALID=OPT'])
+    end
+
     it 'allows setting namespaced datastore options' do
       expected_result = {
         datastore_options: {
@@ -69,7 +75,7 @@ RSpec.shared_examples_for 'a command which parses datastore values' do |opts|
       expected_result = {
         datastore_options: {
           'RHOSTS' => '192.168.172.1',
-          'RPORT' => '1337',
+          'RPORT' => '1337'
         }
       }
       expected_result[:action] = 'action-name' unless opts[:method_name] == 'parse_check_opts'
@@ -134,6 +140,12 @@ RSpec.shared_examples_for 'a command which parses datastore values' do |opts|
         }
       }
       expect(subject.send(opts[:method_name], ['RHOSTS=192.168.172.1'])).to include(expected_result)
+    end
+
+    it 'warns when setting an unknown option' do
+      expect(subject).to receive(:print_warning).with('Unknown datastore option: INVALID.')
+
+      subject.send(opts[:method_name], ['INVALID=OPT'])
     end
 
     it 'allows setting multiple options individually' do
@@ -250,7 +262,6 @@ RSpec.describe Msf::Ui::Console::ModuleArgumentParsing do
     described_class = self.described_class
     dummy_class = Class.new do
       include Msf::Ui::Console::ModuleCommandDispatcher
-      include Msf::Ui::Console::ModuleOptionTabCompletion
       include described_class
 
       # Method not provided by the mixin, needs to be implemented by class that mixes in described_class
