@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Evasion
         'Name' => 'Linux x64 Sandbox Environment Gate',
         'Description' => %q{
           Generates a Linux x64 ELF whose entry point is a pre-execution
-          environment gate designed to detect and evade automated malware 
+          environment gate designed to detect and evade automated malware
           analysis sandboxes, hypervisors and containerized environments.
         },
         'Author' => ['Massimo Bertocchi'],
