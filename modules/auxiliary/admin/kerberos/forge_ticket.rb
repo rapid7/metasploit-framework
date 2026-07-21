@@ -120,11 +120,7 @@ class MetasploitModule < Msf::Auxiliary
       is_golden: is_golden
     )
 
-    Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ccache, framework_module: self)
-
-    if datastore['VERBOSE']
-      print_ccache_contents(ccache, key: enc_key)
-    end
+    store_forged_ticket(ccache, key: enc_key, ticket_type: is_golden ? 'TGT' : 'TGS')
   end
 
   def forge_silver
@@ -175,11 +171,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError
       fail_with(Msf::Exploit::Failure::BadConfig, 'Failed to modify ticket. krbtgt key is likely incorrect')
     end
-    Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ticket, framework_module: self, host: datastore['RHOST'])
-
-    if datastore['VERBOSE']
-      print_ccache_contents(ticket, key: enc_key)
-    end
+    store_forged_ticket(ticket, key: enc_key, ticket_type: 'TGT', host: datastore['RHOST'])
   end
 
   def forge_sapphire
@@ -214,11 +206,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     # Don't pass a user RID in: we'll retrieve it from the decrypted PAC
     ticket = modify_ticket(tgs_ticket, tgs_auth, datastore['USER'], nil, datastore['DOMAIN'], extra_sids, session_key.value, enc_type, enc_key, true)
-    Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ticket, framework_module: self, host: datastore['RHOST'])
-
-    if datastore['VERBOSE']
-      print_ccache_contents(ticket, key: enc_key)
-    end
+    store_forged_ticket(ticket, key: enc_key, ticket_type: 'TGT', host: datastore['RHOST'])
   end
 
   def validate_remote
@@ -272,6 +260,16 @@ class MetasploitModule < Msf::Auxiliary
 
     enc_key = key.nil? ? nil : [key].pack('H*')
     [enc_key, enc_type]
+  end
+
+  def store_forged_ticket(ccache, key:, ticket_type:, host: nil)
+    Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ccache, framework_module: self, host: host)
+
+    trace_mode = kerberos_offline_trace_mode
+    return unless trace_mode || datastore['VERBOSE']
+
+    key = nil if trace_mode && trace_mode != Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter::TRACE_MODE_FULL
+    print_ccache_contents(ccache, key: key, source: "#{action.name} #{ticket_type}")
   end
 
   def validate_spn!
