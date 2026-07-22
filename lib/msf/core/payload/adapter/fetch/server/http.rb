@@ -62,8 +62,8 @@ module Msf
     end
 
     def identify_arch(query_string)
-      arch_param = query_string.include?('arch') ? query_string['arch'] : nil
-      endian_param = query_string.include?('endian') ? query_string['endian'] : nil
+      arch_param = normalize_query_param(query_string['arch'])
+      endian_param = normalize_query_param(query_string['endian'])
       vprint_status("Detected #{arch_param}") unless arch_param.nil?
       vprint_status('Detected big endian') if endian_param == '2'
       vprint_status('Detected little endian') if endian_param == '1'
@@ -85,11 +85,17 @@ module Msf
         elsif endian_param.to_i == 2
           arch = Rex::Arch.from_uname('mips')
         else
-          print_error("Unknown endian value reported: #{endian_param}")
-          arch = nil
+          print_warning("Unknown endian value reported: #{endian_param}")
+          print_warning('We are guessing this means mipsel and are serving a mipsel payload.')
+          print_warning('If it fails, try using an explicit mipsbe payload.')
+          arch = Rex::Arch.from_uname('mipsel')
         end
       end
       arch
+    end
+
+    def normalize_query_param(value)
+      value.is_a?(Array) ? value.first : value
     end
 
     def on_request_uri(cli, request, srv_entry)
@@ -104,7 +110,8 @@ module Msf
         query_string = request.uri_parts['QueryString'] || {}
         arch = identify_arch(query_string)
         if arch.nil?
-          if query_string['arch'].nil? || query_string['arch'].strip.empty?
+          arch_param = normalize_query_param(query_string['arch'])
+          if arch_param.nil? || arch_param.strip.empty?
             cli.send_response(fetch_error_response(400, 'Bad Request'))
           else
             print_error('Failed to identify arch based on query string. Sending 404.')
