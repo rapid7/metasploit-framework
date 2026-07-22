@@ -89,6 +89,76 @@ module Acceptance::Session::Php
             MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
           }
         }
+      },
+      {
+        name: "php/meterpreter/reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter/reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter/reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        # TODO: HTTPS payloads broken on Windows environments
+        platforms: [:osx, :linux],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter/reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        # TODO: HTTPS payloads broken on Windows environments
+        platforms: [:osx, :linux],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+          }
+        }
       }
     ],
     module_tests: [

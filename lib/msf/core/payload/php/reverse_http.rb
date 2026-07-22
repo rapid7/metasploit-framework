@@ -8,6 +8,9 @@ module Payload::Php::ReverseHttp
 
   def initialize(info = {})
     super(info)
+    register_options([
+      OptPath.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile'])
+    ])
     register_advanced_options(
       Msf::Opt::http_header_options +
       Msf::Opt::http_proxy_options
