@@ -5,7 +5,7 @@ Enumerate TCP services via the FTP bounce PORT/LIST method
 ## Verification Steps
 
 1. Start msfconsole
-2. Do: `use modules/auxiliary/scanner/portscan/ftpbounce`
+2. Do: `use modules/auxiliary/scanner/portscan/ftp_bounce`
 3. Do: `set BOUNCEHOST [ip]`
 4. Do: `set PORTS [number(s)]`
 5. Do: `set RHOSTS [ip]`
@@ -20,18 +20,18 @@ Docker Usage:  `docker run -e "ADDED_FLAGS=-w -W -d -d" -e FTP_USER_NAME=bob -e 
 ### PureFTPd and Kali Linux 2019.3
 
   ```
-  msf > use modules/auxiliary/scanner/portscan/ftpbounce
-  msf auxiliary(scanner/portscan/ftpbounce) > set BOUNCEHOST 172.17.0.2
+  msf > use modules/auxiliary/scanner/portscan/ftp_bounce
+  msf auxiliary(scanner/portscan/ftp_bounce) > set BOUNCEHOST 172.17.0.2
     BOUNCEHOST => 172.17.0.2
-  msf auxiliary(scanner/portscan/ftpbounce) > set PORTS 8080
+  msf auxiliary(scanner/portscan/ftp_bounce) > set PORTS 8080
     BOUNCEPORT => 8080
-  msf auxiliary(scanner/portscan/ftpbounce) > set RHOSTS 172.17.0.4
+  msf auxiliary(scanner/portscan/ftp_bounce) > set RHOSTS 172.17.0.4
     RHOSTS => 172.17.0.4
-  msf auxiliary(scanner/portscan/ftpbounce) > set FTPUSER bob
+  msf auxiliary(scanner/portscan/ftp_bounce) > set FTPUSER bob
     FTPUSER => bob
-  msf auxiliary(scanner/portscan/ftpbounce) > set FTPPASS 12345
+  msf auxiliary(scanner/portscan/ftp_bounce) > set FTPPASS 12345
     FTPPASS => 12345
-  msf auxiliary(scanner/portscan/ftpbounce) > run
+  msf auxiliary(scanner/portscan/ftp_bounce) > run
 
     [+] 172.17.0.2:21 -  TCP OPEN 172.17.0.4:8080
     [*] 172.17.0.2:21 - Scanned 1 of 1 hosts (100% complete)
