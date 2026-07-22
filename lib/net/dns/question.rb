@@ -166,14 +166,14 @@ module Net # :nodoc:
       end
       
       def check_name(name)
-        name.strip!
-        if name =~ /[^\w\.\-_]/
-          raise QuestionNameError, "Question name #{name.inspect} not valid"          
+        stripped_name = name.strip
+        if stripped_name =~ /[^\w\.\-_]/
+          raise QuestionNameError, "Question name #{stripped_name.inspect} not valid"
         else
-          name
+          stripped_name
         end
-      rescue
-        raise QuestionNameError, "Question name #{name.inspect} not valid"                  
+      rescue StandardError => e
+        raise QuestionNameError, "Question name #{name.inspect} not valid\n#{e.backtrace.join("\n")}"
       end
       
       def new_from_binary(data)
@@ -182,7 +182,7 @@ module Net # :nodoc:
         @qType = Net::DNS::RR::Types.new type
         @qClass = Net::DNS::RR::Classes.new cls
       rescue StandardError => e
-        raise QuestionArgumentError, "Invalid data: #{data.inspect}\n{e.backtrace}"
+        raise QuestionArgumentError, "Invalid data: #{data.inspect}\n#{e.backtrace.join("\n")}"
       end
 
     end # class Question
