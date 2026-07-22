@@ -94,6 +94,80 @@ module Acceptance::Session::Python
             MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
           }
         }
+      },
+      {
+        name: "python/meterpreter/reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".py",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["python", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            PythonMeterpreterDebug: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "python/meterpreter/reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".py",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["python", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            PythonMeterpreterDebug: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+          }
+        }
+      },
+      {
+        name: "python/meterpreter/reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".py",
+        # TODO: HTTPS payloads broken on Windows environments
+        platforms: [:osx, :linux],
+        execute_cmd: ["python", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            PythonMeterpreterDebug: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "python/meterpreter/reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".py",
+        # TODO: HTTPS payloads broken on Windows environments
+        platforms: [:osx, :linux],
+        execute_cmd: ["python", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            PythonMeterpreterDebug: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+          }
+        }
       }
     ],
     module_tests: [
