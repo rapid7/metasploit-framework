@@ -46,6 +46,7 @@ module Msf::MCP
       authenticate_metasploit
       initialize_mcp_server
       start_mcp_server
+    rescue Interrupt
     rescue Msf::MCP::Config::ValidationError, Msf::MCP::Config::ConfigurationError => e
       handle_configuration_error(e)
     rescue Msf::MCP::Metasploit::ConnectionError => e
