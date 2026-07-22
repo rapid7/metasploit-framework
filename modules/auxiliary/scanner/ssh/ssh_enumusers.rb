@@ -137,9 +137,9 @@ class MetasploitModule < Msf::Auxiliary
   def check_user(ip, user, port)
     technique = action['Type']
 
-    opts = ssh_client_defaults.merge({
+    opts = {
       port: port
-    })
+    }
 
     # The auth method is converted into a class name for instantiation,
     # so malformed-packet here becomes MalformedPacket from the mixin
@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       ssh = Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        Net::SSH.start(ip, user, opts)
+        connect_ssh(ip, user, opts)
       end
     rescue Rex::ConnectionError
       return :connection_error
