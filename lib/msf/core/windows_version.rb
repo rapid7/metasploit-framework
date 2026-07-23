@@ -31,6 +31,8 @@ module Msf
 
     module WorkstationSpecificVersions
       Win2000 = Rex::Version.new('5.0.2195')
+      # The actual build number is 5.0.2195.6717 but .4 suffix is consistent with other service packs in this file
+      Win2000_SP4 = Rex::Version.new('5.0.2195.4')
       XP_SP0 = Rex::Version.new('5.1.2600.0')
       XP_SP1 = Rex::Version.new('5.1.2600.1')
       XP_SP2 = Rex::Version.new('5.1.2600.2')
@@ -86,6 +88,7 @@ module Msf
 
     WorkstationNameMapping = {
       :Win2000 => "Windows 2000",
+      :Win2000_SP4 => "Windows 2000 Service Pack 4",
       :XP_SP0 => "Windows XP",
       :XP_SP1 => "Windows XP Service Pack 1",
       :XP_SP2 => "Windows XP Service Pack 2",
