@@ -58,7 +58,16 @@ class MetasploitModule < Msf::Post
     server = session.create(params)
     client_connector = TCPSocketClient.new(host: server.params.localhost, port: server.params.localport)
     client = client_connector.start(timeout: timeout)
-    server_client = server.accept('Timeout' => timeout)
+
+    # Retry accept in short intervals — the TCP connection may be established at the OS
+    # level but the meterpreter needs time to relay the channel-open notification
+    server_client = nil
+    deadline = Time.now + timeout
+    while server_client.nil? && Time.now < deadline
+      remaining = [deadline - Time.now, 5].min
+      server_client = server.accept('Timeout' => remaining)
+    end
+
     client_connector.stop
 
     [client, server_client, server]
