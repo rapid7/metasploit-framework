@@ -35,10 +35,6 @@ module MetasploitModule
         'Handler' => Msf::Handler::ReverseTcp,
         'Session' => Msf::Sessions::CommandShell,
         'Payload' => { 'Offsets' => {}, 'Payload' => '' },
-        'Notes' => {
-          'Stability' => [CRASH_SAFE],
-          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
-        }
       )
     )
   end
