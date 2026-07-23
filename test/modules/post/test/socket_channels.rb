@@ -52,19 +52,19 @@ class MetasploitModule < Msf::Post
     [client, server_client]
   end
 
-  def tcp_server_socket_trio(params={}, timeout: 5)
+  def tcp_server_socket_trio(params={}, timeout: 30)
     params = Rex::Socket::Parameters.new('Proto' => 'tcp', 'LocalHost' => datastore['RHOST'], 'Server' => true, **params)
 
     server = session.create(params)
     client_connector = TCPSocketClient.new(host: server.params.localhost, port: server.params.localport)
     client = client_connector.start(timeout: timeout)
-    server_client = server.accept
+    server_client = server.accept('Timeout' => timeout)
     client_connector.stop
 
     [client, server_client, server]
   end
 
-  def tcp_server_socket_pair(params={}, timeout: 5)
+  def tcp_server_socket_pair(params={}, timeout: 30)
     client, server_client, server = tcp_server_socket_trio(params, timeout: timeout)
     server.close
     [client, server_client]
