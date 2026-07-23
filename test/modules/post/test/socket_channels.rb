@@ -52,19 +52,28 @@ class MetasploitModule < Msf::Post
     [client, server_client]
   end
 
-  def tcp_server_socket_trio(params={}, timeout: 5)
+  def tcp_server_socket_trio(params={}, timeout: 30)
     params = Rex::Socket::Parameters.new('Proto' => 'tcp', 'LocalHost' => datastore['RHOST'], 'Server' => true, **params)
 
     server = session.create(params)
     client_connector = TCPSocketClient.new(host: server.params.localhost, port: server.params.localport)
     client = client_connector.start(timeout: timeout)
-    server_client = server.accept
+
+    # Retry accept in short intervals — the TCP connection may be established at the OS
+    # level but the meterpreter needs time to relay the channel-open notification
+    server_client = nil
+    deadline = Time.now + timeout
+    while server_client.nil? && Time.now < deadline
+      remaining = [deadline - Time.now, 5].min
+      server_client = server.accept('Timeout' => remaining)
+    end
+
     client_connector.stop
 
     [client, server_client, server]
   end
 
-  def tcp_server_socket_pair(params={}, timeout: 5)
+  def tcp_server_socket_pair(params={}, timeout: 30)
     client, server_client, server = tcp_server_socket_trio(params, timeout: timeout)
     server.close
     [client, server_client]
