@@ -503,6 +503,72 @@ class Client
   # Whether or not to use a debug build for loaded extensions
   #
   attr_accessor :debug_build
+  #
+  # Whether async mode is currently enabled on this session
+  #
+  attr_accessor :async_mode_enabled
+
+  # Locally stored async config values (applied when async mode is enabled)
+  def async_config
+    @async_config ||= { poll_interval: 60, jitter: 0, work_start: 0, work_end: 24, work_days: 0x7F, smart_sync: 0 }
+  end
+
+  def async_mode_enabled?
+    !!self.async_mode_enabled
+  end
+
+  #
+  # A dedicated console used by the async worker thread to execute queued
+  # commands. It has its own output buffer and dispatcher stack so nothing
+  # it does can race with the operator's interactive shell. Rebuild it if
+  # the main shell's dispatcher stack (extensions) has changed since the
+  # last call.
+  #
+  # @param main_shell [Rex::Post::Meterpreter::Ui::Console] the interactive
+  #   shell whose dispatcher stack should be mirrored.
+  # @return [Rex::Post::Meterpreter::Ui::Console]
+  #
+  def async_shell(main_shell)
+    core_klass = Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Core
+    main_core = main_shell.dispatcher_stack.find { |d| d.is_a?(core_klass) }
+    main_extensions = main_core ? main_core.instance_variable_get(:@extensions).dup : []
+
+    if @async_shell.nil? || @async_shell_extensions != main_extensions
+      shell = Rex::Post::Meterpreter::Ui::Console.new(self)
+
+      # Wire the async shell to a BidirectionalPipe for both input and output.
+      # A single Pipe object serves both roles (borrowed from Msf::Ui::Web),
+      # which means:
+      #   - modules that expect a non-nil user_input (e.g. reading via gets)
+      #     get a valid IO instead of nil
+      #   - the same pipe collects everything the module or command prints
+      #     via a named subscriber ("async"), which we drain per run
+      # This is safer than a bare Output::Buffer + nil input, especially when
+      # Msf::SessionCompatibility#setup calls session.init_ui(input, output)
+      # during post-module execution.
+      pipe = Rex::Ui::Text::BidirectionalPipe.new
+      # Msf module runners (e.g. cmd_run's run_simple path) check
+      # `LocalOutput.prompting?` before writing status. BidirectionalPipe
+      # doesn't define it - WebConsole subclasses to add it. Add it here
+      # as a singleton method to avoid defining a whole subclass.
+      pipe.define_singleton_method(:prompting?) { false }
+      pipe.create_subscriber('async')
+      shell.init_ui(pipe, pipe)
+      shell.instance_variable_set(:@async_bypass, true)
+      shell.instance_variable_set(:@async_pipe, pipe)
+
+      # Re-load each extension on the async shell using the same code path as
+      # the main shell. Each extension class's initialize enstacks any child
+      # dispatchers itself (e.g. Stdapi enstacks Fs, Net, Sys, ...), so we
+      # must NOT enstack children directly or we get duplicates.
+      async_core = shell.dispatcher_stack.find { |d| d.is_a?(core_klass) }
+      main_extensions.each { |mod| async_core.send(:add_extension_client, mod) }
+
+      @async_shell = shell
+      @async_shell_extensions = main_extensions
+    end
+    @async_shell
+  end
 
 protected
   attr_accessor :parser, :ext_aliases # :nodoc:
