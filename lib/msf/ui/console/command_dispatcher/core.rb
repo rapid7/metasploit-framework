@@ -1753,7 +1753,7 @@ class Core
         if session
           if session.respond_to?(:response_timeout)
             last_known_timeout = session.response_timeout
-            # Don't lower the timeout if the session is in async mode —
+            # Don't lower the timeout if the session is in async mode
             # async sessions need longer timeouts to accommodate poll intervals.
             if session.respond_to?(:async_mode_enabled?) && session.async_mode_enabled?
               response_timeout = [response_timeout, last_known_timeout].max

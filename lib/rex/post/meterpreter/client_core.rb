@@ -572,7 +572,7 @@ class ClientCore < Extension
     if client.async_mode_enabled
       poll = opts[:poll_interval] || 60
       jitter_pct = opts[:jitter] || 0
-      # Timeout = 3× worst-case poll interval (poll + max jitter)
+      # Timeout = 3x worst-case poll interval (poll + max jitter)
       worst_case = poll + (poll * jitter_pct / 100)
       new_timeout = [worst_case * 3, client.response_timeout].max
       @pre_async_response_timeout ||= client.response_timeout
