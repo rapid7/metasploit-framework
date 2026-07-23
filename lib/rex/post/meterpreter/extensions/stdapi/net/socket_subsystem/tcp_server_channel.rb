@@ -112,7 +112,7 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   def accept(opts = {})
     timeout = opts['Timeout']
     if (timeout.nil? || timeout <= 0)
-      timeout = 0
+      timeout = 300
     end
 
     result = nil
