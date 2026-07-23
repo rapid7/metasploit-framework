@@ -10,14 +10,14 @@ This module was successfully tested on:
 
     * Ray (v2.56.0) on Ubuntu 22.04
 
-### Install and run the vulnerable Ray (v2.6.3)
+### Install and run the vulnerable Ray (v2.56.0)
 
 1. Install your favorite virtualization engine (VirtualBox or VMware) on your preferred platform.
 2. Install Kali Linux (or other Linux distro) in your virtualization engine.
 3. Install Ray (v2.56.0) in your VM.
    `python3 -m pip install pip install ray==2.56.0`
 4. Start the ray service.
-   `ray start --head --node-ip-address=<insert ip> --dashboard-host=<insert ip>`
+   `ray start --head --node-ip-address=<ip hosting ray webapp> --dashboard-host=<ip hosting ray webapp>`
 
 
 ## Verification Steps
@@ -25,8 +25,8 @@ This module was successfully tested on:
 2. Start msfconsole
 3. Do: `use auxiliary/gather/ray_dashboard_logs_api_path_traversal`
 4. Do: `set rhosts <rhost>`
-5. Do: `set FILE_PATH <file path>`
-6. Do: `set NODE_ID <node id>`
+5. Do: `set FILE_PATH <relative file path on victim file system>` (../../../../etc/passwd)
+6. Do: `set NODE_ID <unique ID of a node in a Ray cluster>`
 7. Do: `run`
 8. You should get a folder content
 
