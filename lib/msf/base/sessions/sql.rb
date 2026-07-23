@@ -96,6 +96,8 @@ class Msf::Sessions::Sql
   end
 
   # Resets the console's I/O handles.
+  # Does not call super - the session preserves its own user_input/user_output
+  # while only resetting the console's I/O.
   #
   # @return [Object]
   def reset_ui
