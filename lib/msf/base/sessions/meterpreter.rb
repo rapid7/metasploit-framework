@@ -105,7 +105,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         poll = cfg[:poll_interval].to_i
         jitter_pct = cfg[:jitter].to_i
         worst_case = poll + (poll * jitter_pct / 100)
-        print_status("Async mode is on — waiting up to #{worst_case + 10}s for the implant's next check-in to deliver shutdown...")
+        print_status("Async mode is on - waiting up to #{worst_case + 10}s for the implant's next check-in to deliver shutdown...")
         async_store.stop_worker if respond_to?(:async_store)
       end
       self.core.shutdown
