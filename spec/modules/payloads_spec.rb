@@ -5082,6 +5082,15 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/aarch64/exec'
   end
 
+  context 'windows/aarch64/shell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/aarch64/shell_reverse_tcp'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/aarch64/shell_reverse_tcp'
+  end
+
   context 'windows/x64/download_exec' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
