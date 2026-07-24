@@ -31,7 +31,7 @@ RSpec.describe Msf::RPC::RPC_Module, '#rpc_execute returns uuid/job_id for all m
       expect(response['uuid']).to eq('run-uuid')
     end
 
-    it "passes the RPC job_status_tracker via the job_listener: kwarg for #{mtype} modules" do
+    it "passes the RPC job_status_tracker via the 'JobListener' opts key for #{mtype} modules" do
       mod = double('Module', uuid: 'mod-uuid', job_id: 99, run_uuid: 'run-uuid')
       allow(modules).to receive(:create).with("#{mtype}/#{mname}").and_return(mod)
       allow(mod).to receive(:type).and_return(mtype)
@@ -42,8 +42,7 @@ RSpec.describe Msf::RPC::RPC_Module, '#rpc_execute returns uuid/job_id for all m
 
       expect(simple_klass).to have_received(simple_method).with(
         mod,
-        hash_excluding('JobListener'),
-        job_listener: job_status_tracker
+        hash_including('JobListener' => job_status_tracker)
       )
     end
   end
@@ -65,7 +64,7 @@ RSpec.describe Msf::RPC::RPC_Module, '#rpc_execute returns uuid/job_id for all m
       expect(response['job_id']).to eq(11)
     end
 
-    it 'passes the RPC job_status_tracker via the job_listener: kwarg' do
+    it "passes the RPC job_status_tracker via the 'JobListener' opts key" do
       mod = double('PostModule', uuid: 'mod-uuid', job_id: 11, run_uuid: 'run-uuid-post')
       allow(modules).to receive(:create).with('post/multi/general/execute').and_return(mod)
       allow(mod).to receive(:type).and_return('post')
@@ -75,8 +74,7 @@ RSpec.describe Msf::RPC::RPC_Module, '#rpc_execute returns uuid/job_id for all m
 
       expect(Msf::Simple::Post).to have_received(:run_simple).with(
         mod,
-        hash_excluding('JobListener'),
-        job_listener: job_status_tracker
+        hash_including('JobListener' => job_status_tracker)
       )
     end
   end
@@ -93,7 +91,7 @@ RSpec.describe Msf::RPC::RPC_Module, '#rpc_execute returns uuid/job_id for all m
       expect(response['job_id']).to eq(22)
     end
 
-    it 'passes the RPC job_status_tracker via the job_listener: kwarg' do
+    it "passes the RPC job_status_tracker via the 'JobListener' opts key" do
       mod = double('EvasionModule', uuid: 'mod-uuid', job_id: 22, run_uuid: 'run-uuid-evasion')
       allow(modules).to receive(:create).with('evasion/windows/applocker_evasion_msbuild').and_return(mod)
       allow(mod).to receive(:type).and_return('evasion')
@@ -103,8 +101,7 @@ RSpec.describe Msf::RPC::RPC_Module, '#rpc_execute returns uuid/job_id for all m
 
       expect(Msf::Simple::Evasion).to have_received(:run_simple).with(
         mod,
-        hash_excluding('JobListener'),
-        job_listener: job_status_tracker
+        hash_including('JobListener' => job_status_tracker)
       )
     end
   end

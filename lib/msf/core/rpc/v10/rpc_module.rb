@@ -791,8 +791,9 @@ private
       'Payload'  => opts['PAYLOAD'],
       'Target'   => opts['TARGET'],
       'RunAsJob' => true,
-      'Options'  => opts
-    }, job_listener: self.job_status_tracker)
+      'Options'  => opts,
+      'JobListener' => self.job_status_tracker
+    })
     {
       "job_id" => mod.job_id,
       "uuid" => mod.run_uuid
@@ -803,8 +804,9 @@ private
     Msf::Simple::Auxiliary.run_simple(mod,{
       'Action'   => opts['ACTION'],
       'RunAsJob' => true,
-      'Options'  => opts
-    }, job_listener: self.job_status_tracker)
+      'Options'  => opts,
+      'JobListener' => self.job_status_tracker
+    })
     {
       "job_id" => mod.job_id,
       "uuid" => mod.run_uuid
@@ -814,8 +816,9 @@ private
   def _check_exploit(mod, opts)
     uuid, job = Msf::Simple::Exploit.check_simple(mod,{
         'RunAsJob' => true,
-        'Options'  => opts
-    }, job_listener: self.job_status_tracker)
+        'Options'  => opts,
+        'JobListener' => self.job_status_tracker
+    })
     {
       "job_id" => job,
       "uuid" => uuid
@@ -826,8 +829,9 @@ private
     uuid, job = Msf::Simple::Auxiliary.check_simple(mod,{
         'Action'   => opts['ACTION'],
         'RunAsJob' => true,
-        'Options'  => opts
-    }, job_listener: self.job_status_tracker)
+        'Options'  => opts,
+        'JobListener' => self.job_status_tracker
+    })
     {
       "job_id" => job,
       "uuid" => uuid
@@ -837,8 +841,9 @@ private
   def _run_post(mod, opts)
     Msf::Simple::Post.run_simple(mod, {
       'RunAsJob' => true,
-      'Options'  => opts
-    }, job_listener: self.job_status_tracker)
+      'Options'  => opts,
+      'JobListener' => self.job_status_tracker
+    })
     {
       "job_id" => mod.job_id,
       "uuid" => mod.run_uuid
@@ -850,8 +855,9 @@ private
       'Payload'  => opts['PAYLOAD'],
       'Target'   => opts['TARGET'],
       'RunAsJob' => true,
-      'Options'  => opts
-    }, job_listener: self.job_status_tracker)
+      'Options'  => opts,
+      'JobListener' => self.job_status_tracker
+    })
 
     {
       'job_id' => mod.job_id,
