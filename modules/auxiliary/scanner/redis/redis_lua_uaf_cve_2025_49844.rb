@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2025-49844'],
-          ['URL', 'https://github.com/redis/redis/security/advisories/GHSA-4789-qfc9-5f9q'],
+          ['GHSA', '4789-qfc9-5f9q'],
           ['URL', 'https://www.wiz.io/blog/wiz-research-redis-rce-cve-2025-49844'],
           ['URL', 'https://redis.io/blog/security-advisory-cve-2025-49844/']
         ],
