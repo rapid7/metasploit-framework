@@ -45,7 +45,7 @@ RSpec.describe Msf::RPC::RPC_Module, '#rpc_check propagates NotImplementedError 
   end
 
   context 'job_listener wiring' do
-    it 'passes the RPC job_status_tracker via the job_listener: kwarg for exploit checks' do
+    it "passes the RPC job_status_tracker via the 'JobListener' opts key for exploit checks" do
       mod = double('ExploitModule')
       allow(modules).to receive(:create).with('exploit/multi/handler').and_return(mod)
       allow(mod).to receive(:type).and_return('exploit')
@@ -55,12 +55,11 @@ RSpec.describe Msf::RPC::RPC_Module, '#rpc_check propagates NotImplementedError 
 
       expect(Msf::Simple::Exploit).to have_received(:check_simple).with(
         mod,
-        hash_excluding('JobListener'),
-        job_listener: job_status_tracker
+        hash_including('JobListener' => job_status_tracker)
       )
     end
 
-    it 'passes the RPC job_status_tracker via the job_listener: kwarg for auxiliary checks' do
+    it "passes the RPC job_status_tracker via the 'JobListener' opts key for auxiliary checks" do
       mod = double('AuxiliaryModule')
       allow(modules).to receive(:create).with('auxiliary/scanner/portscan/tcp').and_return(mod)
       allow(mod).to receive(:type).and_return('auxiliary')
@@ -70,8 +69,7 @@ RSpec.describe Msf::RPC::RPC_Module, '#rpc_check propagates NotImplementedError 
 
       expect(Msf::Simple::Auxiliary).to have_received(:check_simple).with(
         mod,
-        hash_excluding('JobListener'),
-        job_listener: job_status_tracker
+        hash_including('JobListener' => job_status_tracker)
       )
     end
   end
