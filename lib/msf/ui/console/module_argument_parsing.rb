@@ -2,6 +2,7 @@
 
 require 'addressable'
 require 'msf/ui/console/command_dispatcher'
+require 'msf/ui/console/module_option_validation'
 
 module Msf
 module Ui
@@ -14,6 +15,7 @@ module Console
 #
 ###
 module ModuleArgumentParsing
+  include Msf::Ui::Console::ModuleOptionValidation
 
   # Options which are standard and predictable across all modules
   @@module_opts = Rex::Parser::Arguments.new(
@@ -124,6 +126,7 @@ module ModuleArgumentParsing
         val << '=' unless val.include?('=')
         val.split(',').each do |opt|
           name, value = opt.split('=', 2)
+          warn_unknown_datastore_option(name) if mod
           append_datastore_option(datastore_options, name, value)
         end
       when '-p'
@@ -152,6 +155,7 @@ module ModuleArgumentParsing
           if name.upcase == 'ACTION'
             result[:action] = val
           else
+            warn_unknown_datastore_option(name) if mod
             append_datastore_option(datastore_options, name, val)
           end
         elsif resembles_rhost_value?(val)
@@ -195,6 +199,11 @@ module ModuleArgumentParsing
       datastore_options[name.upcase] = value
     end
     datastore_options
+  end
+
+  def warn_unknown_datastore_option(name)
+    message = unknown_datastore_option_message(mod, name)
+    print_warning(message) if message
   end
 
   # Wraps values which contain spaces in quotes to ensure it's handled correctly later
