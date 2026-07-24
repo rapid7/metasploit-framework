@@ -95,16 +95,20 @@ module Msf
         end
 
         opts[:uuid] ||= generate_payload_uuid
-
-        case opts[:scheme]
-        when 'http'
-          opts[:uri] = generate_http_uri(transport_config_reverse_http(opts))
-        when 'https'
-          opts[:uri] = generate_http_uri(transport_config_reverse_https(opts))
-        when 'tcp'
-          opts[:uri] = generate_tcp_uri(transport_config_reverse_tcp(opts))
+        
+        if opts[:override_uri]
+          opts[:uri] = opts[:override_uri]
         else
-          raise ArgumentError, "Unknown scheme: #{opts[:scheme]}"
+          case opts[:scheme]
+          when 'http'
+            opts[:uri] = generate_http_uri(transport_config_reverse_http(opts))
+          when 'https'
+            opts[:uri] = generate_http_uri(transport_config_reverse_https(opts))
+          when 'tcp'
+            opts[:uri] = generate_tcp_uri(transport_config_reverse_tcp(opts))
+          else
+            raise ArgumentError, "Unknown scheme: #{opts[:scheme]}"
+          end
         end
 
         opts[:uuid] = Base64.encode64(opts[:uuid].to_raw).strip
