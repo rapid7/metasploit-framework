@@ -34,7 +34,7 @@ module MetasploitModule
         'Arch' => ARCH_AARCH64,
         'Handler' => Msf::Handler::ReverseTcp,
         'Session' => Msf::Sessions::CommandShell,
-        'Payload' => { 'Offsets' => {}, 'Payload' => '' },
+        'Payload' => { 'Offsets' => {}, 'Payload' => '' }
       )
     )
   end

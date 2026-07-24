@@ -61,5 +61,22 @@ RSpec.describe 'singles/windows/aarch64/shell_reverse_tcp' do
         end
       end
     end
+
+    context 'when LHOST is not IPv4' do
+      it 'raises ArgumentError for an IPv6 LHOST' do
+        subject.datastore['LHOST'] = '2001:db8::1'
+        expect { subject.generate }.to raise_error(ArgumentError, /LHOST must be in IPv4 format/)
+      end
+
+      it 'raises ArgumentError for an IPv6 loopback LHOST' do
+        subject.datastore['LHOST'] = '::1'
+        expect { subject.generate }.to raise_error(ArgumentError, /LHOST must be in IPv4 format/)
+      end
+
+      it 'raises ArgumentError for a hostname LHOST' do
+        subject.datastore['LHOST'] = 'www.example.com'
+        expect { subject.generate }.to raise_error(ArgumentError, /LHOST must be in IPv4 format/)
+      end
+    end
   end
 end
