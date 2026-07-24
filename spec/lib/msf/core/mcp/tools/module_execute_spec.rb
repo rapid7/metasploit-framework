@@ -32,9 +32,13 @@ RSpec.describe Msf::MCP::Tools::ModuleExecute do
       expect(described_class.input_schema.schema[:required]).to match_array(%w[type name options])
     end
 
-    it 'restricts type to the supported enum' do
+    it 'sources the type enum from EXECUTE_SUPPORTED_TYPES' do
       expect(described_class.input_schema.schema[:properties][:type][:enum])
-        .to match_array(%w[exploit auxiliary post payload evasion])
+        .to eq(described_class::EXECUTE_SUPPORTED_TYPES)
+    end
+
+    it 'restricts type to the supported set' do
+      expect(described_class::EXECUTE_SUPPORTED_TYPES).to match_array(%w[exploit auxiliary post payload evasion])
     end
   end
 

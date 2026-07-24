@@ -32,8 +32,13 @@ RSpec.describe Msf::MCP::Tools::ModuleCheck do
       expect(described_class.input_schema.schema[:required]).to match_array(%w[type name options])
     end
 
+    it 'sources the type enum from CHECK_SUPPORTED_TYPES' do
+      expect(described_class.input_schema.schema[:properties][:type][:enum])
+        .to eq(described_class::CHECK_SUPPORTED_TYPES)
+    end
+
     it 'restricts type to exploit and auxiliary' do
-      expect(described_class.input_schema.schema[:properties][:type][:enum]).to match_array(%w[exploit auxiliary])
+      expect(described_class::CHECK_SUPPORTED_TYPES).to match_array(%w[exploit auxiliary])
     end
   end
 

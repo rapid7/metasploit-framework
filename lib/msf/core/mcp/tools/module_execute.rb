@@ -12,6 +12,9 @@ module Msf::MCP
     # job_id and run UUID, which can later be polled via {ModuleResults}.
     #
     class ModuleExecute < ::MCP::Tool
+      # Module types accepted by module.execute.
+      EXECUTE_SUPPORTED_TYPES = %w[exploit auxiliary post payload evasion].freeze
+
       tool_name 'msf_module_execute'
       description 'Execute a Metasploit module (exploit, auxiliary, post, payload, or evasion). '\
                   'Returns a job_id and run UUID; use msf_module_results to retrieve the outcome.'
@@ -21,7 +24,7 @@ module Msf::MCP
           type: {
             type: 'string',
             description: 'Module type',
-            enum: %w[exploit auxiliary post payload evasion]
+            enum: EXECUTE_SUPPORTED_TYPES
           },
           name: {
             type: 'string',
@@ -84,45 +87,30 @@ module Msf::MCP
         # @return [MCP::Tool::Response] Structured response with job_id and uuid
         #
         def call(type:, name:, options:, server_context:)
-          dangerous_mode_required!(server_context)
+          with_tool_context(server_context, 'module_execute', dangerous: true) do |msf_client|
+            Msf::MCP::Security::InputValidator.validate_parameter!('Module type', type, EXECUTE_SUPPORTED_TYPES)
+            Msf::MCP::Security::InputValidator.validate_module_name!(name)
+            Msf::MCP::Security::InputValidator.validate_module_options!(options)
 
-          msf_client = server_context[:msf_client]
-          rate_limiter = server_context[:rate_limiter]
+            # MCP deep-symbolizes JSON input; the Metasploit datastore is keyed by Strings.
+            stringified_options = options.transform_keys(&:to_s)
 
-          rate_limiter.check_rate_limit!('module_execute')
+            raw_result, elapsed = Rex::Stopwatch.elapsed_time do
+              msf_client.module_execute(type, name, stringified_options)
+            end
 
-          Msf::MCP::Security::InputValidator.validate_module_type!(type)
-          Msf::MCP::Security::InputValidator.validate_module_name!(name)
-          Msf::MCP::Security::InputValidator.validate_module_options!(options)
+            data = {
+              job_id: raw_result['job_id'],
+              uuid: raw_result['uuid']
+            }
 
-          # MCP deep-symbolizes JSON input; the Metasploit datastore is keyed by Strings.
-          stringified_options = options.transform_keys(&:to_s)
+            metadata = { query_time: elapsed.round(3) }
 
-          raw_result, elapsed = Rex::Stopwatch.elapsed_time do
-            msf_client.module_execute(type, name, stringified_options)
+            ::MCP::Tool::Response.new(
+              [{ type: 'text', text: JSON.generate(metadata: metadata, data: data) }],
+              structured_content: { metadata: metadata, data: data }
+            )
           end
-
-          data = {
-            job_id: raw_result['job_id'],
-            uuid: raw_result['uuid']
-          }
-
-          metadata = { query_time: elapsed.round(3) }
-
-          ::MCP::Tool::Response.new(
-            [{ type: 'text', text: JSON.generate(metadata: metadata, data: data) }],
-            structured_content: { metadata: metadata, data: data }
-          )
-        rescue Msf::MCP::Tools::DangerousModeDisabledError => e
-          tool_error_response(e.message)
-        rescue Msf::MCP::Security::RateLimitExceededError => e
-          tool_error_response("Rate limit exceeded: #{e.message}")
-        rescue Msf::MCP::Metasploit::AuthenticationError => e
-          tool_error_response("Authentication failed: #{e.message}")
-        rescue Msf::MCP::Metasploit::APIError => e
-          tool_error_response("Metasploit API error: #{e.message}")
-        rescue Msf::MCP::Security::ValidationError => e
-          tool_error_response(e.message)
         end
       end
     end

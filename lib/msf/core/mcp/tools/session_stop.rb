@@ -60,36 +60,21 @@ module Msf::MCP
         # @return [MCP::Tool::Response] Structured response with stop result
         #
         def call(session_id:, server_context:)
-          dangerous_mode_required!(server_context)
+          with_tool_context(server_context, 'session_stop', dangerous: true) do |msf_client|
+            Msf::MCP::Security::InputValidator.validate_session_id!(session_id)
 
-          msf_client = server_context[:msf_client]
-          rate_limiter = server_context[:rate_limiter]
+            raw_result, elapsed = Rex::Stopwatch.elapsed_time do
+              msf_client.session_stop(session_id)
+            end
 
-          rate_limiter.check_rate_limit!('session_stop')
+            data = { result: raw_result['result'] }
+            metadata = { query_time: elapsed.round(3) }
 
-          Msf::MCP::Security::InputValidator.validate_session_id!(session_id)
-
-          raw_result, elapsed = Rex::Stopwatch.elapsed_time do
-            msf_client.session_stop(session_id)
+            ::MCP::Tool::Response.new(
+              [{ type: 'text', text: JSON.generate(metadata: metadata, data: data) }],
+              structured_content: { metadata: metadata, data: data }
+            )
           end
-
-          data = { result: raw_result['result'] }
-          metadata = { query_time: elapsed.round(3) }
-
-          ::MCP::Tool::Response.new(
-            [{ type: 'text', text: JSON.generate(metadata: metadata, data: data) }],
-            structured_content: { metadata: metadata, data: data }
-          )
-        rescue Msf::MCP::Tools::DangerousModeDisabledError => e
-          tool_error_response(e.message)
-        rescue Msf::MCP::Security::RateLimitExceededError => e
-          tool_error_response("Rate limit exceeded: #{e.message}")
-        rescue Msf::MCP::Metasploit::AuthenticationError => e
-          tool_error_response("Authentication failed: #{e.message}")
-        rescue Msf::MCP::Metasploit::APIError => e
-          tool_error_response("Metasploit API error: #{e.message}")
-        rescue Msf::MCP::Security::ValidationError => e
-          tool_error_response(e.message)
         end
       end
     end

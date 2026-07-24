@@ -483,7 +483,7 @@ Tools that execute modules or interact with sessions are disabled by default. Th
 
 ### Input Validation
 
-All tool parameters are validated against strict JSON schemas. IP addresses are validated using Ruby's `IPAddr` class with CIDR support, workspace names are restricted to alphanumeric characters plus underscore/hyphen, port ranges are validated (1-65535), and search queries are limited to 500 characters. Module datastore option keys must match Metasploit's option-name shape (identifier segments joined by `::` or `-`, up to 128 characters); option payloads are capped at 100 keys, 8 KB per string value, and 64 KB aggregate. Session data writes are capped at 64 KB per call.
+All tool parameters are validated against strict JSON schemas. IP addresses are validated using Ruby's `IPAddr` class with CIDR support, workspace names are restricted to alphanumeric characters plus underscore/hyphen, port ranges are validated (1-65535), and search queries are limited to 500 characters. Module datastore option keys must match Metasploit's option-name shape (identifier segments joined by `::` or `-`, up to 128 characters); option payloads are capped at 100 keys, 8 KB per string value, and 64 KB aggregate. Session data writes are capped at 10,000 characters per call.
 
 ### Credential Management
 

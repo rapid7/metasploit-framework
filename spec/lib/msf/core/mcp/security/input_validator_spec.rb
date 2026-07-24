@@ -846,8 +846,8 @@ RSpec.describe Msf::MCP::Security::InputValidator do
       }.to raise_error(Msf::MCP::Security::ValidationError, /Session data must be a String/)
     end
 
-    it 'rejects data exceeding the size cap' do
-      oversized = 'A' * (described_class::SESSION_DATA_MAX_BYTES + 1)
+    it 'rejects data exceeding the character cap' do
+      oversized = 'A' * (described_class::SESSION_DATA_MAX_CHARS + 1)
       expect {
         described_class.validate_session_data!(oversized)
       }.to raise_error(Msf::MCP::Security::ValidationError, /Session data exceeds/)

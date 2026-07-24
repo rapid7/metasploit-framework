@@ -223,7 +223,8 @@ module Msf::MCP
       MODULE_RUN_UUID_REGEX = /\A[A-Za-z0-9]{24}\z/
 
       SESSION_ID_RANGE = 1..65535
-      SESSION_DATA_MAX_BYTES = 64 * 1024
+      # Character cap on a single session.interactive_write payload.
+      SESSION_DATA_MAX_CHARS = 10_000
 
       # Validate module datastore options hash.
       #
@@ -308,8 +309,8 @@ module Msf::MCP
         raise ValidationError, 'Session data must be a String' unless data.is_a?(String)
         raise ValidationError, 'Session data cannot be empty' if data.empty?
 
-        if data.bytesize > SESSION_DATA_MAX_BYTES
-          raise ValidationError, "Session data exceeds #{SESSION_DATA_MAX_BYTES} bytes"
+        if data.length > SESSION_DATA_MAX_CHARS
+          raise ValidationError, "Session data exceeds #{SESSION_DATA_MAX_CHARS} characters"
         end
 
         true

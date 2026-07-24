@@ -64,33 +64,22 @@ module Msf::MCP
         # @return [MCP::Tool::Response] Structured response with run status
         #
         def call(uuid:, server_context:)
-          msf_client = server_context[:msf_client]
-          rate_limiter = server_context[:rate_limiter]
+          with_tool_context(server_context, 'module_results') do |msf_client|
+            Msf::MCP::Security::InputValidator.validate_uuid!(uuid)
 
-          rate_limiter.check_rate_limit!('module_results')
+            raw_result, elapsed = Rex::Stopwatch.elapsed_time do
+              msf_client.module_results(uuid)
+            end
 
-          Msf::MCP::Security::InputValidator.validate_uuid!(uuid)
+            data = raw_result.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
 
-          raw_result, elapsed = Rex::Stopwatch.elapsed_time do
-            msf_client.module_results(uuid)
+            metadata = { query_time: elapsed.round(3) }
+
+            ::MCP::Tool::Response.new(
+              [{ type: 'text', text: JSON.generate(metadata: metadata, data: data) }],
+              structured_content: { metadata: metadata, data: data }
+            )
           end
-
-          data = raw_result.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
-
-          metadata = { query_time: elapsed.round(3) }
-
-          ::MCP::Tool::Response.new(
-            [{ type: 'text', text: JSON.generate(metadata: metadata, data: data) }],
-            structured_content: { metadata: metadata, data: data }
-          )
-        rescue Msf::MCP::Security::RateLimitExceededError => e
-          tool_error_response("Rate limit exceeded: #{e.message}")
-        rescue Msf::MCP::Metasploit::AuthenticationError => e
-          tool_error_response("Authentication failed: #{e.message}")
-        rescue Msf::MCP::Metasploit::APIError => e
-          tool_error_response("Metasploit API error: #{e.message}")
-        rescue Msf::MCP::Security::ValidationError => e
-          tool_error_response(e.message)
         end
       end
     end

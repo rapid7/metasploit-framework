@@ -68,8 +68,8 @@ RSpec.describe Msf::MCP::Tools::SessionWrite do
       expect(result.content.first[:text]).to match(/Session data/)
     end
 
-    it 'rejects data exceeding the size cap' do
-      oversized = 'A' * (Msf::MCP::Security::InputValidator::SESSION_DATA_MAX_BYTES + 1)
+    it 'rejects data exceeding the character cap' do
+      oversized = 'A' * (Msf::MCP::Security::InputValidator::SESSION_DATA_MAX_CHARS + 1)
       result = described_class.call(session_id: 1, data: oversized, server_context: server_context)
       expect(result.error?).to be true
       expect(result.content.first[:text]).to match(/Session data/)

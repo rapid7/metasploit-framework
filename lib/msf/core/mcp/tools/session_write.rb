@@ -69,37 +69,22 @@ module Msf::MCP
         # @return [MCP::Tool::Response] Structured response with write result
         #
         def call(session_id:, data:, server_context:)
-          dangerous_mode_required!(server_context)
+          with_tool_context(server_context, 'session_write', dangerous: true) do |msf_client|
+            Msf::MCP::Security::InputValidator.validate_session_id!(session_id)
+            Msf::MCP::Security::InputValidator.validate_session_data!(data)
 
-          msf_client = server_context[:msf_client]
-          rate_limiter = server_context[:rate_limiter]
+            raw_result, elapsed = Rex::Stopwatch.elapsed_time do
+              msf_client.session_write(session_id, data)
+            end
 
-          rate_limiter.check_rate_limit!('session_write')
+            response_data = { result: raw_result['result'] }
+            metadata = { query_time: elapsed.round(3) }
 
-          Msf::MCP::Security::InputValidator.validate_session_id!(session_id)
-          Msf::MCP::Security::InputValidator.validate_session_data!(data)
-
-          raw_result, elapsed = Rex::Stopwatch.elapsed_time do
-            msf_client.session_write(session_id, data)
+            ::MCP::Tool::Response.new(
+              [{ type: 'text', text: JSON.generate(metadata: metadata, data: response_data) }],
+              structured_content: { metadata: metadata, data: response_data }
+            )
           end
-
-          response_data = { result: raw_result['result'] }
-          metadata = { query_time: elapsed.round(3) }
-
-          ::MCP::Tool::Response.new(
-            [{ type: 'text', text: JSON.generate(metadata: metadata, data: response_data) }],
-            structured_content: { metadata: metadata, data: response_data }
-          )
-        rescue Msf::MCP::Tools::DangerousModeDisabledError => e
-          tool_error_response(e.message)
-        rescue Msf::MCP::Security::RateLimitExceededError => e
-          tool_error_response("Rate limit exceeded: #{e.message}")
-        rescue Msf::MCP::Metasploit::AuthenticationError => e
-          tool_error_response("Authentication failed: #{e.message}")
-        rescue Msf::MCP::Metasploit::APIError => e
-          tool_error_response("Metasploit API error: #{e.message}")
-        rescue Msf::MCP::Security::ValidationError => e
-          tool_error_response(e.message)
         end
       end
     end

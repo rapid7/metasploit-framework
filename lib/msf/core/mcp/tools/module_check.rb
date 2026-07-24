@@ -13,9 +13,8 @@ module Msf::MCP
     # response instead of an error.
     #
     class ModuleCheck < ::MCP::Tool
-      # Message fragment emitted by Msf::Exploit::CheckCode::Unsupported when
-      # a target module does not implement #check.
-      UNSUPPORTED_MESSAGE_PATTERN = /module does not support check/i
+      # Module types accepted by module.check.
+      CHECK_SUPPORTED_TYPES = %w[exploit auxiliary].freeze
 
       tool_name 'msf_module_check'
       description 'Run the check method of a Metasploit exploit or auxiliary module. '\
@@ -26,7 +25,7 @@ module Msf::MCP
           type: {
             type: 'string',
             description: 'Module type',
-            enum: %w[exploit auxiliary]
+            enum: CHECK_SUPPORTED_TYPES
           },
           name: {
             type: 'string',
@@ -90,60 +89,36 @@ module Msf::MCP
         #   or { status: 'unsupported' } when the module has no check method
         #
         def call(type:, name:, options:, server_context:)
-          dangerous_mode_required!(server_context)
+          with_tool_context(server_context, 'module_check', dangerous: true) do |msf_client|
+            Msf::MCP::Security::InputValidator.validate_parameter!('Module type', type, CHECK_SUPPORTED_TYPES)
+            Msf::MCP::Security::InputValidator.validate_module_name!(name)
+            Msf::MCP::Security::InputValidator.validate_module_options!(options)
 
-          msf_client = server_context[:msf_client]
-          rate_limiter = server_context[:rate_limiter]
+            # MCP deep-symbolizes JSON input; the Metasploit datastore is keyed by Strings.
+            stringified_options = options.transform_keys(&:to_s)
 
-          rate_limiter.check_rate_limit!('module_check')
-
-          Msf::MCP::Security::InputValidator.validate_parameter!('Module type', type, %w[exploit auxiliary])
-          Msf::MCP::Security::InputValidator.validate_module_name!(name)
-          Msf::MCP::Security::InputValidator.validate_module_options!(options)
-
-          # MCP deep-symbolizes JSON input; the Metasploit datastore is keyed by Strings.
-          stringified_options = options.transform_keys(&:to_s)
-
-          raw_result = nil
-          api_error = nil
-          _, elapsed = Rex::Stopwatch.elapsed_time do
-            raw_result = msf_client.module_check(type, name, stringified_options)
-          rescue Msf::MCP::Metasploit::APIError => e
-            api_error = e
-          end
-
-          if api_error
-            raise api_error unless api_error.message.to_s.match?(UNSUPPORTED_MESSAGE_PATTERN)
+            api_error = nil
+            raw_result, elapsed = Rex::Stopwatch.elapsed_time do
+              msf_client.module_check(type, name, stringified_options)
+            rescue Msf::MCP::Metasploit::APIError => e
+              api_error = e
+            end
 
             metadata = { query_time: elapsed.round(3) }
-            data = { status: 'unsupported', message: 'Module does not implement a check method' }
-            return ::MCP::Tool::Response.new(
+            data =
+              if api_error
+                raise api_error unless api_error.message == Msf::Exploit::CheckCode::Unsupported.message
+
+                { status: 'unsupported', message: 'Module does not implement a check method' }
+              else
+                { job_id: raw_result['job_id'], uuid: raw_result['uuid'] }
+              end
+
+            ::MCP::Tool::Response.new(
               [{ type: 'text', text: JSON.generate(metadata: metadata, data: data) }],
               structured_content: { metadata: metadata, data: data }
             )
           end
-
-          data = {
-            job_id: raw_result['job_id'],
-            uuid: raw_result['uuid']
-          }
-
-          metadata = { query_time: elapsed.round(3) }
-
-          ::MCP::Tool::Response.new(
-            [{ type: 'text', text: JSON.generate(metadata: metadata, data: data) }],
-            structured_content: { metadata: metadata, data: data }
-          )
-        rescue Msf::MCP::Tools::DangerousModeDisabledError => e
-          tool_error_response(e.message)
-        rescue Msf::MCP::Security::RateLimitExceededError => e
-          tool_error_response("Rate limit exceeded: #{e.message}")
-        rescue Msf::MCP::Metasploit::AuthenticationError => e
-          tool_error_response("Authentication failed: #{e.message}")
-        rescue Msf::MCP::Metasploit::APIError => e
-          tool_error_response("Metasploit API error: #{e.message}")
-        rescue Msf::MCP::Security::ValidationError => e
-          tool_error_response(e.message)
         end
       end
     end
