@@ -117,6 +117,10 @@ module Msf::MCP
           @options[:mcp_transport] = transport
         end
 
+        opts.on('--enable-dangerous-actions', 'Enable destructive MCP tools (module execution, session control)') do
+          @options[:enable_dangerous_actions_cli] = true
+        end
+
         opts.on('-h', '--help', 'Show this help message') do
           @output.puts opts
           exit 0
@@ -202,6 +206,9 @@ module Msf::MCP
       if @options[:mcp_transport]
         @config[:mcp][:transport] = @options[:mcp_transport]
       end
+      if @options[:enable_dangerous_actions_cli]
+        @config[:mcp][:dangerous_actions] = true
+      end
     end
 
     # Validate the loaded configuration
@@ -267,9 +274,14 @@ module Msf::MCP
     # @return [void]
     def initialize_mcp_server
       @output.puts "Initializing MCP server..."
+      dangerous_actions = @config&.dig(:mcp, :dangerous_actions) == true
+      if dangerous_actions
+        @output.puts "WARNING: dangerous actions mode is ENABLED. Destructive tools (module execution, session control) are accessible."
+      end
       @mcp_server = Msf::MCP::Server.new(
         msf_client: @msf_client,
-        rate_limiter: @rate_limiter
+        rate_limiter: @rate_limiter,
+        dangerous_actions: dangerous_actions
       )
     end
 

@@ -58,9 +58,9 @@ RSpec.describe Msf::MCP::Tools::LootInfo do
   end
 
   describe 'Input Schema Validation' do
-    it 'defines workspace as required parameter' do
+    it 'does not require workspace (defaults to "default")' do
       input_schema = described_class.input_schema
-      expect(input_schema.schema[:required]).to include('workspace')
+      expect(Array(input_schema.schema[:required])).not_to include('workspace')
     end
 
     it 'supports pagination parameters' do

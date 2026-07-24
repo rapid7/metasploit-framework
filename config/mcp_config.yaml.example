@@ -21,6 +21,13 @@ mcp:
   # max_threads: 5   # Maximum thread pool size (default: 5)
   # workers: 0       # Number of worker processes (default: 0, single-process mode)
 
+  # Dangerous actions gate (default: false)
+  # When false, destructive tools (msf_module_execute, msf_module_check,
+  # msf_session_stop, msf_session_write) return an error. Override at runtime
+  # with the --enable-dangerous-actions CLI flag or by setting the
+  # MSF_MCP_DANGEROUS_ACTIONS=true environment variable.
+  dangerous_actions: false
+
 # Rate limiting (optional - defaults shown)
 rate_limit:
   enabled: true

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rex/stopwatch'
+
 module Msf::MCP
   module Tools
     ##
@@ -33,8 +35,7 @@ module Msf::MCP
             minimum: 0,
             default: 0
           }
-        },
-        required: [:workspace]
+        }
       )
 
       output_schema(
@@ -91,8 +92,6 @@ module Msf::MCP
         # @return [MCP::Tool::Response] Structured response with credential information
         #
         def call(workspace: 'default', limit: Msf::MCP::Security::InputValidator::LIMIT_DEFAULT, offset: 0, server_context:)
-          start_time = Time.now
-
           # Extract dependencies from server context
           msf_client = server_context[:msf_client]
           rate_limiter = server_context[:rate_limiter]
@@ -107,7 +106,9 @@ module Msf::MCP
           # Note that `workspace` is optional in the MSF API, the default workspace is used if not provided.
           # The default value is sent anyway for clarity.
           options = { workspace: workspace }
-          raw_creds = msf_client.db_creds(options)
+          raw_creds, elapsed = Rex::Stopwatch.elapsed_time do
+            msf_client.db_creds(options)
+          end
 
           # Transform response
           transformed = Metasploit::ResponseTransformer.transform_creds(raw_creds)
@@ -123,7 +124,7 @@ module Msf::MCP
           # Build metadata
           metadata = {
             workspace: workspace,
-            query_time: (Time.now - start_time).round(3),
+            query_time: elapsed.round(3),
             total_items: total_items,
             returned_items: paginated_data.size,
             limit: limit,
