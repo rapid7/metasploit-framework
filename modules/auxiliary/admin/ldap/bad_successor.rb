@@ -319,10 +319,10 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    result = mod.run_simple(
+    result = mod.run_simple({
       'LocalInput' => user_input,
       'LocalOutput' => user_output
-    )
+    })
 
     # Exceptions raised in the get_ticket won't propagate here, so fail if the credential is nil
     fail_with(Failure::Unknown, 'Failed to run get_ticket module.') unless result

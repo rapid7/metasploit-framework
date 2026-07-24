@@ -61,7 +61,7 @@ module Msf
           target = nmod.datastore['TARGET']
           nop = nmod.datastore['NOP']
 
-          nmod.exploit_simple(
+          nmod.exploit_simple({
             'Encoder' => encoder,
             'Payload' => payload,
             'Target' => target,
@@ -70,7 +70,7 @@ module Msf
             'LocalInput' => driver.input,
             'LocalOutput' => driver.output,
             'RunAsJob' => jobify
-          )
+          })
         end
       end
     end

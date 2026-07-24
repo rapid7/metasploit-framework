@@ -76,12 +76,12 @@ module MsfTest
       exploit = @framework.exploits.create(@exploit_name)
 
       ## Fire it off against a known-vulnerable host
-      @session = exploit.exploit_simple(
+      @session = exploit.exploit_simple({
         'Options' => { 'RHOST' => "vulnerable", "SMBUser" => "administrator", "SMBPass" => "" },
         'Payload' => @payload_name,
         'LocalInput' => @input,
         'LocalOutput' => @output
-      )
+      })
 
       ## If a session came back, try to interact with it.
       if @session

@@ -388,13 +388,13 @@ class MetasploitModule < Msf::Auxiliary
     @exploits[name].datastore['SSLVersion'] = datastore['SSLVersion']
     @exploits[name].datastore['EXITFUNC'] = datastore['EXITFUNC'] || 'thread'
     @exploits[name].datastore['DisablePayloadHandler'] = true
-    @exploits[name].exploit_simple(
+    @exploits[name].exploit_simple({
       'LocalInput' => self.user_input,
       'LocalOutput' => self.user_output,
       'Target' => targ,
       'Payload' => payload,
       'RunAsJob' => true
-    )
+    })
 
     # It takes a little time for the resources to get set up, so sleep for
     # a bit to make sure the exploit is fully working.  Without this,
@@ -526,12 +526,12 @@ class MetasploitModule < Msf::Auxiliary
           multihandler.datastore['AutoSystemInfo'] = datastore['AutoSystemInfo']
           multihandler.datastore['InitialAutoRunScript'] = datastore['InitialAutoRunScript']
         end
-        multihandler.exploit_simple(
+        multihandler.exploit_simple({
           'LocalInput' => self.user_input,
           'LocalOutput' => self.user_output,
           'Payload' => @payloads[lport],
           'RunAsJob' => true
-        )
+        })
         @handler_job_ids.push(multihandler.job_id)
       end
     end

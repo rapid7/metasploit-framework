@@ -77,10 +77,10 @@ def create_multi_handler(payload_to_inject)
   mul.datastore['EXITFUNC'] = 'process'
   mul.datastore['ExitOnSession'] = true
   print_status("Running payload handler")
-  mul.exploit_simple(
+  mul.exploit_simple({
     'Payload'  => mul.datastore['PAYLOAD'],
     'RunAsJob' => true
-  )
+  })
 
 end
 

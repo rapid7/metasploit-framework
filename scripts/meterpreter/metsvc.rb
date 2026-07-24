@@ -127,10 +127,10 @@ if client.platform == 'windows'
     mul.datastore['LPORT']   = rport
     mul.datastore['RHOST']   = client.session_host
     mul.datastore['ExitOnSession'] = false
-    mul.exploit_simple(
+    mul.exploit_simple({
       'Payload'        => mul.datastore['PAYLOAD'],
       'RunAsJob'       => true
-    )
+    })
   end
 
 else

@@ -135,11 +135,11 @@ class MetasploitModule < Msf::Auxiliary
     ldap_update_module.datastore['ACTION'] = action
 
     print_status("Running #{mod_refname}")
-    ldap_update_module.run_simple(
+    ldap_update_module.run_simple({
       'LocalInput' => user_input,
       'LocalOutput' => user_output,
       'RunAsJob' => false
-    )
+    })
   end
 
   def call_shadow_credentials_module(action, device_id = nil)
@@ -166,11 +166,11 @@ class MetasploitModule < Msf::Auxiliary
     ldap_update_module.datastore['ACTION'] = action
 
     print_status("Running #{mod_refname}")
-    ldap_update_module.run_simple(
+    ldap_update_module.run_simple({
       'LocalInput' => user_input,
       'LocalOutput' => user_output,
       'RunAsJob' => false
-    )
+    })
   end
 
   def automate_get_hash(cert_path, username, domain, rhosts)
@@ -192,11 +192,11 @@ class MetasploitModule < Msf::Auxiliary
     get_ticket_module.datastore['RPORT'] = 88
     get_ticket_module.datastore['ACTION'] = 'GET_HASH'
 
-    res = get_ticket_module.run_simple(
+    res = get_ticket_module.run_simple({
       'LocalInput' => user_input,
       'LocalOutput' => user_output,
       'RunAsJob' => false
-    )
+    })
     fail_with(Failure::Unknown, 'Failed to get hash for target user') unless res
     res
   end

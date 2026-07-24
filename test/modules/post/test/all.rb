@@ -63,11 +63,11 @@ class MetasploitModule < Msf::Post
       print_status("-" * 80)
 
       module_replicant = nil
-      available_module[:module].run_simple(
+      available_module[:module].run_simple({
         'LocalInput' => user_input,
         'LocalOutput' => user_output,
         'Options' => datastore.copy
-      ) { |yielded_module_replicant| module_replicant = yielded_module_replicant }
+      }) { |yielded_module_replicant| module_replicant = yielded_module_replicant }
 
       results << {
         **available_module,

@@ -435,12 +435,12 @@ module Msf
         multi_handler.datastore['ExitOnSession'] = false
         multi_handler.datastore['EXITFUNC'] = 'thread'
 
-        multi_handler.exploit_simple(
+        multi_handler.exploit_simple({
           'LocalInput' => nil,
           'LocalOutput' => nil,
           'Payload' => multi_handler.datastore['PAYLOAD'],
           'RunAsJob' => true
-        )
+        })
         @payload_job_ids << multi_handler.job_id
         # requester = Metasploit::Aggregator::Http::SslRequester.new(multi_handler.datastore['LHOST'], multi_handler.datastore['LPORT'])
         requester = Metasploit::Aggregator::Http::Requester.new(multi_handler.datastore['LHOST'], multi_handler.datastore['LPORT'])

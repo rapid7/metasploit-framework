@@ -57,12 +57,12 @@ module MsfTest
       exploit = @framework.exploits.create(@exploit_name)
 
       ## Fire it off against a known-vulnerable host
-      @session = exploit.exploit_simple(
+      @session = exploit.exploit_simple({
         'Options' => { 'RHOST' => "metasploitable" },
         'Payload' => @payload_name,
         'LocalInput' => @input,
         'LocalOutput' => @output
-      )
+      })
 
       puts @session.inspect
 

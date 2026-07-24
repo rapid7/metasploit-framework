@@ -79,10 +79,10 @@ mul.datastore['PAYLOAD'] = payload
 mul.datastore['EXITFUNC'] = 'process'
 mul.datastore['ExitOnSession'] = true
 print_status("Running payload handler")
-mul.exploit_simple(
+mul.exploit_simple({
   'Payload'  => mul.datastore['PAYLOAD'],
   'RunAsJob' => true
-)
+})
 
 if client.platform == 'windows'
   server = client.sys.process.open

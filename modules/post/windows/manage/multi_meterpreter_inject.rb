@@ -129,10 +129,10 @@ class MetasploitModule < Msf::Post
     mul.datastore['EXITFUNC'] = 'process'
     mul.datastore['ExitOnSession'] = false
 
-    mul.exploit_simple(
+    mul.exploit_simple({
       'Payload' => mul.datastore['PAYLOAD'],
       'RunAsJob' => true
-    )
+    })
     print_good('exploit/multi/handler started!')
   end
 

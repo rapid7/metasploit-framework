@@ -92,10 +92,10 @@ class MetasploitModule < Msf::Post
         end
       end
       m.options.validate(m.datastore)
-      m.run_simple(
+      m.run_simple({
         'LocalInput' => user_input,
         'LocalOutput' => user_output
-      )
+      })
     end
   end
 end

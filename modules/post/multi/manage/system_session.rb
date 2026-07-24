@@ -136,12 +136,12 @@ class MetasploitModule < Msf::Post
       # Validate module options
       mul.options.validate(mul.datastore)
       # Execute showing output
-      mul.exploit_simple(
+      mul.exploit_simple({
         'Payload' => mul.datastore['PAYLOAD'],
         'LocalInput' => user_input,
         'LocalOutput' => user_output,
         'RunAsJob' => true
-      )
+      })
     else
       print_error('Could not start handler!')
       print_error('A job is listening on the same Port')

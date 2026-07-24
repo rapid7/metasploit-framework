@@ -132,10 +132,10 @@ if autoconn
   mul.datastore['AUTOVNC'] = autovnc
 
   print_status("Running payload handler")
-  mul.exploit_simple(
+  mul.exploit_simple({
     'Payload'  => mul.datastore['PAYLOAD'],
     'RunAsJob' => true
-  )
+  })
 end
 
 raw = pay.generate
