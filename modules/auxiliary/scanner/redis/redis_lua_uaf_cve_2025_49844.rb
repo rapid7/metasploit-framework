@@ -4,8 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  Rank = NormalRanking
-
   include Msf::Auxiliary::Redis
 
   # Branch => first patched release, per the official advisory.
