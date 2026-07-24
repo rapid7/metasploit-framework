@@ -27,8 +27,51 @@ module Console::InteractiveChannel
         _local_fd.raw do
           interact_stream(self)
         end
-      else
+      elsif !user_input.respond_to?(:pgets)
         interact_stream(self)
+      else
+        old_prompt = user_input.prompt
+        user_input.prompt = ''
+
+        while self.interacting && _remote_fd(self)
+          data = ''
+          while self.interacting && _remote_fd(self)
+            sd = Rex::ThreadSafe.select([_remote_fd(self)], nil, nil, 0.1)
+            break unless sd
+            begin
+              chunk = self.lsock.sysread(16384)
+              break if chunk.nil? || chunk.empty?
+              data << chunk
+            rescue Exception
+              break
+            end
+          end
+
+          if data.length > 0
+            self.on_print_proc.call(data.strip) if self.on_print_proc
+            self.on_log_proc.call(data.strip) if self.on_log_proc
+
+            lines = data.split("\n", -1)
+            prompt_part = lines.pop || ''
+
+            if lines.length > 0
+              user_output.print(lines.join("\n") + "\n")
+            end
+
+            user_input.prompt = prompt_part
+          end
+
+          begin
+            line = user_input.pgets
+            break unless line
+            self.on_command_proc.call(line.strip) if self.on_command_proc
+            self.write(line + "\n")
+          rescue Exception
+            break
+          end
+        end
+
+        user_input.prompt = old_prompt if old_prompt
       end
 
       self.interactive(false)
