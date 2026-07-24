@@ -24,11 +24,11 @@ ehdr:                            ; Elf32_Ehdr
   db    0, 0, 0, 0,  0, 0, 0, 0  ;
   dw    WORD_BE(2)               ;   e_type       = ET_EXEC for an executable
   dw    WORD_BE(0x08)            ;   e_machine    = MIPS
-  dd    0                        ;   e_version
+  dd    DWORD_BE(1)              ;   e_version    = EV_CURRENT
   dq    QWORD_BE(0x400078)       ;   e_entry
   dq    QWORD_BE(0x40)           ;   e_phoff
   dq    0                        ;   e_shoff
-  dd    0                        ;   e_flags
+  dd    DWORD_BE(0x60000000)     ;   e_flags      = EF_MIPS_ARCH_64
   dw    WORD_BE(0x40)            ;   e_ehsize
   dw    WORD_BE(0x38)            ;   e_phentsize
   dw    WORD_BE(0x1)             ;   e_phnum
