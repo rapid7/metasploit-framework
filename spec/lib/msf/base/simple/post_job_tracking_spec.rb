@@ -109,7 +109,7 @@ RSpec.describe Msf::Simple::Post, '.run_simple' do
     expect(mod).to receive(:run_uuid=).with(kind_of(String)).at_least(:once)
     expect(mod).to receive(:job_id=).with(42).at_least(:once)
 
-    described_class.run_simple(mod, { 'RunAsJob' => true }, job_listener: job_listener)
+    described_class.run_simple(mod, { 'RunAsJob' => true, 'JobListener' => job_listener })
 
     expect(captured_uuid).to be_a(String)
     expect(captured_uuid.length).to be >= 8

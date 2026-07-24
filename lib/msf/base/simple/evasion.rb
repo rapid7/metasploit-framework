@@ -7,7 +7,8 @@ module Evasion
 
   include Module
 
-  def self.run_simple(oevasion, opts, job_listener: Msf::Simple::NoopJobListener.instance, &block)
+  def self.run_simple(oevasion, opts, &block)
+    job_listener = opts.delete('JobListener') || Msf::Simple::NoopJobListener.instance
     evasion = oevasion.replicant
     # Trap and print errors here (makes them UI-independent)
     begin
@@ -105,8 +106,8 @@ module Evasion
     nil
   end
 
-  def run_simple(opts = {}, job_listener: Msf::Simple::NoopJobListener.instance, &block)
-    Msf::Simple::Evasion.run_simple(self, opts, job_listener: job_listener, &block)
+  def run_simple(opts = {}, &block)
+    Msf::Simple::Evasion.run_simple(self, opts, &block)
   end
 
 end
