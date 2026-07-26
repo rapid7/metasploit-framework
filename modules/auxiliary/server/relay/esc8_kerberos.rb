@@ -50,7 +50,11 @@ class MetasploitModule < Msf::Auxiliary
         OptEnum.new('MODE', [ true, 'The issue mode.', 'AUTO', %w[ALL AUTO QUERY_ONLY SPECIFIC_TEMPLATE]]),
         OptString.new('CERT_TEMPLATE', [ false, 'The template to issue if MODE is SPECIFIC_TEMPLATE.' ], conditions: %w[MODE == SPECIFIC_TEMPLATE]),
         OptString.new('TARGETURI', [ true, 'The URI for the cert server.', '/certsrv/' ]),
-        OptString.new('RELAY_IDENTITY', [ true, 'The coerced principal being relayed (e.g. DOMAIN\\HOST$). The Kerberos AP-REQ carries the identity encrypted, so it is supplied here for template selection and certificate labeling.' ])
+        OptString.new('RELAY_IDENTITY', [ true, 'The coerced principal being relayed (e.g. DOMAIN\\HOST$). The Kerberos AP-REQ carries the identity encrypted, so it is supplied here for template selection and certificate labeling.' ]),
+        # HttpClient re-registers RHOSTS after the relay server mixin and drops
+        # its aliases, so without this SMBHOST and RELAY_TARGETS are accepted
+        # but never reach RHOSTS. Module options are applied last, so this wins.
+        OptRhosts.new('RHOSTS', [ true, 'Target address range or CIDR identifier to relay to' ], aliases: ['SMBHOST', 'RELAY_TARGETS'])
       ]
     )
 
@@ -59,7 +63,6 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('RANDOMIZE_TARGETS', [true, 'Whether the relay targets should be randomized', true])
       ]
     )
-    @issued_certs = {}
   end
 
   def relay_targets
@@ -141,6 +144,10 @@ class MetasploitModule < Msf::Auxiliary
     # The AP-REQ carries the client identity encrypted to the target service, so
     # it is not recovered from the wire; fall back to the operator-supplied
     # RELAY_IDENTITY for template selection and certificate labeling.
+    #
+    # relay_identity is always nil on the Kerberos path today, since nothing
+    # upstream can learn the principal. It is honoured anyway so that a future
+    # target which does recover an identity needs no change here.
     identity = relay_identity.presence || datastore['RELAY_IDENTITY']
 
     case datastore['MODE']
