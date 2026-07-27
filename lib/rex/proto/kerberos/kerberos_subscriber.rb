@@ -41,6 +41,10 @@ module Rex
           nil
         end
 
+        # @param metadata [Hash] Structured protocol carrier trace context.
+        def on_protocol_carrier(metadata)
+          nil
+        end
       end
     end
   end

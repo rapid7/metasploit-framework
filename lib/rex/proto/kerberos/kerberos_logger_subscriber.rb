@@ -99,6 +99,15 @@ module Rex
           print_event('Kerberos Response Token', service_authentication_presenter.present_response_token(metadata || {}), direction: :response)
         end
 
+        # (see Rex::Proto::Kerberos::KerberosSubscriber#on_protocol_carrier)
+        def on_protocol_carrier(metadata)
+          return unless token_trace_enabled?
+
+          title = metadata && metadata[:label] ? "Kerberos Carrier: #{metadata[:label]}" : 'Kerberos Carrier'
+          direction = metadata && metadata[:direction].to_s == 'response' ? :response : :request
+          print_event(title, service_authentication_presenter.present_protocol_carrier(metadata || {}), direction: direction)
+        end
+
         private
 
         def message_trace_enabled?

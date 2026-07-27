@@ -1079,6 +1079,90 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
         expect(output_text).to include('Carrier: HTTP WWW-Authenticate')
       end
     end
+
+    describe '#on_protocol_carrier' do
+      it 'prints HTTP Authorization carrier metadata and token summary' do
+        subscriber.on_protocol_carrier(
+          protocol: 'HTTP',
+          direction: 'request',
+          label: 'HTTP Authorization',
+          carrier: 'Authorization header',
+          header_name: 'Authorization',
+          scheme: 'Negotiate',
+          base64_token: Rex::Text.encode_base64(spnego_token),
+          token: spnego_token,
+          service_principal: 'http/www.example.local@EXAMPLE.LOCAL'
+        )
+
+        expect(output_text).to include('# Kerberos Carrier: HTTP Authorization')
+        expect(output_text).to include('Header Name: Authorization')
+        expect(output_text).to include('Scheme: Negotiate')
+        expect(output_text).to include("Decoded Token Length: #{spnego_token.bytesize}")
+        expect(output_text).to include('Token Type: SPNEGO NegTokenInit')
+      end
+
+      [
+        {
+          protocol: 'SMB',
+          label: 'SMB Session Setup',
+          carrier: 'SMB2 Session Setup security blob',
+          field_name: 'security_blob'
+        },
+        {
+          protocol: 'MSSQL',
+          label: 'MSSQL SSPI',
+          carrier: 'TDS7 Login SSPI security blob',
+          field_name: 'sspi'
+        },
+        {
+          protocol: 'LDAP',
+          label: 'LDAP serverSaslCreds',
+          carrier: 'SASL bind response serverSaslCreds',
+          field_name: 'serverSaslCreds'
+        }
+      ].each do |carrier_context|
+        it "prints #{carrier_context[:label]} carrier metadata" do
+          subscriber.on_protocol_carrier(
+            carrier_context.merge(
+              direction: 'request',
+              token: spnego_token,
+              service_principal: 'cifs/fileserver.example.local@EXAMPLE.LOCAL'
+            )
+          )
+
+          expect(output_text).to include("# Kerberos Carrier: #{carrier_context[:label]}")
+          expect(output_text).to include("Protocol: #{carrier_context[:protocol]}")
+          expect(output_text).to include("Carrier: #{carrier_context[:carrier]}")
+          expect(output_text).to include("Field Name: #{carrier_context[:field_name]}")
+          expect(output_text).to include("Blob Length: #{spnego_token.bytesize}")
+          expect(output_text).to include('Token Type: SPNEGO NegTokenInit')
+        end
+      end
+
+      context 'when a carrier token is a string-like binary object' do
+        let(:trace_mode) { 'full' }
+        let(:spnego_response_token) { build_spnego_neg_token_resp }
+
+        it 'renders the token as a binary summary and preserves SPNEGO negState' do
+          subscriber.on_protocol_carrier(
+            protocol: 'SMB',
+            direction: 'response',
+            label: 'SMB Session Setup',
+            carrier: 'SMB2 Session Setup security blob',
+            field_name: 'buffer',
+            token: binary_token_object(spnego_response_token),
+            service_principal: 'cifs/dc01.msflab.test@MSFLAB.TEST'
+          )
+
+          expect(output_text).to include('# Kerberos Carrier: SMB Session Setup')
+          expect(output_text).to include('Blob Length: 22')
+          expect(output_text).to include("Token: [binary 22 bytes: #{spnego_response_token.unpack1('H*')}]")
+          expect(output_text).to include('Token Type: SPNEGO NegTokenResp')
+          expect(output_text).to include('Neg State: accept-completed')
+          expect(output_text).not_to include('Neg State: unknown (accept-completed)')
+        end
+      end
+    end
   end
 
   def expected_trace_output(direction:, message_name:, color_prefix:, body:)
@@ -1231,6 +1315,14 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
       0,
       :APPLICATION
     ).to_der
+  end
+
+  def build_spnego_neg_token_resp
+    "\xa1\x14\x30\x12\xa0\x03\x0a\x01\x00\xa1\x0b\x06\x09\x2a\x86\x48\x82\xf7\x12\x01\x02\x02".b
+  end
+
+  def binary_token_object(token)
+    double('binary token', to_binary_s: token, bytesize: token.bytesize, to_s: token)
   end
 
   def build_ap_rep_message

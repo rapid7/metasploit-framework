@@ -427,12 +427,25 @@ module Rex
           # Separate options for the auth requests
           auth_opts = opts.clone
           auth_opts['headers'] = opts['headers'].clone
+          scheme = nil
           case mechanism
           when Rex::Proto::Gss::Mechanism::KERBEROS
-            auth_opts['headers']['Authorization'] = "Kerberos #{gss_data_b64}"
+            scheme = 'Kerberos'
+            auth_opts['headers']['Authorization'] = "#{scheme} #{gss_data_b64}"
           when Rex::Proto::Gss::Mechanism::SPNEGO
-            auth_opts['headers']['Authorization'] = "Negotiate #{gss_data_b64}"
+            scheme = 'Negotiate'
+            auth_opts['headers']['Authorization'] = "#{scheme} #{gss_data_b64}"
           end
+          kerberos_authenticator.trace_protocol_carrier(
+            protocol: 'HTTP',
+            direction: 'request',
+            label: 'HTTP Authorization',
+            carrier: 'Authorization header',
+            header_name: 'Authorization',
+            scheme: scheme,
+            base64_token: gss_data_b64,
+            token: gss_data
+          )
 
           if auth_opts['no_body_for_auth']
             auth_opts.delete('data')
@@ -449,10 +462,22 @@ module Rex
             end
 
             # Get the challenge and craft the response
-            response = resp.headers['WWW-Authenticate'].scan(/Kerberos ([A-Z0-9\x2b\x2f=]+)/ni).flatten[0]
-            return resp unless response
+            response_match = resp.headers['WWW-Authenticate'].to_s.match(/(Kerberos|Negotiate)\s+([A-Z0-9\x2b\x2f=]+)/ni)
+            return resp unless response_match
 
+            response_scheme = response_match[1]
+            response = response_match[2]
             decoded = Rex::Text.decode_base64(response)
+            kerberos_authenticator.trace_protocol_carrier(
+              protocol: 'HTTP',
+              direction: 'response',
+              label: 'HTTP WWW-Authenticate',
+              carrier: 'WWW-Authenticate header',
+              header_name: 'WWW-Authenticate',
+              scheme: response_scheme,
+              base64_token: response,
+              token: decoded
+            )
             mutual_auth_result = kerberos_authenticator.parse_gss_init_response(decoded, auth_result[:session_key])
             self.krb_encryptor = kerberos_authenticator.get_message_encryptor(mutual_auth_result[:ap_rep_subkey],
                                                                               auth_result[:client_sequence_number],

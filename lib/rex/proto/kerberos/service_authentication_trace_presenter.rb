@@ -60,6 +60,14 @@ module Rex
           "Response token trace rendering error: #{e.class}: #{e.message}"
         end
 
+        # @param metadata [Hash]
+        # @return [String]
+        def present_protocol_carrier(metadata)
+          present_hash(protocol_carrier_trace_hash(metadata))
+        rescue StandardError => e
+          "Protocol carrier trace rendering error: #{e.class}: #{e.message}"
+        end
+
         private
 
         def present_hash(hash)
@@ -202,6 +210,28 @@ module Rex
           )
         end
 
+        def protocol_carrier_trace_hash(metadata)
+          token = @token_parser.binary_string(metadata[:token])
+          parsed = token ? carrier_token_summary(token) : nil
+
+          compact_nested_hash(
+            'protocol' => metadata[:protocol],
+            'direction' => metadata[:direction],
+            'carrier' => metadata[:carrier] || metadata[:label],
+            'header_name' => metadata[:header_name],
+            'scheme' => metadata[:scheme],
+            'field_name' => metadata[:field_name],
+            'host' => metadata[:host],
+            'port' => metadata[:port],
+            'service_principal' => metadata[:service_principal],
+            'base64_token_length' => metadata[:base64_token]&.length,
+            'decoded_token_length' => metadata[:base64_token] ? token&.bytesize : nil,
+            'blob_length' => token&.bytesize || metadata[:blob_length],
+            'token' => binary_summary(token),
+            'token_summary' => parsed
+          )
+        end
+
         def spnego_response_trace_hash(token)
           parsed = @token_parser.parse_spnego_response(token)
           return { 'parse_failure' => parsed[:parse_failure] } if parsed[:parse_failure]
@@ -296,6 +326,24 @@ module Rex
           ap_rep.decrypt_enc_part(session_key.value)
         rescue StandardError => e
           { parse_failure: "unable to decrypt AP-REP encrypted part: #{e.class}: #{e.message}" }
+        end
+
+        def carrier_token_summary(token)
+          spnego_init = @token_parser.parse_spnego_init(token)
+          return compact_hash('token_type' => 'SPNEGO NegTokenInit', 'details' => spnego_init) unless spnego_init[:parse_failure]
+
+          spnego_response = spnego_response_trace_hash(token)
+          return compact_hash('token_type' => 'SPNEGO NegTokenResp', 'details' => spnego_response) unless spnego_response['parse_failure']
+
+          gss_token = @token_parser.parse_kerberos(token)
+          unless gss_token[:parse_failure]
+            gss_details = gss_token.each_with_object({}) do |(key, value), output|
+              output[key] = value unless %i[ap_req_payload response_payload].include?(key)
+            end
+            return compact_hash('token_type' => 'GSS-Kerberos', 'details' => gss_details)
+          end
+
+          compact_hash('parse_failure' => 'unable to parse carrier token as GSS-Kerberos/SPNEGO')
         end
 
         def ticket_times_hash(metadata, credential)

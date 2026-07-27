@@ -111,6 +111,29 @@ RSpec.describe Rex::Proto::Kerberos::ServiceAuthenticationTracePresenter do
     end
   end
 
+  describe '#present_protocol_carrier' do
+    it 'presents application-protocol carrier metadata' do
+      output = presenter.present_protocol_carrier(
+        protocol: 'HTTP',
+        direction: 'request',
+        carrier: 'Authorization header',
+        header_name: 'Authorization',
+        token: gss_token
+      )
+
+      expect(output).to include('Protocol: HTTP')
+      expect(output).to include('Carrier: Authorization header')
+      expect(output).to include('Token Type: GSS-Kerberos')
+    end
+
+    it 'redacts printable token contents in metadata mode' do
+      output = presenter.present_protocol_carrier(protocol: 'MSSQL', token: 'printable-secret')
+
+      expect(output).to include('Token: [binary 16 bytes]')
+      expect(output).not_to include('printable-secret')
+    end
+  end
+
   context 'when trace mode is full' do
     let(:trace_mode) { 'full' }
 
