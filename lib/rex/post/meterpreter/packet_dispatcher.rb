@@ -2,6 +2,7 @@
 
 require 'rex/post/meterpreter/command_mapper'
 require 'rex/post/meterpreter/packet_response_waiter'
+require 'rex/post/meterpreter/async_result_store'
 require 'rex/exceptions'
 require 'pathname'
 
@@ -82,6 +83,15 @@ module PacketDispatcher
     self.recv_queue   = []
     self.waiters      = []
     self.alive        = true
+  end
+
+  #
+  # Returns the async result store, creating it if needed.
+  #
+  # @return [AsyncResultStore]
+  #
+  def async_store
+    @async_store ||= AsyncResultStore.new
   end
 
   def shutdown_passive_dispatcher

@@ -538,6 +538,74 @@ class ClientCore < Extension
   end
 
   #
+  # Enable or disable async mode on the implant.
+  # When enabled, the implant polls at the configured interval
+  # and only during business hours.
+  #
+  # @param opts [Hash] configuration options
+  # @option opts [Boolean] :enabled enable/disable async mode
+  # @option opts [Integer] :poll_interval seconds between check-ins
+  # @option opts [Integer] :jitter jitter percentage (0-99)
+  # @option opts [Integer] :work_start business hours start (0-23)
+  # @option opts [Integer] :work_end business hours end (0-23)
+  # @option opts [Integer] :work_days bitmask of active days (bit0=Sun..bit6=Sat)
+  # @option opts [Integer] :smart_sync seconds to keep polling rapidly after any
+  #   request/response activity, allowing multi-request commands and post modules
+  #   to complete in a single burst window (0 disables)
+  # @return [Rex::Post::Meterpreter::Packet] response packet
+  #
+  def async_mode(opts = {})
+    request = Packet.create_request(COMMAND_ID_CORE_ASYNC_MODE)
+    request.add_tlv(TLV_TYPE_ASYNC_ENABLED, opts[:enabled])
+    request.add_tlv(TLV_TYPE_ASYNC_POLL_INTERVAL, opts[:poll_interval]) if opts[:poll_interval]
+    request.add_tlv(TLV_TYPE_ASYNC_POLL_JITTER, opts[:jitter]) if opts[:jitter]
+    request.add_tlv(TLV_TYPE_ASYNC_WORK_START, opts[:work_start]) if opts[:work_start]
+    request.add_tlv(TLV_TYPE_ASYNC_WORK_END, opts[:work_end]) if opts[:work_end]
+    request.add_tlv(TLV_TYPE_ASYNC_WORK_DAYS, opts[:work_days]) if opts[:work_days]
+    request.add_tlv(TLV_TYPE_ASYNC_SMART_SYNC, opts[:smart_sync]) if opts[:smart_sync]
+    response = client.send_request(request)
+    client.async_mode_enabled = response.get_tlv_value(TLV_TYPE_ASYNC_ENABLED)
+
+    # Adjust response_timeout to accommodate the poll interval.
+    # Commands need to wait at least poll_interval + jitter for the implant
+    # to check in, plus time to execute and respond.
+    if client.async_mode_enabled
+      poll = opts[:poll_interval] || 60
+      jitter_pct = opts[:jitter] || 0
+      # Timeout = 3x worst-case poll interval (poll + max jitter)
+      worst_case = poll + (poll * jitter_pct / 100)
+      new_timeout = [worst_case * 3, client.response_timeout].max
+      @pre_async_response_timeout ||= client.response_timeout
+      client.response_timeout = new_timeout
+
+      # Install a floor on response_timeout so downstream framework helpers
+      # (e.g. Msf::Post::Common#cmd_exec) can't silently lower it below the
+      # async poll window. Without this, cmd_exec's `session.response_timeout
+      # = time_out` (default 15s) causes every send_request to raise
+      # Rex::TimeoutError before the target has a chance to check in.
+      floor = worst_case + 10
+      client.instance_variable_set(:@async_timeout_floor, floor)
+      unless client.singleton_class.instance_methods(false).include?(:response_timeout=)
+        client.define_singleton_method(:response_timeout=) do |val|
+          floor_val = instance_variable_get(:@async_timeout_floor).to_i
+          @response_timeout = [val.to_i, floor_val].max
+        end
+      end
+    elsif defined?(@pre_async_response_timeout) && @pre_async_response_timeout
+      # Remove the singleton floor before restoring the original timeout,
+      # otherwise the floor would clamp us back up.
+      if client.singleton_class.instance_methods(false).include?(:response_timeout=)
+        client.singleton_class.send(:remove_method, :response_timeout=)
+      end
+      client.instance_variable_set(:@async_timeout_floor, nil)
+      client.response_timeout = @pre_async_response_timeout
+      @pre_async_response_timeout = nil
+    end
+
+    response
+  end
+
+  #
   # Change the active transport to the next one in the transport list.
   #
   def transport_next
@@ -746,7 +814,22 @@ class ClientCore < Extension
       # otherwise the session may not receive the command before we
       # kill the handler. This could be improved by the server side
       # sending a reply to shutdown first.
-      self.client.send_packet_wait_response(request, 10)
+      #
+      # When async mode is enabled, the target only checks in every
+      # poll_interval seconds, so a fixed 10s wait would tear down the
+      # handler before the implant ever sees the shutdown packet -
+      # leaving an orphan payload that reconnects on next msf launch.
+      # Scale the wait to cover at least one worst-case poll window
+      # (interval + jitter) plus a small buffer for the C side to react.
+      wait = 10
+      if client.respond_to?(:async_mode_enabled?) && client.async_mode_enabled?
+        cfg = client.async_config
+        poll = cfg[:poll_interval].to_i
+        jitter_pct = cfg[:jitter].to_i
+        worst_case = poll + (poll * jitter_pct / 100)
+        wait = [worst_case + 10, wait].max
+      end
+      self.client.send_packet_wait_response(request, wait)
     else
       # If this is a standard TCP session, send and forget.
       self.client.send_packet(request)
