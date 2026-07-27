@@ -85735,6 +85735,62 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/pterodactyl_locales_locale_json": {
+    "name": "Pterodactyl Panel CVE-2025-49132 Remote Code Execution",
+    "fullname": "exploit/linux/http/pterodactyl_locales_locale_json",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2025-06-19",
+    "type": "exploit",
+    "author": [
+      "0xtensho",
+      "jheysel-r7"
+    ],
+    "description": "This module exploits a vulnerability in Pterodactyl Panel before version 1.11.11 that allows unauthenticated\n          remote code execution through improper handling of locale file operations. The vulnerability\n          exists in the locale.json endpoint which allows path traversal and arbitrary file creation. Code execution\n          is in the context of the user running the webserver.\n\n          The exploit leverages PEAR (PHP Extension and Application Repository) for command injection by creating a\n          malicious payload file in the /tmp through path traversal, then executing it via PHP execution with pearcmd.",
+    "references": [
+      "CVE-2025-49132",
+      "URL-https://github.com/0xtensho/CVE-2025-49132-poc"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Command Payload"
+    ],
+    "mod_time": "2026-07-27 09:07:47 +0000",
+    "path": "/modules/exploits/linux/http/pterodactyl_locales_locale_json.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/pterodactyl_locales_locale_json",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_linux/http/pulse_secure_cmd_exec": {
     "name": "Pulse Secure VPN Arbitrary Command Execution",
     "fullname": "exploit/linux/http/pulse_secure_cmd_exec",
