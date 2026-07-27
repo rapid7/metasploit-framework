@@ -58,8 +58,7 @@ module Acceptance::Session::Php
         name: "php/meterpreter_reverse_https",
         skip_module_tests: ['post/test/socket_channels'],
         extension: ".php",
-        # TODO: HTTPS payloads broken on Windows environments
-        platforms: [:osx, :linux],
+        platforms: [:osx, :linux, :windows],
         execute_cmd: ["php", "${payload_path}"],
         generate_options: {
           '-f': "raw"
@@ -76,8 +75,7 @@ module Acceptance::Session::Php
         name: "php/meterpreter_reverse_https",
         skip_module_tests: ['post/test/socket_channels'],
         extension: ".php",
-        # TODO: HTTPS payloads broken on Windows environments
-        platforms: [:osx, :linux],
+        platforms: [:osx, :linux, :windows],
         execute_cmd: ["php", "${payload_path}"],
         generate_options: {
           '-f': "raw"
@@ -128,8 +126,7 @@ module Acceptance::Session::Php
         name: "php/meterpreter/reverse_https",
         skip_module_tests: ['post/test/socket_channels'],
         extension: ".php",
-        # TODO: HTTPS payloads broken on Windows environments
-        platforms: [:osx, :linux],
+        platforms: [:osx, :linux, :windows],
         execute_cmd: ["php", "${payload_path}"],
         generate_options: {
           '-f': "raw"
@@ -146,8 +143,7 @@ module Acceptance::Session::Php
         name: "php/meterpreter/reverse_https",
         skip_module_tests: ['post/test/socket_channels'],
         extension: ".php",
-        # TODO: HTTPS payloads broken on Windows environments
-        platforms: [:osx, :linux],
+        platforms: [:osx, :linux, :windows],
         execute_cmd: ["php", "${payload_path}"],
         generate_options: {
           '-f': "raw"

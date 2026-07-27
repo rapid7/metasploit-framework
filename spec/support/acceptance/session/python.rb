@@ -61,8 +61,7 @@ module Acceptance::Session::Python
         name: "python/meterpreter_reverse_https",
         skip_module_tests: ['post/test/socket_channels'],
         extension: ".py",
-        # TODO: HTTPS payloads broken on Windows environments
-        platforms: [:osx, :linux],
+        platforms: [:osx, :linux, :windows],
         execute_cmd: ["python", "${payload_path}"],
         generate_options: {
           '-f': "raw"
@@ -80,8 +79,7 @@ module Acceptance::Session::Python
         name: "python/meterpreter_reverse_https",
         skip_module_tests: ['post/test/socket_channels'],
         extension: ".py",
-        # TODO: HTTPS payloads broken on Windows environments
-        platforms: [:osx, :linux],
+        platforms: [:osx, :linux, :windows],
         execute_cmd: ["python", "${payload_path}"],
         generate_options: {
           '-f': "raw"
@@ -135,8 +133,7 @@ module Acceptance::Session::Python
         name: "python/meterpreter/reverse_https",
         skip_module_tests: ['post/test/socket_channels'],
         extension: ".py",
-        # TODO: HTTPS payloads broken on Windows environments
-        platforms: [:osx, :linux],
+        platforms: [:osx, :linux, :windows],
         execute_cmd: ["python", "${payload_path}"],
         generate_options: {
           '-f': "raw"
@@ -154,8 +151,7 @@ module Acceptance::Session::Python
         name: "python/meterpreter/reverse_https",
         skip_module_tests: ['post/test/socket_channels'],
         extension: ".py",
-        # TODO: HTTPS payloads broken on Windows environments
-        platforms: [:osx, :linux],
+        platforms: [:osx, :linux, :windows],
         execute_cmd: ["python", "${payload_path}"],
         generate_options: {
           '-f': "raw"
