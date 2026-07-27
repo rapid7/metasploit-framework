@@ -921,6 +921,166 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
     end
   end
 
+  # -- Service authentication trace events -----------------------------------
+
+  describe 'service authentication trace events' do
+    let(:trace_mode) { 'metadata' }
+    let(:ap_req_metadata) { build_ap_req_trace_metadata }
+    let(:ap_req_der) { ap_req_metadata[:ap_req].encode }
+    let(:gss_token) { build_gss_kerberos_token(ap_req_der) }
+    let(:spnego_token) { build_spnego_neg_token_init(gss_token) }
+
+    before do
+      capture_logging(logger)
+    end
+
+    describe '#on_ap_req' do
+      it 'prints AP-REQ construction metadata without expanding binary fields' do
+        subscriber.on_ap_req(ap_req_metadata)
+
+        expect(output_text).to include('# Kerberos AP-REQ')
+        expect(output_text).to include('Message Type: 14 (AP-REQ)')
+        expect(output_text).to include('Mutual Authentication: requested')
+        expect(output_text).to include('Service Principal: cifs/fileserver.example.local@EXAMPLE.LOCAL')
+        expect(output_text).to include('Ticket etype: 18 (AES256)')
+        expect(output_text).to include('Checksum Type: 32771')
+        expect(output_text).to include('Checksum: [binary 24 bytes]')
+        expect(output_text).not_to include('000000000000000000000000000000000000000000000000')
+      end
+
+      context 'when KerberosTicketTrace is full' do
+        let(:trace_mode) { 'full' }
+
+        it 'prints full AP-REQ and decrypted authenticator details' do
+          subscriber.on_ap_req(ap_req_metadata)
+
+          expect(output_text).to include('AP-REQ Message:')
+          expect(output_text).to include('Decrypted Authenticator:')
+          expect(output_text).to include('Checksum: [binary 24 bytes: 000000000000000000000000000000000000000000000000]')
+          expect(output_text).to include('Session Key:')
+          expect(output_text).to include('1111111111111111111111111111111111111111111111111111111111111111')
+        end
+      end
+
+      context 'when KerberosTicketTrace is ticket' do
+        let(:trace_mode) { 'ticket' }
+        let(:credential) { double('credential') }
+        let(:presenter) do
+          instance_double(
+            Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter,
+            present_credentials: 'selected credential output'
+          )
+        end
+
+        before do
+          allow(Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter).to receive(:new).with(nil).and_return(presenter)
+        end
+
+        it 'prints only the selected credential' do
+          subscriber.on_ap_req(ap_req_metadata.merge(credential: credential))
+
+          expect(output_text).to eq(
+            <<~EOF.rstrip
+              ####################
+              # Kerberos Credential: AP-REQ Selected Service Ticket
+              ####################
+              selected credential output
+            EOF
+          )
+        end
+      end
+
+      context 'when KerberosTicketTrace is off' do
+        let(:trace_mode) { 'off' }
+
+        it 'does not print anything' do
+          subscriber.on_ap_req(ap_req_metadata)
+
+          expect(output_text).to be_nil
+        end
+      end
+    end
+
+    describe '#on_gss_token' do
+      it 'prints GSS-Kerberos wrapping metadata' do
+        subscriber.on_gss_token(ap_req_metadata.merge(token: gss_token, ap_req_der: ap_req_der, direction: 'outbound'))
+
+        expect(output_text).to include('# Kerberos GSS Token')
+        expect(output_text).to include('Wrapper Type: GSS-Kerberos')
+        expect(output_text).to include('Mechanism OID: 1.2.840.113554.1.2.2')
+        expect(output_text).to include('Inner Token Type: AP-REQ')
+        expect(output_text).to include('AP-REQ Payload Matches: true')
+        expect(output_text).to include("AP-REQ Payload Length: #{ap_req_der.bytesize}")
+        expect(output_text).to include('Token: [binary')
+      end
+
+      context 'when KerberosTicketTrace is ticket' do
+        let(:trace_mode) { 'ticket' }
+
+        it 'does not print wrapper tokens' do
+          subscriber.on_gss_token(ap_req_metadata.merge(token: gss_token, ap_req_der: ap_req_der))
+
+          expect(output_text).to be_nil
+        end
+      end
+    end
+
+    describe '#on_spnego_token' do
+      it 'prints SPNEGO NegTokenInit wrapping metadata' do
+        subscriber.on_spnego_token(ap_req_metadata.merge(token: spnego_token, ap_req_der: ap_req_der, direction: 'outbound'))
+
+        expect(output_text).to include('# Kerberos SPNEGO Token')
+        expect(output_text).to include('Wrapper Type: SPNEGO NegTokenInit')
+        expect(output_text).to include('Mechanism OID: 1.3.6.1.5.5.2')
+        expect(output_text).to include('Mech Types:')
+        expect(output_text).to include('1.2.840.48018.1.2.2')
+        expect(output_text).to include('Optimistic Mech Token: true')
+        expect(output_text).to include("Mech Token Length: #{gss_token.bytesize}")
+        expect(output_text).to include('Inner AP-REQ:')
+      end
+    end
+
+    describe '#on_response_token' do
+      it 'prints AP-REP response token details' do
+        subscriber.on_response_token(
+          ap_req_metadata.merge(
+            token_type: 'GSS-Kerberos',
+            message: build_ap_rep_message,
+            decrypted_part: build_enc_ap_rep_part,
+            token: gss_token,
+            mutual_authentication: 'success'
+          )
+        )
+
+        expect(output_text).to include('# Kerberos Response Token')
+        expect(output_text).to include('Message Type: 15 (AP-REP)')
+        expect(output_text).to include('Encryption Type: 18 (AES256)')
+        expect(output_text).to include('Mutual Authentication: success')
+        expect(output_text).to include('Sequence Number: 1234')
+        expect(output_text).to include('Subkey:')
+      end
+
+      it 'prints KRB-ERROR response token details' do
+        subscriber.on_response_token(ap_req_metadata.merge(token_type: 'GSS-Kerberos', message: build_krb_error_message, token: gss_token))
+
+        expect(output_text).to include('Message Type: 30 (KRB-ERROR)')
+        expect(output_text).to include('Name: KRB_AP_ERR_MODIFIED')
+        expect(output_text).to include('Value: 41')
+        expect(output_text).to include('Server Principal: cifs/fileserver.example.local@EXAMPLE.LOCAL')
+        expect(output_text).to include('Error Data: [binary 4 bytes]')
+        expect(output_text).not_to include('Mutual Authentication: success')
+      end
+
+      it 'prints parse failure details for unparseable response tokens' do
+        subscriber.on_response_token(token_type: 'GSS-Kerberos', token: 'not-asn1', carrier: 'HTTP WWW-Authenticate')
+
+        expect(output_text).to include('Parse Failure: unable to parse response token as AP-REP/KRB-ERROR/SPNEGO')
+        expect(output_text).to include('Token Length: 8')
+        expect(output_text).to include('Carrier: HTTP WWW-Authenticate')
+      end
+    end
+  end
+
   def expected_trace_output(direction:, message_name:, color_prefix:, body:)
     [
       '####################',
@@ -949,6 +1109,167 @@ RSpec.describe Rex::Proto::Kerberos::KerberosLoggerSubscriber do
       'kerberos_message',
       attributes: payload.keys,
       **payload
+    )
+  end
+
+  def build_ap_req_trace_metadata
+    service_name = Rex::Proto::Kerberos::Model::PrincipalName.new(
+      name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
+      name_string: ['cifs', 'fileserver.example.local']
+    )
+    client_name = Rex::Proto::Kerberos::Model::PrincipalName.new(
+      name_type: Rex::Proto::Kerberos::Model::NameType::NT_PRINCIPAL,
+      name_string: ['Administrator']
+    )
+    ticket = Rex::Proto::Kerberos::Model::Ticket.new(
+      tkt_vno: 5,
+      realm: 'EXAMPLE.LOCAL',
+      sname: service_name,
+      enc_part: Rex::Proto::Kerberos::Model::EncryptedData.new(
+        etype: Rex::Proto::Kerberos::Crypto::Encryption::AES256,
+        kvno: 2,
+        cipher: "\x22".b * 32
+      )
+    )
+    checksum = Rex::Proto::Kerberos::Model::Checksum.new(
+      type: Rex::Proto::Gss::KRB_AP_REQ_CHKSUM_TYPE,
+      checksum: "\x00".b * 24
+    )
+    authenticator = Rex::Proto::Kerberos::Model::Authenticator.new(
+      vno: 5,
+      crealm: 'EXAMPLE.LOCAL',
+      cname: client_name,
+      checksum: checksum,
+      cusec: 123_456,
+      ctime: Time.utc(2026, 3, 7, 12, 0, 0),
+      enc_key_usage: Rex::Proto::Kerberos::Crypto::KeyUsage::AP_REQ_AUTHENTICATOR,
+      sequence_number: 1234
+    )
+    ap_req = Rex::Proto::Kerberos::Model::ApReq.new(
+      pvno: 5,
+      msg_type: Rex::Proto::Kerberos::Model::AP_REQ,
+      options: 0x20000000,
+      ticket: ticket,
+      authenticator: Rex::Proto::Kerberos::Model::EncryptedData.new(
+        etype: Rex::Proto::Kerberos::Crypto::Encryption::AES256,
+        cipher: "\x33".b * 32
+      )
+    )
+    session_key = Rex::Proto::Kerberos::Model::EncryptionKey.new(
+      type: Rex::Proto::Kerberos::Crypto::Encryption::AES256,
+      value: "\x11".b * 32
+    )
+
+    {
+      ap_req: ap_req,
+      authenticator: authenticator,
+      ticket: ticket,
+      session_key: session_key,
+      client_principal: 'Administrator@EXAMPLE.LOCAL',
+      service_principal: 'cifs/fileserver.example.local@EXAMPLE.LOCAL',
+      spn: 'cifs/fileserver.example.local',
+      realm: 'EXAMPLE.LOCAL',
+      mutual_auth: true,
+      use_session_key: true,
+      use_subkey: false,
+      ticket_flags: Rex::Proto::Kerberos::Model::TicketFlags.from_flags(
+        [
+          Rex::Proto::Kerberos::Model::TicketFlags::FORWARDABLE,
+          Rex::Proto::Kerberos::Model::TicketFlags::RENEWABLE
+        ]
+      ),
+      replay_detection: 'requested by GSS checksum flags',
+      channel_binding: { present: false },
+      delegated_credentials: { mode: 'never', requested: false, present: false }
+    }
+  end
+
+  def build_gss_kerberos_token(ap_req_der)
+    OpenSSL::ASN1::ASN1Data.new(
+      [
+        Rex::Proto::Gss::OID_KERBEROS_5,
+        "\x01\x00".b + ap_req_der
+      ],
+      0,
+      :APPLICATION
+    ).to_der
+  end
+
+  def build_spnego_neg_token_init(gss_token)
+    OpenSSL::ASN1::ASN1Data.new(
+      [
+        Rex::Proto::Gss::OID_SPNEGO,
+        OpenSSL::ASN1::ASN1Data.new(
+          [
+            OpenSSL::ASN1::Sequence.new(
+              [
+                OpenSSL::ASN1::ASN1Data.new(
+                  [
+                    OpenSSL::ASN1::Sequence.new(
+                      [
+                        Rex::Proto::Gss::OID_MICROSOFT_KERBEROS_5
+                      ]
+                    )
+                  ],
+                  0,
+                  :CONTEXT_SPECIFIC
+                ),
+                OpenSSL::ASN1::ASN1Data.new(
+                  [
+                    OpenSSL::ASN1::OctetString.new(gss_token)
+                  ],
+                  2,
+                  :CONTEXT_SPECIFIC
+                )
+              ]
+            )
+          ],
+          0,
+          :CONTEXT_SPECIFIC
+        )
+      ],
+      0,
+      :APPLICATION
+    ).to_der
+  end
+
+  def build_ap_rep_message
+    Rex::Proto::Kerberos::Model::ApRep.new(
+      pvno: 5,
+      msg_type: Rex::Proto::Kerberos::Model::AP_REP,
+      enc_part: Rex::Proto::Kerberos::Model::EncryptedData.new(
+        etype: Rex::Proto::Kerberos::Crypto::Encryption::AES256,
+        cipher: "\x44".b * 32
+      )
+    )
+  end
+
+  def build_enc_ap_rep_part
+    Rex::Proto::Kerberos::Model::EncApRepPart.new(
+      ctime: Time.utc(2026, 3, 7, 12, 0, 0),
+      cusec: 123_456,
+      subkey: Rex::Proto::Kerberos::Model::EncryptionKey.new(
+        type: Rex::Proto::Kerberos::Crypto::Encryption::AES256,
+        value: "\x55".b * 32
+      ),
+      sequence_number: 1234
+    )
+  end
+
+  def build_krb_error_message
+    Rex::Proto::Kerberos::Model::KrbError.new(
+      pvno: 5,
+      msg_type: Rex::Proto::Kerberos::Model::KRB_ERROR,
+      stime: Time.utc(2026, 3, 7, 12, 0, 0),
+      susec: 123_456,
+      error_code: Rex::Proto::Kerberos::Model::Error::ErrorCodes::KRB_AP_ERR_MODIFIED,
+      realm: 'EXAMPLE.LOCAL',
+      sname: Rex::Proto::Kerberos::Model::PrincipalName.new(
+        name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
+        name_string: ['cifs', 'fileserver.example.local']
+      ),
+      etext: 'Message stream modified',
+      e_data: "\x60\x00\x00\xc0".b
     )
   end
 end
