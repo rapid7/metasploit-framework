@@ -240,7 +240,7 @@ class MetasploitModule < Msf::Auxiliary
 
           t << framework.threads.spawn("Module(#{self.refname})-#{rhost}:#{rport}", false, this_username) do |username|
             connect
-            vprint_status "#{rhost}:#{rport} - Sending request for #{username}..."
+            vprint_status "#{Rex::Socket.to_authority(rhost, rport)} - Sending request for #{username}..."
             channel = datastore['CHANNEL']
             if channel.length > 20
               print_error("Channel name must be less than 20 characters.")

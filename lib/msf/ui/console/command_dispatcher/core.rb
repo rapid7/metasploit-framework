@@ -1815,11 +1815,33 @@ class Core
         end
       end
     when 'upexec'
-      print_status("Executing 'post/multi/manage/shell_to_meterpreter' on " +
-                    "session(s): #{session_list}")
       session_list.each do |sess_id|
         session = verify_session(sess_id)
-        if session
+        next unless session
+
+        if session.type == 'smb'
+          # Route SMB sessions to the dedicated upgrade module
+          mod = framework.modules.create('post/windows/manage/smb_to_meterpreter')
+          unless mod
+            print_error('Failed to create post/windows/manage/smb_to_meterpreter module.')
+            next
+          end
+
+          print_status("Executing 'post/windows/manage/smb_to_meterpreter' on session: [#{sess_id}]")
+          opts = { 'SESSION' => sess_id.to_s }
+          if session.exploit_datastore
+            %w[LHOST LPORT TARGET_ARCH].each do |key|
+              opts[key] = session.exploit_datastore[key] if session.exploit_datastore[key]
+            end
+          end
+          mod.run_simple({
+            'LocalInput' => driver.input,
+            'LocalOutput' => driver.output,
+            'Options' => opts
+          })
+        else
+          print_status("Executing 'post/multi/manage/shell_to_meterpreter' on " \
+                        "session: [#{sess_id}]")
           if session.respond_to?(:response_timeout)
             last_known_timeout = session.response_timeout
             session.response_timeout = response_timeout
@@ -2185,7 +2207,8 @@ class Core
     end
 
     # Set PAYLOAD
-    if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?) && !clear
+    payload_changed = name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?) && !clear
+    if payload_changed
       value = trim_path(value, 'payload')
 
       index_from_list(payload_show_results, value) do |mod|
@@ -2221,6 +2244,11 @@ class Core
     rescue Msf::OptionValidateError => e
       print_error(e.message)
       elog('Exception encountered in cmd_set', error: e)
+    end
+
+    # Import payload options so validation applies immediately on subsequent set calls
+    if payload_changed
+      import_payload_options(active_module)
     end
 
     # Set PAYLOAD from TARGET

@@ -104,6 +104,6 @@ class MetasploitModule < Msf::Auxiliary
     end
     return
   rescue ::Rex::ConnectionError
-    vprint_error("[SAP] #{rhost}:#{rport} - Unable to connect")
+    vprint_error("[SAP] #{Rex::Socket.to_authority(rhost, rport)} - Unable to connect")
   end
 end

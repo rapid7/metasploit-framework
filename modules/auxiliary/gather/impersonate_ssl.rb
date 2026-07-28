@@ -65,10 +65,10 @@ class MetasploitModule < Msf::Auxiliary
   def run
     if !datastore['SSLServerNameIndication'].nil?
       sni = datastore['SSLServerNameIndication']
-      print_status("Connecting to #{rhost}:#{rport} SNI:#{sni}")
+      print_status("Connecting to #{Rex::Socket.to_authority(rhost, rport)} SNI:#{sni}")
     else
       sni = false
-      print_status("Connecting to #{rhost}:#{rport}")
+      print_status("Connecting to #{Rex::Socket.to_authority(rhost, rport)}")
     end
 
     if !datastore['PRIVKEY'].nil? && !datastore['CA_CERT'].nil?
@@ -94,11 +94,11 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if !cert
-      print_error("#{rhost}:#{rport} No certificate subject or CN found")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} No certificate subject or CN found")
       return
     end
 
-    print_status("Copying certificate from #{rhost}:#{rport}\n#{cert.subject} ")
+    print_status("Copying certificate from #{Rex::Socket.to_authority(rhost, rport)}\n#{cert.subject} ")
     vprint_status("Original Certificate Details\n\n#{cert.to_text}")
 
     begin
@@ -212,7 +212,7 @@ class MetasploitModule < Msf::Auxiliary
 
     addr = Rex::Socket.getaddress(rhost) # Convert rhost to ip for DB
 
-    print_status("Creating looted key/crt/pem files for #{rhost}:#{rport}")
+    print_status("Creating looted key/crt/pem files for #{Rex::Socket.to_authority(rhost, rport)}")
 
     p = store_loot("#{datastore['RHOST'].downcase}_key", datastore['OUT_FORMAT'].downcase, addr, priv_key, 'imp_ssl.key', 'Impersonate_SSL')
     print_good("key: #{p}")

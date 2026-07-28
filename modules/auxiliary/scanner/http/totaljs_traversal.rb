@@ -80,21 +80,21 @@ class MetasploitModule < Msf::Auxiliary
     if res && res.code == 200
       json = res.get_json_document
       if json.empty? || !json['dependencies']['total.js']
-        return Exploit::CheckCode::Safe
+        return Exploit::CheckCode::Safe('Total.js dependency not found in package.json')
       else
         print_status("Total.js version is: #{json['dependencies']['total.js']}")
         print_status("App name: #{json['name']}")
         print_status("App description: #{json['description']}")
         print_status("App version: #{json['version']}")
-        return Exploit::CheckCode::Vulnerable
+        return Exploit::CheckCode::Vulnerable('Successfully retrieved package.json via path traversal')
       end
     elsif res && res.headers['X-Powered-By'].to_s.downcase.include?('total.js')
       print_status('Target appear to be vulnerable!')
       print_status("X-Powered-By: #{res.headers['X-Powered-By']}")
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Detected('Total.js detected via X-Powered-By header')
     else
       vprint_warning('No response')
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('No response received from target')
     end
   end
 

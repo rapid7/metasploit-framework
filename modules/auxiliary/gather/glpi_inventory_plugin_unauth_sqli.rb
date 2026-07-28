@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       @sqli = get_sqli_object
     rescue SQLExecutionError => e
-      return CheckCode::Unknown("#{e.class}: #{e.message}")
+      return Exploit::CheckCode::Unknown("#{e.class}: #{e.message}")
     end
 
     return Exploit::CheckCode::Unknown(GET_SQLI_OBJECT_FAILED_ERROR_MSG) if @sqli == GET_SQLI_OBJECT_FAILED_ERROR_MSG

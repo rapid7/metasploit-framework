@@ -64,16 +64,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    print_status("#{rhost}:#{rport} - Sending DoS packet...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending DoS packet...")
     dos
 
-    print_status("#{rhost}:#{rport} - Checking server status...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking server status...")
     select(nil, nil, nil, 1)
 
     if is_alive?
-      print_error("#{rhost}:#{rport} - Server is still alive")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Server is still alive")
     else
-      print_good("#{rhost}:#{rport} - Connection Refused: Success!")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Connection Refused: Success!")
     end
   end
 end

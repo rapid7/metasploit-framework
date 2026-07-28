@@ -55,13 +55,13 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       if /Welcome to ColoradoFTP - the open source FTP server \(www\.coldcore\.com\)/i === banner
-        return Exploit::CheckCode::Detected
+        return Exploit::CheckCode::Detected('ColoradoFTP server detected')
       end
     ensure
       disconnect
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Target is not running ColoradoFTP')
   end
 
   def run_host(ip)

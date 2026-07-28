@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['CVE', '2025-2011'],
+          ['EDB', '52285'],
           ['WPVDB', '6f894272-3eb6-4595-ae00-1c4b0c0b6564'],
           ['URL', 'https://cloud.projectdiscovery.io/library/CVE-2025-2011'],
           ['URL', 'https://plugins.trac.wordpress.org/browser/depicter/trunk/app/src/Controllers/Ajax/LeadsAjaxController.php?rev=3156664#L179']
@@ -90,9 +91,9 @@ class MetasploitModule < Msf::Auxiliary
   def check
     @sqli = get_sqli_object
     return Exploit::CheckCode::Unknown(GET_SQLI_OBJECT_FAILED_ERROR_MSG) if @sqli == GET_SQLI_OBJECT_FAILED_ERROR_MSG
-    return Exploit::CheckCode::Vulnerable if @sqli.test_vulnerable
+    return Exploit::CheckCode::Vulnerable('SQL injection test succeeded') if @sqli.test_vulnerable
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('SQL injection test did not succeed')
   end
 
   def run

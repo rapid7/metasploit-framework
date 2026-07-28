@@ -218,7 +218,8 @@ protected
       r,_,_ = ::IO.select(rds,wds,eds,1)
 
       if (r != nil and r[0] == self.udp_sock)
-        buf,host,port = self.udp_sock.recvfrom(65535)
+        buf, addr = self.udp_sock.recvfrom(65535)
+        host, port = addr[3], addr[1]
         # Mock up a client object for sending back data
         cli = MockDnsClient.new(host, port, r[0])
         dispatch_request(cli, buf)

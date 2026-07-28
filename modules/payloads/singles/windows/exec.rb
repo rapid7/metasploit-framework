@@ -11,5 +11,5 @@
 module MetasploitModule
   CachedSize = 192
 
-  include Msf::Payload::Windows::Exec
+  include Msf::Payload::Windows::Exec_X86
 end

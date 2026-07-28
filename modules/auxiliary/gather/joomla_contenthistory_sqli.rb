@@ -57,9 +57,9 @@ class MetasploitModule < Msf::Auxiliary
     res = sqli(payload)
 
     if res && res.code == 500 && res.body =~ /#{lmark}#{flag}#{rmark}/
-      Msf::Exploit::CheckCode::Vulnerable
+      Msf::Exploit::CheckCode::Vulnerable('SQL injection confirmed via contenthistory parameter')
     else
-      Msf::Exploit::CheckCode::Safe
+      Msf::Exploit::CheckCode::Safe('SQL injection test did not succeed')
     end
   end
 

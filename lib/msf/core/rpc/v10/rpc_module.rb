@@ -226,6 +226,7 @@ class RPC_Module < RPC_Base
     res['privileged'] = m.privileged?
     res['check'] = m.has_check?
     res['default_options'] = m.default_options
+    res['notes'] = m.notes
 
     res['references'] = []
     m.references.each do |r|
@@ -495,6 +496,7 @@ class RPC_Module < RPC_Base
   #  opts = {'LHOST' => '0.0.0.0', 'LPORT'=>6669, 'PAYLOAD'=>'windows/meterpreter/reverse_tcp'}
   #  rpc.call('module.execute', 'exploit', 'multi/handler', opts)
   def rpc_execute(mtype, mname, opts)
+    _validate_options!(opts)
     mod = _find_module(mtype,mname)
 
     case mtype
@@ -522,6 +524,7 @@ class RPC_Module < RPC_Base
   # @raise [Msf::RPC::Exception] Module not found (either wrong type or name).
   # @return
   def rpc_check(mtype, mname, opts)
+    _validate_options!(opts)
     mod = _find_module(mtype,mname)
     case mtype
     when 'exploit'
@@ -555,7 +558,7 @@ class RPC_Module < RPC_Base
     elsif self.job_status_tracker.waiting? uuid
       {"status" => "ready"}
     else
-      error(404, "Results not found for module instance #{uuid}")
+      error(500, "Results not found for module instance #{uuid}")
     end
   end
 
@@ -727,6 +730,40 @@ class RPC_Module < RPC_Base
 
 private
 
+  # Structural validation for the datastore options hash forwarded to
+  # module.execute / module.check. Rejects obviously abusive input
+  # (non-hash, nested structures, oversized values, malformed keys) at the
+  # RPC boundary so callers other than the MCP transport -- which performs
+  # additional policy-level validation of its own -- still have basic
+  # defence-in-depth against DoS-style payloads.
+  RPC_MODULE_OPTIONS_MAX_KEYS = 100
+  RPC_MODULE_OPTIONS_KEY_MAX_LENGTH = 128
+  RPC_MODULE_OPTIONS_VALUE_MAX_BYTES = 8 * 1024
+  RPC_MODULE_OPTION_SCALAR_TYPES = [String, Integer, Float, TrueClass, FalseClass, NilClass].freeze
+
+  def _validate_options!(opts)
+    error(400, 'Module options must be a Hash') unless opts.is_a?(Hash)
+
+    if opts.size > RPC_MODULE_OPTIONS_MAX_KEYS
+      error(400, "Module options has too many keys (max #{RPC_MODULE_OPTIONS_MAX_KEYS})")
+    end
+
+    opts.each do |key, value|
+      unless key.is_a?(String) || key.is_a?(Symbol)
+        error(400, "Invalid module option key type: #{key.class}")
+      end
+      if key.to_s.length > RPC_MODULE_OPTIONS_KEY_MAX_LENGTH
+        error(400, "Module option key too long (max #{RPC_MODULE_OPTIONS_KEY_MAX_LENGTH} chars)")
+      end
+      unless RPC_MODULE_OPTION_SCALAR_TYPES.any? { |klass| value.is_a?(klass) }
+        error(400, "Invalid module option value for #{key}: must be a scalar")
+      end
+      if value.is_a?(String) && value.bytesize > RPC_MODULE_OPTIONS_VALUE_MAX_BYTES
+        error(400, "Module option #{key} string value exceeds #{RPC_MODULE_OPTIONS_VALUE_MAX_BYTES} bytes")
+      end
+    end
+  end
+
   # @param [String] mtype The module type
   # @param [String] mname The module name
   # @return [Msf::Module] The module if found
@@ -750,35 +787,38 @@ private
       opts['PAYLOAD'] = Msf::Payload.choose_payload(mod)
     end
 
-    s = Msf::Simple::Exploit.exploit_simple(mod, {
+    Msf::Simple::Exploit.exploit_simple(mod, {
       'Payload'  => opts['PAYLOAD'],
       'Target'   => opts['TARGET'],
       'RunAsJob' => true,
-      'Options'  => opts
+      'Options'  => opts,
+      'JobListener' => self.job_status_tracker
     })
     {
       "job_id" => mod.job_id,
-      "uuid" => mod.uuid
+      "uuid" => mod.run_uuid
     }
   end
 
   def _run_auxiliary(mod, opts)
-    uuid, job = Msf::Simple::Auxiliary.run_simple(mod,{
+    Msf::Simple::Auxiliary.run_simple(mod,{
       'Action'   => opts['ACTION'],
       'RunAsJob' => true,
-      'Options'  => opts
-    }, job_listener: self.job_status_tracker)
+      'Options'  => opts,
+      'JobListener' => self.job_status_tracker
+    })
     {
-      "job_id" => job,
-      "uuid" => uuid
+      "job_id" => mod.job_id,
+      "uuid" => mod.run_uuid
     }
   end
 
   def _check_exploit(mod, opts)
     uuid, job = Msf::Simple::Exploit.check_simple(mod,{
         'RunAsJob' => true,
-        'Options'  => opts
-    }, job_listener: self.job_status_tracker)
+        'Options'  => opts,
+        'JobListener' => self.job_status_tracker
+    })
     {
       "job_id" => job,
       "uuid" => uuid
@@ -789,8 +829,9 @@ private
     uuid, job = Msf::Simple::Auxiliary.check_simple(mod,{
         'Action'   => opts['ACTION'],
         'RunAsJob' => true,
-        'Options'  => opts
-    }, job_listener: self.job_status_tracker)
+        'Options'  => opts,
+        'JobListener' => self.job_status_tracker
+    })
     {
       "job_id" => job,
       "uuid" => uuid
@@ -800,11 +841,12 @@ private
   def _run_post(mod, opts)
     Msf::Simple::Post.run_simple(mod, {
       'RunAsJob' => true,
-      'Options'  => opts
+      'Options'  => opts,
+      'JobListener' => self.job_status_tracker
     })
     {
       "job_id" => mod.job_id,
-      "uuid" => mod.uuid
+      "uuid" => mod.run_uuid
     }
   end
 
@@ -813,12 +855,13 @@ private
       'Payload'  => opts['PAYLOAD'],
       'Target'   => opts['TARGET'],
       'RunAsJob' => true,
-      'Options'  => opts
+      'Options'  => opts,
+      'JobListener' => self.job_status_tracker
     })
 
     {
       'job_id' => mod.job_id,
-      'uuid'   => mod.uuid
+      'uuid'   => mod.run_uuid
     }
   end
 

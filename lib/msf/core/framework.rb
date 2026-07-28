@@ -11,7 +11,6 @@ require 'monitor'
 #
 
 require 'metasploit/framework/version'
-require 'rex/socket/ssl'
 require 'metasploit/framework/thread_factory_provider'
 module Msf
 

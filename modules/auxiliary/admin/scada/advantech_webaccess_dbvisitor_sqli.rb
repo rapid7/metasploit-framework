@@ -100,10 +100,10 @@ class MetasploitModule < Msf::Auxiliary
     data = do_sqli(injection, mark)
 
     if data.nil?
-      return Msf::Exploit::CheckCode::Safe
+      return Msf::Exploit::CheckCode::Safe('Could not retrieve data from Advantech WebAccess')
     end
 
-    Msf::Exploit::CheckCode::Vulnerable
+    Msf::Exploit::CheckCode::Vulnerable('SQL injection via DBVisitor.asp confirmed')
   end
 
   def parse_users(xml, mark, separator)

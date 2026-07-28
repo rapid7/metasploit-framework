@@ -61,10 +61,10 @@ class MetasploitModule < Msf::Auxiliary
       version = match[1]
       return Exploit::CheckCode::Appears("Version: #{version}") if Rex::Version.new(version) <= Rex::Version.new('22.7R1')
     else
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Could not detect Ivanti vTM version')
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Ivanti vTM version is not vulnerable')
   end
 
   def run

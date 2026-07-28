@@ -125,13 +125,13 @@ class MetasploitModule < Msf::Auxiliary
   def check
     connect
     # they are only vulnerable if we can run the CONFIG command, so try that
-    return Exploit::CheckCode::Safe unless (config_data = redis_command('CONFIG', 'GET', '*')) && config_data =~ /dbfilename/
+    return Exploit::CheckCode::Safe('Redis CONFIG command is not accessible') unless (config_data = redis_command('CONFIG', 'GET', '*')) && config_data =~ /dbfilename/
 
     if (info_data = redis_command('INFO')) && /redis_version:(?<redis_version>\S+)/ =~ info_data
       report_redis(redis_version)
     end
 
-    Exploit::CheckCode::Vulnerable
+    Exploit::CheckCode::Vulnerable('Redis CONFIG command is accessible and can be used for file upload')
   ensure
     disconnect
   end

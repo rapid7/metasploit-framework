@@ -16,7 +16,12 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
       'Name' => 'HTTP Login Utility',
-      'Description' => 'This module attempts to authenticate to an HTTP service.',
+      'Description' => %q{
+        This module attempts to authenticate to HTTP services that
+        require Basic, Digest, or WebDAV authentication.
+        It will probe URIs to identify endpoints requiring authentication (HTTP 401)
+        and then perform brute-force login attempts.
+      },
       'Author' => [ 'hdm' ],
       'References' => [
         [ 'CVE', '1999-0502'] # Weak password
@@ -124,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def target_url
     proto = 'http'
-    if rport == 443 or ssl
+    if (rport == 443) || ssl
       proto = 'https'
     end
     "#{proto}://#{vhost}:#{rport}#{@uri}"
@@ -220,14 +225,14 @@ class MetasploitModule < Msf::Auxiliary
         int_start = code_parts[0].to_i
         int_end = code_parts[1].to_i
         unless int_start > 0 && int_end > 0
-          raise ArgumentError.new("#{code} is not a valid response code range.")
+          raise ArgumentError, "#{code} is not a valid response code range."
         end
 
         codes.append(*(int_start..int_end))
       else
         int_code = code.to_i
         unless int_code > 0
-          raise ArgumentError.new("#{code} is not a valid response code.")
+          raise ArgumentError, "#{code} is not a valid response code."
         end
 
         codes << int_code

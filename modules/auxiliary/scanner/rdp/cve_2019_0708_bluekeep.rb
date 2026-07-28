@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_host(_ip)
     # The check command will call this method instead of run_host
-    status = Exploit::CheckCode::Unknown
+    status = Exploit::CheckCode::Unknown('Unable to determine BlueKeep vulnerability status')
 
     begin
       begin
@@ -102,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
       elog(e)
     rescue RdpCommunicationError
       vprint_error('Error communicating RDP protocol.')
-      status = Exploit::CheckCode::Unknown
+      status = Exploit::CheckCode::Unknown('Error communicating RDP protocol')
     rescue Errno::ECONNRESET
       vprint_error('Connection reset')
     rescue StandardError => e

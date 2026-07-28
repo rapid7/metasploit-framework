@@ -48,16 +48,16 @@ class MetasploitModule < Msf::Post
   def check
     system_version = get_system_version
     unless system_version
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Could not determine macOS version')
     end
 
     version = Rex::Version.new(system_version)
     if version >= Rex::Version.new('10.15.6')
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe("macOS #{system_version} is patched")
     elsif version < Rex::Version.new('10.15.0')
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown("macOS #{system_version} is not in the affected range")
     else
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears("macOS #{system_version} appears vulnerable to TCC bypass")
     end
   end
 

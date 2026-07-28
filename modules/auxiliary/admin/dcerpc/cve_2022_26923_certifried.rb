@@ -114,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
     }
     opts[:tree] = connect_smb(opts)
     opts[:cert_template] = 'Machine'
-    cert = request_certificate(opts)
+    cert = icpr_request_certificate(opts)
     fail_with(Failure::UnexpectedReply, 'Unable to request the certificate.') unless cert
 
     if ['AUTHENTICATE', 'PRIVESC'].include?(action.name)

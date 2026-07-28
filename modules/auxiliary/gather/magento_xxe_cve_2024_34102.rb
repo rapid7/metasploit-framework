@@ -55,14 +55,14 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, '/magento_version')
     })
 
-    return CheckCode::Unknown('Could not detect the version.') unless res&.code == 200
+    return Exploit::CheckCode::Unknown('Could not detect the version.') unless res&.code == 200
 
     # Magento/2.4 (Community)
     version, edition = res.body.scan(%r{Magento/([\d.]+) \(([^)]+)\)}).first
 
     version = Rex::Version.new(version)
 
-    return CheckCode::Safe("Detected Magento #{edition} edition version #{version} which is not vulnerable") unless
+    return Exploit::CheckCode::Safe("Detected Magento #{edition} edition version #{version} which is not vulnerable") unless
       version <= (Rex::Version.new('2.4.7')) ||
       version <= (Rex::Version.new('2.4.6-p5')) ||
       version <= (Rex::Version.new('2.4.5-p7')) ||
@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
         )
       )
 
-    CheckCode::Appears("Detected Magento #{edition} edition version #{version} which is vulnerable")
+    Exploit::CheckCode::Appears("Detected Magento #{edition} edition version #{version} which is vulnerable")
   end
 
   def ent_eval

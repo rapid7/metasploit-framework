@@ -47,20 +47,21 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def check
+  # Remove due to false positives and false negatives: https://github.com/rapid7/metasploit-framework/pull/21332
+  def _check
     # http://blog.nodejs.org/2013/08/21/node-v0-10-17-stable/
     # check if we are < 0.10.17 by seeing if a malformed HTTP request is accepted
-    status = Exploit::CheckCode::Safe
+    status = Exploit::CheckCode::Safe('Target does not appear to be a vulnerable Node.js server')
     connect
     sock.put(http_request('GEM'))
     begin
       response = sock.get_once
-      status = Exploit::CheckCode::Appears if response =~ /HTTP/
+      status = Exploit::CheckCode::Appears('Node.js accepted a malformed HTTP method, likely < 0.10.17') if response =~ /HTTP/
     rescue EOFError
       # checking against >= 0.10.17 raises EOFError because there is no
       # response to GEM requests
       vprint_error('Failed to determine the vulnerable state due to an EOFError (no response)')
-      return Msf::Exploit::CheckCode::Unknown
+      return Msf::Exploit::CheckCode::Unknown('No response to malformed HTTP request')
     ensure
       disconnect
     end

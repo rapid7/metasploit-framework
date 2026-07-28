@@ -195,6 +195,11 @@ end
 
 if load_metasploit
   Metasploit::Framework::Spec::Constants::Suite.configure!
+
+  # Always enable thread-creation logging so that leaked threads can be traced
+  # back to their origin, even when specs are run without `rake spec`.
+  require 'metasploit/framework/spec/threads/logger'
+
   Metasploit::Framework::Spec::Threads::Suite.configure!
 end
 

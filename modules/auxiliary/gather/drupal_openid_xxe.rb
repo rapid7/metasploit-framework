@@ -106,18 +106,18 @@ class MetasploitModule < Msf::Auxiliary
 
     unless res
       vprint_status("Connection timed out")
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Connection timed out')
     end
 
     if drupal_with_openid?(res, signature)
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Detected('Drupal with OpenID module detected')
     end
 
     if generated_with_drupal?(res)
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Drupal detected but OpenID module not found')
     end
 
-    return Exploit::CheckCode::Unknown
+    return Exploit::CheckCode::Unknown('Could not determine if target is Drupal')
   end
 
   def run

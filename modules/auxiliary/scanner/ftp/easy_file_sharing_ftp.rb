@@ -47,13 +47,13 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       if /Easy File Sharing FTP Server/i === banner
-        return Exploit::CheckCode::Detected
+        return Exploit::CheckCode::Detected('Easy File Sharing FTP Server detected')
       end
     ensure
       disconnect
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Target is not running Easy File Sharing FTP Server')
   end
 
   def run_host(target_host)

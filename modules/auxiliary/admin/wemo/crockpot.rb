@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Detected('Wemo device detected, but it is not a Crock-Pot')
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Target does not appear to be a Wemo device')
   end
 
   def run

@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if !res
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
       return
     end
 
@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def extractusers(rhost)
-    print_status("#{rhost}:#{rport} [SAP] Connecting to SAP Management Console SOAP Interface")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Connecting to SAP Management Console SOAP Interface")
     success = false
 
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -104,12 +104,12 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP] Unable to attempt authentication on #{rhost}:#{rport}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to attempt authentication on #{Rex::Socket.to_authority(rhost, rport)}")
       return
     end
 
     if success
-      print_good("#{rhost}:#{rport} [SAP] Users Extracted: #{users.length} entries extracted from #{rhost}:#{rport}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Users Extracted: #{users.length} entries extracted from #{Rex::Socket.to_authority(rhost, rport)}")
       report_note(
         host: rhost,
         proto: 'tcp',
@@ -120,12 +120,12 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       users.each do |output|
-        print_good("#{rhost}:#{rport} [SAP] Extracted User: #{output[0]}")
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Extracted User: #{output[0]}")
       end
     elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Error code: #{faultcode}")
     else
-      print_error("#{rhost}#{rport} [SAP] failed to access ABAPSyslog on #{rhost}:#{rport}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] failed to access ABAPSyslog on #{Rex::Socket.to_authority(rhost, rport)}")
     end
   end
 end

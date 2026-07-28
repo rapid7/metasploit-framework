@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if !res
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
       return
     end
     if datastore['GETALL']
@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def listfiles(rhost)
-    print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
+    print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{Rex::Socket.to_authority(rhost, rport)}")
     success = false
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
     when /^TRACE/i
       ns1 = 'ns1:ListDeveloperTraces'
     else
-      print_error("#{rhost}:#{rport} [SAP] unsupported filetype #{datastore['FILETYPE']}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] unsupported filetype #{datastore['FILETYPE']}")
       return
     end
 
@@ -120,29 +120,29 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP] Unable to attempt authentication")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to attempt authentication")
       return
     end
 
     if success
-      print_good("#{rhost}:#{rport} [SAP] #{datastore['FILETYPE'].downcase}: #{env.length} files available")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] #{datastore['FILETYPE'].downcase}: #{env.length} files available")
 
       env.each do |output|
         gettfiles(rhost, output[0], output[1])
       end
 
     elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Error code: #{faultcode}")
     else
-      print_error("#{rhost}:#{rport} [SAP] failed to list files")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] failed to list files")
     end
   end
 
   def gettfiles(rhost, logfile, filelen)
     if filelen
-      print_status("#{rhost}:#{rport} [SAP] Attempting to retrieve file #{logfile} (#{filelen} bytes)")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Attempting to retrieve file #{logfile} (#{filelen} bytes)")
     else
-      print_status("#{rhost}:#{rport} [SAP] Attempting to retrieve file #{logfile} (size unknown)")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Attempting to retrieve file #{logfile} (size unknown)")
     end
     success = false
 
@@ -157,7 +157,7 @@ class MetasploitModule < Msf::Auxiliary
     when /^TRACE/i
       ns1 = 'ns1:ReadDeveloperTrace'
     else
-      print_error("#{rhost}:#{rport} [SAP] unsupported filetype: #{datastore['FILETYPE']}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] unsupported filetype: #{datastore['FILETYPE']}")
       return
     end
 
@@ -208,12 +208,12 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
       return
     end
 
     if success
-      print_good("#{rhost}:#{rport} [SAP] #{datastore['FILETYPE'].downcase}:#{logfile.downcase} looted")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] #{datastore['FILETYPE'].downcase}:#{logfile.downcase} looted")
       addr = Rex::Socket.getaddress(rhost) # Convert rhost to ip for DB
       p = store_loot(
         "sap.#{datastore['FILETYPE'].downcase}.file",
@@ -225,9 +225,9 @@ class MetasploitModule < Msf::Auxiliary
       )
       print_status("Logfile stored in: #{p}")
     elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Error code: #{faultcode}")
     else
-      print_error("#{rhost}:#{rport} [SAP] failed to download file")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] failed to download file")
     end
   end
 end

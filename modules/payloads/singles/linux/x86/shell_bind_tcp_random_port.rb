@@ -20,7 +20,7 @@ module MetasploitModule
         },
         'Author' => [
           'Geyslan G. Bem <geyslan[at]gmail.com>',
-          'Aleh B'
+          '3AleXM8B40'
         ],
         'License' => BSD_LICENSE,
         'References' => [

@@ -12,9 +12,37 @@ on:
         required: false
         default: "[]"
         type: string
+      additional_rails_versions:
+        description: 'Additional Rails version requirements as a JSON array (for example: ["~> 8.1.0"])'
+        required: false
+        default: "[]"
+        type: string
+        # Caller example:
+        # with:
+        #   additional_rails_versions: '["~> 8.1.0", "~> 8.2.0"]'
 
 jobs:
+  prepare_matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      rails_versions: ${{ steps.merge_rails_versions.outputs.rails_versions }}
+    steps:
+      - name: Build Rails version matrix
+        id: merge_rails_versions
+        run: |
+          default_rails_versions='["~> 7.0.0","~> 7.1.0","~> 7.2.0"]'
+          additional_rails_versions='${{ inputs.additional_rails_versions }}'
+
+          rails_versions=$(jq -cn \
+            --argjson defaults "$default_rails_versions" \
+            --argjson extras "$additional_rails_versions" \
+            '$defaults + $extras | unique')
+
+          echo "rails_versions=$rails_versions" >> "$GITHUB_OUTPUT"
+        shell: bash
+
   test:
+    needs: prepare_matrix
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
 
@@ -25,18 +53,16 @@ jobs:
           - '3.2'
           - '3.3'
           - '3.4'
-        rails:
-          - '~> 7.0.0'
-          - '~> 7.1.0'
-          - '~> 7.2.0'
+        rails: ${{ fromJSON(needs.prepare_matrix.outputs.rails_versions) }}
         postgres:
-          - '9.6'
+          - '14.19'
           - '16.8'
         os:
           - ubuntu-latest
 
     env:
       RAILS_ENV: test
+      RAILS_VERSION: ${{ matrix.rails }}
 
     name: ${{ matrix.os }} - Ruby ${{ matrix.ruby }} - Rails ${{ matrix.rails }} - PostgreSQL ${{ matrix.postgres }}
     steps:

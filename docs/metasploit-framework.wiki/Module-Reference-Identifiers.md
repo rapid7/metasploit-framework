@@ -1,26 +1,29 @@
 ## On this page
-* [List of supported reference identifiers](#list-of-supported-reference-identifiers)
-* [Code example of references in a module](#code-example-of-references-in-a-module)
+- [On this page](#on-this-page)
+- [List of supported reference identifiers](#list-of-supported-reference-identifiers)
+- [Code example of references in a module](#code-example-of-references-in-a-module)
 
 
 A reference in a Metasploit module is a source of information related to the module. This can be a link to the vulnerability advisory, a news article, a blog post about a specific technique the module uses, a specific tweet, etc. The more you have the better. However, you should not use this as a form of advertisement.
 
 ## List of supported reference identifiers 
 
-ID  | Source | Code Example
-------------- | ------------- | -------------
-CVE  | cvedetails.com | ```['CVE', '2014-9999']```
-CWE | cwe.mitre.org | ```['CWE', '90']```
-BID | securityfocus.com | ```['BID', '1234']```
-MSB | technet.microsoft.com | ```['MSB', 'MS13-055']```
-EDB | exploit-db.com | ```['EDB', '1337']```
-US-CERT-VU | kb.cert.org | ```['US-CERT-VU', '800113']```
-ZDI | zerodayinitiative.com | ```['ZDI', '10-123']```
-WPVDB | wpvulndb.com | ```['WPVDB', '7615']```
-PACKETSTORM | packetstormsecurity.com | ```['PACKETSTORM', '132721']```
-GHSA | github.com/advisories or github.com/owner/repo/security/advisories | ```['GHSA', 'xxxx-xxxx-xxxx']``` or ```['GHSA', 'xxxx-xxxx-xxxx', 'owner/repo']```
-URL | anything | ```['URL', 'http://example.com/blog.php?id=123']```
-AKA (_deprecated_*) | anything | ~~`['AKA', 'shellshock']`~~
+| ID                  | Source                                                             | Code Example                                                                       |
+| ------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| CVE                 | cvedetails.com                                                     | ```['CVE', '2014-9999']```                                                         |
+| CWE                 | cwe.mitre.org                                                      | ```['CWE', '90']```                                                                |
+| BID                 | securityfocus.com                                                  | ```['BID', '1234']```                                                              |
+| MSB                 | technet.microsoft.com                                              | ```['MSB', 'MS13-055']```                                                          |
+| EDB                 | exploit-db.com                                                     | ```['EDB', '1337']```                                                              |
+| US-CERT-VU          | kb.cert.org                                                        | ```['US-CERT-VU', '800113']```                                                     |
+| ZDI                 | zerodayinitiative.com                                              | ```['ZDI', '10-123']```                                                            |
+| WPVDB               | wpvulndb.com                                                       | ```['WPVDB', '7615']```                                                            |
+| PACKETSTORM         | packetstormsecurity.com                                            | ```['PACKETSTORM', '132721']```                                                    |
+| GHSA                | github.com/advisories or github.com/owner/repo/security/advisories | ```['GHSA', 'xxxx-xxxx-xxxx']``` or ```['GHSA', 'xxxx-xxxx-xxxx', 'owner/repo']``` |
+| OSV                 | osv.dev                                                            | ```['OSV', 'GHSA-xxxx-xxxx-xxxx']```                                               |
+| ATT&CK              | attack.mitre.org                                                   | ```['ATT&CK', 'T1190']```                                                          |
+| URL                 | anything                                                           | ```['URL', 'http://example.com/blog.php?id=123']```                                |
+| AKA (_deprecated_*) | anything                                                           | ~~`['AKA', 'shellshock']`~~                                                        |
 
 > **Good to know**    
 > AKA names for modules are no longer stored as a reference identifier, but rather in the `Notes` metadata field as shown in the example below.
@@ -42,8 +45,10 @@ class MetasploitModule < Msf::Exploit::Remote
         'License' => MSF_LICENSE,
         'Author' => [ 'Unknown' ],
         'References' => [
-          [ 'CVE', '2014-9999' ],
+          ['CVE', '2014-9999'],
           ['BID', '1234'],
+          ['GHSA', 'xxxx-xxxx-xxxx'],               # global advisory
+          ['GHSA', 'xxxx-xxxx-xxxx', 'owner/repo'], # repository-scoped advisory
           ['URL', 'http://example.com/blog.php?id=123']
         ],
         'Platform' => 'win',

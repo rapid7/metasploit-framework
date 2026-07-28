@@ -127,6 +127,9 @@ class MetasploitModule < Msf::Auxiliary
            ::Rex::Proto::SMB::Exceptions::InvalidWordCount,
            ::Rex::Proto::SMB::Exceptions::NoReply => e
       elog(e)
+    rescue ::Rex::Proto::DCERPC::Exceptions::Fault => e
+      elog(e)
+      return false
     rescue ::Exception => e
       if e.to_s =~ /execution expired/i
         # So what happens here is that when you trigger the buggy code path, you hit this:
@@ -204,35 +207,36 @@ class MetasploitModule < Msf::Auxiliary
 
   # Check command
   def check_host(ip)
-    samba_info = ''
+    @samba_info = ''
     smb_ports = [445, 139]
     smb_ports.each do |port|
+      # Update line prefix, as port changes
+      remove_instance_variable(:@print_prefix) if instance_variable_defined?(:@print_prefix)
       @smb_port = port
-      samba_info = get_samba_info
-      vprint_status("Samba version: #{samba_info}")
+      @samba_info = get_samba_info
+      vprint_status("Samba version: #{@samba_info}")
 
-      if samba_info !~ /^samba/i
+      if @samba_info !~ /^samba/i
         vprint_status("Target isn't Samba, no check will run.")
-        return Exploit::CheckCode::Safe
+        return Exploit::CheckCode::Safe('Target is not running Samba')
       end
 
       if datastore['PASSIVE']
-        if maybe_vulnerable?(samba_info)
-          flag_vuln_host(ip, samba_info)
-          return Exploit::CheckCode::Appears
+        if maybe_vulnerable?(@samba_info)
+          flag_vuln_host(ip, @samba_info)
+          return Exploit::CheckCode::Appears('Samba version appears to be vulnerable based on version check')
         end
       else
         # Explicit: Actually triggers the bug
         if is_vulnerable?(ip)
-          flag_vuln_host(ip, samba_info)
-          return Exploit::CheckCode::Vulnerable
+          flag_vuln_host(ip, @samba_info)
         end
       end
     end
 
-    return Exploit::CheckCode::Detected if samba_info =~ /^samba/i
+    return Exploit::CheckCode::Detected('Samba detected but vulnerability could not be confirmed') if @samba_info =~ /^samba/i
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Target does not appear to be running Samba')
   end
 
   # Reports to the database about a possible vulnerable host
@@ -249,7 +253,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     peer = "#{ip}:#{rport}"
-    case check_host(ip)
+    result = check_host(ip)
+    case result
     when Exploit::CheckCode::Vulnerable
       print_good("The target is vulnerable to CVE-2015-0240.")
     when Exploit::CheckCode::Appears
@@ -259,5 +264,14 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_status("The target appears to be safe")
     end
+
+    report_service(
+      :host  => ip,
+      :port  => rport,
+      :proto => 'tcp',
+      :name  => 'smb',
+      :info  => @samba_info.to_s
+    ) if [Exploit::CheckCode::Vulnerable, Exploit::CheckCode::Appears, Exploit::CheckCode::Detected].include?(result)
   end
 end
+

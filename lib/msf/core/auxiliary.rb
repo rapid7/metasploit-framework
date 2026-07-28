@@ -181,6 +181,18 @@ class Auxiliary < Msf::Module
   #
   attr_accessor  :fail_detail
 
+  #
+  # The result of the last check invocation (a Msf::Exploit::CheckCode), if any
+  #
+  attr_accessor  :check_code
+
+  #
+  # The VulnAttempt object created during this run, or nil/false if none
+  # was recorded.  Used to prevent duplicate attempts when report_failure
+  # is called later and to enrich the attempt with check code details.
+  #
+  attr_accessor  :last_vuln_attempt
+
   attr_accessor :queue
 
 protected

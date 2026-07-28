@@ -1,5 +1,7 @@
-#!/bin/sh -ex
+#!/bin/bash -exu
+set -o pipefail
 bundle install
+bundle exec ruby tools/modules/update_payload_cached_sizes.rb
 rm -f db/modules_metadata_base.json
 git ls-files modules/ -z | xargs -0 -n1 -P `nproc` -I{} -- git log -1 --format="%ai {}" {} | while read -r udate utime utz ufile ; do
   touch -d "$udate $utime" $ufile

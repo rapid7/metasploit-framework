@@ -19,6 +19,7 @@ module Msf::Util::EXE
   include Msf::Util::EXE::Linux::X86
   include Msf::Util::EXE::Linux::X64
   include Msf::Util::EXE::Linux::Armle
+  include Msf::Util::EXE::Linux::Armbe
   include Msf::Util::EXE::Linux::Aarch64
   include Msf::Util::EXE::Linux::Mipsle
   include Msf::Util::EXE::Linux::Mipsbe
@@ -134,6 +135,8 @@ module Msf::Util::EXE
           to_win32pe(framework, code, exeopts)
         when ARCH_X64
           to_win64pe(framework, code, exeopts)
+        when ARCH_AARCH64
+          to_winaarch64pe(framework, code, exeopts)
         end
       when 'exe-service'
         case arch
@@ -153,7 +156,7 @@ module Msf::Util::EXE
         case arch
         when ARCH_X86, nil
           to_winpe_only(framework, code, exeopts)
-        when ARCH_X64
+        when ARCH_X64, ARCH_AARCH64
           to_winpe_only(framework, code, exeopts, arch)
         end
       when 'msi'

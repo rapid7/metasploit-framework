@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Vulnerable("Vulnerable version detected: #{version.dig('data', 'strapiVersion')}")
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Strapi version is not vulnerable to password reset')
   end
 
   def run

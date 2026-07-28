@@ -448,6 +448,9 @@ NAVIGATION_CONFIG = [
           {
             path: 'How-to-use-Metasploit-with-ngrok.md'
           },
+          {
+            path: 'How-to-use-Metasploit-MCP-Server.md'
+          },
         ]
       },
     ]

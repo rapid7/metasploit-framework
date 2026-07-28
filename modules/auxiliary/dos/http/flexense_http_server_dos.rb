@@ -48,16 +48,16 @@ class MetasploitModule < Msf::Auxiliary
     sock.put("GET / HTTP/1.0\r\n\r\n")
     res = sock.get
     if res && res.include?('Flexense HTTP Server v10.6.24')
-      Exploit::CheckCode::Appears
+      Exploit::CheckCode::Appears('Flexense HTTP Server v10.6.24 detected')
     else
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe('Target does not appear to be Flexense HTTP Server v10.6.24')
     end
   rescue Rex::ConnectionRefused
     print_error('Target refused the connection')
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('Target refused the connection')
   rescue StandardError
     print_error('Target did not respond to HTTP request')
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('Target did not respond to HTTP request')
   end
 
   def run

@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if !res
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
       return
     end
 
@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def listfiles(rhost)
-    print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
+    print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{Rex::Socket.to_authority(rhost, rport)}")
     success = false
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
@@ -110,12 +110,12 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP] Unable to attempt authentication")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to attempt authentication")
       return
     end
 
     if success
-      print_good("#{rhost}:#{rport} [SAP] #{datastore['FILETYPE'].downcase}: #{env.length} entries extracted")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] #{datastore['FILETYPE'].downcase}: #{env.length} entries extracted")
 
       saptbl = Msf::Ui::Console::Table.new(
         Msf::Ui::Console::Table::Style::Default,
@@ -148,10 +148,10 @@ class MetasploitModule < Msf::Auxiliary
       print_line(saptbl.to_s)
 
     elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Error code: #{faultcode}")
 
     else
-      print_error("#{rhost}:#{rport} [SAP] failed to request environment")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] failed to request environment")
     end
   end
 end

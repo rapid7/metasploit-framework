@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
     this_host = nil
 
     if full_match
-      print_good("#{rhost}:#{rport} - Identified #{full_match[1]}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Identified #{full_match[1]}")
       report_service(host: this_host || ip, port: rport, proto: 'tcp', name: 'https', info: full_match[1])
     end
 

@@ -122,12 +122,9 @@ module Shell
   # Run the command processing loop.
   #
   def run(&block)
-    begin
-      require 'pry'
-      # pry history will not be loaded by default when pry is used as a breakpoint like `binding.pry`
+    # Only suppress Pry history if Pry is already loaded
+    if defined?(Pry)
       Pry.config.history_load = false
-    rescue LoadError
-      # Pry is a development dependency, if not available suppressing history_load can be safely ignored.
     end
 
     with_history_manager_context do

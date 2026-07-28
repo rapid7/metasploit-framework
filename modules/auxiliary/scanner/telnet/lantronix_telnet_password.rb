@@ -54,9 +54,9 @@ class MetasploitModule < Msf::Auxiliary
         rem_sock = Rex::Socket::Udp.create(sock_opts)
       end
       rem_sock.put(setup_probe)
-      res = rem_sock.recvfrom(65535, 0.5) and res[1]
+      res = rem_sock.timed_recvfrom(65535, 0.5)
 
-      password = parse_reply(res)
+      password = res && parse_reply(res)
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused, ::IOError
       print_error("Connection error")
     rescue ::Interrupt

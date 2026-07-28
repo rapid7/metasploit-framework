@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
         # certificate inadequate encryption strength
         [ 'CWE', '326' ]
       ],
-      'DisclosureDate' => 'Oct 14 2014'
+      'DisclosureDate' => '2014-10-14'
     )
 
     register_options(

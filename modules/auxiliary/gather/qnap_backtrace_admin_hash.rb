@@ -74,12 +74,12 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("QNAP #{info[0]} #{info[1..-1].join('-')} detected")
 
       if Rex::Version.new(info[1]) < Rex::Version.new('4.2.3')
-        Exploit::CheckCode::Appears
+        Exploit::CheckCode::Appears("QNAP #{info[0]} version #{info[1]} is older than the patched version 4.2.3")
       else
-        Exploit::CheckCode::Detected
+        Exploit::CheckCode::Detected("QNAP #{info[0]} version #{info[1]} detected but not confirmed vulnerable")
       end
     else
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe('Target does not appear to be a QNAP device')
     end
   end
 

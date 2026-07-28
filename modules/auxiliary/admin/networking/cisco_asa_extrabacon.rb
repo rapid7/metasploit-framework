@@ -112,16 +112,16 @@ class MetasploitModule < Msf::Auxiliary
       vers_string = retrieve_asa_version
     rescue ::StandardError
       print_error('Error: Unable to retrieve version information')
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Unable to retrieve version information')
     end
 
     if @offsets[vers_string]
       print_good("Payload for Cisco ASA version #{vers_string} available!")
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears("Cisco ASA version #{vers_string} has an available payload")
     end
 
     print_warning("Received Cisco ASA version #{vers_string}, but no payload available")
-    return Exploit::CheckCode::Detected
+    return Exploit::CheckCode::Detected("Cisco ASA version #{vers_string} detected but no payload available")
   end
 
   def build_payload(vers_string, mode)

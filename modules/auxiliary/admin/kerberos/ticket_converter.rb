@@ -37,22 +37,35 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('OutputPath', [ true, 'The output path to save the converted ticket.' ]),
       ]
     )
+    register_advanced_options(
+      [
+        OptEnum.new('KerberosTicketTrace', [false, 'Kerberos ticket trace mode for converted ticket output', 'off', %w[off metadata ticket full]])
+      ]
+    )
   end
 
   def run
-    header = File.binread(datastore['InputPath'], 2)
+    input_path = datastore['InputPath']
+    output_path = File.expand_path(datastore['OutputPath'])
+    unless File.file?(input_path.to_s) && File.readable?(input_path.to_s)
+      fail_with(Msf::Module::Failure::BadConfig, "Input ticket file does not exist or is not readable: #{input_path}")
+    end
+
+    header = File.binread(input_path, 2)
     if ccache?(header)
       print_status('Converting from ccache to kirbi')
-      output = ccache_to_kirbi(File.binread(datastore['InputPath']))
+      ccache = Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.read(File.binread(input_path))
+      output = Msf::Exploit::Remote::Kerberos::TicketConverter.ccache_to_kirbi(ccache)
+      trace_converted_ticket(ccache, source: "ccache File:#{input_path}")
     elsif kirbi?(header)
       print_status('Converting from kirbi to ccache')
-      output = kirbi_to_ccache(File.binread(datastore['InputPath']))
+      output = kirbi_to_ccache(File.binread(input_path))
+      trace_converted_ticket(output, source: "Kirbi File:#{input_path}")
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unknown file format')
     end
-    path = File.expand_path(datastore['OutputPath'])
-    File.binwrite(path, output.encode)
-    print_status("File written to #{path}")
+    File.binwrite(output_path, output.encode)
+    print_status("File written to #{output_path}")
   end
 
   def ccache_to_kirbi(input)
@@ -73,5 +86,17 @@ class MetasploitModule < Msf::Auxiliary
 
   def ccache?(header)
     header[0..1] == "\x05\x04"
+  end
+
+  def trace_converted_ticket(ccache, source:)
+    trace_mode = datastore['KerberosTicketTrace'].to_s.downcase
+    return if trace_mode.empty? || trace_mode == 'off'
+
+    unless Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter::TRACE_MODES.include?(trace_mode)
+      trace_mode = Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter::TRACE_MODE_FULL
+    end
+
+    presenter = Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter.new(ccache)
+    print_line presenter.present_trace(source: source, trace_mode: trace_mode)
   end
 end

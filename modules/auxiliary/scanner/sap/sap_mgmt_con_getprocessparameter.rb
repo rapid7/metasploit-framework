@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def getprocparam(rhost)
-    print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
+    print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{Rex::Socket.to_authority(rhost, rport)}")
     success = false
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
       })
 
       unless res
-        print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
         return
       end
 
@@ -96,10 +96,10 @@ class MetasploitModule < Msf::Auxiliary
           fault = true
         end
       else
-        print_error("#{rhost}:#{rport} [SAP] Unable to communicate with remote host.")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to communicate with remote host.")
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP] Unable to attempt authentication")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to attempt authentication")
       return
     end
 
@@ -113,11 +113,11 @@ class MetasploitModule < Msf::Auxiliary
           res.body,
           '.xml'
         )
-        print_good("#{rhost}:#{rport} [SAP] Process Parameters: Entries extracted to #{loot}")
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Process Parameters: Entries extracted to #{loot}")
       else
         name_match = Regexp.new(datastore['MATCH'], Regexp::EXTENDED | Regexp::NOENCODING)
         print_status('[SAP] Regex match selected, skipping loot storage')
-        print_status("#{rhost}:#{rport} [SAP] Attempting to display configuration matches for #{name_match}")
+        print_status("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Attempting to display configuration matches for #{name_match}")
 
         saptbl = Msf::Ui::Console::Table.new(
           Msf::Ui::Console::Table::Style::Default,
@@ -151,11 +151,11 @@ class MetasploitModule < Msf::Auxiliary
       end
 
     elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Error code: #{faultcode}")
 
     else
       # Something has gone horribly wrong
-      print_error("#{rhost}:#{rport} [SAP] failed to request environment")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] failed to request environment")
     end
   end
 end

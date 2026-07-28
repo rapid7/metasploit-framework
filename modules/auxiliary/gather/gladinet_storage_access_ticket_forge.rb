@@ -49,6 +49,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
+          ['CVE', '2025-14611'],
           ['URL', 'https://www.huntress.com/blog/active-exploitation-gladinet-centrestack-triofox-insecure-cryptography-vulnerability']
         ],
         'DisclosureDate' => '2025-12-10',

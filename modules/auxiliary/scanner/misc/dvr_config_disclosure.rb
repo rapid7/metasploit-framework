@@ -241,12 +241,12 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if not res or res.code != 200 or res.body.empty? or res.body !~ /CAMERA/
-      vprint_error("#{rhost}:#{rport} - DVR configuration not found")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - DVR configuration not found")
       return
     end
 
     p = store_loot("dvr.configuration", "text/plain", rhost, res.body, "DVR.cfg")
-    vprint_good("#{rhost}:#{rport} - DVR configuration stored in #{p}")
+    vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - DVR configuration stored in #{p}")
 
     conf = res.body
 
@@ -261,6 +261,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     report_service(:host => rhost, :port => rport, :sname => 'dvr', :info => "DVR NAME: #{dvr_name}")
-    print_good("#{rhost}:#{rport} DVR #{dvr_name} found")
+    print_good("#{Rex::Socket.to_authority(rhost, rport)} DVR #{dvr_name} found")
   end
 end

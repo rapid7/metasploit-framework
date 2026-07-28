@@ -51,9 +51,9 @@ class MetasploitModule < Msf::Auxiliary
     c = connect(o)
     c.send_request(c.request_raw(o))
 
-    print_status("Request sent to #{rhost}:#{rport}")
+    print_status("Request sent to #{Rex::Socket.to_authority(rhost, rport)}")
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-    print_status("Couldn't connect to #{rhost}:#{rport}")
+    print_status("Couldn't connect to #{Rex::Socket.to_authority(rhost, rport)}")
   rescue ::Timeout::Error, ::Errno::EPIPE => e
     vprint_error(e.message)
   end

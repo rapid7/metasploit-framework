@@ -436,6 +436,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
             "        Session ID: 1",
             "        Loot ID: nil",
             "        Fail Detail: nil",
+            "        Check Code: nil",
+            "        Check Detail: nil",
           ]
         end
       end

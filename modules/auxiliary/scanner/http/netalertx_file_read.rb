@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'maintenance.php')
     })
-    return Exploit::CheckCode::Unknown unless res&.code == 200
+    return Exploit::CheckCode::Unknown('No response or unexpected status code from target') unless res&.code == 200
 
     html_document = res.get_html_document
     return Exploit::CheckCode::Unknown('Failed to get html document.') if html_document.blank?

@@ -72,11 +72,11 @@ class MetasploitModule < Msf::Auxiliary
       result = vim_do_login(user, pass)
       case result
       when :success
-        print_good "#{rhost}:#{rport} - Successful Login! (#{user}:#{pass})"
+        print_good "#{Rex::Socket.to_authority(rhost, rport)} - Successful Login! (#{user}:#{pass})"
         report_cred(ip: rhost, port: rport, user: user, password: pass, proof: result)
         return if datastore['STOP_ON_SUCCESS']
       when :fail
-        print_error "#{rhost}:#{rport} - Login Failure (#{user}:#{pass})"
+        print_error "#{Rex::Socket.to_authority(rhost, rport)} - Login Failure (#{user}:#{pass})"
       end
     end
   end
@@ -100,22 +100,22 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     unless res
-      vprint_error("#{rhost}:#{rport} Error: no response")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} Error: no response")
       return false
     end
 
     fingerprint_vmware(res)
   rescue ::Rex::ConnectionError
-    vprint_error("#{rhost}:#{rport} Error: could not connect")
+    vprint_error("#{Rex::Socket.to_authority(rhost, rport)} Error: could not connect")
     return false
   rescue StandardError => e
-    vprint_error("#{rhost}:#{rport} Error: #{e}")
+    vprint_error("#{Rex::Socket.to_authority(rhost, rport)} Error: #{e}")
     return false
   end
 
   def fingerprint_vmware(res)
     unless res
-      vprint_error("#{rhost}:#{rport} Error: no response")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} Error: no response")
       return false
     end
     return false unless res.body.include?('<vendor>VMware, Inc.</vendor>')
@@ -126,12 +126,12 @@ class MetasploitModule < Msf::Auxiliary
     full_match = res.body.match(%r{<fullName>([\w\s.-]+)</fullName>})
 
     if full_match
-      print_good "#{rhost}:#{rport} - Identified #{full_match[1]}"
+      print_good "#{Rex::Socket.to_authority(rhost, rport)} - Identified #{full_match[1]}"
       report_service(host: rhost, port: rport, proto: 'tcp', sname: 'https', info: full_match[1])
     end
 
     unless os_match && ver_match && build_match
-      vprint_error("#{rhost}:#{rport} Error: Could not identify host as VMware")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} Error: Could not identify host as VMware")
       return false
     end
 

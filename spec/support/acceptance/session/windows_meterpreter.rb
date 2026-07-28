@@ -378,7 +378,6 @@ module Acceptance::Session::WindowsMeterpreter
           },
           windows: {
             known_failures: [
-              "[-] FAILED: [UDP] Has the correct peer information",
               *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           }

@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'http://www.securitytracker.com/id?1026215'],
         [ 'CVE', '2011-3556']
       ],
-      'DisclosureDate' => 'Oct 15 2011'
+      'DisclosureDate' => '2011-10-15'
     )
 
     register_options(
@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if return_value.is_exception? && loader_enabled?(return_value.value)
-      print_good("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Enabled")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} Java RMI Endpoint Detected: Class Loader Enabled")
       svc = report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Enabled")
       report_vuln(
         :host => rhost,
@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       Exploit::CheckCode::Vulnerable
     else
-      print_status("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Disabled")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} Java RMI Endpoint Detected: Class Loader Disabled")
       report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Disabled")
       Exploit::CheckCode::Safe
     end

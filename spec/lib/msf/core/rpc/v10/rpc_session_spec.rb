@@ -158,6 +158,51 @@ RSpec.describe Msf::RPC::RPC_Session do
     end
   end
 
+  shared_examples 'interactive shell read' do
+    let(:expected_data) { 'test response' }
+
+    before do
+      allow(rstream).to receive(:get_once).and_return(expected_data)
+    end
+
+    it 'returns expected data' do
+      expect(response).to eq({ 'data' => expected_data })
+    end
+  end
+
+  shared_examples 'interactive shell write' do
+    let(:test_command) { 'help' }
+
+    it 'writes the command with a trailing newline and returns success' do
+      expect(rstream).to receive(:write).with("#{test_command}\n").and_return(test_command.length + 1)
+      expect(response).to eq({ 'result' => 'success' })
+    end
+
+    context 'when the input already ends with a newline' do
+      let(:test_command) { "help\n" }
+
+      it 'does not append an extra newline' do
+        expect(rstream).to receive(:write).with(test_command).and_return(test_command.length)
+        expect(response).to eq({ 'result' => 'success' })
+      end
+    end
+  end
+
+  shared_examples 'rejects non-String data with 400' do
+    [nil, 42, ['array'], { key: 'value' }].each do |bad_input|
+      context "when data is #{bad_input.inspect}" do
+        let(:test_command) { bad_input }
+
+        it 'raises Msf::RPC::Exception with code 400' do
+          expect { response }.to raise_error(Msf::RPC::Exception) do |e|
+            expect(e.code).to eq(400)
+            expect(e.message).to eq('Data must be a String')
+          end
+        end
+      end
+    end
+  end
+
   describe '#rpc_compatible_modules' do
     context 'when the session does not exist' do
       let(:session) { meterpreter_session }
@@ -195,11 +240,13 @@ RSpec.describe Msf::RPC::RPC_Session do
     end
 
     context 'with shell session' do
-      let(:session) { shell_session }
-
-      it 'raises an error' do
-        expect { response }.to raise_error(Msf::RPC::Exception)
+      let(:session) do
+        session = Msf::Sessions::CommandShell.new(rstream)
+        session.framework = framework
+        session
       end
+
+      it_behaves_like 'interactive shell read'
     end
   end
 
@@ -221,11 +268,13 @@ RSpec.describe Msf::RPC::RPC_Session do
     end
 
     context 'with shell session' do
-      let(:session) { shell_session }
-
-      it 'raises an error' do
-        expect { response }.to raise_error(Msf::RPC::Exception)
+      let(:session) do
+        session = Msf::Sessions::CommandShell.new(rstream)
+        session.framework = framework
+        session
       end
+
+      it_behaves_like 'interactive shell read'
     end
   end
 
@@ -283,17 +332,21 @@ RSpec.describe Msf::RPC::RPC_Session do
         session
       end
 
-      before do
-        allow(rstream).to receive(:write).with(test_command).and_return(test_command.length)
+      context 'with valid String input' do
+        before do
+          allow(rstream).to receive(:write).with(test_command).and_return(test_command.length)
+        end
+
+        it "doesn't raise an error" do
+          expect { response }.not_to raise_error
+        end
+
+        it 'returns write_count data' do
+          expect(response).to eq({ 'write_count' => test_command.length.to_s })
+        end
       end
 
-      it "doesn't raise an error" do
-        expect { response }.not_to raise_error
-      end
-
-      it 'returns write_count data' do
-        expect(response).to eq({ 'write_count' => test_command.length.to_s })
-      end
+      it_behaves_like 'rejects non-String data with 400'
     end
   end
 
@@ -303,23 +356,28 @@ RSpec.describe Msf::RPC::RPC_Session do
     subject(:response) { rpc.rpc_interactive_write(target_sid, test_command) }
 
     context 'with shell session' do
-      let(:session) { shell_session }
-
-      it 'raises error' do
-        expect { response }.to raise_error(Msf::RPC::Exception)
+      let(:session) do
+        session = Msf::Sessions::CommandShell.new(rstream)
+        session.framework = framework
+        session
       end
+
+      it_behaves_like 'interactive shell write'
+      it_behaves_like 'rejects non-String data with 400'
     end
 
     context 'with meterpreter session' do
       let(:session) { meterpreter_session }
 
       it_behaves_like 'interactive write'
+      it_behaves_like 'rejects non-String data with 400'
     end
 
     context 'with postgresql session' do
       let(:session) { postgresql_session }
 
       it_behaves_like 'interactive write'
+      it_behaves_like 'rejects non-String data with 400'
     end
   end
 
@@ -329,23 +387,44 @@ RSpec.describe Msf::RPC::RPC_Session do
     subject(:response) { rpc.rpc_meterpreter_write(target_sid, test_command) }
 
     context 'with shell session' do
-      let(:session) { shell_session }
-
-      it 'raises error' do
-        expect { response }.to raise_error(Msf::RPC::Exception)
+      let(:session) do
+        session = Msf::Sessions::CommandShell.new(rstream)
+        session.framework = framework
+        session
       end
+
+      it_behaves_like 'interactive shell write'
+      it_behaves_like 'rejects non-String data with 400'
     end
 
     context 'with meterpreter session' do
       let(:session) { meterpreter_session }
 
       it_behaves_like 'interactive write'
+      it_behaves_like 'rejects non-String data with 400'
     end
 
     context 'with postgresql session' do
       let(:session) { postgresql_session }
 
       it_behaves_like 'interactive write'
+      it_behaves_like 'rejects non-String data with 400'
+    end
+  end
+
+  describe '#rpc_ring_put' do
+    let(:test_command) { 'help' }
+
+    subject(:response) { rpc.rpc_ring_put(target_sid, test_command) }
+
+    context 'with shell session' do
+      let(:session) do
+        session = Msf::Sessions::CommandShell.new(rstream)
+        session.framework = framework
+        session
+      end
+
+      it_behaves_like 'rejects non-String data with 400'
     end
   end
 end

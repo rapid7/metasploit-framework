@@ -53,11 +53,11 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, '/login.action')
     )
-    return Exploit::CheckCode::Unknown unless res
-    return Exploit::CheckCode::Safe unless res.code == 200
+    return Exploit::CheckCode::Unknown('No response received from target') unless res
+    return Exploit::CheckCode::Safe('Target did not return HTTP 200 on login page') unless res.code == 200
 
     poweredby = res.get_xml_document.xpath('//ul[@id="poweredby"]/li[@class="print-only"]/text()').first&.text
-    return Exploit::CheckCode::Safe unless poweredby =~ /Confluence (\d+(\.\d+)*)/
+    return Exploit::CheckCode::Safe('Could not detect Confluence version from page') unless poweredby =~ /Confluence (\d+(\.\d+)*)/
 
     confluence_version = Rex::Version.new(Regexp.last_match(1))
 

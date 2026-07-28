@@ -80,6 +80,7 @@ class MetasploitModule < Msf::Auxiliary
       command = "#{cmd} /C echo reg.exe QUERY HKU ^> %SYSTEMDRIVE%#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
       out = psexec(command)
       output = get_output(ip, smbshare, text)
+      return nil unless output
       cleanout = Array.new
       output.each_line { |line| cleanout << line.chomp if line.include?("HKEY") && line.split("-").size == 8 && !line.split("-")[7].include?("_") }
       return cleanout

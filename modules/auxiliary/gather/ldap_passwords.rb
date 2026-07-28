@@ -403,8 +403,8 @@ class MetasploitModule < Msf::Auxiliary
         report_creds(artifact.public_data, artifact.private_data, artifact.private_type, artifact.jtr_format)
 
         common = {
-          host: rhost,
-          port: rport,
+          host: session ? session.client.peerhost : rhost,
+          port: session ? session.client.peerport : rport,
           service: this_ldap_service,
           resource: { ldap_dn: artifact.object_dn }
         }
@@ -453,8 +453,8 @@ class MetasploitModule < Msf::Auxiliary
   def report_creds(username, private_data, private_type, jtr_format)
     # this is the service the credentials came from, not necessarily where they can be used
     service_data = {
-      address: rhost,
-      port: rport,
+      address: session ? session.client.peerhost : rhost,
+      port: session ? session.client.peerport : rport,
       service_name: 'ldap',
       protocol: 'tcp',
       workspace_id: myworkspace_id

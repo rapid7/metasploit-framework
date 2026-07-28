@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
     @sqli = get_sqli_object
     return Exploit::CheckCode::Unknown(GET_SQLI_OBJECT_FAILED_ERROR_MSG) if @sqli == GET_SQLI_OBJECT_FAILED_ERROR_MSG
 
-    @sqli.test_vulnerable ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe
+    @sqli.test_vulnerable ? Exploit::CheckCode::Vulnerable('SQL injection confirmed') : Exploit::CheckCode::Safe('SQL injection test did not succeed')
   end
 
   def run

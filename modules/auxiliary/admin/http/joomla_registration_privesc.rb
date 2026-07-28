@@ -52,28 +52,28 @@ class MetasploitModule < Msf::Auxiliary
 
     unless res
       vprint_error('Unable to connect to target')
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('Unable to connect to target')
     end
 
     unless joomla_and_online?
       vprint_error('Unable to detect Joomla')
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Target does not appear to be Joomla')
     end
 
     version = Rex::Version.new(joomla_version)
 
     unless version
       vprint_error('Unable to detect Joomla version')
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Detected('Joomla detected but version could not be determined')
     end
 
     vprint_status("Detected Joomla version #{version}")
 
     if version.between?(Rex::Version.new('3.4.4'), Rex::Version.new('3.6.3'))
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears("Joomla #{version} is in the vulnerable range 3.4.4-3.6.3")
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe("Joomla #{version} is not in the vulnerable range")
   end
 
   def get_csrf(hidden_fields)

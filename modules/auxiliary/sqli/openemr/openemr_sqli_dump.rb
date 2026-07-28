@@ -68,16 +68,16 @@ class MetasploitModule < Msf::Auxiliary
     # Check version
     print_status('Trying to detect installed version')
     version = openemr_version
-    return Exploit::CheckCode::Unknown if version.empty?
+    return Exploit::CheckCode::Unknown('Could not determine OpenEMR version') if version.empty?
 
     vprint_status("Version #{version} detected")
     version.sub! ' (', '.'
     version.sub! ')', ''
     version.strip!
 
-    return Exploit::CheckCode::Safe unless Rex::Version.new(version) < Rex::Version.new('5.0.1.7')
+    return Exploit::CheckCode::Safe("OpenEMR version #{version} is not vulnerable") unless Rex::Version.new(version) < Rex::Version.new('5.0.1.7')
 
-    Exploit::CheckCode::Appears
+    Exploit::CheckCode::Appears("OpenEMR version #{version} is in the vulnerable range")
   end
 
   def get_response(payload)

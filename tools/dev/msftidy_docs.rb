@@ -257,7 +257,7 @@ class MsftidyDoc
         warn("Instructional text not removed", idx)
       end
 
-      if ln =~ /^# /
+      if !in_codeblock && ln =~ /^# /
         warn("No H1 (#) headers.  If this is code, indent.", idx)
       end
 

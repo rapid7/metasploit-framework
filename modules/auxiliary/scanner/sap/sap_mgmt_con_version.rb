@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if !res
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} [SAP] Unable to connect")
       return
     end
 
@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def enum_version(rhost)
-    print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
+    print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{Rex::Socket.to_authority(rhost, rport)}")
     success = false
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if success
-      print_good("[SAP] Version Number Extracted - #{rhost}:#{rport}")
+      print_good("[SAP] Version Number Extracted - #{Rex::Socket.to_authority(rhost, rport)}")
       print_good("[SAP] Version: #{version}")
       print_good("[SAP] SID: #{sapsid.upcase}")
 

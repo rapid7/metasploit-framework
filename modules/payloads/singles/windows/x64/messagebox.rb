@@ -36,6 +36,8 @@ module MetasploitModule
   end
 
   def generate(_opts = {})
+    title = Metasm::Shellcode.define_cstring(datastore['TITLE'] || '')
+    text = Metasm::Shellcode.define_cstring(datastore['TEXT'] || '')
     style = 0x00
     case datastore['ICON'].upcase.strip
       # default = NO
@@ -51,20 +53,20 @@ module MetasploitModule
 
     exitfunc_asm = %(
         xor rcx,rcx
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'ExitProcess')}
         call rbp
       )
     if datastore['EXITFUNC'].upcase.strip == 'THREAD'
       exitfunc_asm = %(
-        mov ebx, #{Rex::Text.block_api_hash('kernel32.dll', 'ExitThread')}
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'GetVersion')}
+        mov ebx, #{block_api_hash('kernel32.dll', 'ExitThread')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'GetVersion')}
         call rbp
         add rsp,0x28
         cmp al,0x6
         jl use_exitthread   ; is older than Vista or Server 2003 R2?
         cmp bl,0xe0         ; check if GetVersion change the hash stored in EBX
         jne use_exitthread
-        mov ebx, #{Rex::Text.block_api_hash('ntdll.dll', 'RtlExitUserThread')}
+        mov ebx, #{block_api_hash('ntdll.dll', 'RtlExitUserThread')}
 
         use_exitthread:
         push 0
@@ -84,19 +86,19 @@ module MetasploitModule
       db "user32.dll", 0x00
     get_user32:
       pop rcx
-      mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
+      mov r10d, #{block_api_hash('kernel32.dll', 'LoadLibraryA')}
       call rbp
       mov r9, #{style}
       call get_text
-      db "#{datastore['TEXT']}", 0x00
+      #{text}
     get_text:
       pop rdx
       call get_title
-      db "#{datastore['TITLE']}", 0x00
+      #{title}
     get_title:
       pop r8
       xor rcx,rcx
-      mov r10d, #{Rex::Text.block_api_hash('user32.dll', 'MessageBoxA')}
+      mov r10d, #{block_api_hash('user32.dll', 'MessageBoxA')}
       call rbp
     exitfunk:
       #{exitfunc_asm}

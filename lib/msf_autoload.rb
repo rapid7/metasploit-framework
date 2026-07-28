@@ -39,6 +39,10 @@ class MsfAutoload
         'MYSQL'
       elsif basename == 'ssh' && abspath.end_with?("#{__dir__}/rex/proto/ssh")
         'Ssh'
+      elsif basename == 'ftp' && abspath.end_with?("#{__dir__}/rex/proto/ftp")
+        'Ftp'
+      elsif basename == 'ftp' && abspath.end_with?("#{__dir__}/msf/core/exploit/remote/ftp.rb")
+        'Ftp'
       elsif basename == 'http' && abspath.end_with?("#{__dir__}/rex/proto/http")
         'Http'
       elsif basename == 'rftransceiver' && abspath.end_with?("#{__dir__}/rex/post/hwbridge/ui/console/command_dispatcher/rftransceiver.rb")
@@ -65,7 +69,9 @@ class MsfAutoload
       "#{__dir__}/rex/post.rb",
       "#{__dir__}/rex/proto/ssh/hrr_rb_ssh.rb",
       "#{__dir__}/rex/proto/ssh/connection.rb",
-      "#{__dir__}/rex/proto/kerberos/pac/krb5_pac.rb"
+      "#{__dir__}/rex/proto/kerberos/pac/krb5_pac.rb",
+      "#{__dir__}/msf/core/mcp.rb",
+      "#{__dir__}/msf/core/mcp/"
     ]
   end
 
@@ -134,6 +140,7 @@ class MsfAutoload
       'mssql' => 'MSSQL',
       'pdf' => 'PDF',
       'fileformat' => 'FILEFORMAT',
+      'ftp' => 'FTP',
       'http' => 'HTTP',
       'html' => 'HTML',
       'pdf_parse' => 'PDF_Parse',
@@ -167,11 +174,11 @@ class MsfAutoload
       'dns' => 'DNS',
       'smtp_deliver' => 'SMTPDeliver',
       'send_uuid' => 'SendUUID',
+      'exec_x86' => 'Exec_X86',
       'exec_x64' => 'Exec_x64',
       'reflective_dll_injection' => 'ReflectiveDLLInjection',
       'reflective_pe_loader' => 'ReflectivePELoader',
       'pe_inject' => 'PEInject',
-      'payload_db_conf' => 'PayloadDBConf',
       'reverse_tcp_x86' => 'ReverseTcp_x86',
       'reverse_tcp_aarch64' => 'ReverseTcp_Aarch64',
       'ruby_dl' => 'RubyDL',
@@ -345,11 +352,16 @@ class MsfAutoload
 end
 
 # global autoload of common gems
+autoload :BCrypt, 'bcrypt'
+autoload :Dnsruby, 'dnsruby'
 autoload :Faker, 'faker'
 autoload :BinData, 'bindata'
+autoload :Metasm, 'metasm'
+autoload :Recog, 'recog'
 autoload :RubySMB, 'ruby_smb'
 autoload :MetasploitPayloads, 'metasploit-payloads'
 autoload :PacketFu, 'packetfu'
+autoload :Zip, 'zip'
 autoload :DidYouMean, 'did_you_mean'
 
 require 'rexml/document'

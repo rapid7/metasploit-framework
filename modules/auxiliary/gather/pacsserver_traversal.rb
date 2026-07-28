@@ -55,17 +55,17 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => normalize_uri(target_uri.path, 'index.html')
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      return CheckCode::Unknown('Connection failed')
+      return Exploit::CheckCode::Unknown('Connection failed')
     end
 
     if res&.code == 200
       data = res.to_s
       if data.include?('Sante PACS Server PG')
-        return CheckCode::Detected('Sante PACS Server PG seems to be running on the server.')
+        return Exploit::CheckCode::Detected('Sante PACS Server PG seems to be running on the server.')
       end
 
     end
-    return CheckCode::Safe
+    return Exploit::CheckCode::Safe('Target does not appear to be Sante PACS Server')
   end
 
   def run

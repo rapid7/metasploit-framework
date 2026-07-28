@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696'],
         ['URL', 'https://www.rapid7.com/blog/post/2014/08/25/r7-2014-12-more-amplification-vulnerabilities-in-ntp-allow-even-more-drdos-attacks/']
       ],
-      'DisclosureDate' => 'Aug 25 2014',
+      'DisclosureDate' => '2014-08-25',
       'License' => MSF_LICENSE
     )
   end

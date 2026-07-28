@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path)
     })
     return Exploit::CheckCode::Unknown('Connection failed') unless res
-    return Exploit::CheckCode::Safe unless res.code == 200
+    return Exploit::CheckCode::Safe('Target did not return HTTP 200') unless res.code == 200
 
     version = res.body.scan(/Dolibarr ([\d.]+-*[a-zA-Z0-9]*)/).flatten.first
 
@@ -108,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     print_good("Found #{nbr_contact} contacts.")
-    print_good("#{rhost}:#{rport} - File saved in: #{path_json_file}")
+    print_good("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path_json_file}")
 
     csv_string = CSV.generate do |csv| # Loop to write into csv
       csv << contact_fields
@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
       '.csv'
     )
 
-    print_good("#{rhost}:#{rport} - File saved in: #{path_csv_file}")
+    print_good("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path_csv_file}")
   end
 
 end

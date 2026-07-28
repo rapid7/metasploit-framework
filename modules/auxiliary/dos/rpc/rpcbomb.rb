@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
     while count < datastore['COUNT']
       begin
         s.send(pkt, 0)
-      rescue ::Errno::ENOBUFS, ::Rex::ConnectionError, ::Errno::ECONNREFUSED
+      rescue ::Errno::ENOBUFS, ::Rex::ConnectionError, ::Errno::ECONNREFUSED, ::Errno::ECONNRESET
         vprint_error("Host #{ip} unreachable")
         break
       end

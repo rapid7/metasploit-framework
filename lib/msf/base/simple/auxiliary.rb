@@ -41,7 +41,8 @@ module Auxiliary
   # 	Whether or not the exploit should be run in the context of a background
   # 	job.
   #
-  def self.run_simple(omod, opts = {}, job_listener: Msf::Simple::NoopJobListener.instance, &block)
+  def self.run_simple(omod, opts = {}, &block)
+    job_listener = opts.delete('JobListener') || Msf::Simple::NoopJobListener.instance
 
     # Clone the module to prevent changes to the original instance
     mod = omod.replicant
@@ -70,6 +71,8 @@ module Auxiliary
     end
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
+    mod.run_uuid = run_uuid
+    omod.run_uuid = run_uuid
     job_listener.waiting run_uuid
     ctx = [mod, run_uuid, job_listener]
     run_as_job = opts['RunAsJob'].nil? ? mod.passive? : opts['RunAsJob']
@@ -110,7 +113,8 @@ module Auxiliary
   #
   # 	The local output through which data can be displayed.
   #
-  def self.check_simple(mod, opts, job_listener: Msf::Simple::NoopJobListener.instance)
+  def self.check_simple(mod, opts)
+    job_listener = opts.delete('JobListener') || Msf::Simple::NoopJobListener.instance
     Msf::Simple::Framework.simplify_module(mod)
 
     mod._import_extra_options(opts)
@@ -128,6 +132,7 @@ module Auxiliary
     mod.validate
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
+    mod.run_uuid = run_uuid
     job_listener.waiting run_uuid
     ctx = [mod, run_uuid, job_listener]
 
@@ -175,9 +180,13 @@ protected
     begin
       begin
         job_listener.start run_uuid
+        mod.check_code = nil if mod.respond_to?(:check_code=)
+        mod.last_vuln_attempt = nil if mod.respond_to?(:last_vuln_attempt=)
         mod.setup
         mod.framework.events.on_module_run(mod)
         result = block.call(mod)
+        # Store the check result if the block returned a CheckCode
+        mod.check_code = result if result.is_a?(Msf::Exploit::CheckCode)
         job_listener.completed(run_uuid, result, mod)
       rescue ::Exception => e
         job_listener.failed(run_uuid, e, mod)

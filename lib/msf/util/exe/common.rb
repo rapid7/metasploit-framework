@@ -6,7 +6,6 @@ module Msf::Util::EXE::Common
   require 'rex/random_identifier'
   require 'rex/zip'
   require 'rex/powershell'
-  require 'metasm'
   require 'digest/sha1'
 
   def self.included(base)

@@ -21,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2024-20419'],
+          ['EDB', '52155'],
           ['URL', 'https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-cssm-auth-sLw3uhUy#vp'],
           ['URL', 'https://www.0xpolar.com/blog/CVE-2024-20419']
         ],
@@ -143,7 +144,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Appears('Password reset was successful, target is vulnerable')
     end
 
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('Password reset status could not be determined')
   end
 
   def decode_url(encoded_string)

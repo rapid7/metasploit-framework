@@ -186,9 +186,9 @@ class MetasploitModule < Msf::Auxiliary
     @check_only = true
     vprint_status "Checking for Heartbleed exposure"
     if bleed
-      Exploit::CheckCode::Appears
+      Exploit::CheckCode::Appears('Target returned extra data in heartbeat response, likely vulnerable to Heartbleed')
     else
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe('Target did not return extra data in heartbeat response')
     end
   end
 

@@ -1,4 +1,6 @@
 require 'rack'
+require 'thin'
+require 'rackup/handler/thin'
 require 'metasploit/framework/parsed_options/remote_db'
 
 # TODO: This functionality isn't fully used currently, it should be integrated and called from the top level msfdb.rb file
@@ -25,7 +27,7 @@ class Msf::WebServices::HttpDBManagerService
 
   def start_http_server(opts)
 
-    Rack::Handler::Thin.run(Msf::WebServices::MetasploitApiApp, **opts) do |server|
+    Rackup::Handler::Thin.run(Msf::WebServices::MetasploitApiApp, **opts) do |server|
 
       if opts[:ssl] && opts[:ssl] = true
         print_good('SSL Enabled')

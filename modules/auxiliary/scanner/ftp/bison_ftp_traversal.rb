@@ -50,13 +50,13 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       if /BisonWare BisonFTP server product V3\.5/i === banner
-        return Exploit::CheckCode::Appears
+        return Exploit::CheckCode::Appears('BisonWare BisonFTP server V3.5 detected')
       end
     ensure
       disconnect
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Target is not running BisonWare BisonFTP server V3.5')
   end
 
   def run_host(target_host)

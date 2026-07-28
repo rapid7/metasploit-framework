@@ -85,7 +85,7 @@ module Msf
         # This follows Ruby's Marshal integer encoding scheme.
         def read_marshal_int
           c = read_byte
-          c = (c ^ 256) - 256 if c > 127 # sign-extend
+          c -= 256 if c > 127 # sign-extend
 
           if c == 0
             0

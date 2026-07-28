@@ -11,6 +11,7 @@ end
 
 require 'msf/core/exception' # TODO: temporary require until we can split up the exceptions file and namespace properly
 require 'msf/core/constants'
+require 'msf/core/trace/certificate_trace_presenter'
 require 'msf_autoload'
 
 MsfAutoload.instance

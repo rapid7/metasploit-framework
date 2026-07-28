@@ -6,6 +6,7 @@ module Msf
       module Kernel
         include ::Msf::Post::Common
         include Msf::Post::File
+        include Msf::Post::Architecture
 
         #
         # Returns uname output
@@ -27,6 +28,26 @@ module Msf
         #
         def kernel_release
           uname('-r')
+        end
+        
+        # Returns the kernel release information as a hashable object
+        #
+        #
+        def kernel_rex_release
+          release = kernel_release
+
+          # regex for parsing kernel release
+          # (5.15.0)-(25-generic) 
+          # consists of two groups - the kernel upstream version (xx.zz.yy) and distro-specific information
+          # this regex should make it easier to parse it
+          
+          return nil unless release =~ /(\d+\.\d+\.?\d*\.?\d*)[-.]?(.+)/
+          
+          { 
+            :upstream => Rex::Version.new(Regexp.last_match(1)),
+            :distro_suffix => Regexp.last_match(2)
+          }
+
         end
 
         #
@@ -56,30 +77,7 @@ module Msf
           uname('-m')
         end
 
-        #
-        # Returns the kernel hardware architecture
-        # Based on values from https://en.wikipedia.org/wiki/Uname
-        #
-        # @return [String]
-        #
-        def kernel_arch
-          arch = kernel_hardware
-          return ARCH_X64 if arch == 'x86_64' || arch == 'amd64'
-          return ARCH_AARCH64 if arch == 'aarch64' || arch == 'arm64'
-          return ARCH_ARMLE if arch.start_with? 'arm'
-          return ARCH_X86 if arch.end_with? '86'
-          return ARCH_PPC if arch == 'ppc'
-          return ARCH_PPC64 if arch == 'ppc64'
-          return ARCH_PPC64LE if arch == 'ppc64le'
-          return ARCH_MIPS if arch == 'mips'
-          return ARCH_MIPS64 if arch == 'mips64'
-          return ARCH_SPARC if arch == 'sparc'
-          return ARCH_RISCV32LE if arch == 'riscv32'
-          return ARCH_RISCV64LE if arch == 'riscv64'
-          return ARCH_LOONGARCH64 if arch == 'loongarch64'
-
-          arch
-        end
+        alias :kernel_arch :get_os_architecture
 
         #
         # Returns the kernel boot config with comments removed

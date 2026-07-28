@@ -46,6 +46,12 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
+    msg = scanner.check_setup
+    if msg
+      print_error("#{peer} - #{msg}")
+      return
+    end
+
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(

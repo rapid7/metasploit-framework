@@ -83,10 +83,10 @@ class MetasploitModule < Msf::Auxiliary
     # Default version is vulnerable, but can be mitigated by refusing anonymous permission on
     # decryption API. So a version wouldn't be adequate to check.
     if version
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Detected('Jenkins detected')
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Target does not appear to be Jenkins')
   end
 
   # Returns all the found Jenkins accounts of a specific domain. The accounts collected only

@@ -34,6 +34,7 @@ module MetasploitModule
 
   def generate(_opts = {})
     fd = datastore['FD']
+    path = Metasm::Shellcode.define_cstring(datastore['PATH'] || '')
 
     payload_data = <<-EOS
       jmp file
@@ -65,7 +66,7 @@ module MetasploitModule
 
       file:
         call open
-        db "#{datastore['PATH']}", 0x00
+        #{path}
     EOS
 
     Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string

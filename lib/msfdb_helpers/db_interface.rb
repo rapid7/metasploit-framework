@@ -62,10 +62,10 @@ module MsfdbHelpers
 
     def run_psql(cmd, socket_directory= "#{Dir.tmpdir}", db_name: 'postgres')
       if @options[:debug]
-        puts "psql -h #{socket_directory} -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}"
+        puts "psql -U postgres -h #{socket_directory} -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}"
       end
 
-      run_cmd("psql -h #{socket_directory} -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}")
+      run_cmd("psql -U postgres -h #{socket_directory} -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}")
     end
 
   end

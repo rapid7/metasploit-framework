@@ -26,6 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['CVE', '2024-8522'],
+          ['EDB', '52171'],
           ['CVE', '2024-8529'],
           ['URL', 'https://www.wordfence.com/threat-intel/vulnerabilities/wordpress-plugins/learnpress/learnpress-wordpress-lms-plugin-427-unauthenticated-sql-injection-via-c-only-fields'],
           ['URL', 'https://www.wordfence.com/threat-intel/vulnerabilities/wordpress-plugins/learnpress/learnpress-wordpress-lms-plugin-427-unauthenticated-sql-injection-via-c-fields']

@@ -118,7 +118,8 @@ class MetasploitModule < Msf::Auxiliary
           port: rport, # A service is necessary for the analyze command
           name: self.name,
           refs: self.references,
-          info: "STATUS_INSUFF_SERVER_RESOURCES for FID 0 against IPC$ - #{os}"
+          info: "STATUS_INSUFF_SERVER_RESOURCES for FID 0 against IPC$ - #{os}",
+          check_code: checkcode
         )
 
         # vulnerable to MS17-010, check for DoublePulsar infection

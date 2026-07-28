@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.code == 404
-      print_error("#{rhost}:#{rport} - File not found")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - File not found")
       return
     end
 

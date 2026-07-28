@@ -58,18 +58,18 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => normalize_uri(target_uri.path, 'index.html ')
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      return CheckCode::Unknown('Connection failed')
+      return Exploit::CheckCode::Unknown('Connection failed')
     end
 
     if res&.code == 200
       data = res.to_s
       if data.include?('My Web Server 1') && data.include?('UPSMON PRO WEB')
-        return CheckCode::Detected('UPSMON PRO Web seems to be running on target system.')
+        return Exploit::CheckCode::Detected('UPSMON PRO Web seems to be running on target system.')
       end
 
-      return CheckCode::Safe
+      return Exploit::CheckCode::Safe('Target does not appear to be UPSMON PRO')
     end
-    return CheckCode::Unknown
+    return Exploit::CheckCode::Unknown('No response received from the target')
   end
 
   def print_ini_field(label, value)

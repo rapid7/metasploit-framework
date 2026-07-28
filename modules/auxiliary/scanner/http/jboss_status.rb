@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
 
     @requests = []
 
-    vprint_status("#{rhost}:#{rport} - Collecting data through #{jpath}...")
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Collecting data through #{jpath}...")
 
     res = send_request_raw({
       'uri' => jpath,
@@ -65,13 +65,13 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     elsif res and res.code == 401
-      vprint_error("#{rhost}:#{rport} - Authentication is required")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Authentication is required")
       return
     elsif res and res.code == 403
-      vprint_error("#{rhost}:#{rport} - Forbidden")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Forbidden")
       return
     else
-      vprint_error("#{rhost}:#{rport} - Unknown error")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Unknown error")
       return
     end
 
@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def show_results(target_host)
-    print_good("#{rhost}:#{rport} JBoss application server found")
+    print_good("#{Rex::Socket.to_authority(rhost, rport)} JBoss application server found")
 
     req_table = Rex::Text::Table.new(
       'Header' => 'JBoss application server requests',

@@ -147,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
     disconnect
-    return info_data ? Msf::Exploit::CheckCode::Appears : Msf::Exploit::CheckCode::Unknown
+    return info_data ? Msf::Exploit::CheckCode::Appears('Redis service detected') : Msf::Exploit::CheckCode::Unknown('Could not confirm Redis service')
   end
 
   def get_keyspace

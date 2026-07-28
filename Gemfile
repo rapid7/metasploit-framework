@@ -31,8 +31,8 @@ group :development do
 end
 
 group :development, :test do
-  # For ./tools/dev/update_gem_licenses.sh
-  gem 'license_finder', '5.11.1'
+  # For ./tools/dev/update_gem_licenses.sh - custom fork (branch: rapid7-rubyzip-dependency-bump) until https://github.com/pivotal/LicenseFinder/pull/1063 lands
+  gem 'license_finder', git: 'https://github.com/rapid7/LicenseFinder', ref: '2b1aefcfd6d0745d17843050c1c89f973c1fa98c'
   # running documentation generation tasks and rspec tasks
   gem 'rake'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
@@ -53,5 +53,6 @@ group :test do
   gem 'allure-rspec'
   # Manipulate Time.now in specs
   gem 'timecop'
+  # stub and set expectations on HTTP requests
+  gem 'webmock', '~> 3.18'
 end
-

@@ -1,0 +1,24 @@
+# Valid JSON-RPC configuration for testing
+msf_api:
+  type: json-rpc
+  host: localhost
+  port: 8081
+  endpoint: /api/v1/json-rpc
+  token: test_bearer_token_12345
+
+# MCP server configuration
+mcp:
+  transport: stdio
+  host: localhost
+  port: 3000
+
+# Rate limiting
+rate_limit:
+  enabled: true
+  requests_per_minute: 60
+  burst_size: 10
+
+# Logging
+logging:
+  enabled: false
+  level: INFO

@@ -318,6 +318,19 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
     end
   end
 
+  describe '#present_trace' do
+    it 'returns Kerberos credential trace output with a source header' do
+      output = subject.present_trace(source: 'Cache[0]', trace_mode: 'metadata')
+
+      expect(output).to include("####################\n# Kerberos Credential: Cache[0]\n####################")
+      expect(output).to include('Creds: 1')
+      expect(output).to include('Credential[0]:')
+      expect(output).to include('Server: krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL')
+      expect(output).to include('Ticket Length: 977')
+      expect(output).not_to include('Cipher:')
+    end
+  end
+
   describe '#present_upn_and_dns_information' do
     let(:upn) { 'test@windomain.local' }
     let(:dns_domain_name) { 'WINDOMAIN.LOCAL' }

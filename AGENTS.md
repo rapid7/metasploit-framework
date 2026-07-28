@@ -15,6 +15,7 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 - `tools/` — Developer and operational tools
 - `plugins/` — msfconsole plugins
 - `scripts/` — Example automation scripts
+- `documentation/modules/` — Markdown documentation for Metasploit modules
 
 ## Coding Conventions
 
@@ -41,8 +42,9 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 - License new code with `MSF_LICENSE` (the project default, defined in `lib/msf/core/constants.rb`)
 - When overriding `cleanup`, always call `super` to ensure the parent mixin chain cleans up connections and sessions properly
 - When possible don't set a default payload (`DefaultOptions` with `'PAYLOAD'`) in modules — let the framework choose the most appropriate payload automatically
-- New modules require an associated markdown file in the `documentation/modules` folder with the same structure, including steps to set up the vulnerable environment for testing
+- New modules require an associated markdown file in the `documentation/modules` folder with the same structure, including steps to set up the vulnerable environment for testing. The Scenarios section must be filled out by a human at all times. Follow `documentation/modules/module_doc_template.md` as a template.
 - Module descriptions or documentation should list the range of vulnerable versions and the fixed version of the affected software, when known
+- Module descriptions should only use ASCII characters
 - `report_service` method called when a service can be reported
 - `report_vuln` method called when a vuln can be reported
 - When creating a fake account / username use FAKER not `rand_test_alphanumeric`
@@ -53,7 +55,7 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 - when opening a file, make sure the file exists first
 - when checking for a string in a response - will it always be in english?
 - Ensure hardcoded strings being regex'ed will be consistent across multiple versions
-- Use the TEST-NET-1 range for example / non-routeable IP address: `192.0.2.0`
+- Use the TEST-NET-1 range for example / non-routeable IP addresses in unit tests and spec files: `192.0.2.0`. Local/private IPs are fine in module documentation scenarios.
 - Use fetch payload instead of command stagers when only options that request the stage are available (i.e. don’t use a cmd stager and only allow curl/wget).
 - Define bad characters instead of explicitly base-64 encoding payloads
 - Use `ARCH_CMD` payloads instead of command stagers when only curl/wget and other download mechanisms would be available
@@ -71,6 +73,7 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 - `get_version` methods should return a REX version
 - `CheckCode::Vulnerable` is only used when the vulnerability has been exploited
 - `CheckCode::Appears`  is only used when the application's versions has been checked`
+- Always provide a human-readable reason string when returning a CheckCode, e.g. `CheckCode::Safe("Target is running patched version #{version}")` — never return a bare constant or empty call
 - Use specific regular expressions or `res.get_html_document` for version extraction with CSS selectors. Don't use a generic selectors like `href .*` dot star to grab the version, be more precise.
 - Do catch exceptions that may be raised and ensure a valid Check Code is returned
 - Do research and determine a minimum version where the application is vulnerable, mark prior versions as safe
