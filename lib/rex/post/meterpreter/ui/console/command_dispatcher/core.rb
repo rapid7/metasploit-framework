@@ -862,6 +862,11 @@ class Console::CommandDispatcher::Core
 
     case subcmd
     when 'on'
+      unless client.passive_service
+        print_error('Async mode requires an HTTP(S) transport. Current transport does not support async polling.')
+        print_status('Use "transport add" to add an HTTP(S) transport and switch to it before enabling async mode.')
+        return
+      end
       cfg = client.async_config
       print_status("Enabling async mode (poll #{cfg[:poll_interval]}s, jitter #{cfg[:jitter]}%)...")
       client.core.async_mode(enabled: true, **cfg)
@@ -939,12 +944,25 @@ class Console::CommandDispatcher::Core
     end
   end
 
+  # Commands that cannot be executed via 'async run' because they require
+  # an interactive channel or persistent socket that the async poll model
+  # cannot service.
+  ASYNC_RUN_BLOCKED_COMMANDS = %w[
+    shell interact channel portfwd rportfwd
+  ].freeze
+
   #
   # async run <command line>
   #
   def async_subcmd_run(args)
     if args.empty?
       print_error('Usage: async run <command> [arguments]')
+      return
+    end
+
+    blocked = ASYNC_RUN_BLOCKED_COMMANDS.include?(args.first)
+    if blocked
+      print_error("Command '#{args.first}' cannot be run in async mode; it requires an interactive channel.")
       return
     end
 
@@ -1182,6 +1200,16 @@ class Console::CommandDispatcher::Core
     command = args.shift
     unless ['list', 'add', 'change', 'prev', 'next', 'remove'].include?(command)
       cmd_transport_help
+      return
+    end
+
+    # Guardrail: transport switching is not safe while async mode is active.
+    # Changing/removing the current transport tears down the session and would
+    # strand queued async work. 'list' is read-only and always allowed; 'add'
+    # is allowed so operators can stage a new transport before disabling async.
+    if client.async_mode_enabled? && !%w[list add].include?(command)
+      print_error("Transport '#{command}' is not permitted while async mode is enabled.")
+      print_status("Disable async mode first with 'async mode off'.")
       return
     end
 
