@@ -1,4 +1,4 @@
-Metasploit's stageless HTTP(S) Meterpreter payloads support a `MALLEABLEC2` datastore option that points at a malleable C2 profile file. A malleable C2 profile is a small text-based configuration format popularized by Cobalt Strike (see the [Cobalt Strike Malleable C2 documentation](https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_main.htm) for the full language) that describes the shape of C2 traffic: what URIs are requested, what headers are sent, how the session/connection ID is carried, and how request/response bodies are encoded or wrapped.
+Metasploit's HTTP(S) Meterpreter payloads support a `MALLEABLEC2` datastore option that points at a malleable C2 profile file. A malleable C2 profile is a small text-based configuration format popularized by Cobalt Strike (see the [Cobalt Strike Malleable C2 documentation](https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_main.htm) for the full language) that describes the shape of C2 traffic: what URIs are requested, what headers are sent, how the session/connection ID is carried, and how request/response bodies are encoded or wrapped.
 
 Metasploit's parser understands the *syntax* of the full Cobalt Strike profile format, but it only *acts on* a subset of the directives that syntax can express. This page documents how to use `MALLEABLEC2`, and -- importantly -- spells out exactly which directives change Metasploit's wire behavior versus which ones are parsed (so a real-world profile loads without error) but silently have no effect.
 
@@ -6,8 +6,9 @@ This feature was released in Metasploit 6.5.
 
 ## Supported payloads
 
-`MALLEABLEC2` is registered only on the **stageless** (`Single`) reverse HTTP/HTTPS Meterpreter payloads, for example:
+`MALLEABLEC2` is registered on reverse HTTP/HTTPS Meterpreter payloads, including both staged and stageless variants, for example:
 
+* `windows/meterpreter/reverse_http` / `windows/meterpreter/reverse_https`
 * `windows/meterpreter_reverse_http` / `windows/meterpreter_reverse_https`
 * `windows/x64/meterpreter_reverse_http` / `windows/x64/meterpreter_reverse_https`
 * `linux/x64/meterpreter_reverse_http`, and the other `linux/<arch>/meterpreter_reverse_http[s]` mettle payloads (aarch64, etc.)
@@ -15,7 +16,7 @@ This feature was released in Metasploit 6.5.
 * `python/meterpreter_reverse_http` / `python/meterpreter_reverse_https`
 * `java/meterpreter_reverse_http` / `java/meterpreter_reverse_https`
 
-The code that parses a malleable C2 profile and shapes traffic around it lives in Meterpreter itself, not in the stager assembly that performs the initial callback and downloads Meterpreter. Stagers are deliberately kept as small as possible for compatibility across the constrained environments they have to run in, so they can't carry the parsing/TLV logic a profile requires -- only a stageless payload, which embeds Meterpreter directly, can.
+The code that parses a malleable C2 profile and shapes traffic around it lives in Meterpreter itself, not in the stager assembly that performs the initial callback and downloads Meterpreter. Stagers are deliberately kept as small as possible for compatibility across the constrained environments they have to run in, so they can't carry the parsing/TLV logic a profile requires. This means that when a staged payload such as `windows/x64/meterpreter/reverse_tcp` is used, the initial request to download the Meterpreter stage **does not honor the malleable C2 profile**, it is only after the Meterpreter stage is loaded and initialized in memory that the C2 traffic changes shape based on the configuration.
 
 ## Basic usage
 
@@ -137,7 +138,8 @@ Metasploit's lexer recognizes the full set of Cobalt Strike profile keywords so 
 **Unimplemented blocks** (parsed for structure, contents discarded):
 
 * `https-certificate` -- SSL certificate pinning/generation is *not* driven by the profile; it's controlled separately via the handler's own SSL datastore options.
-* `stage`, `http-stager` -- staging-related blocks (Metasploit's staging is not shaped by the profile).
+* `http-stager` -- the stager HTTP transaction block (Metasploit's stager traffic is not shaped by the profile).
+* `stage` -- payload binary transform/patching block.
 * `transform-x64`, `transform-x86` -- payload/stager binary transforms.
 * Any other unrecognized `name { }` block (e.g. `dns-beacon`, `process-inject`, `post-ex`) -- accepted structurally and otherwise ignored.
 
