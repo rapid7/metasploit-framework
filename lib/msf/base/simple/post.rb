@@ -123,6 +123,7 @@ protected
         return
       end
     rescue Msf::Post::Complete
+      job_listener.completed(run_uuid, nil, mod)
       return
     rescue Msf::Post::Failed => e
       mod.error = e
