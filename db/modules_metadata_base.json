@@ -105729,7 +105729,7 @@
       "URL-https://en.wikipedia.org/wiki/Macro_virus"
     ],
     "platform": "Python,Windows",
-    "arch": "python",
+    "arch": "x86, x64, python",
     "rport": null,
     "autofilter_ports": [],
     "autofilter_services": [],
@@ -105737,7 +105737,7 @@
       "Microsoft Office Word on Windows",
       "Microsoft Office Word on Mac OS X (Python)"
     ],
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-07-08 15:50:27 +0000",
     "path": "/modules/exploits/multi/fileformat/office_word_macro.rb",
     "is_install_path": true,
     "ref_name": "multi/fileformat/office_word_macro",
