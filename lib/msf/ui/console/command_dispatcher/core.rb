@@ -2152,7 +2152,7 @@ class Core
     if (active_module and global == false)
       datastore = active_module.datastore
 
-      valid_options = tab_complete_option_names(active_module, '', [], include_aliases: true)
+      valid_options = valid_datastore_option_names(active_module, include_aliases: true)
     else
       global = true
       datastore = self.framework.datastore

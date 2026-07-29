@@ -70,7 +70,7 @@ module Msf
         # Provide tab completion for name values
         #
         def tab_complete_option_names(mod, str, words, include_aliases: false)
-          res = valid_datastore_option_names(mod, include_aliases: include_aliases)
+          res = valid_datastore_option_names(mod, include_aliases: include_aliases, active_only: true)
           unless str.blank?
             res = res.select { |term| term.upcase.start_with?(str.upcase) }
             res = res.map do |term|

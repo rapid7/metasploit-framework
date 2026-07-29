@@ -59,14 +59,27 @@ RSpec.describe Msf::Ui::Console::ModuleOptionValidation do
         mod.datastore['MODE'] = 'hidden'
       end
 
-      it 'excludes the option and its aliases' do
+      it 'includes the option and its aliases by default' do
         option_names = validator.valid_datastore_option_names(mod, include_aliases: true)
+
+        expect(option_names).to include('CONDITIONAL')
+        expect(option_names).to include('OLD_CONDITIONAL')
+      end
+
+      it 'excludes the option and its aliases when only active options are requested' do
+        option_names = validator.valid_datastore_option_names(mod, include_aliases: true, active_only: true)
 
         expect(option_names).to include('MODE')
         expect(option_names).to include('ALWAYS_VISIBLE')
         expect(option_names).to include('OLD_ALWAYS_VISIBLE')
         expect(option_names).not_to include('CONDITIONAL')
         expect(option_names).not_to include('OLD_CONDITIONAL')
+      end
+
+      it 'does not report the option as unknown' do
+        message = validator.unknown_datastore_option_message(mod, 'CONDITIONAL')
+
+        expect(message).to be_nil
       end
     end
   end

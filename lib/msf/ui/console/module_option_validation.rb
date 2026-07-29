@@ -22,29 +22,26 @@ module Msf
           keys
         end
 
-        def valid_datastore_option_names(mod, include_aliases: false)
+        def valid_datastore_option_names(mod, include_aliases: false, active_only: false)
           datastore = mod ? mod.datastore : framework.datastore
           res = datastore_option_names(datastore) || []
 
           return res unless mod
 
-          visible_options = {}
-          hidden_option_names = []
+          if active_only
+            hidden_option_names = datastore.options.each_with_object([]) do |(name, opt), names|
+              next if Msf::OptCondition.show_option(mod, opt)
 
-          mod.options.each do |name, opt|
-            unless Msf::OptCondition.show_option(mod, opt)
-              hidden_option_names << name
-              hidden_option_names.concat(opt.fallbacks)
-              hidden_option_names.concat(opt.aliases) if include_aliases
-              next
+              names << name
+              names.concat(opt.fallbacks)
+              names.concat(opt.aliases) if include_aliases
             end
-
-            visible_options[name] = opt
+            res.delete_if { |name| hidden_option_names.any? { |hidden_name| hidden_name.casecmp?(name) } }
           end
 
-          res.delete_if { |name| hidden_option_names.any? { |hidden_name| hidden_name.casecmp?(name) } }
+          mod.options.each do |name, opt|
+            next if active_only && !Msf::OptCondition.show_option(mod, opt)
 
-          visible_options.each do |name, opt|
             res << name
             # aliases that are defined for backwards compatibility are not tab completed but are still valid option names
             res += opt.aliases if include_aliases
@@ -69,8 +66,11 @@ module Msf
           if ((mod.exploit? || mod.evasion?) && mod.datastore['PAYLOAD'])
             payload = framework.payloads.create(mod.datastore['PAYLOAD'])
             if payload
-              payload.options.each_key do |name|
+              payload.options.each do |name, opt|
+                next if active_only && !Msf::OptCondition.show_option(mod, opt)
+
                 res << name
+                res += opt.aliases if include_aliases
               end
             end
           end
