@@ -93,18 +93,25 @@ RSpec.describe Msf::Simple::Auxiliary, '#cleanup tracking' do
       cleanup: nil,
       init_ui: nil,
       user_input: nil,
+      report_failure: nil,
       user_output: nil,
+      fail_reason: Msf::Module::Failure::None,
+      print_status:nil,
+      fail_detail: nil,
       _import_extra_options: nil,
       :run_uuid= => nil,
       run_uuid: nil
     )
     allow(mod).to receive(:replicant).and_return(mod)
     allow(mod).to receive(:extend)
+    allow(mod).to receive(:fail_reason=)
+    allow(mod).to receive(:fail_detail=)
     mod
   end
 
   before do
     allow(Msf::Simple::Framework).to receive(:simplify_module)
+    require 'rex'
     require 'rex/text'
   end
 
