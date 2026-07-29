@@ -1834,11 +1834,11 @@ class Core
               opts[key] = session.exploit_datastore[key] if session.exploit_datastore[key]
             end
           end
-          mod.run_simple(
+          mod.run_simple({
             'LocalInput' => driver.input,
             'LocalOutput' => driver.output,
             'Options' => opts
-          )
+          })
         else
           print_status("Executing 'post/multi/manage/shell_to_meterpreter' on " \
                         "session: [#{sess_id}]")
@@ -2207,7 +2207,8 @@ class Core
     end
 
     # Set PAYLOAD
-    if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?) && !clear
+    payload_changed = name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?) && !clear
+    if payload_changed
       value = trim_path(value, 'payload')
 
       index_from_list(payload_show_results, value) do |mod|
@@ -2243,6 +2244,11 @@ class Core
     rescue Msf::OptionValidateError => e
       print_error(e.message)
       elog('Exception encountered in cmd_set', error: e)
+    end
+
+    # Import payload options so validation applies immediately on subsequent set calls
+    if payload_changed
+      import_payload_options(active_module)
     end
 
     # Set PAYLOAD from TARGET

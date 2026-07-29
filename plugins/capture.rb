@@ -325,7 +325,7 @@ module Msf
           event = Rex::Sync::Event.new(false, false)
           job_listener = CaptureJobListener.new(mod.name, event, self)
 
-          result = Msf::Simple::Auxiliary.run_simple(mod, opts, job_listener: job_listener)
+          result = Msf::Simple::Auxiliary.run_simple(mod, opts.merge('JobListener' => job_listener))
           job_id = result[1]
 
           # Wait for the event to trigger (socket server either waiting, or failed)

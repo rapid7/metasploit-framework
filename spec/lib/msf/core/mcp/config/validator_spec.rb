@@ -173,6 +173,52 @@ RSpec.describe Msf::MCP::Config::Validator do
       end
     end
 
+    context 'with MCP auth token validation' do
+      let(:base_config) do
+        {
+          msf_api: {
+            type: 'messagepack',
+            host: 'localhost',
+            user: 'msf',
+            password: 'password'
+          },
+          mcp: {
+            transport: 'http'
+          }
+        }
+      end
+
+      it 'accepts nil, empty, and printable non-whitespace string tokens' do
+        [nil, '', 'password', 'abc_123-XYZ.~'].each do |auth_token|
+          config = base_config.merge(mcp: base_config[:mcp].merge(auth_token: auth_token))
+          expect(described_class.validate!(config)).to be true
+        end
+      end
+
+      it 'rejects non-string tokens' do
+        config = base_config.merge(mcp: base_config[:mcp].merge(auth_token: 123))
+
+        expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /mcp\.auth_token must be a string/)
+      end
+
+      it 'rejects whitespace and non-printable tokens' do
+        ['with space', "tab\t", "newline\n", "bad\x7f"].each do |auth_token|
+          config = base_config.merge(mcp: base_config[:mcp].merge(auth_token: auth_token))
+
+          expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /mcp\.auth_token must be a valid token/)
+        end
+      end
+
+      it 'rejects auth tokens for stdio transport' do
+        config = base_config.merge(mcp: { transport: 'stdio', auth_token: 'password' })
+
+        expect { described_class.validate!(config) }.to raise_error(
+          Msf::MCP::Config::ValidationError,
+          /mcp\.auth_token authentication must only be used with the 'http' transport/
+        )
+      end
+    end
+
     context 'with Puma thread/worker validation' do
       let(:valid_base) do
         {
@@ -1014,6 +1060,61 @@ RSpec.describe Msf::MCP::Config::Validator do
       it 'does not validate sanitize when key is absent' do
         config = base_config.merge(logging: { enabled: true, level: 'INFO' })
         expect(described_class.validate!(config)).to be true
+      end
+    end
+
+    context 'with dangerous_actions validation' do
+      let(:base_config) do
+        {
+          msf_api: {
+            type: 'messagepack',
+            host: 'localhost',
+            user: 'msf',
+            password: 'password'
+          }
+        }
+      end
+
+      it 'accepts dangerous_actions set to true' do
+        config = base_config.merge(mcp: { dangerous_actions: true })
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'accepts dangerous_actions set to false' do
+        config = base_config.merge(mcp: { dangerous_actions: false })
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'does not raise when dangerous_actions is not present' do
+        config = base_config.merge(mcp: { transport: 'stdio' })
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'rejects non-boolean dangerous_actions (string)' do
+        config = base_config.merge(mcp: { dangerous_actions: 'true' })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.dangerous_actions']).to eq('must be boolean (true or false)')
+        end
+      end
+
+      it 'rejects non-boolean dangerous_actions (integer)' do
+        config = base_config.merge(mcp: { dangerous_actions: 1 })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.dangerous_actions']).to eq('must be boolean (true or false)')
+        end
+      end
+
+      it 'rejects non-boolean dangerous_actions (nil)' do
+        config = base_config.merge(mcp: { dangerous_actions: nil })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.dangerous_actions']).to eq('must be boolean (true or false)')
+        end
       end
     end
   end

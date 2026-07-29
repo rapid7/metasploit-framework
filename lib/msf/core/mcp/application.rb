@@ -46,6 +46,7 @@ module Msf::MCP
       authenticate_metasploit
       initialize_mcp_server
       start_mcp_server
+    rescue Interrupt
     rescue Msf::MCP::Config::ValidationError, Msf::MCP::Config::ConfigurationError => e
       handle_configuration_error(e)
     rescue Msf::MCP::Metasploit::ConnectionError => e
@@ -114,6 +115,10 @@ module Msf::MCP
 
         opts.on('--mcp-transport TRANSPORT', 'MCP server transport type (\'stdio\' or \'http\')') do |transport|
           @options[:mcp_transport] = transport
+        end
+
+        opts.on('--enable-dangerous-actions', 'Enable destructive MCP tools (module execution, session control)') do
+          @options[:enable_dangerous_actions_cli] = true
         end
 
         opts.on('-h', '--help', 'Show this help message') do
@@ -201,6 +206,9 @@ module Msf::MCP
       if @options[:mcp_transport]
         @config[:mcp][:transport] = @options[:mcp_transport]
       end
+      if @options[:enable_dangerous_actions_cli]
+        @config[:mcp][:dangerous_actions] = true
+      end
     end
 
     # Validate the loaded configuration
@@ -266,9 +274,14 @@ module Msf::MCP
     # @return [void]
     def initialize_mcp_server
       @output.puts "Initializing MCP server..."
+      dangerous_actions = @config&.dig(:mcp, :dangerous_actions) == true
+      if dangerous_actions
+        @output.puts "WARNING: dangerous actions mode is ENABLED. Destructive tools (module execution, session control) are accessible."
+      end
       @mcp_server = Msf::MCP::Server.new(
         msf_client: @msf_client,
-        rate_limiter: @rate_limiter
+        rate_limiter: @rate_limiter,
+        dangerous_actions: dangerous_actions
       )
     end
 
@@ -282,7 +295,7 @@ module Msf::MCP
 
       if transport == :http
         @output.puts "Starting MCP server on HTTP transport..."
-        @output.puts "Server listening on http://#{Rex::Socket.to_authority(host, port)}/"
+        @output.puts "MCP server listening on http://#{Rex::Socket.to_authority(host, port)}/"
         auth_token = resolve_auth_token
         case auth_token
         when :disabled
@@ -292,7 +305,7 @@ module Msf::MCP
           @output.puts "Authentication: enabled"
           auth_token = @config.dig(:mcp, :auth_token)
         when :generated
-          auth_token = SecureRandom.hex(32)
+          auth_token = @mcp_server.class.generate_auth_token
           @output.puts "Authentication: Bearer token (auto-generated)"
           @output.puts "  Configure your MCP client with: Authorization: Bearer #{auth_token}"
         else
@@ -304,15 +317,24 @@ module Msf::MCP
         max_threads = @config.dig(:mcp, :max_threads) || Msf::MCP::Server::PUMA_MAX_THREADS
         workers = @config.dig(:mcp, :workers) || Msf::MCP::Server::PUMA_WORKERS
 
-        @mcp_server.start(
-          transport: :http,
-          host: host,
-          port: port,
-          auth_token: auth_token,
-          min_threads: min_threads,
-          max_threads: max_threads,
-          workers: workers
-        )
+        begin
+          @mcp_server.start(
+            transport: :http,
+            host: host,
+            port: port,
+            auth_token: auth_token,
+            min_threads: min_threads,
+            max_threads: max_threads,
+            workers: workers
+          )
+        rescue Errno::EADDRINUSE => e
+          @output.puts "#{e.class}: #{e.message}"
+          elog({
+            message: 'Cannot start the MCP server',
+            context: { host: host, port: port },
+            exception: e
+          }, LOG_SOURCE, LOG_ERROR)
+        end
       else
         @output.puts "Starting MCP server on stdio transport..."
         @output.puts "Server ready - waiting for MCP requests"

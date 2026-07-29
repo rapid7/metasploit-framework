@@ -179,7 +179,7 @@ class MetasploitModule < Msf::Post
       # Make sure we don't have leftovers from a previous run
       moved_file = datastore['BaseFileName'] + '-moved'
       begin
-        rm _f(datastore['BaseFileName'])
+        rm_f(datastore['BaseFileName'])
       rescue StandardError
         nil
       end
@@ -193,8 +193,8 @@ class MetasploitModule < Msf::Post
       write_file(datastore['BaseFileName'], '')
 
       rename_file(datastore['BaseFileName'], moved_file)
-      res &&= exist?(moved_file)
-      res &&= !exist?(datastore['BaseFileName'])
+      ret = exist?(moved_file)
+      ret &&= !exist?(datastore['BaseFileName'])
 
       # clean up
       begin
@@ -207,6 +207,8 @@ class MetasploitModule < Msf::Post
       rescue StandardError
         nil
       end
+
+      ret
     end
   end
 

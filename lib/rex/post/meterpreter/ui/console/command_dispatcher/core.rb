@@ -1372,12 +1372,12 @@ class Console::CommandDispatcher::Core
         end
 
         opts  << (args + [ "SESSION=#{client.sid}" ]).join(',')
-        result = reloaded_mod.run_simple(
+        result = reloaded_mod.run_simple({
           #'RunAsJob' => true,
           'LocalInput'  => shell.input,
           'LocalOutput' => shell.output,
           'OptionStr'   => opts
-        )
+        })
 
         print_status("Session #{result.sid} created in the background.") if result.is_a?(Msf::Session)
       else

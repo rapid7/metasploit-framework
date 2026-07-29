@@ -46,6 +46,10 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
 
   let(:mock_server_class) do
     Class.new do
+      def self.generate_auth_token
+        'a' * 64
+      end
+
       def initialize(**_args); end
 
       def start(**_args); end
@@ -83,6 +87,10 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
 
     # Capture output from the plugin's print methods
     capture_logging(mcp_plugin)
+
+    allow(mcp_plugin).to receive(:verify_port_available!)
+    allow(mcp_plugin).to receive(:verify_mcp_server_started!)
+    allow(mcp_plugin).to receive(:verify_msgrpc_started!)
   end
 
   describe '#name' do
@@ -112,6 +120,21 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
       # User typed: "mcp start <tab>" → words = ['mcp', 'start'], str = ''
       result = plugin.cmd_mcp_tabs('', ['mcp', 'start'])
       expect(result).to include('ServerHost=', 'RpcHost=', 'RpcPass=')
+    end
+
+    it 'includes DangerousActions= among the start option completions' do
+      result = plugin.cmd_mcp_tabs('', ['mcp', 'start'])
+      expect(result).to include('DangerousActions=')
+    end
+
+    it 'includes DangerousActions= among the restart option completions' do
+      result = plugin.cmd_mcp_tabs('', ['mcp', 'restart'])
+      expect(result).to include('DangerousActions=')
+    end
+
+    it 'filters DangerousActions= via a Dang prefix (case-insensitive)' do
+      result = plugin.cmd_mcp_tabs('dang', ['mcp', 'start'])
+      expect(result).to contain_exactly('DangerousActions=')
     end
 
     it 'returns empty array for status subcommand' do
@@ -211,6 +234,13 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
       expect(combined).to include('restart')
       expect(combined).to include('help')
     end
+
+    it 'documents DangerousActions with its accepted values and default' do
+      plugin.cmd_mcp_help
+      combined = @output.join("\n")
+      expect(combined).to match(/DangerousActions=<true\|false>/)
+      expect(combined).to match(/default: false/)
+    end
   end
 
   describe '#cmd_mcp routing' do
@@ -249,7 +279,7 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
     context 'when server is stopped' do
       it 'starts the server successfully' do
         mcp_plugin.start_server({})
-        expect(@output.join("\n")).to include('MCP server started')
+        expect(@output.join("\n")).to include('MCP server listening')
       end
 
       it 'sets the server instance' do

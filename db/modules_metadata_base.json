@@ -7032,7 +7032,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-05-21 08:32:40 +0000",
+    "mod_time": "2026-07-02 15:29:38 +0000",
     "path": "/modules/auxiliary/admin/kerberos/ticket_converter.rb",
     "is_install_path": true,
     "ref_name": "admin/kerberos/ticket_converter",
@@ -7372,7 +7372,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-06-04 23:51:23 +0000",
+    "mod_time": "2026-07-06 09:04:47 +0000",
     "path": "/modules/auxiliary/admin/ldap/shadow_credentials.rb",
     "is_install_path": true,
     "ref_name": "admin/ldap/shadow_credentials",
@@ -31650,11 +31650,14 @@
     "disclosure_date": null,
     "type": "auxiliary",
     "author": [
-      "todb <todb@metasploit.com>"
+      "todb <todb@metasploit.com>",
+      "g0tmi1k"
     ],
-    "description": "This module will test FTP logins on a range of machines and\n        report successful logins.  If you have loaded a database plugin\n        and connected to a database this module will record successful\n        logins and hosts so you can track your access.",
+    "description": "This module tests FTP logins on a range of machines. Successful\n          logins are recorded in the database as credentials, along with\n          host information.",
     "references": [
-      "CVE-1999-0502"
+      "CVE-1999-0502",
+      "ATT&CK-T1021",
+      "ATT&CK-T1110.001"
     ],
     "platform": "",
     "arch": "",
@@ -31667,14 +31670,24 @@
       "ftp"
     ],
     "targets": null,
-    "mod_time": "2026-04-02 17:30:43 +0000",
+    "mod_time": "2026-05-29 15:07:34 +0000",
     "path": "/modules/auxiliary/scanner/ftp/ftp_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/ftp/ftp_login",
-    "check": false,
+    "check": true,
     "post_auth": true,
     "default_credential": false,
-    "notes": {},
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs",
+        "account-lockouts"
+      ],
+      "Reliability": []
+    },
     "session_types": false,
     "needs_cleanup": false,
     "actions": []
@@ -72393,7 +72406,7 @@
     "targets": [
       "Unix/Linux Command"
     ],
-    "mod_time": "2025-12-17 16:12:31 +0000",
+    "mod_time": "2026-07-29 21:22:27 +0000",
     "path": "/modules/exploits/linux/http/centreon_auth_rce_cve_2025_5946.rb",
     "is_install_path": true,
     "ref_name": "linux/http/centreon_auth_rce_cve_2025_5946",
@@ -84216,7 +84229,7 @@
       "PHP Command",
       "Unix/Linux Command"
     ],
-    "mod_time": "2025-12-17 16:12:31 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/linux/http/pandora_fms_auth_rce_cve_2024_11320.rb",
     "is_install_path": true,
     "ref_name": "linux/http/pandora_fms_auth_rce_cve_2024_11320",
@@ -84277,7 +84290,7 @@
       "Unix/Linux Command",
       "Tiny Reverse Netcat Command (use THIS for versions <= v738)"
     ],
-    "mod_time": "2025-12-17 16:12:31 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/linux/http/pandora_fms_auth_rce_cve_2024_12971.rb",
     "is_install_path": true,
     "ref_name": "linux/http/pandora_fms_auth_rce_cve_2024_12971",
@@ -85721,6 +85734,62 @@
     },
     "session_types": false,
     "needs_cleanup": null
+  },
+  "exploit_linux/http/pterodactyl_locales_locale_json": {
+    "name": "Pterodactyl Panel CVE-2025-49132 Remote Code Execution",
+    "fullname": "exploit/linux/http/pterodactyl_locales_locale_json",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2025-06-19",
+    "type": "exploit",
+    "author": [
+      "0xtensho",
+      "jheysel-r7"
+    ],
+    "description": "This module exploits a vulnerability in Pterodactyl Panel before version 1.11.11 that allows unauthenticated\n          remote code execution through improper handling of locale file operations. The vulnerability\n          exists in the locale.json endpoint which allows path traversal and arbitrary file creation. Code execution\n          is in the context of the user running the webserver.\n\n          The exploit leverages PEAR (PHP Extension and Application Repository) for command injection by creating a\n          malicious payload file in the /tmp through path traversal, then executing it via PHP execution with pearcmd.",
+    "references": [
+      "CVE-2025-49132",
+      "URL-https://github.com/0xtensho/CVE-2025-49132-poc"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Command Payload"
+    ],
+    "mod_time": "2026-07-27 09:07:47 +0000",
+    "path": "/modules/exploits/linux/http/pterodactyl_locales_locale_json.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/pterodactyl_locales_locale_json",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": true
   },
   "exploit_linux/http/pulse_secure_cmd_exec": {
     "name": "Pulse Secure VPN Arbitrary Command Execution",
@@ -93316,6 +93385,56 @@
       ],
       "SideEffects": [
         "artifacts-on-disk"
+      ]
+    },
+    "session_types": [
+      "shell",
+      "meterpreter"
+    ],
+    "needs_cleanup": true,
+    "actions": []
+  },
+  "exploit_linux/local/cve_2026_46300_fragnesia": {
+    "name": "Fragnesia LPE (CVE-2026-46300)",
+    "fullname": "exploit/linux/local/cve_2026_46300_fragnesia",
+    "aliases": [],
+    "rank": 500,
+    "disclosure_date": "2026-05-14",
+    "type": "exploit",
+    "author": [
+      "William Bowling",
+      "msutovsky-r7"
+    ],
+    "description": "This module exploits CVE-2026-46300, a Linux kernel local privilege\n          escalation vulnerability introduced in version 4.10. The flaw resides in the kernel's IPsec\n          ESP-in-TCP handling: when an ESP-encapsulated TCP segment containing a\n          shared fragment (SKBFL_SHARED_FRAG) is received and decrypted, the AES-GCM keystream\n          is applied to page cache pages of the target file without enforcing\n          write permissions. This allows an unprivileged attacker to overwrite\n          arbitrary bytes of a read-only file backed by the page cache. Upstream fix is ported\n          independently by different vendors, so there's release version from which each kernel is\n          not vulnerable anymore.",
+    "references": [
+      "CVE-2026-46300",
+      "URL-https://github.com/v12-security/pocs/tree/main/fragnesia"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Automatic"
+    ],
+    "mod_time": "2026-07-28 10:23:14 +0000",
+    "path": "/modules/exploits/linux/local/cve_2026_46300_fragnesia.rb",
+    "is_install_path": true,
+    "ref_name": "linux/local/cve_2026_46300_fragnesia",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-service-down"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
       ]
     },
     "session_types": [
@@ -105610,7 +105729,7 @@
       "URL-https://en.wikipedia.org/wiki/Macro_virus"
     ],
     "platform": "Python,Windows",
-    "arch": "python",
+    "arch": "x86, x64, python",
     "rport": null,
     "autofilter_ports": [],
     "autofilter_services": [],
@@ -105618,7 +105737,7 @@
       "Microsoft Office Word on Windows",
       "Microsoft Office Word on Mac OS X (Python)"
     ],
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-07-08 15:50:27 +0000",
     "path": "/modules/exploits/multi/fileformat/office_word_macro.rb",
     "is_install_path": true,
     "ref_name": "multi/fileformat/office_word_macro",
@@ -112450,8 +112569,9 @@
     "author": [
       "Crypto-Cat"
     ],
-    "description": "This module exploits an argument injection vulnerability in the\n          pull request merge flow of Gogs (<= 0.14.2 and <= 0.15.0+dev).\n\n          The Merge() function in internal/database/pull.go passes the PR\n          base branch name to `git rebase` without a `--` separator. A\n          branch named `--exec=<CMD>` is parsed by Git as the --exec flag\n          rather than a positional argument, causing `sh -c <CMD>` to run\n          after each replayed commit during the rebase.\n\n          Two exploitation methods are supported:\n\n          - own_repo: The attacker creates a temporary repository, enables\n          rebase merge, and operates entirely within their own account.\n          Any authenticated user who can create repositories (the default)\n          can exploit this with no interaction from other users required.\n\n          - existing_repo: The attacker exploits a repository they already\n          have write and merge access to, where \"Rebase before merging\"\n          is enabled (or the attacker has repo admin permissions to\n          enable it). This path is useful on instances where repository\n          creation is restricted.\n\n          Both methods use git to push divergent branches (including the\n          malicious --exec= branch), open a pull request, and trigger a\n          rebase merge to execute the payload. A local git installation\n          is required.\n\n          On Unix targets, the payload is base64-encoded inline in\n          the malicious branch name, avoiding the need to commit files\n          to the repository. On Windows targets, the payload is\n          delivered via a script file committed to the repository,\n          since NTFS forbids pipe characters in filenames. Git for\n          Windows uses MSYS2 sh for --exec commands, enabling\n          cross-platform exploitation.\n\n          Note: a successful rebase merge may leave the server-side\n          repository in a corrupted git state (mid-rebase). For\n          own_repo this is inconsequential because the repository is\n          deleted. For existing_repo this can break the target\n          repository and prevent re-exploitation against the same repo.\n\n          The Gogs API does not support token deletion, so the API\n          access token created during exploitation cannot be removed\n          automatically and will persist under the attacker account.",
+    "description": "This module exploits an argument injection vulnerability (CVE-2026-52806)\n          in the pull request merge flow of Gogs (< 0.14.3).\n\n          The Merge() function in internal/database/pull.go passes the PR\n          base branch name to `git rebase` without a `--` separator. A\n          branch named `--exec=<CMD>` is parsed by Git as the --exec flag\n          rather than a positional argument, causing `sh -c <CMD>` to run\n          after each replayed commit during the rebase.\n\n          Two exploitation methods are supported:\n\n          - own_repo: The attacker creates a temporary repository, enables\n          rebase merge, and operates entirely within their own account.\n          Any authenticated user who can create repositories (the default)\n          can exploit this with no interaction from other users required.\n\n          - existing_repo: The attacker exploits a repository they already\n          have write and merge access to, where \"Rebase before merging\"\n          is enabled (or the attacker has repo admin permissions to\n          enable it). This path is useful on instances where repository\n          creation is restricted.\n\n          Both methods use git to push divergent branches (including the\n          malicious --exec= branch), open a pull request, and trigger a\n          rebase merge to execute the payload. A local git installation\n          is required.\n\n          On Unix targets, the payload is base64-encoded inline in\n          the malicious branch name, avoiding the need to commit files\n          to the repository. On Windows targets, the payload is\n          delivered via a script file committed to the repository,\n          since NTFS forbids pipe characters in filenames. Git for\n          Windows uses MSYS2 sh for --exec commands, enabling\n          cross-platform exploitation.\n\n          Note: a successful rebase merge may leave the server-side\n          repository in a corrupted git state (mid-rebase). For\n          own_repo this is inconsequential because the repository is\n          deleted. For existing_repo this can break the target\n          repository and prevent re-exploitation against the same repo.\n\n          The Gogs API does not support token deletion, so the API\n          access token created during exploitation cannot be removed\n          automatically and will persist under the attacker account.",
     "references": [
+      "CVE-2026-52806",
       "GHSA-qf6p-p7ww-cwr9",
       "URL-https://www.rapid7.com/blog/post/ve-authenticated-rce-via-argument-injection-gogs-unfixed",
       "URL-https://github.com/gogs/gogs"
@@ -112478,7 +112598,7 @@
       "Unix Command",
       "Windows Command"
     ],
-    "mod_time": "2026-06-03 16:27:03 +0000",
+    "mod_time": "2026-07-10 15:40:12 +0000",
     "path": "/modules/exploits/multi/http/gogs_rebase_rce.rb",
     "is_install_path": true,
     "ref_name": "multi/http/gogs_rebase_rce",
@@ -114102,6 +114222,67 @@
     },
     "session_types": false,
     "needs_cleanup": null
+  },
+  "exploit_multi/http/joomla_com_jce_unauth_file_upload_rce": {
+    "name": "Joomla Content Editor Unauthenticated File Upload RCE",
+    "fullname": "exploit/multi/http/joomla_com_jce_unauth_file_upload_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-06-05",
+    "type": "exploit",
+    "author": [
+      "ispyispyispy",
+      "David Jardin",
+      "Uwe Flottemesch"
+    ],
+    "description": "This module exploits an unauthenticated arbitrary profile creation vulnerability in the JCE\n          (Joomla Content Editor) extension for Joomla! (CVE-2026-48907). The profiles.import task fails to enforce\n          authentication, allowing the import of a crafted profile that is directly written to disk as a PHP web shell.\n          This results in remote code execution, provided that the tmp/ directory is not explicitly restricted.\n\n          JCE versions up to and including 2.9.99.4 are affected.",
+    "references": [
+      "CVE-2026-48907",
+      "GHSA-c3f5-4g7f-qjqj",
+      "URL-https://www.joomlacontenteditor.net/news/jce-security-update-and-a-free-patch-for-older-sites"
+    ],
+    "platform": "PHP",
+    "arch": "php",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Joomla Content Editor (Joomla!)"
+    ],
+    "mod_time": "2026-07-23 18:23:12 +0000",
+    "path": "/modules/exploits/multi/http/joomla_com_jce_unauth_file_upload_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/joomla_com_jce_unauth_file_upload_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
   },
   "exploit_multi/http/joomla_http_header_rce": {
     "name": "Joomla HTTP Header Unauthenticated Remote Code Execution",
@@ -116036,7 +116217,7 @@
       "Windows",
       "Linux"
     ],
-    "mod_time": "2026-04-22 11:57:58 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/multi/http/microfocus_ucmdb_unauth_deser.rb",
     "is_install_path": true,
     "ref_name": "multi/http/microfocus_ucmdb_unauth_deser",
@@ -125014,7 +125195,7 @@
       "Charles Fol <folcharles@gmail.com>",
       "Zenofex <zenofex@exploitee.rs>"
     ],
-    "description": "This module exploits a SQL injection vulnerability found in vBulletin 5.6.1 and earlier\n          This module uses the getIndexableContent vulnerability to reset the administrators password,\n          it then uses the administrators login information to achieve RCE on the target. This module\n          has been tested successfully on VBulletin Version 5.6.1 on Ubuntu Linux distribution.",
+    "description": "This module exploits a SQL injection vulnerability found in vBulletin 5.6.1 and earlier\n          This module uses the getIndexableContent vulnerability to reset the administrators password,\n          it then uses the administrators login information to achieve RCE on the target. This module\n          has been tested on VBulletin Version 5.6.1 on Ubuntu Linux distribution.",
     "references": [
       "CVE-2020-12720"
     ],
@@ -125039,7 +125220,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-04-22 11:58:04 +0000",
+    "mod_time": "2026-07-29 22:34:52 +0000",
     "path": "/modules/exploits/multi/http/vbulletin_getindexablecontent.rb",
     "is_install_path": true,
     "ref_name": "multi/http/vbulletin_getindexablecontent",
@@ -127585,6 +127766,65 @@
       ],
       "SideEffects": [
         "artifacts-on-disk",
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
+  "exploit_multi/http/wp_plugin_pix_unauth_rce_cve_2026_3891": {
+    "name": "WordPress Unauthenticated RCE via Pix for WooCommerce plugin",
+    "fullname": "exploit/multi/http/wp_plugin_pix_unauth_rce_cve_2026_3891",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-03-12",
+    "type": "exploit",
+    "author": [
+      "Maksim Rogov",
+      "Alexis Lafontaine"
+    ],
+    "description": "This Metasploit module exploits an Unauthenticated Arbitrary File Upload vulnerability in the Pix for WooCommerce plugin for WordPress.\n\n          Attackers can leverage the missing capability check and insufficient file type validation in the 'lkn_pix_for_woocommerce_c6_save_settings' function to upload arbitrary files to the affected server, which may lead to remote code execution under the web server's privileges.\n\n          The affected versions include all releases up to and including 1.5.0.",
+    "references": [
+      "CVE-2026-3891",
+      "WPVDB-36b05ea1-77d4-4561-b735-900e9ada4ccc",
+      "URL-https://www.wordfence.com/threat-intel/vulnerabilities/wordpress-plugins/payment-gateway-pix-for-woocommerce/pix-for-woocommerce-150-unauthenticated-arbitrary-file-upload"
+    ],
+    "platform": "PHP",
+    "arch": "php",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Pix for WooCommerce <= 1.5.0 / Automatic"
+    ],
+    "mod_time": "2026-07-24 08:40:10 +0000",
+    "path": "/modules/exploits/multi/http/wp_plugin_pix_unauth_rce_cve_2026_3891.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/wp_plugin_pix_unauth_rce_cve_2026_3891",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
         "ioc-in-logs"
       ],
       "Reliability": [
@@ -135545,7 +135785,7 @@
     "targets": [
       "Mac OS X 10.9.5-10.10.5"
     ],
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-07-25 19:35:28 +0000",
     "path": "/modules/exploits/osx/local/rsh_libmalloc.rb",
     "is_install_path": true,
     "ref_name": "osx/local/rsh_libmalloc",
@@ -135701,7 +135941,7 @@
       "Mac OS X x64 (Native Payload)",
       "CMD"
     ],
-    "mod_time": "2026-04-22 11:59:31 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/osx/local/sudo_password_bypass.rb",
     "is_install_path": true,
     "ref_name": "osx/local/sudo_password_bypass",
@@ -172584,7 +172824,7 @@
       "VLC 2.2.8 on Windows 10 x86",
       "VLC 2.2.8 on Windows 10 x64"
     ],
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/windows/fileformat/vlc_mkv.rb",
     "is_install_path": true,
     "ref_name": "windows/fileformat/vlc_mkv",
@@ -187416,7 +187656,7 @@
       "Windows_Fetch",
       "Windows_CMDStager"
     ],
-    "mod_time": "2026-04-22 11:58:31 +0000",
+    "mod_time": "2026-07-29 22:34:52 +0000",
     "path": "/modules/exploits/windows/http/prtg_authenticated_rce_cve_2023_32781.rb",
     "is_install_path": true,
     "ref_name": "windows/http/prtg_authenticated_rce_cve_2023_32781",
@@ -196910,7 +197150,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-05-07 09:13:00 +0000",
+    "mod_time": "2026-07-06 09:43:23 +0000",
     "path": "/modules/exploits/windows/local/ntlm_relay_2_self.rb",
     "is_install_path": true,
     "ref_name": "windows/local/ntlm_relay_2_self",
@@ -198705,7 +198945,7 @@
     "author": [
       "Wietse Boonstra"
     ],
-    "description": "This module exploits an authenticated insecure file upload and code\n          execution flaw in Ahsay Backup v7.x - v8.1.1.50. To succesfully execute\n          the upload credentials are needed, default on Ahsay Backup trial\n          accounts are enabled so an account can be created.\n\n          It can be exploited in Windows and Linux environments to get remote code\n          execution (usualy as SYSTEM). This module has been tested successfully\n          on Ahsay Backup v8.1.1.50 with Windows 2003 SP2 Server. Because of this\n          flaw all connected clients can be configured to execute a command before\n          the backup starts. Allowing an attacker to takeover even more systems\n          and make it rain shells!\n\n          Setting the CREATEACCOUNT to true will create a new account, this is\n          enabled by default.\n          If credeantials are known enter these and run the exploit.",
+    "description": "This module exploits an authenticated insecure file upload and code\n          execution flaw in Ahsay Backup v7.x - v8.1.1.50. To successfully\n          execute the upload,\n          credentials are needed; default Ahsay Backup trial accounts are enabled\n          so an account can be created.\n\n          It can be exploited in Windows and Linux environments to get remote code\n          execution (usually as SYSTEM). This module has been tested\n          on Ahsay Backup v8.1.1.50 with Windows 2003 SP2 Server. Because of this\n          flaw all connected clients can be configured to execute a command before\n          the backup starts. Allowing an attacker to takeover even more systems\n          and make it rain shells!\n\n          Setting the CREATEACCOUNT to true will create a new account, this is\n          enabled by default.\n          If credeantials are known enter these and run the exploit.",
     "references": [
       "CVE-2019-10267",
       "URL-https://www.wbsec.nl/ahsay/",
@@ -198733,7 +198973,7 @@
       "Windows x86",
       "Linux x86"
     ],
-    "mod_time": "2026-04-22 11:58:58 +0000",
+    "mod_time": "2026-07-29 21:22:27 +0000",
     "path": "/modules/exploits/windows/misc/ahsay_backup_fileupload.rb",
     "is_install_path": true,
     "ref_name": "windows/misc/ahsay_backup_fileupload",
@@ -299812,6 +300052,37 @@
         "screen-effects"
       ]
     },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 1,
+    "staged": false
+  },
+  "payload_windows/aarch64/shell_reverse_tcp": {
+    "name": "Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/windows/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "vinicius-batistella"
+    ],
+    "description": "Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "aarch64",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-07-24 00:11:10 +0000",
+    "path": "/modules/payloads/singles/windows/aarch64/shell_reverse_tcp.rb",
+    "is_install_path": true,
+    "ref_name": "windows/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
     "session_types": false,
     "needs_cleanup": false,
     "payload_type": 1,

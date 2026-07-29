@@ -10,6 +10,7 @@ module Msf
   #
   ###
   class Plugin::MCP < Msf::Plugin
+    include Msf::Exploit::Retry
 
     #
     # Console command dispatcher for the `mcp` command and its subcommands.
@@ -23,7 +24,8 @@ module Msf
       # Valid option keys accepted by `mcp start` and `mcp restart`
       unless defined?(VALID_OPTIONS)
         VALID_OPTIONS = %w[
-          ServerHost ServerPort
+          AuthToken
+          ServerHost ServerPort DangerousActions
           RpcHost RpcPort RpcUser RpcPass RpcSSL
           RateLimit
         ].freeze
@@ -67,8 +69,10 @@ module Msf
         print_line('  help    - Show this help message')
         print_line
         print_line('Options (for start/restart):')
+        print_line('  AuthToken=<token>           MCP server authentication token (default: random, blank: disabled)')
         print_line('  ServerHost=<host>           MCP server bind address (default: localhost)')
         print_line('  ServerPort=<port>           MCP server port (default: 3000)')
+        print_line('  DangerousActions=<true|false> Enable destructive tools like module execution and session control (default: false)')
         print_line('  RpcHost=<host>              RPC server host (default: 127.0.0.1)')
         print_line('  RpcPort=<port>              RPC server port (default: 55552)')
         print_line('  RpcUser=<user>              RPC username (default: msf)')
@@ -130,7 +134,8 @@ module Msf
         opts = {}
         args.each do |arg|
           key, value = arg.split('=', 2)
-          unless key && value && !value.empty?
+          # AuthToken can be blank while the others have to be set (blank is explicitly disabled)
+          unless key && value && (key.casecmp('AuthToken').zero? || !value.empty?)
             print_error("Invalid option format: #{arg} (expected Key=Value)")
             return nil
           end
@@ -223,6 +228,8 @@ module Msf
       # Ensure server is left in a clean stopped state on failure
       stop_mcp_server
       unload_auto_started_rpc
+      # Prevent stale config from making status report a "stopped" server
+      @server_config = nil
       print_error("Failed to start MCP server: #{e.message}")
     end
 
@@ -250,6 +257,8 @@ module Msf
       # Ensure server is left in a clean stopped state on failure
       stop_mcp_server
       unload_auto_started_rpc
+      # Prevent stale config from making status report a "stopped" server
+      @server_config = nil
       print_error("Failed to restart MCP server: #{e.message}")
     end
 
@@ -281,28 +290,53 @@ module Msf
 
       @mcp_server = Msf::MCP::Server.new(
         msf_client: @msf_client,
-        rate_limiter: @rate_limiter
+        rate_limiter: @rate_limiter,
+        dangerous_actions: mcp_config[:dangerous_actions]
       )
 
       host = mcp_config[:host]
       port = mcp_config[:port]
-
-      @server_thread = framework.threads.spawn('MCPServer', false) do
-        @mcp_server.start(transport: :http, host: host, port: port)
+      if mcp_config.key?(:auth_token)
+        auth_token = mcp_config[:auth_token]
+        auth_token_generated = false
+      else
+        auth_token = @mcp_server.class.generate_auth_token
+        auth_token_generated = true
       end
 
+      print_status('Starting MCP server on HTTP transport...')
+      # Catch port conflicts synchronously before spawning async thread
+      verify_port_available!(host, port)
+
+      # Capture reference so the thread isn't affected if shutdown nils @mcp_server
+      mcp_server = @mcp_server
+      @server_thread = framework.threads.spawn('MCPServer', false) do
+        mcp_server.start(transport: :http, host: host, port: port, auth_token: auth_token)
+      end
+
+      # Catches TOCTOU races where port freed between pre-flight and spawn
+      verify_mcp_server_started!(host, port)
+
       @started_at = Time.now
-      print_server_status(mcp_config)
+      print_status("MCP server listening on http://#{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])}/")
+      if auth_token_generated
+        print_status("Authentication: Bearer token (auto-generated)")
+        print_status("  Configure your MCP client with: Authorization: Bearer #{auth_token}")
+      else
+        print_status("Authentication: #{auth_token ? 'enabled' : 'disabled'}")
+      end
+      if mcp_config[:dangerous_actions]
+        print_warning('Dangerous actions mode is ENABLED. Destructive tools (module execution, session control) are accessible.')
+      else
+        print_status('Dangerous actions mode is disabled')
+      end
     rescue Msf::MCP::Metasploit::AuthenticationError => e
       raise Msf::MCP::Metasploit::AuthenticationError, "RPC authentication failed: #{e.message}"
     rescue Msf::MCP::Metasploit::ConnectionError => e
       raise Msf::MCP::Metasploit::ConnectionError, "RPC connection failed: #{e.message}"
+    # Fallback for TOCTOU race: port taken between verify_port_available! and actual bind
     rescue Errno::EADDRINUSE
       raise Msf::MCP::Error, "Address already in use: #{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])}"
-    end
-
-    def print_server_status(mcp_config)
-      print_status("MCP server started on #{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])} (transport: http)")
     end
 
     def format_uptime
@@ -368,11 +402,7 @@ module Msf
 
       begin
         msgrpc = framework.plugins.find { |p| p.name == 'msgrpc' }
-        if msgrpc
-          # Give msgrpc server time to initialize before attempting unload
-          sleep(0.5) unless msgrpc.respond_to?(:server) && msgrpc.server
-          framework.plugins.unload(msgrpc)
-        end
+        framework.plugins.unload(msgrpc) if msgrpc
       rescue StandardError => e
         print_warning("Failed to unload auto-started msgrpc: #{e.message}")
       end
@@ -386,7 +416,8 @@ module Msf
     def validate_options!(opts)
       validate_port_option!(opts, 'ServerPort')
       validate_port_option!(opts, 'RpcPort')
-      validate_rpc_ssl_option!(opts)
+      validate_boolean_option!(opts, 'RpcSSL')
+      validate_boolean_option!(opts, 'DangerousActions')
       validate_rate_limit_option!(opts)
       validate_rpc_credentials!(opts)
     end
@@ -400,11 +431,11 @@ module Msf
       end
     end
 
-    def validate_rpc_ssl_option!(opts)
-      return unless opts['RpcSSL']
+    def validate_boolean_option!(opts, key)
+      return unless opts[key]
 
-      unless %w[true false].include?(opts['RpcSSL'])
-        option_error('RpcSSL', '"true" or "false"')
+      unless %w[true false].include?(opts[key].to_s.downcase)
+        option_error(key, '"true" or "false"')
       end
     end
 
@@ -439,8 +470,14 @@ module Msf
       mcp_config = {
         transport: 'http',
         host: opts['ServerHost'] || Msf::MCP::Config::Defaults::MCP_HOST,
-        port: Integer(opts['ServerPort'] || Msf::MCP::Config::Defaults::MCP_PORT)
+        port: Integer(opts['ServerPort'] || Msf::MCP::Config::Defaults::MCP_PORT),
+        dangerous_actions: parse_bool(opts['DangerousActions'],
+                                      default: Msf::MCP::Config::Defaults::DANGEROUS_ACTIONS)
       }
+
+      if opts.key?('AuthToken')
+        mcp_config[:auth_token] = opts['AuthToken'].blank? ? nil : opts['AuthToken']
+      end
 
       rate_limit_value = Integer(opts['RateLimit'] || Msf::MCP::Config::Defaults::RATE_LIMIT_REQUESTS_PER_MINUTE)
 
@@ -461,8 +498,11 @@ module Msf
       @auto_started_rpc = false
 
       if (msgrpc = find_loaded_msgrpc)
-        introspect_msgrpc(msgrpc, opts)
-      elsif explicit_rpc_credentials?(opts)
+        result = introspect_msgrpc(msgrpc, opts)
+        return result if result
+      end
+
+      if explicit_rpc_credentials?(opts)
         resolve_explicit_rpc(opts)
       else
         auto_start_msgrpc(opts)
@@ -482,17 +522,21 @@ module Msf
         port: Integer(opts['RpcPort'] || Msf::MCP::Config::Defaults::MSGRPC_PORT),
         user: opts['RpcUser'] || Msf::MCP::Config::Defaults::RPC_USER,
         pass: opts['RpcPass'],
-        ssl: (opts['RpcSSL'] || 'false') == 'true'
+        ssl: parse_bool(opts['RpcSSL'], default: Msf::MCP::Config::Defaults::RPC_SSL)
       }
     end
 
+    # Skip zombie plugins whose server failed to bind
     def find_loaded_msgrpc
-      framework.plugins.find { |p| p.name == 'msgrpc' }
+      framework.plugins.find { |p| p.name == 'msgrpc' && p.respond_to?(:server) && p.server }
     end
 
     # Extract connection details from a running msgrpc plugin instance
     def introspect_msgrpc(plugin, opts)
       server = plugin.server
+      # Defensive guard in case server became nil after find_loaded_msgrpc check
+      return nil unless server
+
       user, pass = server.users.first
 
       {
@@ -505,11 +549,9 @@ module Msf
     end
 
     def resolve_ssl(opts, server)
-      if opts['RpcSSL']
-        opts['RpcSSL'] == 'true'
-      else
-        server.options[:ssl] ? true : false
-      end
+      return parse_bool(opts['RpcSSL'], default: false) if opts['RpcSSL']
+
+      server.options[:ssl] ? true : false
     end
 
     # No msgrpc loaded and no explicit creds — start one automatically
@@ -518,18 +560,21 @@ module Msf
       user = Msf::MCP::Config::Defaults::RPC_USER
       host = opts['RpcHost'] || Msf::MCP::Config::Defaults::RPC_HOST
       port = opts['RpcPort'] || Msf::MCP::Config::Defaults::MSGRPC_PORT
-      ssl = opts['RpcSSL'] || 'false'
+      ssl_bool = parse_bool(opts['RpcSSL'], default: Msf::MCP::Config::Defaults::RPC_SSL)
 
       msgrpc_opts = {
         'Pass' => pass,
         'User' => user,
         'ServerHost' => host,
         'ServerPort' => port,
-        'SSL' => ssl
+        'SSL' => ssl_bool.to_s
       }
 
       framework.plugins.load('msgrpc', msgrpc_opts)
       @auto_started_rpc = true
+
+      # Confirm the server actually bound before claiming success
+      verify_msgrpc_started!(host, port)
 
       print_status("Auto-started msgrpc - User: #{user}, Pass: #{pass}")
 
@@ -538,13 +583,73 @@ module Msf
         port: Integer(port),
         user: user,
         pass: pass,
-        ssl: ssl == 'true'
+        ssl: ssl_bool
       }
+    end
+
+    # Polls TCP port until reachable or timeout. Raises with service_name in message.
+    def wait_for_port!(host, port, service_name, timeout: 5)
+      print_status("Waiting for #{service_name} to become available on #{Rex::Socket.to_authority(host, port.to_s)}...")
+      result = poll_until_truthy(timeout: timeout, interval: 0.25) do
+        sock = Rex::Socket::Tcp.create('PeerHost' => host, 'PeerPort' => port.to_i, 'Timeout' => 1)
+        sock.close
+        true
+      rescue ::Rex::ConnectionRefused, ::Rex::ConnectionTimeout, ::Errno::ECONNREFUSED
+        nil
+      end
+
+      return if result
+
+      raise Msf::MCP::Error,
+            "#{service_name} failed to start on #{Rex::Socket.to_authority(host, port.to_s)} (port may already be in use)"
+    end
+
+    # Pre-flight check: catch EADDRINUSE synchronously before spawning async server thread
+    def verify_port_available!(host, port)
+      test_server = TCPServer.new(host, port.to_i)
+      test_server.close
+    rescue Errno::EADDRINUSE
+      raise Msf::MCP::Error, "Address already in use: #{Rex::Socket.to_authority(host, port.to_s)}"
+    rescue Errno::EADDRNOTAVAIL
+      raise Msf::MCP::Error, "Address not available: #{Rex::Socket.to_authority(host, port.to_s)}"
+    end
+
+    # Confirms msgrpc plugin loaded and its server is listening
+    def verify_msgrpc_started!(host, port, timeout: 5)
+      msgrpc = framework.plugins.find { |p| p.name == 'msgrpc' }
+      unless msgrpc
+        raise Msf::MCP::Error, 'msgrpc plugin failed to load'
+      end
+
+      # Wait for server object to initialize
+      print_status("Waiting for msgrpc server to initialize on #{Rex::Socket.to_authority(host, port.to_s)}...")
+      poll_until_truthy(timeout: timeout, interval: 0.25) do
+        msgrpc.respond_to?(:server) && msgrpc.server
+      end
+
+      unless msgrpc.server
+        raise Msf::MCP::Error,
+              "msgrpc server failed to start on #{Rex::Socket.to_authority(host, port.to_s)} (port may already be in use)"
+      end
+
+      wait_for_port!(host, port, 'msgrpc server', timeout: timeout)
+    end
+
+    # Confirms MCP server is listening after thread spawn
+    def verify_mcp_server_started!(host, port, timeout: 5)
+      wait_for_port!(host, port, 'MCP server', timeout: timeout)
     end
 
     def option_error(option_name, expected_format)
       error_detail = "Invalid value for #{option_name}: expected #{expected_format}"
       raise Msf::MCP::Config::ValidationError, { option_name => error_detail }
+    end
+
+    # Case-insensitive boolean-string parser. Returns +default+ when +value+ is nil.
+    def parse_bool(value, default:)
+      return default if value.nil?
+
+      value.to_s.casecmp?('true')
     end
 
   end

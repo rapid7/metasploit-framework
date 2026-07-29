@@ -101,7 +101,8 @@ module Msf
       private
 
       def add_result(id, result, mod)
-        string = result.to_json
+        sanitized = result.transform_values { |v| json_safe(v) }
+        string = sanitized.to_json
         results.write(id, string)
       rescue ::Exception => e
         wlog("Job with id: #{id} finished but the result could not be stored")
@@ -109,6 +110,35 @@ module Msf
         add_fallback_result(id, mod)
       ensure
         running.delete(id)
+      end
+
+      # Framework objects (Session, LoginScanner::Result) hold cyclic refs that blow to_json's stack.
+      def json_safe(value)
+        case value
+        when nil, true, false, Numeric, String, Symbol
+          value
+        when Msf::Exploit::CheckCode
+          value
+        when Hash
+          value.each_with_object({}) { |(k, v), h| h[json_safe(k)] = json_safe(v) }
+        when Array
+          value.map { |v| json_safe(v) }
+        else
+          stringify_unknown(value)
+        end
+      end
+
+      # Convert an unrecognised value to a JSON-safe string. Guards against
+      # `to_s` implementations that raise, produce invalid UTF-8, or dump
+      # unbounded state. On failure the value's class name is returned instead
+      # so operators still get a diagnosable placeholder.
+      def stringify_unknown(value)
+        str = value.to_s
+        str = str.byteslice(0, 4096) if str.bytesize > 4096
+        str.valid_encoding? ? str : str.scrub
+      rescue ::Exception => e
+        class_name = (value.class.name || value.class.to_s) rescue 'UnknownClass'
+        "#<#{class_name}: unserialisable (#{e.class})>"
       end
 
       def add_fallback_result(id, mod)
