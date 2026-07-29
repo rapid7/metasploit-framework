@@ -114173,6 +114173,67 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/joomla_com_jce_unauth_file_upload_rce": {
+    "name": "Joomla Content Editor Unauthenticated File Upload RCE",
+    "fullname": "exploit/multi/http/joomla_com_jce_unauth_file_upload_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-06-05",
+    "type": "exploit",
+    "author": [
+      "ispyispyispy",
+      "David Jardin",
+      "Uwe Flottemesch"
+    ],
+    "description": "This module exploits an unauthenticated arbitrary profile creation vulnerability in the JCE\n          (Joomla Content Editor) extension for Joomla! (CVE-2026-48907). The profiles.import task fails to enforce\n          authentication, allowing the import of a crafted profile that is directly written to disk as a PHP web shell.\n          This results in remote code execution, provided that the tmp/ directory is not explicitly restricted.\n\n          JCE versions up to and including 2.9.99.4 are affected.",
+    "references": [
+      "CVE-2026-48907",
+      "GHSA-c3f5-4g7f-qjqj",
+      "URL-https://www.joomlacontenteditor.net/news/jce-security-update-and-a-free-patch-for-older-sites"
+    ],
+    "platform": "PHP",
+    "arch": "php",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Joomla Content Editor (Joomla!)"
+    ],
+    "mod_time": "2026-07-23 18:23:12 +0000",
+    "path": "/modules/exploits/multi/http/joomla_com_jce_unauth_file_upload_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/joomla_com_jce_unauth_file_upload_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_multi/http/joomla_http_header_rce": {
     "name": "Joomla HTTP Header Unauthenticated Remote Code Execution",
     "fullname": "exploit/multi/http/joomla_http_header_rce",
