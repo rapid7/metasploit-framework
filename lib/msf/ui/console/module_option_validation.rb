@@ -1,6 +1,8 @@
 # -*- coding: binary -*-
 # frozen_string_literal: true
 
+require 'msf/core/opt_condition'
+
 module Msf
   module Ui
     module Console
@@ -26,7 +28,23 @@ module Msf
 
           return res unless mod
 
+          visible_options = {}
+          hidden_option_names = []
+
           mod.options.each do |name, opt|
+            unless Msf::OptCondition.show_option(mod, opt)
+              hidden_option_names << name
+              hidden_option_names.concat(opt.fallbacks)
+              hidden_option_names.concat(opt.aliases) if include_aliases
+              next
+            end
+
+            visible_options[name] = opt
+          end
+
+          res.delete_if { |name| hidden_option_names.any? { |hidden_name| hidden_name.casecmp?(name) } }
+
+          visible_options.each do |name, opt|
             res << name
             # aliases that are defined for backwards compatibility are not tab completed but are still valid option names
             res += opt.aliases if include_aliases
