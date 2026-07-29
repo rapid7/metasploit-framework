@@ -127775,6 +127775,65 @@
     "session_types": false,
     "needs_cleanup": true
   },
+  "exploit_multi/http/wp_plugin_pix_unauth_rce_cve_2026_3891": {
+    "name": "WordPress Unauthenticated RCE via Pix for WooCommerce plugin",
+    "fullname": "exploit/multi/http/wp_plugin_pix_unauth_rce_cve_2026_3891",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-03-12",
+    "type": "exploit",
+    "author": [
+      "Maksim Rogov",
+      "Alexis Lafontaine"
+    ],
+    "description": "This Metasploit module exploits an Unauthenticated Arbitrary File Upload vulnerability in the Pix for WooCommerce plugin for WordPress.\n\n          Attackers can leverage the missing capability check and insufficient file type validation in the 'lkn_pix_for_woocommerce_c6_save_settings' function to upload arbitrary files to the affected server, which may lead to remote code execution under the web server's privileges.\n\n          The affected versions include all releases up to and including 1.5.0.",
+    "references": [
+      "CVE-2026-3891",
+      "WPVDB-36b05ea1-77d4-4561-b735-900e9ada4ccc",
+      "URL-https://www.wordfence.com/threat-intel/vulnerabilities/wordpress-plugins/payment-gateway-pix-for-woocommerce/pix-for-woocommerce-150-unauthenticated-arbitrary-file-upload"
+    ],
+    "platform": "PHP",
+    "arch": "php",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Pix for WooCommerce <= 1.5.0 / Automatic"
+    ],
+    "mod_time": "2026-07-24 08:40:10 +0000",
+    "path": "/modules/exploits/multi/http/wp_plugin_pix_unauth_rce_cve_2026_3891.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/wp_plugin_pix_unauth_rce_cve_2026_3891",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_multi/http/wp_plugin_sp_project_document_rce": {
     "name": "Wordpress Plugin SP Project and Document - Authenticated Remote Code Execution",
     "fullname": "exploit/multi/http/wp_plugin_sp_project_document_rce",
