@@ -88,15 +88,25 @@ RSpec.describe Msf::MCP::Tools::ModuleCheck do
       expect(result.error?).to be true
     end
 
-    it 'returns an unsupported structured response when the framework reports no check method' do
+    it 'returns an unsupported structured response for the verbatim MessagePack message' do
       allow(msf_client).to receive(:module_check).and_raise(
-        Msf::MCP::Metasploit::APIError.new(Msf::Exploit::CheckCode::Unsupported.message)
+        Msf::MCP::Metasploit::APIError.new(described_class::UNSUPPORTED_CHECK_MESSAGE)
       )
 
       result = described_class.call(type: 'exploit', name: 'multi/handler', options: {}, server_context: server_context)
       expect(result.error?).to be false
       expect(result.structured_content[:data][:status]).to eq('unsupported')
       expect(result.structured_content[:data][:message]).to match(/does not implement a check method/i)
+    end
+
+    it 'returns an unsupported structured response for the prefixed JSON-RPC message' do
+      allow(msf_client).to receive(:module_check).and_raise(
+        Msf::MCP::Metasploit::APIError.new("Application server error: #{described_class::UNSUPPORTED_CHECK_MESSAGE}")
+      )
+
+      result = described_class.call(type: 'exploit', name: 'multi/handler', options: {}, server_context: server_context)
+      expect(result.error?).to be false
+      expect(result.structured_content[:data][:status]).to eq('unsupported')
     end
 
     it 'returns a normal API error response when the framework reports a different failure' do

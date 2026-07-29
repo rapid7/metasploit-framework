@@ -16,6 +16,9 @@ module Msf::MCP
       # Module types accepted by module.check.
       CHECK_SUPPORTED_TYPES = %w[exploit auxiliary].freeze
 
+      # Message the module.check RPC returns when a module has no check method.
+      UNSUPPORTED_CHECK_MESSAGE = 'This module does not support check.'
+
       tool_name 'msf_module_check'
       description 'Run the check method of a Metasploit exploit or auxiliary module. '\
                   'Returns a job_id and run UUID; use msf_module_results to retrieve the CheckCode result.'
@@ -107,7 +110,7 @@ module Msf::MCP
             metadata = { query_time: elapsed.round(3) }
             data =
               if api_error
-                raise api_error unless api_error.message == Msf::Exploit::CheckCode::Unsupported.message
+                raise api_error unless api_error.message.include?(UNSUPPORTED_CHECK_MESSAGE)
 
                 { status: 'unsupported', message: 'Module does not implement a check method' }
               else
