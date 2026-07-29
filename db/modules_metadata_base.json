@@ -72406,7 +72406,7 @@
     "targets": [
       "Unix/Linux Command"
     ],
-    "mod_time": "2025-12-17 16:12:31 +0000",
+    "mod_time": "2026-07-29 21:22:27 +0000",
     "path": "/modules/exploits/linux/http/centreon_auth_rce_cve_2025_5946.rb",
     "is_install_path": true,
     "ref_name": "linux/http/centreon_auth_rce_cve_2025_5946",
@@ -84229,7 +84229,7 @@
       "PHP Command",
       "Unix/Linux Command"
     ],
-    "mod_time": "2025-12-17 16:12:31 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/linux/http/pandora_fms_auth_rce_cve_2024_11320.rb",
     "is_install_path": true,
     "ref_name": "linux/http/pandora_fms_auth_rce_cve_2024_11320",
@@ -84290,7 +84290,7 @@
       "Unix/Linux Command",
       "Tiny Reverse Netcat Command (use THIS for versions <= v738)"
     ],
-    "mod_time": "2025-12-17 16:12:31 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/linux/http/pandora_fms_auth_rce_cve_2024_12971.rb",
     "is_install_path": true,
     "ref_name": "linux/http/pandora_fms_auth_rce_cve_2024_12971",
@@ -116217,7 +116217,7 @@
       "Windows",
       "Linux"
     ],
-    "mod_time": "2026-04-22 11:57:58 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/multi/http/microfocus_ucmdb_unauth_deser.rb",
     "is_install_path": true,
     "ref_name": "multi/http/microfocus_ucmdb_unauth_deser",
@@ -125195,7 +125195,7 @@
       "Charles Fol <folcharles@gmail.com>",
       "Zenofex <zenofex@exploitee.rs>"
     ],
-    "description": "This module exploits a SQL injection vulnerability found in vBulletin 5.6.1 and earlier\n          This module uses the getIndexableContent vulnerability to reset the administrators password,\n          it then uses the administrators login information to achieve RCE on the target. This module\n          has been tested successfully on VBulletin Version 5.6.1 on Ubuntu Linux distribution.",
+    "description": "This module exploits a SQL injection vulnerability found in vBulletin 5.6.1 and earlier\n          This module uses the getIndexableContent vulnerability to reset the administrators password,\n          it then uses the administrators login information to achieve RCE on the target. This module\n          has been tested on VBulletin Version 5.6.1 on Ubuntu Linux distribution.",
     "references": [
       "CVE-2020-12720"
     ],
@@ -125220,7 +125220,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-04-22 11:58:04 +0000",
+    "mod_time": "2026-07-29 22:34:52 +0000",
     "path": "/modules/exploits/multi/http/vbulletin_getindexablecontent.rb",
     "is_install_path": true,
     "ref_name": "multi/http/vbulletin_getindexablecontent",
@@ -135785,7 +135785,7 @@
     "targets": [
       "Mac OS X 10.9.5-10.10.5"
     ],
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-07-25 19:35:28 +0000",
     "path": "/modules/exploits/osx/local/rsh_libmalloc.rb",
     "is_install_path": true,
     "ref_name": "osx/local/rsh_libmalloc",
@@ -135941,7 +135941,7 @@
       "Mac OS X x64 (Native Payload)",
       "CMD"
     ],
-    "mod_time": "2026-04-22 11:59:31 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/osx/local/sudo_password_bypass.rb",
     "is_install_path": true,
     "ref_name": "osx/local/sudo_password_bypass",
@@ -172824,7 +172824,7 @@
       "VLC 2.2.8 on Windows 10 x86",
       "VLC 2.2.8 on Windows 10 x64"
     ],
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/windows/fileformat/vlc_mkv.rb",
     "is_install_path": true,
     "ref_name": "windows/fileformat/vlc_mkv",
@@ -187656,7 +187656,7 @@
       "Windows_Fetch",
       "Windows_CMDStager"
     ],
-    "mod_time": "2026-04-22 11:58:31 +0000",
+    "mod_time": "2026-07-29 22:34:52 +0000",
     "path": "/modules/exploits/windows/http/prtg_authenticated_rce_cve_2023_32781.rb",
     "is_install_path": true,
     "ref_name": "windows/http/prtg_authenticated_rce_cve_2023_32781",
@@ -198945,7 +198945,7 @@
     "author": [
       "Wietse Boonstra"
     ],
-    "description": "This module exploits an authenticated insecure file upload and code\n          execution flaw in Ahsay Backup v7.x - v8.1.1.50. To succesfully execute\n          the upload credentials are needed, default on Ahsay Backup trial\n          accounts are enabled so an account can be created.\n\n          It can be exploited in Windows and Linux environments to get remote code\n          execution (usualy as SYSTEM). This module has been tested successfully\n          on Ahsay Backup v8.1.1.50 with Windows 2003 SP2 Server. Because of this\n          flaw all connected clients can be configured to execute a command before\n          the backup starts. Allowing an attacker to takeover even more systems\n          and make it rain shells!\n\n          Setting the CREATEACCOUNT to true will create a new account, this is\n          enabled by default.\n          If credeantials are known enter these and run the exploit.",
+    "description": "This module exploits an authenticated insecure file upload and code\n          execution flaw in Ahsay Backup v7.x - v8.1.1.50. To successfully\n          execute the upload,\n          credentials are needed; default Ahsay Backup trial accounts are enabled\n          so an account can be created.\n\n          It can be exploited in Windows and Linux environments to get remote code\n          execution (usually as SYSTEM). This module has been tested\n          on Ahsay Backup v8.1.1.50 with Windows 2003 SP2 Server. Because of this\n          flaw all connected clients can be configured to execute a command before\n          the backup starts. Allowing an attacker to takeover even more systems\n          and make it rain shells!\n\n          Setting the CREATEACCOUNT to true will create a new account, this is\n          enabled by default.\n          If credeantials are known enter these and run the exploit.",
     "references": [
       "CVE-2019-10267",
       "URL-https://www.wbsec.nl/ahsay/",
@@ -198973,7 +198973,7 @@
       "Windows x86",
       "Linux x86"
     ],
-    "mod_time": "2026-04-22 11:58:58 +0000",
+    "mod_time": "2026-07-29 21:22:27 +0000",
     "path": "/modules/exploits/windows/misc/ahsay_backup_fileupload.rb",
     "is_install_path": true,
     "ref_name": "windows/misc/ahsay_backup_fileupload",
