@@ -238,20 +238,23 @@ RSpec.describe "Metasploit's json-rpc" do
     end
 
     context 'when the module does not support a check method' do
-      before do
-        mock_rack_env('development')
-      end
-
       let(:module_name) { 'scanner/http/title' }
 
-      it 'returns successful job results' do
+      # rpc_check short-circuits with error(500, Msf::Exploit::CheckCode::Unsupported.message)
+      # when the target module lacks a check method. That raises Msf::RPC::Exception,
+      # which the JSON-RPC dispatcher wraps into a well-formed application-server-error
+      # envelope and returns as HTTP 200 (per the JSON-RPC 2.0 convention that error
+      # responses share the transport status of successful responses).
+      it 'returns a JSON-RPC application-server-error envelope' do
         create_job
-        expect(last_response).to_not be_ok
+        expect(last_response).to be_ok
+
         expected_error_response = {
+          jsonrpc: '2.0',
           error: {
             code: -32000,
             data: {
-              backtrace: include(a_kind_of(String))
+              code: 500
             },
             message: 'Application server error: This module does not support check.'
           },

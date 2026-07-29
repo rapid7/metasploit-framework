@@ -521,11 +521,14 @@ class RPC_Module < RPC_Base
   #                       * auxiliary
   # @param [String] mname Module name. For example: 'windows/smb/ms08_067_netapi'.
   # @param [Hash] opts Options for the module (such as datastore options).
-  # @raise [Msf::RPC::Exception] Module not found (either wrong type or name).
+  # @raise [Msf::RPC::Exception] Module not found (either wrong type or name),
+  #                              or the target module does not implement a
+  #                              check method.
   # @return
   def rpc_check(mtype, mname, opts)
     _validate_options!(opts)
-    mod = _find_module(mtype,mname)
+    mod = _find_module(mtype, mname)
+    error(500, Msf::Exploit::CheckCode::Unsupported.message) unless mod.has_check?
     case mtype
     when 'exploit'
       _check_exploit(mod, opts)
