@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = :dynamic
+  CachedSize = 63984
 
   include Msf::Payload::Single
   include Msf::Payload::Php::ReverseTcp
