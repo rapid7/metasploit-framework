@@ -109,19 +109,22 @@ jobs:
           tools: none
 
       - name: Install system dependencies (Windows)
-        shell: cmd
+        shell: pwsh
         if: runner.os == 'Windows'
         run: |
-          REM pcap dependencies
-          powershell -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip', 'C:\Windows\Temp\WpdPack_4_1_2.zip')"
+          $ErrorActionPreference = 'Stop'
+          # pcap dependencies
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Invoke-WebRequest -Uri 'https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip' -OutFile 'C:\Windows\Temp\WpdPack_4_1_2.zip' -SkipCertificateCheck
+          $expected = 'ea799cf2f26e4afb1892938070fd2b1ca37ce5cf75fec4349247df12b784edbd'
+          $actual = (Get-FileHash 'C:\Windows\Temp\WpdPack_4_1_2.zip' -Algorithm SHA256).Hash.ToLower()
+          if ($actual -ne $expected) { throw "WpdPack_4_1_2.zip SHA256 mismatch: expected $expected, got $actual" }
 
-          choco install 7zip.installServerCertificateValidationCallback
+          choco install 7zip -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw "choco install 7zip failed with exit code $LASTEXITCODE" }
+
           7z x "C:\Windows\Temp\WpdPack_4_1_2.zip" -o"C:\"
-
-          dir C:\\
-
-          dir %WINDIR%
-          type %WINDIR%\\system32\\drivers\\etc\\hosts
+          if ($LASTEXITCODE -ne 0) { throw "7z extraction failed with exit code $LASTEXITCODE" }
 
       # The job checkout structure is:
       #  .
