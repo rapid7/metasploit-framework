@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def target_label(ip)
-    "#{ip}:#{datastore['RPORT']}"
+    Rex::Socket.to_authority(ip, datastore['RPORT'])
   end
 
   def scan_target
