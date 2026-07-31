@@ -43,6 +43,9 @@ This module was successfully tested on:
 
 ## Options
 
+### NODE_ID
+The Ray Node ID can be pulled directly from http://192.168.1.30:8265/#/logs
+
 ## Scenarios
 
 ```
