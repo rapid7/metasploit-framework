@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2026-07-15',
         'Notes' => {
           'Stability' => [ CRASH_SAFE ],
-          'SideEffects' => [],
+          'SideEffects' => [ IOC_IN_LOGS, ],
           'Reliability' => []
         }
       )
@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
     uri = normalize_uri(target_uri.path, 'api/v0/logs')
     query = URI.encode_www_form(vars_get)
 
-    url = "#{ssl ? 'https' : 'http'}://#{rhost}:#{rport}#{uri}?#{query}"
+    url = "#{full_uri(uri)}?#{query}"
     vprint_status("Request URL: #{url}")
 
     res = send_request_cgi(

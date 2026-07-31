@@ -8,16 +8,28 @@ The vulnerability affects:
 
 This module was successfully tested on:
 
-    * Ray (v2.56.0) on Ubuntu 22.04
+    * Ray (v2.56.0) installed with Docker on Ubuntu 22.04
 
 ### Install and run the vulnerable Ray (v2.56.0)
 
 1. Install your favorite virtualization engine (VirtualBox or VMware) on your preferred platform.
-2. Install Kali Linux (or other Linux distro) in your virtualization engine.
-3. Install Ray (v2.56.0) in your VM.
-   `python3 -m pip install pip install ray==2.56.0`
-4. Start the ray service.
-   `ray start --head --node-ip-address=<ip hosting ray webapp> --dashboard-host=<ip hosting ray webapp>`
+2. Install Ubuntu Linux (or other Linux distro) in your virtualization engine.
+3. Pull pre-built Ray docker container (v2.6.3) in your VM.
+   `docker pull rayproject/ray:2.56.0`
+4. Start the ray container.
+   `docker run --shm-size=512M -it -p 8265:8265 rayproject/ray:2.6.3`
+5. Start ray.
+   `sudo docker run -d \
+  --name ray-2.56.0 \
+  --shm-size=8g \
+  -p 192.168.1.30:8265:8265 \
+  -p 192.168.1.30:6379:6379 \
+  -p 192.168.1.30:10001:10001 \
+  rayproject/ray:2.56.0 \
+  ray start \
+    --head \
+    --dashboard-host=0.0.0.0 \
+    --block`
 
 
 ## Verification Steps
