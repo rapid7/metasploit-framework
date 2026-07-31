@@ -145,8 +145,8 @@ module Rex::Proto::Http::WebSocket
       # This provides a hook point that is called when data is read from the WebSocket peer. Subclasses can intercept and
       # process the data. The default functionality does nothing.
       #
-      # @param [String] data the data that was read
-      # @param [Symbol] data_type the type of data that was received, either :binary or :text
+      # @param data [String] the data that was read
+      # @param _data_type [Symbol] the type of data that was received, either :binary or :text
       # @return [String, nil] if a string is returned, it's passed through the channel
       def on_data_read(data, _data_type)
         data

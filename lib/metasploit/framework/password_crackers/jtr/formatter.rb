@@ -132,7 +132,7 @@ module Metasploit
           # This method takes a {framework.db.cred}, and normalizes it
           # from the JTR format to the DB format.
           #
-          # @param [credClass] a credential from framework.db
+          # @param cred_type [String] a credential from framework.db
           # @return [Array] All of the hash types that may be in the DB that apply
           def self.jtr_to_db(cred_type)
             case cred_type

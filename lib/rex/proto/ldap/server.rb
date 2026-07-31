@@ -318,7 +318,7 @@ module Rex
         #
         # @param proc [Proc] block of code to execute
         #
-        # @return pdu_process [Proc] steps to be executed
+        # @return [Proc] steps to be executed
         def processed_pdu_handler(pdu_type, &proc)
           @pdu_process = []
           @pdu_process[pdu_type] = proc if block_given?
@@ -336,7 +336,7 @@ module Rex
         #
         # @param request [Integer] Type of request
         #
-        # @return response [Integer] Type of response
+        # @return [Integer] Type of response
         def suitable_response(request)
           responses = {
             Net::LDAP::PDU::BindRequest => Net::LDAP::PDU::BindResult,
