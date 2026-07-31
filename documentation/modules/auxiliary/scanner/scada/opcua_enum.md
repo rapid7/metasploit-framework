@@ -44,8 +44,56 @@ default `RPORT`. However, several common OT products use non-standard ports:
    LISTEN 0 4096 *:62541 *:* users:(("java",...))
    ```
 
-Alternatively, any standalone OPC-UA server (open62541, Eclipse Milo,
-Prosys Simulation Server, etc.) on port 4840 can be used to exercise the module.
+### Setting Up a Test Server (Ignition via Docker)
+
+The official Inductive Automation Ignition Docker image provides the quickest way
+to stand up a test target. Note that Ignition's OPC-UA server binds to
+**localhost only by default**, so one configuration step is required to expose it
+for scanning — this is itself worth knowing, as it means a default Ignition
+gateway is not reachable on OPC-UA from other hosts until an administrator changes
+the bind address.
+
+1. Pull and run the image, publishing the gateway (8088) and OPC-UA (62541) ports.
+   The environment variables commission the gateway unattended:
+
+   ```
+   docker run -d \
+     --name ignition-opcua-test \
+     -p 8088:8088 \
+     -p 62541:62541 \
+     -e ACCEPT_IGNITION_EULA=Y \
+     -e GATEWAY_ADMIN_USERNAME=admin \
+     -e GATEWAY_ADMIN_PASSWORD=password \
+     -e IGNITION_EDITION=standard \
+     inductiveautomation/ignition:8.3
+   ```
+
+   (Use the `inductiveautomation/ignition:8.1` tag to test against 8.1.x.)
+
+2. Wait for the gateway to finish starting (roughly 30–60 seconds). It is ready
+   when the logs show the gateway has started:
+
+   ```
+   docker logs ignition-opcua-test 2>&1 | grep -i "Gateway started"
+   ```
+
+3. Expose the OPC-UA server on all interfaces. Browse to the gateway at
+   `http://localhost:8088`, sign in with the admin credentials above, and go to
+   **Config > OPC UA > Server Settings**. Under **Bind Addresses**, remove
+   `localhost` and add `0.0.0.0`, then save. The server rebinds immediately; the
+   logs will confirm:
+
+   ```
+   docker logs ignition-opcua-test 2>&1 | grep -i "binding endpoint" | tail -2
+   # ... Binding endpoint opc.tcp://... to 0.0.0.0:62541 ...
+   ```
+
+4. The OPC-UA server is now reachable on port 62541 and can be scanned with this
+   module (`set RPORT 62541`).
+
+Any standalone OPC-UA server (open62541, Eclipse Milo, Prosys Simulation Server,
+etc.) on port 4840 can also be used to exercise the module.
+
 
 ## Verification Steps
 
