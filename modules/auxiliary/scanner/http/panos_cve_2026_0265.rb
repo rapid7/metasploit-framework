@@ -99,6 +99,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    check_host(ip)
+  end
+  
+  def check_host(ip)
     finding = scan_target
     target = target_label(ip)
 
