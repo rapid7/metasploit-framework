@@ -194,7 +194,7 @@ class MetasploitModule < Msf::Auxiliary
            when 'PATCHED'
              "#{panos_version} is at or above the advisory patched hotfix for this base."
            when 'NOT-AFFECTED-SAAS'
-             '.saas builds are not affected per advisory logic.'
+             'SaaS builds are not affected per advisory logic.'
            end
 
     {
