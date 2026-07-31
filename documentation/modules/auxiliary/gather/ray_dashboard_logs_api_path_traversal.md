@@ -14,11 +14,9 @@ This module was successfully tested on:
 
 1. Install your favorite virtualization engine (VirtualBox or VMware) on your preferred platform.
 2. Install Ubuntu Linux (or other Linux distro) in your virtualization engine.
-3. Pull pre-built Ray docker container (v2.6.3) in your VM.
+3. Pull pre-built Ray docker container (v2.56.0) in your VM.
    `docker pull rayproject/ray:2.56.0`
 4. Start the ray container.
-   `docker run --shm-size=512M -it -p 8265:8265 rayproject/ray:2.6.3`
-5. Start ray.
    `sudo docker run -d \
   --name ray-2.56.0 \
   --shm-size=8g \
