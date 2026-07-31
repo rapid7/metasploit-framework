@@ -17,7 +17,9 @@ This module was successfully tested on:
 3. Pull pre-built Ray docker container (v2.56.0) in your VM.
    `docker pull rayproject/ray:2.56.0`
 4. Start the ray container.
-   `sudo docker run -d \
+
+```
+sudo docker run -d \
   --name ray-2.56.0 \
   --shm-size=8g \
   -p 192.168.1.30:8265:8265 \
@@ -27,7 +29,8 @@ This module was successfully tested on:
   ray start \
     --head \
     --dashboard-host=0.0.0.0 \
-    --block`
+    --block
+```
 
 
 ## Verification Steps
