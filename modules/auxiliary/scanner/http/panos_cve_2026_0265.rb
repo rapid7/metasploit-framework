@@ -221,8 +221,7 @@ class MetasploitModule < Msf::Auxiliary
           'headers' => {
             'User-Agent' => datastore['USERAGENT']
           }
-        },
-        datastore['TIMEOUT'].to_i
+        }
       )
 
       return res if res && res.code != 503
