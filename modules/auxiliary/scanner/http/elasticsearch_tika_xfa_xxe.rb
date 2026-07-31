@@ -100,15 +100,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_host(_ip)
     version = elasticsearch_version
-    return CheckCode::Unknown('Elasticsearch version could not be identified') if version.nil?
+    return Exploit::CheckCode::Unknown('Elasticsearch version could not be identified') if version.nil?
 
     case vulnerable_version?(version)
     when true
-      CheckCode::Appears("Elasticsearch #{version} is in an affected version range")
+      Exploit::CheckCode::Appears("Elasticsearch #{version} is in an affected version range")
     when false
-      CheckCode::Safe("Elasticsearch #{version} is outside the affected version ranges")
+      Exploit::CheckCode::Safe("Elasticsearch #{version} is outside the affected version ranges")
     else
-      CheckCode::Detected("Elasticsearch #{version} detected; active validation is required")
+      Exploit::CheckCode::Detected("Elasticsearch #{version} detected; active validation is required")
     end
   end
 
@@ -253,12 +253,12 @@ class MetasploitModule < Msf::Auxiliary
     ensure
       if created
         cleanup = send_request_cgi(
-        'method' => 'DELETE',
-        'uri' => uri,
-        'headers' => request_headers
-      )
-      if cleanup&.code&.between?(200, 299) || cleanup&.code == 404
-        vprint_status("#{ip}:#{rport} - Temporary pipeline deleted")
+          'method' => 'DELETE',
+          'uri' => uri,
+          'headers' => request_headers
+        )
+        if cleanup&.code&.between?(200, 299) || cleanup&.code == 404
+          vprint_status("#{ip}:#{rport} - Temporary pipeline deleted")
         else
           print_warning("#{ip}:#{rport} - Temporary pipeline cleanup failed")
         end
