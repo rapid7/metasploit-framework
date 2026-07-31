@@ -273,7 +273,7 @@ class MetasploitModule < Msf::Auxiliary
     return 'PATCHED' if floor && pat >= floor
 
     cutoff = ADVISORY_PATCHED_HOTFIX[[maj, min, pat]]
-    return hf >= cutoff ? 'PATCHED' : 'VULNERABLE' if cutoff
+    return (hf >= cutoff ? 'PATCHED' : 'VULNERABLE') if cutoff
 
     return 'VULNERABLE' if [[10, 2], [11, 1], [11, 2], [12, 1]].include?([maj, min])
 
