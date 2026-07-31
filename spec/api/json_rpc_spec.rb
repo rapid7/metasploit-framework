@@ -576,7 +576,7 @@ RSpec.describe "Metasploit's json-rpc" do
               host: host_ip,
               analyze_options: {
                 payloads: [
-                  'windows/meterpreter_reverse_http'
+                  'linux/x86/meterpreter_reverse_http'
                 ]
               }
             }
