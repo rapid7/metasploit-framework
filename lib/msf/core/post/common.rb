@@ -55,7 +55,7 @@ module Msf::Post::Common
   # Create a new process, receiving the program's output
   # @param executable [String] The path to the executable; either absolute or relative to the session's current directory
   # @param args [Array<String>] The arguments to the executable
-  # @time_out [Integer] Number of seconds before the call will time out
+  # @param time_out [Integer] Number of seconds before the call will time out
   # @param opts [Hash] Optional settings to parameterise the process launch
   # @option Hidden [Boolean] Is the process launched without creating a visible window
   # @option Channelized [Boolean] The process is launched with pipes connected to a channel, e.g. for sending input/receiving output
