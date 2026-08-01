@@ -52,7 +52,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [false, 'Username for user-related actions']),
         OptString.new('PASSWORD', [false, 'Password for user creation or update']),
         OptString.new('NEW_PASSWORD', [false, 'New password for update action']),
-        OptBool.new('SSL', [false, 'Use SSL', false])
       ]
     )
   end
