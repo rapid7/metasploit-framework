@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Unknown('No response from target') unless res
 
     if res.code == 200 && res.get_json_document&.key?('pageItems')
-      return Exploit::CheckCode::Vulnerable('Target appears vulnerable to Nacos authentication bypass')
+      return Exploit::CheckCode::Appears('Target appears vulnerable to Nacos authentication bypass')
     end
 
     Exploit::CheckCode::Safe('Target does not appear vulnerable')
