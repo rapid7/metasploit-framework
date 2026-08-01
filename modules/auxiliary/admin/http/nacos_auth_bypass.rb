@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
     when 'CHECK'
       check
     when 'EXPLOIT'
-      if check == Exploit::CheckCode::Vulnerable
+      if check == Exploit::CheckCode::Appears
         create_user
       else
         print_error('Target is not vulnerable – aborting.')
