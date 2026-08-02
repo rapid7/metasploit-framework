@@ -129,6 +129,8 @@ class Obj
   attr_reader :stage_refname
   # @return [String, nil] Name of the stager if applicable
   attr_reader :stager_refname
+  # @return [Integer, nil] Cached size of the payload if applicable
+  attr_reader :payload_cached_size
 
   def initialize(module_instance, obj_hash = nil)
     unless obj_hash.nil?
@@ -205,6 +207,18 @@ class Obj
       @adapter_refname = module_instance.adapter_refname
       @adapted_refname = module_instance.adapted_refname
     end
+    if module_instance.respond_to?(:cached_size)
+      @payload_cached_size = module_instance.cached_size
+      if @payload_cached_size.nil? && module_instance.dynamic_size?
+        begin
+          require 'msf/util/payload_cached_size'
+          opts = Msf::Util::PayloadCachedSize.module_options(module_instance)
+          @payload_cached_size = module_instance.replicant.generate_simple(opts).bytesize
+        rescue => e
+          elog("Failed to generate a default size for dynamic payload #{module_instance.refname}: #{e.class} #{e.message}")
+        end
+      end
+    end
 
     # Due to potentially non-standard ASCII we force UTF-8 to ensure no problem with JSON serialization
     force_encoding(::Encoding::UTF_8)
@@ -253,6 +267,7 @@ class Obj
         'staged'             => @staged,
         'stage_refname'      => @stage_refname,
         'stager_refname'     => @stager_refname,
+        'payload_cached_size'=> @payload_cached_size,
       }.compact
       data.merge!(payload_data)
     end
@@ -322,6 +337,7 @@ class Obj
     @staged              = obj_hash['staged']
     @stage_refname       = obj_hash['stage_refname']
     @stager_refname      = obj_hash['stager_refname']
+    @payload_cached_size = obj_hash['payload_cached_size']
   end
 
   def sort_platform_string
