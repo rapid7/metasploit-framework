@@ -63,6 +63,11 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('RANDOMIZE_TARGETS', [true, 'Whether the relay targets should be randomized', true])
       ]
     )
+    # Tracks which templates have already been issued per identity, so a client
+    # that authenticates repeatedly does not request the same certificate again.
+    # HTTP::WebEnrollment#cert_issued? reads this on the first relay, so it has
+    # to exist before any certificate is requested.
+    @issued_certs = {}
   end
 
   def relay_targets
