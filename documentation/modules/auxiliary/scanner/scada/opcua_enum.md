@@ -125,8 +125,8 @@ msf6 auxiliary(scanner/scada/opcua_enum) > set RPORT 62541
 RPORT => 62541
 msf6 auxiliary(scanner/scada/opcua_enum) > run
 
-[+] 10.10.0.3:62541 - OPC-UA server detected (ACK) - ProtocolVersion=0 RecvBuf=65535 SendBuf=65535
-[*] 10.10.0.3:62541 - Scanned 1 of 1 hosts (100% complete)
+[+] 10.10.0.3:62541       - OPC-UA server detected (ACK) - ProtocolVersion=0 RecvBuf=65535 SendBuf=65535
+[*] 10.10.0.3:62541       - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
 

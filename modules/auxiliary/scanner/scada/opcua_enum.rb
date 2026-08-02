@@ -111,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
     data = sock.get_once(-1, 5)
 
     if data.nil? || data.length < 4
-      vprint_status("#{ip}:#{rport} - No OPC-UA response to HEL")
+      vprint_status('No OPC-UA response to HEL')
       return
     end
 
@@ -126,7 +126,7 @@ class MetasploitModule < Msf::Auxiliary
         proto_ver, rcv_buf, snd_buf = body.unpack('VVV')
         info = "ProtocolVersion=#{proto_ver} RecvBuf=#{rcv_buf} SendBuf=#{snd_buf}"
       end
-      print_good("#{ip}:#{rport} - OPC-UA server detected (ACK) - #{info}")
+      print_good("OPC-UA server detected (ACK) - #{info}")
       report_service(
         host: ip,
         port: rport,
@@ -137,7 +137,7 @@ class MetasploitModule < Msf::Auxiliary
     when 'ERR'
       status, reason = decode_error(body)
       detail = reason.empty? ? status : "#{status} - #{reason}"
-      print_good("#{ip}:#{rport} - OPC-UA server detected (ERR) - #{detail}")
+      print_good("OPC-UA server detected (ERR) - #{detail}")
       report_service(
         host: ip,
         port: rport,
@@ -146,10 +146,10 @@ class MetasploitModule < Msf::Auxiliary
         info: "OPC-UA server (ERR): #{detail}"
       )
     else
-      vprint_status("#{ip}:#{rport} - Non-OPC-UA response (type=#{msg_type.inspect} chunk=#{chunk_type.inspect})")
+      vprint_status("Non-OPC-UA response (type=#{msg_type.inspect} chunk=#{chunk_type.inspect})")
     end
   rescue ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNRESET => e
-    vprint_error("#{ip}:#{rport} - #{e.class}: #{e.message}")
+    vprint_error("#{e.class}: #{e.message}")
   ensure
     disconnect
   end
