@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -105,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     connect
 
-    endpoint_url = "opc.tcp://#{ip}:#{rport}"
+    endpoint_url = "opc.tcp://#{Rex::Socket.to_authority(ip, rport)}"
     sock.put(build_hello(endpoint_url))
 
     data = sock.get_once(-1, 5)
