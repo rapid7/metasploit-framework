@@ -27682,6 +27682,60 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/ray_dashboard_logs_api_path_traversal": {
+    "name": "Ray Dashboard Logs API Path Traversal",
+    "fullname": "auxiliary/gather/ray_dashboard_logs_api_path_traversal",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-07-15",
+    "type": "auxiliary",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Ray Dashboard versions 2.56.0 and earlier are vulnerable to path traversal\n          through the /api/v0/logs endpoint, allowing unauthenticated attackers to enumerate\n          and read filesystem paths via attacker-controlled glob paths.",
+    "references": [
+      "URL-https://github.com/ray-project/ray/pull/64701",
+      "URL-https://github.com/ray-project/ray/issues/39701"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 8265,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-07-31 15:54:37 +0000",
+    "path": "/modules/auxiliary/gather/ray_dashboard_logs_api_path_traversal.rb",
+    "is_install_path": true,
+    "ref_name": "gather/ray_dashboard_logs_api_path_traversal",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/ray_lfi_cve_2023_6020": {
     "name": "Ray static arbitrary file read",
     "fullname": "auxiliary/gather/ray_lfi_cve_2023_6020",
