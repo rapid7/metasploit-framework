@@ -103,6 +103,21 @@ module Acceptance::Session
           module: {}
         }
       },
+      {
+        name: 'python/shell_bind_tcp',
+        extension: '.py',
+        platforms: [:linux],
+        execute_cmd: ['python', '${payload_path}'],
+        generate_options: {
+          '-f': 'raw'
+        },
+        datastore: {
+          global: {},
+          module: {
+            RHOST: '127.0.0.1'
+          }
+        }
+      },
     ],
     module_tests: PYTHON_MODULE_TESTS
   }
