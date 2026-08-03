@@ -1,0 +1,54 @@
+name: Publish pyenv Acceptance Test Image
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: read
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: write
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - 'test/pyenv/Containerfile'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout metasploit-framework code
+        uses: actions/checkout@v4
+
+      - name: Set lowercased image repository
+        run: echo "IMAGE_REPO=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Build pyenv image
+        run: |
+          docker build \
+            -f test/pyenv/Containerfile \
+            -t ghcr.io/${IMAGE_REPO}/pyenv:latest \
+            -t ghcr.io/${IMAGE_REPO}/pyenv:${{ github.sha }} \
+            test/pyenv
+
+      - name: Push pyenv image
+        run: |
+          docker push ghcr.io/${IMAGE_REPO}/pyenv:latest
+          docker push ghcr.io/${IMAGE_REPO}/pyenv:${{ github.sha }}
+
+      - name: Print published digest
+        run: docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/${IMAGE_REPO}/pyenv:latest
