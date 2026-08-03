@@ -156,7 +156,7 @@ jobs:
 
       - name: Pull pyenv container image
         if: startsWith(matrix.command_shell.name, 'python_ssl')
-        run: docker pull public.ecr.aws/n5b4u6h0/zerosteiner/pyenv@sha256:e686265001ee43333f14c896d8362970e816c5a7c661a6fa7e37a90770c9108a
+        run: docker pull ghcr.io/rapid7/metasploit-framework/pyenv@sha256:bc3398ad96f06ac4c9f2a371488b7b75c60eaaa37531da1dcf98ce47b5191fb7
         working-directory: metasploit-framework
 
       - name: Acceptance
