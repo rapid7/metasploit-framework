@@ -137,7 +137,7 @@ RSpec.describe 'CommandShell' do
             end
 
             console.sendline payload.handler_command(default_module_datastore: default_module_datastore)
-            console.recvuntil(/Started reverse (?:TCP|SSL) handler[^\n]*\n/)
+            console.recvuntil(/Started (?:reverse|bind) (?:TCP|SSL|UDP) handler[^\n]*\n/)
             payload_process = executed_payload
             session_id = nil
 
