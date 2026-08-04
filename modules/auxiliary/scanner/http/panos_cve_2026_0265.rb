@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     check_host(ip)
   end
-  
+
   def check_host(ip)
     finding = scan_target
     target = target_label(ip)
@@ -229,22 +229,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def fetch_prelogin
     retry_until_truthy(timeout: datastore['RETRY_TIMEOUT'].to_i) do
-      begin
-        res = send_request_cgi(
-          {
-            'method' => 'GET',
-            'uri' => normalize_uri(datastore['TARGETURI']),
-            'headers' => {
-              'User-Agent' => datastore['USERAGENT']
-            }
+      res = send_request_cgi(
+        {
+          'method' => 'GET',
+          'uri' => normalize_uri(datastore['TARGETURI']),
+          'headers' => {
+            'User-Agent' => datastore['USERAGENT']
           }
-        )
+        }
+      )
 
-        res if res && res.code != 503
-      rescue ::Rex::ConnectionError, ::Timeout::Error, ::EOFError => e
-        vprint_warning("Transient request failure: #{e.class}: #{e.message}")
-        nil
-      end
+      res if res && res.code != 503
+    rescue ::Rex::ConnectionError, ::Timeout::Error, ::EOFError => e
+      vprint_warning("Transient request failure: #{e.class}: #{e.message}")
+      nil
     end
   end
 
