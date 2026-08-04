@@ -117805,6 +117805,71 @@
     "session_types": false,
     "needs_cleanup": true
   },
+  "exploit_multi/http/opencats_installer_rce": {
+    "name": "OpenCATS Installer PHP Code Injection",
+    "fullname": "exploit/multi/http/opencats_installer_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-04-28",
+    "type": "exploit",
+    "author": [
+      "Chocapikk",
+      "stlthr4k3r"
+    ],
+    "description": "This module exploits an unauthenticated PHP code injection in the OpenCATS\n          installer AJAX endpoint (CVE-2026-27760).\n\n          The databaseConnectivity action passes the user POST parameter directly to\n          changeConfigSetting(), which interpolates it into a define() statement in\n          config.php without any sanitization. This only works when the installation\n          wizard was never completed, meaning the INSTALL_BLOCK file is absent.\n\n          The exploit injects an eval() backdoor into config.php, probes until the\n          injected code is live (handles OPcache revalidation transparently), triggers\n          the payload via index.php, and then restores config.php.",
+    "references": [
+      "CVE-2026-27760",
+      "URL-https://chocapikk.com/posts/2026/opencats-installer-rce/",
+      "URL-https://github.com/opencats/OpenCATS/commit/3002a29f4c3cada1aa2c4f3d4ae4e189906606b6"
+    ],
+    "platform": "Linux,PHP,Unix,Windows",
+    "arch": "php, cmd, x64, x86, aarch64",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "PHP In-Memory",
+      "Unix/Linux Command",
+      "Windows Command",
+      "Linux Dropper",
+      "Windows Dropper"
+    ],
+    "mod_time": "2026-08-03 17:18:13 +0000",
+    "path": "/modules/exploits/multi/http/opencats_installer_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/opencats_installer_rce",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs",
+        "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/openfire_auth_bypass": {
     "name": "Openfire Admin Console Authentication Bypass",
     "fullname": "exploit/multi/http/openfire_auth_bypass",
