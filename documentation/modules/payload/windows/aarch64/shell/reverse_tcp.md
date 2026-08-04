@@ -32,6 +32,10 @@ via `msfvenom`.
 Exit technique used after the stage spawns `cmd.exe`. Accepted values:
 `process`, `thread`, `none`, `seh`. (Default: `process`)
 
+`seh` clears the unhandled exception filter via
+`SetUnhandledExceptionFilter(NULL)` and then branches to address 0 for a
+predictable crash (same tactic as the x86/x64 Windows payloads).
+
 ## Scenarios
 
 ### Windows 11 on ARM (UTM VM) -- staged reverse TCP

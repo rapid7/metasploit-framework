@@ -53,7 +53,7 @@ RSpec.describe 'stages/windows/aarch64/shell' do
       expect(subject.generate_stage[0, 4]).to eq("\xf6\x03\x00\xaa".b)
     end
 
-    %w[process thread none].each do |exitfunc|
+    %w[process thread none seh].each do |exitfunc|
       context "when EXITFUNC is #{exitfunc}" do
         it 'compiles successfully' do
           stub_compile_with_capture
@@ -70,6 +70,15 @@ RSpec.describe 'stages/windows/aarch64/shell' do
       subject.datastore['EXITFUNC'] = 'thread'
       raw_thread = subject.generate_stage
       expect(raw_process).not_to eq(raw_thread)
+    end
+
+    it 'produces different shellcode for EXITFUNC=seh than process' do
+      stub_compile_with_capture
+      subject.datastore['EXITFUNC'] = 'process'
+      raw_process = subject.generate_stage
+      subject.datastore['EXITFUNC'] = 'seh'
+      raw_seh = subject.generate_stage
+      expect(raw_seh).not_to eq(raw_process)
     end
   end
 end
