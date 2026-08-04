@@ -17,6 +17,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Retry
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -62,8 +63,9 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'PAN-OS GlobalProtect CAS CVE-2026-0265 Vulnerability Checker',
         'Description' => %q{
           This module checks a PAN-OS GlobalProtect portal for CVE-2026-0265
-          using the Bishop Fox scanner decision flow. It performs a single
-          anonymous GET request to the GlobalProtect prelogin endpoint, checks
+          using the Bishop Fox scanner decision flow. It performs anonymous
+          GET requests to the GlobalProtect prelogin endpoint, retrying transient
+          failures and HTTP 503 responses, then checks
           whether CAS authentication is enabled, decodes the embedded SAML/JWT
           token when present, extracts PanOSversion, and compares it against
           the advisory version matrix.
@@ -93,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'GlobalProtect prelogin endpoint path', '/global-protect/prelogin.esp']),
         OptString.new('USERAGENT', [true, 'User-Agent used for the prelogin probe', DEFAULT_USER_AGENT]),
         OptInt.new('TIMEOUT', [true, 'HTTP request timeout in seconds', 20]),
-        OptInt.new('RETRIES', [true, 'Number of retries for transient failures or HTTP 503', 3])
+        OptInt.new('RETRY_TIMEOUT', [true, 'Maximum time in seconds to retry transient failures or HTTP 503 responses', 15])
       ]
     )
   end
@@ -114,18 +116,34 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{target} - Status: VULNERABLE")
       print_status("#{target} - #{finding[:note]}") if finding[:note]
       report_vulnerability(ip, finding)
+
+      Exploit::CheckCode::Appears(
+        finding[:note] || "CAS is enabled and PAN-OS #{finding[:panos_version]} is in an affected version range."
+      )
     when 'PATCHED', 'NOT-AFFECTED-SAAS', 'NOT-AFFECTED-NO-CAS', 'NOT-AFFECTED-NOT-GLOBALPROTECT'
       print_status("#{target} - Status: NOT VULNERABLE (#{finding[:verdict]})")
       print_status("#{target} - #{finding[:note]}") if finding[:note]
+
+      Exploit::CheckCode::Safe(
+        finding[:note] || "The target is not affected (#{finding[:verdict]})."
+      )
     else
       print_warning("#{target} - Status: UNDETERMINED (#{finding[:verdict]})")
       print_warning("#{target} - #{finding[:error]}") if finding[:error]
       print_status("#{target} - #{finding[:note]}") if finding[:note]
+
+      Exploit::CheckCode::Unknown(
+        finding[:error] || finding[:note] || "Unable to determine vulnerability status (#{finding[:verdict]})."
+      )
     end
   rescue ::Rex::ConnectionError, ::Timeout::Error, ::EOFError => e
-    print_error("#{target_label(ip)} - Status: UNDETERMINED (network error: #{e.class}: #{e.message})")
+    reason = "Network error: #{e.class}: #{e.message}"
+    print_error("#{target_label(ip)} - Status: UNDETERMINED (#{reason})")
+    Exploit::CheckCode::Unknown(reason)
   rescue ::StandardError => e
-    print_error("#{target_label(ip)} - Status: UNDETERMINED (module error: #{e.class}: #{e.message})")
+    reason = "Module error: #{e.class}: #{e.message}"
+    print_error("#{target_label(ip)} - Status: UNDETERMINED (#{reason})")
+    Exploit::CheckCode::Unknown(reason)
   end
 
   def target_label(ip)
@@ -210,30 +228,24 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def fetch_prelogin
-    last_res = nil
-    attempts = datastore['RETRIES'].to_i + 1
-
-    attempts.times do |attempt|
-      res = send_request_cgi(
-        {
-          'method' => 'GET',
-          'uri' => normalize_uri(datastore['TARGETURI']),
-          'headers' => {
-            'User-Agent' => datastore['USERAGENT']
+    retry_until_truthy(timeout: datastore['RETRY_TIMEOUT'].to_i) do
+      begin
+        res = send_request_cgi(
+          {
+            'method' => 'GET',
+            'uri' => normalize_uri(datastore['TARGETURI']),
+            'headers' => {
+              'User-Agent' => datastore['USERAGENT']
+            }
           }
-        }
-      )
+        )
 
-      return res if res && res.code != 503
-
-      last_res = res
-      Rex.sleep([attempt, 4].min) if attempt < attempts - 1
-    rescue ::Rex::ConnectionError, ::Timeout::Error, ::EOFError
-      Rex.sleep([attempt, 4].min) if attempt < attempts - 1
-      raise if attempt == attempts - 1
+        res if res && res.code != 503
+      rescue ::Rex::ConnectionError, ::Timeout::Error, ::EOFError => e
+        vprint_warning("Transient request failure: #{e.class}: #{e.message}")
+        nil
+      end
     end
-
-    last_res
   end
 
   def decode_token_from_prelogin(body)
@@ -247,15 +259,10 @@ class MetasploitModule < Msf::Auxiliary
     parts = token.split('.')
     return nil unless parts.length == 3
 
-    payload_json = base64url_decode(parts[1])
+    payload_json = Rex::Text.decode_base64url(parts[1])
     JSON.parse(payload_json)
   rescue ::StandardError
     nil
-  end
-
-  def base64url_decode(value)
-    padded = value + ('=' * ((4 - value.length % 4) % 4))
-    Rex::Text.decode_base64(padded.tr('-_', '+/'))
   end
 
   def advisory_verdict_for_version(panos_version)
