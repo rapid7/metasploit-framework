@@ -9,7 +9,6 @@
 #
 ###
 module Msf::Payload::Windows::ReflectiveLoaderCommon
-
   # Raised by {#build_reflective_loader} when a required opcode pattern is
   # missing from the shuffled reflective-loader assembly (the ROR13 IV mov,
   # a DLL name-hash compare, or a function name-hash compare). Almost always
@@ -42,6 +41,7 @@ module Msf::Payload::Windows::ReflectiveLoaderCommon
 
     patch_bytes = lambda { |code, oldbytes, newbytes|
       raise Error, "Failed to patch, opcode: #{oldbytes} not found." unless code.include?(oldbytes)
+
       code.sub(oldbytes, newbytes)
     }
 
@@ -56,19 +56,19 @@ module Msf::Payload::Windows::ReflectiveLoaderCommon
       asm = patch_bytes.call(asm, "#{prefix} 0x00, 0x00, 0x00, 0x00", "#{prefix} #{iv_bytes}")
     end
 
-    vprint_status("Random IV: #{iv}")
+    dlog("Random IV: #{iv}")
 
     dll_hash_base = arch_config[:dll_hash_base]
     # The static graphml data uses hashes calculated with an IV of 0, so we patch them here using
     # the runtime's random value.
     patches = [
-      { base: dll_hash_base, name: 'KERNEL32.DLL',            unicode: true },
-      { base: dll_hash_base, name: 'NTDLL.DLL',               unicode: true },
-      { base: 'db 0x3d,',    name: 'LoadLibraryA',            count: 2 },
-      { base: 'db 0x3d,',    name: 'GetProcAddress' },
-      { base: 'db 0x3d,',    name: 'ZwAllocateVirtualMemory', count: 2 },
-      { base: 'db 0x3d,',    name: 'ZwProtectVirtualMemory' },
-      { base: 'db 0x3d,',    name: 'NtFlushInstructionCache', count: 2 }
+      { base: dll_hash_base, name: 'KERNEL32.DLL', unicode: true },
+      { base: dll_hash_base, name: 'NTDLL.DLL', unicode: true },
+      { base: 'db 0x3d,', name: 'LoadLibraryA', count: 2 },
+      { base: 'db 0x3d,', name: 'GetProcAddress' },
+      { base: 'db 0x3d,', name: 'ZwAllocateVirtualMemory', count: 2 },
+      { base: 'db 0x3d,', name: 'ZwProtectVirtualMemory' },
+      { base: 'db 0x3d,', name: 'NtFlushInstructionCache', count: 2 }
     ]
 
     patches.each do |patch|
@@ -76,14 +76,14 @@ module Msf::Payload::Windows::ReflectiveLoaderCommon
       old_hash = to_hashbytes.call(patch[:name], unicode: patch[:unicode], iv: 0)
       new_hash = to_hashbytes.call(patch[:name], unicode: patch[:unicode], iv: iv)
       count.times do
-        vprint_status("Applying patch from #{old_hash} to #{new_hash} for #{patch[:name]}")
+        dlog("Applying patch from #{old_hash} to #{new_hash} for #{patch[:name]}")
         asm = patch_bytes.call(asm, "#{patch[:base]} #{old_hash}", "#{patch[:base]} #{new_hash}")
       end
     end
 
     code = Metasm::Shellcode.assemble(arch_config[:metasm_arch].new, asm).encode_string
     hash = Rex::Text.md5_raw(code).unpack('H*').first
-    vprint_status("Reflective Loader GraphML fingerprint: #{hash}")
+    dlog("Reflective Loader GraphML fingerprint: #{hash}")
     code
   end
 end
