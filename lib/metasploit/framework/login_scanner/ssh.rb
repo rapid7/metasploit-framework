@@ -52,10 +52,10 @@ module Metasploit
         # @note The caller *must* close {#ssh_socket}
         def attempt_login(credential)
           self.ssh_socket = nil
-          opt_hash = ssh_client_defaults.merge({
+          opt_hash = {
             :port            => port,
             :verbose         => verbosity
-          })
+          }
           case credential.private_type
           when :password, nil
             opt_hash.update(
@@ -75,7 +75,7 @@ module Metasploit
           }
           begin
             ::Timeout.timeout(connection_timeout) do
-              self.ssh_socket = Net::SSH.start(
+              self.ssh_socket = connect_ssh(
                 host,
                 credential.public,
                 opt_hash
