@@ -107,6 +107,7 @@ module Msf::DBManager::Service
     ostate = service.state
     opts.each { |k,v|
       if (service.attribute_names.include?(k.to_s))
+        v = v.delete("\x00") if v.is_a?(String)
         service[k] = ((v and k == :name) ? v.to_s.downcase : v)
       elsif !v.blank?
         dlog("Unknown attribute for Service: #{k}")
