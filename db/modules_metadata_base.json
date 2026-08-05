@@ -77658,7 +77658,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-03-02 14:35:48 +0000",
+    "mod_time": "2026-08-05 09:07:36 +0000",
     "path": "/modules/exploits/linux/http/grandstream_gxp1600_unauth_rce.rb",
     "is_install_path": true,
     "ref_name": "linux/http/grandstream_gxp1600_unauth_rce",
@@ -123298,7 +123298,7 @@
       "Windows",
       "Linux"
     ],
-    "mod_time": "2026-04-22 11:58:04 +0000",
+    "mod_time": "2026-08-05 09:07:36 +0000",
     "path": "/modules/exploits/multi/http/struts2_namespace_ognl.rb",
     "is_install_path": true,
     "ref_name": "multi/http/struts2_namespace_ognl",
