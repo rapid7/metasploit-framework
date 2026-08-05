@@ -63,10 +63,9 @@ Build the image locally:
 docker build -f test/pyenv/Containerfile -t pyenv:local test/pyenv
 ```
 
-The published image is built and pushed to `ghcr.io/rapid7/metasploit-framework/pyenv` by the
-`.github/workflows/pyenv_image_publish.yml` workflow. Any maintainer with repo access can trigger it via
-`workflow_dispatch` (or a push touching `test/pyenv/Containerfile`) to rebuild/republish it -- there's no
-dependency on any individual's personal registry account. After a new image is published, update the
+The published image is built and pushed to [`rapid7/msf-pyenv`](https://hub.docker.com/r/rapid7/msf-pyenv) on Docker Hub by the
+`framework_pyenv_image_publish` Jenkins pipeline. Any maintainer can trigger it manually to
+rebuild/republish it. After a new image is published, update the
 digest pinned in `PYTHON_SSL_IMAGE` (`spec/support/acceptance/command_shell/python.rb`) and the
 `docker pull` line in `command_shell_acceptance.yml` to match.
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Acceptance::Session
-  PYTHON_SSL_IMAGE = 'ghcr.io/rapid7/metasploit-framework/pyenv@sha256:bc3398ad96f06ac4c9f2a371488b7b75c60eaaa37531da1dcf98ce47b5191fb7'
+  PYTHON_SSL_IMAGE = 'rapid7/msf-pyenv@sha256:596c78595c69847661a135890bfb7ed09b7cd3b39fb66699e075f7eea5dc0f09'
   PYTHON_SSL_CONTAINER_CMD = '$(command -v podman || command -v docker)'
 
   PYTHON_MODULE_TESTS = [
