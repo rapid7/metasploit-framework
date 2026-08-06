@@ -29,9 +29,13 @@ applyTo: "modules/**/*.rb"
 
 ## Notes Hash Values
 
+Required for **exploits, auxiliary, and post** modules (enforced by rubocop). Not required for payloads, encoders, nops, or evasion.
+
 - **Stability:** `CRASH_SAFE`, `CRASH_SERVICE_RESTARTS`, `CRASH_SERVICE_DOWN`, `CRASH_OS_RESTARTS`, `CRASH_OS_DOWN`
 - **SideEffects:** `IOC_IN_LOGS`, `ARTIFACTS_ON_DISK`, `CONFIG_CHANGES`, `ACCOUNT_LOCKOUTS`, `SCREEN_EFFECTS`
 - **Reliability:** `REPEATABLE_SESSION`, `FIRST_ATTEMPT_FAIL`, `UNRELIABLE_SESSION`, `EVENT_DEPENDENT`
+
+Valid values with descriptions: [`lib/msf/core/constants.rb`](../../lib/msf/core/constants.rb). Platform classes: [`lib/msf/core/module/platform.rb`](../../lib/msf/core/module/platform.rb).
 
 ## Payload Selection
 

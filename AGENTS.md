@@ -76,9 +76,9 @@ class MetasploitModule < Msf::Exploit::Remote
           [
             'Automatic',
             {
-              'Platform' => ['linux'],
-              'Arch' => [ARCH_CMD],
-              'Type' => :cmd
+              'Platform' => ['linux'], # or 'win', 'osx', 'unix', 'php', 'python', 'java'
+              'Arch' => [ARCH_CMD], # or ARCH_X86, ARCH_X64, ARCH_PHP, ARCH_JAVA, ARCH_PYTHON
+              'Type' => :cmd # or :dropper, :psh_stager — determines payload delivery
             }
           ]
         ],
@@ -128,9 +128,9 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [['CVE', '2024-XXXXX']],
         'Notes' => {
-          'Stability' => [CRASH_SAFE],
-          'SideEffects' => [],
-          'Reliability' => []
+          'Stability' => [], # e.g. CRASH_SAFE
+          'SideEffects' => [], # e.g. IOC_IN_LOGS
+          'Reliability' => [] # e.g. REPEATABLE_SESSION
         }
       )
     )
@@ -171,11 +171,11 @@ class MetasploitModule < Msf::Post
         },
         'Author' => ['Author Name'],
         'License' => MSF_LICENSE,
-        'Platform' => ['linux'],
-        'SessionTypes' => ['meterpreter', 'shell'],
+        'Platform' => ['linux'], # or 'win', 'osx', 'unix', 'bsd', 'solaris'
+        'SessionTypes' => ['meterpreter', 'shell'], # or just ['meterpreter'] if shell won't work
         'Notes' => {
-          'Stability' => [CRASH_SAFE],
-          'SideEffects' => [],
+          'Stability' => [], # e.g. CRASH_SAFE
+          'SideEffects' => [], # e.g. ARTIFACTS_ON_DISK, CONFIG_CHANGES
           'Reliability' => []
         }
       )
@@ -200,6 +200,32 @@ The `Notes` hash declares the module's operational characteristics:
 | `Reliability` | `REPEATABLE_SESSION`, `FIRST_ATTEMPT_FAIL`, `UNRELIABLE_SESSION`, `EVENT_DEPENDENT` | How reliably the module succeeds |
 
 See also: [`lib/msf/core/constants.rb`](lib/msf/core/constants.rb) for the full list of valid values with descriptions.
+
+**Which module types require Notes:**
+
+| Module Type | Notes Required? | Enforced By |
+|-------------|----------------|-------------|
+| Exploit | **Yes** | msftidy + rubocop (`Lint/ModuleEnforceNotes`) |
+| Auxiliary | **Yes** | rubocop (`Lint/ModuleEnforceNotes`) |
+| Post | **Yes** | rubocop (`Lint/ModuleEnforceNotes`) |
+| Evasion | No | — |
+| Payload | No | — |
+| Encoder | No | — |
+| Nop | No | — |
+
+The same `Stability`, `SideEffects`, and `Reliability` constants apply uniformly — there are no type-specific values. Payloads, encoders, and nops don't use Notes because they don't independently interact with targets.
+
+### Metadata Source Reference
+
+The inline comments in the templates above list common values but are **not exhaustive**. Consult these source files for the full set:
+
+| Field | Source File | Notes |
+|-------|------------|-------|
+| Platform | [`lib/msf/core/module/platform.rb`](lib/msf/core/module/platform.rb) | Class hierarchy — use the lowercase short name (e.g. `'linux'`, `'win'`, `'osx'`) |
+| Arch | [`rex-arch` gem](https://github.com/rapid7/rex-arch/blob/master/lib/rex/arch.rb) | Constants like `ARCH_CMD`, `ARCH_X86`, `ARCH_X64`, `ARCH_PHP` etc. |
+| Stability / SideEffects / Reliability | [`lib/msf/core/constants.rb`](lib/msf/core/constants.rb) | All valid Notes hash values with descriptions |
+| Rank | [`lib/msf/core/constants.rb`](lib/msf/core/constants.rb) | `ManualRanking` through `ExcellentRanking` |
+| CheckCode | [`lib/msf/core/exploit.rb`](lib/msf/core/exploit.rb) (line ~52) | `Vulnerable`, `Appears`, `Safe`, `Detected`, `Unknown`, `Unsupported` |
 
 ### Mixin Ordering
 
