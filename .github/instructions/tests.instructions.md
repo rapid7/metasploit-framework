@@ -22,7 +22,7 @@ applyTo: "spec/**/*_spec.rb"
 
 - Use TEST-NET-1 (`192.0.2.0/24`) for example IP addresses — never real IPs
 - Use `Rex::Text.rand_text_alphanumeric` for random test data
-- Use FAKER for usernames/accounts
+- Use the `Faker` gem (e.g. `Faker::Internet.username`) for usernames/accounts
 
 ## Module Specs
 

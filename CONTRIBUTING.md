@@ -85,7 +85,7 @@ Keep modernization PRs focused: one pattern fix per PR, or one subsystem at a ti
 * **Do** follow [Better Specs] - it's like the style guide for specs.
 * **Do** write [YARD] documentation - this makes it easier for people to use your code.
 * **Do** use specific error classes (`Rex::RuntimeError`, `ArgumentError`, etc.) — never `raise "bare string"`.
-* **Do** use `rescue StandardError => e` — never bare `rescue` (it swallows Ctrl-C and kill signals).
+* **Do** use `rescue StandardError => e` — never bare `rescue` (it discards the exception object) and never `rescue Exception` (it swallows Ctrl-C and kill signals).
 * **Do** add `# frozen_string_literal: true` as the first line of new library files.
 * **Don't** use `get_`/`set_` prefixes for accessor-style methods in new code.
 * **Don't** fix a lot of things in one pull request. Small fixes are easier to validate.

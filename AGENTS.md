@@ -255,7 +255,7 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 - All `print_*` calls should start with a capital letter
 - Call `report_service` when a service can be reported
 - Call `report_vuln` when a vulnerability can be reported
-- When creating a fake account / username use FAKER not `rand_test_alphanumeric`
+- When creating a fake account / username use the `Faker` gem (e.g. `Faker::Internet.username`) not `Rex::Text.rand_text_alphanumeric`
 
 #### Session and Post-Exploitation
 
@@ -290,7 +290,7 @@ When writing or modifying code in `lib/`:
 
 #### Error Handling
 - Use specific error classes (`Rex::RuntimeError`, `Rex::ConnectionError`, `ArgumentError`, `Rex::TimeoutError`) — never `raise "bare string"` which makes targeted rescue impossible
-- Use `rescue StandardError => e` or a more specific class — never bare `rescue` (it catches `SignalException` and `SystemExit`, hiding Ctrl-C and kill signals)
+- Use `rescue StandardError => e` or a more specific class — never bare `rescue` (it discards the exception object, making debugging impossible) and never `rescue Exception` (it catches `SignalException` and `SystemExit`, hiding Ctrl-C and kill signals)
 - Propagate errors with context: `raise Rex::ConnectionError, "Failed to connect to #{host}: #{e.message}"`
 
 #### Documentation and Style
@@ -387,7 +387,7 @@ These patterns exist in older code but should not be used in new modules or libr
 | `cmd_exec(cmd, args_string, timeout)` | `create_process(cmd, args: args_array, time_out: timeout)` | Enforced by `Lint/DetectOutdatedCmdExecApi` rubocop cop |
 | `DefaultOptions => { 'PAYLOAD' => '...' }` | Remove — let the framework choose automatically | Only acceptable when the module genuinely only works with a single specific payload |
 | `include Msf::Exploit::Remote::AutoCheck` | `prepend Msf::Exploit::Remote::AutoCheck` | Include raises NotImplementedError; prepend is required |
-| Bare `rescue` in library code | `rescue StandardError => e` | Bare rescue catches SignalException/SystemExit |
+| Bare `rescue` in library code | `rescue StandardError => e` | Bare rescue discards the exception object; `rescue Exception` is worse — it catches signals/exits |
 | `raise "error message"` in library code | `raise Rex::RuntimeError, "message"` | Specific classes enable targeted error handling |
 | Manual `check` call inside `exploit` | `prepend AutoCheck` + separate `check` method | Let the framework handle check-before-exploit |
 

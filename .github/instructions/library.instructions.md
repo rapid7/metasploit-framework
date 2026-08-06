@@ -8,7 +8,8 @@ applyTo: "lib/**/*.rb"
 
 - Use specific error classes: `Rex::RuntimeError`, `Rex::ConnectionError`, `Rex::TimeoutError`, `ArgumentError`
 - NEVER `raise "bare string"` — makes targeted rescue impossible
-- NEVER bare `rescue` — catches `SignalException` and `SystemExit` (hides Ctrl-C)
+- NEVER bare `rescue` — it discards the exception object, making debugging impossible
+- NEVER `rescue Exception` — it catches `SignalException` and `SystemExit` (hides Ctrl-C and kill signals)
 - Always: `rescue StandardError => e` or more specific
 - Propagate with context: `raise Rex::ConnectionError, "Failed to connect to #{host}: #{e.message}"`
 
