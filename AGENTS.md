@@ -85,9 +85,9 @@ class MetasploitModule < Msf::Exploit::Remote
         'DefaultTarget' => 0,
         'DisclosureDate' => '2024-01-01',
         'Notes' => {
-          'Stability' => [CRASH_SAFE],
-          'SideEffects' => [IOC_IN_LOGS],
-          'Reliability' => [REPEATABLE_SESSION]
+          'Stability' => [], # e.g. CRASH_SAFE, CRASH_SERVICE_RESTARTS
+          'SideEffects' => [], # e.g. IOC_IN_LOGS, ARTIFACTS_ON_DISK
+          'Reliability' => [] # e.g. REPEATABLE_SESSION
         }
       )
     )
@@ -198,6 +198,8 @@ The `Notes` hash declares the module's operational characteristics:
 | `Stability` | `CRASH_SAFE`, `CRASH_SERVICE_RESTARTS`, `CRASH_SERVICE_DOWN`, `CRASH_OS_RESTARTS`, `CRASH_OS_DOWN` | Impact on target stability |
 | `SideEffects` | `IOC_IN_LOGS`, `ARTIFACTS_ON_DISK`, `CONFIG_CHANGES`, `ACCOUNT_LOCKOUTS`, `SCREEN_EFFECTS`, `AUDIO_EFFECTS`, `PHYSICAL_EFFECTS` | Observable traces left on target |
 | `Reliability` | `REPEATABLE_SESSION`, `FIRST_ATTEMPT_FAIL`, `UNRELIABLE_SESSION`, `EVENT_DEPENDENT` | How reliably the module succeeds |
+
+See also: [`lib/msf/core/constants.rb`](lib/msf/core/constants.rb) for the full list of valid values with descriptions.
 
 ### Mixin Ordering
 
