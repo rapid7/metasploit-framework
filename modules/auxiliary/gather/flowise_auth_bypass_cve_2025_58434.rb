@@ -42,9 +42,9 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(3000),
+        OptString.new('TARGETURI', [ true, 'Base path of the Flowise dashboard', '/' ]),
         OptString.new('EMAIL', [ true, 'The email address of victim user', 'admin@local' ]),
         OptString.new('NEWPASSWORD', [ true, 'The new password assigned to the victim user', 'password123' ]),
-        OptString.new('TARGETURI', [ true, 'Base path of the Ray Dashboard', '/' ]),
       ]
     )
   end
