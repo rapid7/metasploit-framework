@@ -111611,6 +111611,66 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/ghostcms_auth_rce_cve_2026_29053": {
+    "name": "Ghost CMS Remote Code Execution",
+    "fullname": "exploit/multi/http/ghostcms_auth_rce_cve_2026_29053",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-03-02",
+    "type": "exploit",
+    "author": [
+      "Maksim Rogov",
+      "Cristian-Alexandru Staicu"
+    ],
+    "description": "This module exploits a Remote Code Execution (RCE) vulnerability in Ghost CMS.\n          Specifically crafted malicious themes can execute arbitrary code on the server running Ghost.\n\n          The affected versions include all releases from 0.7.2 up to and including 6.19.0.\n          For versions 5.105.0-5.130.5 and 6.0.0-6.10.3, the module also leverages a 2FA bypass.",
+    "references": [
+      "CVE-2026-29053",
+      "CVE-2026-22594",
+      "URL-https://www.endorlabs.com/learn/rce-in-ghost-cms-ghsa-cgc2-rcrh-qr5x"
+    ],
+    "platform": "Linux,Unix,Windows",
+    "arch": "cmd",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Ghost >= 0.7.2, <= 6.19.0 / Unix payload",
+      "Ghost >= 0.7.2, <= 6.19.0 / Windows payload"
+    ],
+    "mod_time": "2026-08-07 05:21:48 +0000",
+    "path": "/modules/exploits/multi/http/ghostcms_auth_rce_cve_2026_29053.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/ghostcms_auth_rce_cve_2026_29053",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/gibbon_auth_rce_cve_2024_24725": {
     "name": "Gibbon School Platform Authenticated PHP Deserialization Vulnerability",
     "fullname": "exploit/multi/http/gibbon_auth_rce_cve_2024_24725",
