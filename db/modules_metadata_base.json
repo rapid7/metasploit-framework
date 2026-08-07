@@ -126967,6 +126967,74 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/wp_batch_desync_rce": {
+    "name": "WordPress WP2Shell REST API Batch Route Confusion SQLi to RCE",
+    "fullname": "exploit/multi/http/wp_batch_desync_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-07-17",
+    "type": "exploit",
+    "author": [
+      "Adam Kues",
+      "TF1T",
+      "dtro",
+      "haongo",
+      "Crypto-Cat"
+    ],
+    "description": "This module chains two WordPress core vulnerabilities, together known as\n          WP2Shell, to gain unauthenticated remote code execution against default\n          installs of WordPress 6.9.0-6.9.4 and 7.0.0-7.0.1.\n          The vulnerabilities are fixed in WordPress 6.9.5 and 7.0.2.\n\n          CVE-2026-60137 is an SQL injection in WP_Query's author__not_in parameter, and\n          CVE-2026-63030 is a REST API batch endpoint route-confusion bug that lets an\n          unauthenticated request reach that injection.\n\n          The module uses the injection to read the database table prefix and the\n          administrator user ID, poisons WordPress' object cache to publish a crafted\n          customizer changeset, and re-enters the REST API with administrator privileges\n          to create a new administrator account. It then logs in as that account, uploads\n          a plugin containing a Metasploit payload, and executes it for a session. Once a\n          session is obtained the uploaded plugin is removed, and the created administrator\n          account is removed as well unless KeepAdmin is set.",
+    "references": [
+      "CVE-2026-63030",
+      "CVE-2026-60137",
+      "URL-https://wordpress.org/news/2026/07/wordpress-7-0-2-release/",
+      "URL-https://slcyber.io/research-center/exploit-brokers-pay-500000-for-a-wordpress-rce-i-found-one-with-gpt5-6/",
+      "URL-https://github.com/Crypto-Cat/wp2shell",
+      "URL-https://wp2shell.com/"
+    ],
+    "platform": "Linux,PHP,Unix",
+    "arch": "php, cmd",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "PHP In-Memory",
+      "Unix/Linux Command Shell"
+    ],
+    "mod_time": "2026-08-06 12:35:36 +0000",
+    "path": "/modules/exploits/multi/http/wp_batch_desync_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/wp_batch_desync_rce",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk",
+        "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_multi/http/wp_bricks_builder_rce": {
     "name": "Unauthenticated RCE in Bricks Builder Theme",
     "fullname": "exploit/multi/http/wp_bricks_builder_rce",
