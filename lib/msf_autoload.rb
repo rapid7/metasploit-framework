@@ -292,6 +292,7 @@ class MsfAutoload
       'rakp2' => 'RAKP2',
       'pjl' => 'PJL',
       'dhcp' => 'DHCP',
+      'dhcpv6' => 'DHCPv6',
       'addp' => 'ADDP',
       'rfb' => 'RFB',
       'io' => 'IO',
