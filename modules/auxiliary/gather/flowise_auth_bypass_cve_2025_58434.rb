@@ -22,9 +22,9 @@ class MetasploitModule < Msf::Auxiliary
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'Richard Howe',
-          'Isaac David',
-          'Arthur Gervais'
+          'Richard Howe',   # Metasploit module
+          'Isaac David',    # Discovered vulnerability
+          'Arthur Gervais'  # Discovered vulnerability
         ],
         'References' => [
           ['CVE', '2025-58434'],
