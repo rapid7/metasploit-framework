@@ -408,6 +408,15 @@ module Rex
           )
 
           pkt_body.sspi = kerberos_result[:security_blob].bytes
+          kerberos_authenticator.trace_protocol_carrier(
+            protocol: 'MSSQL',
+            direction: 'request',
+            label: 'MSSQL SSPI',
+            carrier: 'TDS7 Login SSPI security blob',
+            field_name: 'sspi',
+            port: rport,
+            token: kerberos_result[:security_blob]
+          )
 
           pkt_hdr.packet_length += pkt_body.num_bytes
           pkt = pkt_hdr.to_binary_s + pkt_body.to_binary_s
@@ -415,6 +424,15 @@ module Rex
           @mstds_channel.starttls if tdsencryption == true
 
           resp = mssql_send_recv(pkt)
+          kerberos_authenticator.trace_protocol_carrier(
+            protocol: 'MSSQL',
+            direction: 'response',
+            label: 'MSSQL SSPI',
+            carrier: 'TDS login response',
+            field_name: 'tds_response',
+            port: rport,
+            blob_length: resp&.bytesize
+          )
 
           info = {:errors => []}
           info = mssql_parse_reply(resp, info)

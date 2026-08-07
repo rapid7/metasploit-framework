@@ -81,4 +81,46 @@ RSpec.describe Rex::Proto::MSSQL::Client do
       expect(result).to eq({ version: '16.0.1000', encryption: 2 })
     end
   end
+
+  describe '#login_kerberos' do
+    let(:kerberos_authenticator) do
+      instance_double(Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::MSSQL)
+    end
+
+    before do
+      subject.instance_variable_set(:@hostname, 'sql.example.test')
+      allow(Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::MSSQL).to receive(:new).and_return(kerberos_authenticator)
+      allow(subject).to receive(:mssql_prelogin).and_return(version: '16.0.1000')
+    end
+
+    it 'traces the request and response MSSQL SSPI carriers' do
+      request_token = 'request-token'
+      response_blob = 'response-blob'
+
+      allow(kerberos_authenticator).to receive(:authenticate).and_return(security_blob: request_token)
+      allow(kerberos_authenticator).to receive(:trace_protocol_carrier)
+      allow(subject).to receive(:mssql_send_recv).and_return(response_blob)
+      allow(subject).to receive(:mssql_parse_reply).and_return(login_ack: true)
+
+      expect(subject.send(:login_kerberos, 'user', 'password', db_name, 'EXAMPLE.TEST')).to be(true)
+      expect(kerberos_authenticator).to have_received(:trace_protocol_carrier).with(
+        protocol: 'MSSQL',
+        direction: 'request',
+        label: 'MSSQL SSPI',
+        carrier: 'TDS7 Login SSPI security blob',
+        field_name: 'sspi',
+        port: port,
+        token: request_token
+      )
+      expect(kerberos_authenticator).to have_received(:trace_protocol_carrier).with(
+        protocol: 'MSSQL',
+        direction: 'response',
+        label: 'MSSQL SSPI',
+        carrier: 'TDS login response',
+        field_name: 'tds_response',
+        port: port,
+        blob_length: response_blob.bytesize
+      )
+    end
+  end
 end
