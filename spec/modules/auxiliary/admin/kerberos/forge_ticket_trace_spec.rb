@@ -129,6 +129,33 @@ RSpec.describe 'kerberos forge ticket trace' do
     end
   end
 
+  describe '#store_forged_ticket' do
+    let(:ccache) { build_ccache }
+    let(:stored_ccache) { { path: '/tmp/forged-ticket.ccache', loot: double('loot') } }
+
+    before(:each) do
+      configure_manual_ticket(action: 'FORGE_GOLDEN')
+      allow(Msf::Exploit::Remote::Kerberos::Ticket::Storage).to receive(:store_ccache).and_return(stored_ccache)
+    end
+
+    it 'returns the stored ccache when trace output is disabled' do
+      mod.datastore['KerberosTicketTrace'] = 'off'
+
+      result = mod.send(:store_forged_ticket, ccache, key: nil, ticket_type: 'TGT')
+
+      expect(result).to be(stored_ccache)
+    end
+
+    it 'returns the stored ccache after printing trace output' do
+      mod.datastore['KerberosTicketTrace'] = 'metadata'
+
+      result = mod.send(:store_forged_ticket, ccache, key: nil, ticket_type: 'TGT')
+
+      expect(result).to be(stored_ccache)
+      expect(@output.join("\n")).to include('# Kerberos Credential: FORGE_GOLDEN TGT')
+    end
+  end
+
   def configure_manual_ticket(action:, spn: nil)
     mod.datastore['ACTION'] = action
     mod.datastore['DOMAIN'] = 'demo.local'

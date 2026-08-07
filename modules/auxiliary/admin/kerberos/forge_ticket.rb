@@ -263,13 +263,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def store_forged_ticket(ccache, key:, ticket_type:, host: nil)
-    Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ccache, framework_module: self, host: host)
+    stored_ccache = Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ccache, framework_module: self, host: host)
 
     trace_mode = kerberos_offline_trace_mode
-    return unless trace_mode || datastore['VERBOSE']
+    return stored_ccache unless trace_mode || datastore['VERBOSE']
 
     key = nil if trace_mode && trace_mode != Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter::TRACE_MODE_FULL
     print_ccache_contents(ccache, key: key, source: "#{action.name} #{ticket_type}")
+
+    stored_ccache
   end
 
   def validate_spn!
