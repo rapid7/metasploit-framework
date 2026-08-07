@@ -46,7 +46,37 @@ RSpec.describe Msf::Payload::Adapter::Fetch::Fileless do
     subject(:cmd) { harness._generate_fileless_bash_search(get_file_cmd) }
 
     it 'embeds get_file_cmd directly, since the surrounding script text is unquoted' do
-      expect(cmd).to include("if $(#{get_file_cmd} >/dev/null)")
+      expect(cmd).to include("if #{get_file_cmd} >/dev/null")
+    end
+
+    it 'checks the real exit status of get_file_cmd rather than a swallowed command substitution' do
+      # $(get_file_cmd >/dev/null) always captures an empty string (stdout is
+      # redirected away inside the substitution), and `if <empty>` is always
+      # true in bash regardless of whether get_file_cmd actually succeeded.
+      expect(cmd).not_to include("$(#{get_file_cmd}")
+    end
+
+    it 'verifies the candidate anonymous file actually holds a downloaded ELF, not just any pre-existing content' do
+      # A candidate fd can pass the memfd/rwx filter yet belong to an unrelated
+      # process with its own real (non-empty) data already in it -- a bare
+      # exit-status or size check can't tell "our payload landed here" apart
+      # from "there was already unrelated data here we couldn't overwrite".
+      expect(cmd).to include(%q{[ "$(dd if=$f bs=1 count=4 2>/dev/null)" = "$(printf '\177ELF')" ]})
+    end
+
+    it 'does not depend on od or head -c, neither of which is guaranteed present/POSIX-mandated on minimal/embedded busybox builds' do
+      expect(cmd).not_to include('od ')
+      expect(cmd).not_to include('head -c4 $f')
+    end
+
+    it 'exits the whole script on a successful match rather than merely breaking the search loop' do
+      # A bare `break` only exits the innermost loop -- when this search
+      # script is concatenated with a fallback (as _execute_nix's shell-search
+      # branch does), a successful match must terminate the entire script via
+      # `exit`, or the fallback below would run again and re-download/re-exec
+      # the payload a second time.
+      expect(cmd).to include('; exit 0')
+      expect(cmd).not_to include('; break')
     end
   end
 
@@ -54,7 +84,20 @@ RSpec.describe Msf::Payload::Adapter::Fetch::Fileless do
     subject(:cmd) { harness._generate_fileless_shell(get_file_cmd, 'mipsle') }
 
     it 'embeds get_file_cmd directly, since the surrounding script text is unquoted' do
-      expect(cmd).to include("then if $(#{get_file_cmd} >/dev/null)")
+      expect(cmd).to include("then if #{get_file_cmd} >/dev/null")
+    end
+
+    it 'checks the real exit status of get_file_cmd rather than a swallowed command substitution' do
+      expect(cmd).not_to include("$(#{get_file_cmd}")
+    end
+
+    it 'verifies the candidate anonymous file actually holds a downloaded ELF' do
+      expect(cmd).to include(%q{[ "$(dd if=$f bs=1 count=4 2>/dev/null)" = "$(printf '\177ELF')" ]})
+    end
+
+    it 'does not depend on od or head -c, neither of which is guaranteed present/POSIX-mandated on minimal/embedded busybox builds' do
+      expect(cmd).not_to include('od ')
+      expect(cmd).not_to include('head -c4 $f')
     end
   end
 end

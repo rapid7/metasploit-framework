@@ -69,4 +69,41 @@ RSpec.describe Msf::Payload::Adapter::Fetch do
   describe '#_generate_wget_command' do
     include_examples 'a dynamic-arch aware fetch command', :_generate_wget_command
   end
+
+  describe '#_remote_destination_nix' do
+    let(:harness_class) do
+      Class.new do
+        include Msf::Payload::Adapter::Fetch
+
+        def initialize
+          @datastore = {
+            'FETCH_FILELESS' => 'shell-search',
+            'FETCH_WRITABLE_DIR' => '',
+            'FETCH_FILENAME' => ''
+          }
+        end
+        attr_accessor :datastore
+
+        def srvuri
+          'payload_uri'
+        end
+      end
+    end
+
+    subject(:harness) { harness_class.new }
+
+    it 'returns the standard writable-dir path when called with failsafe: true' do
+      expect(harness.send(:_remote_destination_nix, failsafe: true)).to eq('./payload_uri')
+    end
+
+    it 'does not memoize the failsafe: true result into @remote_destination_nix' do
+      harness.send(:_remote_destination_nix, failsafe: true)
+      expect(harness.instance_variable_get(:@remote_destination_nix)).to be_nil
+    end
+
+    it 'still returns the fileless placeholder on a later unqualified call, unaffected by the earlier failsafe: true peek' do
+      harness.send(:_remote_destination_nix, failsafe: true)
+      expect(harness.send(:_remote_destination_nix)).to eq('$f')
+    end
+  end
 end
