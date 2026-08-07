@@ -44,7 +44,7 @@ mailhog/mailhog
 1. Install the application
 2. Start msfconsole
 3. Do: `use exploit/multi/http/flowise_auth_bypass_cve-2025_58434`
-4. Do: `run lhost=<lhost> rhost=<rhost> email=<email> newpassword=<new password>`
+4. Do: `run rhost=<rhost> email=<email> newpassword=<new password>`
 5. You should get a status success message indicating that the new username and password have been stored to loot.
 
 
