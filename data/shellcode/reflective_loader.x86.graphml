@@ -266,8 +266,8 @@
         <node id="block.0x104b:instruction.0x104b">
           <data key="address">0x104b</data>
           <data key="type">instruction</data>
-          <data key="instruction.hex">81e900100000</data>
-          <data key="instruction.source">sub ecx, 0x1000</data>
+          <data key="instruction.hex">83e901</data>
+          <data key="instruction.source">sub ecx, 0x1</data>
         </node>
         <node id="block.0x104b:instruction.0x1051">
           <data key="address">0x1051</data>
