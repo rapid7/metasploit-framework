@@ -134,7 +134,7 @@ ReflectiveLoader:
     cmp     eax, IMAGE_NT_SIGNATURE     ; 'PE\0\0'
     je      .found_base
 .next_page:
-    sub     rcx, 0x1000
+    sub     rcx, 0x1
     jmp     .scan_page
 
 .found_base:

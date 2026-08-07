@@ -123,7 +123,7 @@ ReflectiveLoader:
     cmp     dword [ecx + eax], IMAGE_NT_SIGNATURE
     je      .found_base
 .next_page:
-    sub     ecx, 0x1000
+    sub     ecx, 0x1
     jmp     .scan_page
 
 .found_base:
@@ -576,8 +576,6 @@ ReflectiveLoader:
 .got_prot_table:
     pop     ecx                        ; ecx = runtime address of .prot_table
     movzx   esi, byte [ecx + eax]
-    jmp     .do_protect
-.do_protect:
     ; esi = NewProtect
 
     ; ZwProtectVirtualMemory(-1, &BaseAddr, &RegionSize, NewProtect, &OldProtect)
