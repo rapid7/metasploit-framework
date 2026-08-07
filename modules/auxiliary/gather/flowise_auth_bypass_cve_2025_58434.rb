@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(3000),
         OptString.new('EMAIL', [ true, 'The email address of victim user', 'admin@local' ]),
         OptString.new('NEWPASSWORD', [ true, 'The new password assigned to the victim user', 'password123' ]),
-        OptBool.new('TARGETURI', [ true, 'Base path of the Ray Dashboard', '/' ]),
+        OptString.new('TARGETURI', [ true, 'Base path of the Ray Dashboard', '/' ]),
       ]
     )
   end
