@@ -21,20 +21,23 @@ module Rex
       #
       # @param file_path [String] The file path to load the GraphML data from.
       # @param name [String] An optional symbol name to apply to the assembly source.
-      def self.from_graphml_file(file_path, arch: nil, name: nil)
+      # @param random [Random] Optional seeded RNG used for shuffling and label naming. When
+      #   supplied, the resulting assembly source is deterministic for a given seed; when nil,
+      #   the global RNG is used and output is non-deterministic.
+      def self.from_graphml_file(file_path, arch: nil, name: nil, random: nil)
         graphml = Rex::Parser::GraphML.from_file(file_path)
-        blocks = create_path(graphml.nodes.select { |_id,node| %w[ data instructions-graph ].include?(node.attributes['type']) }, graphml.graphs[0].edges)
+        blocks = create_path(graphml.nodes.select { |_id,node| %w[ data instructions-graph ].include?(node.attributes['type']) }, graphml.graphs[0].edges, random: random)
         blocks.map! do |block|
           hash = { node: block }
 
           if block.attributes['type'] == 'instructions-graph'
-            hash[:instructions] = process_instructions_graph_block(block)
+            hash[:instructions] = process_instructions_graph_block(block, random: random)
           end
 
           hash
         end
 
-        label_prefix = Rex::Text.rand_text_alpha_lower(4)
+        label_prefix = random ? Array.new(4) { ('a'.ord + random.rand(26)).chr }.join : Rex::Text.rand_text_alpha_lower(4)
         labeler = lambda { |address| "loc_#{label_prefix}#{address.to_s(16).rjust(4, '0')}" }
 
         source_lines = []
@@ -91,20 +94,20 @@ module Rex
         # Process the specified graph element which represents a single basic block in assembly. This graph element
         # contains nodes representing each of its instructions.
         #
-        def process_instructions_graph_block(block)
+        def process_instructions_graph_block(block, random: nil)
           subgraph = block.subgraph
           instructions = subgraph.nodes.select { |_id, node| node.attributes['type'] == 'instruction' }
-          create_path(instructions, subgraph.edges)
+          create_path(instructions, subgraph.edges, random: random)
         end
 
-        def create_path(nodes, edges)
+        def create_path(nodes, edges, random: nil)
           path = []
 
           # the initial choices are any node without a predecessor (dependency)
           targets = edges.map(&:target)
           choices = nodes.values.select { |node| !targets.include? node.id }
           until choices.empty?
-            selection = choices.sample
+            selection = random ? choices.sample(random: random) : choices.sample
             choices.delete(selection)
             path << selection
 

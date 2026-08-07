@@ -130,7 +130,7 @@ module Payload::Windows::MeterpreterLoader
     end
 
     if rdi_offset.nil? && !use_loader
-      loader = reflective_loader
+      loader = reflective_loader(iv: datastore_reflective_loader_iv(ds))
       use_loader = true
     end
 

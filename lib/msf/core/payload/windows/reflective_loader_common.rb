@@ -15,6 +15,33 @@ module Msf::Payload::Windows::ReflectiveLoaderCommon
   # indicates a malformed or out-of-date GraphML template.
   class Error < RuntimeError; end
 
+  def initialize(info = {})
+    super
+    register_advanced_options(
+      [
+        Msf::OptString.new(
+          'MeterpreterLoader::ReflectiveLoaderIV',
+          [false, 'Fixed 32-bit ROR13 IV for the polymorphic reflective loader (decimal or 0x-hex). ' \
+                  'Also seeds the GraphML shuffle, so a fixed IV yields a deterministic loader. Random when empty.']
+        )
+      ],
+      Msf::Payload::Windows::ReflectiveLoaderCommon
+    )
+  end
+
+  # Parse the datastore-supplied fixed IV, if any. Accepts decimal or 0x-prefixed hex.
+  # Returns nil when the option is unset or blank so the caller falls back to a random IV.
+  #
+  # @param ds [Msf::DataStore, Hash] the payload datastore
+  # @return [Integer, nil] parsed 32-bit IV or nil
+  # @raise [ArgumentError] if the option is set but not a valid integer literal
+  def datastore_reflective_loader_iv(ds)
+    raw = ds['MeterpreterLoader::ReflectiveLoaderIV']
+    return nil if raw.nil? || raw.to_s.strip.empty?
+
+    Integer(raw.to_s.strip, 0) & 0xFFFFFFFF
+  end
+
   # Build the reflective loader shellcode: shuffle the GraphML template,
   # patch the freshly generated ROR13 IV into the two `mov reg, IV`
   # instructions, patch every pre-computed DLL / function name hash to
@@ -31,12 +58,13 @@ module Msf::Payload::Windows::ReflectiveLoaderCommon
   # @return [String] assembled and patched reflective loader shellcode
   # @raise [Error] if an expected opcode pattern is missing from the shuffled assembly
   def build_reflective_loader(opts, arch_config)
-    iv = opts.fetch(:iv) { rand(0x100000000) } & 0xFFFFFFFF
+    iv = (opts[:iv] || rand(0x100000000)) & 0xFFFFFFFF
 
     asm = Rex::Payloads::Shuffle.from_graphml_file(
       arch_config[:graphml_path],
       arch: arch_config[:arch],
-      name: 'reflective_loader'
+      name: 'reflective_loader',
+      random: Random.new(iv)
     )
 
     patch_bytes = lambda { |code, oldbytes, newbytes|
@@ -56,7 +84,7 @@ module Msf::Payload::Windows::ReflectiveLoaderCommon
       asm = patch_bytes.call(asm, "#{prefix} 0x00, 0x00, 0x00, 0x00", "#{prefix} #{iv_bytes}")
     end
 
-    dlog("Random IV: #{iv}")
+    dlog("ReflectiveLoader IV: #{iv}")
 
     dll_hash_base = arch_config[:dll_hash_base]
     # The static graphml data uses hashes calculated with an IV of 0, so we patch them here using
