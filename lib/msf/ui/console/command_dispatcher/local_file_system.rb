@@ -21,7 +21,7 @@ module Msf
             local_fs_commands
           end
 
-          # @param [String]
+          # @return [String] The name of this command dispatcher
           def name
             'Local File System'
           end
