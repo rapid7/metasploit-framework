@@ -90,6 +90,7 @@ class MetasploitModule < Msf::Auxiliary
       'headers' => { 'API-KEY' => api_key },
       'vars_get' => {
         'query' => dork,
+        'pagesize' => 10,
         'page' => page.to_s,
         'facets' => facets
       }
@@ -163,13 +164,23 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Total: #{results[first_page]['total']} on #{tpages} " \
         "pages. Showing: #{maxpage} page(s)")
       # If search results greater than 20, loop & get all results
-      if results[first_page]['total'] > 20
+      if results[first_page]['total'] > 10
         print_status('Collecting data, please wait...')
         page = 1
+        retrying = 0
         while page < maxpage
           page_result = dork_search(resource, dork, page + 1, facets, api_key)
           if page_result['matches'].nil?
-            next
+            retrying += 1
+            if retrying < 3
+              next
+            else
+              print_error("Skipping page #{page}")
+              page += 1
+              next
+            end
+          else
+            retrying = 0
           end
 
           results[page] = page_result
