@@ -138,10 +138,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Determine page count based on total results
-    if results[first_page]['total'] % 20 == 0
-      tpages = results[first_page]['total'] / 20
+    if results[first_page]['total'] % 10 == 0
+      tpages = results[first_page]['total'] / 10
     else
-      tpages = results[first_page]['total'] / 20 + 1
+      tpages = results[first_page]['total'] / 10 + 1
     end
     maxpage = tpages if datastore['MAXPAGE'] > tpages
 
