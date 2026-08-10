@@ -1,21 +1,22 @@
 ## Vulnerable Application
 
-Planyo Online Reservation System plugin of Wordpress before and including 3.0, fails to validate the scheme of the URL supplied via the ulap\_url parameter of its AJAX proxy ulap.php. This leads to a Server Side Request Forgery (SSRF) vulnerability which allows unauthenticated attackers to retrieve local files containing sensitive information and enumerate internal services.
+Planyo Online Reservation System plugin of Wordpress prior to 3.1, fails to validate the scheme of the URL supplied to its AJAX proxy.
+This leads to a Server Side Request Forgery (SSRF) vulnerability allowing unauthenticated attackers to retrieve local sensitive files.
 
-This module uses this vulnerability to retrieve the contents of arbitrary local files by supplying a file:// URL to ulap.php.
+This module uses this vulnerability to retrieve the contents of arbitrary local files by supplying a file:// URL to AJAX proxy ulap.php.
 
-Pre-requisites
-- Docker and Docker compose installed.
+### Pre-requisites
+- **Docker** and **Docker compose** installed.
 
 ## Setup
 
-1. Create a home directory
+1. **Create a home directory**
 ```
 mkdir wordpress-docker
 cd wordpress-docker
 vim docker-compose.yml
 ```
-2. Create a docker-compose.yml file
+2. **Create a docker-compose.yml file**
 ```
 services:
   db:
@@ -50,41 +51,41 @@ volumes:
   db_data:
   wordpress_data:
 ```
-3. Start the container
+3. **Start the container**
 ```
 sudo docker-compose up -d
 ```
-4. Download the vulnerable plugin and copy to relevant folder
+4. **Download the vulnerable plugin and copy to relevant folder**
 ```
 svn checkout https://plugins.svn.wordpress.org/planyo-online-reservation-system/tags/2.9/
 mv 2.9 planyo-online-reservation-system
 sudo docker cp planyo-online-reservation-system wordpress:/var/www/html/wp-content/plugins/
-``` 
-5. Complete Wordpress Installation
+```
+5. **Complete Wordpress Installation**
 - Navigate to http://localhost:8080 and select English when asked for the language.
 - Enter a site title, username, password and email address.
-6. Activate the plugin
+6. **Activate the plugin**
 - Log into admin dashboard at http://localhost:8080/wp-login.php by entering the username and password configured in the previous step.
 - On the left hand menu, select Plugins-\> Installed Plugins
 - Locate the planyo plugin and click on Activate.
 
 ## Verification Steps
-1. Launch Metasploit
+1. **Launch Metasploit**
 ```
 msfconsole
 ```
-2. Load the Planyo LFI scanner
+2. **Load the Planyo LFI scanner**
 ```
 use auxiliary/gather/wp_planyo_lfi_cve_2026_3576
 set RHOSTS 127.0.0.1
 set RPORT 8080
 set TARGETURI /
 ```
-3. Run the module
+3. **Run the module**
 ```
 run
 ```
-4. Observe output
+4. **Observe output**
 
 The module should:
 - Check if the target is alive and has installed Wordpress
@@ -93,8 +94,8 @@ The module should:
 
 ## Options
 
-- TARGETURI(`/`): Base path to Wordpress
-- FILEPATH(`/etc/passwd`): Path of local file to download
+- **TARGETURI**(`/`): Base path to Wordpress
+- **FILEPATH**(`/etc/passwd`): Path of local file to download
 
 ## Scenarios
 ```
