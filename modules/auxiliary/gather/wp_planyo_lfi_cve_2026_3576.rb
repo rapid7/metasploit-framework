@@ -25,7 +25,6 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2026-3576'],
-          ['URL', 'https://nvd.nist.gov/vuln/detail/CVE-2026-3576'],
           ['GHSA', 'jjq9-3x6f-75pj']
         ],
         'DisclosureDate' => '2026-07-10',
