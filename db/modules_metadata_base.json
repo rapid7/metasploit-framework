@@ -6765,7 +6765,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-02-03 20:58:31 +0000",
+    "mod_time": "2026-08-07 09:34:29 +0000",
     "path": "/modules/auxiliary/admin/kerberos/forge_ticket.rb",
     "is_install_path": true,
     "ref_name": "admin/kerberos/forge_ticket",
