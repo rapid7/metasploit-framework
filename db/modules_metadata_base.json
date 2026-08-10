@@ -87444,6 +87444,66 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/sonicwall_sma1000_wsproxy_rce": {
+    "name": "SonicWall SMA1000 WorkPlace wsproxy SSRF Remote Command Execution",
+    "fullname": "exploit/linux/http/sonicwall_sma1000_wsproxy_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-07-14",
+    "type": "exploit",
+    "author": [
+      "Ryan Emmons",
+      "Deral Heiland",
+      "Rapid7 Vulnerability Research"
+    ],
+    "description": "This module exploits a Server-Side Request Forgery (SSRF)\n          vulnerability in the SonicWall SMA1000 WorkPlace wsproxy service to\n          access the internal Erlang distribution service.\n\n          After authenticating using the known Erlang distribution cookie, the\n          module invokes os:cmd/1 through Erlang RPC to execute arbitrary Unix\n          commands in the context of the vulnerable SMA service.\n\n          The check method performs a benign Erlang node RPC rather than\n          executing an operating system command.",
+    "references": [
+      "CVE-2026-15409",
+      "URL-https://psirt.global.sonicwall.com/vuln-detail/SNWLID-2026-0008",
+      "URL-https://www.rapid7.com/blog/post/etr-rapid7-mdr-team-discovers-new-sonicwall-sma1000-zero-days-being-actively-exploited-cve-2026-15409-cve-2026-15410/"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-07-29 15:13:38 +0000",
+    "path": "/modules/exploits/linux/http/sonicwall_sma1000_wsproxy_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/sonicwall_sma1000_wsproxy_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_linux/http/sophos_utm_webadmin_sid_cmd_injection": {
     "name": "Sophos UTM WebAdmin SID Command Injection",
     "fullname": "exploit/linux/http/sophos_utm_webadmin_sid_cmd_injection",
