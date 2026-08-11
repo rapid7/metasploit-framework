@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Exploit::Remote
             'Automatic',
             {
               'Platform' => ['linux'], # or 'win', 'osx', 'unix', 'php', 'python', 'java'
-              'Arch' => [ARCH_CMD], # or ARCH_X86, ARCH_X64, ARCH_PHP, ARCH_JAVA, ARCH_PYTHON
+              'Arch' => [ARCH_CMD], # or ARCH_X86, ARCH_X64, ARCH_PHP, ARCH_JAVA, ARCH_PYTHON, ARCH_ARMLE, ARCH_AARCH64, ARCH_MIPSLE — see rex-arch gem for full list
               'Type' => :cmd # or :dropper, :psh_stager — determines payload delivery
             }
           ]
@@ -252,7 +252,7 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 - License new code with `MSF_LICENSE` (the project default, defined in `lib/msf/core/constants.rb`)
 - Module descriptions or documentation should list the range of vulnerable versions and the fixed version of the affected software, when known
 - Module descriptions should only use ASCII characters
-- New modules require an associated markdown file in the `documentation/modules` folder with the same structure, including steps to set up the vulnerable environment for testing. The Scenarios section must be filled out by a human at all times. Follow `documentation/modules/module_doc_template.md` as a template
+- New modules require an associated markdown file in the `documentation/modules` folder with the same structure, including steps to set up the vulnerable environment for testing. If a Dockerfile or docker-compose file is used for the test environment, include the setup commands in the markdown rather than committing separate Docker files. The Scenarios section must be filled out by a human at all times. Follow `documentation/modules/module_doc_template.md` as a template
 - If there's only one `ACTION` in the exploit, it can likely be omitted
 
 #### Payloads and Targets
