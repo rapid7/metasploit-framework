@@ -167,6 +167,7 @@ class MetasploitModule < Msf::Auxiliary
       if results[first_page]['total'] > 10
         print_status('Collecting data, please wait...')
         page = 1
+        skipped = 0
         retrying = 0
         while page < maxpage
           page_result = dork_search(resource, dork, page + 1, facets, api_key)
@@ -177,13 +178,14 @@ class MetasploitModule < Msf::Auxiliary
             else
               print_error("Skipping page #{page}")
               page += 1
+              skipped += 1
               next
             end
           else
             retrying = 0
           end
 
-          results[page] = page_result
+          results[page - skipped] = page_result
           page += 1
         end
       end
