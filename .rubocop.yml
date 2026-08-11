@@ -30,6 +30,9 @@ require:
   - ./lib/rubocop/cop/lint/check_code_missing_reason.rb
   - ./lib/rubocop/cop/lint/module_redundant_arch_platform.rb
   - ./lib/rubocop/cop/lint/redundant_peer_in_print.rb
+  - ./lib/rubocop/cop/lint/module_missing_autocheck.rb
+  - ./lib/rubocop/cop/lint/module_default_payload.rb
+  - ./lib/rubocop/cop/lint/module_http_fingerprint.rb
 
 Lint/CheckCodeMissingReason:
   Enabled: true
@@ -715,3 +718,31 @@ Lint/BareCheckCodeInNonExploit:
     - 'modules/auxiliary/**/*'
     - 'modules/post/**/*'
     - 'modules/evasion/**/*'
+
+Lint/ModuleMissingAutocheck:
+  Description: >-
+    Modules with a check method should prepend Msf::Exploit::Remote::AutoCheck
+    so users can verify vulnerability before exploitation.
+  Enabled: true
+  Severity: info
+  Include:
+    - 'modules/exploits/**/*'
+    - 'modules/auxiliary/**/*'
+
+Lint/ModuleDefaultPayload:
+  Description: >-
+    Do not hardcode a default PAYLOAD in DefaultOptions.
+    Let the framework choose the most appropriate payload automatically.
+  Enabled: true
+  Severity: warning
+  Include:
+    - 'modules/**/*'
+
+Lint/ModuleHttpFingerprint:
+  Description: >-
+    HttpFingerprint is a legacy passive fingerprinting mechanism.
+    Use a check method with AutoCheck instead.
+  Enabled: true
+  Severity: info
+  Include:
+    - 'modules/**/*'
