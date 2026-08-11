@@ -22,7 +22,6 @@ module MetasploitModule
         'Platform' => 'win',
         'Arch' => ARCH_AARCH64,
         'Handler' => Msf::Handler::ReverseTcp,
-        'Convention' => 'sockx0',
         'Stager' => { 'RequiresMidstager' => false }
       )
     )
