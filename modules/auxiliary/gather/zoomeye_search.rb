@@ -170,14 +170,16 @@ class MetasploitModule < Msf::Auxiliary
         skipped = 0
         retrying = 0
         while page < maxpage
-          page_result = dork_search(resource, dork, page + 1, facets, api_key)
+          page_result = dork_search(resource, dork, page + skipped + 1, facets, api_key)
           if page_result['matches'].nil?
             retrying += 1
             if retrying < 3
               next
             else
-              print_error("Skipping page #{page}")
-              page += 1
+              print_error("Skipping page #{page + skipped}")
+              if page + skipped >= maxpage #stop the strafe once we reach the theorical maxpage, but let it try it first.
+                break
+              end
               skipped += 1
               next
             end
@@ -185,7 +187,7 @@ class MetasploitModule < Msf::Auxiliary
             retrying = 0
           end
 
-          results[page - skipped] = page_result
+          results[page] = page_result
           page += 1
         end
       end
