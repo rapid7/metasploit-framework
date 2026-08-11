@@ -114762,6 +114762,66 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_33017": {
+    "name": "Langflow Unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_33017",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-03-20",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>",
+      "Diamorphine"
+    ],
+    "description": "Langflow versions prior to 1.9.0 are susceptible to unauthenticated remote code execution through the\n          /api/v1/build_public_tmp/<flow_id>/flow endpoint. A remote and unauthenticated attacker can send crafted\n          HTTP requests to execute arbitrary code.",
+    "references": [
+      "CVE-2026-33017",
+      "EDB-52627",
+      "URL-https://medium.com/@aviral23/cve-2026-33017-how-i-found-an-unauthenticated-rce-in-langflow-by-reading-the-code-they-already-dc96cdce5896"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-08-11 12:13:20 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_33017.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_33017",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/lcms_php_exec": {
     "name": "LotusCMS 3.0 eval() Remote Command Execution",
     "fullname": "exploit/multi/http/lcms_php_exec",
