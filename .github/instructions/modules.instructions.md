@@ -6,16 +6,15 @@ applyTo: "modules/**/*.rb"
 
 ## Structure Order
 
-1. `# frozen_string_literal: true`
-2. Header comment block
-3. `class MetasploitModule < Msf::Exploit::Remote` (or `Msf::Auxiliary`, `Msf::Post`)
-4. `Rank = ExcellentRanking` (exploits only)
-5. Protocol mixins (`include Msf::Exploit::Remote::HttpClient`, etc.)
-6. Utility mixins (`include Msf::Exploit::FileDropper`, etc.)
-7. `prepend Msf::Exploit::Remote::AutoCheck` — ALWAYS LAST
-8. `def initialize` with `update_info`
-9. `def check` (when possible)
-10. `def exploit` or `def run`
+1. Header comment block
+2. `class MetasploitModule < Msf::Exploit::Remote` (or `Msf::Auxiliary`, `Msf::Post`)
+3. `Rank = ExcellentRanking` (exploits only)
+4. Protocol mixins (`include Msf::Exploit::Remote::HttpClient`, etc.)
+5. Utility mixins (`include Msf::Exploit::FileDropper`, etc.)
+6. `prepend Msf::Exploit::Remote::AutoCheck` — ALWAYS LAST
+7. `def initialize` with `update_info`
+8. `def check` (when possible)
+9. `def exploit` or `def run`
 
 ## Required Metadata
 

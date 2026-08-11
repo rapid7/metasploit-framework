@@ -64,7 +64,6 @@ Keeping the following in mind gives your contribution the best chance of landing
 * **Do** include [Module Documentation] showing sample run-throughs.
 * **Do** run `ruby tools/dev/msftidy_docs.rb <documentation_file>` on any module documentation markdown files and ensure it passes with no errors.
 * **Do** ask cve@rapid7.com for a CVE ID if this describes a new vulnerability (remember to mention your PR number!)
-* **Do** add `# frozen_string_literal: true` as the first line of new module files.
 * **Do** use `prepend Msf::Exploit::Remote::AutoCheck` to let the framework handle vulnerability checking before exploitation — this is preferred over manually calling `check` in your exploit method.
 * **Do** include a descriptive reason string when returning CheckCode values (e.g., `CheckCode::Safe("Patched version #{v}")`) — bare constants without reasons are not accepted.
 * **Don't** include more than one module per pull request.
