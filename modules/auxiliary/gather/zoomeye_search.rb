@@ -163,7 +163,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_status("Total: #{results[first_page]['total']} on #{tpages} " \
         "pages. Showing: #{maxpage} page(s)")
-      # If search results greater than 20, loop & get all results
+      # If search results greater than 10, loop & get all results
       if results[first_page]['total'] > 10
         print_status('Collecting data, please wait...')
         page = 1
@@ -176,8 +176,9 @@ class MetasploitModule < Msf::Auxiliary
             if retrying < 3
               next
             else
+              retrying = 0
               print_error("Skipping page #{page + skipped}")
-              if page + skipped >= maxpage #stop the strafe once we reach the theorical maxpage, but let it try it first.
+              if page + skipped >= maxpage #stop the strafe once we reach the theorical maxpage, but let it try a last one first.
                 break
               end
               skipped += 1
