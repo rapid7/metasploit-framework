@@ -17,7 +17,7 @@ applyTo: "lib/**/*.rb"
 
 - Add YARD `@param` and `@return` tags to ALL public methods
 - Link to RFC/spec when implementing binary or protocol parsers
-- Add `# frozen_string_literal: true` to new files
+- Add `# frozen_string_literal: true` to new library files; use `String.new` where a mutable string is needed
 
 ## Naming
 
