@@ -2,15 +2,16 @@
 
 require 'rspec'
 
-RSpec.describe 'singles/windows/aarch64/shell_reverse_tcp' do
+RSpec.describe 'stagers/windows/aarch64/reverse_tcp' do
   include_context 'Msf::Simple::Framework#modules loading'
 
   let(:subject) do
     load_and_create_module(
       module_type: 'payload',
-      reference_name: 'windows/aarch64/shell_reverse_tcp',
+      reference_name: 'windows/aarch64/shell/reverse_tcp',
       ancestor_reference_names: [
-        'singles/windows/aarch64/shell_reverse_tcp'
+        'stagers/windows/aarch64/reverse_tcp',
+        'stages/windows/aarch64/shell'
       ]
     )
   end
@@ -34,6 +35,11 @@ RSpec.describe 'singles/windows/aarch64/shell_reverse_tcp' do
     it 'compiles the AArch64 asm and returns a non-empty binary' do
       stub_compile_with_capture
       expect(subject.generate).not_to be_empty
+    end
+
+    it 'produces a 716-byte stager' do
+      stub_compile_with_capture
+      expect(subject.generate.length).to eq(716)
     end
 
     it 'produces different shellcode for different LPORT values' do
