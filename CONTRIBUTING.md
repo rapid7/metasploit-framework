@@ -76,6 +76,7 @@ We welcome PRs that bring older modules up to current conventions. High-value im
 * **Migrating cmd_exec to create_process** — replacing `cmd_exec("cmd #{input}")` with `create_process("cmd", args: [input])` eliminates command injection risks.
 * **Removing HttpFingerprint** — replacing the deprecated `HttpFingerprint` constant with a proper `check` method gives users version-aware vulnerability verification.
 * **Removing unnecessary DefaultOptions PAYLOAD** — letting the framework choose the best payload improves user experience.
+* **Removing redundant peer prefixes** — stripping `#{peer}`, `#{rhost}:#{rport}`, or `#{Rex::Socket.to_authority(rhost, rport)}` from the start of `print_*`/`vprint_*` messages. The framework already prepends host:port via `print_prefix`.
 
 Keep modernization PRs focused: one pattern fix per PR, or one subsystem at a time. Include verification steps showing the module still works after the change. See [AGENTS.md](./AGENTS.md) for the full legacy patterns table with modern replacements and the canonical module structure template.
 
