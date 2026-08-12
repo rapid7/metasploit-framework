@@ -45,12 +45,20 @@ module RuboCop
           class_node = node.each_ancestor(:class).first
           return unless class_node
 
+          # Only flag the MetasploitModule class, not nested helper/utility classes
+          return unless metasploit_module_class?(class_node)
+
           return if has_autocheck_prepend?(class_node)
 
           add_offense(node, message: MSG)
         end
 
         private
+
+        # The framework loader requires the primary module class be named MetasploitModule
+        def metasploit_module_class?(class_node)
+          class_node.identifier.short_name == :MetasploitModule
+        end
 
         # Search the class body for a `prepend` call whose argument ends in ::AutoCheck
         def has_autocheck_prepend?(class_node)
