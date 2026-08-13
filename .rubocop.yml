@@ -29,10 +29,20 @@ require:
   - ./lib/rubocop/cop/lint/bare_check_code_in_non_exploit.rb
   - ./lib/rubocop/cop/lint/check_code_missing_reason.rb
   - ./lib/rubocop/cop/lint/module_redundant_arch_platform.rb
+  - ./lib/rubocop/cop/lint/redundant_scanner_address_prefix.rb
 
 Lint/CheckCodeMissingReason:
   Enabled: true
   Severity: info
+
+Lint/RedundantScannerAddressPrefix:
+  Enabled: true
+  Description: >-
+    Catches a redundant target-address prefix (#{rhost}, #{peer},
+    #{rhost}:#{rport}, #{rhost}#{rport}) at the start of a print_status/
+    print_good/print_error/print_bad/print_line (or vprint_*) message in
+    Msf::Auxiliary::Scanner modules, since Scanner#peer is already shown
+    as a prefix on every printed line during run_host execution.
 
 Layout/SpaceBeforeBrackets:
   Enabled: true
