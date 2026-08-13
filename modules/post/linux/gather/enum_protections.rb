@@ -152,7 +152,7 @@ class MetasploitModule < Msf::Post
       'elastic-agent' => 'Elastic Security',
       'fail2ban-client' => 'fail2ban',
       'falco' => 'Falco Runtime Security',
-      'firewall-cmd' => 'firewalld',      
+      'firewall-cmd' => 'firewalld',
       'firejail' => 'Firejail',
       'firestarter' => 'Firestarter',
       'fw-settings' => 'Uncomplicated FireWall (UFW)',
