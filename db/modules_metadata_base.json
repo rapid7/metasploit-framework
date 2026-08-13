@@ -188023,7 +188023,7 @@
       "Windows_Fetch",
       "Windows_CMDStager"
     ],
-    "mod_time": "2026-07-29 22:34:52 +0000",
+    "mod_time": "2026-07-31 01:28:56 +0000",
     "path": "/modules/exploits/windows/http/prtg_authenticated_rce_cve_2023_32781.rb",
     "is_install_path": true,
     "ref_name": "windows/http/prtg_authenticated_rce_cve_2023_32781",
