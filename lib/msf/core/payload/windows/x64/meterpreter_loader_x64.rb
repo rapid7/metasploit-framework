@@ -139,7 +139,10 @@ module Payload::Windows::MeterpreterLoader_x64
     end
 
     asm_opts = {
-      rdi_offset: rdi_offset || dll.length, # the reflective loader is appended to the end of the DLL, so its offset within the payload equals the DLL length
+      # when a custom/polymorphic loader is appended, it must take priority over any
+      # ReflectiveLoader already embedded in the DLL, since that's the loader whose bytes
+      # actually follow the DLL in the payload
+      rdi_offset: use_loader ? dll.length : rdi_offset,
       length:     dll.length + (loader ? loader.length : 0), # total payload length = DLL + reflective loader
       stageless:  opts[:stageless] == true
     }
