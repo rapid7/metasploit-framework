@@ -66,6 +66,62 @@ RSpec.describe Rex::Proto::Http::Client do
     expect(req).to be_a_kind_of Rex::Proto::Http::ClientRequest
   end
 
+  describe '#kerberos_auth' do
+    let(:kerberos_authenticator) do
+      instance_double(Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Base)
+    end
+
+    subject(:cli) do
+      Rex::Proto::Http::Client.new(ip, kerberos_authenticator: kerberos_authenticator)
+    end
+
+    it 'traces the request and response HTTP authentication carriers' do
+      request_token = 'request-token'
+      response_token = 'response-token'
+      encoded_request_token = Rex::Text.encode_base64(request_token)
+      encoded_response_token = Rex::Text.encode_base64(response_token)
+      response = Rex::Proto::Http::Response.new(200, 'OK')
+      response.headers['WWW-Authenticate'] = "Negotiate #{encoded_response_token}"
+      auth_result = {
+        security_blob: request_token,
+        session_key: 'session-key',
+        client_sequence_number: 1
+      }
+
+      allow(kerberos_authenticator).to receive(:authenticate).and_return(auth_result)
+      allow(kerberos_authenticator).to receive(:trace_protocol_carrier)
+      allow(kerberos_authenticator).to receive(:parse_gss_init_response).and_return(
+        ap_rep_subkey: 'subkey',
+        server_sequence_number: 2
+      )
+      allow(kerberos_authenticator).to receive(:get_message_encryptor).and_return('encryptor')
+      allow(cli).to receive(:request_cgi).and_return(double('HTTP request'))
+      allow(cli).to receive(:_send_recv).and_return(response)
+
+      expect(cli.kerberos_auth({ 'headers' => {} }, mechanism: Rex::Proto::Gss::Mechanism::SPNEGO)).to eq(response)
+      expect(kerberos_authenticator).to have_received(:trace_protocol_carrier).with(
+        protocol: 'HTTP',
+        direction: 'request',
+        label: 'HTTP Authorization',
+        carrier: 'Authorization header',
+        header_name: 'Authorization',
+        scheme: 'Negotiate',
+        base64_token: encoded_request_token,
+        token: request_token
+      )
+      expect(kerberos_authenticator).to have_received(:trace_protocol_carrier).with(
+        protocol: 'HTTP',
+        direction: 'response',
+        label: 'HTTP WWW-Authenticate',
+        carrier: 'WWW-Authenticate header',
+        header_name: 'WWW-Authenticate',
+        scheme: 'Negotiate',
+        base64_token: encoded_response_token,
+        token: response_token
+      )
+    end
+  end
+
   context "with authorization" do
     subject(:cli) do
       cli = Rex::Proto::Http::Client.new(ip)

@@ -26,12 +26,29 @@ module Rex::Proto::LDAP::AuthAdapter
 
       kerberos_result = kerberos_authenticator.authenticate(options)
       initial_credential = kerberos_result[:security_blob]
+      kerberos_authenticator.trace_protocol_carrier(
+        protocol: 'LDAP',
+        direction: 'request',
+        label: 'LDAP SASL Bind',
+        carrier: 'SASL bind request credential',
+        field_name: 'initial_credential',
+        token: initial_credential
+      )
 
       result = Net::LDAP::AuthAdapter::Sasl.new(@connection).bind(
         method: :sasl,
         mechanism: 'GSS-SPNEGO',
         initial_credential: initial_credential,
         challenge_response: true
+      )
+      server_sasl_creds = result.result[:serverSaslCreds] if result.respond_to?(:result) && result.result
+      kerberos_authenticator.trace_protocol_carrier(
+        protocol: 'LDAP',
+        direction: 'response',
+        label: 'LDAP serverSaslCreds',
+        carrier: 'SASL bind response serverSaslCreds',
+        field_name: 'serverSaslCreds',
+        token: server_sasl_creds
       )
 
       if auth[:sign_and_seal]
