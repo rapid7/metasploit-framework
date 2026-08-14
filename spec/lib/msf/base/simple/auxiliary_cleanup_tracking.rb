@@ -52,43 +52,43 @@ RSpec.describe Msf::Simple::Auxiliary, '#cleanup tracking' do
   end
 
   it 'run_simple runs successfully and receives only one cleanup call' do
-    described_class.run_simple(mod, { 'RunAsJob' => false, 'JobListener' => job_listener })
+    described_class.run_simple(mod)
     expect(mod).to have_received(:cleanup).once
   end
   
   it 'run_simple interrupts and receives only one cleanup call' do
     allow(mod).to receive(:run) { raise ::Interrupt }
-    described_class.run_simple(mod, { 'RunAsJob' => false, 'JobListener' => job_listener })
+    described_class.run_simple(mod)
     expect(mod).to have_received(:cleanup).once
   end
   
   it 'run_simple raises Exception and receives only one cleanup call' do
     allow(mod).to receive(:run) { raise ::Exception }
-    described_class.run_simple(mod, { 'RunAsJob' => false, 'JobListener' => job_listener })
+    described_class.run_simple(mod)
     expect(mod).to have_received(:cleanup).once
   end
   
   it 'run_simple raises Msf::Auxiliary::Complete and receives only one cleanup call' do
     allow(mod).to receive(:run) { raise Msf::Auxiliary::Complete }
-    described_class.run_simple(mod, { 'RunAsJob' => false, 'JobListener' => job_listener })
+    described_class.run_simple(mod)
     expect(mod).to have_received(:cleanup).once
   end
   
   it 'run_simple raises Msf::Auxiliary::Failed and receives only one cleanup call' do
     allow(mod).to receive(:run) { raise Msf::Auxiliary::Failed }
-    described_class.run_simple(mod, { 'RunAsJob' => false, 'JobListener' => job_listener })
+    described_class.run_simple(mod)
     expect(mod).to have_received(:cleanup).once
   end
   
   it 'run_simple raises ::Timeout::Error and receives only one cleanup call' do
     allow(mod).to receive(:run) { raise ::Timeout::Error }
-    described_class.run_simple(mod, { 'RunAsJob' => false, 'JobListener' => job_listener })
+    described_class.run_simple(mod)
     expect(mod).to have_received(:cleanup).once
   end
   
   it 'run_simple raises ::Msf::OptionValidateError and receives only one cleanup call' do
     allow(mod).to receive(:run) { raise ::Msf::OptionValidateError }
-    described_class.run_simple(mod, { 'RunAsJob' => false, 'JobListener' => job_listener })
+    described_class.run_simple(mod)
     expect(mod).to have_received(:cleanup).once
   end
 
