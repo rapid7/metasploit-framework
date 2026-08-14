@@ -34,8 +34,8 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'Notes' => {
           'Reliability' => UNKNOWN_RELIABILITY,
-          'Stability' => UNKNOWN_STABILITY,
-          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+          'Stability' => CRASH_SAFE,
+          'SideEffects' => IOC_IN_LOGS, ACCOUNT_LOCKOUTS
         }
       )
     )
