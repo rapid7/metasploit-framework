@@ -5,7 +5,7 @@ authenticates using SCRAM-SHA-1 if credentials are provided, enumerates
 databases and collections via wire protocol, samples documents, and dumps
 the inferred schema structure.
 
-Sccuessfully tested against MongoDB 3.6 with and without authentication
+Successfully tested against MongoDB 3.6 with and without authentication
 
 ### Docker Compose Setup
 
