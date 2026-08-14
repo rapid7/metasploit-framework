@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good("Mongo server #{ip}#{ver_info} doesn't use authentication")
       end
       disconnect
-    rescue ::Exception => e
+    rescue StandardError => e
       print_error "Unable to connect: #{e}"
       return
     end
@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
 
     return nil unless resp && resp.length > 36
 
-    buffer = BSON::ByteBuffer.new(resp[36..-1])
+    buffer = BSON::ByteBuffer.new(resp[36..])
     doc = BSON::Document.from_bson(buffer)
 
     if doc && doc['version']
@@ -268,7 +268,7 @@ class MetasploitModule < Msf::Auxiliary
   def parse_doc(response)
     return nil if response.nil? || response.length <= 36
 
-    buffer = BSON::ByteBuffer.new(response[36..-1])
+    buffer = BSON::ByteBuffer.new(response[36..])
     BSON::Document.from_bson(buffer)
   rescue StandardError
     nil
@@ -337,7 +337,7 @@ class MetasploitModule < Msf::Auxiliary
     if doc
       return true if doc['ok'].to_i == 0 || doc['errmsg']
     else
-      documents = response[36..-1]
+      documents = response[36..]
       return documents.include?('errmsg') || documents.include?('unauthorized') || documents.include?('requires authentication')
     end
 
