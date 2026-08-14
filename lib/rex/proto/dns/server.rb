@@ -185,10 +185,10 @@ class Server
     # Finalize answers in response
     # Check for empty response prior to sending
     if req.answer.size < 1
-      req.header.rCode = Dnsruby::RCode::NOERROR
+      req.header.rcode = Dnsruby::RCode::NOERROR
     end
     req.header.qr = true # Set response bit
-    send_response(cli, req.data)
+    send_response(cli, req.encode)
   end
 
   #
