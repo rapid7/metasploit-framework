@@ -18,20 +18,65 @@ under the posts collection `get_items()` handler, where `author_exclude` maps to
 as a string (**CVE-2026-60137**), producing a pre-authentication boolean- and time-based
 blind SQL injection in the `post_author NOT IN (...)` clause.
 
-Fixed in WordPress 6.8.6, 6.9.5, 7.0.2, and 7.1-beta2 (2026-07-17).
+| Branch | Vulnerable | Fixed |
+| ------ | ---------- | ----- |
+| 6.8.x | 6.8.0 - 6.8.5 (CVE-2026-60137 SQLi only, no route confusion) | 6.8.6 |
+| 6.9.x | 6.9.0 - 6.9.4 | 6.9.5 |
+| 7.0.x | 7.0.0 - 7.0.1 | 7.0.2 |
+
+This module targets the complete unauthenticated route-confusion and SQL injection chain,
+so it supports WordPress 6.9.0 - 6.9.4 and 7.0.0 - 7.0.1. The 6.8.x branch contains only
+the separately gated SQL injection and is not affected by the unauthenticated chain.
 
 ### Setting up a test environment
 
-1. Install a vulnerable core, for example WordPress 7.0.1:
-   ```
-   wp core download --version=7.0.1
-   ```
-   or run a container pinned to `wordpress:6.9.4`.
-2. Complete the install wizard so at least one post and one administrator exist.
-3. Confirm the REST batch endpoint answers:
-   ```
-   curl -s 'http://TARGET/?rest_route=/batch/v1' -X POST -H 'Content-Type: application/json' --data '{"requests":[]}'
-   ```
+The following `docker-compose.yml` starts a vulnerable WordPress 6.9.4 instance with a
+MySQL 8.0 backend on port 8080:
+
+```yaml
+services:
+  wordpress:
+    image: wordpress:6.9.4
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wordpress:/var/www/html
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db:/var/lib/mysql
+
+volumes:
+  wordpress:
+  db:
+```
+
+Start the containers and complete the install wizard at `http://127.0.0.1:8080/`, leaving
+the default *Hello World!* post in place:
+
+```
+docker compose up -d
+```
+
+Confirm the REST batch endpoint answers:
+
+```
+curl -s 'http://127.0.0.1:8080/?rest_route=/batch/v1' -X POST \
+  -H 'Content-Type: application/json' --data '{"requests":[]}'
+```
 
 ## Verification Steps
 
@@ -76,6 +121,9 @@ msf6 auxiliary(scanner/http/wordpress_wp2shell_sqli) > run
 
 ## Notes
 
+- For the full remote code execution chain, use
+  `exploit/multi/http/wp_batch_desync_rce`. This auxiliary module is the read-only option
+  for confirming the vulnerabilities and extracting WordPress user hashes.
 - The module is read-only. It does not create posts, users, oEmbed cache entries, or other
   content; it only confirms the primitive and reads from the users table over the blind sink.
 - Extraction is time-based blind, so a slow or heavily loaded target may need `SqliDelay`
