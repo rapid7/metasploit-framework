@@ -48,5 +48,25 @@ RSpec.describe Rex::Proto::Http::Packet do
       end
     end
 
+    context "when the underlying parse raises Timeout::Error" do
+      it "propagates the timeout instead of swallowing it as a parse error" do
+        packet = described_class.new
+        allow(packet).to receive(:parse_header).and_raise(::Timeout::Error)
+
+        expect {
+          packet.parse("GET / HTTP/1.0\r\n\r\n")
+        }.to raise_error(::Timeout::Error)
+      end
+    end
+
+    context "when the underlying parse raises a non-timeout error" do
+      it "returns ParseCode::Error and records it" do
+        packet = described_class.new
+        allow(packet).to receive(:parse_header).and_raise(RuntimeError, "boom")
+
+        expect(packet.parse("GET / HTTP/1.0\r\n\r\n")).to eq described_class::ParseCode::Error
+        expect(packet.error).to be_a(RuntimeError)
+      end
+    end
   end
 end
