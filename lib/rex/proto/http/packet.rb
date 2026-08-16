@@ -114,8 +114,11 @@ class Packet
           parse_body
         end
       end
+    rescue ::Timeout::Error
+      # Let timeouts propagate so callers (e.g. Rex::Proto::Http::Client#read_response)
+      # can distinguish a timed-out read from a genuinely malformed response.
+      raise
     rescue
-      # XXX: BUG: This rescue might be a problem because it will swallow TimeoutError
       self.error = $!
       return ParseCode::Error
     end
