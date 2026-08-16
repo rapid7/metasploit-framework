@@ -13,15 +13,27 @@ controller.
 
 ### Setting up a test environment
 
-1. Install Concrete CMS between 9.0.0 and 9.5.0 (for example 9.1.3).
-2. Log in to the dashboard and upload a few files, then place at least one on a page so it
-   has a usage record.
-3. Log out. As an anonymous user, confirm the endpoint answers:
-   ```
-   curl -s 'http://TARGET/ccm/system/dialogs/file/usage/1'
-   ```
-   A vulnerable install returns an HTML table (`class="table table-striped"`) with the
-   Page ID, Version, Handle, and Location columns.
+The concrete5-community project publishes ready-to-use Concrete CMS images. Start the
+vulnerable 9.5.0 image on port 8080:
+
+```
+docker run --rm --name concrete-cms-950 -p 8080:80 \
+  ghcr.io/concrete5-community/docker5:9.5.0-full
+```
+
+The image includes its database and a preinstalled Atomik site. Sign in at
+`http://127.0.0.1:8080/index.php/login` as `admin` with password `12345`, upload a file in
+the File Manager, and place that file on a page so it has a usage record. Then sign out.
+
+As an anonymous user, confirm the endpoint answers:
+
+```
+curl -s 'http://127.0.0.1:8080/ccm/system/dialogs/file/usage/1'
+```
+
+A vulnerable install returns an HTML table (`class="table table-striped"`) with the Page
+ID, Version, Handle, and Location columns. Increase the file ID if the uploaded file was
+not assigned ID 1.
 
 ## Verification Steps
 

