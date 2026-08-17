@@ -328,7 +328,6 @@ end
     cmd << "; then if #{get_file_cmd} >/dev/null && [ \"$(dd if=$f bs=1 count=4 2>/dev/null)\" = \"$(printf '\\177ELF')\" ]"
     cmd << '; then $f '
     cmd << '& FOUND=1'
-    cmd << '; exit 0'
     cmd << '; fi'
     cmd << '; fi'
     cmd << '; done'
