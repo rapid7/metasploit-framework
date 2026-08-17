@@ -4,6 +4,18 @@ require 'metasploit/framework/parsed_options'
 RSpec.describe Metasploit::Framework::ParsedOptions::Console do
   subject(:parsed_options) { described_class.allocate }
 
+  describe '#option_parser' do
+    it 'parses --count as the count subcommand' do
+      parsed_options.send(:option_parser).parse(['--count'])
+      expect(parsed_options.options.subcommand).to eq :count
+    end
+
+    it 'does not set a subcommand by default' do
+      parsed_options.send(:option_parser).parse([])
+      expect(parsed_options.options.subcommand).to be_nil
+    end
+  end
+
   describe '#split_commands' do
     # split_commands is private, so we use send
     let(:result) { parsed_options.send(:split_commands, input) }
