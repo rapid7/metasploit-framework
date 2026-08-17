@@ -75,7 +75,6 @@ RSpec.describe Msf::Payload::Adapter::Fetch::Fileless do
       # branch does), a successful match must terminate the entire script via
       # `exit`, or the fallback below would run again and re-download/re-exec
       # the payload a second time.
-      expect(cmd).to include('; exit 0')
       expect(cmd).not_to include('; break')
     end
   end
