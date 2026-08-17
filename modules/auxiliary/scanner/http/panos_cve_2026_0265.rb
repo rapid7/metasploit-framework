@@ -51,6 +51,16 @@ class MetasploitModule < Msf::Auxiliary
     [12, 1] => 7
   }.freeze
 
+  # Highest base release represented by the advisory matrix for each affected train.
+  # A later base release is presumed patched so future releases do not fall through
+  # to the affected-train fallback below.
+  ADVISORY_LAST_KNOWN_BASE = {
+    [10, 2] => 18,
+    [11, 1] => 15,
+    [11, 2] => 12,
+    [12, 1] => 7
+  }.freeze
+
   UNAFFECTED_TRAINS = [
     [8, 1],
     [9, 1]
@@ -210,11 +220,23 @@ class MetasploitModule < Msf::Auxiliary
       )
     end
 
+    patch_reference = advisory_patch_reference_for_version(panos_version.to_s)
+
     note = case verdict
            when 'VULNERABLE'
-             "#{panos_version} is below the advisory patched hotfix for this base."
+             if patch_reference && patch_reference[:type] == :hotfix
+               "#{panos_version} is below the advisory patched hotfix #{patch_reference[:version]}."
+             else
+               "#{panos_version} is within an affected PAN-OS release train."
+             end
            when 'PATCHED'
-             "#{panos_version} is at or above the advisory patched hotfix for this base."
+             if patch_reference && patch_reference[:type] == :hotfix
+               "#{panos_version} is at or above the advisory patched hotfix #{patch_reference[:version]}."
+             elsif patch_reference && patch_reference[:type] == :base
+               "#{panos_version} is at or above the advisory patched base release #{patch_reference[:version]}."
+             else
+               "#{panos_version} is not affected per advisory version logic."
+             end
            when 'NOT-AFFECTED-SAAS'
              'SaaS builds are not affected per advisory logic.'
            end
@@ -263,6 +285,23 @@ class MetasploitModule < Msf::Auxiliary
     nil
   end
 
+  def advisory_patch_reference_for_version(panos_version)
+    match = panos_version.match(/^(\d+)\.(\d+)\.(\d+)(?:-h(\d+))?$/)
+    return nil unless match
+
+    maj = match[1].to_i
+    min = match[2].to_i
+    pat = match[3].to_i
+
+    floor = ADVISORY_BASE_FLOOR[[maj, min]]
+    return { type: :base, version: "#{maj}.#{min}.#{floor}" } if floor && pat >= floor
+
+    cutoff = ADVISORY_PATCHED_HOTFIX[[maj, min, pat]]
+    return { type: :hotfix, version: "#{maj}.#{min}.#{pat}-h#{cutoff}" } if cutoff
+
+    nil
+  end
+
   def advisory_verdict_for_version(panos_version)
     return 'ERROR' if panos_version.empty?
     return 'NOT-AFFECTED-SAAS' if panos_version.include?('.saas')
@@ -282,6 +321,9 @@ class MetasploitModule < Msf::Auxiliary
 
     cutoff = ADVISORY_PATCHED_HOTFIX[[maj, min, pat]]
     return (hf >= cutoff ? 'PATCHED' : 'VULNERABLE') if cutoff
+
+    last_known_base = ADVISORY_LAST_KNOWN_BASE[[maj, min]]
+    return 'PATCHED' if last_known_base && pat > last_known_base
 
     return 'VULNERABLE' if [[10, 2], [11, 1], [11, 2], [12, 1]].include?([maj, min])
 
