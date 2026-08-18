@@ -48,6 +48,8 @@ class MetasploitModule < Msf::Auxiliary
       'System date', 'domain', 'User accounts',
       'Network information', 'Network interfaces',
       'Network IP', 'Routing information',
+      'LLDP Neighbors', 'CDP Neighbors',
+      'MAC Address Table',
       'TCP connections and listening ports', 'Listening UDP ports',
       'Network services', 'Share', 'IIS server information',
       'Storage information', 'File system information',
@@ -313,6 +315,110 @@ class MetasploitModule < Msf::Auxiliary
 
     if !routing.empty?
       output_data['Routing Information'] = [['Destination', 'Next Hop', 'Mask', 'Metric']] + routing
+    end
+
+    begin
+      lldp_neighbors = []
+      snmp.walk([
+        '1.0.8802.1.1.2.1.4.1.1.9',
+        '1.0.8802.1.1.2.1.4.1.1.8',
+        '1.0.8802.1.1.2.1.4.1.1.7',
+        '1.0.8802.1.1.2.1.4.1.1.6'
+      ]) do |sysname, portdesc, portid, portid_subtype|
+        name = sysname.value.to_s.strip
+        desc = portdesc.value.to_s.strip
+        next if name.empty? && desc.empty?
+
+        raw = portid.value.to_s
+        port_id_str = if raw.bytes.all? { |b| b >= 0x20 && b < 0x7f }
+                        raw.strip
+                      elsif portid_subtype.value == 3 || raw.bytes.length == 6
+                        raw.bytes.map { |b| '%02x' % b }.join(':')
+                      else
+                        raw.bytes.map { |b| '%02x' % b }.join(' ')
+                      end
+
+        lldp_neighbors.push({
+          'System Name' => name,
+          'Port Description' => desc,
+          'Port ID' => port_id_str
+        })
+      end
+      output_data['LLDP Neighbors'] = lldp_neighbors unless lldp_neighbors.empty?
+    rescue StandardError
+      vprint_status("#{ip} LLDP walk not supported")
+    end
+
+    begin
+      cdp_neighbors = []
+      snmp.walk([
+        '1.3.6.1.4.1.9.9.23.1.2.1.1.6',
+        '1.3.6.1.4.1.9.9.23.1.2.1.1.4',
+        '1.3.6.1.4.1.9.9.23.1.2.1.1.7',
+        '1.3.6.1.4.1.9.9.23.1.2.1.1.8'
+      ]) do |devid, addr, devport, platform|
+        raw = addr.value.to_s.bytes
+        ip_str = raw.length >= 4 ? raw.last(4).join('.') : addr.value.to_s
+        cdp_neighbors.push({
+          'Device ID' => devid.value.to_s,
+          'IP Address' => ip_str,
+          'Port' => devport.value.to_s,
+          'Platform' => platform.value.to_s
+        })
+      end
+      output_data['CDP Neighbors'] = cdp_neighbors unless cdp_neighbors.empty?
+    rescue StandardError
+      vprint_status("#{ip} CDP walk not supported")
+    end
+
+    begin
+      # bridge port → ifIndex
+      port_to_ifindex = {}
+      snmp.walk('1.3.6.1.2.1.17.1.4.1.2') do |varbind|
+        bridge_port = varbind.name.to_s.split('.').last.to_i
+        port_to_ifindex[bridge_port] = varbind.value.to_i
+      end
+
+      # ifIndex → interface description (strip the [ up ] prefix)
+      ifindex_to_name = {}
+      (output_data['Network interfaces'] || []).each do |iface|
+        name = iface['Interface'].to_s.sub(/^\[\s*\w+\s*\]\s*/, '').strip
+        ifindex_to_name[iface['Id'].to_i] = name
+      end
+
+      mac_table = []
+      snmp.walk([
+        '1.3.6.1.2.1.17.4.3.1.1',
+        '1.3.6.1.2.1.17.4.3.1.2',
+        '1.3.6.1.2.1.17.4.3.1.3'
+      ]) do |addr, port, status|
+        bridge_port = port.value.to_i
+        status_int = status.value.to_i
+        next if status_int == 4 # skip self (the switch's own MAC)
+        next if bridge_port == 0
+
+        mac_str = addr.value.to_s.bytes.map { |b| '%02x' % b }.join(':')
+        status_str = case status_int
+                     when 1 then 'other'
+                     when 2 then 'invalid'
+                     when 3 then 'learned'
+                     when 5 then 'mgmt'
+                     else 'unknown'
+                     end
+
+        ifindex = port_to_ifindex[bridge_port]
+        port_name = ifindex ? (ifindex_to_name[ifindex] || "ifIndex #{ifindex}") : "port #{bridge_port}"
+
+        mac_table.push({
+          'MAC Address' => mac_str,
+          'Port' => port_name,
+          'Status' => status_str
+        })
+      end
+
+      output_data['MAC Address Table'] = mac_table unless mac_table.empty?
+    rescue StandardError
+      vprint_status("#{ip} MAC address table walk not supported")
     end
 
     tcp = []
