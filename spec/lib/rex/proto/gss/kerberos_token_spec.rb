@@ -146,6 +146,22 @@ RSpec.describe Rex::Proto::Gss::KerberosToken do
         /unable to parse SPNEGO NegTokenResp/
       )
     end
+    it 'normalizes an out-of-range neg_result into ParseError instead of leaking RASN1::EnumeratedError' do
+      token = OpenSSL::ASN1::ASN1Data.new(
+        [
+          OpenSSL::ASN1::Sequence.new([
+            OpenSSL::ASN1::ASN1Data.new([OpenSSL::ASN1::Enumerated.new(99)], 0, :CONTEXT_SPECIFIC)
+          ])
+        ],
+        1,
+        :CONTEXT_SPECIFIC
+      ).to_der
+
+      expect { described_class.parse_spnego_response(token) }.to raise_error(
+        described_class::ParseError,
+        /unable to parse SPNEGO NegTokenResp/
+      )
+    end
   end
 
   describe '.extract_ap_req' do

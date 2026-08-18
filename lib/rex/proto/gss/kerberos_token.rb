@@ -100,7 +100,7 @@ module Rex
           }.compact
         rescue ParseError
           raise
-        rescue RASN1::ASN1Error, TypeError => e
+        rescue RASN1::Error, TypeError => e
           raise ParseError, "unable to parse SPNEGO NegTokenInit: #{e.message}"
         end
 
@@ -119,7 +119,7 @@ module Rex
           }.compact
         rescue ParseError
           raise
-        rescue RASN1::ASN1Error, TypeError => e
+        rescue RASN1::Error, TypeError => e
           raise ParseError, "unable to parse SPNEGO NegTokenResp: #{e.message}"
         end
 
