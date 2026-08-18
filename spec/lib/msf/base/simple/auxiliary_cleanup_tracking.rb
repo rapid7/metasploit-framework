@@ -92,5 +92,16 @@ RSpec.describe Msf::Simple::Auxiliary, '#cleanup tracking' do
     expect(mod).to have_received(:cleanup).once
   end
 
+  it 'run_simple receives double interrupt (force quit) and still receives one clanup call' do
+    allow(mod).to receive(:run) { raise ::Interrupt }
+    allow(Rex).to receive(:sleep) { raise ::Interrupt }
+    begin
+      described_class.run_simple(mod)
+    rescue ::Interrupt
+      # force-quit interrupt propagates to the caller
+    end
+    expect(mod).to have_received(:cleanup).once
+  end
+
 end
 
