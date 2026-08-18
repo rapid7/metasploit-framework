@@ -87,8 +87,11 @@ module Auxiliary
       omod.job_id = mod.job_id
       return [run_uuid, mod.job_id]
     else
-      result = self.job_run_proc(ctx, &:run)
-      self.job_cleanup_proc(ctx)
+      begin
+        result = self.job_run_proc(ctx, &:run)
+      ensure
+        self.job_cleanup_proc(ctx)
+      end
 
       return result
     end
