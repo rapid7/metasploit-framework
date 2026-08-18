@@ -52,6 +52,21 @@ RSpec.describe 'auxiliary/spoof/ipv6/ipv6_ra_dns_takeover' do
     end
   end
 
+  describe 'SRVHOST default (from shared NamePoisoner)' do
+    it 'defaults to :: so the DNS server binds IPv6 and receives the steered queries' do
+      expect(mod.datastore['SRVHOST']).to eq('::')
+    end
+
+    it 'forwards an in-scope A query instead of answering it with the IPv6 SRVHOST' do
+      # With an IPv6 SRVHOST there is no meaningful A answer, so the query is
+      # forwarded (victim stays functional) rather than poisoned with a bogus
+      # address such as the old 0.0.0.0 default.
+      expect(dns_service).to receive(:default_dispatch_request).with(cli, kind_of(String))
+      expect(dns_service).not_to receive(:send_response)
+      mod.on_dispatch_request(cli, query_bytes('dc1.kerberos.issue', 'A'))
+    end
+  end
+
   describe '#handle_router_solicitation' do
     before do
       mod.instance_variable_set(:@ra_smac, '00:11:22:33:44:55')
