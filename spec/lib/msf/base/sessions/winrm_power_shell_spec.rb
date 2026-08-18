@@ -135,6 +135,26 @@ RSpec.describe Msf::Sessions::WinrmPowerShell do
       expect(Timeout.timeout(1) { queue.pop }).to eq('CreateShell failed.')
       expect(faulting_adapter.get_once(-1, 1)).to eq('CreateShell failed.')
     end
+
+    it 'still closes the shell when on_shell_ended calls close from the pipeline thread itself' do
+      # Mirrors the real session_ended -> deregister -> cleanup -> close chain,
+      # which runs synchronously on the pipeline thread when a fault ends the
+      # session. #close must not kill its own thread before shell.close runs.
+      fault = wsman_fault('Pipeline failed.')
+      queue = Queue.new
+      self_closing_adapter = nil
+      self_closing_adapter = described_class.new(shell, lambda { |reason = ''|
+        self_closing_adapter.close
+        queue << reason
+      })
+
+      allow(shell).to receive(:run).and_raise(fault)
+
+      self_closing_adapter.write("Write-Output stdout\n")
+
+      expect(Timeout.timeout(1) { queue.pop }).to eq('Pipeline failed.')
+      expect(shell).to have_received(:close)
+    end
   end
 
   describe '#shell_ended' do

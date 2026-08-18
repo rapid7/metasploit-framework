@@ -13,24 +13,23 @@ module Msf::Sessions
 
     # Abstract WinRM PowerShell to look like a stream so CommandShell can be happy.
     class WinRMPowerShellStreamAdapter
+      include Msf::Sessions::WinrmStreamAdapterCommon
+
       # @param shell [WinRM::Shells::PowerShell] Shell for talking to the WinRM service
       # @param on_shell_ended [Method] Callback for when the background thread notices the shell has ended.
       def initialize(shell, on_shell_ended)
         # To buffer input received while a session is backgrounded, we stick responses in a list.
-        @buffer_mutex = Mutex.new
-        @buffer = []
+        init_stream_buffer
         @pipeline_mutex = Mutex.new
-        @received_stdout_event = Rex::Sync::Event.new(false, true)
+        # Threads currently executing a pipeline against `shell`. Tracked as a
+        # set rather than a single reference because a new pipeline thread is
+        # spawned on every #write; without tracking them all, #close could
+        # only ever kill the most recently spawned thread while an earlier
+        # one was still mid-flight against the same shell.
+        @pipeline_threads_mutex = Mutex.new
+        @pipeline_threads = []
         self.shell = shell
         self.on_shell_ended = on_shell_ended
-      end
-
-      def peerinfo
-        shell.transport.peerinfo
-      end
-
-      def localinfo
-        shell.transport.localinfo
       end
 
       def write(buf)
@@ -39,79 +38,45 @@ module Msf::Sessions
         run_pipeline(buf)
       end
 
-      ##
-      # :category: Msf::Session::Provider::SingleCommandShell implementors
-      #
-      # Read from the PowerShell pipeline output buffer.
-      #
-      def get_once(length = -1, timeout = 1)
-        start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-        result = ''
-        loop do
-          result = _get_once(length)
-          elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start_time
-          time_remaining = timeout - elapsed
-          break if result != '' || time_remaining <= 0
-
-          # rubocop:disable Lint/SuppressedException
-          begin
-            @received_stdout_event.wait(time_remaining)
-          rescue ::Timeout::Error
-          end
-          # rubocop:enable Lint/SuppressedException
-        end
-        result
-      end
-
-      def _get_once(length)
-        result = ''
-        @buffer_mutex.synchronize do
-          result = @buffer.join('')
-          @buffer = []
-          if (length > -1) && (result.length > length)
-            # Return up to length, and keep the rest in the buffer.
-            extra = result[length..]
-            result = result[0, length]
-            @buffer << extra
-          end
-        end
-        result
-      end
-
       # Close the shell; cleanly terminating it on the server if possible.
       #
       # The shell may already be dead, or unreachable at this point, so do a best
       # effort, and capture exceptions.
       # rubocop:disable Lint/SuppressedException
       def close
-        active_pipeline_thread.kill if active_pipeline_thread&.alive?
+        kill_pipeline_threads
         shell.close
       rescue WinRM::WinRMWSManFault
       end
       # rubocop:enable Lint/SuppressedException
 
-      attr_accessor :shell, :on_shell_ended, :framework, :active_pipeline_thread
+      attr_accessor :shell, :on_shell_ended, :framework
 
       private
 
       def run_pipeline(script)
-        self.active_pipeline_thread = spawn_thread(script) do |pipeline_script|
-          @pipeline_mutex.synchronize do
-            shell.run(pipeline_script) do |stdout, stderr|
-              append_output(stdout) if stdout
-              append_output(stderr) if stderr
+        spawn_thread(script) do |pipeline_script|
+          register_pipeline_thread(Thread.current)
+          begin
+            @pipeline_mutex.synchronize do
+              shell.run(pipeline_script) do |stdout, stderr|
+                append_output(stdout) if stdout
+                append_output(stderr) if stderr
+              end
             end
+          rescue WinRM::WinRMWSManFault => e
+            append_output(e.fault_description)
+            on_shell_ended.call(e.fault_description)
+          rescue EOFError
+            on_shell_ended.call
+          rescue Rex::HostUnreachable => e
+            on_shell_ended.call(e.message)
+          rescue StandardError => e
+            append_output(e.message)
+            on_shell_ended.call(e.message)
+          ensure
+            unregister_pipeline_thread(Thread.current)
           end
-        rescue WinRM::WinRMWSManFault => e
-          append_output(e.fault_description)
-          on_shell_ended.call(e.fault_description)
-        rescue EOFError
-          on_shell_ended.call
-        rescue Rex::HostUnreachable => e
-          on_shell_ended.call(e.message)
-        rescue StandardError => e
-          append_output(e.message)
-          on_shell_ended.call(e.message)
         end
       end
 
@@ -120,6 +85,29 @@ module Msf::Sessions
           framework.threads.spawn('WinRM-PowerShell-pipeline', false, script, &block)
         else
           Thread.new(script, &block)
+        end
+      end
+
+      def register_pipeline_thread(thread)
+        @pipeline_threads_mutex.synchronize { @pipeline_threads << thread }
+      end
+
+      def unregister_pipeline_thread(thread)
+        @pipeline_threads_mutex.synchronize { @pipeline_threads.delete(thread) }
+      end
+
+      # Kill any pipeline threads still running against `shell`, other than
+      # the calling thread itself. #close can be invoked from inside a
+      # pipeline thread's own fault handler (run_pipeline -> on_shell_ended
+      # -> ... -> #close), and Thread#kill on the current thread aborts
+      # execution immediately - which would skip `shell.close` entirely if
+      # we killed indiscriminately.
+      def kill_pipeline_threads
+        threads = @pipeline_threads_mutex.synchronize { @pipeline_threads.dup }
+        threads.each do |thread|
+          next if thread == Thread.current
+
+          thread.kill if thread.alive?
         end
       end
 
