@@ -179,11 +179,6 @@ class MetasploitModule < Msf::Auxiliary
     setup_cmd_shell(shell, rhost, rport, endpoint, credential, suggest_powershell: suggest_powershell)
   end
 
-  def session_setup(shell, rhost, rport, endpoint)
-    _status, session = setup_cmd_shell(shell, rhost, rport, endpoint, nil, suggest_powershell: true)
-    session
-  end
-
   def setup_cmd_shell(shell, rhost, rport, _endpoint, credential, suggest_powershell:)
     # Keep cmd.exe as the default for the existing stdin-backed CommandShell
     # behavior and older hosts. Historically, PowerShell v3 on Windows Server
@@ -208,12 +203,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def setup_powershell_session(conn, rhost, rport, _endpoint, credential)
+    shell = nil
     begin
       shell = conn.shell(:powershell)
       owner = powershell_owner(shell)
     rescue WinRM::WinRMWSManFault => e
       print_error "#{rhost}:#{rport} - PowerShell runspace CreateShell failed: #{e.fault_description}"
       elog(e.full_message, error: e)
+      close_powershell_shell(shell)
       return nil
     end
 
@@ -238,6 +235,19 @@ class MetasploitModule < Msf::Auxiliary
     end
     owner
   end
+
+  # Close a WinRM PowerShell runspace created by setup_powershell_session
+  # when a later step (e.g. the owner lookup) fails, so the shell doesn't
+  # leak on the target. The shell may already be dead, or unreachable at
+  # this point, so do a best effort and capture exceptions.
+  # rubocop:disable Lint/SuppressedException
+  def close_powershell_shell(shell)
+    return if shell.nil?
+
+    shell.close
+  rescue WinRM::WinRMWSManFault
+  end
+  # rubocop:enable Lint/SuppressedException
 
   def handle_cmd_shell_fault(error, rhost, rport, shell, credential, suggest_powershell:)
     if cmd_shell_access_denied?(error)

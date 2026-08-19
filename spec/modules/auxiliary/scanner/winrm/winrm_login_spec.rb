@@ -105,6 +105,16 @@ RSpec.describe 'WinRM Login Scanner' do
 
         expect(mod.send(:create_winrm_session, conn, credential, rhost, rport, endpoint)).to eq(ps_session)
       end
+
+      it 'closes the PowerShell shell when the owner lookup fails after CreateShell succeeds' do
+        fault = wsman_fault('1234', 'Pipeline failed.')
+        expect(conn).to receive(:shell).with(:powershell).and_return(ps_shell)
+        expect(mod).to receive(:powershell_owner).with(ps_shell).and_raise(fault)
+        expect(mod).to receive(:print_error).with("#{rhost}:#{rport} - PowerShell runspace CreateShell failed: Pipeline failed.")
+        expect(ps_shell).to receive(:close)
+
+        expect(mod.send(:create_winrm_session, conn, credential, rhost, rport, endpoint)).to be_nil
+      end
     end
 
     context 'when SessionType is auto' do
