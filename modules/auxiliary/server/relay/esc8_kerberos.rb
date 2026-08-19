@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
         OptEnum.new('MODE', [ true, 'The issue mode.', 'AUTO', %w[ALL AUTO QUERY_ONLY SPECIFIC_TEMPLATE]]),
         OptString.new('CERT_TEMPLATE', [ false, 'The template to issue if MODE is SPECIFIC_TEMPLATE.' ], conditions: %w[MODE == SPECIFIC_TEMPLATE]),
         OptString.new('TARGETURI', [ true, 'The URI for the cert server.', '/certsrv/' ]),
-        OptString.new('RELAY_IDENTITY', [ true, 'The coerced principal being relayed (e.g. DOMAIN\\HOST$). The Kerberos AP-REQ carries the identity encrypted, so it is supplied here for template selection and certificate labeling.' ]),
+        OptString.new('RELAY_IDENTITY', [ true, 'The coerced principal being relayed, as DOMAIN\\HOST$ or HOST$@realm (e.g. AD\\WIN-VICTIM$ or WIN-VICTIM$@ad.example.com). The Kerberos AP-REQ carries the identity encrypted, so it is supplied here for template selection and certificate labeling.' ]),
         # HttpClient re-registers RHOSTS after the relay server mixin and drops
         # its aliases, so without this SMBHOST and RELAY_TARGETS are accepted
         # but never reach RHOSTS. Module options are applied last, so this wins.
@@ -153,7 +153,7 @@ class MetasploitModule < Msf::Auxiliary
     # relay_identity is always nil on the Kerberos path today, since nothing
     # upstream can learn the principal. It is honoured anyway so that a future
     # target which does recover an identity needs no change here.
-    identity = relay_identity.presence || datastore['RELAY_IDENTITY']
+    identity = normalize_relay_identity(relay_identity.presence || datastore['RELAY_IDENTITY'])
 
     case datastore['MODE']
     when 'AUTO'
@@ -174,5 +174,25 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status('Relay tasks complete; waiting for next login attempt.')
     relay_connection.disconnect!
+  end
+
+  private
+
+  # Accept RELAY_IDENTITY in either DOMAIN\HOST$ or HOST$@realm (UPN) form and
+  # return it as DOMAIN\HOST$, which is what the WebEnrollment mixin and the
+  # template auto-selection below expect. WebEnrollment splits the identity on
+  # '\\' to build the CSR subject; a UPN string has no backslash, so both halves
+  # would become the whole value and the request would carry a doubled
+  # HOST$@realm\HOST$@realm subject. The '$' template check also only works once
+  # the machine account trails the string, so convert the UPN form first.
+  def normalize_relay_identity(identity)
+    return identity if identity.blank? || identity.include?('\\')
+
+    if identity.include?('@')
+      principal, realm = identity.split('@', 2)
+      return "#{realm}\\#{principal}"
+    end
+
+    identity
   end
 end
