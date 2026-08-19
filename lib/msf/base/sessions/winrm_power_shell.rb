@@ -55,9 +55,12 @@ module Msf::Sessions
       private
 
       def run_pipeline(script)
-        spawn_thread(script) do |pipeline_script|
-          register_pipeline_thread(Thread.current)
-          begin
+        start_pipeline_event = Rex::Sync::Event.new(false, false)
+        pipeline_thread = nil
+
+        @pipeline_threads_mutex.synchronize do
+          pipeline_thread = spawn_thread(script) do |pipeline_script|
+            start_pipeline_event.wait
             @pipeline_mutex.synchronize do
               shell.run(pipeline_script) do |stdout, stderr|
                 append_output(stdout) if stdout
@@ -77,7 +80,11 @@ module Msf::Sessions
           ensure
             unregister_pipeline_thread(Thread.current)
           end
+          @pipeline_threads << pipeline_thread
         end
+
+        start_pipeline_event.set
+        pipeline_thread
       end
 
       def spawn_thread(script, &block)
@@ -86,10 +93,6 @@ module Msf::Sessions
         else
           Thread.new(script, &block)
         end
-      end
-
-      def register_pipeline_thread(thread)
-        @pipeline_threads_mutex.synchronize { @pipeline_threads << thread }
       end
 
       def unregister_pipeline_thread(thread)

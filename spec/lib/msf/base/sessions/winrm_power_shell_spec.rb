@@ -155,6 +155,31 @@ RSpec.describe Msf::Sessions::WinrmPowerShell do
       expect(Timeout.timeout(1) { queue.pop }).to eq('Pipeline failed.')
       expect(shell).to have_received(:close)
     end
+
+    it 'kills a pending pipeline thread before it can run after close' do
+      pipeline_thread_started = Queue.new
+      continue_pipeline_thread = Queue.new
+      pipeline_thread = nil
+      racing_adapter = described_class.new(shell, ->(_reason = '') {})
+
+      racing_adapter.define_singleton_method(:spawn_thread) do |script, &block|
+        pipeline_thread = Thread.new do
+          pipeline_thread_started << true
+          continue_pipeline_thread.pop
+          block.call(script)
+        end
+      end
+
+      racing_adapter.write("Write-Output stdout\n")
+      Timeout.timeout(1) { pipeline_thread_started.pop }
+
+      racing_adapter.close
+      continue_pipeline_thread << true
+
+      expect(pipeline_thread.join(1)).to eq(pipeline_thread)
+      expect(shell).to have_received(:close)
+      expect(shell).not_to have_received(:run)
+    end
   end
 
   describe '#shell_ended' do
