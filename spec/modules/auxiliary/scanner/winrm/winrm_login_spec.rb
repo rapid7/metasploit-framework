@@ -30,6 +30,7 @@ RSpec.describe 'WinRM Login Scanner' do
   let(:password) { 'iloveyou1' }
   let(:rhost) { '192.0.2.10' }
   let(:rport) { 5985 }
+  let(:authority) { Rex::Socket.to_authority(rhost, rport) }
   let(:endpoint) { 'http://192.0.2.10:5985/wsman' }
   let(:username) { 'adam.scott' }
 
@@ -77,7 +78,7 @@ RSpec.describe 'WinRM Login Scanner' do
         expect(conn).to receive(:shell).with(:stdin, {}).and_raise(fault)
         expect(conn).not_to receive(:shell).with(:powershell)
         expect(mod).to receive(:print_warning).with(
-          "#{rhost}:#{rport} - Credentials were correct, but WinRM cmd shell CreateShell was denied for user: #{username}. Try setting SessionType to powershell or auto."
+          "#{authority} - Credentials were correct, but WinRM cmd shell CreateShell was denied for user: #{username}. Try setting SessionType to powershell or auto."
         )
 
         expect(mod.send(:create_winrm_session, conn, credential, rhost, rport, endpoint)).to be_nil
@@ -110,7 +111,7 @@ RSpec.describe 'WinRM Login Scanner' do
         fault = wsman_fault('1234', 'Pipeline failed.')
         expect(conn).to receive(:shell).with(:powershell).and_return(ps_shell)
         expect(mod).to receive(:powershell_owner).with(ps_shell).and_raise(fault)
-        expect(mod).to receive(:print_error).with("#{rhost}:#{rport} - PowerShell runspace CreateShell failed: Pipeline failed.")
+        expect(mod).to receive(:print_error).with("#{authority} - PowerShell session setup failed: Pipeline failed.")
         expect(ps_shell).to receive(:close)
 
         expect(mod.send(:create_winrm_session, conn, credential, rhost, rport, endpoint)).to be_nil
@@ -137,10 +138,10 @@ RSpec.describe 'WinRM Login Scanner' do
         fault = access_denied_fault
         expect(conn).to receive(:shell).with(:stdin, {}).and_raise(fault)
         expect(mod).to receive(:print_warning).with(
-          "#{rhost}:#{rport} - Credentials were correct, but WinRM cmd shell CreateShell was denied for user: #{username}"
+          "#{authority} - Credentials were correct, but WinRM cmd shell CreateShell was denied for user: #{username}"
         )
         expect(mod).to receive(:print_status).with(
-          "#{rhost}:#{rport} - Falling back to a WinRM PowerShell session because cmd shell CreateShell was denied"
+          "#{authority} - Falling back to a WinRM PowerShell session because cmd shell CreateShell was denied"
         )
         expect(conn).to receive(:shell).with(:powershell).and_return(ps_shell)
         expect(mod).to receive(:powershell_owner).with(ps_shell).and_return(owner)
@@ -155,10 +156,10 @@ RSpec.describe 'WinRM Login Scanner' do
         expect(conn).to receive(:shell).with(:stdin, {}).and_return(cmd_shell)
         expect(cmd_shell).to receive(:send_command).with('cmd.exe').and_raise(fault)
         expect(mod).to receive(:print_warning).with(
-          "#{rhost}:#{rport} - Credentials were correct, but WinRM cmd shell CreateShell was denied for user: #{username}"
+          "#{authority} - Credentials were correct, but WinRM cmd shell CreateShell was denied for user: #{username}"
         )
         expect(mod).to receive(:print_status).with(
-          "#{rhost}:#{rport} - Falling back to a WinRM PowerShell session because cmd shell CreateShell was denied"
+          "#{authority} - Falling back to a WinRM PowerShell session because cmd shell CreateShell was denied"
         )
         expect(conn).to receive(:shell).with(:powershell).and_return(ps_shell)
         expect(mod).to receive(:powershell_owner).with(ps_shell).and_return(owner)
@@ -186,9 +187,30 @@ RSpec.describe 'WinRM Login Scanner' do
         fault = wsman_fault('1234', 'Unexpected WSMan fault.')
         expect(conn).to receive(:shell).with(:stdin, {}).and_raise(fault)
         expect(conn).not_to receive(:shell).with(:powershell)
-        expect(mod).to receive(:print_error).with("#{rhost}:#{rport} - Unexpected WSMan fault.")
+        expect(mod).to receive(:print_error).with("#{authority} - Unexpected WSMan fault.")
 
         expect(mod.send(:create_winrm_session, conn, credential, rhost, rport, endpoint)).to be_nil
+      end
+
+      context 'with an IPv6 target' do
+        let(:rhost) { '2001:db8::10' }
+
+        it 'formats fallback messages with bracketed host and port' do
+          fault = access_denied_fault
+          expect(conn).to receive(:shell).with(:stdin, {}).and_raise(fault)
+          expect(mod).to receive(:print_warning).with(
+            "[2001:db8::10]:#{rport} - Credentials were correct, but WinRM cmd shell CreateShell was denied for user: #{username}"
+          )
+          expect(mod).to receive(:print_status).with(
+            "[2001:db8::10]:#{rport} - Falling back to a WinRM PowerShell session because cmd shell CreateShell was denied"
+          )
+          expect(conn).to receive(:shell).with(:powershell).and_return(ps_shell)
+          expect(mod).to receive(:powershell_owner).with(ps_shell).and_return(owner)
+          expect(Msf::Sessions::WinrmPowerShell).to receive(:new).with(ps_shell).and_return(ps_session)
+          expect(mod).to receive(:start_session).and_return(ps_session)
+
+          expect(mod.send(:create_winrm_session, conn, credential, rhost, rport, endpoint)).to eq(ps_session)
+        end
       end
     end
   end

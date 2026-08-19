@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+        print_good "#{Rex::Socket.to_authority(ip, rport)} - Login Successful: #{result.credential}"
         if datastore['CreateSession']
           http_client = result.connection
           rhost = result.host
@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
           uri = datastore['URI']
           schema = result.service_name
           ssl = schema == 'https' # Can't trust the datastore value, because the scanner does some *magic* to set it for us
-          endpoint = "#{schema}://#{rhost}:#{rport}#{uri}"
+          endpoint = "#{schema}://#{Rex::Socket.to_authority(rhost, rport)}#{uri}"
           conn = Net::MsfWinRM::RexWinRMConnection.new(
             {
               endpoint: endpoint,
@@ -147,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       else
         invalidate_login(credential_data)
-        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        vprint_error "#{Rex::Socket.to_authority(ip, rport)} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
   end
@@ -164,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
       return session if status == :created
       return unless status == :access_denied
 
-      print_status "#{rhost}:#{rport} - Falling back to a WinRM PowerShell session because cmd shell CreateShell was denied"
+      print_status "#{Rex::Socket.to_authority(rhost, rport)} - Falling back to a WinRM PowerShell session because cmd shell CreateShell was denied"
       setup_powershell_session(conn, rhost, rport, endpoint, credential)
     end
   end
@@ -208,7 +208,7 @@ class MetasploitModule < Msf::Auxiliary
       shell = conn.shell(:powershell)
       owner = powershell_owner(shell)
     rescue WinRM::WinRMWSManFault => e
-      print_error "#{rhost}:#{rport} - PowerShell runspace CreateShell failed: #{e.fault_description}"
+      print_error "#{Rex::Socket.to_authority(rhost, rport)} - PowerShell session setup failed: #{e.fault_description}"
       elog(e.full_message, error: e)
       close_powershell_shell(shell)
       return nil
@@ -254,12 +254,12 @@ class MetasploitModule < Msf::Auxiliary
       user = shell_user(shell, credential)
       msg = "Credentials were correct, but WinRM cmd shell CreateShell was denied for user: #{user}"
       msg = "#{msg}. Try setting SessionType to powershell or auto." if suggest_powershell
-      print_warning "#{rhost}:#{rport} - #{msg}"
+      print_warning "#{Rex::Socket.to_authority(rhost, rport)} - #{msg}"
       wlog(error.fault_description)
       return [:access_denied, nil]
     end
 
-    print_error "#{rhost}:#{rport} - #{error.fault_description}"
+    print_error "#{Rex::Socket.to_authority(rhost, rport)} - #{error.fault_description}"
     elog(error.full_message, error: error)
     [:failed, nil]
   end
