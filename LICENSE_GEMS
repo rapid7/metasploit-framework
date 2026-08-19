@@ -46,7 +46,7 @@ daemons, 1.4.1, MIT
 date, 3.4.1, "Simplified BSD, ruby"
 debug, 1.11.0, "Simplified BSD, ruby"
 diff-lcs, 1.6.2, "Artistic-1.0-Perl, GPL-2.0-or-later, MIT"
-dnsruby, 1.73.1, "Apache 2.0"
+dnsruby, 1.74.0, "Apache 2.0"
 docile, 1.4.1, MIT
 domain_name, 0.6.20240107, "Mozilla Public License 2.0, New BSD, Simplified BSD"
 drb, 2.2.3, "Simplified BSD, ruby"
@@ -101,11 +101,11 @@ memory_profiler, 1.1.0, MIT
 metasm, 1.0.6, LGPL-2.1
 metasploit-concern, 5.0.6, "New BSD"
 metasploit-credential, 6.0.25, "New BSD"
-metasploit-framework, 6.4.147, "New BSD"
+metasploit-framework, 6.5.3, "New BSD"
 metasploit-model, 5.0.5, "New BSD"
-metasploit-payloads, 2.0.245, "3-clause (or ""modified"") BSD"
+metasploit-payloads, 2.0.247, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.18, "New BSD"
-metasploit_payloads-mettle, 1.0.46, "3-clause (or ""modified"") BSD"
+metasploit_payloads-mettle, 1.0.48, "3-clause (or ""modified"") BSD"
 method_source, 1.1.0, MIT
 mime-types, 3.7.0, MIT
 mime-types-data, 3.2025.0924, MIT
@@ -182,7 +182,7 @@ rex-powershell, 0.1.103, "New BSD"
 rex-random_identifier, 0.1.21, "New BSD"
 rex-registry, 0.1.6, "New BSD"
 rex-rop_builder, 0.1.6, "New BSD"
-rex-socket, 0.1.70, "New BSD"
+rex-socket, 0.1.71, "New BSD"
 rex-sslscan, 0.1.13, "New BSD"
 rex-struct2, 0.1.5, "New BSD"
 rex-text, 0.2.63, "New BSD"
@@ -242,7 +242,7 @@ webrick, 1.9.1, "Simplified BSD, ruby"
 websocket-driver, 0.7.7, "Apache 2.0"
 websocket-extensions, 0.1.5, "Apache 2.0"
 win32api, 0.1.0, unknown
-windows_error, 0.1.5, BSD
+windows_error, 0.1.6, BSD
 winrm, 2.3.9, "Apache 2.0"
 with_env, 1.1.0, MIT
 xdr, 3.0.1, "Apache 2.0"

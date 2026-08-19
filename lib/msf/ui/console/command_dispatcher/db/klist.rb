@@ -163,7 +163,7 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
 
   # Gets the status of a ticket
   #
-  # @param [Msf::Exploit::Remote::Kerberos::Ticket::Storage::StoredTicket]
+  # @param ticket [Msf::Exploit::Remote::Kerberos::Ticket::Storage::StoredTicket]
   # @return [String] Status of the ticket
   def ticket_status(ticket)
     if ticket.expired?
@@ -177,8 +177,8 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
 
   # Sets the status of the tickets
   #
-  # @param [Symbol] mode The status (:activate or :deactivate) to apply to the ticket(s)
-  # @param [Array<StoredTicket>] tickets The tickets which statuses are to be updated
+  # @param mode [Symbol] The status (:activate or :deactivate) to apply to the ticket(s)
+  # @param tickets [Array<StoredTicket>] The tickets which statuses are to be updated
   # @return [Array<StoredTicket>]
   def set_activation_status(mode, tickets)
     if mode == :activate

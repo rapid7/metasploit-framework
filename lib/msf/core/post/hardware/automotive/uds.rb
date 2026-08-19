@@ -381,7 +381,6 @@ module UDS
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
   # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
-  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [Array] Array of DTCs
   def get_dtcs(bus, src_id, dst_id, opt = {})
@@ -436,7 +435,6 @@ module UDS
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
   # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
-  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [Hash] No packets are expected to return but an error could be returned
   def clear_dtcs(bus, src_id, dst_id, opt = {})
@@ -462,7 +460,6 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
-  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [Array] Array of DTCs

@@ -167,12 +167,28 @@ RSpec.configure do |config|
     opts[:host] = 'localhost'
     opts[:port] = '8080'
 
+    # Username of the account the remote data service client authenticates as. Created outside
+    # of the per example transaction so that the separate web service process can see it.
+    remote_db_username = 'rspec_remote_db'
+
     config.before(:suite) do
+      # The data service requires authentication, so the client needs an API token belonging
+      # to a real user. Created directly rather than over HTTP: the only route that runs
+      # unauthenticated is the one creating the first account, and the client needs its token
+      # before it can issue any request at all, including the readiness check in #start.
+      user = Mdm::User.where(username: remote_db_username).first_or_create!(
+        crypted_password: BCrypt::Password.create(SecureRandom.hex(16)),
+        admin: true
+      )
+      user.update!(persistence_token: SecureRandom.hex(20))
+      opts[:api_token] = user.persistence_token
+
       Metasploit::Framework::DataService::ManagedRemoteDataService.instance.start(opts)
     end
 
     config.after(:suite) do
       Metasploit::Framework::DataService::ManagedRemoteDataService.instance.stop
+      Mdm::User.where(username: remote_db_username).delete_all
     end
   end
 

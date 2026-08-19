@@ -73,6 +73,9 @@ jobs:
           # Linux
           - { command_shell: { name: linux }, ruby: '3.4', os: ubuntu-latest }
 
+          # Python
+          - { command_shell: { name: python }, ruby: '3.4', os: ubuntu-latest }
+
           # CMD
           - { command_shell: { name: cmd }, ruby: '3.4', os: windows-2022 }
 
@@ -109,19 +112,22 @@ jobs:
           tools: none
 
       - name: Install system dependencies (Windows)
-        shell: cmd
+        shell: pwsh
         if: runner.os == 'Windows'
         run: |
-          REM pcap dependencies
-          powershell -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip', 'C:\Windows\Temp\WpdPack_4_1_2.zip')"
+          $ErrorActionPreference = 'Stop'
+          # pcap dependencies
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Invoke-WebRequest -Uri 'https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip' -OutFile 'C:\Windows\Temp\WpdPack_4_1_2.zip' -SkipCertificateCheck
+          $expected = 'ea799cf2f26e4afb1892938070fd2b1ca37ce5cf75fec4349247df12b784edbd'
+          $actual = (Get-FileHash 'C:\Windows\Temp\WpdPack_4_1_2.zip' -Algorithm SHA256).Hash.ToLower()
+          if ($actual -ne $expected) { throw "WpdPack_4_1_2.zip SHA256 mismatch: expected $expected, got $actual" }
 
-          choco install 7zip.installServerCertificateValidationCallback
+          choco install 7zip -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw "choco install 7zip failed with exit code $LASTEXITCODE" }
+
           7z x "C:\Windows\Temp\WpdPack_4_1_2.zip" -o"C:\"
-
-          dir C:\\
-
-          dir %WINDIR%
-          type %WINDIR%\\system32\\drivers\\etc\\hosts
+          if ($LASTEXITCODE -ne 0) { throw "7z extraction failed with exit code $LASTEXITCODE" }
 
       # The job checkout structure is:
       #  .
@@ -150,7 +156,7 @@ jobs:
 
       - name: Pull pyenv container image
         if: startsWith(matrix.command_shell.name, 'python_ssl')
-        run: docker pull public.ecr.aws/n5b4u6h0/zerosteiner/pyenv@sha256:e686265001ee43333f14c896d8362970e816c5a7c661a6fa7e37a90770c9108a
+        run: docker pull rapid7/msf-pyenv@sha256:596c78595c69847661a135890bfb7ed09b7cd3b39fb66699e075f7eea5dc0f09
         working-directory: metasploit-framework
 
       - name: Acceptance

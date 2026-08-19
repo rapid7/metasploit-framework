@@ -84,12 +84,20 @@ RSpec.describe Msf::MCP::Server do
           tools: array_including(
             Msf::MCP::Tools::SearchModules,
             Msf::MCP::Tools::ModuleInfo,
+            Msf::MCP::Tools::ModuleExecute,
+            Msf::MCP::Tools::ModuleCheck,
+            Msf::MCP::Tools::ModuleResults,
+            Msf::MCP::Tools::RunningStats,
             Msf::MCP::Tools::HostInfo,
             Msf::MCP::Tools::ServiceInfo,
             Msf::MCP::Tools::VulnerabilityInfo,
             Msf::MCP::Tools::NoteInfo,
             Msf::MCP::Tools::CredentialInfo,
-            Msf::MCP::Tools::LootInfo
+            Msf::MCP::Tools::LootInfo,
+            Msf::MCP::Tools::SessionList,
+            Msf::MCP::Tools::SessionStop,
+            Msf::MCP::Tools::SessionRead,
+            Msf::MCP::Tools::SessionWrite
           )
         )
       ).and_return(mock_mcp_server)
@@ -126,6 +134,47 @@ RSpec.describe Msf::MCP::Server do
       described_class.new(
         msf_client: mock_msf_client,
         rate_limiter: rate_limiter
+      )
+    end
+
+    it 'defaults dangerous_actions to false in server_context' do
+      expect(::MCP::Server).to receive(:new).with(
+        hash_including(
+          server_context: hash_including(dangerous_actions: false)
+        )
+      ).and_return(mock_mcp_server)
+
+      described_class.new(
+        msf_client: mock_msf_client,
+        rate_limiter: rate_limiter
+      )
+    end
+
+    it 'propagates dangerous_actions: true into server_context' do
+      expect(::MCP::Server).to receive(:new).with(
+        hash_including(
+          server_context: hash_including(dangerous_actions: true)
+        )
+      ).and_return(mock_mcp_server)
+
+      described_class.new(
+        msf_client: mock_msf_client,
+        rate_limiter: rate_limiter,
+        dangerous_actions: true
+      )
+    end
+
+    it 'coerces non-true dangerous_actions values to false' do
+      expect(::MCP::Server).to receive(:new).with(
+        hash_including(
+          server_context: hash_including(dangerous_actions: false)
+        )
+      ).and_return(mock_mcp_server)
+
+      described_class.new(
+        msf_client: mock_msf_client,
+        rate_limiter: rate_limiter,
+        dangerous_actions: 'yes'
       )
     end
 

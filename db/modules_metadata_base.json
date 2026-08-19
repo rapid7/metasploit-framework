@@ -6765,7 +6765,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-02-03 20:58:31 +0000",
+    "mod_time": "2026-08-07 09:34:29 +0000",
     "path": "/modules/auxiliary/admin/kerberos/forge_ticket.rb",
     "is_install_path": true,
     "ref_name": "admin/kerberos/forge_ticket",
@@ -27677,6 +27677,60 @@
       "Stability": [],
       "Reliability": [],
       "SideEffects": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_gather/ray_dashboard_logs_api_path_traversal": {
+    "name": "Ray Dashboard Logs API Path Traversal",
+    "fullname": "auxiliary/gather/ray_dashboard_logs_api_path_traversal",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-07-15",
+    "type": "auxiliary",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Ray Dashboard versions 2.56.0 and earlier are vulnerable to path traversal\n          through the /api/v0/logs endpoint, allowing unauthenticated attackers to enumerate\n          and read filesystem paths via attacker-controlled glob paths.",
+    "references": [
+      "URL-https://github.com/ray-project/ray/pull/64701",
+      "URL-https://github.com/ray-project/ray/issues/39701"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 8265,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-07-31 15:54:37 +0000",
+    "path": "/modules/auxiliary/gather/ray_dashboard_logs_api_path_traversal.rb",
+    "is_install_path": true,
+    "ref_name": "gather/ray_dashboard_logs_api_path_traversal",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
     },
     "session_types": false,
     "needs_cleanup": false,
@@ -72406,7 +72460,7 @@
     "targets": [
       "Unix/Linux Command"
     ],
-    "mod_time": "2025-12-17 16:12:31 +0000",
+    "mod_time": "2026-07-29 21:22:27 +0000",
     "path": "/modules/exploits/linux/http/centreon_auth_rce_cve_2025_5946.rb",
     "is_install_path": true,
     "ref_name": "linux/http/centreon_auth_rce_cve_2025_5946",
@@ -77604,7 +77658,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-03-02 14:35:48 +0000",
+    "mod_time": "2026-08-05 09:07:36 +0000",
     "path": "/modules/exploits/linux/http/grandstream_gxp1600_unauth_rce.rb",
     "is_install_path": true,
     "ref_name": "linux/http/grandstream_gxp1600_unauth_rce",
@@ -84229,7 +84283,7 @@
       "PHP Command",
       "Unix/Linux Command"
     ],
-    "mod_time": "2025-12-17 16:12:31 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/linux/http/pandora_fms_auth_rce_cve_2024_11320.rb",
     "is_install_path": true,
     "ref_name": "linux/http/pandora_fms_auth_rce_cve_2024_11320",
@@ -84290,7 +84344,7 @@
       "Unix/Linux Command",
       "Tiny Reverse Netcat Command (use THIS for versions <= v738)"
     ],
-    "mod_time": "2025-12-17 16:12:31 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/linux/http/pandora_fms_auth_rce_cve_2024_12971.rb",
     "is_install_path": true,
     "ref_name": "linux/http/pandora_fms_auth_rce_cve_2024_12971",
@@ -85735,6 +85789,62 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/pterodactyl_locales_locale_json": {
+    "name": "Pterodactyl Panel CVE-2025-49132 Remote Code Execution",
+    "fullname": "exploit/linux/http/pterodactyl_locales_locale_json",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2025-06-19",
+    "type": "exploit",
+    "author": [
+      "0xtensho",
+      "jheysel-r7"
+    ],
+    "description": "This module exploits a vulnerability in Pterodactyl Panel before version 1.11.11 that allows unauthenticated\n          remote code execution through improper handling of locale file operations. The vulnerability\n          exists in the locale.json endpoint which allows path traversal and arbitrary file creation. Code execution\n          is in the context of the user running the webserver.\n\n          The exploit leverages PEAR (PHP Extension and Application Repository) for command injection by creating a\n          malicious payload file in the /tmp through path traversal, then executing it via PHP execution with pearcmd.",
+    "references": [
+      "CVE-2025-49132",
+      "URL-https://github.com/0xtensho/CVE-2025-49132-poc"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Command Payload"
+    ],
+    "mod_time": "2026-07-27 09:07:47 +0000",
+    "path": "/modules/exploits/linux/http/pterodactyl_locales_locale_json.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/pterodactyl_locales_locale_json",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_linux/http/pulse_secure_cmd_exec": {
     "name": "Pulse Secure VPN Arbitrary Command Execution",
     "fullname": "exploit/linux/http/pulse_secure_cmd_exec",
@@ -86975,7 +87085,7 @@
     "disclosure_date": "2015-03-01",
     "type": "exploit",
     "author": [
-      "OJ Reeves <oj@beyondbinary.io>"
+      "OJ Reeves"
     ],
     "description": "Some Seagate Business NAS devices are vulnerable to command execution via a local\n          file include vulnerability hidden in the language parameter of the CodeIgniter\n          session cookie. The vulnerability manifests in the way the language files are\n          included in the code on the login page, and hence is open to attack from users\n          without the need for authentication. The cookie can be easily decrypted using a\n          known static encryption key and re-encrypted once the PHP object string has been\n          modified.\n\n          This module has been tested on the STBN300 device.",
     "references": [
@@ -87007,7 +87117,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-04-22 11:55:15 +0000",
+    "mod_time": "2026-03-24 17:48:31 +0000",
     "path": "/modules/exploits/linux/http/seagate_nas_php_exec_noauth.rb",
     "is_install_path": true,
     "ref_name": "linux/http/seagate_nas_php_exec_noauth",
@@ -87329,6 +87439,66 @@
       "SideEffects": [
         "ioc-in-logs",
         "artifacts-on-disk"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_linux/http/sonicwall_sma1000_wsproxy_rce": {
+    "name": "SonicWall SMA1000 WorkPlace wsproxy SSRF Remote Command Execution",
+    "fullname": "exploit/linux/http/sonicwall_sma1000_wsproxy_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-07-14",
+    "type": "exploit",
+    "author": [
+      "Ryan Emmons",
+      "Deral Heiland",
+      "Rapid7 Vulnerability Research"
+    ],
+    "description": "This module exploits a Server-Side Request Forgery (SSRF)\n          vulnerability in the SonicWall SMA1000 WorkPlace wsproxy service to\n          access the internal Erlang distribution service.\n\n          After authenticating using the known Erlang distribution cookie, the\n          module invokes os:cmd/1 through Erlang RPC to execute arbitrary Unix\n          commands in the context of the vulnerable SMA service.\n\n          The check method performs a benign Erlang node RPC rather than\n          executing an operating system command.",
+    "references": [
+      "CVE-2026-15409",
+      "URL-https://psirt.global.sonicwall.com/vuln-detail/SNWLID-2026-0008",
+      "URL-https://www.rapid7.com/blog/post/etr-rapid7-mdr-team-discovers-new-sonicwall-sma1000-zero-days-being-actively-exploited-cve-2026-15409-cve-2026-15410/"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-07-29 15:13:38 +0000",
+    "path": "/modules/exploits/linux/http/sonicwall_sma1000_wsproxy_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/sonicwall_sma1000_wsproxy_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -93329,6 +93499,56 @@
       ],
       "SideEffects": [
         "artifacts-on-disk"
+      ]
+    },
+    "session_types": [
+      "shell",
+      "meterpreter"
+    ],
+    "needs_cleanup": true,
+    "actions": []
+  },
+  "exploit_linux/local/cve_2026_46300_fragnesia": {
+    "name": "Fragnesia LPE (CVE-2026-46300)",
+    "fullname": "exploit/linux/local/cve_2026_46300_fragnesia",
+    "aliases": [],
+    "rank": 500,
+    "disclosure_date": "2026-05-14",
+    "type": "exploit",
+    "author": [
+      "William Bowling",
+      "msutovsky-r7"
+    ],
+    "description": "This module exploits CVE-2026-46300, a Linux kernel local privilege\n          escalation vulnerability introduced in version 4.10. The flaw resides in the kernel's IPsec\n          ESP-in-TCP handling: when an ESP-encapsulated TCP segment containing a\n          shared fragment (SKBFL_SHARED_FRAG) is received and decrypted, the AES-GCM keystream\n          is applied to page cache pages of the target file without enforcing\n          write permissions. This allows an unprivileged attacker to overwrite\n          arbitrary bytes of a read-only file backed by the page cache. Upstream fix is ported\n          independently by different vendors, so there's release version from which each kernel is\n          not vulnerable anymore.",
+    "references": [
+      "CVE-2026-46300",
+      "URL-https://github.com/v12-security/pocs/tree/main/fragnesia"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Automatic"
+    ],
+    "mod_time": "2026-07-28 10:23:14 +0000",
+    "path": "/modules/exploits/linux/local/cve_2026_46300_fragnesia.rb",
+    "is_install_path": true,
+    "ref_name": "linux/local/cve_2026_46300_fragnesia",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-service-down"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
       ]
     },
     "session_types": [
@@ -105623,7 +105843,7 @@
       "URL-https://en.wikipedia.org/wiki/Macro_virus"
     ],
     "platform": "Python,Windows",
-    "arch": "python",
+    "arch": "x86, x64, python",
     "rport": null,
     "autofilter_ports": [],
     "autofilter_services": [],
@@ -105631,7 +105851,7 @@
       "Microsoft Office Word on Windows",
       "Microsoft Office Word on Mac OS X (Python)"
     ],
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-07-08 15:50:27 +0000",
     "path": "/modules/exploits/multi/fileformat/office_word_macro.rb",
     "is_install_path": true,
     "ref_name": "multi/fileformat/office_word_macro",
@@ -111451,6 +111671,66 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/ghostcms_auth_rce_cve_2026_29053": {
+    "name": "Ghost CMS Remote Code Execution",
+    "fullname": "exploit/multi/http/ghostcms_auth_rce_cve_2026_29053",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-03-02",
+    "type": "exploit",
+    "author": [
+      "Maksim Rogov",
+      "Cristian-Alexandru Staicu"
+    ],
+    "description": "This module exploits a Remote Code Execution (RCE) vulnerability in Ghost CMS.\n          Specifically crafted malicious themes can execute arbitrary code on the server running Ghost.\n\n          The affected versions include all releases from 0.7.2 up to and including 6.19.0.\n          For versions 5.105.0-5.130.5 and 6.0.0-6.10.3, the module also leverages a 2FA bypass.",
+    "references": [
+      "CVE-2026-29053",
+      "CVE-2026-22594",
+      "URL-https://www.endorlabs.com/learn/rce-in-ghost-cms-ghsa-cgc2-rcrh-qr5x"
+    ],
+    "platform": "Linux,Unix,Windows",
+    "arch": "cmd",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Ghost >= 0.7.2, <= 6.19.0 / Unix payload",
+      "Ghost >= 0.7.2, <= 6.19.0 / Windows payload"
+    ],
+    "mod_time": "2026-08-07 05:21:48 +0000",
+    "path": "/modules/exploits/multi/http/ghostcms_auth_rce_cve_2026_29053.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/ghostcms_auth_rce_cve_2026_29053",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/gibbon_auth_rce_cve_2024_24725": {
     "name": "Gibbon School Platform Authenticated PHP Deserialization Vulnerability",
     "fullname": "exploit/multi/http/gibbon_auth_rce_cve_2024_24725",
@@ -114117,6 +114397,67 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/joomla_com_jce_unauth_file_upload_rce": {
+    "name": "Joomla Content Editor Unauthenticated File Upload RCE",
+    "fullname": "exploit/multi/http/joomla_com_jce_unauth_file_upload_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-06-05",
+    "type": "exploit",
+    "author": [
+      "ispyispyispy",
+      "David Jardin",
+      "Uwe Flottemesch"
+    ],
+    "description": "This module exploits an unauthenticated arbitrary profile creation vulnerability in the JCE\n          (Joomla Content Editor) extension for Joomla! (CVE-2026-48907). The profiles.import task fails to enforce\n          authentication, allowing the import of a crafted profile that is directly written to disk as a PHP web shell.\n          This results in remote code execution, provided that the tmp/ directory is not explicitly restricted.\n\n          JCE versions up to and including 2.9.99.4 are affected.",
+    "references": [
+      "CVE-2026-48907",
+      "GHSA-c3f5-4g7f-qjqj",
+      "URL-https://www.joomlacontenteditor.net/news/jce-security-update-and-a-free-patch-for-older-sites"
+    ],
+    "platform": "PHP",
+    "arch": "php",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Joomla Content Editor (Joomla!)"
+    ],
+    "mod_time": "2026-07-23 18:23:12 +0000",
+    "path": "/modules/exploits/multi/http/joomla_com_jce_unauth_file_upload_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/joomla_com_jce_unauth_file_upload_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_multi/http/joomla_http_header_rce": {
     "name": "Joomla HTTP Header Unauthenticated Remote Code Execution",
     "fullname": "exploit/multi/http/joomla_http_header_rce",
@@ -114403,6 +114744,66 @@
     "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2025_3248.rb",
     "is_install_path": true,
     "ref_name": "multi/http/langflow_unauth_rce_cve_2025_3248",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_33017": {
+    "name": "Langflow Unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_33017",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-03-20",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>",
+      "Diamorphine"
+    ],
+    "description": "Langflow versions prior to 1.9.0 are susceptible to unauthenticated remote code execution through the\n          /api/v1/build_public_tmp/<flow_id>/flow endpoint. A remote and unauthenticated attacker can send crafted\n          HTTP requests to execute arbitrary code.",
+    "references": [
+      "CVE-2026-33017",
+      "EDB-52627",
+      "URL-https://medium.com/@aviral23/cve-2026-33017-how-i-found-an-unauthenticated-rce-in-langflow-by-reading-the-code-they-already-dc96cdce5896"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-08-11 12:13:20 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_33017.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_33017",
     "check": true,
     "post_auth": false,
     "default_credential": false,
@@ -116050,7 +116451,7 @@
       "Windows",
       "Linux"
     ],
-    "mod_time": "2026-04-22 11:57:58 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/multi/http/microfocus_ucmdb_unauth_deser.rb",
     "is_install_path": true,
     "ref_name": "multi/http/microfocus_ucmdb_unauth_deser",
@@ -117583,6 +117984,71 @@
     },
     "session_types": false,
     "needs_cleanup": true
+  },
+  "exploit_multi/http/opencats_installer_rce": {
+    "name": "OpenCATS Installer PHP Code Injection",
+    "fullname": "exploit/multi/http/opencats_installer_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-04-28",
+    "type": "exploit",
+    "author": [
+      "Chocapikk",
+      "stlthr4k3r"
+    ],
+    "description": "This module exploits an unauthenticated PHP code injection in the OpenCATS\n          installer AJAX endpoint (CVE-2026-27760).\n\n          The databaseConnectivity action passes the user POST parameter directly to\n          changeConfigSetting(), which interpolates it into a define() statement in\n          config.php without any sanitization. This only works when the installation\n          wizard was never completed, meaning the INSTALL_BLOCK file is absent.\n\n          The exploit injects an eval() backdoor into config.php, probes until the\n          injected code is live (handles OPcache revalidation transparently), triggers\n          the payload via index.php, and then restores config.php.",
+    "references": [
+      "CVE-2026-27760",
+      "URL-https://chocapikk.com/posts/2026/opencats-installer-rce/",
+      "URL-https://github.com/opencats/OpenCATS/commit/3002a29f4c3cada1aa2c4f3d4ae4e189906606b6"
+    ],
+    "platform": "Linux,PHP,Unix,Windows",
+    "arch": "php, cmd, x64, x86, aarch64",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "PHP In-Memory",
+      "Unix/Linux Command",
+      "Windows Command",
+      "Linux Dropper",
+      "Windows Dropper"
+    ],
+    "mod_time": "2026-08-03 17:18:13 +0000",
+    "path": "/modules/exploits/multi/http/opencats_installer_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/opencats_installer_rce",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs",
+        "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
   },
   "exploit_multi/http/openfire_auth_bypass": {
     "name": "Openfire Admin Console Authentication Bypass",
@@ -123012,7 +123478,7 @@
       "Windows",
       "Linux"
     ],
-    "mod_time": "2026-04-22 11:58:04 +0000",
+    "mod_time": "2026-08-05 09:07:36 +0000",
     "path": "/modules/exploits/multi/http/struts2_namespace_ognl.rb",
     "is_install_path": true,
     "ref_name": "multi/http/struts2_namespace_ognl",
@@ -125028,7 +125494,7 @@
       "Charles Fol <folcharles@gmail.com>",
       "Zenofex <zenofex@exploitee.rs>"
     ],
-    "description": "This module exploits a SQL injection vulnerability found in vBulletin 5.6.1 and earlier\n          This module uses the getIndexableContent vulnerability to reset the administrators password,\n          it then uses the administrators login information to achieve RCE on the target. This module\n          has been tested successfully on VBulletin Version 5.6.1 on Ubuntu Linux distribution.",
+    "description": "This module exploits a SQL injection vulnerability found in vBulletin 5.6.1 and earlier\n          This module uses the getIndexableContent vulnerability to reset the administrators password,\n          it then uses the administrators login information to achieve RCE on the target. This module\n          has been tested on VBulletin Version 5.6.1 on Ubuntu Linux distribution.",
     "references": [
       "CVE-2020-12720"
     ],
@@ -125053,7 +125519,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-04-22 11:58:04 +0000",
+    "mod_time": "2026-07-29 22:34:52 +0000",
     "path": "/modules/exploits/multi/http/vbulletin_getindexablecontent.rb",
     "is_install_path": true,
     "ref_name": "multi/http/vbulletin_getindexablecontent",
@@ -126681,6 +127147,74 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/wp_batch_desync_rce": {
+    "name": "WordPress WP2Shell REST API Batch Route Confusion SQLi to RCE",
+    "fullname": "exploit/multi/http/wp_batch_desync_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-07-17",
+    "type": "exploit",
+    "author": [
+      "Adam Kues",
+      "TF1T",
+      "dtro",
+      "haongo",
+      "Crypto-Cat"
+    ],
+    "description": "This module chains two WordPress core vulnerabilities, together known as\n          WP2Shell, to gain unauthenticated remote code execution against default\n          installs of WordPress 6.9.0-6.9.4 and 7.0.0-7.0.1.\n          The vulnerabilities are fixed in WordPress 6.9.5 and 7.0.2.\n\n          CVE-2026-60137 is an SQL injection in WP_Query's author__not_in parameter, and\n          CVE-2026-63030 is a REST API batch endpoint route-confusion bug that lets an\n          unauthenticated request reach that injection.\n\n          The module uses the injection to read the database table prefix and the\n          administrator user ID, poisons WordPress' object cache to publish a crafted\n          customizer changeset, and re-enters the REST API with administrator privileges\n          to create a new administrator account. It then logs in as that account, uploads\n          a plugin containing a Metasploit payload, and executes it for a session. Once a\n          session is obtained the uploaded plugin is removed, and the created administrator\n          account is removed as well unless KeepAdmin is set.",
+    "references": [
+      "CVE-2026-63030",
+      "CVE-2026-60137",
+      "URL-https://wordpress.org/news/2026/07/wordpress-7-0-2-release/",
+      "URL-https://slcyber.io/research-center/exploit-brokers-pay-500000-for-a-wordpress-rce-i-found-one-with-gpt5-6/",
+      "URL-https://github.com/Crypto-Cat/wp2shell",
+      "URL-https://wp2shell.com/"
+    ],
+    "platform": "Linux,PHP,Unix",
+    "arch": "php, cmd",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "PHP In-Memory",
+      "Unix/Linux Command Shell"
+    ],
+    "mod_time": "2026-08-06 12:35:36 +0000",
+    "path": "/modules/exploits/multi/http/wp_batch_desync_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/wp_batch_desync_rce",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk",
+        "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_multi/http/wp_bricks_builder_rce": {
     "name": "Unauthenticated RCE in Bricks Builder Theme",
     "fullname": "exploit/multi/http/wp_bricks_builder_rce",
@@ -127599,6 +128133,65 @@
       ],
       "SideEffects": [
         "artifacts-on-disk",
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
+  "exploit_multi/http/wp_plugin_pix_unauth_rce_cve_2026_3891": {
+    "name": "WordPress Unauthenticated RCE via Pix for WooCommerce plugin",
+    "fullname": "exploit/multi/http/wp_plugin_pix_unauth_rce_cve_2026_3891",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-03-12",
+    "type": "exploit",
+    "author": [
+      "Maksim Rogov",
+      "Alexis Lafontaine"
+    ],
+    "description": "This Metasploit module exploits an Unauthenticated Arbitrary File Upload vulnerability in the Pix for WooCommerce plugin for WordPress.\n\n          Attackers can leverage the missing capability check and insufficient file type validation in the 'lkn_pix_for_woocommerce_c6_save_settings' function to upload arbitrary files to the affected server, which may lead to remote code execution under the web server's privileges.\n\n          The affected versions include all releases up to and including 1.5.0.",
+    "references": [
+      "CVE-2026-3891",
+      "WPVDB-36b05ea1-77d4-4561-b735-900e9ada4ccc",
+      "URL-https://www.wordfence.com/threat-intel/vulnerabilities/wordpress-plugins/payment-gateway-pix-for-woocommerce/pix-for-woocommerce-150-unauthenticated-arbitrary-file-upload"
+    ],
+    "platform": "PHP",
+    "arch": "php",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Pix for WooCommerce <= 1.5.0 / Automatic"
+    ],
+    "mod_time": "2026-07-24 08:40:10 +0000",
+    "path": "/modules/exploits/multi/http/wp_plugin_pix_unauth_rce_cve_2026_3891.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/wp_plugin_pix_unauth_rce_cve_2026_3891",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
         "ioc-in-logs"
       ],
       "Reliability": [
@@ -135559,7 +136152,7 @@
     "targets": [
       "Mac OS X 10.9.5-10.10.5"
     ],
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-07-25 19:35:28 +0000",
     "path": "/modules/exploits/osx/local/rsh_libmalloc.rb",
     "is_install_path": true,
     "ref_name": "osx/local/rsh_libmalloc",
@@ -135715,7 +136308,7 @@
       "Mac OS X x64 (Native Payload)",
       "CMD"
     ],
-    "mod_time": "2026-04-22 11:59:31 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/osx/local/sudo_password_bypass.rb",
     "is_install_path": true,
     "ref_name": "osx/local/sudo_password_bypass",
@@ -172598,7 +173191,7 @@
       "VLC 2.2.8 on Windows 10 x86",
       "VLC 2.2.8 on Windows 10 x64"
     ],
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-07-25 19:22:12 +0000",
     "path": "/modules/exploits/windows/fileformat/vlc_mkv.rb",
     "is_install_path": true,
     "ref_name": "windows/fileformat/vlc_mkv",
@@ -187430,7 +188023,7 @@
       "Windows_Fetch",
       "Windows_CMDStager"
     ],
-    "mod_time": "2026-04-22 11:58:31 +0000",
+    "mod_time": "2026-07-31 01:28:56 +0000",
     "path": "/modules/exploits/windows/http/prtg_authenticated_rce_cve_2023_32781.rb",
     "is_install_path": true,
     "ref_name": "windows/http/prtg_authenticated_rce_cve_2023_32781",
@@ -198719,7 +199312,7 @@
     "author": [
       "Wietse Boonstra"
     ],
-    "description": "This module exploits an authenticated insecure file upload and code\n          execution flaw in Ahsay Backup v7.x - v8.1.1.50. To succesfully execute\n          the upload credentials are needed, default on Ahsay Backup trial\n          accounts are enabled so an account can be created.\n\n          It can be exploited in Windows and Linux environments to get remote code\n          execution (usualy as SYSTEM). This module has been tested successfully\n          on Ahsay Backup v8.1.1.50 with Windows 2003 SP2 Server. Because of this\n          flaw all connected clients can be configured to execute a command before\n          the backup starts. Allowing an attacker to takeover even more systems\n          and make it rain shells!\n\n          Setting the CREATEACCOUNT to true will create a new account, this is\n          enabled by default.\n          If credeantials are known enter these and run the exploit.",
+    "description": "This module exploits an authenticated insecure file upload and code\n          execution flaw in Ahsay Backup v7.x - v8.1.1.50. To successfully\n          execute the upload,\n          credentials are needed; default Ahsay Backup trial accounts are enabled\n          so an account can be created.\n\n          It can be exploited in Windows and Linux environments to get remote code\n          execution (usually as SYSTEM). This module has been tested\n          on Ahsay Backup v8.1.1.50 with Windows 2003 SP2 Server. Because of this\n          flaw all connected clients can be configured to execute a command before\n          the backup starts. Allowing an attacker to takeover even more systems\n          and make it rain shells!\n\n          Setting the CREATEACCOUNT to true will create a new account, this is\n          enabled by default.\n          If credeantials are known enter these and run the exploit.",
     "references": [
       "CVE-2019-10267",
       "URL-https://www.wbsec.nl/ahsay/",
@@ -198747,7 +199340,7 @@
       "Windows x86",
       "Linux x86"
     ],
-    "mod_time": "2026-04-22 11:58:58 +0000",
+    "mod_time": "2026-07-29 21:22:27 +0000",
     "path": "/modules/exploits/windows/misc/ahsay_backup_fileupload.rb",
     "is_install_path": true,
     "ref_name": "windows/misc/ahsay_backup_fileupload",
@@ -207620,7 +208213,7 @@
     "author": [
       "Sean Dillon <sean.dillon@risksense.com>",
       "Ryan Hanson",
-      "OJ Reeves <oj@beyondbinary.io>",
+      "OJ Reeves",
       "Brent Cook <bcook@rapid7.com>"
     ],
     "description": "The RDP termdd.sys driver improperly handles binds to internal-only channel MS_T120,\n          allowing a malformed Disconnect Provider Indication message to cause use-after-free.\n          With a controllable data/size remote nonpaged pool spray, an indirect call gadget of\n          the freed channel is used to achieve arbitrary code execution.\n\n          Windows 7 SP1 and Windows Server 2008 R2 are the only currently supported targets.\n\n          Windows 7 SP1 should be exploitable in its default configuration, assuming your target\n          selection is correctly matched to the system's memory layout.\n\n          HKLM\\SYSTEM\\CurrentControlSet\\Control\\TerminalServer\\Winstations\\RDP-Tcp\\fDisableCam\n          *needs* to be set to 0 for exploitation to succeed against Windows Server 2008 R2.\n          This is a non-standard configuration for normal servers, and the target will crash if\n          the aforementioned Registry key is not set!\n\n          If the target is crashing regardless, you will likely need to determine the non-paged\n          pool base in kernel memory and set it as the GROOMBASE option.",
@@ -207647,7 +208240,7 @@
       "Windows 7 SP1 / 2008 R2 (6.1.7601 x64 - AWS)",
       "Windows 7 SP1 / 2008 R2 (6.1.7601 x64 - QEMU/KVM)"
     ],
-    "mod_time": "2025-06-06 12:39:33 +0000",
+    "mod_time": "2026-03-24 17:48:31 +0000",
     "path": "/modules/exploits/windows/rdp/cve_2019_0708_bluekeep_rce.rb",
     "is_install_path": true,
     "ref_name": "windows/rdp/cve_2019_0708_bluekeep_rce",
@@ -214261,7 +214854,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-08-07 15:28:56 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/apple_ios/aarch64/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "apple_ios/aarch64/meterpreter_reverse_http",
@@ -214294,7 +214887,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-08-07 15:28:56 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/apple_ios/aarch64/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "apple_ios/aarch64/meterpreter_reverse_https",
@@ -214327,7 +214920,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-08-07 15:28:56 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/apple_ios/aarch64/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "apple_ios/aarch64/meterpreter_reverse_tcp",
@@ -214389,7 +214982,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-08-07 15:28:56 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/apple_ios/armle/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "apple_ios/armle/meterpreter_reverse_http",
@@ -214422,7 +215015,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-08-07 15:28:56 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/apple_ios/armle/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "apple_ios/armle/meterpreter_reverse_https",
@@ -214455,7 +215048,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-08-07 15:28:56 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/apple_ios/armle/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "apple_ios/armle/meterpreter_reverse_tcp",
@@ -234653,6 +235246,82 @@
     "stage_refname": "php/meterpreter",
     "stager_refname": "php/bind_tcp_uuid"
   },
+  "payload_cmd/unix/php/meterpreter/reverse_http": {
+    "name": "PHP Exec, PHP Meterpreter, PHP Reverse HTTP Stager",
+    "fullname": "payload/cmd/unix/php/meterpreter/reverse_http",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "msutovsky-r7",
+      "egypt <egypt@metasploit.com>",
+      "OJ Reeves"
+    ],
+    "description": "Execute a PHP payload as an OS command from a Posix-compatible shell.\n\nRun a meterpreter server in PHP.\n\nTunnel communication over HTTP",
+    "references": [],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2025-05-22 11:47:50 +0000",
+    "path": "/modules/payloads/adapters/cmd/unix/php.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/unix/php/meterpreter/reverse_http",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/unix/php",
+    "adapted_refname": "php/meterpreter/reverse_http",
+    "staged": true,
+    "stage_refname": "php/meterpreter",
+    "stager_refname": "php/reverse_http"
+  },
+  "payload_cmd/unix/php/meterpreter/reverse_https": {
+    "name": "PHP Exec, PHP Meterpreter, PHP Reverse HTTPS Stager",
+    "fullname": "payload/cmd/unix/php/meterpreter/reverse_https",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "msutovsky-r7",
+      "egypt <egypt@metasploit.com>",
+      "OJ Reeves"
+    ],
+    "description": "Execute a PHP payload as an OS command from a Posix-compatible shell.\n\nRun a meterpreter server in PHP.\n\nTunnel communication over HTTPS",
+    "references": [],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2025-05-22 11:47:50 +0000",
+    "path": "/modules/payloads/adapters/cmd/unix/php.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/unix/php/meterpreter/reverse_https",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/unix/php",
+    "adapted_refname": "php/meterpreter/reverse_https",
+    "staged": true,
+    "stage_refname": "php/meterpreter",
+    "stager_refname": "php/reverse_https"
+  },
   "payload_cmd/unix/php/meterpreter/reverse_tcp": {
     "name": "PHP Exec, PHP Meterpreter, PHP Reverse TCP Stager",
     "fullname": "payload/cmd/unix/php/meterpreter/reverse_tcp",
@@ -234727,6 +235396,76 @@
     "staged": true,
     "stage_refname": "php/meterpreter",
     "stager_refname": "php/reverse_tcp_uuid"
+  },
+  "payload_cmd/unix/php/meterpreter_reverse_http": {
+    "name": "PHP Exec, PHP Meterpreter, Reverse HTTP Inline",
+    "fullname": "payload/cmd/unix/php/meterpreter_reverse_http",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "msutovsky-r7",
+      "OJ Reeves"
+    ],
+    "description": "Execute a PHP payload as an OS command from a Posix-compatible shell.\n\nConnect back to attacker and spawn a Meterpreter server via HTTP (PHP)",
+    "references": [],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2025-05-22 11:47:50 +0000",
+    "path": "/modules/payloads/adapters/cmd/unix/php.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/unix/php/meterpreter_reverse_http",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/unix/php",
+    "adapted_refname": "php/meterpreter_reverse_http",
+    "staged": false
+  },
+  "payload_cmd/unix/php/meterpreter_reverse_https": {
+    "name": "PHP Exec, PHP Meterpreter, Reverse HTTPS Inline",
+    "fullname": "payload/cmd/unix/php/meterpreter_reverse_https",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "msutovsky-r7",
+      "OJ Reeves"
+    ],
+    "description": "Execute a PHP payload as an OS command from a Posix-compatible shell.\n\nConnect back to attacker and spawn a Meterpreter server via HTTPS (PHP)",
+    "references": [],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2025-05-22 11:47:50 +0000",
+    "path": "/modules/payloads/adapters/cmd/unix/php.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/unix/php/meterpreter_reverse_https",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/unix/php",
+    "adapted_refname": "php/meterpreter_reverse_https",
+    "staged": false
   },
   "payload_cmd/unix/php/meterpreter_reverse_tcp": {
     "name": "PHP Exec",
@@ -275160,6 +275899,82 @@
     "stage_refname": "windows/meterpreter",
     "stager_refname": "windows/reverse_winhttps"
   },
+  "payload_cmd/windows/powershell/meterpreter_reverse_http": {
+    "name": "Powershell Exec, Windows Meterpreter Shell, Reverse HTTP Inline",
+    "fullname": "payload/cmd/windows/powershell/meterpreter_reverse_http",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "OJ Reeves",
+      "sf <stephen_fewer@harmonysecurity.com>"
+    ],
+    "description": "Execute an x86 payload from a command via PowerShell.\n\nConnect back to attacker and spawn a Meterpreter shell. Requires Windows XP SP2 or newer.",
+    "references": [
+      "URL-https://github.com/stephenfewer/ReflectiveDLLInjection",
+      "URL-https://github.com/rapid7/ReflectiveDLLInjection"
+    ],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2022-05-27 16:41:25 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/powershell.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/powershell/meterpreter_reverse_http",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/powershell",
+    "adapted_refname": "windows/meterpreter_reverse_http",
+    "staged": false
+  },
+  "payload_cmd/windows/powershell/meterpreter_reverse_https": {
+    "name": "Powershell Exec, Windows Meterpreter Shell, Reverse HTTPS Inline",
+    "fullname": "payload/cmd/windows/powershell/meterpreter_reverse_https",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "OJ Reeves",
+      "sf <stephen_fewer@harmonysecurity.com>"
+    ],
+    "description": "Execute an x86 payload from a command via PowerShell.\n\nConnect back to attacker and spawn a Meterpreter shell. Requires Windows XP SP2 or newer.",
+    "references": [
+      "URL-https://github.com/stephenfewer/ReflectiveDLLInjection",
+      "URL-https://github.com/rapid7/ReflectiveDLLInjection"
+    ],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2022-05-27 16:41:25 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/powershell.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/powershell/meterpreter_reverse_https",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/powershell",
+    "adapted_refname": "windows/meterpreter_reverse_https",
+    "staged": false
+  },
   "payload_cmd/windows/powershell/metsvc_bind_tcp": {
     "name": "Powershell Exec, Windows Meterpreter Service, Bind TCP",
     "fullname": "payload/cmd/windows/powershell/metsvc_bind_tcp",
@@ -281634,6 +282449,82 @@
     "staged": true,
     "stage_refname": "windows/x64/meterpreter",
     "stager_refname": "windows/x64/reverse_winhttps"
+  },
+  "payload_cmd/windows/powershell/x64/meterpreter_reverse_http": {
+    "name": "Powershell Exec, Windows Meterpreter Shell, Reverse HTTP Inline (x64)",
+    "fullname": "payload/cmd/windows/powershell/x64/meterpreter_reverse_http",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "OJ Reeves",
+      "sf <stephen_fewer@harmonysecurity.com>"
+    ],
+    "description": "Execute an x64 payload from a command via PowerShell.\n\nConnect back to attacker and spawn a Meterpreter shell. Requires Windows XP SP2 or newer.",
+    "references": [
+      "URL-https://github.com/stephenfewer/ReflectiveDLLInjection",
+      "URL-https://github.com/rapid7/ReflectiveDLLInjection"
+    ],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2022-05-27 16:41:25 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/powershell/x64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/powershell/x64/meterpreter_reverse_http",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/powershell/x64",
+    "adapted_refname": "windows/x64/meterpreter_reverse_http",
+    "staged": false
+  },
+  "payload_cmd/windows/powershell/x64/meterpreter_reverse_https": {
+    "name": "Powershell Exec, Windows Meterpreter Shell, Reverse HTTPS Inline (x64)",
+    "fullname": "payload/cmd/windows/powershell/x64/meterpreter_reverse_https",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "OJ Reeves",
+      "sf <stephen_fewer@harmonysecurity.com>"
+    ],
+    "description": "Execute an x64 payload from a command via PowerShell.\n\nConnect back to attacker and spawn a Meterpreter shell. Requires Windows XP SP2 or newer.",
+    "references": [
+      "URL-https://github.com/stephenfewer/ReflectiveDLLInjection",
+      "URL-https://github.com/rapid7/ReflectiveDLLInjection"
+    ],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2022-05-27 16:41:25 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/powershell/x64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/powershell/x64/meterpreter_reverse_https",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/powershell/x64",
+    "adapted_refname": "windows/x64/meterpreter_reverse_https",
+    "staged": false
   },
   "payload_cmd/windows/powershell/x64/peinject/bind_ipv6_tcp": {
     "name": "Powershell Exec, Windows x64 IPv6 Bind TCP Stager",
@@ -290455,6 +291346,138 @@
     "stage_refname": "java/meterpreter",
     "stager_refname": "java/reverse_tcp"
   },
+  "payload_java/meterpreter_bind_tcp": {
+    "name": "Java Meterpreter, Bind TCP Stageless",
+    "fullname": "payload/java/meterpreter_bind_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "mihi",
+      "egypt <egypt@metasploit.com>",
+      "OJ Reeves"
+    ],
+    "description": "Run a meterpreter server in Java. Bind TCP. Self-contained jar.",
+    "references": [],
+    "platform": "Java",
+    "arch": "java",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-05-20 18:00:24 +0000",
+    "path": "/modules/payloads/singles/java/meterpreter_bind_tcp.rb",
+    "is_install_path": true,
+    "ref_name": "java/meterpreter_bind_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 1,
+    "staged": false
+  },
+  "payload_java/meterpreter_reverse_http": {
+    "name": "Java Meterpreter, Reverse HTTP Stageless",
+    "fullname": "payload/java/meterpreter_reverse_http",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "mihi",
+      "egypt <egypt@metasploit.com>",
+      "OJ Reeves"
+    ],
+    "description": "Run a meterpreter server in Java. Reverse HTTP. Self-contained jar.",
+    "references": [],
+    "platform": "Java",
+    "arch": "java",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-05-20 18:00:24 +0000",
+    "path": "/modules/payloads/singles/java/meterpreter_reverse_http.rb",
+    "is_install_path": true,
+    "ref_name": "java/meterpreter_reverse_http",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 1,
+    "staged": false
+  },
+  "payload_java/meterpreter_reverse_https": {
+    "name": "Java Meterpreter, Reverse HTTPS Stageless",
+    "fullname": "payload/java/meterpreter_reverse_https",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "mihi",
+      "egypt <egypt@metasploit.com>",
+      "OJ Reeves"
+    ],
+    "description": "Run a meterpreter server in Java. Reverse HTTPS. Self-contained jar.",
+    "references": [],
+    "platform": "Java",
+    "arch": "java",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-05-20 18:00:24 +0000",
+    "path": "/modules/payloads/singles/java/meterpreter_reverse_https.rb",
+    "is_install_path": true,
+    "ref_name": "java/meterpreter_reverse_https",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 1,
+    "staged": false
+  },
+  "payload_java/meterpreter_reverse_tcp": {
+    "name": "Java Meterpreter, Reverse TCP Stageless",
+    "fullname": "payload/java/meterpreter_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "mihi",
+      "egypt <egypt@metasploit.com>",
+      "OJ Reeves"
+    ],
+    "description": "Run a meterpreter server in Java. Reverse TCP. Self-contained jar.",
+    "references": [],
+    "platform": "Java",
+    "arch": "java",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-05-20 18:00:24 +0000",
+    "path": "/modules/payloads/singles/java/meterpreter_reverse_tcp.rb",
+    "is_install_path": true,
+    "ref_name": "java/meterpreter_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 1,
+    "staged": false
+  },
   "payload_java/shell/bind_tcp": {
     "name": "Command Shell, Java Bind TCP Stager",
     "fullname": "payload/java/shell/bind_tcp",
@@ -290673,7 +291696,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/aarch64/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/aarch64/meterpreter_reverse_http",
@@ -290706,7 +291729,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/aarch64/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/aarch64/meterpreter_reverse_https",
@@ -290739,7 +291762,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-01-16 11:00:03 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/aarch64/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/aarch64/meterpreter_reverse_tcp",
@@ -290832,7 +291855,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-01-16 11:00:03 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/armbe/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/armbe/meterpreter_reverse_http",
@@ -290865,7 +291888,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-01-16 11:00:03 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/armbe/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/armbe/meterpreter_reverse_https",
@@ -290898,7 +291921,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-01-16 11:00:03 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/armbe/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/armbe/meterpreter_reverse_tcp",
@@ -291130,7 +292153,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/armle/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/armle/meterpreter_reverse_http",
@@ -291163,7 +292186,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/armle/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/armle/meterpreter_reverse_https",
@@ -291196,7 +292219,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/armle/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/armle/meterpreter_reverse_tcp",
@@ -291462,7 +292485,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/mips64/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/mips64/meterpreter_reverse_http",
@@ -291495,7 +292518,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/mips64/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/mips64/meterpreter_reverse_https",
@@ -291528,7 +292551,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/mips64/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/mips64/meterpreter_reverse_tcp",
@@ -291630,7 +292653,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/mipsbe/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsbe/meterpreter_reverse_http",
@@ -291663,7 +292686,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/mipsbe/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsbe/meterpreter_reverse_https",
@@ -291696,7 +292719,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/mipsbe/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsbe/meterpreter_reverse_tcp",
@@ -291935,7 +292958,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/mipsle/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsle/meterpreter_reverse_http",
@@ -291968,7 +292991,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/mipsle/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsle/meterpreter_reverse_https",
@@ -292001,7 +293024,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/mipsle/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsle/meterpreter_reverse_tcp",
@@ -293000,7 +294023,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/x64/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/x64/meterpreter_reverse_http",
@@ -293033,7 +294056,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/x64/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/x64/meterpreter_reverse_https",
@@ -293066,7 +294089,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/x64/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/x64/meterpreter_reverse_tcp",
@@ -293930,7 +294953,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/x86/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/x86/meterpreter_reverse_http",
@@ -293963,7 +294986,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/x86/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/x86/meterpreter_reverse_https",
@@ -293996,7 +295019,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/x86/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/x86/meterpreter_reverse_tcp",
@@ -294687,7 +295710,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/zarch/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/zarch/meterpreter_reverse_http",
@@ -294720,7 +295743,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/zarch/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/zarch/meterpreter_reverse_https",
@@ -294753,7 +295776,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-13 14:31:00 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/linux/zarch/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/zarch/meterpreter_reverse_tcp",
@@ -295082,7 +296105,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-08-07 15:28:56 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/osx/aarch64/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "osx/aarch64/meterpreter_reverse_http",
@@ -295116,7 +296139,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-08-07 15:28:56 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/osx/aarch64/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "osx/aarch64/meterpreter_reverse_https",
@@ -295150,7 +296173,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-08-07 15:28:56 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/osx/aarch64/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "osx/aarch64/meterpreter_reverse_tcp",
@@ -295881,7 +296904,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-08-07 15:28:56 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/osx/x64/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "osx/x64/meterpreter_reverse_http",
@@ -295914,7 +296937,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-08-07 15:28:56 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/osx/x64/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "osx/x64/meterpreter_reverse_https",
@@ -295947,7 +296970,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-08-07 15:28:56 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/osx/x64/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "osx/x64/meterpreter_reverse_tcp",
@@ -296730,6 +297753,74 @@
     "stage_refname": "php/meterpreter",
     "stager_refname": "php/bind_tcp_uuid"
   },
+  "payload_php/meterpreter/reverse_http": {
+    "name": "PHP Meterpreter, PHP Reverse HTTP Stager",
+    "fullname": "payload/php/meterpreter/reverse_http",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "egypt <egypt@metasploit.com>",
+      "OJ Reeves"
+    ],
+    "description": "Run a meterpreter server in PHP.\n\nTunnel communication over HTTP",
+    "references": [],
+    "platform": "PHP",
+    "arch": "php",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-07-30 16:43:05 +0000",
+    "path": "/modules/payloads/stagers/php/reverse_http.rb",
+    "is_install_path": true,
+    "ref_name": "php/meterpreter/reverse_http",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 2,
+    "staged": true,
+    "stage_refname": "php/meterpreter",
+    "stager_refname": "php/reverse_http"
+  },
+  "payload_php/meterpreter/reverse_https": {
+    "name": "PHP Meterpreter, PHP Reverse HTTPS Stager",
+    "fullname": "payload/php/meterpreter/reverse_https",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "egypt <egypt@metasploit.com>",
+      "OJ Reeves"
+    ],
+    "description": "Run a meterpreter server in PHP.\n\nTunnel communication over HTTPS",
+    "references": [],
+    "platform": "PHP",
+    "arch": "php",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-07-30 16:43:05 +0000",
+    "path": "/modules/payloads/stagers/php/reverse_https.rb",
+    "is_install_path": true,
+    "ref_name": "php/meterpreter/reverse_https",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 2,
+    "staged": true,
+    "stage_refname": "php/meterpreter",
+    "stager_refname": "php/reverse_https"
+  },
   "payload_php/meterpreter/reverse_tcp": {
     "name": "PHP Meterpreter, PHP Reverse TCP Stager",
     "fullname": "payload/php/meterpreter/reverse_tcp",
@@ -296797,6 +297888,68 @@
     "stage_refname": "php/meterpreter",
     "stager_refname": "php/reverse_tcp_uuid"
   },
+  "payload_php/meterpreter_reverse_http": {
+    "name": "PHP Meterpreter, Reverse HTTP Inline",
+    "fullname": "payload/php/meterpreter_reverse_http",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "OJ Reeves"
+    ],
+    "description": "Connect back to attacker and spawn a Meterpreter server via HTTP (PHP)",
+    "references": [],
+    "platform": "PHP",
+    "arch": "php",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-07-03 11:25:39 +0000",
+    "path": "/modules/payloads/singles/php/meterpreter_reverse_http.rb",
+    "is_install_path": true,
+    "ref_name": "php/meterpreter_reverse_http",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 1,
+    "staged": false
+  },
+  "payload_php/meterpreter_reverse_https": {
+    "name": "PHP Meterpreter, Reverse HTTPS Inline",
+    "fullname": "payload/php/meterpreter_reverse_https",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "OJ Reeves"
+    ],
+    "description": "Connect back to attacker and spawn a Meterpreter server via HTTPS (PHP)",
+    "references": [],
+    "platform": "PHP",
+    "arch": "php",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-07-03 11:25:39 +0000",
+    "path": "/modules/payloads/singles/php/meterpreter_reverse_https.rb",
+    "is_install_path": true,
+    "ref_name": "php/meterpreter_reverse_https",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 1,
+    "staged": false
+  },
   "payload_php/meterpreter_reverse_tcp": {
     "name": "PHP Meterpreter, Reverse TCP Inline",
     "fullname": "payload/php/meterpreter_reverse_tcp",
@@ -296815,7 +297968,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-02 14:31:06 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/php/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "php/meterpreter_reverse_tcp",
@@ -299000,7 +300153,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-04-20 02:57:34 +0000",
+    "mod_time": "2026-05-20 18:00:24 +0000",
     "path": "/modules/payloads/singles/python/meterpreter_bind_tcp.rb",
     "is_install_path": true,
     "ref_name": "python/meterpreter_bind_tcp",
@@ -299031,7 +300184,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-04-20 02:57:34 +0000",
+    "mod_time": "2026-05-20 18:00:24 +0000",
     "path": "/modules/payloads/singles/python/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "python/meterpreter_reverse_http",
@@ -299062,7 +300215,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-04-20 02:57:34 +0000",
+    "mod_time": "2026-05-20 18:00:24 +0000",
     "path": "/modules/payloads/singles/python/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "python/meterpreter_reverse_https",
@@ -299093,7 +300246,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-04-20 02:57:34 +0000",
+    "mod_time": "2026-05-20 18:00:24 +0000",
     "path": "/modules/payloads/singles/python/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "python/meterpreter_reverse_tcp",
@@ -299831,6 +300984,39 @@
     "payload_type": 1,
     "staged": false
   },
+  "payload_windows/aarch64/shell/reverse_tcp": {
+    "name": "Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/windows/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "vinicius-batistella"
+    ],
+    "description": "Spawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "aarch64",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-08-11 15:26:00 +0000",
+    "path": "/modules/payloads/stagers/windows/aarch64/reverse_tcp.rb",
+    "is_install_path": true,
+    "ref_name": "windows/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 2,
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
   "payload_windows/aarch64/shell_reverse_tcp": {
     "name": "Windows AArch64 Command Shell, Reverse TCP Inline",
     "fullname": "payload/windows/aarch64/shell_reverse_tcp",
@@ -299849,7 +301035,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-24 00:11:10 +0000",
+    "mod_time": "2026-08-11 01:21:05 +0000",
     "path": "/modules/payloads/singles/windows/aarch64/shell_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/aarch64/shell_reverse_tcp",
@@ -300275,7 +301461,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-20 11:15:40 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/reverse_http.rb",
     "is_install_path": true,
     "ref_name": "windows/custom/reverse_http",
@@ -300343,7 +301529,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-20 11:15:40 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/reverse_https.rb",
     "is_install_path": true,
     "ref_name": "windows/custom/reverse_https",
@@ -300770,7 +301956,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-20 11:15:40 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/reverse_winhttp.rb",
     "is_install_path": true,
     "ref_name": "windows/custom/reverse_winhttp",
@@ -300805,7 +301991,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-20 11:15:40 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/reverse_winhttps.rb",
     "is_install_path": true,
     "ref_name": "windows/custom/reverse_winhttps",
@@ -301226,7 +302412,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-20 11:15:40 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/reverse_http.rb",
     "is_install_path": true,
     "ref_name": "windows/dllinject/reverse_http",
@@ -301646,7 +302832,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-20 11:15:40 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/reverse_winhttp.rb",
     "is_install_path": true,
     "ref_name": "windows/dllinject/reverse_winhttp",
@@ -302277,7 +303463,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-20 11:15:40 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/reverse_http.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter/reverse_http",
@@ -302355,7 +303541,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-20 11:15:40 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/reverse_https.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter/reverse_https",
@@ -302789,7 +303975,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-20 11:15:40 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/reverse_winhttp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter/reverse_winhttp",
@@ -302829,7 +304015,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-20 11:15:40 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/reverse_winhttps.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter/reverse_winhttps",
@@ -302867,7 +304053,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-06 13:47:12 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_bind_named_pipe.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_bind_named_pipe",
@@ -302902,7 +304088,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-06 13:47:12 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_bind_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_bind_tcp",
@@ -302937,7 +304123,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-06 13:47:12 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_reverse_http",
@@ -302972,7 +304158,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-06 13:47:12 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_reverse_https",
@@ -303007,7 +304193,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-06 13:47:12 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_reverse_ipv6_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_reverse_ipv6_tcp",
@@ -303042,7 +304228,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-06 13:47:12 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_reverse_tcp",
@@ -307443,7 +308629,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-20 11:15:40 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/reverse_http.rb",
     "is_install_path": true,
     "ref_name": "windows/vncinject/reverse_http",
@@ -307863,7 +309049,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-20 11:15:40 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/reverse_winhttp.rb",
     "is_install_path": true,
     "ref_name": "windows/vncinject/reverse_winhttp",
@@ -308108,7 +309294,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-16 08:50:42 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/x64/reverse_http.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/custom/reverse_http",
@@ -308144,7 +309330,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-16 08:50:42 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/x64/reverse_https.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/custom/reverse_https",
@@ -308320,7 +309506,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-16 08:50:42 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/x64/reverse_winhttp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/custom/reverse_winhttp",
@@ -308354,7 +309540,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-16 08:50:42 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/x64/reverse_winhttps.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/custom/reverse_winhttps",
@@ -308750,7 +309936,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-16 08:50:42 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/x64/reverse_http.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter/reverse_http",
@@ -308791,7 +309977,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-16 08:50:42 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/x64/reverse_https.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter/reverse_https",
@@ -308985,7 +310171,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-16 08:50:42 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/x64/reverse_winhttp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter/reverse_winhttp",
@@ -309023,7 +310209,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-16 08:50:42 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/x64/reverse_winhttps.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter/reverse_winhttps",
@@ -309061,7 +310247,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-06 13:47:12 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_bind_named_pipe.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_bind_named_pipe",
@@ -309096,7 +310282,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-06 13:47:12 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_bind_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_bind_tcp",
@@ -309131,7 +310317,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-06 13:47:12 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_reverse_http",
@@ -309166,7 +310352,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-06 13:47:12 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_reverse_https",
@@ -309201,7 +310387,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-06 13:47:12 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_reverse_ipv6_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_reverse_ipv6_tcp",
@@ -309236,7 +310422,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-06 13:47:12 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_reverse_tcp",
@@ -310377,7 +311563,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-16 08:50:42 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/x64/reverse_http.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/vncinject/reverse_http",
@@ -310416,7 +311602,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-16 08:50:42 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/x64/reverse_https.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/vncinject/reverse_https",
@@ -310567,7 +311753,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-16 08:50:42 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/x64/reverse_winhttp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/vncinject/reverse_winhttp",
@@ -310604,7 +311790,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-04-16 08:50:42 +0000",
+    "mod_time": "2026-07-30 10:26:56 +0000",
     "path": "/modules/payloads/stagers/windows/x64/reverse_winhttps.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/vncinject/reverse_winhttps",
