@@ -5,43 +5,134 @@ negotiates with an rsync server, lists the available modules and, optionally, de
 
 ## Vulnerable Application
 
-### Configuring rsync on Kali Linux:
+### Kali rolling with rsync 3.4.4  (protocol 32, August 2026)
 
-Rsync is installed by default on Kali, however we need to configure some modules for the scanner to find.  Step three will
-create the secrets files which we'll use to test the authentication mechanism.  Much of this is based on the guide from
-[atlantic.net](https://www.atlantic.net/cloud-hosting/how-to-setup-rsync-daemon-linux-server/).
+```
+# rsync 3.4.4 / protocol 32 — current Kali rolling package
+# (the newest daemon; strict handshake with subprotocol + digest list)
+FROM kalilinux/kali-rolling:latest
 
-1. ```mkdir /home/public_rsync2; mkdir /home/public_rsync3; mkdir /home/public_rsync```
-2. Create the configuration file: 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends rsync \
+    && rm -rf /var/lib/apt/lists/*
 
-    ```
-    echo -n "[read only files]
-    path = /home/public_rsync
-    comment = Files are read only
-    read only = true
-    timeout = 300
-    
-    [writable]
-    path = /home/public_rsync2
-    comment = Files can be written to
-    read only = false
-    timeout = 300
-    
-    [authenticated]
-    path = /home/public_rsync3
-    comment = Files require authentication
-    read only = true
-    timeout = 300
-    auth users = rsync1,rsync2
+RUN <<'SETUP'
+mkdir -p /srv/share
+echo 'hello from kali-rolling (rsync 3.4.4, protocol 32)' > /srv/share/file.txt
+cat > /etc/rsyncd.secrets <<'SECRETS'
+demouser:secretpw
+SECRETS
+chmod 600 /etc/rsyncd.secrets
+cat > /etc/rsyncd.conf <<'CONF'
+use chroot = no
+reverse lookup = no
+forward lookup = no
+pid file = /tmp/rsyncd.pid
+log file = /tmp/rsyncd.log
+
+[public]
+    path = /srv/share
+    comment = open share
+    read only = yes
+
+[locked]
+    path = /srv/share
+    comment = password-protected share
+    read only = yes
+    auth users = demouser
     secrets file = /etc/rsyncd.secrets
-    " > /etc/rsyncd.conf
-    ```
+CONF
+SETUP
 
-3. ```echo -n "rsync1:9$AZv2%5D29S740k
-rsync2:Xyb#vbfUQR0og0$6
-rsync3:VU&A1We5DEa8M6^8" > /etc/rsyncd.secrets```
-4. ```chmod 600 /etc/rsyncd.secrets```
-5. ```rsync --daemon```
+EXPOSE 873
+CMD ["rsync", "--daemon", "--no-detach", "--config", "/etc/rsyncd.conf"]
+```
+
+### Debian 12 with rsync 3.2.7 (protocol 32)
+
+```
+# rsync 3.2.7 / protocol 32 — Debian 12 point-release package
+# (first protocol-32 daemon; same strict handshake as 3.4.x)
+FROM debian:12
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends rsync \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN <<'SETUP'
+mkdir -p /srv/share
+echo 'hello from debian 12 (rsync 3.2.7, protocol 32)' > /srv/share/file.txt
+cat > /etc/rsyncd.secrets <<'SECRETS'
+demouser:secretpw
+SECRETS
+chmod 600 /etc/rsyncd.secrets
+cat > /etc/rsyncd.conf <<'CONF'
+use chroot = no
+reverse lookup = no
+forward lookup = no
+pid file = /tmp/rsyncd.pid
+log file = /tmp/rsyncd.log
+
+[public]
+    path = /srv/share
+    comment = open share
+    read only = yes
+
+[locked]
+    path = /srv/share
+    comment = password-protected share
+    read only = yes
+    auth users = demouser
+    secrets file = /etc/rsyncd.secrets
+CONF
+SETUP
+
+EXPOSE 873
+CMD ["rsync", "--daemon", "--no-detach", "--config", "/etc/rsyncd.conf"]
+```
+
+### Ubuntu 20.04 with rsync 3.1.3 (protocol 31)
+
+```
+# rsync 3.1.3 / protocol 31 — Ubuntu 20.04 package
+# (old-style handshake: "@RSYNCD: 31.0", no digest list — the regression case)
+FROM ubuntu:20.04
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends rsync \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN <<'SETUP'
+mkdir -p /srv/share
+echo 'hello from ubuntu 20.04 (rsync 3.1.3, protocol 31)' > /srv/share/file.txt
+cat > /etc/rsyncd.secrets <<'SECRETS'
+demouser:secretpw
+SECRETS
+chmod 600 /etc/rsyncd.secrets
+cat > /etc/rsyncd.conf <<'CONF'
+use chroot = no
+reverse lookup = no
+forward lookup = no
+pid file = /tmp/rsyncd.pid
+log file = /tmp/rsyncd.log
+
+[public]
+    path = /srv/share
+    comment = open share
+    read only = yes
+
+[locked]
+    path = /srv/share
+    comment = password-protected share
+    read only = yes
+    auth users = demouser
+    secrets file = /etc/rsyncd.secrets
+CONF
+SETUP
+
+EXPOSE 873
+CMD ["rsync", "--daemon", "--no-detach", "--config", "/etc/rsyncd.conf"]
+```
 
 ## Verification Steps
 
@@ -62,41 +153,107 @@ rsync3:VU&A1We5DEa8M6^8" > /etc/rsyncd.secrets```
 
 ## Scenarios
 
-### rsyncd on Kali (using above config)
+### Kali rolling with rsync 3.4.4  (protocol 32, August 2026)
 
-With verbose set to `false`:
+```
+docker build -t kali_rsync .
+docker run -p 873:873 kali_rsync
+```
 
-  ```
-  msf > use auxiliary/scanner/rsync/modules_list
-  msf auxiliary(scanner/rsync/modules_list) > set rhosts 10.168.202.216
-  rhosts => 10.168.202.216
-  msf auxiliary(scanner/rsync/modules_list) > run
-  
-  [+] 10.168.202.216:873    - 3 rsync modules found: read only files, writable, authenticated
-  ```
+```
+msf > use auxiliary/scanner/rsync/modules_list
+msf auxiliary(scanner/rsync/modules_list) > set rhosts 127.0.0.1
+rhosts => 127.0.0.1
+msf auxiliary(scanner/rsync/modules_list) > set verbose true
+verbose => true
+msf auxiliary(scanner/rsync/modules_list) > set SHOW_MOTD true
+SHOW_MOTD => true
+msf auxiliary(scanner/rsync/modules_list) > set SHOW_VERSION true
+SHOW_VERSION => true
+msf auxiliary(scanner/rsync/modules_list) > run
+[*] 127.0.0.1:873         - rsync version: 32.0
+[+] 127.0.0.1:873         - 2 rsync modules found: public, locked
 
-With verbose set to `true`:
+rsync modules for 127.0.0.1:873        
+=======================================
 
-  ```
-  msf > use auxiliary/scanner/rsync/modules_list
-  msf auxiliary(scanner/rsync/modules_list) > set rhosts 10.168.202.216
-  rhosts => 10.168.202.216
-  msf auxiliary(scanner/rsync/modules_list) > set verbose true
-  verbose => true
-  msf auxiliary(scanner/rsync/modules_list) > run
-  
-  [+] 10.168.202.216:873    - 3 rsync modules found: read only files, writable, authenticated
-  
-  rsync modules for 10.168.202.216:873   
-  =======================================
-  
-     Name             Comment                       Authentication
-     ----             -------                       --------------
-     authenticated    Files require authentication  required
-     read only files  Files are read only           not required
-     writable         Files can be written to       not required
-  
-  ```
+   Name    Comment                   Authentication
+   ----    -------                   --------------
+   locked  password-protected share  required
+   public  open share                not required
+
+
+[*] 127.0.0.1:873         - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+```
+
+### Debian 12 with rsync 3.2.7 (protocol 32)
+
+```
+docker build -t debian_rsync .
+docker run -p 873:873 debian_rsync
+```
+
+```
+msf > use auxiliary/scanner/rsync/modules_list
+msf auxiliary(scanner/rsync/modules_list) > set rhosts 127.0.0.1
+rhosts => 127.0.0.1
+msf auxiliary(scanner/rsync/modules_list) > set verbose true
+verbose => true
+msf auxiliary(scanner/rsync/modules_list) > set SHOW_MOTD true
+SHOW_MOTD => true
+msf auxiliary(scanner/rsync/modules_list) > set SHOW_VERSION true
+SHOW_VERSION => true
+msf auxiliary(scanner/rsync/modules_list) > run
+[*] 127.0.0.1:873         - rsync protocol version: 32.0
+[+] 127.0.0.1:873         - 2 rsync modules found: public, locked
+
+rsync modules for 127.0.0.1:873        
+=======================================
+
+   Name    Comment                   Authentication
+   ----    -------                   --------------
+   locked  password-protected share  required
+   public  open share                not required
+
+
+[*] 127.0.0.1:873         - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+```
+
+### Ubuntu 20.04 with rsync 3.1.3 (protocol 31)
+
+```
+docker build -t ubuntu_rsync .
+docker run -p 873:873 ubuntu_rsync
+```
+
+```
+msf > use auxiliary/scanner/rsync/modules_list
+msf auxiliary(scanner/rsync/modules_list) > set rhosts 127.0.0.1
+rhosts => 127.0.0.1
+msf auxiliary(scanner/rsync/modules_list) > set verbose true
+verbose => true
+msf auxiliary(scanner/rsync/modules_list) > set SHOW_MOTD true
+SHOW_MOTD => true
+msf auxiliary(scanner/rsync/modules_list) > set SHOW_VERSION true
+SHOW_VERSION => true
+msf auxiliary(scanner/rsync/modules_list) > run
+[*] 127.0.0.1:873         - rsync protocol version: 31.0
+[+] 127.0.0.1:873         - 2 rsync modules found: public, locked
+
+rsync modules for 127.0.0.1:873        
+=======================================
+
+   Name    Comment                   Authentication
+   ----    -------                   --------------
+   locked  password-protected share  required
+   public  open share                not required
+
+
+[*] 127.0.0.1:873         - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+```
 
 ## Confirming
 
