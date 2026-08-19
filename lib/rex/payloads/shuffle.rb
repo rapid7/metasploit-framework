@@ -26,11 +26,11 @@ module Rex
       #   the global RNG is used and output is non-deterministic.
       def self.from_graphml_file(file_path, arch: nil, name: nil, random: nil)
         graphml = Rex::Parser::GraphML.from_file(file_path)
-        blocks = create_path(graphml.nodes.select { |_id,node| %w[ data instructions-graph ].include?(node.attributes['type']) }, graphml.graphs[0].edges, random: random)
+        blocks = create_path(graphml.nodes.select { |_id,node| %w[ data instructions-graph block ].include?(node.attributes['type']) }, graphml.graphs[0].edges, random: random)
         blocks.map! do |block|
           hash = { node: block }
 
-          if block.attributes['type'] == 'instructions-graph'
+          if %w[ instructions-graph block ].include?(block.attributes['type'])
             hash[:instructions] = process_instructions_graph_block(block, random: random)
           end
 
@@ -50,7 +50,7 @@ module Rex
             case block[:node].attributes['type']
             when 'data'
               instructions = [ 'db ' + block[:node].attributes['data.hex'].strip.chars.each_slice(2).map { |hex| '0x' + hex.join }.join(', ') ]
-            when 'instructions-graph'
+            when 'instructions-graph', 'block'
               # by default use the raw binary instruction to avoid syntax compatibility issues with metasm
               instructions = block[:instructions].map { |node| 'db ' + node.attributes['instruction.hex'].strip.chars.each_slice(2).map { |hex| '0x' + hex.join }.join(', ') }
             end
@@ -61,7 +61,7 @@ module Rex
           unless arch.nil?
             raise ArgumentError, 'Unsupported architecture' if FLOW_INSTRUCTIONS[arch].nil?
 
-            if block[:node].attributes['type'] == 'instructions-graph'
+            if %w[ instructions-graph block ].include?(block[:node].attributes['type'])
               # if a supported architecture was specified, use the original source and apply the necessary labels
               block[:instructions].each_with_index do |node, index|
                 next unless match = /^(?<mnemonic>\S+)\s+(?<address>0x[a-f0-9]+)$/.match(node.attributes['instruction.source'])
