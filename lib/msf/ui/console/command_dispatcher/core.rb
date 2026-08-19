@@ -2152,14 +2152,7 @@ class Core
     if (active_module and global == false)
       datastore = active_module.datastore
 
-      tab_complete_option_names(active_module, '', []).each do |opt_name|
-        valid_options << opt_name
-        option = active_module.options[opt_name]
-        next unless option
-
-        # aliases that are defined for backwards compatibility are not tab completed but are still valid option names
-        valid_options += active_module.options[opt_name].aliases
-      end
+      valid_options = valid_datastore_option_names(active_module, include_aliases: true)
     else
       global = true
       datastore = self.framework.datastore
@@ -2182,13 +2175,11 @@ class Core
           datastore) + "\n")
       return true
     elsif args.length == 1 && !clear
-      if global || valid_options.any? { |vo| vo.casecmp?(args[0]) }
+      message = global ? nil : unknown_datastore_option_message(active_module, args[0], valid_options: valid_options)
+      if message.nil?
         print_line("#{args[0]} => #{datastore[args[0]]}")
         return true
       else
-        message = "Unknown datastore option: #{args[0]}."
-        suggestion = DidYouMean::SpellChecker.new(dictionary: valid_options).correct(args[0]).first
-        message << " Did you mean #{suggestion}?" if suggestion
         print_error(message)
         cmd_set_help
         return false
@@ -2207,7 +2198,8 @@ class Core
     end
 
     # Set PAYLOAD
-    if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?) && !clear
+    payload_changed = name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?) && !clear
+    if payload_changed
       value = trim_path(value, 'payload')
 
       index_from_list(payload_show_results, value) do |mod|
@@ -2218,11 +2210,9 @@ class Core
       end
     end
 
-    unless global || valid_options.any? { |vo| vo.casecmp?(name) }
-      message = "Unknown datastore option: #{name}."
-      suggestion = DidYouMean::SpellChecker.new(dictionary: valid_options).correct(name).first
-      message << " Did you mean #{suggestion}?" if suggestion
-      print_warning(message)
+    unless global
+      message = unknown_datastore_option_message(active_module, name, valid_options: valid_options)
+      print_warning(message) if message
     end
 
     # If the driver indicates that the value is not valid, bust out.
@@ -2243,6 +2233,11 @@ class Core
     rescue Msf::OptionValidateError => e
       print_error(e.message)
       elog('Exception encountered in cmd_set', error: e)
+    end
+
+    # Import payload options so validation applies immediately on subsequent set calls
+    if payload_changed
+      import_payload_options(active_module)
     end
 
     # Set PAYLOAD from TARGET

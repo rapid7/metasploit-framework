@@ -55,11 +55,3 @@ RSpec.describe Msf::EvasionDriver, '#initialize' do
     expect(driver.job_listener).to eq(Msf::Simple::NoopJobListener.instance)
   end
 end
-
-RSpec.describe Msf::Simple::Evasion, '.run_simple' do
-  let(:job_listener) { double('JobListener', waiting: nil, start: nil, completed: nil, failed: nil) }
-
-  it 'is a singleton method that accepts a job_listener keyword' do
-    expect(described_class.method(:run_simple).parameters).to include(%i[key job_listener])
-  end
-end

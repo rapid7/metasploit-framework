@@ -46,23 +46,26 @@ module Msf::Payload::Android
     opts[:uuid] ||= generate_payload_uuid
     ds = opts[:datastore] || datastore
 
+    # Session flags consumed by the Android meterpreter via TLV_TYPE_SESSION_FLAGS.
+    # Bit values must match Config.FLAG_* in
+    # java/meterpreter/shared/src/main/java/com/metasploit/stage/Config.java.
+    flags = 0
+    flags |= 1 if opts[:stageless]
+    flags |= 2 if ds['AndroidMeterpreterDebug']
+    flags |= 4 if ds['AndroidWakelock']
+    flags |= 8 if ds['AndroidHideAppIcon']
+
     config_opts = {
       ascii_str:  true,
       arch:       opts[:uuid].arch,
       expiration: ds['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
       transports: opts[:transport_config] || [transport_config(opts)],
-      stageless:  opts[:stageless] == true
+      stageless:  opts[:stageless] == true,
+      flags:      flags
     }
 
-    config = Rex::Payloads::Meterpreter::Config.new(config_opts).to_b
-    flags = 0
-    flags |= 1 if opts[:stageless]
-    flags |= 2 if ds['AndroidMeterpreterDebug']
-    flags |= 4 if ds['AndroidWakelock']
-    flags |= 8 if ds['AndroidHideAppIcon']
-    config[0] = flags.chr
-    config
+    Rex::Payloads::Meterpreter::Config.new(config_opts).to_b
   end
 
   def sign_jar(jar)

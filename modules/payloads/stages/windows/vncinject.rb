@@ -22,7 +22,8 @@ module MetasploitModule
         'Description' => 'Inject a VNC Dll via a reflective loader (staged)',
         'Author' => [ 'sf' ],
         'Session' => Msf::Sessions::VncInject,
-        'Convention' => 'sockedi -http -https'
+        'Convention' => 'sockedi -http -https',
+        'Arch' => ARCH_X86
       )
     )
   end

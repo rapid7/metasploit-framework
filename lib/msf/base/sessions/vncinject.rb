@@ -16,6 +16,16 @@ class VncInject
   include Msf::Session::Basic
 
   #
+  # The architecture of the injected VNC server (e.g. ARCH_X86, ARCH_X64).
+  #
+  attr_accessor :arch
+
+  #
+  # The platform the injected VNC server is running on.
+  #
+  attr_accessor :platform
+
+  #
   # Initializes a vncinject session instance using the supplied rstream
   # that is to be used as the client's connection to the server.
   #

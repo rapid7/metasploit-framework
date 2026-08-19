@@ -112,7 +112,7 @@ module Msf
     # returns the port found. If the search is unsuccessful it returns the default broker port.
     #
     # @param [Array] broker_datas An array containing a hash of Broker info
-    # @param [String] rhosts The RHOST address
+    # @param rhost [String] The RHOST address
     # @param [Integer] default_broker_port The default broker port
     # @return [Integer] the determined broker port
     def get_broker_port(broker_datas, rhost, default_broker_port: 10911)

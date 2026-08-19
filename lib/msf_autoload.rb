@@ -181,6 +181,7 @@ class MsfAutoload
       'pe_inject' => 'PEInject',
       'reverse_tcp_x86' => 'ReverseTcp_x86',
       'reverse_tcp_aarch64' => 'ReverseTcp_Aarch64',
+      'exitfunk_aarch64' => 'Exitfunk_Aarch64',
       'ruby_dl' => 'RubyDL',
       'wmic' => 'WMIC',
       'net_api' => 'NetAPI',

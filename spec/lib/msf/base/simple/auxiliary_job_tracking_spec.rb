@@ -58,23 +58,11 @@ RSpec.describe Msf::Simple::Auxiliary, '#job_run_proc job tracking' do
   end
 end
 
-RSpec.describe Msf::Simple::Auxiliary, 'job_listener keyword signature' do
-  it '.run_simple accepts a job_listener kwarg' do
-    expect(described_class.method(:run_simple).parameters).to include(%i[key job_listener])
-  end
-
-  it '.check_simple accepts a job_listener kwarg' do
-    expect(described_class.method(:check_simple).parameters).to include(%i[key job_listener])
-  end
-
-  it 'the instance-level run_simple accepts a job_listener kwarg' do
-    expect(described_class.instance_method(:run_simple).parameters).to include(%i[key job_listener])
-  end
-
-  it 'the instance-level run_simple forwards job_listener: to the class method' do
+RSpec.describe Msf::Simple::Auxiliary, "'JobListener' opts key signature" do
+  it "the instance-level run_simple forwards opts (including 'JobListener') to the class method" do
     mod = Class.new { include Msf::Simple::Auxiliary }.new
     listener = double('JobListener')
-    expect(described_class).to receive(:run_simple).with(mod, { opts: 1 }, job_listener: listener)
-    mod.run_simple({ opts: 1 }, job_listener: listener)
+    expect(described_class).to receive(:run_simple).with(mod, { opts: 1, 'JobListener' => listener })
+    mod.run_simple({ opts: 1, 'JobListener' => listener })
   end
 end

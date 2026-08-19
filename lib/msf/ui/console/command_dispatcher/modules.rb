@@ -928,6 +928,11 @@ module Msf
               print_status("No payload configured, defaulting to #{chosen_payload}") if chosen_payload
             end
 
+            # Import payload options so validation applies immediately on set calls
+            if (mod.exploit? || mod.evasion?) && mod.datastore['PAYLOAD']
+              import_payload_options(mod)
+            end
+
             if framework.features.enabled?(Msf::FeatureManager::DISPLAY_MODULE_ACTION) && mod.respond_to?(:actions) && mod.actions.size > 1
               print_status "Setting default action %grn#{mod.action.name}%clr - view all #{mod.actions.size} actions with the %grnshow actions%clr command"
             end
@@ -1741,10 +1746,11 @@ module Msf
           end
 
           # @param [table_name] used to name table
-          # @param [module_filter] this will either be a modules fullname, or it will be an Array(show payloads/encoders)
-          # or a Hash(show favorites) containing fullname
-          # @param [compatible_mod] handles logic for if there is an active module when the
-          # `show` command is run
+          # @param table_name [String] The name for the generated table
+          # @param module_filter [Array, Hash, String] this will either be a modules fullname, or it will be an Array(show payloads/encoders)
+          #   or a Hash(show favorites) containing fullname
+          # @param compatible_mod [Boolean] handles logic for if there is an active module when the
+          #   `show` command is run
           #
           # Handles the filtering of modules that will be generated into a table
           def show_module_metadata(table_name, module_filter)
@@ -1777,10 +1783,10 @@ module Msf
             print(tbl.to_s)
           end
 
-          # @param [mod] current module being passed in
-          # @param [count] passes the count for each record
-          # @param [compatible_mod] handles logic for if there is an active module when the
-          # `show` command is run
+          # @param mod [Object] current module being passed in
+          # @param count [Integer] passes the count for each record
+          # @param compatible_mod [Boolean] handles logic for whether the module is currently
+          #   handling compatible payloads/encoders
           #
           # Adds a record for a table, also handle logic for whether the module is currently
           # handling compatible payloads/encoders

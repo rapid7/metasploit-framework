@@ -106,9 +106,9 @@ class Rex::Proto::Thrift::Client
 
   # Call the specific method on the remote peer.
   #
-  # @param [String] method_name The method name to call.
-  # @param [BinData::Struct, Hash, String] *data The data to send in the method call.
-  # @param [Float] timeout The timeout to use for this call operation. Defaults to the instance timeout.
+  # @param method_name [String] The method name to call.
+  # @param data [BinData::Struct, Hash, String] The data to send in the method call (splat argument).
+  # @param timeout [Float] The timeout to use for this call operation. Defaults to the instance timeout.
   # @raise [Error::UnexpectedReplyError] Raised if the reply was not to the method call.
   # @raise [Rex::TimeoutError] Raised when all of the data was not received within the timeout.
   # @return [Array<Hash>] The results of the method call.

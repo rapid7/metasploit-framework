@@ -60,6 +60,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
         before(:each) do
           allow(core).to receive(:active_module).and_return(mod)
           allow(core).to receive(:tab_complete_option_names).and_return([ name ])
+          allow(core).to receive(:valid_datastore_option_names).and_return([ name ])
           allow(driver).to receive(:on_variable_set).and_return(true)
         end
 
@@ -190,6 +191,41 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
         it 'should set the datastore value to nil' do
           expect(mod.datastore['foo']).to eq nil
         end
+      end
+    end
+
+    context 'with an inactive conditional option' do
+      let(:mod) do
+        mod_klass = Class.new(Msf::Auxiliary) do
+          def initialize
+            super
+
+            register_options(
+              [
+                Msf::OptString.new('MODE', [false, 'Mode', 'visible']),
+                Msf::OptString.new('CONDITIONAL', [false, 'Conditional option', nil], conditions: %w[MODE == visible])
+              ]
+            )
+          end
+        end
+        mod = mod_klass.new
+        allow(mod).to receive(:framework).and_return(framework)
+        mod
+      end
+
+      before(:each) do
+        mod.datastore['MODE'] = 'hidden'
+      end
+
+      it 'does not warn that the option is unknown when setting it' do
+        subject.cmd_set('CONDITIONAL', 'value')
+
+        expect(@combined_output || []).not_to include('Unknown datastore option: CONDITIONAL.')
+        expect(mod.datastore['CONDITIONAL']).to eq 'value'
+      end
+
+      it 'does not tab complete the option' do
+        expect(subject.cmd_set_tabs('COND', ['set'])).not_to include('CONDITIONAL')
       end
     end
   end

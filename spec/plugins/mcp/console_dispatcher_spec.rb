@@ -122,6 +122,21 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
       expect(result).to include('ServerHost=', 'RpcHost=', 'RpcPass=')
     end
 
+    it 'includes DangerousActions= among the start option completions' do
+      result = plugin.cmd_mcp_tabs('', ['mcp', 'start'])
+      expect(result).to include('DangerousActions=')
+    end
+
+    it 'includes DangerousActions= among the restart option completions' do
+      result = plugin.cmd_mcp_tabs('', ['mcp', 'restart'])
+      expect(result).to include('DangerousActions=')
+    end
+
+    it 'filters DangerousActions= via a Dang prefix (case-insensitive)' do
+      result = plugin.cmd_mcp_tabs('dang', ['mcp', 'start'])
+      expect(result).to contain_exactly('DangerousActions=')
+    end
+
     it 'returns empty array for status subcommand' do
       # User typed: "mcp status <tab>" → words = ['mcp', 'status'], str = ''
       expect(plugin.cmd_mcp_tabs('', ['mcp', 'status'])).to eq([])
@@ -218,6 +233,13 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
       expect(combined).to include('stop')
       expect(combined).to include('restart')
       expect(combined).to include('help')
+    end
+
+    it 'documents DangerousActions with its accepted values and default' do
+      plugin.cmd_mcp_help
+      combined = @output.join("\n")
+      expect(combined).to match(/DangerousActions=<true\|false>/)
+      expect(combined).to match(/default: false/)
     end
   end
 

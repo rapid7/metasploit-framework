@@ -879,12 +879,15 @@ protected
     fd = session.fs.file.new(file_name, 'rb')
 
     data = ''.b
-    data << fd.read
-    data << fd.read until fd.eof?
+    loop do
+      chunk = fd.read
+      break if chunk.nil? || chunk.empty?
+
+      data << chunk
+    end
 
     data
   rescue EOFError
-    # Sometimes fd isn't marked EOF in time?
     data
   rescue ::Rex::Post::Meterpreter::RequestError => e
     print_error("Failed to open file: #{file_name}: #{e}")

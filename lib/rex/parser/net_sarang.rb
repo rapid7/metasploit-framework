@@ -94,7 +94,7 @@ module Rex
 
       # parser xfp session file
       #
-      # @param ini [String]
+      # @param file [String] the file content to parse
       # @return [version, host, port, username, password]
       def parser_xfp(file)
         ini = Rex::Parser::Ini.from_s(file)

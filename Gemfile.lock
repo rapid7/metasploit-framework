@@ -15,7 +15,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (6.4.145)
+    metasploit-framework (6.5.3)
       aarch64
       abbrev
       actionpack (~> 8.0.5)
@@ -61,9 +61,9 @@ PATH
       metasploit-concern
       metasploit-credential (>= 6.0.21)
       metasploit-model
-      metasploit-payloads (= 2.0.245)
+      metasploit-payloads (= 2.0.247)
       metasploit_data_models (>= 6.0.15)
-      metasploit_payloads-mettle (= 1.0.46)
+      metasploit_payloads-mettle (= 1.0.48)
       mqtt
       msgpack (~> 1.6.0)
       mutex_m
@@ -249,7 +249,7 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     diff-lcs (1.6.2)
-    dnsruby (1.73.1)
+    dnsruby (1.74.0)
       base64 (>= 0.2)
       logger (~> 1.6)
       simpleidn (~> 0.2.1)
@@ -369,7 +369,7 @@ GEM
       drb
       mutex_m
       railties (>= 7.0, < 8.1)
-    metasploit-payloads (2.0.245)
+    metasploit-payloads (2.0.247)
     metasploit_data_models (6.0.18)
       activerecord (>= 7.0, < 8.1)
       activesupport (>= 7.0, < 8.1)
@@ -383,7 +383,7 @@ GEM
       railties (>= 7.0, < 8.1)
       recog
       webrick
-    metasploit_payloads-mettle (1.0.46)
+    metasploit_payloads-mettle (1.0.48)
     method_source (1.1.0)
     mime-types (3.7.0)
       logger
@@ -551,7 +551,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.70)
+    rex-socket (0.1.71)
       dnsruby
       rex-core
     rex-sslscan (0.1.13)
@@ -682,7 +682,7 @@ GEM
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     win32api (0.1.0)
-    windows_error (0.1.5)
+    windows_error (0.1.6)
     winrm (2.3.9)
       builder (>= 2.1.2)
       erubi (~> 1.8)
