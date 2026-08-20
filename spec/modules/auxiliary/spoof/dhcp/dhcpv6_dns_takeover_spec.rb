@@ -39,6 +39,13 @@ RSpec.describe 'auxiliary/spoof/dhcp/dhcpv6_dns_takeover' do
       expect(resp.header.qr).to be(true)
     end
 
+    it 'logs the peer as an IPv6-safe bracketed authority, not a bare host:port' do
+      ipv6_cli = double('cli', peerhost: 'fe80::5', peerport: 546)
+      allow(dns_service).to receive(:send_response)
+      expect(mod).to receive(:print_good).with(a_string_matching(/\[fe80::5\]:546/))
+      mod.on_dispatch_request(ipv6_cli, query_bytes('dc1.kerberos.issue', 'AAAA'))
+    end
+
     it 'poisons arbitrary subdomains under the target domain (wildcard)' do
       resp = captured_response { mod.on_dispatch_request(cli, query_bytes('anything.sub.kerberos.issue', 'AAAA')) }
       expect(resp.answer.any? { |rr| rr.type == 'AAAA' }).to be(true)
