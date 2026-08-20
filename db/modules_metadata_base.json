@@ -111825,7 +111825,7 @@
       "Ghost >= 0.7.2, <= 6.19.0 / Unix payload",
       "Ghost >= 0.7.2, <= 6.19.0 / Windows payload"
     ],
-    "mod_time": "2026-08-07 05:21:48 +0000",
+    "mod_time": "2026-08-20 14:26:49 +0000",
     "path": "/modules/exploits/multi/http/ghostcms_auth_rce_cve_2026_29053.rb",
     "is_install_path": true,
     "ref_name": "multi/http/ghostcms_auth_rce_cve_2026_29053",
