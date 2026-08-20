@@ -40,4 +40,24 @@ RSpec.describe 'auxiliary/server/relay/esc8_kerberos' do
       expect(mod.send(:normalize_relay_identity, 'svc$@a@b')).to eq('a@b\\svc$')
     end
   end
+
+  describe '#validate' do
+    before do
+      mod.datastore['RHOSTS'] = '192.0.2.1'
+      mod.datastore['RELAY_IDENTITY'] = 'AD\\WIN-VICTIM$'
+    end
+
+    it 'does not raise when HTTP::Auth is left at its default' do
+      expect { mod.validate }.not_to raise_error
+    end
+
+    it 'defaults HTTP::Auth to none, matching the relayed connection already being authenticated' do
+      expect(mod.datastore['HTTP::Auth']).to eq(Msf::Exploit::Remote::AuthOption::NONE)
+    end
+
+    it 'rejects an overridden HTTP::Auth, since follow-up requests must not re-authenticate' do
+      mod.datastore['HTTP::Auth'] = Msf::Exploit::Remote::AuthOption::NTLM
+      expect { mod.validate }.to raise_error(ArgumentError, /HTTP::Auth/)
+    end
+  end
 end

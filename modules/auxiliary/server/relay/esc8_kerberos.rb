@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       'Actions' => [[ 'Relay', { 'Description' => 'Run SMB ESC8 Kerberos relay server' } ]],
       # The relayed connection is already authenticated by the AP-REQ, so
       # follow-up enrollment requests must not attempt to re-authenticate.
-      'DefaultOptions' => { 'HTTP::Auth' => 'None' },
+      'DefaultOptions' => { 'HTTP::Auth' => Msf::Exploit::Remote::AuthOption::NONE },
       'PassiveActions' => [ 'Relay' ],
       'DefaultAction' => 'Relay',
       'Notes' => {
@@ -112,6 +112,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def validate
     errors = {}
+
+    unless datastore['HTTP::Auth'] == Msf::Exploit::Remote::AuthOption::NONE
+      errors['HTTP::Auth'] = 'The relayed connection is already authenticated by the AP-REQ; this module does not support re-authenticating follow-up requests.'
+    end
 
     case datastore['MODE']
     when 'SPECIFIC_TEMPLATE'
