@@ -4,7 +4,8 @@ module RuboCop
   module Cop
     module Lint
       # Detects redundant host/port prefixes in print_status, print_error, print_good,
-      # print_warning, vprint_status, vprint_error, vprint_good, and vprint_warning calls.
+      # print_warning, print_bad, vprint_status, vprint_error, vprint_good, vprint_warning,
+      # and vprint_bad calls.
       #
       # The framework's `print_prefix` (from Msf::Exploit::Remote::Tcp and the scanner mixin)
       # already prepends `peer` (host:port) to console output. Manually including `#{peer}`,
@@ -36,7 +37,7 @@ module RuboCop
 
         PRINT_METHODS = %i[
           print_status print_error print_good print_warning print_bad
-          vprint_status vprint_error vprint_good vprint_warning
+          vprint_status vprint_error vprint_good vprint_warning vprint_bad
         ].freeze
 
         # Separator patterns stripped from the source text following the prefix.

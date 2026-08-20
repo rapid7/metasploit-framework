@@ -85,6 +85,17 @@ RSpec.describe RuboCop::Cop::Lint::RedundantPeerInPrint, :config do
         print_bad("Bad thing")
       RUBY
     end
+
+    it 'registers an offense for vprint_bad with peer prefix' do
+      expect_offense(<<~RUBY)
+        vprint_bad("\#{peer} - Bad thing")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/RedundantPeerInPrint: Redundant peer/host prefix in print message. The framework auto-prepends host:port via `print_prefix` -- see CONTRIBUTING.md.
+      RUBY
+
+      expect_correction(<<~RUBY)
+        vprint_bad("Bad thing")
+      RUBY
+    end
   end
 
   context 'when message starts with #{rhost}:#{rport}' do
