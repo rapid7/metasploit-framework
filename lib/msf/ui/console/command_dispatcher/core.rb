@@ -2243,6 +2243,18 @@ class Core
     # Set PAYLOAD from TARGET
     if name.upcase == 'TARGET' && active_module && (active_module.exploit? || active_module.evasion?)
       active_module.import_target_defaults
+
+      # If the currently-configured payload is not compatible with the new
+      # target's platform/arch, try to auto-select a compatible one — mirrors
+      # the default payload selection performed when the module is first used.
+      current_payload = active_module.datastore['PAYLOAD']
+      unless current_payload && active_module.compatible_payloads.any? { |payload_name, _| payload_name == current_payload }
+        chosen_payload = Msf::Payload.choose_payload(active_module)
+        new_payload = active_module.datastore['PAYLOAD']
+        if chosen_payload && new_payload == chosen_payload && new_payload != current_payload
+          print_status("Payload not compatible with target, defaulting to #{chosen_payload}")
+        end
+      end
     end
 
     # If the new SSL value already set in datastore[name] is different from the old value, warn the user
