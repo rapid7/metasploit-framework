@@ -112,7 +112,8 @@ module Payload::Windows::MeterpreterLoader_x64
     dll = ::MetasploitPayloads::Crypto.decrypt(ciphertext: ::File.binread(dll_path))
     begin
       rdi_offset = parse_pe(dll)
-    rescue
+    rescue Rex::PeParsey::PeError => e
+      elog("Failed to parse metsrv (x64) as a PE, falling back to the polymorphic loader: #{e.class}: #{e.message}")
       rdi_offset = nil
     end
 
@@ -127,9 +128,10 @@ module Payload::Windows::MeterpreterLoader_x64
 
     use_loader = false
     if custom_loader_path
+      loader = ::File.binread(custom_loader_path)
+      validate_custom_loader!(loader, custom_loader_path)
       dlog("Using custom loader from #{custom_loader_path}")
       ::MetasploitPayloads.warn_local_path(custom_loader_path)
-      loader = ::File.binread(custom_loader_path)
       use_loader = true
     end
 

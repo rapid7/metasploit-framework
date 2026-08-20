@@ -49,13 +49,18 @@ module Rex
             labeled << block[:node].attributes['address']
             case block[:node].attributes['type']
             when 'data'
-              instructions = [ 'db ' + block[:node].attributes['data.hex'].strip.chars.each_slice(2).map { |hex| '0x' + hex.join }.join(', ') ]
+              instructions = data_block_instructions(block[:node])
             when 'instructions-graph', 'block'
               # by default use the raw binary instruction to avoid syntax compatibility issues with metasm
               instructions = block[:instructions].map { |node| 'db ' + node.attributes['instruction.hex'].strip.chars.each_slice(2).map { |hex| '0x' + hex.join }.join(', ') }
             end
           else
-            instructions = block[:instructions].map { |node| node.attributes['instruction.source'] }
+            case block[:node].attributes['type']
+            when 'data'
+              instructions = data_block_instructions(block[:node])
+            when 'instructions-graph', 'block'
+              instructions = block[:instructions].map { |node| node.attributes['instruction.source'] }
+            end
           end
 
           unless arch.nil?
@@ -89,6 +94,14 @@ module Rex
 
       class << self
         private
+
+        #
+        # Render a 'data' node's raw bytes as a `db` directive. This representation is
+        # architecture-agnostic, so it's used regardless of whether +arch+ was specified.
+        #
+        def data_block_instructions(node)
+          [ 'db ' + node.attributes['data.hex'].strip.chars.each_slice(2).map { |hex| '0x' + hex.join }.join(', ') ]
+        end
 
         #
         # Process the specified graph element which represents a single basic block in assembly. This graph element
