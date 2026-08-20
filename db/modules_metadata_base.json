@@ -35084,6 +35084,61 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/http/concrete_cms_file_usage_disclosure": {
+    "name": "Concrete CMS Unauthenticated File Usage Disclosure",
+    "fullname": "auxiliary/scanner/http/concrete_cms_file_usage_disclosure",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-05-21",
+    "type": "auxiliary",
+    "author": [
+      "dividesbyzer0"
+    ],
+    "description": "Concrete CMS (formerly concrete5) 9.x before 9.5.1 exposes the file usage\n          dialog controller at /ccm/system/dialogs/file/usage/<fID> without a view\n          permission check (CVE-2026-6826). An unauthenticated attacker can enumerate the\n          numeric file ID space and, for every file registered in the file manager, learn\n          where it is used: the referencing Page ID, page Version, file Handle, and the\n          page Location (path). This discloses the site's internal page tree, unpublished\n          and internal page paths, and file handles to anonymous callers.\n\n          This module enumerates a range of file IDs and reports the disclosed usage\n          records. It is read-only.",
+    "references": [
+      "CVE-2026-6826",
+      "URL-https://documentation.concretecms.org/9-x/developers/introduction/version-history/951-release-notes",
+      "URL-https://dailycve.com/concrete-cms-unauthenticated-file-usage-disclosure-cve-2026-6826-medium/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-08-16 12:54:09 +0000",
+    "path": "/modules/auxiliary/scanner/http/concrete_cms_file_usage_disclosure.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/concrete_cms_file_usage_disclosure",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/http/copy_of_file": {
     "name": "HTTP Copy File Scanner",
     "fullname": "auxiliary/scanner/http/copy_of_file",
@@ -111099,6 +111154,66 @@
         "repeatable-session"
       ],
       "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/flowise_mcp_rce": {
+    "name": "Flowise MCP Server Remote Code Execution",
+    "fullname": "exploit/multi/http/flowise_mcp_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-06-23",
+    "type": "exploit",
+    "author": [
+      "cn-panda",
+      "ABDUL JAFAROV <https://github.com/jafarov007>"
+    ],
+    "description": "Flowise versions from 2.2.7 prior to 3.1.2 are vulnerable to remote code execution\n          through the Custom MCP (Model Context Protocol) node configuration.\n\n          The vulnerability exists in the /api/v1/node-load-method/customMCP endpoint,\n          which accepts arbitrary command and argument configurations for MCP server\n          initialization. An authenticated attacker can abuse the npx --yes flag to\n          fetch and execute a malicious npm package from an attacker-controlled HTTP\n          server, achieving arbitrary command execution on the Flowise host.\n\n          This module creates a malicious npm package tar archive in memory, serves it\n          via Metasploit's built-in HTTP server, then triggers the vulnerable endpoint\n          to download and execute the package via npx.\n\n          To interact with the obtained shell, use the command: sessions -i <id>\n          (for example: sessions -i 1).",
+    "references": [
+      "CVE-2026-56274",
+      "CWE-78",
+      "GHSA-GHSA-m99r-2hxc-cp3q"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 3000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-08-20 18:02:33 +0000",
+    "path": "/modules/exploits/multi/http/flowise_mcp_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/flowise_mcp_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
         "ioc-in-logs"
       ]
     },
@@ -310247,7 +310362,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-05-15 14:44:08 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_bind_named_pipe.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_bind_named_pipe",
