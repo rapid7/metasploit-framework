@@ -194042,7 +194042,7 @@
       "Windows x86",
       "Windows x64"
     ],
-    "mod_time": "2026-04-22 11:58:46 +0000",
+    "mod_time": "2026-08-20 14:54:23 +0000",
     "path": "/modules/exploits/windows/local/bypassuac_fodhelper.rb",
     "is_install_path": true,
     "ref_name": "windows/local/bypassuac_fodhelper",
@@ -310362,7 +310362,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-05-15 14:44:08 +0000",
+    "mod_time": "2026-08-20 17:22:11 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_bind_named_pipe.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_bind_named_pipe",
