@@ -5,8 +5,8 @@ RSpec.describe Metasploit::Framework::ParsedOptions::Console do
   subject(:parsed_options) { described_class.allocate }
 
   describe '#option_parser' do
-    it 'parses --count as the count subcommand' do
-      parsed_options.send(:option_parser).parse(['--count'])
+    it 'parses --module-count as the count subcommand' do
+      parsed_options.send(:option_parser).parse(['--module-count'])
       expect(parsed_options.options.subcommand).to eq :count
     end
 

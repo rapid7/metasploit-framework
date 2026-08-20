@@ -44,7 +44,7 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
     case parsed_options.options.subcommand
     when :version
       $stderr.puts "Framework Version: #{Metasploit::Framework::VERSION}"
-    when :count
+    when :module_count
       print_module_counts
     else
       unless parsed_options.options.console.quiet
