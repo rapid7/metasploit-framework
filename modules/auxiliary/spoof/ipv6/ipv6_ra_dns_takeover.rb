@@ -81,6 +81,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     validate_ipv6!(datastore['SPOOF_IP6'], 'SPOOF_IP6')
+    fail_with(Failure::BadConfig, 'RA_INTERVAL must be >= 1') if datastore['RA_INTERVAL'] < 1
     check_pcaprub_loaded
 
     start_service

@@ -43,12 +43,23 @@ RSpec.describe 'auxiliary/spoof/ipv6/ipv6_ra_dns_takeover' do
       expect(dns_service).not_to receive(:send_response)
       mod.on_dispatch_request(cli, query_bytes('www.example.com', 'AAAA'))
     end
+
+    it 'logs the peer as an IPv6-safe bracketed authority, not a bare host:port' do
+      allow(dns_service).to receive(:send_response)
+      expect(mod).to receive(:print_good).with(a_string_matching(/\[fe80::5\]:546/))
+      mod.on_dispatch_request(cli, query_bytes('dc1.kerberos.issue', 'AAAA'))
+    end
   end
 
   describe '#run validation' do
     it 'rejects a non-IPv6 SPOOF_IP6' do
       mod.datastore['SPOOF_IP6'] = '10.0.0.1'
       expect { mod.run }.to raise_error(Msf::Auxiliary::Failed, /SPOOF_IP6 must be a valid IPv6/)
+    end
+
+    it 'rejects an RA_INTERVAL below 1, since 0 or negative would flood the segment' do
+      mod.datastore['RA_INTERVAL'] = 0
+      expect { mod.run }.to raise_error(Msf::Auxiliary::Failed, /RA_INTERVAL must be >= 1/)
     end
   end
 
