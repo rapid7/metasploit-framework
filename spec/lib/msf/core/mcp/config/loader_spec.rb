@@ -207,9 +207,9 @@ RSpec.describe Msf::MCP::Config::Loader do
         expect(config[:msf_api][:type]).to eq('messagepack')
       end
 
-      it 'sets default host to localhost' do
+      it 'sets default host to 127.0.0.1' do
         config = described_class.load_from_hash(config_hash)
-        expect(config[:msf_api][:host]).to eq('localhost')
+        expect(config[:msf_api][:host]).to eq('127.0.0.1')
       end
 
       it 'sets default port to 55553 for messagepack' do
@@ -316,6 +316,21 @@ RSpec.describe Msf::MCP::Config::Loader do
         it 'sets default port to 3000' do
           config = described_class.load_from_hash(config_hash)
           expect(config[:mcp][:port]).to eq(3000)
+        end
+
+        it 'sets default min_threads to 0' do
+          config = described_class.load_from_hash(config_hash)
+          expect(config[:mcp][:min_threads]).to eq(0)
+        end
+
+        it 'sets default max_threads to 5' do
+          config = described_class.load_from_hash(config_hash)
+          expect(config[:mcp][:max_threads]).to eq(5)
+        end
+
+        it 'sets default workers to 0' do
+          config = described_class.load_from_hash(config_hash)
+          expect(config[:mcp][:workers]).to eq(0)
         end
       end
 
@@ -531,6 +546,7 @@ RSpec.describe Msf::MCP::Config::Loader do
         MSF_API_TYPE MSF_API_HOST MSF_API_PORT MSF_API_SSL MSF_API_ENDPOINT
         MSF_API_USER MSF_API_PASSWORD MSF_API_TOKEN MSF_AUTO_START_RPC
         MSF_MCP_TRANSPORT MSF_MCP_HOST MSF_MCP_PORT
+        MSF_MCP_MIN_THREADS MSF_MCP_MAX_THREADS MSF_MCP_WORKERS
       ]
     end
 
@@ -741,6 +757,33 @@ RSpec.describe Msf::MCP::Config::Loader do
           expect(config[:mcp][:port]).to eq(8080)
         end
       end
+
+      context 'when MSF_MCP_MIN_THREADS is set' do
+        before { ENV['MSF_MCP_MIN_THREADS'] = '2' }
+
+        it 'overrides the MCP min_threads value as integer' do
+          config = described_class.load(config_file)
+          expect(config[:mcp][:min_threads]).to eq(2)
+        end
+      end
+
+      context 'when MSF_MCP_MAX_THREADS is set' do
+        before { ENV['MSF_MCP_MAX_THREADS'] = '16' }
+
+        it 'overrides the MCP max_threads value as integer' do
+          config = described_class.load(config_file)
+          expect(config[:mcp][:max_threads]).to eq(16)
+        end
+      end
+
+      context 'when MSF_MCP_WORKERS is set' do
+        before { ENV['MSF_MCP_WORKERS'] = '4' }
+
+        it 'overrides the MCP workers value as integer' do
+          config = described_class.load(config_file)
+          expect(config[:mcp][:workers]).to eq(4)
+        end
+      end
     end
 
     context 'with multiple ENV vars set' do
@@ -836,6 +879,70 @@ RSpec.describe Msf::MCP::Config::Loader do
         expect(config[:msf_api][:user]).to eq('hash_user') # Not overridden
         expect(config[:mcp][:transport]).to eq('http')
       end
+    end
+  end
+
+  describe 'dangerous_actions defaults' do
+    let(:config_hash) { {} }
+
+    it 'defaults mcp.dangerous_actions to false' do
+      config = described_class.load_from_hash(config_hash)
+      expect(config[:mcp][:dangerous_actions]).to be false
+    end
+
+    it 'preserves explicit true' do
+      config = described_class.load_from_hash(mcp: { dangerous_actions: true })
+      expect(config[:mcp][:dangerous_actions]).to be true
+    end
+
+    it 'preserves explicit false' do
+      config = described_class.load_from_hash(mcp: { dangerous_actions: false })
+      expect(config[:mcp][:dangerous_actions]).to be false
+    end
+  end
+
+  describe 'MSF_MCP_DANGEROUS_ACTIONS env override' do
+    around do |example|
+      original = ENV['MSF_MCP_DANGEROUS_ACTIONS']
+      example.run
+    ensure
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = original
+    end
+
+    it 'enables dangerous_actions when env is "true"' do
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = 'true'
+      config = described_class.load_from_hash({})
+      expect(config[:mcp][:dangerous_actions]).to be true
+    end
+
+    it 'enables dangerous_actions when env is "1"' do
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = '1'
+      config = described_class.load_from_hash({})
+      expect(config[:mcp][:dangerous_actions]).to be true
+    end
+
+    it 'enables dangerous_actions when env is "yes"' do
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = 'yes'
+      config = described_class.load_from_hash({})
+      expect(config[:mcp][:dangerous_actions]).to be true
+    end
+
+    it 'disables dangerous_actions when env is "false"' do
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = 'false'
+      config = described_class.load_from_hash(mcp: { dangerous_actions: true })
+      expect(config[:mcp][:dangerous_actions]).to be false
+    end
+
+    it 'overrides an explicit hash value' do
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = 'true'
+      config = described_class.load_from_hash(mcp: { dangerous_actions: false })
+      expect(config[:mcp][:dangerous_actions]).to be true
+    end
+
+    it 'ignores empty env value' do
+      ENV['MSF_MCP_DANGEROUS_ACTIONS'] = ''
+      config = described_class.load_from_hash(mcp: { dangerous_actions: true })
+      expect(config[:mcp][:dangerous_actions]).to be true
     end
   end
 end

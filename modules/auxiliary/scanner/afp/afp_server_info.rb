@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Interrupt
     raise $ERROR_INFO
   rescue StandardError
-    print_error("AFP #{rhost}:#{rport} #{$ERROR_INFO.class} #{$ERROR_INFO}")
+    print_error("AFP #{Rex::Socket.to_authority(rhost, rport)} #{$ERROR_INFO.class} #{$ERROR_INFO}")
     raise $ERROR_INFO
   ensure
     disconnect

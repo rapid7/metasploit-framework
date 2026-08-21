@@ -31,7 +31,7 @@ module Rex
         #
         # @param user_login [OpenStruct] User login information
         #
-        # @return auth_info [Hash] Processed authentication information
+        # @return [Hash] Processed authentication information
         def process_login_request(user_login)
           auth_info = {}
 
@@ -54,7 +54,7 @@ module Rex
         # @param user_login [OpenStruct] User login information
         # @param auth_info [Hash] Processed authentication information
         #
-        # @return auth_info [Hash] Processed authentication information
+        # @return [Hash] Processed authentication information
         def handle_anonymous_request(user_login, auth_info = {})
           if user_login.name.empty? && user_login.authentication.empty?
             auth_info[:user] = user_login.name
@@ -72,7 +72,7 @@ module Rex
         # @param user_login [OpenStruct] User login information
         # @param auth_info [Hash] Processed authentication information
         #
-        # @return auth_info [Hash] Processed authentication information
+        # @return [Hash] Processed authentication information
         def handle_unknown_request(user_login, auth_info = {})
           auth_info[:result_code] = Net::LDAP::ResultCodeAuthMethodNotSupported
           auth_info[:error_msg] = 'Invalid LDAP Login Attempt => Unknown Authentication Format'
@@ -85,7 +85,7 @@ module Rex
         # @param user_login [OpenStruct] User login information
         # @param auth_info [Hash] Processed authentication information
         #
-        # @return auth_info [Hash] Processed authentication information
+        # @return [Hash] Processed authentication information
         def handle_simple_request(user_login, auth_info = {})
           domains = []
           names = []
@@ -141,7 +141,7 @@ module Rex
         # @param user_login [OpenStruct] User login information
         # @param auth_info [Hash] Processed authentication information
         #
-        # @return auth_info [Hash] Processed authentication information
+        # @return [Hash] Processed authentication information
         def handle_sasl_request(user_login, auth_info = {})
           case user_login.authentication[1]
           when /NTLMSSP/
@@ -182,7 +182,7 @@ module Rex
         #
         # @param message [Net::NTLM::Message::Type1] NTLM Type1 message
         #
-        # @return server_hash [String] NTLM Type2 response that is sent as server credentials
+        # @return [String] NTLM Type2 response that is sent as server credentials
         def generate_type2_response(message)
           dom = message.domain
           ws = message.workstation
@@ -198,7 +198,7 @@ module Rex
         # @param message [Net::NTLM::Message::Type3] NTLM Type3 message
         # @param auth_info [Hash] Processed authentication information
         #
-        # @return auth_info [Hash] Processed authentication information
+        # @return [Hash] Processed authentication information
         def handle_type3_message(message, auth_info = {})
           arg = {
             domain: message.domain,
@@ -234,7 +234,7 @@ module Rex
         #
         # @param arg [Hash] authentication information received from Type3 message
         #
-        # @return arg [Hash] Processed NTLM authentication information
+        # @return [Hash] Processed NTLM authentication information
         def process_ntlm_hash(arg = {})
           ntlm_ver = arg[:ntlm_ver]
           lm_hash = arg[:lm_hash]

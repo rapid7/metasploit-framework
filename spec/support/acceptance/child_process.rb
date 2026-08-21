@@ -5,6 +5,7 @@ require 'tempfile'
 require 'fileutils'
 require 'timeout'
 require 'shellwords'
+require_relative 'datastore_formatting'
 
 module Acceptance
   class ChildProcessError < ::StandardError
@@ -307,6 +308,8 @@ module Acceptance
   # Stores the data for a payload, including the options used to generate the payload,
   ###
   class Payload
+    include DatastoreFormatting
+
     attr_reader :name, :execute_cmd, :generate_options, :datastore
 
     def initialize(options)
@@ -384,11 +387,7 @@ module Acceptance
     # @return [String] The datastore options string
     def datastore_options(default_module_datastore: {})
       module_datastore = default_module_datastore.merge(@datastore[:module])
-      module_options = module_datastore.map do |key, value|
-        "#{key}=#{value}"
-      end
-
-      module_options.join(' ')
+      format_datastore_options(module_datastore)
     end
 
     # @param [Hash] default_global_datastore

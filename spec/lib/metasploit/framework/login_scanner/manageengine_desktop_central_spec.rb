@@ -54,7 +54,9 @@ RSpec.describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral d
           res
         end
         it 'returns false' do
+          allow(subject).to receive(:report_service)
           expect(subject.check_setup).to be(false)
+          expect(subject).to have_received(:report_service).with(hash_including(name: 'manageengine_desktop_central', proto: 'tcp'))
         end
       end
 

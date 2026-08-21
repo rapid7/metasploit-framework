@@ -120,7 +120,7 @@ module Msf::Module::Alert
     end
   end
 
-  # @nodoc
+  # @!visibility private
   def self.included(base)
     base.extend(ClassMethods)
   end

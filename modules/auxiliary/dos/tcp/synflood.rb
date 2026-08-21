@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
     sent = 0
     num = datastore['NUM'] || 0
 
-    print_status("SYN flooding #{rhost}:#{rport}...")
+    print_status("SYN flooding #{Rex::Socket.to_authority(rhost, rport)}...")
 
     p = PacketFu::TCPPacket.new
     p.ip_saddr = srchost

@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       # First documented in detail by Craig, but looks like it's been known
       # (at least to the Russians :-) ) since 2010 - see post at forum.codenet.ru
-      'DisclosureDate' => "Oct 12 2013"
+      'DisclosureDate' => '2013-10-12'
     )
   end
 
@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi({ 'uri' => '/' })
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to connect to the web server")
       return false
     end
 

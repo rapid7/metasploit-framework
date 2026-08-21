@@ -54,10 +54,10 @@ module Msf::MCP
         config[:logging] ||= {}
 
         config[:msf_api][:type] ||= 'messagepack'
-        config[:msf_api][:host] ||= 'localhost'
-        config[:msf_api][:port] ||= (config[:msf_api][:type] == 'json-rpc') ? 8081 : 55553
+        config[:msf_api][:host] ||= Defaults::RPC_HOST
+        config[:msf_api][:port] ||= (config[:msf_api][:type] == 'json-rpc') ? 8081 : Defaults::RPC_PORT
 
-        config[:msf_api][:ssl] = config[:msf_api].fetch(:ssl, true)
+        config[:msf_api][:ssl] = config[:msf_api].fetch(:ssl, Defaults::RPC_SSL)
         config[:msf_api][:auto_start_rpc] = config[:msf_api].fetch(:auto_start_rpc, true)
 
         config[:msf_api][:endpoint] ||= case config[:msf_api][:type]
@@ -68,14 +68,27 @@ module Msf::MCP
                                         end
 
         config[:mcp][:transport] ||= 'stdio'
+        config[:mcp][:dangerous_actions] = config[:mcp].fetch(:dangerous_actions, false)
 
         if config[:mcp][:transport] == 'http'
-          config[:mcp][:host] ||= 'localhost'
-          config[:mcp][:port] ||= 3000
+          config[:mcp][:host] ||= Defaults::MCP_HOST
+          config[:mcp][:port] ||= Defaults::MCP_PORT
+          config[:mcp][:min_threads] ||= Msf::MCP::Server::PUMA_MIN_THREADS
+          config[:mcp][:max_threads] ||= Msf::MCP::Server::PUMA_MAX_THREADS
+          config[:mcp][:workers] ||= Msf::MCP::Server::PUMA_WORKERS
+        end
+
+        # auth_token: only normalize if the key was explicitly provided.
+        # Absent key means "not configured" -- the application layer generates
+        # a token at startup so it can decide whether to print it.
+        # nil or "" becomes nil (authentication disabled); non-empty string is used as-is.
+        if config[:mcp].key?(:auth_token)
+          val = config[:mcp][:auth_token]
+          config[:mcp][:auth_token] = nil if val.nil? || (val.is_a?(String) && val.empty?)
         end
 
         config[:rate_limit][:enabled] = config[:rate_limit].fetch(:enabled, true)
-        config[:rate_limit][:requests_per_minute] ||= 60
+        config[:rate_limit][:requests_per_minute] ||= Defaults::RATE_LIMIT_REQUESTS_PER_MINUTE
         config[:rate_limit][:burst_size] ||= 10
 
         config[:logging][:enabled] = config[:logging].fetch(:enabled, false)
@@ -109,11 +122,30 @@ module Msf::MCP
         # MCP server network overrides
         config[:mcp][:host] = ENV['MSF_MCP_HOST'] if ENV['MSF_MCP_HOST']
         config[:mcp][:port] = ENV['MSF_MCP_PORT'].to_i if ENV['MSF_MCP_PORT']
+
+        # MCP authentication -- env var overrides config/default
+        #   unset            -- leave whatever apply_defaults established
+        #   set to ""        -- nil (disable authentication)
+        #   set to non-empty -- use as the bearer token
+        if ENV.key?('MSF_MCP_AUTH_TOKEN')
+          mcp_token = ENV['MSF_MCP_AUTH_TOKEN']
+          config[:mcp][:auth_token] = mcp_token.empty? ? nil : mcp_token
+        end
+
+        # MCP Puma server tuning overrides
+        config[:mcp][:min_threads] = ENV['MSF_MCP_MIN_THREADS'].to_i if ENV['MSF_MCP_MIN_THREADS']
+        config[:mcp][:max_threads] = ENV['MSF_MCP_MAX_THREADS'].to_i if ENV['MSF_MCP_MAX_THREADS']
+        config[:mcp][:workers] = ENV['MSF_MCP_WORKERS'].to_i if ENV['MSF_MCP_WORKERS']
+
+        # Dangerous actions gate override
+        if ENV['MSF_MCP_DANGEROUS_ACTIONS'] && !ENV['MSF_MCP_DANGEROUS_ACTIONS'].empty?
+          config[:mcp][:dangerous_actions] = parse_boolean(ENV['MSF_MCP_DANGEROUS_ACTIONS'])
+        end
       end
 
       # Parse a string value into a boolean
       #
-      # @param value [String] String to parse ('true', '1', 'yes' → true; anything else → false)
+      # @param value [String] String to parse ('true', '1', 'yes' -> true; anything else -> false)
       # @return [Boolean]
       def self.parse_boolean(value)
         %w[true 1 yes].include?(value.to_s.downcase)

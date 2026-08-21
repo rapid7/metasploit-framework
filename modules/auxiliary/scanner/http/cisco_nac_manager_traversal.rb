@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
     part2 = '&fileType=snapshot'
 
     begin
-      print_status("Attempting to connect to #{rhost}:#{rport}")
+      print_status("Attempting to connect to #{Rex::Socket.to_authority(rhost, rport)}")
       res = send_request_raw(
         {
           'method' => 'GET',
@@ -60,10 +60,10 @@ class MetasploitModule < Msf::Auxiliary
             }, 25
           )
           if (res and res.code == 200)
-            print_status("Request ##{level} may have succeeded on #{rhost}:#{rport}!\r\n Response: \r\n#{res.body}")
+            print_status("Request ##{level} may have succeeded on #{Rex::Socket.to_authority(rhost, rport)}!\r\n Response: \r\n#{res.body}")
             break
           elsif (res and res.code)
-            print_error("Attempt ##{level} returned HTTP error #{res.code} on #{rhost}:#{rport}\r\n")
+            print_error("Attempt ##{level} returned HTTP error #{res.code} on #{Rex::Socket.to_authority(rhost, rport)}\r\n")
           end
         end
       end

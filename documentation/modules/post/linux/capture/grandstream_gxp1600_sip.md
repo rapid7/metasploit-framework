@@ -1,5 +1,5 @@
 ## Vulnerable Application
-This capture module works against Grandstream GXP1600 series VoIP devices and can reconfigure hte device to use an
+This capture module works against Grandstream GXP1600 series VoIP devices and can reconfigure the device to use an
 arbitrary SIP proxy. You can first leverage the `exploit/linux/http/grandstream_gxp1600_unauth_rce` exploit
 module to get a root session on a target GXP1600 series device before running this post module.
 
@@ -27,7 +27,7 @@ List the configured SIP account and choose which one to proxy:
 7. `list`
 8. `set SIP_ACCOUNT_INDEX 0`
 
-Sart and stop proxying SIP traffic:
+Start and stop proxying SIP traffic:
 9. `start`
 10. `stop`
 

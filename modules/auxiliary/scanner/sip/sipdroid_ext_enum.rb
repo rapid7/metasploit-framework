@@ -89,7 +89,8 @@ class MetasploitModule < Msf::Auxiliary
         udp_sock.put(data)
 
         while not rcv.nil?
-          msg = udp_sock.recvfrom(1024, 4)
+          msg = udp_sock.timed_recvfrom(1024, 4)
+          msg = msg ? [msg[0], msg[1][3], msg[1][1]] : ['', nil, nil]
           if not msg[0].eql?("")
             if msg[0].include?("SIP/2.0 180 Ringing")
               origin = /o=\w+\@[\w+\.]+/.match(msg[0])

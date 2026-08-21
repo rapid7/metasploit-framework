@@ -14,19 +14,30 @@ module Metasploit
         CAN_GET_SESSION = true
         PRIVATE_TYPES   = [ :password ]
 
+        # Checks if the target is Apache Axis2
+        #
+        # @return [false] if the target looks like Axis2
+        # @return [String] a human-readable error message if it doesn't
+        def check_setup
+          res = send_request({
+            'method' => 'GET',
+            'uri'    => uri
+          })
+
+          return 'Unable to connect to the Axis2 login page' unless res
+          return 'Unable to locate Axis2 login page (Is this really Apache Axis2?)' unless res.code == 200 && res.body.include?('axis2-admin')
+
+          report_service(service_opts)
+
+          false
+        end
+
         # (see Base#attempt_login)
         def attempt_login(credential)
           result_opts = {
               credential: credential,
-              host: host,
-              port: port,
-              protocol: 'tcp'
+              **service_as_result(service_opts)
           }
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
 
           begin
             # Refactor to access Metasploit::Framework::LoginScanner::HTTP#send_request()
@@ -67,6 +78,10 @@ module Metasploit
         # @raise [RuntimeError]
         def method=(_)
           raise RuntimeError, "Method must be POST for Axis2"
+        end
+
+        def service_opts
+          build_service_opts('axis2')
         end
 
       end

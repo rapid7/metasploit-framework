@@ -58,8 +58,8 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         if (idx % 10 == 0)
-          while (r = udp_sock.recvfrom(65535, 0.01) and r[1])
-            parse_reply(r)
+          while (r = udp_sock.timed_recvfrom(65535, 0.01))
+            parse_reply([r[0], r[1][3], r[1][1]])
           end
         end
 
@@ -69,8 +69,8 @@ class MetasploitModule < Msf::Auxiliary
       cnt = 0
       del = 10
       sts = Time.now.to_i
-      while (r = udp_sock.recvfrom(65535, del) and r[1])
-        parse_reply(r)
+      while (r = udp_sock.timed_recvfrom(65535, del))
+        parse_reply([r[0], r[1][3], r[1][1]])
 
         # Prevent an indefinite loop if the targets keep replying
         cnt += 1

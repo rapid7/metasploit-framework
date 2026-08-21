@@ -5,20 +5,19 @@ require 'rails'
 require File.expand_path('../boot', __FILE__)
 
 require 'action_view'
-# Monkey patch https://github.com/rails/rails/blob/v7.2.2.1/actionview/lib/action_view/helpers/tag_helper.rb#L51
-# Might be fixed by 8.x https://github.com/rails/rails/blob/v8.0.2/actionview/lib/action_view/helpers/tag_helper.rb#L51C1-L52C1
-raise unless ActionView::VERSION::STRING == '7.2.2.2' # A developer will need to ensure this is still required when bumping rails
+# Monkey patch https://github.com/rails/rails/blob/v8.0.5/actionview/lib/action_view/helpers/tag_helper.rb#L51
+# Last verified against ActionView 8.0.5 — re-check if this patch is still needed on 8.1+
+raise "ActionView version mismatch: expected 8.0.x, got #{ActionView::VERSION::STRING}" unless ActionView::VERSION::STRING.start_with?('8.0.')
 module ActionView::Helpers::TagHelper
   class TagBuilder
-    def self.define_element(name, code_generator:, method_name: name.to_s.underscore)
-      code_generator.define_cached_method(method_name, namespace: :tag_builder) do |batch|
-        # Fixing a bug introduced by Metasploit's global Kernel patch: https://github.com/rapid7/metasploit-framework/blob/ae1db09f32cd04c007dbf445cf16dc22c9fc2e53/lib/rex.rb#L74-L79
-        # which fails when using the below 'instance_methods.include?(method_name.to_sym)' check
-        batch.push(<<~RUBY) # unless instance_methods.include?(method_name.to_sym)
-              def #{method_name}(content = nil, escape: true, **options, &block)
-                tag_string("#{name}", content, options, escape: escape, &block)
-              end
-            RUBY
+    def self.define_element(name, code_generator:, method_name: name)
+      # Removed 'return if method_defined?(name)' guard that conflicts with
+      # Metasploit's Kernel select patch (rex.rb adds select to Kernel)
+      code_generator.class_eval do |batch|
+        batch << "\n" <<
+          "def #{method_name}(content = nil, escape: true, **options, &block)" <<
+          "  tag_string(#{name.inspect}, content, options, escape: escape, &block)" <<
+          "end"
       end
     end
   end
@@ -61,7 +60,7 @@ module Metasploit
       config.paths['config/database'] = [Metasploit::Framework::Database.configurations_pathname.try(:to_path)]
       config.autoloader = :zeitwerk
 
-      config.load_defaults 7.2
+      config.load_defaults 8.0
 
       config.eager_load = false
     end

@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
         if pps > @targ_rate
           sleep(0.01)
         end
-      rescue Errno::ECONNREFUSED
+      rescue Errno::ECONNREFUSED, Errno::ECONNRESET
         print_error('Error: Target sent us an ICMP port unreachable, port is likely closed')
         live = false
         break

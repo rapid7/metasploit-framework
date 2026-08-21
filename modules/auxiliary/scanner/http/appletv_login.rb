@@ -57,6 +57,21 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => '/server-info'
+    })
+
+    unless res
+      print_error("#{peer} - Could not connect to the AppleTV service")
+      return
+    end
+
+    unless res.headers['Server']&.include?('AirTunes')
+      print_error("#{peer} - Host does not appear to be an AppleTV AirPlay device. Module will not continue.")
+      return
+    end
+
     uri = "/stop"
     if datastore['PASS_FILE'] && !datastore['PASS_FILE'].empty?
       print_status("Attempting to login to #{uri} using password list")

@@ -32,6 +32,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2025-64446'],
+          ['EDB', '52495'],
+          ['EDB', '52502'],
           ['URL', 'https://x.com/defusedcyber/status/1975242250373517373'], # Original PoC posted online
           ['URL', 'https://github.com/watchtowrlabs/watchTowr-vs-Fortiweb-AuthBypass'], # PoC
           ['URL', 'https://www.pwndefend.com/2025/11/13/suspected-fortinet-zero-day-exploited-in-the-wild/'],

@@ -27,6 +27,7 @@ module Metasploit
           res = send_request(request_params)
 
           if res && res.code == 200 && res.body&.include?('Ivanti Connect Secure')
+            report_service(service_opts)
             return false
           end
 
@@ -169,10 +170,7 @@ module Metasploit
           # focus on creating Result object, pass it to #login routine and return Result object
           result_options = {
             credential: credential,
-            host: @host,
-            port: @port,
-            protocol: 'tcp',
-            service_name: 'ivanti'
+            **service_as_result(service_opts)
           }
 
           if @use_admin_endpoint
@@ -183,6 +181,10 @@ module Metasploit
 
           result_options.merge!(login_result)
           Result.new(result_options)
+        end
+
+        def service_opts
+          build_service_opts('ivanti')
         end
 
       end

@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'http://web.archive.org/web/20191225124314/https://www.embedi.com/news/what-you-need-know-about-intel-amt-vulnerability' ],
         [ 'URL', 'http://web.archive.org/web/20250208090258/https://www.intel.com/content/www/us/en/security-center/default.html?intelid=INTEL-SA-00075' ],
       ],
-      'DisclosureDate' => 'May 05 2017'
+      'DisclosureDate' => '2017-05-05'
     )
 
     register_options(

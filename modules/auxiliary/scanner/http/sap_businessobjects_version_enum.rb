@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def enum_version(rhost)
-    print_status("Identifying SAP BusinessObjects on #{rhost}:#{rport}")
+    print_status("Identifying SAP BusinessObjects on #{Rex::Socket.to_authority(rhost, rport)}")
     success = false
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
     xmlns = 'http://session.dsws.businessobjects.com/2007/06/01'

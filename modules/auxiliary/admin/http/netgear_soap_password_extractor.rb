@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         'h00die <mike@shorebreaksecurity.com>' # Metasploit enhancements/docs
       ],
       'License' => MSF_LICENSE,
-      'DisclosureDate' => 'Feb 11 2015',
+      'DisclosureDate' => '2015-02-11',
       'Notes' => {
         'Stability' => [CRASH_SAFE],
         'SideEffects' => [IOC_IN_LOGS],

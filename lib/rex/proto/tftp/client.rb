@@ -84,7 +84,8 @@ class Client
 
   def monitor_server_sock
     yield "Listening for incoming ACKs" if block_given?
-    res = self.server_sock.recvfrom(65535)
+    res = self.server_sock.timed_recvfrom(65535)
+    res = res ? [res[0], res[1][3], res[1][1]] : ['', nil, nil]
     if res and res[0]
       code, type, data = parse_tftp_response(res[0])
       if code == Constants::OpAck and self.action == :upload
@@ -112,7 +113,8 @@ class Client
   end
 
   def monitor_client_sock
-    res = self.client_sock.recvfrom(65535)
+    res = self.client_sock.timed_recvfrom(65535)
+    res = res ? [res[0], res[1][3], res[1][1]] : ['', nil, nil]
     if res[1] # Got a response back, so that's never good; Acks come back on server_sock.
       code, type, data = parse_tftp_response(res[0])
       yield("Aborting, got code:%d, type:%d, message:'%s'" % [code, type, data]) if block_given?
@@ -190,7 +192,8 @@ class Client
     end
     current_block = first_block
     while current_block.size == 512
-      res = self.server_sock.recvfrom(65535)
+      res = self.server_sock.timed_recvfrom(65535)
+      res = res ? [res[0], res[1][3], res[1][1]] : ['', nil, nil]
       if res and res[0]
         code, block_num, current_block = parse_tftp_response(res[0])
         if code == 3
@@ -313,7 +316,8 @@ class Client
           end
         end
         send_retries = 0
-        res = self.server_sock.recvfrom(65535)
+        res = self.server_sock.timed_recvfrom(65535)
+        res = res ? [res[0], res[1][3], res[1][1]] : ['', nil, nil]
         if res
           code, type, msg = parse_tftp_response(res[0])
           if code == 4

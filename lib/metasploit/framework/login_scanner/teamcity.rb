@@ -152,6 +152,7 @@ module Metasploit
           res = send_request(request_params)
 
           if res && res.code == 200 && res.body&.include?('Log in to TeamCity')
+            report_service(service_opts)
             return false
           end
 
@@ -265,10 +266,7 @@ module Metasploit
         def attempt_login(credential)
           result_options = {
             credential:   credential,
-            host:         @host,
-            port:         @port,
-            protocol:     'tcp',
-            service_name: 'teamcity'
+            **service_as_result(service_opts)
           }
 
           if @public_key.nil?
@@ -286,6 +284,10 @@ module Metasploit
 
           result_options[:status] = ::Metasploit::Model::Login::Status::SUCCESSFUL
           Result.new(result_options)
+        end
+
+        def service_opts
+          build_service_opts('teamcity')
         end
 
         private

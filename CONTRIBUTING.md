@@ -58,18 +58,35 @@ Keeping the following in mind gives your contribution the best chance of landing
 * **Do** check the issue tracker to see if there is a `suggestion-module` issue for the module you want to write, and assign yourself to it if there is.
 * **Do** license your code as BSD 3-clause, BSD 2-clause, or MIT.
 * **Do** stick to the [Ruby style guide] and use [Rubocop] to find common style issues.
-* **Do** set up `msftidy` to fix any errors or warnings that come up as a [pre-commit hook].
+* **Do** set up `msftidy` as a [pre-commit hook] and ensure it passes with no errors or warnings before submitting — PRs that fail msftidy will not be accepted.
 * **Do** use the many module mixin [API]s.
 * **Do** include instructions on how to setup the vulnerable environment or software.
 * **Do** include [Module Documentation] showing sample run-throughs.
+* **Do** run `ruby tools/dev/msftidy_docs.rb <documentation_file>` on any module documentation markdown files and ensure it passes with no errors.
 * **Do** ask cve@rapid7.com for a CVE ID if this describes a new vulnerability (remember to mention your PR number!)
+* **Do** use `prepend Msf::Exploit::Remote::AutoCheck` to let the framework handle vulnerability checking before exploitation — this is preferred over manually calling `check` in your exploit method.
+* **Do** include a descriptive reason string when returning CheckCode values (e.g., `CheckCode::Safe("Patched version #{v}")`) — bare constants without reasons are not accepted.
 * **Don't** include more than one module per pull request.
 * **Don't** submit new [scripts].  Scripts are shipped as examples for automating local tasks, and anything "serious" can be done with post modules and local exploits.
+
+#### <u>Modernizing Existing Modules</u>
+We welcome PRs that bring older modules up to current conventions. High-value improvements include:
+
+* **Adding AutoCheck** — if a module has a `check` method but no `prepend Msf::Exploit::Remote::AutoCheck`, adding that single line is a welcome contribution.
+* **Migrating cmd_exec to create_process** — replacing `cmd_exec("cmd #{input}")` with `create_process("cmd", args: [input])` eliminates command injection risks.
+* **Removing HttpFingerprint** — replacing the deprecated `HttpFingerprint` constant with a proper `check` method gives users version-aware vulnerability verification.
+* **Removing unnecessary DefaultOptions PAYLOAD** — letting the framework choose the best payload improves user experience.
+
+Keep modernization PRs focused: one pattern fix per PR, or one subsystem at a time. Include verification steps showing the module still works after the change. See [AGENTS.md](./AGENTS.md) for the full legacy patterns table with modern replacements and the canonical module structure template.
 
 #### <u>Library Code</u>
 * **Do** write [RSpec] tests - even the smallest change in a library can break existing code.
 * **Do** follow [Better Specs] - it's like the style guide for specs.
 * **Do** write [YARD] documentation - this makes it easier for people to use your code.
+* **Do** use specific error classes (`Rex::RuntimeError`, `ArgumentError`, etc.) — never `raise "bare string"`.
+* **Do** use `rescue StandardError => e` — never bare `rescue` (it discards the exception object) and never `rescue Exception` (it swallows Ctrl-C and kill signals).
+* **Do** add `# frozen_string_literal: true` as the first line of new library files.
+* **Don't** use `get_`/`set_` prefixes for accessor-style methods in new code.
 * **Don't** fix a lot of things in one pull request. Small fixes are easier to validate.
 
 #### <u>Bug Fixes</u>
@@ -117,4 +134,3 @@ curve, so keep it up!
 [YARD]:http://yardoc.org
 [Issues]:https://github.com/rapid7/metasploit-framework/issues
 [Metasploit Slack]:https://www.metasploit.com/slack
-[#metasploit on Freenode IRC]:http://webchat.freenode.net/?channels=%23metasploit&uio=d4

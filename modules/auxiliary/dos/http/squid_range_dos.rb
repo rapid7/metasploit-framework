@@ -78,9 +78,9 @@ class MetasploitModule < Msf::Auxiliary
 
       if res && (res.code == 200) && (count == 0)
         count = 1
-        print_status("Sent first request to #{rhost}:#{rport}")
+        print_status("Sent first request to #{Rex::Socket.to_authority(rhost, rport)}")
       elsif res
-        print_status("Sent DoS request #{count} to #{rhost}:#{rport}")
+        print_status("Sent DoS request #{count} to #{Rex::Socket.to_authority(rhost, rport)}")
         count += 1
         error_count = 0
 

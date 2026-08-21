@@ -1,6 +1,8 @@
 require_relative './shared'
 
 module Acceptance::Session::Php
+  MALLEABLE_C2_FIXTURE_PATH = File.expand_path('../../../../../spec/file_fixtures/malleable_c2', __FILE__)
+
   PHP_METERPRETER = {
     payloads: [
       {
@@ -15,6 +17,142 @@ module Acceptance::Session::Php
           global: {},
           module: {
             MeterpreterDebugBuild: true
+          }
+        }
+      },
+      {
+        name: "php/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter_reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter_reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter/reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter/reverse_http",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter/reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'minimal_uris_headers.profile')
+          }
+        }
+      },
+      {
+        name: "php/meterpreter/reverse_https",
+        skip_module_tests: ['post/test/socket_channels'],
+        extension: ".php",
+        platforms: [:osx, :linux, :windows],
+        execute_cmd: ["php", "${payload_path}"],
+        generate_options: {
+          '-f': "raw"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterDebugBuild: true,
+            MALLEABLEC2: File.join(MALLEABLE_C2_FIXTURE_PATH, 'base64_transforms.profile')
           }
         }
       }
@@ -41,9 +179,9 @@ module Acceptance::Session::Php
             :windows,
             {
               skip: [
-                :meterpreter_runtime_version,
+                :session_runtime_version,
                 :==,
-                "php5.3"
+                "meterpreter/php5.3"
               ],
               reason: "Skip PHP 5.3 as the tests timeout - due to cmd_exec taking 15 seconds for each call. Caused by failure to detect feof correctly - https://github.com/rapid7/metasploit-payloads/blame/c7f7bc2fc0b86e17c3bc078149c71745c5e478b3/php/meterpreter/meterpreter.php#L1127-L1145"
             }
@@ -101,22 +239,18 @@ module Acceptance::Session::Php
         skipped: false,
         lines: {
           linux: {
-            known_failures: [
-              "[-] FAILED: should read the binary data we just wrote"
-            ]
+            known_failures: []
           },
           osx: {
-            known_failures: [
-              "[-] FAILED: should read the binary data we just wrote"
-            ]
+            known_failures: []
           },
           windows: {
             known_failures: [
               "[-] [should delete a symbolic link target] FAILED: should delete a symbolic link target",
-              "[-] [should delete a symbolic link target] Exception: Rex::Post::Meterpreter::RequestError: stdapi_fs_delete_dir: Operation failed: 1",
-              "[-] FAILED: should read the binary data we just wrote"
+              "[-] [should delete a symbolic link target] Exception: Rex::Post::Meterpreter::RequestError: stdapi_fs_delete_dir: Operation failed: 1"
             ]
           }
+
         }
       },
       {
@@ -144,9 +278,7 @@ module Acceptance::Session::Php
             known_failures: []
           },
           osx: {
-            known_failures: [
-              "[-] FAILED: should return a list of processes"
-            ]
+            known_failures: []
           },
           windows: {
             known_failures: []
@@ -206,9 +338,9 @@ module Acceptance::Session::Php
             :windows,
             {
               skip: [
-                :meterpreter_runtime_version,
+                :session_runtime_version,
                 :==,
-                "php5.3"
+                "meterpreter/php5.3"
               ],
               reason: "Skip PHP 5.3 as the tests timeout - due to cmd_exec taking 15 seconds for each call. Caused by failure to detect feof correctly - https://github.com/rapid7/metasploit-payloads/blame/c7f7bc2fc0b86e17c3bc078149c71745c5e478b3/php/meterpreter/meterpreter.php#L1127-L1145"
             }
@@ -250,19 +382,22 @@ module Acceptance::Session::Php
         lines: {
           linux: {
             known_failures: [
-              "[-] FAILED: [UDP] Has the correct peer information",
               *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           },
           osx: {
               known_failures: [
-              "[-] FAILED: [UDP] Has the correct peer information",
               *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           },
           windows: {
             known_failures: [
-              "[-] FAILED: [UDP] Has the correct peer information",
+              # PHP 5.3 Meterpreter on a Windows host raises Errno::ENOTSOCK
+              # (WSAENOTSOCK) from the UDP channel recvfrom; PHP 7.4/8.3 are fine.
+              ["[-] [[UDP] Has the correct peer information] FAILED: [UDP] Has the correct peer information", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
+              ["[-] [[UDP] Has the correct peer information] Exception: Errno::ENOTSOCK", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
+              ["[-] [[UDP] Receives data from the peer] FAILED: [UDP] Receives data from the peer", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
+              ["[-] [[UDP] Receives data from the peer] Exception: Errno::ENOTSOCK", { if: [:session_runtime_version, :==, "meterpreter/php5.3"] }],
               *Acceptance::Session::Shared::SOCKET_CHANNEL_FLAKES
             ]
           }

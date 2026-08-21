@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-098A' ],
         [ 'URL', 'http://heartbleed.com/' ]
       ],
-      'DisclosureDate' => 'Apr 07 2014',
+      'DisclosureDate' => '2014-04-07',
       'Notes' => {
         'AKA' => ['Heartbleed']
       }

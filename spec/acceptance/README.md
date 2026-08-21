@@ -41,6 +41,39 @@ $env:SPEC_OPTS='--tag acceptance'; $env:SPEC_HELPER_LOAD_METASPLOIT=$false; $env
 Session types can be specified via the `SESSION` argument. Meterpreter and command shell are support and use the following notation:
 - SESSION=meterpreter/php
 - SESSION=command_shell/php
+- SESSION=command_shell/python (non-SSL Python shell payloads: `python/shell_reverse_tcp`, `python/shell_bind_tcp`, `cmd/unix/reverse_python`)
+
+Run just one payload flavor within a `SESSION` by filtering on a substring of its example description with rspec's `-e` flag, example:
+
+```
+SPEC_OPTS='--tag acceptance' SPEC_HELPER_LOAD_METASPLOIT=false SESSION=command_shell/python bundle exec rspec spec/acceptance/command_shell_spec.rb -e "shell_bind_tcp"
+```
+
+### Python SSL (pyenv container)
+
+The `python_ssl_*` command shell flavors (`SESSION=command_shell/python_ssl_2_6`, `python_ssl_2_7`,
+`python_ssl_3_4`, `python_ssl_3_13`) exercise Python's SSL support across several CPython/OpenSSL
+combinations. They run each payload inside the `test/pyenv/` container image (built via
+[pyenv](https://github.com/pyenv/pyenv)) instead of the host's `python3`, so old interpreter/OpenSSL pairings
+can be tested without installing them locally.
+
+Build the image locally:
+
+```
+docker build -f test/pyenv/Containerfile -t pyenv:local test/pyenv
+```
+
+The published image is built and pushed to [`rapid7/msf-pyenv`](https://hub.docker.com/r/rapid7/msf-pyenv) on Docker Hub by the
+`framework_pyenv_image_publish` Jenkins pipeline. Any maintainer can trigger it manually to
+rebuild/republish it. After a new image is published, update the
+digest pinned in `PYTHON_SSL_IMAGE` (`spec/support/acceptance/command_shell/python.rb`) and the
+`docker pull` line in `command_shell_acceptance.yml` to match.
+
+Run the test suite:
+
+```
+SPEC_OPTS='--tag acceptance' SPEC_HELPER_LOAD_METASPLOIT=false SESSION=command_shell/python_ssl_3_13 bundle exec rspec spec/acceptance/command_shell_spec.rb
+```
 
 ### Postgres
 

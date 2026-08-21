@@ -23,6 +23,13 @@ class MetasploitModule < Msf::Auxiliary
           'msutovsky-r7' # module dev
         ],
         'License' => MSF_LICENSE,
+        'References' => [
+          ['CVE', '2023-28459'], # file read
+          ['CVE', '2023-28458'], # file write
+          ['URL', 'https://www.sonarsource.com/blog/pretalx-vulnerabilities-how-to-get-accepted-at-every-conference/'],
+          ['URL', 'https://pretalx.com/p/news/security-release-232/']
+        ],
+        'DisclosureDate' => '2023-03-07',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [REPEATABLE_SESSION],

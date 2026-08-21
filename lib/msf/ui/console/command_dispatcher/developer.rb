@@ -271,6 +271,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   #
   def cmd_reload_lib(*args)
     files = []
+    use_modified = false
     options = OptionParser.new do |opts|
       opts.banner = 'Usage: reload_lib lib/to/reload.rb [...]'
       opts.separator ''
@@ -283,16 +284,21 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
       opts.on '-a', '--all', 'Reload all* changed files in your current Git working tree.
                                      *Excludes modules and non-Ruby files.' do
+        use_modified = true
         files.concat(modified_file_paths)
       end
     end
 
     # The remaining unparsed arguments are files
-    files.concat(options.order(args))
+    files.concat(options.permute(args))
     files.uniq!
 
-    return print(options.help) if files.empty?
+    if files.empty?
+      return print_status('Nothing to reload') if use_modified
+      return print(options.help)
+    end
 
+    print_status("Reloading #{files.length} library #{'file'.pluralize(files.length)}...")
     files.each do |file|
       reload_file(file)
     rescue ScriptError, StandardError => e
@@ -521,7 +527,8 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
   def modified_files
     # Using an array avoids shelling out, so we avoid escaping/quoting
-    changed_files = %w[git diff --name-only]
+    # --diff-filter=d excludes deleted files that would fail realpath resolution
+    changed_files = %w[git diff --name-only --diff-filter=d]
 
     is_success = true
     files = []

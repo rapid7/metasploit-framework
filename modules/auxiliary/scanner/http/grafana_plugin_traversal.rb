@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
         res.body,
         File.basename(datastore['FILEPATH'])
       )
-      print_good("#{rhost}:#{rport} - File saved in: #{path}")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path}")
       break
     end
   end
