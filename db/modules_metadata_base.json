@@ -217121,6 +217121,41 @@
     "adapted_refname": "linux/armle/shell_reverse_tcp",
     "staged": false
   },
+  "payload_cmd/linux/ftp/mips64/exec": {
+    "name": "FTP Fetch, Linux Execute Command",
+    "fullname": "payload/cmd/linux/ftp/mips64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "Diego Ledda"
+    ],
+    "description": "Fetch and execute a MIPS64 payload from an FTP server.\nExecute an arbitrary command or just a /bin/sh shell",
+    "references": [],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-05-12 17:42:59 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/ftp/mips64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/ftp/mips64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/ftp/mips64",
+    "adapted_refname": "linux/mips64/exec",
+    "staged": false
+  },
   "payload_cmd/linux/ftp/mips64/meterpreter_reverse_http": {
     "name": "FTP Fetch",
     "fullname": "payload/cmd/linux/ftp/mips64/meterpreter_reverse_http",
@@ -217243,9 +217278,10 @@
       "Brendan Watters",
       "Spencer McIntyre",
       "Michael Messner <devnull@s3cur1ty.de>",
-      "entropy <entropy@phiral.net>"
+      "entropy <entropy@phiral.net>",
+      "Diego Ledda"
     ],
-    "description": "Fetch and execute an MIPSBE payload from an FTP server.\n\n          A very small shellcode for executing commands.\n          This module is sometimes helpful for testing purposes.",
+    "description": "Fetch and execute an MIPSBE payload from an FTP server.\nExecute an arbitrary command or just a /bin/sh shell",
     "references": [
       "EDB-17940"
     ],
@@ -217584,9 +217620,10 @@
       "Brendan Watters",
       "Spencer McIntyre",
       "Michael Messner <devnull@s3cur1ty.de>",
-      "entropy <entropy@phiral.net>"
+      "entropy <entropy@phiral.net>",
+      "Diego Ledda"
     ],
-    "description": "Fetch and execute an MIPSLE payload from an FTP server.\n\n          A very small shellcode for executing commands.\n          This module is sometimes helpful for testing purposes as well as\n          on targets with extremely limited buffer space.",
+    "description": "Fetch and execute an MIPSLE payload from an FTP server.\nExecute an arbitrary command or just a /bin/sh shell",
     "references": [
       "EDB-17940"
     ],
@@ -221630,6 +221667,41 @@
     "adapted_refname": "linux/armle/shell_reverse_tcp",
     "staged": false
   },
+  "payload_cmd/linux/http/mips64/exec": {
+    "name": "HTTP Fetch, Linux Execute Command",
+    "fullname": "payload/cmd/linux/http/mips64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "Diego Ledda"
+    ],
+    "description": "Fetch and execute a MIPS64 payload from an HTTP server.\nExecute an arbitrary command or just a /bin/sh shell",
+    "references": [],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2023-05-25 13:20:59 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/http/mips64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/http/mips64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/http/mips64",
+    "adapted_refname": "linux/mips64/exec",
+    "staged": false
+  },
   "payload_cmd/linux/http/mips64/meterpreter_reverse_http": {
     "name": "HTTP Fetch",
     "fullname": "payload/cmd/linux/http/mips64/meterpreter_reverse_http",
@@ -221752,9 +221824,10 @@
       "Brendan Watters",
       "Spencer McIntyre",
       "Michael Messner <devnull@s3cur1ty.de>",
-      "entropy <entropy@phiral.net>"
+      "entropy <entropy@phiral.net>",
+      "Diego Ledda"
     ],
-    "description": "Fetch and execute an MIPSBE payload from an HTTP server.\n\n          A very small shellcode for executing commands.\n          This module is sometimes helpful for testing purposes.",
+    "description": "Fetch and execute an MIPSBE payload from an HTTP server.\nExecute an arbitrary command or just a /bin/sh shell",
     "references": [
       "EDB-17940"
     ],
@@ -222093,9 +222166,10 @@
       "Brendan Watters",
       "Spencer McIntyre",
       "Michael Messner <devnull@s3cur1ty.de>",
-      "entropy <entropy@phiral.net>"
+      "entropy <entropy@phiral.net>",
+      "Diego Ledda"
     ],
-    "description": "Fetch and execute an MIPSLE payload from an HTTP server.\n\n          A very small shellcode for executing commands.\n          This module is sometimes helpful for testing purposes as well as\n          on targets with extremely limited buffer space.",
+    "description": "Fetch and execute an MIPSLE payload from an HTTP server.\nExecute an arbitrary command or just a /bin/sh shell",
     "references": [
       "EDB-17940"
     ],
@@ -226174,6 +226248,41 @@
     "adapted_refname": "linux/armle/shell_reverse_tcp",
     "staged": false
   },
+  "payload_cmd/linux/https/mips64/exec": {
+    "name": "HTTPS Fetch, Linux Execute Command",
+    "fullname": "payload/cmd/linux/https/mips64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "Diego Ledda"
+    ],
+    "description": "Fetch and execute an MIPS64 payload from an HTTPS server.\nExecute an arbitrary command or just a /bin/sh shell",
+    "references": [],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2023-06-09 16:47:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/https/mips64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/https/mips64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/https/mips64",
+    "adapted_refname": "linux/mips64/exec",
+    "staged": false
+  },
   "payload_cmd/linux/https/mips64/meterpreter_reverse_http": {
     "name": "HTTPS Fetch",
     "fullname": "payload/cmd/linux/https/mips64/meterpreter_reverse_http",
@@ -226296,9 +226405,10 @@
       "Brendan Watters",
       "Spencer McIntyre",
       "Michael Messner <devnull@s3cur1ty.de>",
-      "entropy <entropy@phiral.net>"
+      "entropy <entropy@phiral.net>",
+      "Diego Ledda"
     ],
-    "description": "Fetch and execute an MIPSBE payload from an HTTPS server.\n\n          A very small shellcode for executing commands.\n          This module is sometimes helpful for testing purposes.",
+    "description": "Fetch and execute an MIPSBE payload from an HTTPS server.\nExecute an arbitrary command or just a /bin/sh shell",
     "references": [
       "EDB-17940"
     ],
@@ -226637,9 +226747,10 @@
       "Brendan Watters",
       "Spencer McIntyre",
       "Michael Messner <devnull@s3cur1ty.de>",
-      "entropy <entropy@phiral.net>"
+      "entropy <entropy@phiral.net>",
+      "Diego Ledda"
     ],
-    "description": "Fetch and execute an MIPSLE payload from an HTTPS server.\n\n          A very small shellcode for executing commands.\n          This module is sometimes helpful for testing purposes as well as\n          on targets with extremely limited buffer space.",
+    "description": "Fetch and execute an MIPSLE payload from an HTTPS server.\nExecute an arbitrary command or just a /bin/sh shell",
     "references": [
       "EDB-17940"
     ],
@@ -230718,6 +230829,41 @@
     "adapted_refname": "linux/armle/shell_reverse_tcp",
     "staged": false
   },
+  "payload_cmd/linux/tftp/mips64/exec": {
+    "name": "TFTP Fetch, Linux Execute Command",
+    "fullname": "payload/cmd/linux/tftp/mips64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "Diego Ledda"
+    ],
+    "description": "Fetch and execute a MIPS64 payload from a TFTP server.\nExecute an arbitrary command or just a /bin/sh shell",
+    "references": [],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2023-05-25 13:20:59 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/tftp/mips64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/tftp/mips64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/tftp/mips64",
+    "adapted_refname": "linux/mips64/exec",
+    "staged": false
+  },
   "payload_cmd/linux/tftp/mips64/meterpreter_reverse_http": {
     "name": "TFTP Fetch",
     "fullname": "payload/cmd/linux/tftp/mips64/meterpreter_reverse_http",
@@ -230840,9 +230986,10 @@
       "Brendan Watters",
       "Spencer McIntyre",
       "Michael Messner <devnull@s3cur1ty.de>",
-      "entropy <entropy@phiral.net>"
+      "entropy <entropy@phiral.net>",
+      "Diego Ledda"
     ],
-    "description": "Fetch and execute an MIPSBE payload from a TFTP server.\n\n          A very small shellcode for executing commands.\n          This module is sometimes helpful for testing purposes.",
+    "description": "Fetch and execute an MIPSBE payload from a TFTP server.\nExecute an arbitrary command or just a /bin/sh shell",
     "references": [
       "EDB-17940"
     ],
@@ -231181,9 +231328,10 @@
       "Brendan Watters",
       "Spencer McIntyre",
       "Michael Messner <devnull@s3cur1ty.de>",
-      "entropy <entropy@phiral.net>"
+      "entropy <entropy@phiral.net>",
+      "Diego Ledda"
     ],
-    "description": "Fetch and execute an MIPSLE payload from a TFTP server.\n\n          A very small shellcode for executing commands.\n          This module is sometimes helpful for testing purposes as well as\n          on targets with extremely limited buffer space.",
+    "description": "Fetch and execute an MIPSLE payload from a TFTP server.\nExecute an arbitrary command or just a /bin/sh shell",
     "references": [
       "EDB-17940"
     ],
@@ -292709,6 +292857,37 @@
     "payload_type": 1,
     "staged": false
   },
+  "payload_linux/mips64/exec": {
+    "name": "Linux Execute Command",
+    "fullname": "payload/linux/mips64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Diego Ledda"
+    ],
+    "description": "Execute an arbitrary command or just a /bin/sh shell",
+    "references": [],
+    "platform": "Linux",
+    "arch": "mips64",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-05-05 05:24:14 +0000",
+    "path": "/modules/payloads/singles/linux/mips64/exec.rb",
+    "is_install_path": true,
+    "ref_name": "linux/mips64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 1,
+    "staged": false
+  },
   "payload_linux/mips64/meterpreter_reverse_http": {
     "name": "Linux Meterpreter, Reverse HTTP Inline",
     "fullname": "payload/linux/mips64/meterpreter_reverse_http",
@@ -292817,9 +292996,10 @@
     "type": "payload",
     "author": [
       "Michael Messner <devnull@s3cur1ty.de>",
-      "entropy <entropy@phiral.net>"
+      "entropy <entropy@phiral.net>",
+      "Diego Ledda"
     ],
-    "description": "A very small shellcode for executing commands.\n          This module is sometimes helpful for testing purposes.",
+    "description": "Execute an arbitrary command or just a /bin/sh shell",
     "references": [
       "EDB-17940"
     ],
@@ -292829,7 +293009,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-04-20 02:57:34 +0000",
+    "mod_time": "2026-05-05 06:05:15 +0000",
     "path": "/modules/payloads/singles/linux/mipsbe/exec.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsbe/exec",
@@ -293122,9 +293302,11 @@
     "type": "payload",
     "author": [
       "Michael Messner <devnull@s3cur1ty.de>",
-      "entropy <entropy@phiral.net>"
+      "entropy <entropy@phiral.net>",
+      "Spencer McIntyre",
+      "Diego Ledda"
     ],
-    "description": "A very small shellcode for executing commands.\n          This module is sometimes helpful for testing purposes as well as\n          on targets with extremely limited buffer space.",
+    "description": "Execute an arbitrary command or just a /bin/sh shell",
     "references": [
       "EDB-17940"
     ],
@@ -293134,7 +293316,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-04-20 02:57:34 +0000",
+    "mod_time": "2026-05-05 06:15:19 +0000",
     "path": "/modules/payloads/singles/linux/mipsle/exec.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsle/exec",

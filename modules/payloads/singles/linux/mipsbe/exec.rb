@@ -6,7 +6,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 52
+  CachedSize = 88
 
   include Msf::Payload::Single
   include Msf::Payload::Linux::Mipsbe::Prepends
