@@ -23238,6 +23238,62 @@
       }
     ]
   },
+  "auxiliary_gather/forgejo_orgmode_fileread_cve_2026_59774": {
+    "name": "Forgejo Arbitrary File Read via Org-mode Include",
+    "fullname": "auxiliary/gather/forgejo_orgmode_fileread_cve_2026_59774",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-07-30",
+    "type": "auxiliary",
+    "author": [
+      "xbow-security",
+      "NightRang3r"
+    ],
+    "description": "Forgejo versions 7.0 through 15.0.5 and 16.0.0 through 16.0.1 are\n          vulnerable to an arbitrary file read via the markup rendering API\n          endpoint. The go-org library's default ReadFile callback\n          (ioutil.ReadFile) is not overridden, allowing the #+INCLUDE directive\n          to read arbitrary files accessible to the service user.\n\n          Valid credentials are required to access the API markup endpoint.\n          Extracting sensitive files such as app.ini can expose INTERNAL_TOKEN\n          and other secrets, potentially leading to remote code execution.",
+    "references": [
+      "CVE-2026-59774",
+      "GHSA-6v53-hr58-556r",
+      "URL-https://codeberg.org/forgejo/forgejo/pulls/13682"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 3000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-08-12 10:32:09 +0000",
+    "path": "/modules/auxiliary/gather/forgejo_orgmode_fileread_cve_2026_59774.rb",
+    "is_install_path": true,
+    "ref_name": "gather/forgejo_orgmode_fileread_cve_2026_59774",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/fortios_vpnssl_traversal_creds_leak": {
     "name": "FortiOS Path Traversal Credential Gatherer",
     "fullname": "auxiliary/gather/fortios_vpnssl_traversal_creds_leak",
@@ -31754,10 +31810,13 @@
     "disclosure_date": null,
     "type": "auxiliary",
     "author": [
-      "hdm <x@hdm.io>"
+      "hdm <x@hdm.io>",
+      "g0tmi1k"
     ],
-    "description": "Detect FTP Version.",
-    "references": [],
+    "description": "This module tries to identify the version of an FTP service by reading its banner.",
+    "references": [
+      "URL-https://www.ietf.org/rfc/rfc959"
+    ],
     "platform": "",
     "arch": "",
     "rport": 21,
@@ -31769,14 +31828,22 @@
       "ftp"
     ],
     "targets": null,
-    "mod_time": "2025-06-20 13:20:44 +0000",
+    "mod_time": "2026-05-18 09:52:28 +0000",
     "path": "/modules/auxiliary/scanner/ftp/ftp_version.rb",
     "is_install_path": true,
     "ref_name": "scanner/ftp/ftp_version",
     "check": false,
     "post_auth": false,
     "default_credential": false,
-    "notes": {},
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
     "session_types": false,
     "needs_cleanup": false,
     "actions": []
