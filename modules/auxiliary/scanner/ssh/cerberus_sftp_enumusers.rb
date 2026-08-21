@@ -3,11 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'net/ssh'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::SSH
 
   def initialize(info = {})
     super(
@@ -89,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     begin
-      transport = Net::SSH::Transport::Session.new(ip, opt_hash)
+      transport = connect_ssh_transport(ip, opt_hash)
     rescue Rex::ConnectionError
       return :connection_error
     end
@@ -97,14 +96,7 @@ class MetasploitModule < Msf::Auxiliary
     auth = Net::SSH::Authentication::Session.new(transport, opt_hash)
     auth.authenticate("ssh-connection", Rex::Text.rand_text_alphanumeric(8), Rex::Text.rand_text_alphanumeric(8))
     auth_method = auth.allowed_auth_methods.join('|')
-    print_good "#{peer(ip)} Server Version: #{auth.transport.server_version.version}"
-    report_service(
-      host: ip,
-      port: rport,
-      name: "ssh",
-      proto: "tcp",
-      info: auth.transport.server_version.version
-    )
+    print_good "#{peer(ip)} Server Version: #{transport.server_version.version}"
 
     if auth_method.empty?
       :vulnerable
@@ -126,7 +118,7 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     opt_hash.merge!(verbose: :debug) if datastore['SSH_DEBUG']
-    transport = Net::SSH::Transport::Session.new(ip, opt_hash)
+    transport = connect_ssh_transport(ip, opt_hash)
     auth = Net::SSH::Authentication::Session.new(transport, opt_hash)
 
     begin

