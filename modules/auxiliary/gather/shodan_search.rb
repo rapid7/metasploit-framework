@@ -207,8 +207,8 @@ class MetasploitModule < Msf::Auxiliary
 
           # Sanitize strings to remove null bytes (\x00) which crash PostgreSQL
           hostname = (host.dig('hostnames', 0) || '').to_s.delete("\x00")
-          data = (host.dig('data') || '').to_s.delete("\x00")
           product = (host.dig('product') || '').to_s.delete("\x00")
+          version = (host.dig('version') || '').to_s.delete("\x00")
           os = (host.dig('os') || '').to_s.delete("\x00")
 
           if datastore['DATABASE']
@@ -224,11 +224,11 @@ class MetasploitModule < Msf::Auxiliary
               :port => port,
               :comments => 'Added from Shodan',
               :name => product,
-              :info => data
+              :info => version
             )
           end
 
-          if ip =~ regex || city =~ regex || country =~ regex || hostname =~ regex || data =~ regex
+          if ip =~ regex || city =~ regex || country =~ regex || hostname =~ regex || version =~ regex
             tbl << ["#{ip}:#{port}", city, country, hostname]
           end
         end
