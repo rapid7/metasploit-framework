@@ -90,6 +90,7 @@ class MetasploitModule < Msf::Auxiliary
       'headers' => { 'API-KEY' => api_key },
       'vars_get' => {
         'query' => dork,
+        'pagesize' => 10,
         'page' => page.to_s,
         'facets' => facets
       }
@@ -138,10 +139,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Determine page count based on total results
-    if results[first_page]['total'] % 20 == 0
-      tpages = results[first_page]['total'] / 20
+    if results[first_page]['total'] % 10 == 0
+      tpages = results[first_page]['total'] / 10
     else
-      tpages = results[first_page]['total'] / 20 + 1
+      tpages = results[first_page]['total'] / 10 + 1
     end
     maxpage = tpages if datastore['MAXPAGE'] > tpages
 
@@ -162,14 +163,29 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_status("Total: #{results[first_page]['total']} on #{tpages} " \
         "pages. Showing: #{maxpage} page(s)")
-      # If search results greater than 20, loop & get all results
-      if results[first_page]['total'] > 20
+      # If search results greater than 10, loop & get all results
+      if results[first_page]['total'] > 10
         print_status('Collecting data, please wait...')
         page = 1
+        skipped = 0
+        retrying = 0
         while page < maxpage
-          page_result = dork_search(resource, dork, page + 1, facets, api_key)
+          page_result = dork_search(resource, dork, page + skipped + 1, facets, api_key)
           if page_result['matches'].nil?
-            next
+            retrying += 1
+            if retrying < 3
+              next
+            else
+              retrying = 0
+              print_error("Skipping page #{page + skipped}")
+              if page + skipped >= maxpage #stop the strafe once we reach the theorical maxpage, but let it try a last one first.
+                break
+              end
+              skipped += 1
+              next
+            end
+          else
+            retrying = 0
           end
 
           results[page] = page_result
