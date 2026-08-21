@@ -106,4 +106,70 @@ RSpec.describe Msf::Payload::Adapter::Fetch do
       expect(harness.send(:_remote_destination_nix)).to eq('$f')
     end
   end
+
+  describe '#_generate_tftp_command' do
+    let(:harness_class) do
+      Class.new do
+        include Msf::Payload::Adapter::Fetch
+
+        def initialize
+          @datastore = {
+            'FETCH_SRVPORT' => 69,
+            'FETCH_WRITABLE_DIR' => '',
+            'FETCH_FILENAME' => '',
+            'FETCH_FILELESS' => 'none',
+            'FETCH_DELETE' => false
+          }
+        end
+        attr_accessor :datastore
+
+        def fetch_protocol
+          'TFTP'
+        end
+
+        def windows?
+          false
+        end
+
+        def srvhost
+          'attacker.example'
+        end
+      end
+    end
+
+    subject(:harness) { harness_class.new }
+
+    it 'does not append a cleanup step when FETCH_DELETE is not set' do
+      cmd = harness.send(:_generate_tftp_command, 'payload_uri')
+      expect(cmd).not_to include('rm -rf')
+    end
+
+    it 'appends a delete cleanup step, like the generic (non-tftp) fetch path does, when FETCH_DELETE is set' do
+      harness.datastore['FETCH_DELETE'] = true
+      cmd = harness.send(:_generate_tftp_command, 'payload_uri')
+      expect(cmd).to include('rm -rf ./payload_uri')
+    end
+
+    context 'when FETCH_FILELESS is shell-search' do
+      before do
+        harness.datastore['FETCH_FILELESS'] = 'shell-search'
+        harness.datastore['FETCH_DELETE'] = true
+        allow(harness).to receive(:linux?).and_return(true)
+      end
+
+      it 'still runs the delete cleanup on the fail-safe fallback path' do
+        cmd = harness.send(:_generate_tftp_command, 'payload_uri')
+        expect(cmd).to include('rm -rf ./payload_uri')
+      end
+
+      it 'closes the fail-safe if-block with a semicolon rather than corrupting the rm -rf argument list' do
+        # Concatenating the cleanup directly in front of the fail-safe
+        # branch's closing ` fi` without a separator would make `fi` a
+        # second argument to `rm -rf` instead of closing the if-block.
+        cmd = harness.send(:_generate_tftp_command, 'payload_uri')
+        expect(cmd).to include('rm -rf ./payload_uri; fi')
+        expect(cmd).not_to include('rm -rf ./payload_uri fi')
+      end
+    end
+  end
 end

