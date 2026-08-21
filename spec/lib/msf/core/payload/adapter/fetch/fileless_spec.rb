@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'tempfile'
 
 RSpec.describe Msf::Payload::Adapter::Fetch::Fileless do
   let(:harness_class) do
@@ -46,7 +47,15 @@ RSpec.describe Msf::Payload::Adapter::Fetch::Fileless do
     subject(:cmd) { harness._generate_fileless_bash_search(get_file_cmd) }
 
     it 'embeds get_file_cmd directly, since the surrounding script text is unquoted' do
-      expect(cmd).to include("if #{get_file_cmd} >/dev/null")
+      expect(cmd).to include("if (#{get_file_cmd}) >/dev/null")
+    end
+
+    it 'wraps get_file_cmd in a subshell so the trailing >/dev/null cannot clobber a redirect get_file_cmd embeds itself' do
+      # get_file_cmd can itself end in a raw `>$dest` redirect (e.g. the
+      # plain GET-based fetch command). Appending ` >/dev/null` directly
+      # after that, unparenthesized, would silently win and the payload
+      # would never be written to the candidate file.
+      expect(cmd).not_to include("#{get_file_cmd} >/dev/null")
     end
 
     it 'checks the real exit status of get_file_cmd rather than a swallowed command substitution' do
@@ -83,7 +92,11 @@ RSpec.describe Msf::Payload::Adapter::Fetch::Fileless do
     subject(:cmd) { harness._generate_fileless_shell(get_file_cmd, 'mipsle') }
 
     it 'embeds get_file_cmd directly, since the surrounding script text is unquoted' do
-      expect(cmd).to include("then if #{get_file_cmd} >/dev/null")
+      expect(cmd).to include("then if (#{get_file_cmd}) >/dev/null")
+    end
+
+    it 'wraps get_file_cmd in a subshell so the trailing >/dev/null cannot clobber a redirect get_file_cmd embeds itself' do
+      expect(cmd).not_to include("#{get_file_cmd} >/dev/null")
     end
 
     it 'checks the real exit status of get_file_cmd rather than a swallowed command substitution' do
@@ -97,6 +110,41 @@ RSpec.describe Msf::Payload::Adapter::Fetch::Fileless do
     it 'does not depend on od or head -c, neither of which is guaranteed present/POSIX-mandated on minimal/embedded busybox builds' do
       expect(cmd).not_to include('od ')
       expect(cmd).not_to include('head -c4 $f')
+    end
+  end
+
+  describe '#_hex_byte_swap_shell' do
+    def swapped_hex(padded_hex)
+      padded_hex.scan(/../).reverse.join
+    end
+
+    # Actually runs the generated shell fragment (with $vdso_addr set) through
+    # `sh`, bounded by `timeout` so a regression back to the pre-fix infinite
+    # loop fails the example instead of hanging the suite.
+    def run_fragment(width, vdso_addr)
+      fragment = harness._hex_byte_swap_shell(width)
+      Tempfile.create('hex_byte_swap_probe') do |f|
+        f.write("vdso_addr=#{vdso_addr}\necho #{fragment}\n")
+        f.flush
+        `timeout 2 sh #{f.path}`.strip
+      end
+    end
+
+    it 'reverses byte order of an address that exactly fits the padded width' do
+      result = run_fragment(8, 0x12345678)
+      expect(result).to eq(swapped_hex('12345678'))
+    end
+
+    it 'terminates and produces the correctly byte-swapped result when the address needs more digits than the padded width' do
+      # printf %04x on 0x10000 yields "10000" -- 5 (odd) hex digits, since
+      # printf only pads *up to* the given width, it doesn't clip larger
+      # values down to it. The old, unguarded ${v%??} trim loop assumed an
+      # always-even-length string and spun forever once it reached the last
+      # single leftover character; the `timeout` wrapper here turns that
+      # regression into a failing example instead of a hung spec run.
+      vdso_addr = 0x10000
+      result = run_fragment(4, vdso_addr)
+      expect(result).to eq(swapped_hex('010000'))
     end
   end
 end
