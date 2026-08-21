@@ -8,7 +8,7 @@
 # frozen_string_literal: true
 
 module MetasploitModule
-  CachedSize = 40
+  CachedSize = 80
 
   include Msf::Payload::Single
   include Msf::Payload::Linux::Mips64::Prepends
