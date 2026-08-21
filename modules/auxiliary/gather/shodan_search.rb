@@ -49,11 +49,10 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('DATABASE', [false, 'Add search results to the database', false]),
         OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
         OptRegexp.new('REGEX', [true, 'Regex search for a specific IP/City/Country/Hostname', '.*'])
-
       ]
     )
 
-    # overwriting the default user-agent. Shodan is checking it and delivering a html response when using the default ua (see #16189 and #16223)
+    # overwriting the default user-agent. Shodan is checking it and delivering a html response when using the default ua
     register_advanced_options(
       [
         OptString.new('UserAgent', [false, 'The User-Agent header to use for all requests', 'Wget/1.21.2 (linux-gnu)' ])
@@ -63,9 +62,7 @@ class MetasploitModule < Msf::Auxiliary
     deregister_http_client_options
   end
 
-  # create our Shodan query function that performs the actual web request
   def shodan_query(apikey, query, facets, page)
-    # send our query to Shodan
     res = send_request_cgi({
       'method' => 'GET',
       'rhost' => 'api.shodan.io',
@@ -84,8 +81,6 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::BadConfig, '401 Unauthorized. Your SHODAN_APIKEY is invalid')
     end
 
-    # Check if we can resolve host, got a response,
-    # then parse the JSON, and return it
     if res
       results = ActiveSupport::JSON.decode(res.body)
       return results
@@ -94,7 +89,6 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # save output to file
   def save_output(data)
     ::File.open(datastore['OUTFILE'], 'wb') do |f|
       f.write(data)
@@ -102,55 +96,49 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # Check to see if api.shodan.io resolves properly
   def shodan_resolvable?
     begin
       Rex::Socket.resolv_to_dotted("api.shodan.io")
     rescue RuntimeError, SocketError
       return false
     end
-
     true
   end
 
   def run
-    # check our API key is somewhat sane
     unless /^[a-z\d]{32}$/i.match?(datastore['SHODAN_APIKEY'])
       fail_with(Failure::BadConfig, 'Shodan API key should be 32 characters a-z,A-Z,0-9.')
     end
 
-    # check to ensure api.shodan.io is resolvable
     unless shodan_resolvable?
       print_error("Unable to resolve api.shodan.io")
       return
     end
 
-    # create our Shodan request parameters
     query = datastore['QUERY']
     facets = datastore['FACETS']
     apikey = datastore['SHODAN_APIKEY']
     maxpage = datastore['MAXPAGE']
 
-    # results gets our results from shodan_query
     results = []
     first_page = 0
     results[first_page] = shodan_query(apikey, query, facets, 1)
 
-    if results[first_page]['total'].nil? || results[first_page]['total'] == 0
+    if results[first_page].is_a?(String) || results[first_page]['total'].nil? || results[first_page]['total'] == 0
       msg = "No results."
-      if results[first_page]['error'].to_s.length > 0
+      if results[first_page].is_a?(Hash) && results[first_page]['error'].to_s.length > 0
         msg << " Error: #{results[first_page]['error']}"
       end
       print_error(msg)
       return
     end
 
-    # Determine page count based on total results
     if results[first_page]['total'] % 100 == 0
       tpages = results[first_page]['total'] / 100
     else
-      tpages = results[first_page]['total'] / 100 + 1
+      tpages = (results[first_page]['total'] / 100) + 1
     end
+
     maxpage = tpages if datastore['MAXPAGE'] > tpages
 
     if facets
@@ -159,8 +147,7 @@ class MetasploitModule < Msf::Auxiliary
         'Indent' => 1,
         'Columns' => ['Facet', 'Name', 'Count']
       )
-      print_status("Total: #{results[first_page]['total']} on #{tpages} " \
-        'pages. Showing facets')
+      print_status("Total: #{results[first_page]['total']} on #{tpages} pages. Showing facets")
       facet = results.dig(first_page, 'facets')
       facet.each do |name, list|
         list.each do |f|
@@ -168,68 +155,90 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     else
-      # start printing out our query statistics
-      print_status("Total: #{results[first_page]['total']} on #{tpages} " +
-        "pages. Showing: #{maxpage} page(s)")
-
-      # If search results greater than 100, loop & get all results
+      print_status("Total: #{results[first_page]['total']} on #{tpages} pages. Showing: #{maxpage} page(s)")
       print_status('Collecting data, please wait...')
 
       if results[first_page]['total'] > 100
         page = 1
+        retrying = 0
+        skipped = 0
+
         while page < maxpage
-          page_result = shodan_query(apikey, query, facets, page + 1)
-          if page_result['matches'].nil?
-            next
+          page_result = shodan_query(apikey, query, facets, page + skipped + 1)
+
+          if page_result.is_a?(String) || page_result['matches'].nil?
+            retrying += 1
+            if retrying < 3
+              next
+            else
+              retrying = 0
+              print_error("Skipping page #{page + skipped}")
+              if page + skipped >= maxpage
+                break
+              end
+              skipped += 1
+              next
+            end
+          else
+            retrying = 0
           end
 
           results[page] = page_result
           page += 1
         end
       end
-      # Save the results to this table
+
       tbl = Rex::Text::Table.new(
         'Header' => 'Search Results',
         'Indent' => 1,
         'Columns' => ['IP:Port', 'City', 'Country', 'Hostname']
       )
 
-      # Organize results and put them into the table and database
       regex = datastore['REGEX'] if datastore['REGEX']
+
       results.each do |page|
+        next if page.nil? || page.is_a?(String) || page['matches'].nil?
+
         page['matches'].each do |host|
           city = host.dig('location', 'city') || 'N/A'
           ip = host.fetch('ip_str', 'N/A')
           port = host.fetch('port', '')
           country = host.dig('location', 'country_name') || 'N/A'
-          hostname = host.dig('hostnames', 0)
-          data = host.dig('data')
 
-          report_host(:host => ip,
-                      :name => hostname,
-                      :comments => 'Added from Shodan',
-                      :info => host.dig('info')) if datastore['DATABASE']
+          # Sanitize strings to remove null bytes (\x00) which crash PostgreSQL
+          hostname = (host.dig('hostnames', 0) || '').to_s.delete("\x00")
+          data = (host.dig('data') || '').to_s.delete("\x00")
+          product = (host.dig('product') || '').to_s.delete("\x00")
+          os = (host.dig('os') || '').to_s.delete("\x00")
 
-          report_service(:host => ip,
-                         :port => port,
-                         :info => 'Added from Shodan') if datastore['DATABASE']
+          if datastore['DATABASE']
+            report_host(
+              :host => ip,
+              :name => hostname,
+              :os_name => os,
+              :comments => 'Added from Shodan',
+              :info => host.dig('info')
+            )
+            report_service(
+              :host => ip,
+              :port => port,
+              :comments => 'Added from Shodan',
+              :name => product,
+              :info => data
+            )
+          end
 
-          if ip =~ regex ||
-             city =~ regex ||
-             country =~ regex ||
-             hostname =~ regex ||
-             data =~ regex
-            # Unfortunately we cannot display the banner properly,
-            # because it messes with our output format
+          if ip =~ regex || city =~ regex || country =~ regex || hostname =~ regex || data =~ regex
             tbl << ["#{ip}:#{port}", city, country, hostname]
           end
         end
       end
-      # Show data and maybe save it if needed
+
       print_line()
       print_line("#{tbl}")
       save_output(tbl) if datastore['OUTFILE']
     end
+
     if datastore['FACETS']
       print_line(facets_tbl.to_s)
       save_output(facets_tbl) if datastore['OUTFILE']
