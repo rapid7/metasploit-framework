@@ -211953,7 +211953,7 @@
       "ATT&CK-T1550.002"
     ],
     "platform": "Windows",
-    "arch": "x86, x64, cmd",
+    "arch": "x86, x64, aarch64, cmd",
     "rport": 445,
     "autofilter_ports": [
       139,
@@ -211970,7 +211970,7 @@
       "MOF upload",
       "Command"
     ],
-    "mod_time": "2026-06-24 14:29:47 +0000",
+    "mod_time": "2026-08-17 18:01:09 +0000",
     "path": "/modules/exploits/windows/smb/psexec.rb",
     "is_install_path": true,
     "ref_name": "windows/smb/psexec",
