@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Exe::SegmentHijacker
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Exe::SegmentHijacker";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Exe.html" title="Msf::Exe (module)">Exe</a></span></span>
+     &raquo; 
+    <span class="title">SegmentHijacker</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Exe::SegmentHijacker
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="SegmentAppender.html" title="Msf::Exe::SegmentAppender (class)">SegmentAppender</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="SegmentAppender.html" title="Msf::Exe::SegmentAppender (class)">SegmentAppender</a></span></li>
+          
+            <li class="next">Msf::Exe::SegmentHijacker</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/exe/segment_hijacker.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Appends a payload section and redirects the PE entrypoint to it.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants inherited
+     from <span class='object_link'><a href="SegmentAppender.html" title="Msf::Exe::SegmentAppender (class)">SegmentAppender</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="SegmentAppender.html#DEFAULT_SECTION_CHARACTERISTICS-constant" title="Msf::Exe::SegmentAppender::DEFAULT_SECTION_CHARACTERISTICS (constant)">Msf::Exe::SegmentAppender::DEFAULT_SECTION_CHARACTERISTICS</a></span>, <span class='object_link'><a href="SegmentAppender.html#MAX_PE_SECTION_NAME_LENGTH-constant" title="Msf::Exe::SegmentAppender::MAX_PE_SECTION_NAME_LENGTH (constant)">Msf::Exe::SegmentAppender::MAX_PE_SECTION_NAME_LENGTH</a></span>, <span class='object_link'><a href="SegmentAppender.html#MAX_SECTION_NAME_WITHOUT_DOT_LENGTH-constant" title="Msf::Exe::SegmentAppender::MAX_SECTION_NAME_WITHOUT_DOT_LENGTH (constant)">Msf::Exe::SegmentAppender::MAX_SECTION_NAME_WITHOUT_DOT_LENGTH</a></span></p>
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="SegmentAppender.html" title="Msf::Exe::SegmentAppender (class)">SegmentAppender</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="SegmentAppender.html#arch-instance_method" title="Msf::Exe::SegmentAppender#arch (method)">#arch</a></span>, <span class='object_link'><a href="SegmentAppender.html#payload-instance_method" title="Msf::Exe::SegmentAppender#payload (method)">#payload</a></span>, <span class='object_link'><a href="SegmentAppender.html#section_characteristics-instance_method" title="Msf::Exe::SegmentAppender#section_characteristics (method)">#section_characteristics</a></span>, <span class='object_link'><a href="SegmentAppender.html#section_name-instance_method" title="Msf::Exe::SegmentAppender#section_name (method)">#section_name</a></span>, <span class='object_link'><a href="SegmentAppender.html#template-instance_method" title="Msf::Exe::SegmentAppender#template (method)">#template</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_pe-instance_method" title="#generate_pe (instance method)">#<strong>generate_pe</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="SegmentAppender.html" title="Msf::Exe::SegmentAppender (class)">SegmentAppender</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="SegmentAppender.html#append_section-instance_method" title="Msf::Exe::SegmentAppender#append_section (method)">#append_section</a></span>, <span class='object_link'><a href="SegmentAppender.html#build_section_name-instance_method" title="Msf::Exe::SegmentAppender#build_section_name (method)">#build_section_name</a></span>, <span class='object_link'><a href="SegmentAppender.html#copy_pe-instance_method" title="Msf::Exe::SegmentAppender#copy_pe (method)">#copy_pe</a></span>, <span class='object_link'><a href="SegmentAppender.html#initialize-instance_method" title="Msf::Exe::SegmentAppender#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="SegmentAppender.html#processor-instance_method" title="Msf::Exe::SegmentAppender#processor (method)">#processor</a></span>, <span class='object_link'><a href="SegmentAppender.html#random_section_name-instance_method" title="Msf::Exe::SegmentAppender#random_section_name (method)">#random_section_name</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <p class="notice">This class inherits a constructor from <span class='object_link'><a href="SegmentAppender.html#initialize-instance_method" title="Msf::Exe::SegmentAppender#initialize (method)">Msf::Exe::SegmentAppender</a></span></p>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="generate_pe-instance_method">
+  
+    #<strong>generate_pe</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_hijacker.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_pe'>generate_pe</span>
+  <span class='id identifier rubyid_pe_orig'>pe_orig</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>PE</span><span class='period'>.</span><span class='id identifier rubyid_decode_file'>decode_file</span><span class='lparen'>(</span><span class='id identifier rubyid_template'>template</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pe'>pe</span> <span class='op'>=</span> <span class='id identifier rubyid_copy_pe'>copy_pe</span><span class='lparen'>(</span><span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_append_section'>append_section</span><span class='lparen'>(</span><span class='id identifier rubyid_pe'>pe</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_optheader'>optheader</span><span class='period'>.</span><span class='id identifier rubyid_entrypoint'>entrypoint</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>new_entrypoint</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_cpu'>cpu</span> <span class='op'>=</span> <span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='period'>.</span><span class='id identifier rubyid_cpu'>cpu</span>
+
+  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_encode_string'>encode_string</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Fri Aug 21 22:48:22 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>
