@@ -120,7 +120,7 @@ module Msf::Payload::Adapter::Fetch
         add_srv_entry(srvuri, 'x', opts)
       else
         opts[:dynamic_arch] = false
-        opts[:code] = super(opts)
+        opts[:code] = apply_prepends(super(opts))
         add_srv_entry(srvuri, generate_payload_exe(opts), opts)
       end
 
@@ -136,8 +136,12 @@ module Msf::Payload::Adapter::Fetch
       vprint_status("Command to execute on target: #{cmd}")
       cmd
     else
-      super(opts)
+      apply_prepends(super(opts))
     end
+  end
+
+  def generate_complete
+    generate
   end
 
   # Dispatches command generation to the selected FETCH_COMMAND helper.
