@@ -48,10 +48,10 @@ module Metasploit
           ].freeze
         end
 
-        # @returns [Array[Integer]] The SMB versions to negotiate
+        # @return [Array<Integer>] The SMB versions to negotiate
         attr_accessor :versions
 
-        # @returns [Boolean] By default the client uses encryption even if it is not required by the server. Disable this by setting always_encrypt to false
+        # @return [Boolean] By default the client uses encryption even if it is not required by the server. Disable this by setting always_encrypt to false
         attr_accessor :always_encrypt
 
         # @!attribute dispatcher
@@ -63,7 +63,7 @@ module Metasploit
         #     A factory method for creating a kerberos authenticator
         attr_accessor :kerberos_authenticator_factory
 
-        # @returns [Boolean] If a login is successful and this attribute is true - a RubySMB::Client instance is used as proof,
+        # @return [Boolean] If a login is successful and this attribute is true - a RubySMB::Client instance is used as proof,
         #   and the socket is not immediately closed
         attr_accessor :use_client_as_proof
 

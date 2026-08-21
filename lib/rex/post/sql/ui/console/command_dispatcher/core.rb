@@ -34,7 +34,7 @@ module Rex
                 filter_commands(cmds, reqs)
               end
 
-              # @param [String]
+              # @return [String] The name of this command dispatcher
               def name
                 'Core'
               end
