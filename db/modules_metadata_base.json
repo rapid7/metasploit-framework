@@ -115007,6 +115007,63 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_9198": {
+    "name": "Langflow AI auto_login RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_9198",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-07-17",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Langflow versions 1.10.0 and below are susceptible to\n          unauthenticated remote code execution. By chaining\n          /api/v1/auto_login with /api/v1/validate/code, a remote\n          unauthenticated attacker can send crafted HTTP requests to execute\n          arbitrary code.",
+    "references": [
+      "CVE-2026-9198",
+      "URL-https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-9198"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-08-21 14:02:04 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_9198.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_9198",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/lcms_php_exec": {
     "name": "LotusCMS 3.0 eval() Remote Command Execution",
     "fullname": "exploit/multi/http/lcms_php_exec",
