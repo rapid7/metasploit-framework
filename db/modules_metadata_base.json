@@ -99737,7 +99737,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-05-07 14:31:12 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/linux/persistence/autostart.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/autostart",
@@ -99838,7 +99838,7 @@
     "targets": [
       "Auto"
     ],
-    "mod_time": "2025-09-16 15:57:24 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/linux/persistence/docker_image.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/docker_image",
@@ -99925,7 +99925,10 @@
       "Zack Didcott"
     ],
     "description": "Gain persistence for specified payload on IGEL OS Workspace Edition, by writing\n          a payload to disk or base64-encoding and executing from registry.",
-    "references": [],
+    "references": [
+      "ATT&CK-T1546",
+      "ATT&CK-T1547"
+    ],
     "platform": "Linux",
     "arch": "cmd, x64",
     "rport": null,
@@ -99935,7 +99938,7 @@
       "Linux Command",
       "Linux Dropper"
     ],
-    "mod_time": "2025-12-17 16:12:31 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/linux/persistence/igel_persistence.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/igel_persistence",
@@ -99990,7 +99993,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-01-08 21:00:39 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/linux/persistence/init_openrc.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/init_openrc",
@@ -100046,7 +100049,7 @@
       "systemd",
       "systemd user"
     ],
-    "mod_time": "2026-05-07 14:31:12 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/linux/persistence/init_systemd.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/init_systemd",
@@ -100100,7 +100103,7 @@
       "systemd",
       "systemd user"
     ],
-    "mod_time": "2026-01-08 21:00:39 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/linux/persistence/init_systemd_override.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/init_systemd_override",
@@ -100153,7 +100156,7 @@
     "targets": [
       "System V"
     ],
-    "mod_time": "2026-01-08 21:00:39 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/linux/persistence/init_sysvinit.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/init_sysvinit",
@@ -100207,7 +100210,7 @@
     "targets": [
       "Upstart"
     ],
-    "mod_time": "2026-01-08 21:00:39 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/linux/persistence/init_upstart.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/init_upstart",
@@ -100364,7 +100367,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-01-09 16:22:24 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/linux/persistence/udev.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/udev",
@@ -100516,7 +100519,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-01-08 21:00:39 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/linux/persistence/yum_package_manager.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/yum_package_manager",
@@ -133001,7 +133004,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-01-08 21:00:39 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/multi/persistence/at.rb",
     "is_install_path": true,
     "ref_name": "multi/persistence/at",
@@ -133042,7 +133045,8 @@
     "references": [
       "URL-https://portswigger.net/burp/documentation/desktop/extensions/creating",
       "URL-https://portswigger.net/burp/documentation/desktop/troubleshooting/launch-from-command-line",
-      "ATT&CK-T1176"
+      "ATT&CK-T1176",
+      "ATT&CK-T1546"
     ],
     "platform": "Java,Unix,Windows",
     "arch": "java, cmd",
@@ -133054,7 +133058,7 @@
       "Linux",
       "Windows"
     ],
-    "mod_time": "2026-05-22 11:40:23 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/multi/persistence/burp_extension.rb",
     "is_install_path": true,
     "ref_name": "multi/persistence/burp_extension",
@@ -133117,7 +133121,7 @@
       "OSX User Crontab",
       "System Crontab"
     ],
-    "mod_time": "2026-01-08 21:00:39 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/multi/persistence/cron.rb",
     "is_install_path": true,
     "ref_name": "multi/persistence/cron",
@@ -133215,7 +133219,8 @@
       "URL-https://forum.obsidian.md/t/can-obsidian-plugins-have-malware/34491",
       "URL-https://help.obsidian.md/Extending+Obsidian/Plugin+security",
       "URL-https://thomas-byrne.co.uk/research/obsidian-malicious-plugins/obsidian-research/",
-      "ATT&CK-T1176"
+      "ATT&CK-T1176",
+      "ATT&CK-T1546"
     ],
     "platform": "OSX,Unix,Windows",
     "arch": "cmd",
@@ -133228,7 +133233,7 @@
       "OSX",
       "Windows"
     ],
-    "mod_time": "2026-05-22 11:40:23 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/multi/persistence/obsidian_plugin.rb",
     "is_install_path": true,
     "ref_name": "multi/persistence/obsidian_plugin",
@@ -133391,7 +133396,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-01-26 16:44:46 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/multi/persistence/ssh_key.rb",
     "is_install_path": true,
     "ref_name": "multi/persistence/ssh_key",
@@ -136837,7 +136842,7 @@
       "Python payload",
       "Command payload"
     ],
-    "mod_time": "2026-05-07 14:31:12 +0000",
+    "mod_time": "2026-08-21 11:58:54 +0000",
     "path": "/modules/exploits/osx/persistence/launch_plist.rb",
     "is_install_path": true,
     "ref_name": "osx/persistence/launch_plist",
@@ -206888,7 +206893,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-04-14 17:16:54 +0000",
+    "mod_time": "2026-05-25 12:53:27 +0000",
     "path": "/modules/exploits/windows/persistence/bits.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/bits",
@@ -207092,7 +207097,7 @@
     "targets": [
       "Auto"
     ],
-    "mod_time": "2026-05-07 14:31:12 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/windows/persistence/powershell_profile.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/powershell_profile",
@@ -207308,7 +207313,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-03-21 12:21:09 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/windows/persistence/service.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service",
@@ -207365,7 +207370,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-01-11 07:43:43 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/windows/persistence/service_for_user/event.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service_for_user/event",
@@ -207422,7 +207427,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-01-11 07:43:43 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/windows/persistence/service_for_user/lock_unlock.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service_for_user/lock_unlock",
@@ -207479,7 +207484,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-01-11 07:43:43 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/windows/persistence/service_for_user/logon.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service_for_user/logon",
@@ -207535,7 +207540,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2025-12-27 07:33:15 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/windows/persistence/service_for_user/schedule.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service_for_user/schedule",
@@ -207686,7 +207691,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-02-17 16:32:34 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/windows/persistence/telemetry.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/telemetry",
@@ -207954,7 +207959,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-01-11 07:25:13 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/windows/persistence/wmi/wmi_event_subscription_uptime.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/wmi/wmi_event_subscription_uptime",
@@ -208007,7 +208012,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-02-21 06:13:23 +0000",
+    "mod_time": "2026-05-25 12:05:13 +0000",
     "path": "/modules/exploits/windows/persistence/wsl/registry.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/wsl/registry",
