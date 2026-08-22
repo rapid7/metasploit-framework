@@ -337,7 +337,9 @@ class Obj
     @staged              = obj_hash['staged']
     @stage_refname       = obj_hash['stage_refname']
     @stager_refname      = obj_hash['stager_refname']
-    @payload_cached_size = obj_hash['payload_cached_size']
+    if obj_hash.key?('payload_cached_size')
+      @payload_cached_size = obj_hash['payload_cached_size']
+    end
   end
 
   def sort_platform_string

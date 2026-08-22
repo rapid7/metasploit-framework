@@ -84,6 +84,8 @@ RSpec.describe Msf::Modules::Metadata::Obj do
 
       before do
         allow(module_instance_dynamic.class).to receive(:refname).and_return('windows/dynamic')
+        allow(module_instance_dynamic).to receive(:shortname).and_return('dynamic')
+        allow(module_instance_dynamic).to receive(:module_info).and_return({})
         
         replicant = double('Replicant')
         generated_payload = double('GeneratedPayload', bytesize: 250000)
