@@ -121,7 +121,7 @@ module Msf::Sessions
           @pipeline_order_cond.broadcast
         end
       end
-      
+
       def spawn_thread(script, &block)
         if framework&.threads
           framework.threads.spawn('WinRM-PowerShell-pipeline', false, script, &block)
