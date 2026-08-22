@@ -116,6 +116,25 @@ RSpec.describe 'WinRM Login Scanner' do
 
         expect(mod.send(:create_winrm_session, conn, credential, rhost, rport, endpoint)).to be_nil
       end
+      it 'closes the PowerShell shell when the owner lookup drops the connection with an EOFError' do
+        expect(conn).to receive(:shell).with(:powershell).and_return(ps_shell)
+        expect(mod).to receive(:powershell_owner).with(ps_shell).and_raise(EOFError, 'end of file reached')
+        expect(mod).to receive(:print_error).with("#{authority} - PowerShell session setup failed: end of file reac
+hed")
+        expect(ps_shell).to receive(:close)
+
+        expect(mod.send(:create_winrm_session, conn, credential, rhost, rport, endpoint)).to be_nil
+      end
+
+      it 'closes the PowerShell shell when the owner lookup raises Rex::HostUnreachable' do
+        expect(conn).to receive(:shell).with(:powershell).and_return(ps_shell)
+        expect(mod).to receive(:powershell_owner).with(ps_shell).and_raise(Rex::HostUnreachable.new(rhost))
+        expect(mod).to receive(:print_error).with("#{authority} - PowerShell session setup failed: The host (#{rhos
+t}) was unreachable.")
+        expect(ps_shell).to receive(:close)
+
+        expect(mod.send(:create_winrm_session, conn, credential, rhost, rport, endpoint)).to be_nil
+      end
     end
 
     context 'when SessionType is auto' do

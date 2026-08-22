@@ -21,6 +21,15 @@ module Msf::Sessions
         # To buffer input received while a session is backgrounded, we stick responses in a list.
         init_stream_buffer
         @pipeline_mutex = Mutex.new
+        # A new pipeline thread is spawned on every #write, so threads can start
+        # running in a different order than the commands were submitted in.
+        # These four track a strictly increasing "ticket" per pipeline and let
+        # each thread wait its turn, so pipelines still run in submission order
+        # against the shared PSRP runspace.
+        @pipeline_order_mutex = Mutex.new
+        @pipeline_order_cond = ConditionVariable.new
+        @next_pipeline_ticket = 0
+        @current_pipeline_ticket = 0
         # Threads currently executing a pipeline against `shell`. Tracked as a
         # set rather than a single reference because a new pipeline thread is
         # spawned on every #write; without tracking them all, #close could
@@ -57,10 +66,11 @@ module Msf::Sessions
       def run_pipeline(script)
         start_pipeline_event = Rex::Sync::Event.new(false, false)
         pipeline_thread = nil
-
+        ticket = claim_pipeline_ticket
         @pipeline_threads_mutex.synchronize do
           pipeline_thread = spawn_thread(script) do |pipeline_script|
             start_pipeline_event.wait
+            wait_for_pipeline_turn(ticket)
             @pipeline_mutex.synchronize do
               shell.run(pipeline_script) do |stdout, stderr|
                 append_output(stdout) if stdout
@@ -78,6 +88,7 @@ module Msf::Sessions
             append_output(e.message)
             on_shell_ended.call(e.message)
           ensure
+            advance_pipeline_turn
             unregister_pipeline_thread(Thread.current)
           end
           @pipeline_threads << pipeline_thread
@@ -87,6 +98,30 @@ module Msf::Sessions
         pipeline_thread
       end
 
+      def claim_pipeline_ticket
+        @pipeline_order_mutex.synchronize do
+          ticket = @next_pipeline_ticket
+          @next_pipeline_ticket += 1
+          ticket
+        end
+      end
+
+      # Block the calling pipeline thread until it holds the oldest
+      # outstanding ticket, so pipelines run in the order they were written
+      # regardless of thread scheduling.
+      def wait_for_pipeline_turn(ticket)
+        @pipeline_order_mutex.synchronize do
+          @pipeline_order_cond.wait(@pipeline_order_mutex) until @current_pipeline_ticket == ticket
+        end
+      end
+
+      def advance_pipeline_turn
+        @pipeline_order_mutex.synchronize do
+          @current_pipeline_ticket += 1
+          @pipeline_order_cond.broadcast
+        end
+      end
+      
       def spawn_thread(script, &block)
         if framework&.threads
           framework.threads.spawn('WinRM-PowerShell-pipeline', false, script, &block)

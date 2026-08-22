@@ -180,6 +180,41 @@ RSpec.describe Msf::Sessions::WinrmPowerShell do
       expect(shell).to have_received(:close)
       expect(shell).not_to have_received(:run)
     end
+    
+    it 'runs pipelines in the order they were written even if a later pipeline thread reaches the run gate first' d
+o
+      run_order = []
+      allow(shell).to receive(:run) do |script, &block|
+        run_order << script
+        block.call("stdout\n", nil)
+      end
+
+      release_first = Queue.new
+      ordering_adapter = described_class.new(shell, ->(_reason = '') {})
+      call_count = 0
+
+      # The first write's pipeline thread is held back after claiming its
+      # ticket; the second write's pipeline thread is left free to run
+      # immediately, so it reaches the ordering gate first if there is one.
+      ordering_adapter.define_singleton_method(:spawn_thread) do |script, &block|
+        call_count += 1
+        if call_count == 1
+          Thread.new { release_first.pop; block.call(script) }
+        else
+          Thread.new { block.call(script) }
+        end
+      end
+
+      ordering_adapter.write('first')
+      ordering_adapter.write('second')
+
+      sleep 0.05
+      expect(run_order).to be_empty
+
+      release_first << true
+      Timeout.timeout(1) { sleep 0.01 until run_order.size == 2 }
+      expect(run_order).to eq(%w[first second])
+    end
   end
 
   describe '#shell_ended' do

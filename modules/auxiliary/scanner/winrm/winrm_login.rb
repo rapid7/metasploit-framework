@@ -212,6 +212,16 @@ class MetasploitModule < Msf::Auxiliary
       elog(e.full_message, error: e)
       close_powershell_shell(shell)
       return nil
+    rescue StandardError => e
+      # Mirror the exception handling in WinRMPowerShellStreamAdapter#run_pipeline:
+      # a dropped connection or other transport failure during the owner lookup
+      # (e.g. EOFError, Rex::HostUnreachable) can surface as more than just a
+      # WinRMWSManFault, and any of these would otherwise skip
+      # close_powershell_shell and leak the shell on the target.
+      print_error "#{Rex::Socket.to_authority(rhost, rport)} - PowerShell session setup failed: #{e.message}"
+      elog(e.full_message, error: e)
+      close_powershell_shell(shell)
+      return nil
     end
 
     sess = Msf::Sessions::WinrmPowerShell.new(shell)
