@@ -30,6 +30,6 @@ is kind of mean, even when it's well-intentioned, since you end up
 dropping 0-day on pretty much everyone right out of the gate. We'd prefer
 you didn't!
 
-[r7-vulns]:https://www.rapid7.com/security/disclosure/
+[r7-vulns]:https://www.rapid7.com/security/vulnerability-disclosure-policy/
 [pgp]:https://keybase.io/rapid7/pgp_keys.asc?fingerprint=9a90aea0576cbcafa39c502ba5e16807959d3eda
 
