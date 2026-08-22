@@ -40,6 +40,10 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
           options.console.confirm_exit = true
         end
 
+        option_parser.on('--module-count', 'Print module counts and exit') do
+          options.subcommand = :module_count
+        end
+
         option_parser.on('-H', '--history-file FILE', 'Save command history to the specified file') do |file|
           options.console.histfile = file
         end

@@ -2,7 +2,7 @@
 module Msf::DBManager::Migration
   # Loads Metasploit Data Models and adds gathers migration paths.
   #
-  # @return Array[String]
+  # @return [Array<String>]
   def add_rails_engine_migration_paths
     unless defined? ActiveRecord
       fail "Bundle installed '--without #{Bundler.settings.without.join(' ')}'.  To clear the without option do " \
@@ -17,7 +17,7 @@ module Msf::DBManager::Migration
   #
   # @param config [Hash] see ActiveRecord::Base.establish_connection
   # @param verbose [Boolean] see ActiveRecord::Migration.verbose
-  # @return [Array<ActiveRecord::MigrationProxy] List of migrations that
+  # @return [Array<ActiveRecord::MigrationProxy>] List of migrations that
   #   ran.
   #
   # @see ActiveRecord::MigrationContext.migrate
@@ -71,7 +71,7 @@ module Msf::DBManager::Migration
 
   # Loads gathers migration paths from all loaded Rails engines.
   #
-  # @return Array[String]
+  # @return [Array<String>]
   def gather_engine_migration_paths
     paths = ActiveRecord::Migrator.migrations_paths
 

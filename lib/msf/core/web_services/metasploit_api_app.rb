@@ -43,9 +43,14 @@ class Msf::WebServices::MetasploitApiApp < Sinatra::Base
   before do
     # store DBManager in request environment so that it is available to Warden
     request.env['msf.db_manager'] = get_db
-    # store flag indicating whether authentication is initialized in the request environment
+    # Once a user exists the flag latches on for the lifetime of the process.
     @@auth_initialized ||= get_db.users({}).count > 0
-    request.env['msf.auth_initialized'] = @@auth_initialized
+    # While no users exist an initial account has to be creatable before any credentials
+    # exist - msfdb relies on this to POST the first user to /api/v1/users. The exemption is
+    # limited to that one route, so a database that reports no users for any other reason -
+    # an empty database restored under the service, a failover onto a fresh instance - cannot
+    # expose the rest of the API unauthenticated.
+    request.env['msf.auth_initialized'] = @@auth_initialized || !initial_account_creation?
   end
 
   use Warden::Manager do |config|
@@ -78,6 +83,14 @@ class Msf::WebServices::MetasploitApiApp < Sinatra::Base
                           strategies: [:admin_api_token],
                           # action (route) of the failure application
                           action: Msf::WebServices::AuthServlet.api_unauthenticated_path
+  end
+
+  # Whether the request is the one that creates a user account, which is the only request
+  # permitted to run unauthenticated before any account exists.
+  #
+  # @return [Boolean] true if the request creates a user account; otherwise, false.
+  def initial_account_creation?
+    request.post? && request.path_info.chomp('/') == Msf::WebServices::UserServlet.api_path
   end
 
 end

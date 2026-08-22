@@ -23,6 +23,9 @@ run Msf::WebServices::JsonRpcApp
 # requests failing.
 #
 warmup do |app|
+  # Initialise DB and auth state once before the server begins accepting connections.
+  Msf::WebServices::JsonRpcApp.boot!
+
   client = Rack::MockRequest.new(app)
   response = client.get('/api/v1/health')
 

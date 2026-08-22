@@ -73,6 +73,9 @@ jobs:
           # Linux
           - { command_shell: { name: linux }, ruby: '3.4', os: ubuntu-latest }
 
+          # Python
+          - { command_shell: { name: python }, ruby: '3.4', os: ubuntu-latest }
+
           # CMD
           - { command_shell: { name: cmd }, ruby: '3.4', os: windows-2022 }
 
@@ -153,7 +156,7 @@ jobs:
 
       - name: Pull pyenv container image
         if: startsWith(matrix.command_shell.name, 'python_ssl')
-        run: docker pull public.ecr.aws/n5b4u6h0/zerosteiner/pyenv@sha256:e686265001ee43333f14c896d8362970e816c5a7c661a6fa7e37a90770c9108a
+        run: docker pull rapid7/msf-pyenv@sha256:596c78595c69847661a135890bfb7ed09b7cd3b39fb66699e075f7eea5dc0f09
         working-directory: metasploit-framework
 
       - name: Acceptance

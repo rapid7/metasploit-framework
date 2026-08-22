@@ -92,9 +92,9 @@ module ResponseDataHelper
   # Modified from https://github.com/swdyh/toar/
   # Credit to https://github.com/swdyh
   #
-  # @param [String] klass The ActiveRecord class to convert the JSON/Hash to.
-  # @param [String] val The JSON string, or Hash, to convert.
-  # @param [Class] base_class The base class to build back to. Used for recursion.
+  # @param klass [String] The ActiveRecord class to convert the JSON/Hash to.
+  # @param val [String] The JSON string, or Hash, to convert.
+  # @param base_object [Class] The base class to build back to. Used for recursion.
   # @return [ApplicationRecord] A klass object, which inherits from ApplicationRecord.
   def to_ar(klass, val, base_object = nil)
     return nil unless val
