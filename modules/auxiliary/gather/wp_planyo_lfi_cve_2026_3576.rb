@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(8080),
+        Opt::RPORT(80),
         OptString.new('FILEPATH', [false, 'The name of the file to download', '/etc/passwd']),
         OptString.new('TARGETURI', [true, 'Base path to the Wordpress installation', '/'])
       ]
