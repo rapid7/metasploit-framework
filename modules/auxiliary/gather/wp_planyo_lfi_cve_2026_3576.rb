@@ -59,20 +59,24 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET'
     )
 
-    if res.nil? || res.code != 200
-      return Msf::Exploit::CheckCode::Unknown(res ? "Response code=#{res.code}" : 'No response')
-    end
-
     body = res.body.to_s
     changelog = body[/==\s*Changelog\s*==(.*)/mi, 1]
-
-    versions = changelog.scan(/^\s*=\s*v?([0-9A-Za-z._-]+)\s*=\s*$/)
-
-    if Rex::Version.new(versions.last.first) <= Rex::Version.new(fixed_version)
-      return Msf::Exploit::CheckCode::Appears(details: { version: versions.last.first })
-    else
-      return Msf::Exploit::CheckCode::Safe(details: { version: versions.last.first })
+    unless changelog
+      return Msf::Exploit::CheckCode::Detected('Version could not be identified from Stable Tag, Version or Changelog headers')
     end
+
+    version = changelog.scan(/^\s*=\s*v?([0-9A-Za-z._-]+)\s*=\s*$/).last&.first
+    unless version
+      return Msf::Exploit::CheckCode::Detected('Version number could not be identified from Stable Tag, Version or Changelog headers')
+    end
+
+    if Rex::Version.new(version) <= Rex::Version.new(fixed_version)
+      return Msf::Exploit::CheckCode::Appears(details: { version: version })
+    else
+      return Msf::Exploit::CheckCode::Safe(details: { version: version })
+    end
+  rescue ArgumentError => e
+    Msf::Exploit::Checkcode::Detected(e.message)
   end
 
   def run
@@ -92,22 +96,30 @@ class MetasploitModule < Msf::Auxiliary
     readme_code = check_plugin_version_from_readme('planyo-online-reservation-system', '3.0')
 
     if readme_code == Msf::Exploit::CheckCode::Unknown
-      print_error('Planyo plugin\'s version could not be found. Try overriding vulnerability check')
+      print_status('No response for plugin\'s readme.txt or it could not be found')
       return
     elsif readme_code == Msf::Exploit::CheckCode::Safe
       print_good("Planyo plugin found: #{readme_code.details}")
       print_error('This version of plugin is not vulnerable')
       return
+    elsif readme_code == Msf::Exploit::CheckCode::Appears
+      print_good("Planyo plugin found: #{readme_code.details}")
+      print_good('This version of plugin is vulnerable')
     # Check version from changelog section if stable tag or version details are not present in readme.txt
     elsif readme_code == Msf::Exploit::CheckCode::Detected
       changelog_code = check_plugin_version_from_changelog('3.0')
-      if changelog_code == Msf::Exploit::CheckCode::Safe
+      if changelog_code == Msf::Exploit::CheckCode::Detected
+        print_status(changelog_code.message)
+        return
+      elsif changelog_code == Msf::Exploit::CheckCode::Safe
         print_good("Planyo plugin found: #{changelog_code.details}")
         print_error('This version of plugin is not vulnerable')
         return
+      else
+        print_good("Planyo plugin found: #{changelog_code.details}")
+        print_good('This version of plugin is vulnerable')
       end
     end
-    print_good('Vulnerable version of Planyo plugin detected')
 
     # Create request
     route = normalize_uri(
