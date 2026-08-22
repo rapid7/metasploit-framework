@@ -119,6 +119,10 @@ class Cache
         next
       end
 
+      if module_metadata.type == 'payload' && !module_metadata.instance_variable_defined?(:@payload_cached_size)
+        next
+      end
+
       skip_reference_name_set = skip_reference_name_set_by_module_type[module_metadata.type]
       skip_reference_name_set.add(module_metadata.ref_name)
     end
