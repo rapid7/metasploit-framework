@@ -147,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
         finding[:error] || finding[:note] || "Unable to determine vulnerability status (#{finding[:verdict]})."
       )
     end
-  rescue ::Rex::ConnectionError, ::Timeout::Error, ::EOFError => e
+  rescue ::Rex::ConnectionError, ::Timeout::Error, ::EOFError, ::Errno::EPIPE, ::Errno::ECONNRESET => e
     reason = "Network error: #{e.class}: #{e.message}"
     print_error("#{target_label(ip)} - Status: UNDETERMINED (#{reason})")
     Exploit::CheckCode::Unknown(reason)
