@@ -87,7 +87,8 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['CVE', '2026-0265'],
-          ['URL', 'https://security.paloaltonetworks.com/CVE-2026-0265']
+          ['URL', 'https://security.paloaltonetworks.com/CVE-2026-0265'],
+          ['URL', 'https://github.com/BishopFox/CVE-2026-0265-check']
         ],
         'DisclosureDate' => '2026-05-21',
         'Notes' => {
