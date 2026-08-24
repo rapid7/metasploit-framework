@@ -171,7 +171,7 @@ SHOW_MOTD => true
 msf auxiliary(scanner/rsync/modules_list) > set SHOW_VERSION true
 SHOW_VERSION => true
 msf auxiliary(scanner/rsync/modules_list) > run
-[*] 127.0.0.1:873         - rsync version: 32.0
+[*] 127.0.0.1:873         - rsync protocol version: 32.0
 [+] 127.0.0.1:873         - 2 rsync modules found: public, locked
 
 rsync modules for 127.0.0.1:873        
