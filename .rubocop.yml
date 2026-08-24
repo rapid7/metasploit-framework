@@ -29,6 +29,7 @@ require:
   - ./lib/rubocop/cop/lint/bare_check_code_in_non_exploit.rb
   - ./lib/rubocop/cop/lint/check_code_missing_reason.rb
   - ./lib/rubocop/cop/lint/module_redundant_arch_platform.rb
+  - ./lib/rubocop/cop/lint/redundant_peer_in_print.rb
 
 Lint/CheckCodeMissingReason:
   Enabled: true
@@ -217,6 +218,13 @@ Lint/ModuleEnforceNotes:
 
 Lint/ModuleRedundantArchPlatform:
   Enabled: true
+  Include:
+    - 'modules/**/*'
+
+Lint/RedundantPeerInPrint:
+  Enabled: true
+  Severity: warning
+  Description: 'The framework auto-prepends host:port via print_prefix. Do not manually include #{peer}, #{rhost}:#{rport}, or #{Rex::Socket.to_authority(rhost, rport)} at the start of print messages.'
   Include:
     - 'modules/**/*'
 

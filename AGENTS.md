@@ -367,6 +367,7 @@ register_advanced_options([
 
 - Use `print_status`, `print_good`, `print_error`, `print_warning` for console output
 - Use `vprint_*` variants for verbose-only output (shown when user sets `VERBOSE true`)
+- Do not prefix messages with `#{peer}`, `#{rhost}:#{rport}`, or `#{Rex::Socket.to_authority(rhost, rport)}` — the framework auto-prepends host:port via `print_prefix` when the `Tcp` mixin (or `HttpClient`) is included
 
 ### HTTP Response Handling
 
@@ -404,6 +405,7 @@ These patterns exist in older code but should not be used in new modules or libr
 
 | Legacy Pattern | Modern Replacement | Notes |
 |---------------|-------------------|-------|
+| `print_status("#{peer} - message")` | `print_status("message")` | The framework auto-prepends host:port via `print_prefix`; also applies to `#{rhost}:#{rport}`, `#{ip}:#{rport}`, `#{Rex::Socket.to_authority(...)}` at message start. Enforced by `Lint/RedundantPeerInPrint` cop |
 | `HttpFingerprint = { :pattern => [...] }` | Implement a `check` method + `prepend AutoCheck` | HttpFingerprint is a passive fingerprinting mechanism that predates the check API |
 | `cmd_exec("command #{user_input}")` | `create_process("command", args: [user_input])` | String interpolation in cmd_exec is a command injection risk; create_process separates executable from arguments by design |
 | `cmd_exec(cmd, args_string, timeout)` | `create_process(cmd, args: args_array, time_out: timeout)` | Enforced by `Lint/DetectOutdatedCmdExecApi` rubocop cop |
