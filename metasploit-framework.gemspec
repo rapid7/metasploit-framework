@@ -44,7 +44,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = '>= 3.1'
+  spec.required_ruby_version = '>= 3.2'
 
   # Database support
   spec.add_runtime_dependency 'activerecord', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
@@ -124,9 +124,7 @@ Gem::Specification.new do |spec|
   # Library for interpreting Windows error codes and strings
   spec.add_runtime_dependency 'windows_error'
   # This used to be depended on by nokogiri, depended on by wmap
-  if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.3.0')
-    spec.add_runtime_dependency 'xmlrpc'
-  end
+  spec.add_runtime_dependency 'xmlrpc'
   # Gem for handling Cookies
   spec.add_runtime_dependency 'http-cookie'
   # Needed for some modules (polkit_auth_bypass.rb)
