@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'timeout'
 require 'thread'
 require 'rex/socket/parameters'
 require 'rex/post/meterpreter/channels/stream'
@@ -102,7 +101,7 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   # and returns nil if no new client connection is available.
   #
   def accept_nonblock
-    _accept(true)
+    _accept(nonblock: true)
   end
 
   #
@@ -112,27 +111,27 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   def accept(opts = {})
     timeout = opts['Timeout']
     if (timeout.nil? || timeout <= 0)
-      timeout = 0
+      timeout = nil
     end
 
-    result = nil
-    begin
-      ::Timeout.timeout(timeout) {
-        result = _accept
-      }
-    rescue Timeout::Error
-    end
-
-    result
+    _accept(timeout: timeout)
   end
 
 protected
 
-  def _accept(nonblock = false)
+  # Uses Queue#deq(timeout:) instead of ::Timeout.timeout to avoid
+  # GVL contention causing missed connections in Ruby 3.x
+  def _accept(nonblock: false, timeout: nil)
     result = nil
 
     begin
-      channel = @@server_channels[self].deq(nonblock)
+      if nonblock
+        channel = @@server_channels[self].deq(true)
+      elsif timeout
+        channel = @@server_channels[self].deq(timeout: timeout)
+      else
+        channel = @@server_channels[self].deq
+      end
 
       if channel
         result = channel.lsock
@@ -142,7 +141,7 @@ protected
         result.extend(Rex::Socket::Tcp)
       end
     rescue ThreadError
-      # This happens when there's no clients in the queue
+      # No clients in queue (nonblock mode)
     end
 
     result
@@ -151,4 +150,3 @@ protected
 end
 
 end; end; end; end; end; end; end
-
