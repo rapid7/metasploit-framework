@@ -61368,7 +61368,7 @@
       "winrm"
     ],
     "targets": null,
-    "mod_time": "2025-12-08 01:47:51 +0000",
+    "mod_time": "2026-08-22 16:10:28 +0000",
     "path": "/modules/auxiliary/scanner/winrm/winrm_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/winrm/winrm_login",
