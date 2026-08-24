@@ -66,6 +66,8 @@ class MetasploitModule < Msf::Auxiliary
     [9, 1]
   ].freeze
 
+  DEFAULT_RETRY_TIMEOUT = 15
+
   def initialize(info = {})
     super(
       update_info(
@@ -105,8 +107,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('SSL', [true, 'Use SSL/TLS', true]),
         OptString.new('TARGETURI', [true, 'GlobalProtect prelogin endpoint path', '/global-protect/prelogin.esp']),
         OptString.new('USERAGENT', [true, 'User-Agent used for the prelogin probe', DEFAULT_USER_AGENT]),
-        OptInt.new('TIMEOUT', [true, 'HTTP request timeout in seconds', 20]),
-        OptInt.new('RETRY_TIMEOUT', [true, 'Maximum time in seconds to retry transient failures or HTTP 503 responses', 15])
+        OptInt.new('RETRY_TIMEOUT', [true, 'Maximum time in seconds to retry transient failures or HTTP 503 responses', DEFAULT_RETRY_TIMEOUT])
       ]
     )
   end
@@ -251,7 +252,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def fetch_prelogin
-    retry_until_truthy(timeout: datastore['RETRY_TIMEOUT'].to_i) do
+    retry_timeout = datastore['RETRY_TIMEOUT'].to_i
+
+    unless retry_timeout.positive?
+      print_warning("RETRY_TIMEOUT must be greater than 0; using the default of #{DEFAULT_RETRY_TIMEOUT} seconds.")
+      retry_timeout = DEFAULT_RETRY_TIMEOUT
+    end
+
+    retry_until_truthy(timeout: retry_timeout) do
       res = send_request_cgi(
         {
           'method' => 'GET',
