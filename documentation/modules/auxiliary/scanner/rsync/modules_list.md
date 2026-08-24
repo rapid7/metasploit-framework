@@ -5,10 +5,10 @@ negotiates with an rsync server, lists the available modules and, optionally, de
 
 ## Vulnerable Application
 
-### Kali rolling with rsync 3.4.4  (protocol 32, August 2026)
+### Kali rolling with rsync 3.4.4 (protocol 32, August 2026)
 
 ```
-# rsync 3.4.4 / protocol 32 — current Kali rolling package
+# rsync 3.4.4 / protocol 32 - current Kali rolling package
 # (the newest daemon; strict handshake with subprotocol + digest list)
 FROM kalilinux/kali-rolling:latest
 
@@ -51,7 +51,7 @@ CMD ["rsync", "--daemon", "--no-detach", "--config", "/etc/rsyncd.conf"]
 ### Debian 12 with rsync 3.2.7 (protocol 32)
 
 ```
-# rsync 3.2.7 / protocol 32 — Debian 12 point-release package
+# rsync 3.2.7 / protocol 32 - Debian 12 point-release package
 # (first protocol-32 daemon; same strict handshake as 3.4.x)
 FROM debian:12
 
@@ -94,8 +94,8 @@ CMD ["rsync", "--daemon", "--no-detach", "--config", "/etc/rsyncd.conf"]
 ### Ubuntu 20.04 with rsync 3.1.3 (protocol 31)
 
 ```
-# rsync 3.1.3 / protocol 31 — Ubuntu 20.04 package
-# (old-style handshake: "@RSYNCD: 31.0", no digest list — the regression case)
+# rsync 3.1.3 / protocol 31 - Ubuntu 20.04 package
+# (old-style handshake: "@RSYNCD: 31.0", no digest list - the regression case)
 FROM ubuntu:20.04
 
 RUN apt-get update \
