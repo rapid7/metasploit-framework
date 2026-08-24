@@ -19,7 +19,7 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 
 ## Coding Conventions
 
-- Ruby (see `.ruby-version` for the current version). Minimum supported: 3.1+
+- Ruby (see `.ruby-version` for the current version). Minimum supported: 3.2+
 - Follow the project's `.rubocop.yml` configuration — run `rubocop` on changed files before submitting
 - Run `ruby tools/dev/msftidy.rb <module_file_path>` to catch common module issues
 - `# frozen_string_literal: true` — add to new **library** files (`lib/`); use `String.new` where a mutable string is needed. Do NOT add to module files or spec files (the framework extensively mutates string buffers via instance variables, and the RuboCop cop `Style/FrozenStringLiteralComment` is disabled project-wide). Existing files that already have it are fine to leave
