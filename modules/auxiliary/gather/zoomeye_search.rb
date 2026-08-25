@@ -177,7 +177,7 @@ class MetasploitModule < Msf::Auxiliary
               next
             else
               retrying = 0
-              print_error("Skipping page #{page + skipped}")
+              print_error("Skipping page #{page + skipped + 1}")
               if page + skipped >= maxpage #stop the strafe once we reach the theorical maxpage, but let it try a last one first.
                 break
               end
