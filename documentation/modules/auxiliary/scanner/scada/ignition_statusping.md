@@ -40,15 +40,6 @@ for version detection prior to exploitation.
 
 ## Options
 
-### RHOSTS
-
-The target host(s) or CIDR range to scan. Supports standard MSF RHOSTS syntax
-including comma-separated IPs and CIDR notation (e.g. `10.10.0.0/24`).
-
-### RPORT
-
-The Ignition gateway HTTP port. Default: `8088`. Ignition can be configured to run
-on alternate ports — common alternatives include `80`, `443`, `8043`.
 
 ## Scenarios
 
