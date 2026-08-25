@@ -74,17 +74,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login(user, pass, ip)
-    opts = ssh_client_defaults.merge({
+    opts = {
       :auth_methods => ['password'],
       :port => rport,
       :password => pass,
-    })
+    }
 
     opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
     begin
       ssh = ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        Net::SSH.start(ip, user, opts)
+        connect_ssh(ip, user, opts)
       end
       if ssh
         print_good("#{ip}:#{rport} - Login Successful (#{user}:#{pass})")
