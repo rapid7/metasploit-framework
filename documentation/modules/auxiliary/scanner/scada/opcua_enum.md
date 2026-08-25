@@ -39,10 +39,10 @@ default `RPORT`. However, several common OT products use non-standard ports:
    restart.
 3. Confirm the listener is bound off-loopback:
 
-   ```
+```
    ss -tlnp | grep 62541
    LISTEN 0 4096 *:62541 *:* users:(("java",...))
-   ```
+```
 
 ### Setting Up a Test Server (Ignition via Docker)
 
@@ -56,7 +56,7 @@ the bind address.
 1. Pull and run the image, publishing the gateway (8088) and OPC-UA (62541) ports.
    The environment variables commission the gateway unattended:
 
-   ```
+```
    docker run -d \
      --name ignition-opcua-test \
      -p 8088:8088 \
@@ -66,16 +66,16 @@ the bind address.
      -e GATEWAY_ADMIN_PASSWORD=password \
      -e IGNITION_EDITION=standard \
      inductiveautomation/ignition:8.3
-   ```
+```
 
    (Use the `inductiveautomation/ignition:8.1` tag to test against 8.1.x.)
 
 2. Wait for the gateway to finish starting (roughly 30–60 seconds). It is ready
    when the logs show the gateway has started:
 
-   ```
+```
    docker logs ignition-opcua-test 2>&1 | grep -i "Gateway started"
-   ```
+```
 
 3. Expose the OPC-UA server on all interfaces. Browse to the gateway at
    `http://localhost:8088`, sign in with the admin credentials above, and go to
@@ -83,10 +83,10 @@ the bind address.
    `localhost` and add `0.0.0.0`, then save. The server rebinds immediately; the
    logs will confirm:
 
-   ```
+```
    docker logs ignition-opcua-test 2>&1 | grep -i "binding endpoint" | tail -2
    # ... Binding endpoint opc.tcp://... to 0.0.0.0:62541 ...
-   ```
+```
 
 4. The OPC-UA server is now reachable on port 62541 and can be scanned with this
    module (`set RPORT 62541`).
@@ -106,12 +106,6 @@ etc.) on port 4840 can also be used to exercise the module.
    and the server's advertised receive/send buffer sizes.
 
 ## Options
-
-### RPORT
-
-The target port for the OPC-UA TCP binary transport. Defaults to **4840** (the
-IANA-registered OPC-UA port). Set to **62541** when targeting Inductive
-Automation Ignition gateways.
 
 ## Scenarios
 
