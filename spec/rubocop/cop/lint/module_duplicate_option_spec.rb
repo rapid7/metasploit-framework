@@ -1,0 +1,130 @@
+# frozen_string_literal: true
+
+require 'spec_helper'
+require 'rubocop/cop/lint/module_duplicate_option'
+
+RSpec.describe RuboCop::Cop::Lint::ModuleDuplicateOption do
+  subject(:cop) { described_class.new(config) }
+
+  let(:config) { RuboCop::Config.new }
+
+  it 'flags an RPORT option already registered by the TCP mixin' do
+    expect_offense(<<~RUBY)
+      class MetasploitModule < Msf::Auxiliary
+        include Msf::Exploit::Remote::Tcp
+
+        def initialize(info = {})
+          super
+          register_options([Opt::RPORT(4840)])
+                            ^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing RPORT option again; set its value in DefaultOptions instead.
+        end
+      end
+    RUBY
+  end
+
+  it 'flags an inherited option registered with an option class' do
+    expect_offense(<<~RUBY)
+      class MetasploitModule < Msf::Auxiliary
+        include Msf::Exploit::Remote::Tcp
+
+        def initialize(info = {})
+          super
+          register_options([OptPort.new('RPORT', [true, 'The target port', 4840])])
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing RPORT option again; set its value in DefaultOptions instead.
+        end
+      end
+    RUBY
+  end
+
+  it 'flags an option already registered by the HTTP client mixin' do
+    expect_offense(<<~RUBY)
+      class MetasploitModule < Msf::Auxiliary
+        include Msf::Exploit::Remote::HttpClient
+
+        def initialize(info = {})
+          super
+          register_options([OptBool.new('SSL', [false, 'Use SSL', true])])
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing SSL option again; set its value in DefaultOptions instead.
+        end
+      end
+    RUBY
+  end
+
+  it 'flags an option already registered by the UDP mixin' do
+    expect_offense(<<~RUBY)
+      class MetasploitModule < Msf::Auxiliary
+        include Msf::Exploit::Remote::Udp
+
+        def initialize(info = {})
+          super
+          register_options([Opt::RPORT(161)])
+                            ^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing RPORT option again; set its value in DefaultOptions instead.
+        end
+      end
+    RUBY
+  end
+
+  it 'flags an option already registered by the scanner mixin' do
+    expect_offense(<<~RUBY)
+      class MetasploitModule < Msf::Auxiliary
+        include Msf::Auxiliary::Scanner
+
+        def initialize(info = {})
+          super
+          register_options([OptInt.new('THREADS', [true, 'Thread count', 25])])
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing THREADS option again; set its value in DefaultOptions instead.
+        end
+      end
+    RUBY
+  end
+
+  it 'does not flag new options' do
+    expect_no_offenses(<<~RUBY)
+      class MetasploitModule < Msf::Auxiliary
+        include Msf::Exploit::Remote::Tcp
+
+        def initialize(info = {})
+          super
+          register_options([OptString.new('ENDPOINT', [true, 'Endpoint', '/'])])
+        end
+      end
+    RUBY
+  end
+
+  it 'does not flag RPORT when the TCP mixin is not included' do
+    expect_no_offenses(<<~RUBY)
+      class MetasploitModule < Msf::Auxiliary
+        def initialize(info = {})
+          super
+          register_options([Opt::RPORT(4840)])
+        end
+      end
+    RUBY
+  end
+
+  it 'allows an option to be deliberately deregistered and replaced' do
+    expect_no_offenses(<<~RUBY)
+      class MetasploitModule < Msf::Auxiliary
+        include Msf::Exploit::Remote::Tcp
+
+        def initialize(info = {})
+          super
+          deregister_options('RPORT')
+          register_options([OptPort.new('RPORT', [true, 'A replacement port'])])
+        end
+      end
+    RUBY
+  end
+
+  it 'accepts DefaultOptions as the way to change the inherited default' do
+    expect_no_offenses(<<~RUBY)
+      class MetasploitModule < Msf::Auxiliary
+        include Msf::Exploit::Remote::Tcp
+
+        def initialize(info = {})
+          super(update_info(info, 'DefaultOptions' => { 'RPORT' => 4840 }))
+        end
+      end
+    RUBY
+  end
+end
