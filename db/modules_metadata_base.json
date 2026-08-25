@@ -46986,6 +46986,72 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/http/wordpress_wp2shell_sqli": {
+    "name": "WordPress Core wp2shell Unauthenticated SQL Injection via REST Batch Route Confusion",
+    "fullname": "auxiliary/scanner/http/wordpress_wp2shell_sqli",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-07-17",
+    "type": "auxiliary",
+    "author": [
+      "dividesbyzer0",
+      "Searchlight Cyber"
+    ],
+    "description": "WordPress core 6.9.0 - 6.9.4 and 7.0.0 - 7.0.1 are affected by an unauthenticated\n          SQL injection reachable through the REST API batch endpoint (/batch/v1).\n\n          The batch controller builds parallel $matches (the matched handler per sub-request)\n          and $validation (the validation result per sub-request) arrays, then indexes both by\n          the same offset when dispatching. A sub-request whose path fails wp_parse_url() is\n          appended to $validation but not to $matches, desynchronising the two arrays so a\n          sub-request is dispatched under a different sub-request's handler (CVE-2026-63030).\n\n          Nesting the primitive twice lets a GET on the single-post item route\n          /wp/v2/posts/999999, carrying the collection-only parameter author_exclude, be\n          dispatched under the posts collection get_items() handler, where author_exclude maps\n          to the WP_Query author__not_in query var. The vulnerable builds interpolate that value\n          into SQL as a string (CVE-2026-60137), producing a pre-authentication boolean- and\n          time-based blind SQL injection in the post_author NOT IN (...) clause.\n\n          This module confirms the route-confusion primitive with a benign marker probe, then\n          uses a time-based blind injection to dump WordPress user logins and password hashes.\n          It is read-only and does not create posts, users, or other content.",
+    "references": [
+      "CVE-2026-63030",
+      "CVE-2026-60137",
+      "URL-https://www.rapid7.com/blog/post/etr-cve-2026-63030-wp2shell-a-critical-remote-code-execution-vulnerability-in-wordpress-core/",
+      "URL-https://blog.zsec.uk/wp2shell-code-trace-deep-dive/",
+      "URL-https://github.com/Icex0/wp2shell-poc"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-08-16 12:54:09 +0000",
+    "path": "/modules/auxiliary/scanner/http/wordpress_wp2shell_sqli.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/wordpress_wp2shell_sqli",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [],
+      "RelatedModules": [
+        "exploit/multi/http/wp_batch_desync_rce"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": [
+      {
+        "name": "List Users",
+        "description": "Dump username and password hash for COUNT users via blind SQLi"
+      }
+    ]
+  },
   "auxiliary_scanner/http/wordpress_xmlrpc_login": {
     "name": "Wordpress XML-RPC Username/Password Login Scanner",
     "fullname": "auxiliary/scanner/http/wordpress_xmlrpc_login",
@@ -54519,7 +54585,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-06-20 13:20:44 +0000",
+    "mod_time": "2026-08-19 10:17:52 +0000",
     "path": "/modules/auxiliary/scanner/rsync/modules_list.rb",
     "is_install_path": true,
     "ref_name": "scanner/rsync/modules_list",
@@ -97623,7 +97689,7 @@
       "Python Payloads",
       "Command Payloads"
     ],
-    "mod_time": "2026-08-10 15:23:39 +0000",
+    "mod_time": "2026-08-25 17:38:56 +0000",
     "path": "/modules/exploits/linux/misc/checkpoint_smartconsole_cve_2026_16232_rce.rb",
     "is_install_path": true,
     "ref_name": "linux/misc/checkpoint_smartconsole_cve_2026_16232_rce",
