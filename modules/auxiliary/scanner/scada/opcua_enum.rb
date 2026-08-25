@@ -61,6 +61,9 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://opcfoundation.org/about/opc-technologies/opc-ua/']
         ],
         'License' => MSF_LICENSE,
+        'DefaultOptions' => {
+          'RPORT' => 4840
+        },
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [],
