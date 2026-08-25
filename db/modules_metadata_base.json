@@ -97584,6 +97584,66 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/misc/checkpoint_smartconsole_cve_2026_16232_rce": {
+    "name": "Check Point SmartConsole Authentication Bypass Run Script RCE",
+    "fullname": "exploit/linux/misc/checkpoint_smartconsole_cve_2026_16232_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-07-22",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7"
+    ],
+    "description": "This module exploits CVE-2026-16232, an authentication bypass in the\n          Check Point SmartConsole login process affecting Security Management\n          Server and Multi-Domain Security Management Server. A vulnerable\n          management server accepts a client-supplied SIC distinguished name\n          during an application certificate bind instead of binding the\n          application identity to the authenticated peer certificate.\n\n          The module uses the unauthenticated FWM/CPMI service to replay the\n          management server's own SIC DN, mints a SmartConsole SSO ticket, and\n          redeems it over the CPM SOAP service. The resulting administrative\n          session is then used to submit a local one-time run-script command.\n\n          Affected versions include R82.10 before Jumbo Hotfix Take 36, R82\n          before Jumbo Hotfix Take 118, and R81.20 before Jumbo Hotfix Take 158.\n          Older supported release families are also affected according to the\n          vendor advisory. Exploitation requires network access to the\n          management server (Specifically the FWM/CPMI service port on TCP\n          18190, and the CPM/DLE service port on TCP 19009), and a Trusted\n          Clients configuration that does not restrict GUI clients.\n\n          This module has been successfully tested against vulnerable R82.10\n          and R81.20 targets.",
+    "references": [
+      "CVE-2026-16232",
+      "URL-https://github.com/sfewer-r7/CVE-2026-16232",
+      "URL-https://support.checkpoint.com/results/sk/sk185169/",
+      "URL-https://www.rapid7.com/blog/post/ra-check-point-smartconsole-authentication-bypass-technical-analysis-cve-2026-16232/"
+    ],
+    "platform": "Python,Unix",
+    "arch": "python, cmd",
+    "rport": 19009,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python Payloads",
+      "Command Payloads"
+    ],
+    "mod_time": "2026-08-10 15:23:39 +0000",
+    "path": "/modules/exploits/linux/misc/checkpoint_smartconsole_cve_2026_16232_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/misc/checkpoint_smartconsole_cve_2026_16232_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_linux/misc/cisco_ios_xe_rce": {
     "name": "Cisco IOX XE Unauthenticated RCE Chain",
     "fullname": "exploit/linux/misc/cisco_ios_xe_rce",
