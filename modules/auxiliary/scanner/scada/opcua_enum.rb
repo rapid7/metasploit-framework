@@ -71,7 +71,6 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
-
   end
 
   # Build an OPC-UA Hello (HEL) message for the given endpoint URL.
