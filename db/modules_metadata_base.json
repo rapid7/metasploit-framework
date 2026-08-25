@@ -42598,6 +42598,62 @@
       }
     ]
   },
+  "auxiliary_scanner/http/panos_cve_2026_0265": {
+    "name": "PAN-OS GlobalProtect CAS CVE-2026-0265 Vulnerability Checker",
+    "fullname": "auxiliary/scanner/http/panos_cve_2026_0265",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-05-21",
+    "type": "auxiliary",
+    "author": [
+      "Bishop Fox Team X",
+      "Rapid7 Research / Deral Heiland adaptation"
+    ],
+    "description": "This module checks a PAN-OS GlobalProtect portal for CVE-2026-0265\n          using the Bishop Fox scanner decision flow. It performs anonymous\n          GET requests to the GlobalProtect prelogin endpoint, retrying transient\n          failures and HTTP 503 responses, then checks\n          whether CAS authentication is enabled, decodes the embedded SAML/JWT\n          token when present, extracts PanOSversion, and compares it against\n          the advisory version matrix.",
+    "references": [
+      "CVE-2026-0265",
+      "URL-https://security.paloaltonetworks.com/CVE-2026-0265",
+      "URL-https://github.com/BishopFox/CVE-2026-0265-check"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-08-25 16:21:22 +0000",
+    "path": "/modules/auxiliary/scanner/http/panos_cve_2026_0265.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/panos_cve_2026_0265",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/http/pfsense_login": {
     "name": "pfSense Login Scanner",
     "fullname": "auxiliary/scanner/http/pfsense_login",
