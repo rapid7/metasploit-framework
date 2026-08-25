@@ -134,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_raw({
       'method' => 'GET',
       'uri' => route
-    }, 25)
+    })
 
     unless res
       fail_with(Failure::Unreachable, 'No response received while attempting LFI')
