@@ -103,8 +103,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(443),
-        OptBool.new('SSL', [true, 'Use SSL/TLS', true]),
         OptString.new('TARGETURI', [true, 'GlobalProtect prelogin endpoint path', '/global-protect/prelogin.esp']),
         OptString.new('USERAGENT', [true, 'User-Agent used for the prelogin probe', DEFAULT_USER_AGENT]),
         OptInt.new('RETRY_TIMEOUT', [true, 'Maximum time in seconds to retry transient failures or HTTP 503 responses', DEFAULT_RETRY_TIMEOUT])
