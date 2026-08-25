@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
   # transport. Values per the OPC Foundation StatusCodes definitions
   # (Opc.Ua.StatusCodes) and OPC-UA Specification Part 6.
   STATUS_CODES = {
-    # UA TCP transport-specific errors (Part 6, §7.1.2)
+    # UA TCP transport-specific errors (Part 6, 7.1.2)
     0x807D0000 => 'Bad_TcpServerTooBusy',
     0x807E0000 => 'Bad_TcpMessageTypeInvalid',
     0x807F0000 => 'Bad_TcpSecureChannelUnknown',
