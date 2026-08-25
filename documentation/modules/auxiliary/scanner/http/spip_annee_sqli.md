@@ -12,7 +12,9 @@ a value like `abs(99999)) UNION SELECT ...` via the `annee` GET parameter on
 the public `sitemap.xml` page, an attacker can execute arbitrary SQL.
 
 The module uses boolean-based blind injection with binary search to extract
-bcrypt password hashes from the `spip_auteurs` table.
+bcrypt password hashes from the `spip_auteurs` table. SQLite and MySQL database
+backends are supported and detected automatically. MySQL targets require at
+least one published article to provide a boolean response difference.
 
 Affected versions: SPIP < 4.4.18
 Fixed version: SPIP 4.4.18
@@ -65,6 +67,7 @@ msf auxiliary(scanner/http/spip_annee_sqli) > run
 [*] Running module against 127.0.0.1
 [*] SPIP Version detected: 4.4.9
 [*] Verifying blind SQLi via sitemap.xml annee parameter...
+[*] SQLite database detected
 [+] Blind SQLi confirmed!
 [*] Extracting user id_auteur=1...
 [+]   Login: jvoisin
@@ -83,5 +86,5 @@ msf auxiliary(scanner/http/spip_annee_sqli) > run
 [*] No user with id_auteur=4, skipping
 [*] No user with id_auteur=5, skipping
 [*] Auxiliary module execution completed
-msf auxiliary(scanner/http/spip_annee_sqli) > 
+msf auxiliary(scanner/http/spip_annee_sqli) >
 ```
