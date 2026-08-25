@@ -121265,6 +121265,77 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/rails_activestorage_vips_rce": {
+    "name": "Ruby on Rails Active Storage Vips Arbitrary File Read and Remote Code Execution",
+    "fullname": "exploit/multi/http/rails_activestorage_vips_rce",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-07-29",
+    "type": "exploit",
+    "author": [
+      "0xacb",
+      "s3np41k1r1t0",
+      "castilho",
+      "RyotaK",
+      "Crypto-Cat"
+    ],
+    "description": "This module exploits CVE-2026-66066 in Ruby on Rails Active Storage when\n          the application uses the Vips variant processor and accepts untrusted image\n          uploads. A crafted MATLAB v7.3/HDF5 image uses external storage to read text\n          files accessible to the Rails worker through a PNG representation response.\n\n          The module recovers secret_key_base from the process environment, Rails local\n          secrets, encrypted credentials, or the legacy secrets.yml(.enc) files. It then\n          forges a serializer-compatible variation whose ImageProcessing apply step reaches\n          Kernel#spawn with a command payload, or Kernel#eval with a native Ruby payload when\n          the Ruby target is selected. Neither path requires a Marshal object gadget. The\n          Ruby target's initial code execution does not require a Unix shell or a fetch\n          utility on the target.\n\n          The file-read stage needs a genuine signed Active Storage variation key. It can use\n          VARIATION_KEY directly, reuse a representation URL from the application, or create\n          one through an application upload form. Supplying SECRET_KEY_BASE skips the\n          arbitrary file-read stage and lets the module construct the standard\n          representation route itself.\n\n          The file-read stage affects Rails 6.0 and 6.1, Rails 7.0 through 7.2.3.1,\n          Rails 8.0.0 through 8.0.5, and Rails 8.1.0 through 8.1.3. It is fixed in\n          Rails 7.2.3.2, 8.0.5.1, and 8.1.3.1. The RCE stage combines an incomplete\n          Vips-side fix for CVE-2025-24293 with ImageProcessing 1.x method dispatch;\n          ImageProcessing 2.x blocks this chain.",
+    "references": [
+      "CVE-2026-66066",
+      "GHSA-xr9x-r78c-5hrm",
+      "CVE-2025-24293",
+      "GHSA-r4mg-4433-c7g3",
+      "URL-https://ethiack.com/info-hub/research/kindarails2shell-how-a-matlab-file-reads-your-secrets-and-pops-a-shell-on-ruby-on-rails",
+      "URL-https://blog.flatt.tech/entry/kindarails2shell_rails",
+      "URL-https://www.rapid7.com/blog/post/ra-kindarails2shell-technical-analysis-cve-2026-66066/",
+      "URL-https://github.com/rails/rails/pull/56995",
+      "URL-https://discuss.rubyonrails.org/t/cve-2026-66066-attack-details-and-tools-to-perform-a-forensic-investigation/91441",
+      "URL-https://github.com/rails/rails-forensics-CVE-2026-66066"
+    ],
+    "platform": "Linux,Ruby,Unix",
+    "arch": "cmd, ruby",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Linux/Unix Command",
+      "Ruby"
+    ],
+    "mod_time": "2026-08-25 11:44:52 +0000",
+    "path": "/modules/exploits/multi/http/rails_activestorage_vips_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/rails_activestorage_vips_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "service-resource-loss"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/rails_double_tap": {
     "name": "Ruby On Rails DoubleTap Development Mode secret_key_base Vulnerability",
     "fullname": "exploit/multi/http/rails_double_tap",
