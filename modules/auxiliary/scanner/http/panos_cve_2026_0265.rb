@@ -271,7 +271,7 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       res if res && res.code != 503
-    rescue ::Rex::ConnectionError, ::Timeout::Error, ::EOFError => e
+    rescue ::Rex::ConnectionError, ::Timeout::Error, ::EOFError, ::Errno::EPIPE, ::Errno::ECONNRESET => e
       vprint_warning("Transient request failure: #{e.class}: #{e.message}")
       nil
     end
