@@ -14,18 +14,28 @@ class MetasploitModule < Msf::Auxiliary
   #   MessageType (3 bytes ASCII) + ChunkType (1 byte ASCII) + MessageSize (UInt32 LE)
   HEADER_LEN = 8
 
-  # Selected OPC-UA TCP transport StatusCodes that may appear in an ERR response.
-  # Reference: OPC-UA Specification Part 6, Annex A (message error codes).
+  # OPC-UA StatusCodes that may appear in an ERR response from the UA TCP
+  # transport. Values per the OPC Foundation StatusCodes definitions
+  # (Opc.Ua.StatusCodes) and OPC-UA Specification Part 6.
   STATUS_CODES = {
-    0x80020000 => 'Bad_TcpEndpointUrlInvalid',
-    0x80820000 => 'Bad_TcpMessageTypeInvalid',
-    0x80830000 => 'Bad_TcpSecureChannelUnknown',
-    0x80840000 => 'Bad_TcpMessageTooLarge',
-    0x80860000 => 'Bad_TcpNotEnoughResources',
-    0x80870000 => 'Bad_TcpInternalError',
-    0x80880000 => 'Bad_TcpServerTooBusy',
-    0x807E0000 => 'Bad_SecurityChecksFailed',
-    0x80AC0000 => 'Bad_TcpProtocolVersionUnsupported'
+    # UA TCP transport-specific errors (Part 6, §7.1.2)
+    0x807D0000 => 'Bad_TcpServerTooBusy',
+    0x807E0000 => 'Bad_TcpMessageTypeInvalid',
+    0x807F0000 => 'Bad_TcpSecureChannelUnknown',
+    0x80800000 => 'Bad_TcpMessageTooLarge',
+    0x80810000 => 'Bad_TcpNotEnoughResources',
+    0x80820000 => 'Bad_TcpInternalError',
+    0x80830000 => 'Bad_TcpEndpointUrlInvalid',
+    # Connection/security errors also seen at the transport layer
+    0x80BE0000 => 'Bad_ProtocolVersionUnsupported',
+    0x80130000 => 'Bad_SecurityChecksFailed',
+    0x80120000 => 'Bad_CertificateInvalid',
+    0x80840000 => 'Bad_RequestInterrupted',
+    0x80850000 => 'Bad_RequestTimeout',
+    0x80860000 => 'Bad_SecureChannelClosed',
+    0x80870000 => 'Bad_SecureChannelTokenUnknown',
+    0x80AC0000 => 'Bad_ConnectionRejected',
+    0x80AE0000 => 'Bad_ConnectionClosed'
   }.freeze
 
   def initialize(info = {})
