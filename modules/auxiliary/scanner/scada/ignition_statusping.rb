@@ -133,6 +133,6 @@ class MetasploitModule < Msf::Auxiliary
       break
     end
 
-    vprint_status("#{Rex::Socket.to_authority(ip, rport)} - No Ignition endpoint responded") unless found
+    vprint_status('No Ignition endpoint responded') unless found
   end
 end
