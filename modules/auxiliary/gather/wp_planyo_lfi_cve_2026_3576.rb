@@ -59,7 +59,8 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET'
     )
 
-     return CheckCode::Unknown('No valid response received from target.') unless res && res.code == 200 && res.body.include?('Changelog')
+    return Msf::Exploit::CheckCode::Unknown('No valid response received from target.') unless res && res.code == 200 && res.body.include?('Changelog')
+    
     body = res.body.to_s
     changelog = body[/==\s*Changelog\s*==(.*)/mi, 1]
     unless changelog
