@@ -59,6 +59,7 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET'
     )
 
+     return CheckCode::Unknown('No valid response received from target.') unless res && res.code == 200 && res.body.include?('Changelog')
     body = res.body.to_s
     changelog = body[/==\s*Changelog\s*==(.*)/mi, 1]
     unless changelog
@@ -76,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
       return Msf::Exploit::CheckCode::Safe(details: { version: version })
     end
   rescue ArgumentError => e
-    Msf::Exploit::Checkcode::Detected(e.message)
+    Msf::Exploit::CheckCode::Detected(e.message)
   end
 
   def run
@@ -93,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Check if plugin version is vulnerable
-    readme_code = check_plugin_version_from_readme('planyo-online-reservation-system', '3.0')
+    readme_code = check_plugin_version_from_readme('planyo-online-reservation-system', '3.1')
 
     if readme_code == Msf::Exploit::CheckCode::Unknown
       print_status('No response for plugin\'s readme.txt or it could not be found')
