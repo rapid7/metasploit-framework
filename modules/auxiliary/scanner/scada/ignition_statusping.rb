@@ -30,6 +30,9 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' => ['Ethan Thomason <ethan@ethomason.com>'],
         'License' => MSF_LICENSE,
+        'DefaultOptions' => {
+          'RPORT' => 8088
+        },
         'References' => [
           ['URL', 'https://ethomason.com/posts/fingerprinting-ignition-gateways/'],
         ],
@@ -40,7 +43,6 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
-    register_options([Opt::RPORT(8088)])
   end
 
   # Parse semicolon-delimited key=value format used by 7.9.x, 8.0.x, 8.3.x
