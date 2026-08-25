@@ -72,11 +72,6 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
-    register_options(
-      [
-        Opt::RPORT(4840)
-      ]
-    )
   end
 
   # Build an OPC-UA Hello (HEL) message for the given endpoint URL.
