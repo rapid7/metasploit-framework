@@ -56784,6 +56784,59 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/scada/ignition_statusping": {
+    "name": "Inductive Automation Ignition Gateway Fingerprint",
+    "fullname": "auxiliary/scanner/scada/ignition_statusping",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "Ethan Thomason <ethan@ethomason.com>"
+    ],
+    "description": "Fingerprints Inductive Automation Ignition gateways across all major versions\n          by probing version-specific unauthenticated info endpoints. Extracts version,\n          run state, OS, Java runtime, and GAN redundancy role without authentication.\n\n          Endpoint and response format by version:\n          7.9.x  - /main/system/gwinfo  (semicolon-delimited key=value)\n          8.0.x  - /system/gwinfo       (semicolon-delimited key=value)\n          8.1.x  - /system/StatusPing   (JSON)\n          8.3.x  - /system/gwinfo       (semicolon-delimited key=value, additional fields)\n\n          For 8.0.x exploitation see exploit/multi/scada/inductive_ignition_rce.",
+    "references": [
+      "URL-https://ethomason.com/posts/fingerprinting-ignition-gateways/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 8088,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-08-25 14:05:35 +0000",
+    "path": "/modules/auxiliary/scanner/scada/ignition_statusping.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/scada/ignition_statusping",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/scada/indusoft_ntwebserver_fileaccess": {
     "name": "Indusoft WebStudio NTWebServer Remote File Access",
     "fullname": "auxiliary/scanner/scada/indusoft_ntwebserver_fileaccess",
@@ -57105,6 +57158,45 @@
       "SideEffects": [
         "unknown-side-effects"
       ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/scada/opcua_enum": {
+    "name": "OPC-UA Server Detection",
+    "fullname": "auxiliary/scanner/scada/opcua_enum",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "Ethan Thomason <ethan@ethomason.com>"
+    ],
+    "description": "This module detects OPC-UA servers speaking the OPC-UA TCP binary\n          transport (opc.tcp://) by sending a Hello (HEL) message and inspecting\n          the response. A server that replies with an Acknowledge (ACK) message\n          accepted the connection. A server that replies with an Error (ERR)\n          message is still a confirmed OPC-UA server; the returned StatusCode and\n          reason are reported. OPC-UA is widely deployed in industrial control\n          systems, including as the standard server interface on Inductive\n          Automation Ignition gateways.",
+    "references": [
+      "URL-https://reference.opcfoundation.org/Core/Part6/",
+      "URL-https://opcfoundation.org/about/opc-technologies/opc-ua/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 4840,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-08-25 14:47:41 +0000",
+    "path": "/modules/auxiliary/scanner/scada/opcua_enum.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/scada/opcua_enum",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [],
+      "Reliability": []
     },
     "session_types": false,
     "needs_cleanup": false,
