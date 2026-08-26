@@ -29593,6 +29593,63 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/wp_planyo_lfi_cve_2026_3576": {
+    "name": "Wordpress Planyo Online Reservation System Arbitrary File Read (CVE-2026-3576)",
+    "fullname": "auxiliary/gather/wp_planyo_lfi_cve_2026_3576",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-07-10",
+    "type": "auxiliary",
+    "author": [
+      "sinn3r <sinn3r@metasploit.com>",
+      "Balachandar Gowrisankar"
+    ],
+    "description": "This module exploits a Server Side Request Forgery (SSRF) vulnerability in Wordpress's Planyo Online Reservation System v3.0 or less.\n          The plugin's AJAX proxy ulap.php does not require authentication and does not validate URL scheme supplied via ulap_url parameter.\n          This allows unauthenticated attackers to supply file:// URLs to ulap.php and retrieve local files from the system.",
+    "references": [
+      "CVE-2026-3576",
+      "GHSA-jjq9-3x6f-75pj"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-08-25 15:02:08 +0000",
+    "path": "/modules/auxiliary/gather/wp_planyo_lfi_cve_2026_3576.rb",
+    "is_install_path": true,
+    "ref_name": "gather/wp_planyo_lfi_cve_2026_3576",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [
+        "unknown-reliability"
+      ],
+      "Stability": [
+        "unknown-stability"
+      ],
+      "SideEffects": [
+        "unknown-side-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/wp_ultimate_csv_importer_user_extract": {
     "name": "WordPress Ultimate CSV Importer User Table Extract",
     "fullname": "auxiliary/gather/wp_ultimate_csv_importer_user_extract",
